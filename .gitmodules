@@ -1,0 +1,3 @@
+[submodule "Packages/com.unity.uiwidgets"]
+	path = Packages/com.unity.uiwidgets
+	url = git@gitlab.cds.internal.unity3d.com:upm-packages/ui-widgets/com.unity.uiwidgets.git
