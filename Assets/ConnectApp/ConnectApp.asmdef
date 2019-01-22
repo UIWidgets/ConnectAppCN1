@@ -1,0 +1,6 @@
+{
+    "name": "ConnectApp",
+    "references": ["Unity.UIWidgets"],
+    "includePlatforms": [],
+    "excludePlatforms": []
+}
