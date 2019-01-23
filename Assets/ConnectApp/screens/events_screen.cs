@@ -1,12 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Samples.ConnectApp.widgets;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using UnityEngine.Networking;
+using Event = Newtonsoft.Json.Event;
+using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.Samples.ConnectApp {
     public class EventsScreen : StatefulWidget {
@@ -19,13 +24,14 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
     }
 
     internal class _EventsScreen : State<EventsScreen> {
-        const double headerHeight = 80.0;
-        double _offsetY = 0.0;
+        private const double headerHeight = 80.0;
+        private double _offsetY = 0.0;
+        private List<Event> events;
 
-        Widget _buildHeader(BuildContext context) {
+        private Widget _buildHeader(BuildContext context) {
             return new Container(
                 padding: EdgeInsets.only(16.0, right: 8.0),
-                height: headerHeight - this._offsetY,
+                height: headerHeight - _offsetY,
                 child: new Row(
                     children: new List<Widget> {
                         new Flexible(
@@ -34,7 +40,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                             child: new Text(
                                 "Today",
                                 style: new TextStyle(
-                                    fontSize: (34.0 / headerHeight) * (headerHeight - this._offsetY),
+                                    fontSize: (34.0 / headerHeight) * (headerHeight - _offsetY),
                                     color: CLColors.white
                                 )
                             )),
@@ -61,7 +67,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
             );
         }
 
-        IEnumerator requestData() {
+        private IEnumerator requestData() {
             UnityWebRequest request =
                 UnityWebRequestTexture.GetTexture("https://connect-dev.unity.com/api/live/events");
             yield return request.SendWebRequest();
@@ -70,51 +76,49 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                 Debug.Log(request.error);
             }
             else {
-                if (request.responseCode == 200) {
-                    Debug.Log(request.downloadHandler.text);
-                }
+                if (request.responseCode != 200) yield break;
+                var dataList = JsonConvert.DeserializeObject<List<Event>>(request.downloadHandler.text);
+                setState(() => { events = dataList; });
             }
         }
 
         public override void initState() {
             base.initState();
-            this.requestData();
+            Window.instance.startCoroutine(requestData());
         }
 
-        bool _onNotification(ScrollNotification notification, BuildContext context) {
+
+        private bool _onNotification(ScrollNotification notification, BuildContext context) {
             double pixels = notification.metrics.pixels;
             if (pixels >= 0.0) {
-                if (pixels <= headerHeight) this.setState(() => { this._offsetY = pixels / 2.0; });
+                if (pixels <= headerHeight) setState(() => { _offsetY = pixels / 2.0; });
             }
             else {
-                if (this._offsetY != 0.0) this.setState(() => { this._offsetY = 0.0; });
+                if (_offsetY != 0.0) setState(() => { _offsetY = 0.0; });
             }
 
             return true;
         }
 
-        Widget _buildContentList(BuildContext context) {
-            var testCard = new EventCard(
-                "https://blogs.unity3d.com/wp-content/uploads/2018/12/2018.3-BLOG_cover-1280x720.jpg"
-            );
+        private Widget _buildContentList(BuildContext context) {
+            var cardList = new List<Widget>();
+            if (events != null) {
+                events.ForEach(action: model => { cardList.Add(new EventCard(Key.key(model.id), model: model)); });
+            }
+            else {
+                cardList.Add(new Container());
+            }
 
             return new NotificationListener<ScrollNotification>(
                 onNotification: (ScrollNotification notification) => {
-                    this._onNotification(notification, context);
+                    _onNotification(notification, context);
                     return true;
                 },
                 child: new Flexible(
                     child: new Container(
                         child: new ListView(
                             physics: new AlwaysScrollableScrollPhysics(),
-                            children: new List<Widget> {
-                                testCard,
-                                testCard,
-                                testCard,
-                                testCard,
-                                testCard,
-                                testCard
-                            }
+                            children: cardList
                         )
                     )
                 )
@@ -127,7 +131,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                     color: CLColors.background1,
                     child: new Column(
                         children: new List<Widget> {
-                            this._buildHeader(context), this._buildContentList(context)
+                            _buildHeader(context), _buildContentList(context)
                         }
                     )
                 )

@@ -38,7 +38,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                 settings,
                 (context, animation, secondaryAnimation) => builder(context),
                 (context, animation, secondaryAnimation, child) => {
-                    if (this.fullScreenRoutes.ContainsKey(settings.name)) {
+                    if (fullScreenRoutes.ContainsKey(settings.name)) {
                         return new _ModalPageTransition(
                             routeAnimation: animation,
                             child: child
@@ -60,23 +60,23 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
             Animation<double> routeAnimation = null, // The route's linear 0.0 - 1.0 animation.
             Widget child = null
         ) : base(key) {
-            this._positionAnimation = this._leftPushTween.chain(this._fastOutSlowInTween).animate(routeAnimation);
+            _positionAnimation = _leftPushTween.chain(_fastOutSlowInTween).animate(routeAnimation);
             this.child = child;
         }
 
-        readonly Tween<Offset> _leftPushTween = new OffsetTween(
+        private readonly Tween<Offset> _leftPushTween = new OffsetTween(
             new Offset(1.0, 0.0),
             Offset.zero
         );
 
-        readonly Animatable<double> _fastOutSlowInTween = new CurveTween(curve: Curves.fastOutSlowIn);
-        readonly Animation<Offset> _positionAnimation;
-        readonly Widget child;
+        private readonly Animatable<double> _fastOutSlowInTween = new CurveTween(curve: Curves.fastOutSlowIn);
+        private readonly Animation<Offset> _positionAnimation;
+        private readonly Widget child;
 
         public override Widget build(BuildContext context) {
             return new SlideTransition(
-                position: this._positionAnimation,
-                child: this.child
+                position: _positionAnimation,
+                child: child
             );
         }
     }
@@ -88,27 +88,27 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
             Animation<double> routeAnimation = null, // The route's linear 0.0 - 1.0 animation.
             Widget child = null
         ) : base(key) {
-            this._positionAnimation = _bottomUpTween.chain(_fastOutSlowInTween).animate(routeAnimation);
-            this._opacityAnimation = _easeInTween.animate(routeAnimation);
+            _positionAnimation = _bottomUpTween.chain(_fastOutSlowInTween).animate(routeAnimation);
+            _opacityAnimation = _easeInTween.animate(routeAnimation);
             this.child = child;
         }
 
-        static Tween<Offset> _bottomUpTween = new OffsetTween(
+        private static Tween<Offset> _bottomUpTween = new OffsetTween(
             new Offset(0.0, 1.0),
             Offset.zero
         );
 
-        static Animatable<double> _fastOutSlowInTween = new CurveTween(curve: Curves.fastOutSlowIn);
-        static Animatable<double> _easeInTween = new CurveTween(curve: Curves.easeIn);
+        private static Animatable<double> _fastOutSlowInTween = new CurveTween(curve: Curves.fastOutSlowIn);
+        private static Animatable<double> _easeInTween = new CurveTween(curve: Curves.easeIn);
 
-        readonly Animation<Offset> _positionAnimation;
-        readonly Animation<double> _opacityAnimation;
+        private readonly Animation<Offset> _positionAnimation;
+        private readonly Animation<double> _opacityAnimation;
         public readonly Widget child;
 
         public override Widget build(BuildContext context) {
             return new SlideTransition(
-                position: this._positionAnimation,
-                child: this.child
+                position: _positionAnimation,
+                child: child
             );
         }
     }

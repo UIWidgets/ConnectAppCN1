@@ -16,7 +16,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
     }
 
     internal class _DetailScreen : State<DetailScreen> {
-        Widget _headerView(BuildContext context) {
+        private Widget _headerView(BuildContext context) {
             return new Container(
                 child: new Column(
                     children: new List<Widget> {
@@ -94,7 +94,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
             );
         }
 
-        Widget _contentHead() {
+        private Widget _contentHead() {
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
@@ -154,7 +154,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
             );
         }
 
-        Widget _contentDetail() {
+        private Widget _contentDetail() {
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
@@ -191,20 +191,20 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
             );
         }
 
-        Widget _content() {
+        private Widget _content() {
             return new Flexible(
                 child: new ListView(
                     physics: new AlwaysScrollableScrollPhysics(),
                     children: new List<Widget> {
-                        this._contentHead(),
+                        _contentHead(),
                         new Container(height: 40),
-                        this._contentDetail()
+                        _contentDetail()
                     }
                 )
             );
         }
 
-        Widget _joinBar() {
+        private Widget _joinBar() {
             return new Container(
                 color: CLColors.background1,
                 height: 64,
@@ -262,7 +262,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
             );
         }
 
-        Widget _chatWindow() {
+        private Widget _chatWindow() {
             return new Container(
                 height: 420,
                 decoration: new BoxDecoration(
@@ -285,11 +285,11 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                     children: new List<Widget> {
                         new Column(
                             children: new List<Widget> {
-                                this._headerView(context),
-                                this._content()
+                                _headerView(context),
+                                _content()
                             }
                         ),
-                        this._joinBar()
+                        _joinBar()
                     }
                 )
             );

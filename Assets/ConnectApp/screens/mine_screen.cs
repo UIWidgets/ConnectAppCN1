@@ -21,13 +21,13 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
     }
 
     internal class _MineScreen : State<MineScreen> {
-        PageController _pageController;
-        int _selectedIndex;
+        private PageController _pageController;
+        private int _selectedIndex;
 
         public override void initState() {
             base.initState();
-            this._pageController = new PageController();
-            this._selectedIndex = 0;
+            _pageController = new PageController();
+            _selectedIndex = 0;
         }
 
         public override Widget build(BuildContext context) {
@@ -52,16 +52,16 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                             )
                         }
                     ),
-                    this.buildSelectView(),
-                    this.contentView()
+                    buildSelectView(),
+                    contentView()
                 }
             );
         }
 
-        Widget buildSelectItem(string title, int index) {
+        private Widget buildSelectItem(string title, int index) {
             var textColor = CLColors.text2;
             Widget lineView = new Positioned(new Container());
-            if (index == this._selectedIndex) {
+            if (index == _selectedIndex) {
                 textColor = CLColors.text11;
                 lineView = new Positioned(
                     bottom: 0,
@@ -88,11 +88,11 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                     children: new List<Widget> {
                         new CustomButton(
                             onPressed: () => {
-                                if (this._selectedIndex != index) {
-                                    this.setState(() => this._selectedIndex = index);
+                                if (_selectedIndex != index) {
+                                    setState(() => _selectedIndex = index);
                                 }
 
-                                this._pageController.animateToPage(
+                                _pageController.animateToPage(
                                     index,
                                     new TimeSpan(0, 0,
                                         0, 0, 250),
@@ -118,7 +118,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
             );
         }
 
-        Widget buildSelectView() {
+        private Widget buildSelectView() {
             return new Column(
                 children: new List<Widget> {
                     new Container(
@@ -128,7 +128,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                         ),
                         child: new Row(
                             children: new List<Widget> {
-                                this.buildSelectItem("即将参与", 0), this.buildSelectItem("浏览记录", 1)
+                                buildSelectItem("即将参与", 0), buildSelectItem("浏览记录", 1)
                             }
                         )
                     ),
@@ -137,7 +137,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
             );
         }
 
-        Widget mineList() {
+        private Widget mineList() {
             return new Container(
                 decoration: new BoxDecoration(
                     CLColors.background1
@@ -145,35 +145,35 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                 child: new ListView(
                     physics: new AlwaysScrollableScrollPhysics(),
                     children: new List<Widget> {
-                        this.cellView(),
-                        this.cellView(),
-                        this.cellView(),
-                        this.cellView(),
-                        this.cellView(),
-                        this.cellView(),
-                        this.cellView()
+                        cellView(),
+                        cellView(),
+                        cellView(),
+                        cellView(),
+                        cellView(),
+                        cellView(),
+                        cellView()
                     }
                 )
             );
         }
 
-        Widget contentView() {
+        private Widget contentView() {
             return new Flexible(
                 child: new Container(
                     decoration: new BoxDecoration(CLColors.background1),
                     child: new PageView(
                         physics: new BouncingScrollPhysics(),
-                        controller: this._pageController,
-                        onPageChanged: (int index) => { this.setState(() => { this._selectedIndex = index; }); },
+                        controller: _pageController,
+                        onPageChanged: (int index) => { setState(() => { _selectedIndex = index; }); },
                         children: new List<Widget> {
-                            this.mineList(), this.mineList()
+                            mineList(), mineList()
                         }
                     )
                 )
             );
         }
 
-        Widget cellView() {
+        private Widget cellView() {
             return new Container(
                 height: 100,
                 padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
