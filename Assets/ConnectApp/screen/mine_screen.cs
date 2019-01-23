@@ -137,7 +137,9 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
             );
         }
 
-        Widget mineList() {
+        Widget mineList()
+        {
+            var historyCard = new HistoryCard();
             return new Container(
                 decoration: new BoxDecoration(
                     CLColors.background1
@@ -145,13 +147,28 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                 child: new ListView(
                     physics: new AlwaysScrollableScrollPhysics(),
                     children: new List<Widget> {
-                        this.cellView(),
-                        this.cellView(),
-                        this.cellView(),
-                        this.cellView(),
-                        this.cellView(),
-                        this.cellView(),
-                        this.cellView()
+                        historyCard,
+                        historyCard,
+                        historyCard
+                    }
+                )
+            );
+        }
+        Widget eventList()
+        {
+            var eventCard = new EventCard(
+                "https://blogs.unity3d.com/wp-content/uploads/2018/12/2018.3-BLOG_cover-1280x720.jpg"
+            );
+            return new Container(
+                decoration: new BoxDecoration(
+                    CLColors.background1
+                ),
+                child: new ListView(
+                    physics: new AlwaysScrollableScrollPhysics(),
+                    children: new List<Widget> {
+                        eventCard,
+                        eventCard,
+                        eventCard
                     }
                 )
             );
@@ -166,57 +183,9 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                         controller: this._pageController,
                         onPageChanged: (int index) => { this.setState(() => { this._selectedIndex = index; }); },
                         children: new List<Widget> {
-                            this.mineList(), this.mineList()
+                            this.eventList(), this.mineList()
                         }
                     )
-                )
-            );
-        }
-
-        Widget cellView() {
-            return new Container(
-                height: 100,
-                padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
-                decoration: new BoxDecoration(
-                    CLColors.background2
-                ),
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget> {
-                        Image.asset(
-                            "yoshi",
-                            height: 84,
-                            width: 150,
-                            fit: BoxFit.fill
-                        ),
-                        new Container(width: 16),
-                        new Flexible(
-                            child: new Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: new List<Widget> {
-                                    new Text(
-                                        "迪士尼电视动画与Unity联袂合作，开创实时动画新纪元",
-                                        maxLines: 3,
-                                        style: new TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w700,
-                                            color: CLColors.text1
-                                        )
-                                    ),
-                                    new Container(height: 8),
-                                    new Text(
-                                        "1920次观看",
-                                        maxLines: 1,
-                                        style: new TextStyle(
-                                            fontSize: 12,
-                                            color: CLColors.text2
-                                        )
-                                    )
-                                }
-                            )
-                        )
-                    }
                 )
             );
         }
