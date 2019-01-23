@@ -7,26 +7,26 @@ using Unity.UIWidgets.widgets;
 namespace Unity.UIWidgets.Samples.ConnectApp {
     public class LoginScreen : StatelessWidget {
         public override Widget build(BuildContext context) {
-            return this._content(context);
+            return _content(context);
         }
 
-        Widget _content(BuildContext context) {
+        private Widget _content(BuildContext context) {
             return new Container(
                 decoration: new BoxDecoration(
                     CLColors.background1
                 ),
                 child: new Column(
                     children: new List<Widget> {
-                        this._topView(context),
-                        this._middleView(),
+                        _topView(context),
+                        _middleView(),
                         new Flexible(child: new Container()),
-                        this._bottomView(context)
+                        _bottomView(context)
                     }
                 )
             );
         }
 
-        Widget _topView(BuildContext context) {
+        private Widget _topView(BuildContext context) {
             return new Container(
                 padding: EdgeInsets.only(20, 8),
                 child: new Row(
@@ -44,7 +44,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
             );
         }
 
-        Widget _middleView() {
+        private Widget _middleView() {
             return new Column(
                 children: new List<Widget> {
                     new Container(
@@ -69,7 +69,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
             );
         }
 
-        Widget _bottomView(BuildContext context) {
+        private Widget _bottomView(BuildContext context) {
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 24),
                 child: new Column(

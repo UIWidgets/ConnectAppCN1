@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
@@ -6,15 +8,17 @@ using Unity.UIWidgets.widgets;
 namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
     public class EventCard : StatelessWidget {
         public EventCard(
-            string imageSrc
-        ) {
-            this.imageSrc = imageSrc;
+            Key key = null,
+            Event model = null
+        ) : base(key) {
+            this.model = model;
         }
 
-        public string imageSrc;
+        public Event model;
 
         public override Widget build(BuildContext context) {
             var card = new Container(
+                key: key,
                 child: new Column(
                     children: new List<Widget> {
                         new Container(
@@ -25,7 +29,8 @@ namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
                             child: new Stack(
                                 fit: StackFit.expand,
                                 children: new List<Widget> {
-                                    Image.network(this.imageSrc,
+                                    Image.network(
+                                        model.background,
                                         fit: BoxFit.cover
                                     ),
                                     new Container(
@@ -41,7 +46,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
                                             new Padding(
                                                 padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
                                                 child: new Text(
-                                                    "如何在Unity中创建ARCore的应用如何在Unity中创建ARCore的应用",
+                                                    model.title,
                                                     maxLines: 1,
                                                     overflow: TextOverflow.ellipsis,
                                                     style: new TextStyle(
@@ -66,7 +71,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
                                                             width: 6
                                                         ),
                                                         new Text(
-                                                            "590人正在观看",
+                                                            model.participantsCount + "人正在观看",
                                                             style: new TextStyle(
                                                                 fontSize: 13,
                                                                 color: CLColors.text1
@@ -76,11 +81,11 @@ namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
                                                             height: 20,
                                                             width: 36,
                                                             decoration: new BoxDecoration(
-                                                                CLColors.redPoint
+                                                                model.live ? CLColors.redPoint : CLColors.black
                                                             ),
                                                             alignment: Alignment.center,
                                                             child: new Text(
-                                                                "直播",
+                                                                model.live ? "直播" : "录播",
                                                                 style: new TextStyle(
                                                                     fontSize: 12,
                                                                     color: CLColors.text1
@@ -106,11 +111,14 @@ namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
                                     new Container(
                                         margin: EdgeInsets.only(right: 10),
                                         decoration: new BoxDecoration(
-                                            CLColors.white,
-                                            borderRadius: BorderRadius.all(18)
+                                            CLColors.white
                                         ),
                                         height: 36,
-                                        width: 36
+                                        width: 36,
+                                        child: Image.network(
+                                            model.user.avatar,
+                                            fit: BoxFit.cover
+                                        )
                                     ),
                                     new Column(
                                         mainAxisAlignment: MainAxisAlignment.start,
@@ -118,7 +126,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
                                         children: new List<Widget> {
                                             new Container(height: 5),
                                             new Text(
-                                                "杨栋",
+                                                model.user.username,
                                                 style: new TextStyle(
                                                     fontSize: 13,
                                                     color: CLColors.text1

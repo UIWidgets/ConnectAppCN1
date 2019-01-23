@@ -26,11 +26,11 @@ namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
 
         public override Widget build(BuildContext context) {
             return new GestureDetector(
-                onTap: this.onPressed,
+                onTap: onPressed,
                 child: new Container(
-                    padding: this.padding,
-                    decoration: new BoxDecoration(this.backgroundColor),
-                    child: this.child
+                    padding: padding,
+                    decoration: new BoxDecoration(backgroundColor),
+                    child: child
                 )
             );
         }

@@ -19,13 +19,13 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                                 )
                             )
                         ),
-                        this._content(context)
+                        _content(context)
                     }
                 )
             );
         }
 
-        Widget _content(BuildContext context) {
+        private Widget _content(BuildContext context) {
             return new Flexible(
                 child: new Container(
                     decoration: new BoxDecoration(
@@ -34,24 +34,24 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                     child: new ListView(
                         physics: new AlwaysScrollableScrollPhysics(),
                         children: new List<Widget> {
-                            this._gapView(),
-                            this._cellView("绑定Unity ID", ""),
-                            this._gapView(),
-                            this._cellView("自动播放视频", "开"),
-                            this._cellView("语言", "简体中文"),
-                            this._cellView("清除缓存", "110MB"),
-                            this._gapView(),
-                            this._cellView("评分", ""),
-                            this._cellView("检查更新", "当前版本 1.1.1"),
-                            this._gapView(),
-                            this._logoutBtn()
+                            _gapView(),
+                            _cellView("绑定Unity ID", ""),
+                            _gapView(),
+                            _cellView("自动播放视频", "开"),
+                            _cellView("语言", "简体中文"),
+                            _cellView("清除缓存", "110MB"),
+                            _gapView(),
+                            _cellView("评分", ""),
+                            _cellView("检查更新", "当前版本 1.1.1"),
+                            _gapView(),
+                            _logoutBtn()
                         }
                     )
                 )
             );
         }
 
-        Widget _gapView() {
+        private Widget _gapView() {
             return new Container(
                 height: 16,
                 decoration: new BoxDecoration(
@@ -59,7 +59,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
             );
         }
 
-        Widget _logoutBtn() {
+        private Widget _logoutBtn() {
             return new CustomButton(
                 padding: EdgeInsets.zero,
                 child: new Container(
@@ -84,7 +84,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
             );
         }
 
-        Widget _cellView(string title, string desc) {
+        private Widget _cellView(string title, string desc) {
             return new Container(
                 height: 60,
                 padding: EdgeInsets.symmetric(0, 16),
