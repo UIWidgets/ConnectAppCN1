@@ -21,19 +21,20 @@ namespace Unity.UIWidgets.Samples.ConnectApp.widgets
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget> {
+                    children: new List<Widget>
+                    {
                         Image.asset(
                             "yoshi",
                             height: 84,
                             width: 150,
                             fit: BoxFit.fill
-                        
                         ),
                         new Container(width: 16),
                         new Flexible(
                             child: new Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: new List<Widget> {
+                                children: new List<Widget>
+                                {
                                     new Text(
                                         "迪士尼电视动画与Unity联袂合作，开创实时动画新纪元",
                                         maxLines: 3,
@@ -59,7 +60,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp.widgets
                     }
                 )
             );
-    
+
             return new GestureDetector(
                 onTap: () => Navigator.pushName(context, "/detail"),
                 child: card
