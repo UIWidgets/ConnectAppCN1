@@ -154,26 +154,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                 )
             );
         }
-        Widget eventList()
-        {
-            var eventCard = new EventCard(
-                "https://blogs.unity3d.com/wp-content/uploads/2018/12/2018.3-BLOG_cover-1280x720.jpg"
-            );
-            return new Container(
-                decoration: new BoxDecoration(
-                    CLColors.background1
-                ),
-                child: new ListView(
-                    physics: new AlwaysScrollableScrollPhysics(),
-                    children: new List<Widget> {
-                        eventCard,
-                        eventCard,
-                        eventCard
-                    }
-                )
-            );
-        }
-
+       
         Widget contentView() {
             return new Flexible(
                 child: new Container(
@@ -183,7 +164,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                         controller: this._pageController,
                         onPageChanged: (int index) => { this.setState(() => { this._selectedIndex = index; }); },
                         children: new List<Widget> {
-                            this.eventList(), this.mineList()
+                            this.mineList(), this.mineList()
                         }
                     )
                 )
