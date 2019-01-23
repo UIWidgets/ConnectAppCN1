@@ -29,12 +29,12 @@ namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
             const double height = 56.0;
             return new Container(
                 height: height,
-                decoration: new BoxDecoration(this.backgroundColor ?? CLColors.background1
+                decoration: new BoxDecoration(backgroundColor ?? CLColors.background1
                 ),
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: new List<Widget> {
-                        this.leading ?? new CustomButton(
+                        leading ?? new CustomButton(
                             onPressed: () => Navigator.pop(context),
                             child: new Icon(
                                 Icons.arrow_back,
@@ -42,9 +42,9 @@ namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
                                 color: CLColors.icon1
                             )
                         ),
-                        this.title,
-                        this.actions != null && this.actions.Count > 0
-                            ? (Widget) new Row(children: this.actions)
+                        title,
+                        actions != null && actions.Count > 0
+                            ? (Widget) new Row(children: actions)
                             : new Container()
                     }
                 )

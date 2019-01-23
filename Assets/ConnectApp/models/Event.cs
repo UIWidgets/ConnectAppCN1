@@ -1,7 +1,6 @@
 using System;
 
 namespace Newtonsoft.Json {
-    
     [Serializable]
     public class Event {
         public readonly string id;

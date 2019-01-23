@@ -3,10 +3,7 @@ using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Image = Unity.UIWidgets.widgets.Image;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
     public class EventCard : StatelessWidget {
@@ -16,11 +13,12 @@ namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
         ) : base(key) {
             this.model = model;
         }
+
         public Event model;
 
         public override Widget build(BuildContext context) {
             var card = new Container(
-                key: key,  
+                key: key,
                 child: new Column(
                     children: new List<Widget> {
                         new Container(

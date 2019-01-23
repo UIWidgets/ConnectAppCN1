@@ -76,78 +76,78 @@ namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
     }
 
     internal class _InputField : State<InputField> {
-        TextEditingController _textEditingController;
-        FocusNode _focusNode;
-        bool _isHintTextHidden = false;
+        private TextEditingController _textEditingController;
+        private FocusNode _focusNode;
+        private bool _isHintTextHidden = false;
 
         public override void initState() {
             base.initState();
-            this._textEditingController = new TextEditingController("");
-            this._focusNode = new FocusNode();
+            _textEditingController = new TextEditingController("");
+            _focusNode = new FocusNode();
         }
 
         public override Widget build(BuildContext context) {
             return new Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: new List<Widget> {
-                    this._buildLabelText(),
+                    _buildLabelText(),
                     new Stack(
                         children: new List<Widget> {
-                            this._buildEditableText(), this._buildHintText()
+                            _buildEditableText(), _buildHintText()
                         }
                     )
                 }
             );
         }
 
-        Widget _buildLabelText() {
-            if (this.widget.hintText == null || !this._isHintTextHidden) return new Container(height: 20);
+        private Widget _buildLabelText() {
+            if (widget.hintText == null || !_isHintTextHidden) return new Container(height: 20);
 
             return new Container(
                 height: 20,
                 alignment: Alignment.bottomLeft,
-                child: new Text(this.widget.hintText,
-                    style: this.widget.labelStyle
+                child: new Text(widget.hintText,
+                    style: widget.labelStyle
                 )
             );
         }
 
-        Widget _buildHintText() {
-            if (this.widget.hintText == null || this._isHintTextHidden) return new Container();
+        private Widget _buildHintText() {
+            if (widget.hintText == null || _isHintTextHidden) return new Container();
             return new Positioned(
                 top: 0,
                 left: 0,
                 bottom: 0,
                 child: new GestureDetector(
                     onTap: () => {
-                        FocusNode focusNode = this.widget.focusNode ?? this._focusNode;
-                        FocusScope.of(this.context).requestFocus(focusNode);
+                        FocusNode focusNode = widget.focusNode ?? _focusNode;
+                        FocusScope.of(context).requestFocus(focusNode);
                     },
-                    child: new Text(this.widget.hintText,
-                        style: this.widget.hintStyle
+                    child: new Text(widget.hintText,
+                        style: widget.hintStyle
                     )
                 )
             );
         }
 
-        Widget _buildEditableText() {
+        private Widget _buildEditableText() {
             return new GestureDetector(
                 onTap: () => {
-                    var focusNode = this.widget.focusNode ?? this._focusNode;
-                    FocusScope.of(this.context).requestFocus(focusNode);
+                    var focusNode = widget.focusNode ?? _focusNode;
+                    FocusScope.of(context).requestFocus(focusNode);
                 },
                 child: new EditableText(
-                    maxLines: this.widget.maxLines,
-                    controller: this.widget.controller ?? this._textEditingController,
-                    focusNode: this.widget.focusNode ?? this._focusNode,
-                    autofocus: this.widget.autofocus,
-                    obscureText: this.widget.obscureText,
-                    style: this.widget.style,
-                    cursorColor: this.widget.cursorColor,
+                    maxLines: widget.maxLines,
+                    controller: widget.controller ?? _textEditingController,
+                    focusNode: widget.focusNode ?? _focusNode,
+                    autofocus: widget.autofocus,
+                    obscureText: widget.obscureText,
+                    style: widget.style,
+                    cursorColor: widget.cursorColor,
                     onChanged: str => {
                         var isTextEmpty = (str.Length > 0);
-                        if (this._isHintTextHidden != isTextEmpty)
-                            this.setState(() => { this._isHintTextHidden = isTextEmpty; });
+                        if (_isHintTextHidden != isTextEmpty)
+                            setState(() => { _isHintTextHidden = isTextEmpty; });
                     }
                 )
             );

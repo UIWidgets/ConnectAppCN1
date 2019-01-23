@@ -1,7 +1,6 @@
 using System;
 
 namespace Newtonsoft.Json {
-    
     [Serializable]
     public class User {
         public string id;

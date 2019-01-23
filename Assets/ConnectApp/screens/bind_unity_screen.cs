@@ -6,29 +6,29 @@ using Unity.UIWidgets.widgets;
 
 namespace Unity.UIWidgets.Samples.ConnectApp {
     public class BindUnityScreen : StatelessWidget {
-        readonly FocusNode _emailFocusNode = new FocusNode();
-        readonly FocusNode _passwordFocusNode = new FocusNode();
+        private readonly FocusNode _emailFocusNode = new FocusNode();
+        private readonly FocusNode _passwordFocusNode = new FocusNode();
 
         public override Widget build(BuildContext context) {
-            return this._content(context);
+            return _content(context);
         }
 
-        Widget _content(BuildContext context) {
+        private Widget _content(BuildContext context) {
             return new Container(
                 decoration: new BoxDecoration(
                     CLColors.background1
                 ),
                 child: new Column(
                     children: new List<Widget> {
-                        this._topView(context),
-                        this._middleView(),
-                        this._bottomView()
+                        _topView(context),
+                        _middleView(),
+                        _bottomView()
                     }
                 )
             );
         }
 
-        Widget _topView(BuildContext context) {
+        private Widget _topView(BuildContext context) {
             return new Column(
                 children: new List<Widget> {
                     new Container(
@@ -92,7 +92,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
             );
         }
 
-        Widget _middleView() {
+        private Widget _middleView() {
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 24),
                 child: new Column(
@@ -110,7 +110,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                             ),
                             alignment: Alignment.center,
                             child: new InputField(
-                                focusNode: this._emailFocusNode,
+                                focusNode: _emailFocusNode,
                                 maxLines: 1,
                                 autofocus: false,
                                 style: new TextStyle(
@@ -142,7 +142,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                             ),
                             alignment: Alignment.center,
                             child: new InputField(
-                                focusNode: this._passwordFocusNode,
+                                focusNode: _passwordFocusNode,
                                 maxLines: 1,
                                 autofocus: false,
                                 obscureText: true,
@@ -167,7 +167,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
             );
         }
 
-        Widget _bottomView() {
+        private Widget _bottomView() {
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
