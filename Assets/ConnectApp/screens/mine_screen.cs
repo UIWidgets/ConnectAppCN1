@@ -21,13 +21,13 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
     }
 
     internal class _MineScreen : State<MineScreen> {
-        private PageController _pageController;
-        private int _selectedIndex;
+        PageController _pageController;
+        int _selectedIndex;
 
         public override void initState() {
             base.initState();
-            _pageController = new PageController();
-            _selectedIndex = 0;
+            this._pageController = new PageController();
+            this._selectedIndex = 0;
         }
 
         public override Widget build(BuildContext context) {
@@ -52,16 +52,16 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                             )
                         }
                     ),
-                    buildSelectView(),
-                    contentView()
+                    this.buildSelectView(),
+                    this.contentView()
                 }
             );
         }
 
-        private Widget buildSelectItem(string title, int index) {
+        Widget buildSelectItem(string title, int index) {
             var textColor = CLColors.text2;
             Widget lineView = new Positioned(new Container());
-            if (index == _selectedIndex) {
+            if (index == this._selectedIndex) {
                 textColor = CLColors.text11;
                 lineView = new Positioned(
                     bottom: 0,
@@ -88,11 +88,11 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                     children: new List<Widget> {
                         new CustomButton(
                             onPressed: () => {
-                                if (_selectedIndex != index) {
-                                    setState(() => _selectedIndex = index);
+                                if (this._selectedIndex != index) {
+                                    this.setState(() => this._selectedIndex = index);
                                 }
 
-                                _pageController.animateToPage(
+                                this._pageController.animateToPage(
                                     index,
                                     new TimeSpan(0, 0,
                                         0, 0, 250),
@@ -118,7 +118,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
             );
         }
 
-        private Widget buildSelectView() {
+        Widget buildSelectView() {
             return new Column(
                 children: new List<Widget> {
                     new Container(
@@ -128,7 +128,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                         ),
                         child: new Row(
                             children: new List<Widget> {
-                                buildSelectItem("即将参与", 0), buildSelectItem("浏览记录", 1)
+                                this.buildSelectItem("即将参与", 0), this.buildSelectItem("浏览记录", 1)
                             }
                         )
                     ),
@@ -137,7 +137,9 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
             );
         }
 
-        private Widget mineList() {
+        Widget mineList()
+        {
+            var historyCard = new HistoryCard();
             return new Container(
                 decoration: new BoxDecoration(
                     CLColors.background1
@@ -145,78 +147,26 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                 child: new ListView(
                     physics: new AlwaysScrollableScrollPhysics(),
                     children: new List<Widget> {
-                        cellView(),
-                        cellView(),
-                        cellView(),
-                        cellView(),
-                        cellView(),
-                        cellView(),
-                        cellView()
+                        historyCard,
+                        historyCard,
+                        historyCard
                     }
                 )
             );
         }
-
-        private Widget contentView() {
+       
+        Widget contentView() {
             return new Flexible(
                 child: new Container(
                     decoration: new BoxDecoration(CLColors.background1),
                     child: new PageView(
                         physics: new BouncingScrollPhysics(),
-                        controller: _pageController,
-                        onPageChanged: (int index) => { setState(() => { _selectedIndex = index; }); },
+                        controller: this._pageController,
+                        onPageChanged: (int index) => { this.setState(() => { this._selectedIndex = index; }); },
                         children: new List<Widget> {
-                            mineList(), mineList()
+                            this.mineList(), this.mineList()
                         }
                     )
-                )
-            );
-        }
-
-        private Widget cellView() {
-            return new Container(
-                height: 100,
-                padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
-                decoration: new BoxDecoration(
-                    CLColors.background2
-                ),
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget> {
-                        Image.asset(
-                            "yoshi",
-                            height: 84,
-                            width: 150,
-                            fit: BoxFit.fill
-                        ),
-                        new Container(width: 16),
-                        new Flexible(
-                            child: new Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: new List<Widget> {
-                                    new Text(
-                                        "迪士尼电视动画与Unity联袂合作，开创实时动画新纪元",
-                                        maxLines: 3,
-                                        style: new TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w700,
-                                            color: CLColors.text1
-                                        )
-                                    ),
-                                    new Container(height: 8),
-                                    new Text(
-                                        "1920次观看",
-                                        maxLines: 1,
-                                        style: new TextStyle(
-                                            fontSize: 12,
-                                            color: CLColors.text2
-                                        )
-                                    )
-                                }
-                            )
-                        )
-                    }
                 )
             );
         }
