@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>MyPackage</id>
+    <version>0.0.1</version>
+    <description>A description of what this packages is and does.</description>
+    <authors>Your Name</authors>
+    <owners>Your Name</owners>
+    <licenseUrl>http://your_license_url_here</licenseUrl>
+    <projectUrl>http://your_project_url_here</projectUrl>
+    <iconUrl>https://www.nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <releaseNotes>Notes for this specific release</releaseNotes>
+    <copyright>Copyright 2017</copyright>
+  </metadata>
+</package>
