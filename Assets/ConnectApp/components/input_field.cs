@@ -6,7 +6,7 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
-namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
+namespace ConnectApp.components {
     public class InputField : StatefulWidget {
         public InputField(
             Key key = null,

@@ -1,10 +1,11 @@
 using System.Collections.Generic;
+using ConnectApp.components;
+using ConnectApp.constants;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.Samples.ConnectApp.widgets;
 using Unity.UIWidgets.widgets;
 
-namespace Unity.UIWidgets.Samples.ConnectApp {
+namespace ConnectApp.screens {
     public class LoginScreen : StatelessWidget {
         public override Widget build(BuildContext context) {
             return _content(context);
@@ -13,7 +14,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
         private Widget _content(BuildContext context) {
             return new Container(
                 decoration: new BoxDecoration(
-                    CLColors.background1
+                    CColors.background1
                 ),
                 child: new Column(
                     children: new List<Widget> {
@@ -36,7 +37,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                             child: new Icon(
                                 Icons.close,
                                 size: 28.0,
-                                color: CLColors.icon1
+                                color: CColors.icon1
                             )
                         )
                     }
@@ -62,7 +63,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                         maxLines: 1,
                         style: new TextStyle(
                             fontSize: 24,
-                            color: CLColors.text1
+                            color: CColors.text1
                         )
                     )
                 }
@@ -78,7 +79,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                             child: new Container(
                                 height: 48,
                                 decoration: new BoxDecoration(
-                                    CLColors.primary,
+                                    CColors.primary,
                                     borderRadius: BorderRadius.all(24)
                                 ),
                                 child: new Row(
@@ -96,7 +97,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                                             maxLines: 1,
                                             style: new TextStyle(
                                                 fontSize: 16,
-                                                color: CLColors.text1
+                                                color: CColors.text1
                                             )
                                         )
                                     })
@@ -108,8 +109,8 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                             child: new Container(
                                 height: 48,
                                 decoration: new BoxDecoration(
-                                    CLColors.background1,
-                                    border: Border.all(CLColors.white),
+                                    CColors.background1,
+                                    border: Border.all(CColors.white),
                                     borderRadius: BorderRadius.all(24)
                                 ),
                                 child: new Row(
@@ -120,7 +121,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                                             maxLines: 1,
                                             style: new TextStyle(
                                                 fontSize: 16,
-                                                color: CLColors.text1
+                                                color: CColors.text1
                                             )
                                         )
                                     })

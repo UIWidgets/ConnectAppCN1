@@ -1,11 +1,12 @@
 using System.Collections.Generic;
+using ConnectApp.constants;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
-namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
+namespace ConnectApp.components {
     public class CustomAppBar : StatelessWidget {
         public CustomAppBar(
             Key key = null,
@@ -29,7 +30,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
             const double height = 56.0;
             return new Container(
                 height: height,
-                decoration: new BoxDecoration(backgroundColor ?? CLColors.background1
+                decoration: new BoxDecoration(backgroundColor ?? CColors.background1
                 ),
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -39,7 +40,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
                             child: new Icon(
                                 Icons.arrow_back,
                                 size: 28,
-                                color: CLColors.icon1
+                                color: CColors.icon1
                             )
                         ),
                         title,

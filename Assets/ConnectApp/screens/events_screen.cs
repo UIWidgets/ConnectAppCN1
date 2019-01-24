@@ -1,19 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
+using ConnectApp.components;
+using ConnectApp.constants;
 using Newtonsoft.Json;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.Samples.ConnectApp.widgets;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using UnityEngine.Networking;
-using Event = Newtonsoft.Json.Event;
+using Event = ConnectApp.models.Event;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
-namespace Unity.UIWidgets.Samples.ConnectApp {
+namespace ConnectApp.screens {
     public class EventsScreen : StatefulWidget {
         public EventsScreen(Key key = null) : base(key) {
         }
@@ -41,7 +42,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                                 "Today",
                                 style: new TextStyle(
                                     fontSize: (34.0 / headerHeight) * (headerHeight - _offsetY),
-                                    color: CLColors.white
+                                    color: CColors.white
                                 )
                             )),
                         new CustomButton(
@@ -50,7 +51,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                             child: new Icon(
                                 Icons.notifications,
                                 size: 28.0,
-                                color: CLColors.icon2
+                                color: CColors.icon2
                             )
                         ),
                         new CustomButton(
@@ -59,7 +60,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                             child: new Icon(
                                 Icons.account_circle,
                                 size: 28.0,
-                                color: CLColors.icon2
+                                color: CColors.icon2
                             )
                         )
                     }
@@ -128,7 +129,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
         public override Widget build(BuildContext context) {
             var container = new Container(
                 child: new Container(
-                    color: CLColors.background1,
+                    color: CColors.background1,
                     child: new Column(
                         children: new List<Widget> {
                             _buildHeader(context), _buildContentList(context)

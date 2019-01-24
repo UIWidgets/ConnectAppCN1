@@ -1,10 +1,11 @@
 using System.Collections.Generic;
+using ConnectApp.components;
+using ConnectApp.constants;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.Samples.ConnectApp.widgets;
 using Unity.UIWidgets.widgets;
 
-namespace Unity.UIWidgets.Samples.ConnectApp {
+namespace ConnectApp.screens {
     public class BindUnityScreen : StatelessWidget {
         private readonly FocusNode _emailFocusNode = new FocusNode();
         private readonly FocusNode _passwordFocusNode = new FocusNode();
@@ -16,7 +17,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
         private Widget _content(BuildContext context) {
             return new Container(
                 decoration: new BoxDecoration(
-                    CLColors.background1
+                    CColors.background1
                 ),
                 child: new Column(
                     children: new List<Widget> {
@@ -43,7 +44,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                                         "跳过",
                                         style: new TextStyle(
                                             fontSize: 17,
-                                            color: CLColors.text2
+                                            color: CColors.text2
                                         )
                                     )
                                 ),
@@ -52,7 +53,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                                         "创建 Unity ID",
                                         style: new TextStyle(
                                             fontSize: 17,
-                                            color: CLColors.text2
+                                            color: CColors.text2
                                         )
                                     )
                                 )
@@ -71,7 +72,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                                             "绑定你的 Unity 账号",
                                             style: new TextStyle(
                                                 fontSize: 28,
-                                                color: CLColors.text1
+                                                color: CColors.text1
                                             )
                                         ),
                                         new Container(height: 8),
@@ -79,7 +80,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                                             "绑定账号可对直播进行评论",
                                             style: new TextStyle(
                                                 fontSize: 14,
-                                                color: CLColors.text2
+                                                color: CColors.text2
                                             )
                                         )
                                     }
@@ -102,10 +103,10 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                             height: 44,
                             decoration: new BoxDecoration(
                                 border: new Border(
-                                    new BorderSide(CLColors.transparent),
-                                    new BorderSide(CLColors.transparent),
-                                    new BorderSide(CLColors.dividingLine1),
-                                    new BorderSide(CLColors.transparent)
+                                    new BorderSide(CColors.transparent),
+                                    new BorderSide(CColors.transparent),
+                                    new BorderSide(CColors.dividingLine1),
+                                    new BorderSide(CColors.transparent)
                                 )
                             ),
                             alignment: Alignment.center,
@@ -115,18 +116,18 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                                 autofocus: false,
                                 style: new TextStyle(
                                     fontSize: 16,
-                                    color: CLColors.text1
+                                    color: CColors.text1
                                 ),
                                 hintText: "邮箱",
                                 hintStyle: new TextStyle(
                                     fontSize: 16,
-                                    color: CLColors.text2
+                                    color: CColors.text2
                                 ),
                                 labelStyle: new TextStyle(
                                     fontSize: 16,
-                                    color: CLColors.text2
+                                    color: CColors.text2
                                 ),
-                                cursorColor: CLColors.primary
+                                cursorColor: CColors.primary
                             )
                         ),
                         new Container(height: 42),
@@ -134,10 +135,10 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                             height: 44,
                             decoration: new BoxDecoration(
                                 border: new Border(
-                                    new BorderSide(CLColors.transparent),
-                                    new BorderSide(CLColors.transparent),
-                                    new BorderSide(CLColors.dividingLine1),
-                                    new BorderSide(CLColors.transparent)
+                                    new BorderSide(CColors.transparent),
+                                    new BorderSide(CColors.transparent),
+                                    new BorderSide(CColors.dividingLine1),
+                                    new BorderSide(CColors.transparent)
                                 )
                             ),
                             alignment: Alignment.center,
@@ -148,18 +149,18 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                                 obscureText: true,
                                 style: new TextStyle(
                                     fontSize: 16,
-                                    color: CLColors.text1
+                                    color: CColors.text1
                                 ),
                                 hintText: "密码",
                                 hintStyle: new TextStyle(
                                     fontSize: 16,
-                                    color: CLColors.text2
+                                    color: CColors.text2
                                 ),
                                 labelStyle: new TextStyle(
                                     fontSize: 16,
-                                    color: CLColors.text2
+                                    color: CColors.text2
                                 ),
-                                cursorColor: CLColors.primary
+                                cursorColor: CColors.primary
                             )
                         )
                     }
@@ -178,7 +179,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                             child: new Container(
                                 height: 48,
                                 decoration: new BoxDecoration(
-                                    CLColors.primary,
+                                    CColors.primary,
                                     borderRadius: BorderRadius.all(24)
                                 ),
                                 child: new Row(
@@ -189,7 +190,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                                             maxLines: 1,
                                             style: new TextStyle(
                                                 fontSize: 16,
-                                                color: CLColors.text1
+                                                color: CColors.text1
                                             )
                                         )
                                     })
@@ -201,7 +202,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                                 "忘记密码",
                                 style: new TextStyle(
                                     fontSize: 16,
-                                    color: CLColors.text2
+                                    color: CColors.text2
                                 )
                             )
                         )
