@@ -1,11 +1,12 @@
 using System.Collections.Generic;
+using ConnectApp.components;
+using ConnectApp.constants;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.Samples.ConnectApp.widgets;
 using Unity.UIWidgets.widgets;
 
-namespace Unity.UIWidgets.Samples.ConnectApp {
+namespace ConnectApp.screens {
     public class DetailScreen : StatefulWidget {
         public DetailScreen(Key key = null) : base(key) {
         }
@@ -22,7 +23,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                     children: new List<Widget> {
                         new Container(
                             decoration: new BoxDecoration(
-                                CLColors.black
+                                CColors.black
                             ),
                             height: 210,
                             child: new Stack(
@@ -47,14 +48,14 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                                                             child: new Icon(
                                                                 Icons.arrow_back,
                                                                 size: 28.0,
-                                                                color: CLColors.icon1
+                                                                color: CColors.icon1
                                                             )
                                                         ),
                                                         new CustomButton(
                                                             child: new Icon(
                                                                 Icons.share,
                                                                 size: 28.0,
-                                                                color: CLColors.icon1
+                                                                color: CColors.icon1
                                                             )
                                                         )
                                                     }
@@ -70,14 +71,14 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                                                             height: 20,
                                                             width: 48,
                                                             decoration: new BoxDecoration(
-                                                                CLColors.text4
+                                                                CColors.text4
                                                             ),
                                                             alignment: Alignment.center,
                                                             child: new Text(
                                                                 "未开始",
                                                                 style: new TextStyle(
                                                                     fontSize: 12,
-                                                                    color: CLColors.text1
+                                                                    color: CColors.text1
                                                                 )
                                                             )
                                                         )
@@ -105,7 +106,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                             "如何在Unity中创建ARCore的应用",
                             style: new TextStyle(
                                 fontSize: 20,
-                                color: CLColors.text1
+                                color: CColors.text1
                             )
                         ),
                         new Container(height: 16),
@@ -134,7 +135,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                                             "杨栋",
                                             style: new TextStyle(
                                                 fontSize: 13,
-                                                color: CLColors.text1
+                                                color: CColors.text1
                                             )
                                         ),
                                         new Container(height: 5),
@@ -142,7 +143,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                                             "5天前发布",
                                             style: new TextStyle(
                                                 fontSize: 13,
-                                                color: CLColors.text2
+                                                color: CColors.text2
                                             )
                                         )
                                     }
@@ -166,7 +167,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                             "直播介绍",
                             style: new TextStyle(
                                 fontSize: 17,
-                                color: CLColors.text1
+                                color: CColors.text1
                             )
                         ),
                         new Container(height: 16),
@@ -174,7 +175,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                             "最近谷歌发布了ARCore预览版，它将为整个Android生态系统启用AR（增强现实）开发，为开发人员提供了为数百万用户构建迷人AR体验的能力，而无需专门的硬件。Unity的XR团队一直与Google的团队紧密合作，以克服AR开发呈现的一些最困难的挑战。而随着Unity2017.2的发布，开发者已经可以很方便的在Unity中使用ARCore创建应用。",
                             style: new TextStyle(
                                 fontSize: 14,
-                                color: CLColors.text1
+                                color: CColors.text1
                             )
                         ),
                         new Container(height: 16),
@@ -183,7 +184,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                             "这次直播主要介绍如何在Unity中使用ARCore。内容包括ARCore基本介绍，和其他AR解决方案的区别，以及如何创建一个ARCore的项目。在项目实例中，我们将会展示如何在真实场景中添加一个动画角色，以及如何在真实场景中创建通向另一个虚拟世界的入口。",
                             style: new TextStyle(
                                 fontSize: 14,
-                                color: CLColors.text1
+                                color: CColors.text1
                             )
                         )
                     }
@@ -206,7 +207,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
 
         private Widget _joinBar() {
             return new Container(
-                color: CLColors.background1,
+                color: CColors.background1,
                 height: 64,
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Row(
@@ -222,7 +223,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                                     "正在直播",
                                     style: new TextStyle(
                                         fontSize: 12,
-                                        color: CLColors.text2
+                                        color: CColors.text2
                                     )
                                 ),
                                 new Container(height: 2),
@@ -230,7 +231,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                                     "34位观众",
                                     style: new TextStyle(
                                         fontSize: 16,
-                                        color: CLColors.text1
+                                        color: CColors.text1
                                     )
                                 )
                             }
@@ -240,7 +241,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                                 width: 100,
                                 height: 44,
                                 decoration: new BoxDecoration(
-                                    CLColors.primary
+                                    CColors.primary
                                 ),
                                 alignment: Alignment.center,
                                 child: new Row(
@@ -251,7 +252,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                                             maxLines: 1,
                                             style: new TextStyle(
                                                 fontSize: 16,
-                                                color: CLColors.text1
+                                                color: CColors.text1
                                             )
                                         )
                                     })
@@ -266,13 +267,13 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
             return new Container(
                 height: 420,
                 decoration: new BoxDecoration(
-                    CLColors.red
+                    CColors.red
                 ),
                 child: new Text(
                     "chatWindow",
                     style: new TextStyle(
                         fontSize: 16,
-                        color: CLColors.text1
+                        color: CColors.text1
                     )
                 )
             );
@@ -280,7 +281,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
 
         public override Widget build(BuildContext context) {
             return new Container(
-                color: CLColors.background2,
+                color: CColors.background2,
                 child: new Stack(
                     children: new List<Widget> {
                         new Column(

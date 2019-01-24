@@ -1,10 +1,11 @@
 using System.Collections.Generic;
+using ConnectApp.components;
+using ConnectApp.constants;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.Samples.ConnectApp.widgets;
 using Unity.UIWidgets.widgets;
 
-namespace Unity.UIWidgets.Samples.ConnectApp {
+namespace ConnectApp.screens {
     public class SettingScreen : StatelessWidget {
         public override Widget build(BuildContext context) {
             return new Container(
@@ -15,7 +16,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                                 "Setting",
                                 style: new TextStyle(
                                     fontSize: 17.0,
-                                    color: CLColors.text1
+                                    color: CColors.text1
                                 )
                             )
                         ),
@@ -29,7 +30,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
             return new Flexible(
                 child: new Container(
                     decoration: new BoxDecoration(
-                        CLColors.background2
+                        CColors.background2
                     ),
                     child: new ListView(
                         physics: new AlwaysScrollableScrollPhysics(),
@@ -65,7 +66,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                 child: new Container(
                     height: 60,
                     decoration: new BoxDecoration(
-                        color: CLColors.background1
+                        color: CColors.background1
                     ),
                     child: new Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -75,7 +76,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                                 "退出登录",
                                 style: new TextStyle(
                                     fontSize: 16,
-                                    color: CLColors.warning
+                                    color: CColors.warning
                                 )
                             )
                         }
@@ -89,7 +90,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                 height: 60,
                 padding: EdgeInsets.symmetric(0, 16),
                 decoration: new BoxDecoration(
-                    CLColors.background1
+                    CColors.background1
                 ),
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -98,7 +99,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                             title,
                             style: new TextStyle(
                                 fontSize: 13,
-                                color: CLColors.text1
+                                color: CColors.text1
                             )
                         ),
                         new Flexible(child: new Container()),
@@ -106,13 +107,13 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
                             desc,
                             style: new TextStyle(
                                 fontSize: 13,
-                                color: CLColors.text1
+                                color: CColors.text1
                             )
                         ),
                         new Icon(
                             Icons.chevron_right,
                             size: 16.0,
-                            color: CLColors.icon1
+                            color: CColors.icon1
                         )
                     }
                 )

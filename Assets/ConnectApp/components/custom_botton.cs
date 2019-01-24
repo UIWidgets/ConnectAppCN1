@@ -4,7 +4,7 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
-namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
+namespace ConnectApp.components {
     public class CustomButton : StatelessWidget {
         public CustomButton(
             Key key = null,

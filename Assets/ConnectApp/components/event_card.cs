@@ -1,11 +1,12 @@
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using ConnectApp.constants;
+using ConnectApp.models;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
-namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
+namespace ConnectApp.components {
     public class EventCard : StatelessWidget {
         public EventCard(
             Key key = null,
@@ -23,7 +24,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
                     children: new List<Widget> {
                         new Container(
                             decoration: new BoxDecoration(
-                                CLColors.black
+                                CColors.black
                             ),
                             height: 210,
                             child: new Stack(
@@ -35,7 +36,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
                                     ),
                                     new Container(
                                         decoration: new BoxDecoration(
-                                            CLColors.mask
+                                            CColors.mask
                                         )
                                     ),
                                     new Flex(
@@ -51,7 +52,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
                                                     overflow: TextOverflow.ellipsis,
                                                     style: new TextStyle(
                                                         fontSize: 20,
-                                                        color: CLColors.text1
+                                                        color: CColors.text1
                                                     )
                                                 )
                                             ),
@@ -64,7 +65,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
                                                         new Container(
                                                             margin: EdgeInsets.only(right: 3),
                                                             decoration: new BoxDecoration(
-                                                                CLColors.redPoint,
+                                                                CColors.redPoint,
                                                                 borderRadius: BorderRadius.all(3)
                                                             ),
                                                             height: 6,
@@ -74,21 +75,21 @@ namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
                                                             model.participantsCount + "人正在观看",
                                                             style: new TextStyle(
                                                                 fontSize: 13,
-                                                                color: CLColors.text1
+                                                                color: CColors.text1
                                                             )),
                                                         new Flexible(child: new Container()),
                                                         new Container(
                                                             height: 20,
                                                             width: 36,
                                                             decoration: new BoxDecoration(
-                                                                model.live ? CLColors.redPoint : CLColors.black
+                                                                model.live ? CColors.redPoint : CColors.black
                                                             ),
                                                             alignment: Alignment.center,
                                                             child: new Text(
                                                                 model.live ? "直播" : "录播",
                                                                 style: new TextStyle(
                                                                     fontSize: 12,
-                                                                    color: CLColors.text1
+                                                                    color: CColors.text1
                                                                 )
                                                             )
                                                         )
@@ -101,7 +102,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
                             )
                         ),
                         new Container(
-                            color: CLColors.background2,
+                            color: CColors.background2,
                             height: 66,
                             padding: EdgeInsets.fromLTRB(16, 10, 16, 0),
                             child: new Row(
@@ -111,7 +112,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
                                     new Container(
                                         margin: EdgeInsets.only(right: 10),
                                         decoration: new BoxDecoration(
-                                            CLColors.white
+                                            CColors.white
                                         ),
                                         height: 36,
                                         width: 36,
@@ -129,7 +130,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
                                                 model.user.username,
                                                 style: new TextStyle(
                                                     fontSize: 13,
-                                                    color: CLColors.text1
+                                                    color: CColors.text1
                                                 )
                                             ),
                                             new Container(height: 5),
@@ -137,7 +138,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
                                                 "5天前发布",
                                                 style: new TextStyle(
                                                     fontSize: 13,
-                                                    color: CLColors.text2
+                                                    color: CColors.text2
                                                 )
                                             )
                                         }
@@ -146,7 +147,7 @@ namespace Unity.UIWidgets.Samples.ConnectApp.widgets {
                                     new Icon(
                                         Icons.more_vert,
                                         size: 28.0,
-                                        color: CLColors.icon2
+                                        color: CColors.icon2
                                     )
                                 }
                             )

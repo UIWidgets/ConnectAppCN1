@@ -1,6 +1,6 @@
 using System;
 
-namespace Newtonsoft.Json {
+namespace ConnectApp.models {
     [Serializable]
     public class Event {
         public readonly string id;
