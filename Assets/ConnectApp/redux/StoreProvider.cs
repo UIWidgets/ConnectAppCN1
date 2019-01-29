@@ -11,7 +11,8 @@ namespace ConnectApp.redux {
                 if (_store != null) {
                     return _store;
                 }
-                var middleware = new [] {
+
+                var middleware = new[] {
                     ReduxLogging.Create<AppState>(),
                     Middleware.Create()
                 };

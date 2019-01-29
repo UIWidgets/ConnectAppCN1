@@ -12,35 +12,35 @@ namespace ConnectApp.redux {
 
     public class Store<State> {
         public StateChangedHandler<State> stateChanged;
-        State _state;
-        readonly Dispatcher _dispatcher;
-        readonly Reducer<State> _reducer;
+        private State _state;
+        private readonly Dispatcher _dispatcher;
+        private readonly Reducer<State> _reducer;
 
         public Store(Reducer<State> reducer, State initialState = default(State),
             params Middleware<State>[] middlewares) {
-            this._reducer = reducer;
-            this._dispatcher = this.ApplyMiddlewares(middlewares);
-            this._state = initialState;
+            _reducer = reducer;
+            _dispatcher = ApplyMiddlewares(middlewares);
+            _state = initialState;
         }
 
         public object Dispatch(object action) {
-            return this._dispatcher(action);
+            return _dispatcher(action);
         }
 
         public State state {
-            get { return this._state; }
+            get { return _state; }
         }
 
-        Dispatcher ApplyMiddlewares(params Middleware<State>[] middlewares) {
-            return middlewares.Reverse().Aggregate<Middleware<State>, Dispatcher>(this.InnerDispatch,
+        private Dispatcher ApplyMiddlewares(params Middleware<State>[] middlewares) {
+            return middlewares.Reverse().Aggregate<Middleware<State>, Dispatcher>(InnerDispatch,
                 (current, middleware) => middleware(this)(current));
         }
 
-        object InnerDispatch(object action) {
-            this._state = this._reducer(this._state, action);
+        private object InnerDispatch(object action) {
+            _state = _reducer(_state, action);
 
-            if (this.stateChanged != null) {
-                this.stateChanged(this._state);
+            if (stateChanged != null) {
+                stateChanged(_state);
             }
 
             return action;

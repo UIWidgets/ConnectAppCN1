@@ -1,20 +1,16 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
-using Newtonsoft.Json;
-using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
-using UnityEngine.Networking;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
@@ -27,12 +23,13 @@ namespace ConnectApp.screens {
         }
     }
 
-    class countActionModel {
+    internal class countActionModel {
         public Action<int> onAdd;
     }
-    
+
     internal class _EventsScreen : State<EventsScreen> {
         private const double headerHeight = 80.0;
+
         private double _offsetY = 0.0;
 //        private List<IEvent> events;
 
@@ -80,7 +77,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         public override void initState() {
             base.initState();
             StoreProvider.store.Dispatch(new EventsRequestAction {pageNumber = 1});
@@ -100,7 +97,6 @@ namespace ConnectApp.screens {
         }
 
         private Widget _buildContentList(BuildContext context) {
-
             return new NotificationListener<ScrollNotification>(
                 onNotification: (ScrollNotification notification) => {
                     _onNotification(notification, context);
@@ -110,11 +106,11 @@ namespace ConnectApp.screens {
                     child: new Container(
                         child: new StoreConnector<AppState, Dictionary<string, object>>(
                             converter: (state, dispatch) => new Dictionary<string, object> {
-                                {"loading", (bool)state.Get("event.loading")},
+                                {"loading", (bool) state.Get("event.loading")},
                                 {"events", state.Get("event.events")}
                             },
                             builder: (context1, viewModel) => {
-                                var loading = (bool)viewModel["loading"];
+                                var loading = (bool) viewModel["loading"];
                                 var events = viewModel["events"] as List<IEvent>;
                                 var cardList = new List<Widget>();
                                 Debug.Log($"loading: + {loading}");

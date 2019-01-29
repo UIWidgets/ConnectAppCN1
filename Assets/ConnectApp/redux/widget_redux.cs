@@ -5,12 +5,12 @@ using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.redux {
     public class StoreProvider<State> : InheritedWidget {
-        readonly Store<State> _store;
+        private readonly Store<State> _store;
 
         public StoreProvider(Store<State> store, Widget child, Key key = null) : base(key: key, child: child) {
             D.assert(store != null);
             D.assert(child != null);
-            this._store = store;
+            _store = store;
         }
 
         public static Store<State> of(BuildContext context) {
@@ -19,15 +19,16 @@ namespace ConnectApp.redux {
             if (provider == null) {
                 throw new UIWidgetsError("StoreProvider is missing");
             }
+
             return provider._store;
         }
 
-        static Type _typeOf<T>() {
+        private static Type _typeOf<T>() {
             return typeof(T);
         }
 
         public override bool updateShouldNotify(InheritedWidget old) {
-            return !Equals(this._store, ((StoreProvider<State>) old)._store);
+            return !Equals(_store, ((StoreProvider<State>) old)._store);
         }
     }
 
@@ -61,10 +62,10 @@ namespace ConnectApp.redux {
         public override Widget build(BuildContext context) {
             return new _StoreListener<State, ViewModel>(
                 store: StoreProvider<State>.of(context),
-                builder: this.builder,
-                converter: this.converter,
-                distinct: this.distinct,
-                shouldRebuild: this.shouldRebuild
+                builder: builder,
+                converter: converter,
+                distinct: distinct,
+                shouldRebuild: shouldRebuild
             );
         }
     }
@@ -101,61 +102,64 @@ namespace ConnectApp.redux {
         }
     }
 
-    class _StoreListenerState<State, ViewModel> : State<_StoreListener<State, ViewModel>> {
-        ViewModel latestValue;
+    internal class _StoreListenerState<State, ViewModel> : State<_StoreListener<State, ViewModel>> {
+        private ViewModel latestValue;
 
         public override void initState() {
             base.initState();
-            this._init();
+            _init();
         }
 
         public override void dispose() {
-            this.widget.store.stateChanged -= this._handleStateChanged;
+            widget.store.stateChanged -= _handleStateChanged;
             base.dispose();
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             var oldStore = ((_StoreListener<State, ViewModel>) oldWidget).store;
-            if (this.widget.store != oldStore) {
-                oldStore.stateChanged -= this._handleStateChanged;
-                this._init();
+            if (widget.store != oldStore) {
+                oldStore.stateChanged -= _handleStateChanged;
+                _init();
             }
+
             base.didUpdateWidget(oldWidget);
         }
 
-        void _init() {
-            this.widget.store.stateChanged += this._handleStateChanged;
-            this.latestValue = this.widget.converter(this.widget.store.state, this.widget.store.Dispatch);
+        private void _init() {
+            widget.store.stateChanged += _handleStateChanged;
+            latestValue = widget.converter(widget.store.state, widget.store.Dispatch);
         }
 
-        void _handleStateChanged(State state) {
+        private void _handleStateChanged(State state) {
             if (Window.hasInstance) {
-                this._innerStateChanged(state);
-            } else {
-                using (WindowProvider.of(this.context).getScope()) {
-                    this._innerStateChanged(state);
+                _innerStateChanged(state);
+            }
+            else {
+                using (WindowProvider.of(context).getScope()) {
+                    _innerStateChanged(state);
                 }
             }
         }
 
-        void _innerStateChanged(State state) {
-            var preValue = this.latestValue;
-            this.latestValue = this.widget.converter(this.widget.store.state, this.widget.store.Dispatch);
-            if (this.widget.shouldRebuild != null) {
-                if (!this.widget.shouldRebuild(preValue, this.latestValue)) {
+        private void _innerStateChanged(State state) {
+            var preValue = latestValue;
+            latestValue = widget.converter(widget.store.state, widget.store.Dispatch);
+            if (widget.shouldRebuild != null) {
+                if (!widget.shouldRebuild(preValue, latestValue)) {
                     return;
                 }
-            } else if (this.widget.distinct) {
-                if (Equals(preValue, this.latestValue)) {
+            }
+            else if (widget.distinct) {
+                if (Equals(preValue, latestValue)) {
                     return;
                 }
             }
 
-            this.setState(() => { });
+            setState(() => { });
         }
 
         public override Widget build(BuildContext context) {
-            return this.widget.builder(context, this.latestValue);
+            return widget.builder(context, latestValue);
         }
     }
 }

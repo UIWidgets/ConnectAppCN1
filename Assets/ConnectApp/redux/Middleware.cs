@@ -16,10 +16,9 @@ namespace ConnectApp.redux {
                                 events = events
                             });
                         })
-                        .Catch(error => {
-                            Debug.Log(error);
-                        });
+                        .Catch(error => { Debug.Log(error); });
                 }
+
                 return next(bAction);
             };
         }

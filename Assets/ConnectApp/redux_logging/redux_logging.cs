@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using ConnectApp.models;
 using ConnectApp.redux;
 using Newtonsoft.Json;
 using UnityEngine;
