@@ -1,23 +1,25 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace ConnectApp.models {
+  
+  [Serializable]
   public class AppState {
     private readonly Dictionary<string, object> _state;
-
     private AppState() {
       _state = new Dictionary<string, object>();
     }
 
-    AppState FromJson(Dictionary<string, object> json) => _dictToState(json);
+    public static AppState FromJson(Dictionary<string, object> json) => _dictToState(json);
 
-    Dictionary<string, object> ToJson() => _stateToDict(this);
+    public static Dictionary<string, object> ToJson(AppState appState) => _stateToDict(appState);
 
     public void Set(string key, object value) {
-      if (!_checkType(value)) {
-        throw new ApplicationException($"Cannot set state {key} using value cannot be serialized.");
-      }
+//      if (!_checkType(value)) {
+//        throw new ApplicationException($"Cannot set state {key} using value cannot be serialized.");
+//      }
 
       object fVal;
       switch (value) {
@@ -51,7 +53,7 @@ namespace ConnectApp.models {
       }
     }
 
-    public object Get(string key, object defaultValue) {
+    public object Get(string key, object defaultValue = null) {
       return _get(key.Split('.')) ?? defaultValue;
     }
 
@@ -226,16 +228,23 @@ namespace ConnectApp.models {
 
     AppState emptyState() => new AppState();
 
-      AppState initialState() {
+    public static AppState initialState() {
         var state = _dictToState(
           new Dictionary<string, object> {
             {
               "login", new Dictionary<string, object> {
-                {"email", ""},
+                {"email", "test@test.com"},
                 {"loading", false},
                 {"isLoggedIn", false}
               }
-            }, {
+            },
+            {
+              "event", new Dictionary<string, object> {
+                {"loading", false},
+                {"events", new List<IEvent>()}
+              }
+            },
+            {
               "settings", new Dictionary<string, object> {
                 {"language", "zh_CN"}
               }

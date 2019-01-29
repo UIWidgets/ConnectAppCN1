@@ -1,7 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using ConnectApp.components;
 using ConnectApp.constants;
+using ConnectApp.models;
+using ConnectApp.redux;
+using ConnectApp.redux.actions;
 using Newtonsoft.Json;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
@@ -11,7 +15,6 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using UnityEngine.Networking;
-using Event = ConnectApp.models.Event;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
@@ -24,10 +27,14 @@ namespace ConnectApp.screens {
         }
     }
 
+    class countActionModel {
+        public Action<int> onAdd;
+    }
+    
     internal class _EventsScreen : State<EventsScreen> {
         private const double headerHeight = 80.0;
         private double _offsetY = 0.0;
-        private List<Event> events;
+//        private List<IEvent> events;
 
         private Widget _buildHeader(BuildContext context) {
             return new Container(
@@ -47,7 +54,10 @@ namespace ConnectApp.screens {
                             )),
                         new CustomButton(
                             padding: EdgeInsets.symmetric(horizontal: 8.0),
-                            onPressed: () => { Navigator.pushName(context, "/mine"); },
+                            onPressed: () => {
+                                StoreProvider.store.Dispatch(new ChangeEmailAction() {email = "ods@ods.com"});
+//                                Navigator.pushName(context, "/mine");
+                            },
                             child: new Icon(
                                 Icons.notifications,
                                 size: 28.0,
@@ -56,7 +66,10 @@ namespace ConnectApp.screens {
                         ),
                         new CustomButton(
                             padding: EdgeInsets.only(8.0, right: 16.0),
-                            onPressed: () => { Navigator.pushName(context, "/login"); },
+                            onPressed: () => {
+                                StoreProvider.store.Dispatch(new AddCountAction() {number = 3});
+//                                Navigator.pushName(context, "/login");
+                            },
                             child: new Icon(
                                 Icons.account_circle,
                                 size: 28.0,
@@ -67,25 +80,10 @@ namespace ConnectApp.screens {
                 )
             );
         }
-
-        private IEnumerator requestData() {
-            UnityWebRequest request =
-                UnityWebRequestTexture.GetTexture("https://connect-dev.unity.com/api/live/events");
-            yield return request.SendWebRequest();
-
-            if (request.isNetworkError || request.isHttpError) {
-                Debug.Log(request.error);
-            }
-            else {
-                if (request.responseCode != 200) yield break;
-                var dataList = JsonConvert.DeserializeObject<List<Event>>(request.downloadHandler.text);
-                setState(() => { events = dataList; });
-            }
-        }
-
+        
         public override void initState() {
             base.initState();
-            Window.instance.startCoroutine(requestData());
+            StoreProvider.store.Dispatch(new EventsRequestAction {pageNumber = 1});
         }
 
 
@@ -102,13 +100,6 @@ namespace ConnectApp.screens {
         }
 
         private Widget _buildContentList(BuildContext context) {
-            var cardList = new List<Widget>();
-            if (events != null) {
-                events.ForEach(action: model => { cardList.Add(new EventCard(Key.key(model.id), model: model)); });
-            }
-            else {
-                cardList.Add(new Container());
-            }
 
             return new NotificationListener<ScrollNotification>(
                 onNotification: (ScrollNotification notification) => {
@@ -117,9 +108,31 @@ namespace ConnectApp.screens {
                 },
                 child: new Flexible(
                     child: new Container(
-                        child: new ListView(
-                            physics: new AlwaysScrollableScrollPhysics(),
-                            children: cardList
+                        child: new StoreConnector<AppState, Dictionary<string, object>>(
+                            converter: (state, dispatch) => new Dictionary<string, object> {
+                                {"loading", (bool)state.Get("event.loading")},
+                                {"events", state.Get("event.events")}
+                            },
+                            builder: (context1, viewModel) => {
+                                var loading = (bool)viewModel["loading"];
+                                var events = viewModel["events"] as List<IEvent>;
+                                var cardList = new List<Widget>();
+                                Debug.Log($"loading: + {loading}");
+                                Debug.Log($"events: + {events}");
+                                if (!loading) {
+                                    events.ForEach(action: model => {
+                                        cardList.Add(new EventCard(Key.key(model.id), model));
+                                    });
+                                }
+                                else {
+                                    cardList.Add(new Container());
+                                }
+
+                                return new ListView(
+                                    physics: new AlwaysScrollableScrollPhysics(),
+                                    children: cardList
+                                );
+                            }
                         )
                     )
                 )
@@ -132,12 +145,24 @@ namespace ConnectApp.screens {
                     color: CColors.background1,
                     child: new Column(
                         children: new List<Widget> {
-                            _buildHeader(context), _buildContentList(context)
+                            new StoreConnector<AppState, string>(
+                                converter: (state, dispatch) => $"Count:{state.Get("count", 0)}",
+                                builder: (context1, countText) => new Text(countText, style: new TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.w700
+                                ))
+                            ),
+                            new StoreConnector<AppState, string>(
+                                converter: (state, dispatch) => $"Email:{state.Get("login.email", "")}",
+                                builder: (context1, countText) => new Text(countText, style: new TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.w700
+                                ))
+                            ),
+                            _buildHeader(context), _buildContentList(context),
                         }
                     )
                 )
             );
-            return container;
+            return new StoreProvider<AppState>(StoreProvider.store, container);
         }
     }
 }
