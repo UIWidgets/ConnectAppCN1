@@ -10,12 +10,12 @@ namespace ConnectApp.components {
     public class EventCard : StatelessWidget {
         public EventCard(
             Key key = null,
-            Event model = null
+            IEvent model = null
         ) : base(key) {
             this.model = model;
         }
 
-        public Event model;
+        public IEvent model;
 
         public override Widget build(BuildContext context) {
             var card = new Container(
