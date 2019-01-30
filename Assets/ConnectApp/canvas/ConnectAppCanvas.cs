@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Generic;
+using ConnectApp.models;
+using ConnectApp.redux;
 using ConnectApp.screens;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.engine;
@@ -8,7 +11,7 @@ using Unity.UIWidgets.widgets;
 using UnityEngine;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
-namespace Unity.UIWidgets.Samples.ConnectApp {
+namespace ConnectApp.canvas {
     public class ConnectAppCanvas : WidgetCanvas {
         protected override void OnEnable() {
             base.OnEnable();
@@ -37,16 +40,17 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
         protected override PageRouteFactory pageRouteBuilder => (RouteSettings settings, WidgetBuilder builder) =>
             new PageRouteBuilder(
                 settings,
-                (context, animation, secondaryAnimation) => builder(context),
+                (context, animation, secondaryAnimation) => 
+                    new StoreProvider<AppState>(StoreProvider.store, builder(context)),
                 (context, animation, secondaryAnimation, child) => {
                     if (fullScreenRoutes.ContainsKey(settings.name)) {
-                        return new _ModalPageTransition(
+                        return new ModalPageTransition(
                             routeAnimation: animation,
                             child: child
                         );
                     }
                     else {
-                        return new _PushPageTransition(
+                        return new PushPageTransition(
                             routeAnimation: animation,
                             child: child
                         );
@@ -55,8 +59,8 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
             );
     }
 
-    internal class _PushPageTransition : StatelessWidget {
-        internal _PushPageTransition(
+    internal class PushPageTransition : StatelessWidget {
+        internal PushPageTransition(
             Key key = null,
             Animation<double> routeAnimation = null, // The route's linear 0.0 - 1.0 animation.
             Widget child = null
@@ -83,8 +87,8 @@ namespace Unity.UIWidgets.Samples.ConnectApp {
     }
 
 
-    internal class _ModalPageTransition : StatelessWidget {
-        internal _ModalPageTransition(
+    internal class ModalPageTransition : StatelessWidget {
+        internal ModalPageTransition(
             Key key = null,
             Animation<double> routeAnimation = null, // The route's linear 0.0 - 1.0 animation.
             Widget child = null

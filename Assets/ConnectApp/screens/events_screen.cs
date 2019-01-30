@@ -158,7 +158,7 @@ namespace ConnectApp.screens {
                     )
                 )
             );
-            return new StoreProvider<AppState>(StoreProvider.store, container);
+            return container;
         }
     }
 }
