@@ -23,10 +23,6 @@ namespace ConnectApp.screens {
         }
     }
 
-    internal class countActionModel {
-        public Action<int> onAdd;
-    }
-
     internal class _EventsScreen : State<EventsScreen> {
         private const double headerHeight = 80.0;
 
@@ -52,7 +48,7 @@ namespace ConnectApp.screens {
                         new CustomButton(
                             padding: EdgeInsets.symmetric(horizontal: 8.0),
                             onPressed: () => {
-                                StoreProvider.store.Dispatch(new ChangeEmailAction() {email = "ods@ods.com"});
+                                StoreProvider.store.Dispatch(new ChangeEmailAction {email = "ods@ods.com"});
 //                                Navigator.pushName(context, "/mine");
                             },
                             child: new Icon(
@@ -106,15 +102,13 @@ namespace ConnectApp.screens {
                     child: new Container(
                         child: new StoreConnector<AppState, Dictionary<string, object>>(
                             converter: (state, dispatch) => new Dictionary<string, object> {
-                                {"loading", (bool) state.Get("event.loading")},
-                                {"events", state.Get("event.events")}
+                                {"loading", state.EventsLoading},
+                                {"events", state.Events}
                             },
                             builder: (context1, viewModel) => {
                                 var loading = (bool) viewModel["loading"];
                                 var events = viewModel["events"] as List<IEvent>;
                                 var cardList = new List<Widget>();
-                                Debug.Log($"loading: + {loading}");
-                                Debug.Log($"events: + {events}");
                                 if (!loading) {
                                     events.ForEach(action: model => {
                                         cardList.Add(new EventCard(Key.key(model.id), model));
@@ -142,13 +136,13 @@ namespace ConnectApp.screens {
                     child: new Column(
                         children: new List<Widget> {
                             new StoreConnector<AppState, string>(
-                                converter: (state, dispatch) => $"Count:{state.Get("count", 0)}",
+                                converter: (state, dispatch) => $"Count: {state.Count}",
                                 builder: (context1, countText) => new Text(countText, style: new TextStyle(
                                     fontSize: 20, fontWeight: FontWeight.w700
                                 ))
                             ),
                             new StoreConnector<AppState, string>(
-                                converter: (state, dispatch) => $"Email:{state.Get("login.email", "")}",
+                                converter: (state, dispatch) => $"Email: {state.Login.email}",
                                 builder: (context1, countText) => new Text(countText, style: new TextStyle(
                                     fontSize: 20, fontWeight: FontWeight.w700
                                 ))

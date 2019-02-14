@@ -3,7 +3,7 @@ using System;
 namespace ConnectApp.models {
     [Serializable]
     public class IEvent {
-        public readonly string id;
+        public string id;
         public User user;
         public string title;
         public string background;

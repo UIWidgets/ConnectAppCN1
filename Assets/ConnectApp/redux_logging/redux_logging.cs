@@ -12,8 +12,8 @@ namespace ConnectApp.redux_logging {
                 var afterState = store.state;
                 var afterStateDump = JsonConvert.SerializeObject(afterState);
                 Debug.LogFormat("Action name={0} data={1}", action.GetType().Name, JsonUtility.ToJson(action));
-//                Debug.LogFormat("previousState=\n{0}", previousStateDump);
-//                Debug.LogFormat("afterState=\n{0}", afterStateDump);
+                Debug.LogFormat("previousState=\n{0}", previousStateDump);
+                Debug.LogFormat("afterState=\n{0}", afterStateDump);
                 return result;
             };
         }
