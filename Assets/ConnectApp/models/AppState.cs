@@ -7,9 +7,9 @@ namespace ConnectApp.models {
         public int Count { get; set; }
         public Login Login { get; set; }
         public List<IEvent> Events { get; set; }
-        
+
         public bool EventsLoading { get; set; }
-        
+
         public static AppState initialState() {
             return new AppState {
                 Count = 0,

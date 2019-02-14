@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using ConnectApp.components;
 using ConnectApp.constants;
@@ -10,7 +9,6 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
@@ -109,14 +107,12 @@ namespace ConnectApp.screens {
                                 var loading = (bool) viewModel["loading"];
                                 var events = viewModel["events"] as List<IEvent>;
                                 var cardList = new List<Widget>();
-                                if (!loading) {
+                                if (!loading)
                                     events.ForEach(action: model => {
                                         cardList.Add(new EventCard(Key.key(model.id), model));
                                     });
-                                }
-                                else {
+                                else
                                     cardList.Add(new Container());
-                                }
 
                                 return new ListView(
                                     physics: new AlwaysScrollableScrollPhysics(),

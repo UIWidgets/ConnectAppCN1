@@ -88,9 +88,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new CustomButton(
                             onPressed: () => {
-                                if (_selectedIndex != index) {
-                                    setState(() => _selectedIndex = index);
-                                }
+                                if (_selectedIndex != index) setState(() => _selectedIndex = index);
 
                                 _pageController.animateToPage(
                                     index,

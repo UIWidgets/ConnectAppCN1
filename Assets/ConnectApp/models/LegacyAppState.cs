@@ -11,9 +11,13 @@ namespace ConnectApp.models {
             _state = new Dictionary<string, object>();
         }
 
-        public static LegacyAppState FromJson(Dictionary<string, object> json) => _dictToState(json);
+        public static LegacyAppState FromJson(Dictionary<string, object> json) {
+            return _dictToState(json);
+        }
 
-        public static Dictionary<string, object> ToJson(LegacyAppState legacyAppState) => _stateToDict(legacyAppState);
+        public static Dictionary<string, object> ToJson(LegacyAppState legacyAppState) {
+            return _stateToDict(legacyAppState);
+        }
 
         public void Set(string key, object value) {
 //      if (!_checkType(value)) {
@@ -75,7 +79,7 @@ namespace ConnectApp.models {
 
         private static List<object> _cloneList(IEnumerable<object> list) {
             var cloned = new List<object>();
-            foreach (var item in list) {
+            foreach (var item in list)
                 switch (item) {
                     case List<object> objects:
                         cloned.Add(_cloneList(objects));
@@ -87,14 +91,13 @@ namespace ConnectApp.models {
                         cloned.Add(item);
                         break;
                 }
-            }
 
             return cloned;
         }
 
         private static LegacyAppState _cloneState(LegacyAppState state) {
             var cloned = new LegacyAppState();
-            foreach (var key in state._state.Keys) {
+            foreach (var key in state._state.Keys)
                 switch (state._state[key]) {
                     case List<object> objects:
                         cloned._set(new[] {key}, _cloneList(objects));
@@ -106,14 +109,13 @@ namespace ConnectApp.models {
                         cloned._set(new[] {key}, state._state[key]);
                         break;
                 }
-            }
 
             return cloned;
         }
 
         private static Dictionary<string, object> _stateToDict(LegacyAppState state) {
             var dict = new Dictionary<string, object>();
-            foreach (var key in state._state.Keys) {
+            foreach (var key in state._state.Keys)
                 switch (state._state[key]) {
                     case LegacyAppState appState:
                         dict[key] = _stateToDict(appState);
@@ -125,14 +127,13 @@ namespace ConnectApp.models {
                         dict[key] = state._state[key];
                         break;
                 }
-            }
 
             return dict;
         }
 
         private static LegacyAppState _dictToState(Dictionary<string, object> dict) {
             var state = new LegacyAppState();
-            foreach (var key in dict.Keys) {
+            foreach (var key in dict.Keys)
                 switch (dict[key]) {
                     case Dictionary<string, object> _:
                         state._state[key] = _dictToState((Dictionary<string, object>) dict[key]);
@@ -144,14 +145,13 @@ namespace ConnectApp.models {
                         state._state[key] = dict[key];
                         break;
                 }
-            }
 
             return state;
         }
 
         private static List<object> _stateToList(IEnumerable<object> state) {
             var list = new List<object>();
-            foreach (var item in state) {
+            foreach (var item in state)
                 switch (item) {
                     case List<object> objects:
                         list.Add(_stateToList(objects));
@@ -163,14 +163,13 @@ namespace ConnectApp.models {
                         list.Add(item);
                         break;
                 }
-            }
 
             return list;
         }
 
         private static List<object> _listToState(IEnumerable<object> list) {
             var state = new List<object>();
-            foreach (var item in list) {
+            foreach (var item in list)
                 switch (item) {
                     case List<object> objects:
                         state.Add(_listToState(objects));
@@ -182,7 +181,6 @@ namespace ConnectApp.models {
                         state.Add(item);
                         break;
                 }
-            }
 
             return state;
         }
@@ -195,38 +193,32 @@ namespace ConnectApp.models {
                 !(type is string) &&
                 !(type is null) &&
                 !(value is List<object>) &&
-                !(value is Dictionary<string, object>)) {
+                !(value is Dictionary<string, object>))
                 return false;
-            }
 
             if (value is Dictionary<string, object> dictionary) {
                 foreach (var key in dictionary.Keys) {
-                    if (key == null) {
-                        return false;
-                    }
+                    if (key == null) return false;
 
                     var valid = _checkType(dictionary[key]);
-                    if (!valid) {
-                        return false;
-                    }
+                    if (!valid) return false;
                 }
             }
             else {
                 var objects = (List<object>) value;
-                if (objects != null) {
+                if (objects != null)
                     foreach (var item in objects) {
                         var valid = _checkType(item);
-                        if (!valid) {
-                            return false;
-                        }
+                        if (!valid) return false;
                     }
-                }
             }
 
             return true;
         }
 
-        private LegacyAppState emptyState() => new LegacyAppState();
+        private LegacyAppState emptyState() {
+            return new LegacyAppState();
+        }
 
         public static LegacyAppState initialState() {
             var state = _dictToState(

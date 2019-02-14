@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using ConnectApp.models;
 using ConnectApp.redux;
@@ -40,21 +39,19 @@ namespace ConnectApp.canvas {
         protected override PageRouteFactory pageRouteBuilder => (RouteSettings settings, WidgetBuilder builder) =>
             new PageRouteBuilder(
                 settings,
-                (context, animation, secondaryAnimation) => 
+                (context, animation, secondaryAnimation) =>
                     new StoreProvider<AppState>(StoreProvider.store, builder(context)),
                 (context, animation, secondaryAnimation, child) => {
-                    if (fullScreenRoutes.ContainsKey(settings.name)) {
+                    if (fullScreenRoutes.ContainsKey(settings.name))
                         return new ModalPageTransition(
                             routeAnimation: animation,
                             child: child
                         );
-                    }
-                    else {
+                    else
                         return new PushPageTransition(
                             routeAnimation: animation,
                             child: child
                         );
-                    }
                 }
             );
     }

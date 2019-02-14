@@ -23,6 +23,7 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
             }
+
             return state;
         }
     }
