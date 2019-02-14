@@ -8,9 +8,7 @@ namespace ConnectApp.redux {
 
         public static Store<AppState> store {
             get {
-                if (_store != null) {
-                    return _store;
-                }
+                if (_store != null) return _store;
 
                 var middleware = new[] {
                     ReduxLogging.Create<AppState>(),

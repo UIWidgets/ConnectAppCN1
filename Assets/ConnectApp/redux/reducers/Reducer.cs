@@ -6,21 +6,20 @@ namespace ConnectApp.redux.reducers {
         public static AppState Reduce(AppState state, object bAction) {
             switch (bAction) {
                 case AddCountAction action: {
-                    var num = (int) state.Get("count", 0);
-                    state.Set("count", num + action.number);
+                    state.Count += action.number;
                     break;
                 }
                 case ChangeEmailAction action: {
-                    state.Set("login.email", action.email);
+                    state.Login.email = action.email;
                     break;
                 }
                 case EventsRequestAction action: {
-                    state.Set("event.loading", true);
+                    state.EventsLoading = true;
                     break;
                 }
                 case EventsResponseAction action: {
-                    state.Set("event.loading", false);
-                    state.Set("event.events", action.events);
+                    state.EventsLoading = false;
+                    state.Events = action.events;
                     break;
                 }
             }
