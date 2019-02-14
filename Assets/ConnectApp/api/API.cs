@@ -37,5 +37,31 @@ namespace ConnectApp.api {
                     promise.Reject(new Exception("No user under this username found!"));
             }
         }
+        
+        public IPromise<LiveInfo> FetchLiveDetail(string eventId) {
+            // We return a promise instantly and start the coroutine to do the real work
+            var promise = new Promise<LiveInfo>();
+            Window.instance.startCoroutine(_FetchLiveDetail(promise, eventId));
+            return promise;
+        }
+
+        private IEnumerator _FetchLiveDetail(Promise<LiveInfo> promise, string eventId) {
+            var request = UnityWebRequest.Get(apiAddress + "/api/live/events/"+eventId);
+            yield return request.Send();
+
+            if (request.isError) // something went wrong
+                promise.Reject(new Exception(request.error));
+            else if (request.responseCode != 200) // or the response is not OK 
+                promise.Reject(new Exception(request.downloadHandler.text));
+            else {
+                // Format output and resolve promise
+                var json = request.downloadHandler.text;
+                var liveDetail = JsonConvert.DeserializeObject<LiveInfo>(json);
+                if (liveDetail != null)
+                    promise.Resolve(liveDetail);
+                else
+                    promise.Reject(new Exception("No user under this username found!"));
+            }
+        }
     }
 }

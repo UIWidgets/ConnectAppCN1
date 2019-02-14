@@ -242,7 +242,15 @@ namespace ConnectApp.models {
                             {"loading", false},
                             {"events", new List<IEvent>()}
                         }
-                    }, {
+                    },
+                    {
+                        "live",new Dictionary<string,object>
+                        {
+                            {"loading", false},
+                            {"info", new LiveInfo()}
+                        }
+                    },
+                    {
                         "settings", new Dictionary<string, object> {
                             {"language", "zh_CN"}
                         }

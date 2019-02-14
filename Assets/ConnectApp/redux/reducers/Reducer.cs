@@ -23,6 +23,18 @@ namespace ConnectApp.redux.reducers {
                     state.Set("event.events", action.events);
                     break;
                 }
+                case LiveRequestAction action:
+                {
+                    state.Set("live.loading", true);
+                    
+                    break;
+                }
+                case LiveResponseAction action:
+                {
+                    state.Set("live.loading", false);
+                    state.Set("live.info",action.liveInfo);
+                    break;
+                }
             }
 
             return state;

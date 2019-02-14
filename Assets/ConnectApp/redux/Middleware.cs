@@ -17,7 +17,19 @@ namespace ConnectApp.redux {
                             });
                         })
                         .Catch(error => { Debug.Log(error); });
-                }
+                }else if (bAction is LiveRequestAction liveRequestAction) {
+                    var api = new API();
+                    api.FetchLiveDetail(eventId: liveRequestAction.eventId)
+                        .Then(liveInfo => {
+                            Debug.Log(liveInfo);
+                            store.Dispatch(new LiveResponseAction() {
+                                liveInfo = liveInfo,
+                                eventId = liveRequestAction.eventId
+                            });
+                        })
+                        .Catch(error => { Debug.Log(error); });
+                } 
+                
 
                 return next(bAction);
             };

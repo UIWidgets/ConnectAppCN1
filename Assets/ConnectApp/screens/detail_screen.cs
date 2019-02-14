@@ -1,22 +1,48 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using ConnectApp.components;
 using ConnectApp.constants;
+using ConnectApp.models;
+using ConnectApp.redux;
+using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Image = Unity.UIWidgets.widgets.Image;
+using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
-    public class DetailScreen : StatefulWidget {
-        public DetailScreen(Key key = null) : base(key) {
+    public class DetailScreen : StatefulWidget
+    {
+        public DetailScreen(
+            Key key = null,
+            string eventId = "5b9753f22920c6002ed2c22d"
+        ) : base(key){
+            this.eventId = eventId;
         }
 
+        public string eventId;
+        
         public override State createState() {
             return new _DetailScreen();
         }
     }
 
-    internal class _DetailScreen : State<DetailScreen> {
+    internal class _DetailScreen : State<DetailScreen>
+    {
+           
+        
+        private string _eventId;
+        
+        public override void initState()
+        {
+            base.initState();
+            StoreProvider.store.Dispatch(new LiveRequestAction() { eventId = widget.eventId});
+        }
+
         private Widget _headerView(BuildContext context) {
             return new Container(
                 child: new Column(
@@ -95,7 +121,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _contentHead() {
+        private Widget _contentHead(LiveInfo liveInfo) {
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
@@ -103,7 +129,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new Container(height: 16),
                         new Text(
-                            "如何在Unity中创建ARCore的应用",
+                            data:liveInfo.title,
                             style: new TextStyle(
                                 fontSize: 20,
                                 color: CColors.text1
@@ -119,8 +145,8 @@ namespace ConnectApp.screens {
                                     decoration: new BoxDecoration(
                                         borderRadius: BorderRadius.all(18)
                                     ),
-                                    child: Image.asset(
-                                        "mario",
+                                    child: Image.network(
+                                        src:liveInfo.user.avatar,
                                         height: 36,
                                         width: 36,
                                         fit: BoxFit.fill
@@ -132,7 +158,7 @@ namespace ConnectApp.screens {
                                     children: new List<Widget> {
                                         new Container(height: 5),
                                         new Text(
-                                            "杨栋",
+                                            data:liveInfo.user.fullName,
                                             style: new TextStyle(
                                                 fontSize: 13,
                                                 color: CColors.text1
@@ -140,7 +166,7 @@ namespace ConnectApp.screens {
                                         ),
                                         new Container(height: 5),
                                         new Text(
-                                            "5天前发布",
+                                            data:liveInfo.createdTime,
                                             style: new TextStyle(
                                                 fontSize: 13,
                                                 color: CColors.text2
@@ -155,7 +181,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _contentDetail() {
+        private Widget _contentDetail(LiveInfo liveInfo) {
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
@@ -164,7 +190,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new Container(height: 40),
                         new Text(
-                            "直播介绍",
+                            "内容介绍",
                             style: new TextStyle(
                                 fontSize: 17,
                                 color: CColors.text1
@@ -172,34 +198,25 @@ namespace ConnectApp.screens {
                         ),
                         new Container(height: 16),
                         new Text(
-                            "最近谷歌发布了ARCore预览版，它将为整个Android生态系统启用AR（增强现实）开发，为开发人员提供了为数百万用户构建迷人AR体验的能力，而无需专门的硬件。Unity的XR团队一直与Google的团队紧密合作，以克服AR开发呈现的一些最困难的挑战。而随着Unity2017.2的发布，开发者已经可以很方便的在Unity中使用ARCore创建应用。",
+                            data:liveInfo.shortDescription,
                             style: new TextStyle(
                                 fontSize: 14,
                                 color: CColors.text1
                             )
                         ),
-                        new Container(height: 16),
-                        new Text(
-                            "内容：" +
-                            "这次直播主要介绍如何在Unity中使用ARCore。内容包括ARCore基本介绍，和其他AR解决方案的区别，以及如何创建一个ARCore的项目。在项目实例中，我们将会展示如何在真实场景中添加一个动画角色，以及如何在真实场景中创建通向另一个虚拟世界的入口。",
-                            style: new TextStyle(
-                                fontSize: 14,
-                                color: CColors.text1
-                            )
-                        )
                     }
                 )
             );
         }
 
-        private Widget _content() {
+        private Widget _content(LiveInfo liveInfo) {
             return new Flexible(
                 child: new ListView(
                     physics: new AlwaysScrollableScrollPhysics(),
                     children: new List<Widget> {
-                        _contentHead(),
+                        _contentHead(liveInfo),
                         new Container(height: 40),
-                        _contentDetail()
+                        //_contentDetail(liveInfo)
                     }
                 )
             );
@@ -279,20 +296,30 @@ namespace ConnectApp.screens {
             );
         }
 
-        public override Widget build(BuildContext context) {
-            return new Container(
-                color: CColors.background2,
-                child: new Stack(
-                    children: new List<Widget> {
-                        new Column(
-                            children: new List<Widget> {
-                                _headerView(context),
-                                _content()
+        public override Widget build(BuildContext context)
+        {
+            return new StoreConnector<AppState,LiveInfo>(
+                converter: (state, dispatcher) => (LiveInfo)state.Get("live.info"),
+                builder: (context1, liveInfo) =>
+                {
+                    return new Container(
+                        color: CColors.background2,
+                        child: new Stack(
+                            children: new List<Widget>
+                            {
+                                new Column(
+                                    children: new List<Widget>
+                                    {
+                                        _headerView(context),
+                                        new LiveDetail(liveInfo:liveInfo)
+                                    }
+                                ),
+                                _joinBar()
                             }
-                        ),
-                        _joinBar()
-                    }
-                )
+                        )
+                    );
+                }
+
             );
         }
     }
