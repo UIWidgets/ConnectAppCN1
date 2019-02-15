@@ -11,49 +11,41 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
-namespace ConnectApp.screens
-{
-    public class EventsScreen : StatefulWidget
-    {
-        public EventsScreen(Key key = null) : base(key)
-        {
+namespace ConnectApp.screens {
+    public class EventsScreen : StatefulWidget {
+        public EventsScreen(Key key = null) : base(key) {
         }
 
-        public override State createState()
-        {
+        public override State createState() {
             return new _EventsScreen();
         }
     }
 
-    internal class _EventsScreen : State<EventsScreen>
-    {
+    internal class _EventsScreen : State<EventsScreen> {
         private const double headerHeight = 80.0;
 
         private double _offsetY = 0.0;
 //        private List<IEvent> events;
 
-        private Widget _buildHeader(BuildContext context)
-        {
+        private Widget _buildHeader(BuildContext context) {
             return new Container(
                 padding: EdgeInsets.only(16.0, right: 8.0),
                 height: headerHeight - _offsetY,
                 child: new Row(
-                    children: new List<Widget>
-                    {
+                    children: new List<Widget> {
                         new Flexible(
                             flex: 1,
                             fit: FlexFit.tight,
                             child: new Text(
                                 "Today",
                                 style: new TextStyle(
-                                    fontSize: (34.0 / headerHeight) * (headerHeight - _offsetY),
+                                    fontSize: 34.0 / headerHeight * (headerHeight - _offsetY),
                                     color: CColors.white
                                 )
                             )),
                         new CustomButton(
                             padding: EdgeInsets.symmetric(horizontal: 8.0),
-                            onPressed: () =>
-                            {
+                            onPressed: () => {
                                 StoreProvider.store.Dispatch(new ChangeEmailAction {email = "ods@ods.com"});
 //                                Navigator.pushName(context, "/mine");
                             },
@@ -65,8 +57,7 @@ namespace ConnectApp.screens
                         ),
                         new CustomButton(
                             padding: EdgeInsets.only(8.0, right: 16.0),
-                            onPressed: () =>
-                            {
+                            onPressed: () => {
                                 StoreProvider.store.Dispatch(new AddCountAction() {number = 3});
 //                                Navigator.pushName(context, "/login");
                             },
@@ -81,54 +72,43 @@ namespace ConnectApp.screens
             );
         }
 
-        public override void initState()
-        {
+        public override void initState() {
             base.initState();
             StoreProvider.store.Dispatch(new EventsRequestAction {pageNumber = 1});
         }
 
 
-        private bool _onNotification(ScrollNotification notification, BuildContext context)
-        {
-            double pixels = notification.metrics.pixels;
-            if (pixels >= 0.0)
-            {
+        private bool _onNotification(ScrollNotification notification, BuildContext context) {
+            var pixels = notification.metrics.pixels;
+            if (pixels >= 0.0) {
                 if (pixels <= headerHeight) setState(() => { _offsetY = pixels / 2.0; });
             }
-            else
-            {
+            else {
                 if (_offsetY != 0.0) setState(() => { _offsetY = 0.0; });
             }
 
             return true;
         }
 
-        private Widget _buildContentList(BuildContext context)
-        {
+        private Widget _buildContentList(BuildContext context) {
             return new NotificationListener<ScrollNotification>(
-                onNotification: (ScrollNotification notification) =>
-                {
+                onNotification: (ScrollNotification notification) => {
                     _onNotification(notification, context);
                     return true;
                 },
                 child: new Flexible(
                     child: new Container(
                         child: new StoreConnector<AppState, Dictionary<string, object>>(
-                            converter: (state, dispatch) => new Dictionary<string, object>
-                            {
+                            converter: (state, dispatch) => new Dictionary<string, object> {
                                 {"loading", state.EventsLoading},
                                 {"events", state.Events}
                             },
-                            builder: (context1, viewModel) =>
-                            {
+                            builder: (context1, viewModel) => {
                                 var loading = (bool) viewModel["loading"];
                                 var events = viewModel["events"] as List<IEvent>;
                                 var cardList = new List<Widget>();
                                 if (!loading)
-                                    events.ForEach(action: model =>
-                                    {
-                                        cardList.Add(new EventCard(Key.key(model.id), model));
-                                    });
+                                    events.ForEach(model => { cardList.Add(new EventCard(Key.key(model.id), model)); });
                                 else
                                     cardList.Add(new Container());
 
@@ -143,14 +123,12 @@ namespace ConnectApp.screens
             );
         }
 
-        public override Widget build(BuildContext context)
-        {
+        public override Widget build(BuildContext context) {
             var container = new Container(
                 child: new Container(
                     color: CColors.background1,
                     child: new Column(
-                        children: new List<Widget>
-                        {
+                        children: new List<Widget> {
                             new StoreConnector<AppState, string>(
                                 converter: (state, dispatch) => $"Count: {state.Count}",
                                 builder: (context1, countText) => new Text(countText, style: new TextStyle(

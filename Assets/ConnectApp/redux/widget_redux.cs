@@ -3,35 +3,29 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.redux
-{
-    public class StoreProvider<State> : InheritedWidget
-    {
+namespace ConnectApp.redux {
+    public class StoreProvider<State> : InheritedWidget {
         private readonly Store<State> _store;
 
-        public StoreProvider(Store<State> store, Widget child, Key key = null) : base(key: key, child: child)
-        {
+        public StoreProvider(Store<State> store, Widget child, Key key = null) : base(key, child) {
             D.assert(store != null);
             D.assert(child != null);
             _store = store;
         }
 
-        public static Store<State> of(BuildContext context)
-        {
+        public static Store<State> of(BuildContext context) {
             var type = _typeOf<StoreProvider<State>>();
-            StoreProvider<State> provider = context.inheritFromWidgetOfExactType(type) as StoreProvider<State>;
+            var provider = context.inheritFromWidgetOfExactType(type) as StoreProvider<State>;
             if (provider == null) throw new UIWidgetsError("StoreProvider is missing");
 
             return provider._store;
         }
 
-        private static Type _typeOf<T>()
-        {
+        private static Type _typeOf<T>() {
             return typeof(T);
         }
 
-        public override bool updateShouldNotify(InheritedWidget old)
-        {
+        public override bool updateShouldNotify(InheritedWidget old) {
             return !Equals(_store, ((StoreProvider<State>) old)._store);
         }
     }
@@ -42,8 +36,7 @@ namespace ConnectApp.redux
 
     public delegate bool ShouldRebuildCallback<ViewModel>(ViewModel pre, ViewModel current);
 
-    public class StoreConnector<State, ViewModel> : StatelessWidget
-    {
+    public class StoreConnector<State, ViewModel> : StatelessWidget {
         public readonly ViewModelBuilder<ViewModel> builder;
 
         public readonly StoreConverter<State, ViewModel> converter;
@@ -55,8 +48,7 @@ namespace ConnectApp.redux
 
         public StoreConnector(ViewModelBuilder<ViewModel> builder, StoreConverter<State, ViewModel> converter,
             bool distinct = false, ShouldRebuildCallback<ViewModel> shouldRebuild = null,
-            Key key = null) : base(key)
-        {
+            Key key = null) : base(key) {
             D.assert(builder != null);
             D.assert(converter != null);
             this.distinct = distinct;
@@ -65,8 +57,7 @@ namespace ConnectApp.redux
             this.shouldRebuild = shouldRebuild;
         }
 
-        public override Widget build(BuildContext context)
-        {
+        public override Widget build(BuildContext context) {
             return new _StoreListener<State, ViewModel>(
                 store: StoreProvider<State>.of(context),
                 builder: builder,
@@ -77,8 +68,7 @@ namespace ConnectApp.redux
         }
     }
 
-    public class _StoreListener<State, ViewModel> : StatefulWidget
-    {
+    public class _StoreListener<State, ViewModel> : StatefulWidget {
         public readonly ViewModelBuilder<ViewModel> builder;
 
         public readonly StoreConverter<State, ViewModel> converter;
@@ -94,8 +84,7 @@ namespace ConnectApp.redux
             Store<State> store = null,
             bool distinct = false,
             ShouldRebuildCallback<ViewModel> shouldRebuild = null,
-            Key key = null) : base(key)
-        {
+            Key key = null) : base(key) {
             D.assert(builder != null);
             D.assert(converter != null);
             D.assert(store != null);
@@ -106,33 +95,27 @@ namespace ConnectApp.redux
             this.shouldRebuild = shouldRebuild;
         }
 
-        public override Unity.UIWidgets.widgets.State createState()
-        {
+        public override Unity.UIWidgets.widgets.State createState() {
             return new _StoreListenerState<State, ViewModel>();
         }
     }
 
-    internal class _StoreListenerState<State, ViewModel> : State<_StoreListener<State, ViewModel>>
-    {
+    internal class _StoreListenerState<State, ViewModel> : State<_StoreListener<State, ViewModel>> {
         private ViewModel latestValue;
 
-        public override void initState()
-        {
+        public override void initState() {
             base.initState();
             _init();
         }
 
-        public override void dispose()
-        {
+        public override void dispose() {
             widget.store.stateChanged -= _handleStateChanged;
             base.dispose();
         }
 
-        public override void didUpdateWidget(StatefulWidget oldWidget)
-        {
+        public override void didUpdateWidget(StatefulWidget oldWidget) {
             var oldStore = ((_StoreListener<State, ViewModel>) oldWidget).store;
-            if (widget.store != oldStore)
-            {
+            if (widget.store != oldStore) {
                 oldStore.stateChanged -= _handleStateChanged;
                 _init();
             }
@@ -140,41 +123,34 @@ namespace ConnectApp.redux
             base.didUpdateWidget(oldWidget);
         }
 
-        private void _init()
-        {
+        private void _init() {
             widget.store.stateChanged += _handleStateChanged;
             latestValue = widget.converter(widget.store.state, widget.store.Dispatch);
         }
 
-        private void _handleStateChanged(State state)
-        {
+        private void _handleStateChanged(State state) {
             if (Window.hasInstance)
                 _innerStateChanged(state);
             else
-                using (WindowProvider.of(context).getScope())
-                {
+                using (WindowProvider.of(context).getScope()) {
                     _innerStateChanged(state);
                 }
         }
 
-        private void _innerStateChanged(State state)
-        {
+        private void _innerStateChanged(State state) {
             var preValue = latestValue;
             latestValue = widget.converter(widget.store.state, widget.store.Dispatch);
-            if (widget.shouldRebuild != null)
-            {
+            if (widget.shouldRebuild != null) {
                 if (!widget.shouldRebuild(preValue, latestValue)) return;
             }
-            else if (widget.distinct)
-            {
+            else if (widget.distinct) {
                 if (Equals(preValue, latestValue)) return;
             }
 
             setState(() => { });
         }
 
-        public override Widget build(BuildContext context)
-        {
+        public override Widget build(BuildContext context) {
             return widget.builder(context, latestValue);
         }
     }

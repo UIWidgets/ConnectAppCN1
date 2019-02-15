@@ -1,10 +1,8 @@
 using System;
 
-namespace ConnectApp.models
-{
+namespace ConnectApp.models {
     [Serializable]
-    public class LiveState
-    {
+    public class LiveState {
         public bool loading;
 
         public LiveInfo liveInfo;

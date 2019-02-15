@@ -6,10 +6,8 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
-namespace ConnectApp.components
-{
-    public class InputField : StatefulWidget
-    {
+namespace ConnectApp.components {
+    public class InputField : StatefulWidget {
         public InputField(
             Key key = null,
             TextEditingController controller = null,
@@ -29,8 +27,7 @@ namespace ConnectApp.components
             ValueChanged<string> onChanged = null,
             ValueChanged<string> onSubmitted = null,
             EdgeInsets scrollPadding = null
-        ) : base(key)
-        {
+        ) : base(key) {
             this.controller = controller;
             this.textAlign = textAlign;
             this.focusNode = focusNode;
@@ -73,35 +70,29 @@ namespace ConnectApp.components
 //        public readonly TextInputType keyboardType;
 //        public readonly Brightness keyboardAppearance;
 
-        public override State createState()
-        {
+        public override State createState() {
             return new _InputField();
         }
     }
 
-    internal class _InputField : State<InputField>
-    {
+    internal class _InputField : State<InputField> {
         private TextEditingController _textEditingController;
         private FocusNode _focusNode;
         private bool _isHintTextHidden = false;
 
-        public override void initState()
-        {
+        public override void initState() {
             base.initState();
             _textEditingController = new TextEditingController("");
             _focusNode = new FocusNode();
         }
 
-        public override Widget build(BuildContext context)
-        {
+        public override Widget build(BuildContext context) {
             return new Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: new List<Widget>
-                {
+                children: new List<Widget> {
                     _buildLabelText(),
                     new Stack(
-                        children: new List<Widget>
-                        {
+                        children: new List<Widget> {
                             _buildEditableText(), _buildHintText()
                         }
                     )
@@ -109,8 +100,7 @@ namespace ConnectApp.components
             );
         }
 
-        private Widget _buildLabelText()
-        {
+        private Widget _buildLabelText() {
             if (widget.hintText == null || !_isHintTextHidden) return new Container(height: 20);
 
             return new Container(
@@ -122,17 +112,15 @@ namespace ConnectApp.components
             );
         }
 
-        private Widget _buildHintText()
-        {
+        private Widget _buildHintText() {
             if (widget.hintText == null || _isHintTextHidden) return new Container();
             return new Positioned(
                 top: 0,
                 left: 0,
                 bottom: 0,
                 child: new GestureDetector(
-                    onTap: () =>
-                    {
-                        FocusNode focusNode = widget.focusNode ?? _focusNode;
+                    onTap: () => {
+                        var focusNode = widget.focusNode ?? _focusNode;
                         FocusScope.of(context).requestFocus(focusNode);
                     },
                     child: new Text(widget.hintText,
@@ -142,11 +130,9 @@ namespace ConnectApp.components
             );
         }
 
-        private Widget _buildEditableText()
-        {
+        private Widget _buildEditableText() {
             return new GestureDetector(
-                onTap: () =>
-                {
+                onTap: () => {
                     var focusNode = widget.focusNode ?? _focusNode;
                     FocusScope.of(context).requestFocus(focusNode);
                 },
@@ -158,9 +144,8 @@ namespace ConnectApp.components
                     obscureText: widget.obscureText,
                     style: widget.style,
                     cursorColor: widget.cursorColor,
-                    onChanged: str =>
-                    {
-                        var isTextEmpty = (str.Length > 0);
+                    onChanged: str => {
+                        var isTextEmpty = str.Length > 0;
                         if (_isHintTextHidden != isTextEmpty)
                             setState(() => { _isHintTextHidden = isTextEmpty; });
                     }

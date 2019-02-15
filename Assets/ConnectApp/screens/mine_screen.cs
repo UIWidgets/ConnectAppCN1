@@ -10,37 +10,29 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
-namespace ConnectApp.screens
-{
-    public class MineScreen : StatefulWidget
-    {
-        public MineScreen(Key key = null) : base(key)
-        {
+namespace ConnectApp.screens {
+    public class MineScreen : StatefulWidget {
+        public MineScreen(Key key = null) : base(key) {
         }
 
-        public override State createState()
-        {
+        public override State createState() {
             return new _MineScreen();
         }
     }
 
-    internal class _MineScreen : State<MineScreen>
-    {
+    internal class _MineScreen : State<MineScreen> {
         private PageController _pageController;
         private int _selectedIndex;
 
-        public override void initState()
-        {
+        public override void initState() {
             base.initState();
             _pageController = new PageController();
             _selectedIndex = 0;
         }
 
-        public override Widget build(BuildContext context)
-        {
+        public override Widget build(BuildContext context) {
             return new Column(
-                children: new List<Widget>
-                {
+                children: new List<Widget> {
                     new CustomAppBar(
                         title: new Text(
                             "Mine",
@@ -49,8 +41,7 @@ namespace ConnectApp.screens
                                 color: CColors.text1
                             )
                         ),
-                        actions: new List<Widget>
-                        {
+                        actions: new List<Widget> {
                             new CustomButton(
                                 child: new Icon(
                                     Icons.settings,
@@ -67,12 +58,10 @@ namespace ConnectApp.screens
             );
         }
 
-        private Widget buildSelectItem(string title, int index)
-        {
+        private Widget buildSelectItem(string title, int index) {
             var textColor = CColors.text2;
             Widget lineView = new Positioned(new Container());
-            if (index == _selectedIndex)
-            {
+            if (index == _selectedIndex) {
                 textColor = CColors.text11;
                 lineView = new Positioned(
                     bottom: 0,
@@ -80,8 +69,7 @@ namespace ConnectApp.screens
                     right: 0,
                     child: new Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: new List<Widget>
-                        {
+                        children: new List<Widget> {
                             new Container(
                                 width: 80,
                                 height: 2,
@@ -97,11 +85,9 @@ namespace ConnectApp.screens
             return new Flexible(
                 child: new Stack(
                     fit: StackFit.expand,
-                    children: new List<Widget>
-                    {
+                    children: new List<Widget> {
                         new CustomButton(
-                            onPressed: () =>
-                            {
+                            onPressed: () => {
                                 if (_selectedIndex != index) setState(() => _selectedIndex = index);
 
                                 _pageController.animateToPage(
@@ -130,19 +116,16 @@ namespace ConnectApp.screens
             );
         }
 
-        private Widget buildSelectView()
-        {
+        private Widget buildSelectView() {
             return new Column(
-                children: new List<Widget>
-                {
+                children: new List<Widget> {
                     new Container(
                         height: 44,
                         decoration: new BoxDecoration(
                             CColors.background1
                         ),
                         child: new Row(
-                            children: new List<Widget>
-                            {
+                            children: new List<Widget> {
                                 buildSelectItem("即将参与", 0), buildSelectItem("浏览记录", 1)
                             }
                         )
@@ -152,8 +135,7 @@ namespace ConnectApp.screens
             );
         }
 
-        private Widget mineList()
-        {
+        private Widget mineList() {
             var historyCard = new HistoryCard();
             return new Container(
                 decoration: new BoxDecoration(
@@ -161,8 +143,7 @@ namespace ConnectApp.screens
                 ),
                 child: new ListView(
                     physics: new AlwaysScrollableScrollPhysics(),
-                    children: new List<Widget>
-                    {
+                    children: new List<Widget> {
                         historyCard,
                         historyCard,
                         historyCard
@@ -171,8 +152,7 @@ namespace ConnectApp.screens
             );
         }
 
-        private Widget contentView()
-        {
+        private Widget contentView() {
             return new Flexible(
                 child: new Container(
                     decoration: new BoxDecoration(CColors.background1),
@@ -180,8 +160,7 @@ namespace ConnectApp.screens
                         physics: new BouncingScrollPhysics(),
                         controller: _pageController,
                         onPageChanged: (int index) => { setState(() => { _selectedIndex = index; }); },
-                        children: new List<Widget>
-                        {
+                        children: new List<Widget> {
                             mineList(), mineList()
                         }
                     )

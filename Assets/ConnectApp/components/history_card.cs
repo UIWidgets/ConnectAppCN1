@@ -7,12 +7,9 @@ using Unity.UIWidgets.widgets;
 using Image = Unity.UIWidgets.widgets.Image;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
-namespace ConnectApp.components
-{
-    public class HistoryCard : StatelessWidget
-    {
-        public override Widget build(BuildContext context)
-        {
+namespace ConnectApp.components {
+    public class HistoryCard : StatelessWidget {
+        public override Widget build(BuildContext context) {
             var card = new Container(
                 height: 100,
                 padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -22,8 +19,7 @@ namespace ConnectApp.components
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget>
-                    {
+                    children: new List<Widget> {
                         Image.asset(
                             "yoshi",
                             height: 84,
@@ -34,8 +30,7 @@ namespace ConnectApp.components
                         new Flexible(
                             child: new Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: new List<Widget>
-                                {
+                                children: new List<Widget> {
                                     new Text(
                                         "迪士尼电视动画与Unity联袂合作，开创实时动画新纪元",
                                         maxLines: 3,
