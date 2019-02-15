@@ -5,16 +5,12 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.screens
-{
-    public class SettingScreen : StatelessWidget
-    {
-        public override Widget build(BuildContext context)
-        {
+namespace ConnectApp.screens {
+    public class SettingScreen : StatelessWidget {
+        public override Widget build(BuildContext context) {
             return new Container(
                 child: new Column(
-                    children: new List<Widget>
-                    {
+                    children: new List<Widget> {
                         new CustomAppBar(
                             title: new Text(
                                 "Setting",
@@ -30,8 +26,7 @@ namespace ConnectApp.screens
             );
         }
 
-        private Widget _content(BuildContext context)
-        {
+        private Widget _content(BuildContext context) {
             return new Flexible(
                 child: new Container(
                     decoration: new BoxDecoration(
@@ -39,8 +34,7 @@ namespace ConnectApp.screens
                     ),
                     child: new ListView(
                         physics: new AlwaysScrollableScrollPhysics(),
-                        children: new List<Widget>
-                        {
+                        children: new List<Widget> {
                             _gapView(),
                             _cellView("绑定Unity ID", ""),
                             _gapView(),
@@ -58,8 +52,7 @@ namespace ConnectApp.screens
             );
         }
 
-        private Widget _gapView()
-        {
+        private Widget _gapView() {
             return new Container(
                 height: 16,
                 decoration: new BoxDecoration(
@@ -67,20 +60,18 @@ namespace ConnectApp.screens
             );
         }
 
-        private Widget _logoutBtn()
-        {
+        private Widget _logoutBtn() {
             return new CustomButton(
                 padding: EdgeInsets.zero,
                 child: new Container(
                     height: 60,
                     decoration: new BoxDecoration(
-                        color: CColors.background1
+                        CColors.background1
                     ),
                     child: new Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
-                        children: new List<Widget>
-                        {
+                        children: new List<Widget> {
                             new Text(
                                 "退出登录",
                                 style: new TextStyle(
@@ -94,8 +85,7 @@ namespace ConnectApp.screens
             );
         }
 
-        private Widget _cellView(string title, string desc)
-        {
+        private Widget _cellView(string title, string desc) {
             return new Container(
                 height: 60,
                 padding: EdgeInsets.symmetric(0, 16),
@@ -104,8 +94,7 @@ namespace ConnectApp.screens
                 ),
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: new List<Widget>
-                    {
+                    children: new List<Widget> {
                         new Text(
                             title,
                             style: new TextStyle(

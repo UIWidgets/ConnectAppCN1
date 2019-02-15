@@ -1,10 +1,8 @@
 using System;
 
-namespace ConnectApp.models
-{
+namespace ConnectApp.models {
     [Serializable]
-    public class IEvent
-    {
+    public class IEvent {
         public string id;
         public User user;
         public string title;

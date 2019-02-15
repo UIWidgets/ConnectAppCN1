@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace ConnectApp.models
-{
+namespace ConnectApp.models {
     [Serializable]
-    public class LiveInfo
-    {
+    public class LiveInfo {
         public string id;
         public string background;
         public string createdTime;

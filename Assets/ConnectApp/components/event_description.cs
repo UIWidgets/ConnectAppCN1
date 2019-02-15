@@ -7,16 +7,13 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
-namespace ConnectApp.components
-{
-    public class EventDescription : StatelessWidget
-    {
+namespace ConnectApp.components {
+    public class EventDescription : StatelessWidget {
         public EventDescription(
             Key key = null,
             string content = null,
             Dictionary<string, object> contentMap = null
-        ) : base(key)
-        {
+        ) : base(key) {
             this.content = content;
             this.contentMap = contentMap;
         }
@@ -25,12 +22,8 @@ namespace ConnectApp.components
         public Dictionary<string, object> contentMap;
 
 
-        public override Widget build(BuildContext context)
-        {
-            if (content == null)
-            {
-                return new Container();
-            }
+        public override Widget build(BuildContext context) {
+            if (content == null) return new Container();
 
             Dictionary<string, object> cont = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(content);
             return new Column(
@@ -39,9 +32,8 @@ namespace ConnectApp.components
             );
         }
 
-        private List<Widget> map(Dictionary<string, dynamic> cont)
-        {
-            List<Widget> widgets = new List<Widget>();
+        private List<Widget> map(Dictionary<string, dynamic> cont) {
+            var widgets = new List<Widget>();
             /*
             var blocks = cont["blocks"];
             for (int i = 0; i < blocks; i++)
@@ -76,8 +68,7 @@ namespace ConnectApp.components
             return widgets;
         }
 
-        private Widget _H1(string text)
-        {
+        private Widget _H1(string text) {
             return new Container(
                 margin: EdgeInsets.only(bottom: 16),
                 child: new Text(
@@ -91,8 +82,7 @@ namespace ConnectApp.components
             );
         }
 
-        private Widget _H2(string text)
-        {
+        private Widget _H2(string text) {
             return new Container(
                 margin: EdgeInsets.only(bottom: 16),
                 child: new Text(
@@ -106,8 +96,7 @@ namespace ConnectApp.components
             );
         }
 
-        private Widget _Unstyled(string text)
-        {
+        private Widget _Unstyled(string text) {
             return new Container(
                 margin: EdgeInsets.only(bottom: 32),
                 child: new Text(
@@ -121,12 +110,11 @@ namespace ConnectApp.components
             );
         }
 
-        private Widget _CodeBlock(string text)
-        {
+        private Widget _CodeBlock(string text) {
             return new Container(
                 width: new MediaQuery().data.size.width - 32.0,
                 decoration: new BoxDecoration(
-                    color: new Color(0xff141414)
+                    new Color(0xff141414)
                 ),
                 margin: EdgeInsets.only(
                     bottom: 32.0
@@ -145,21 +133,20 @@ namespace ConnectApp.components
         }
 
 
-        private Widget _QuoteBlock(string text)
-        {
+        private Widget _QuoteBlock(string text) {
             return new Container(
                 margin: EdgeInsets.only(bottom: 32.0, left: 16.0),
                 decoration: new BoxDecoration(
                     border: new Border(
                         left: new BorderSide(
-                            color: new Color(0xffe91e63),
-                            width: 4.0
+                            new Color(0xffe91e63),
+                            4.0
                         )
                     )
                 ),
                 child: new Container(
                     margin: EdgeInsets.only(
-                        left: 8.0,
+                        8.0,
                         bottom: 8.0
                     ),
                     child: new Text(

@@ -6,27 +6,22 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.components
-{
-    public class EventCard : StatelessWidget
-    {
+namespace ConnectApp.components {
+    public class EventCard : StatelessWidget {
         public EventCard(
             Key key = null,
             IEvent model = null
-        ) : base(key)
-        {
+        ) : base(key) {
             this.model = model;
         }
 
         public IEvent model;
 
-        public override Widget build(BuildContext context)
-        {
+        public override Widget build(BuildContext context) {
             var card = new Container(
-                key: key,
+                key,
                 child: new Column(
-                    children: new List<Widget>
-                    {
+                    children: new List<Widget> {
                         new Container(
                             decoration: new BoxDecoration(
                                 CColors.black
@@ -34,8 +29,7 @@ namespace ConnectApp.components
                             height: 210,
                             child: new Stack(
                                 fit: StackFit.expand,
-                                children: new List<Widget>
-                                {
+                                children: new List<Widget> {
                                     Image.network(
                                         model.background,
                                         fit: BoxFit.cover
@@ -49,8 +43,7 @@ namespace ConnectApp.components
                                         Axis.vertical,
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: new List<Widget>
-                                        {
+                                        children: new List<Widget> {
                                             new Padding(
                                                 padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
                                                 child: new Text(
@@ -68,8 +61,7 @@ namespace ConnectApp.components
                                                 padding: EdgeInsets.symmetric(0, 16),
                                                 child: new Row(
                                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                    children: new List<Widget>
-                                                    {
+                                                    children: new List<Widget> {
                                                         new Container(
                                                             margin: EdgeInsets.only(right: 3),
                                                             decoration: new BoxDecoration(
@@ -116,8 +108,7 @@ namespace ConnectApp.components
                             child: new Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: new List<Widget>
-                                {
+                                children: new List<Widget> {
                                     new Container(
                                         margin: EdgeInsets.only(right: 10),
                                         decoration: new BoxDecoration(
@@ -133,8 +124,7 @@ namespace ConnectApp.components
                                     new Column(
                                         mainAxisAlignment: MainAxisAlignment.start,
                                         crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: new List<Widget>
-                                        {
+                                        children: new List<Widget> {
                                             new Container(height: 5),
                                             new Text(
                                                 model.user.username,
