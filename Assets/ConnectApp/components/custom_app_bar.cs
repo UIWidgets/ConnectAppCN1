@@ -6,15 +6,18 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.components {
-    public class CustomAppBar : StatelessWidget {
+namespace ConnectApp.components
+{
+    public class CustomAppBar : StatelessWidget
+    {
         public CustomAppBar(
             Key key = null,
             Widget leading = null,
             Widget title = null,
             List<Widget> actions = null,
             Color backgroundColor = null
-        ) : base(key) {
+        ) : base(key)
+        {
             this.leading = leading;
             this.title = title;
             this.actions = actions;
@@ -26,7 +29,8 @@ namespace ConnectApp.components {
         public readonly List<Widget> actions;
         public readonly Color backgroundColor;
 
-        public override Widget build(BuildContext context) {
+        public override Widget build(BuildContext context)
+        {
             const double height = 56.0;
             return new Container(
                 height: height,
@@ -34,7 +38,8 @@ namespace ConnectApp.components {
                 ),
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: new List<Widget> {
+                    children: new List<Widget>
+                    {
                         leading ?? new CustomButton(
                             onPressed: () => Navigator.pop(context),
                             child: new Icon(

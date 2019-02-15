@@ -1,8 +1,10 @@
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.constants {
-    public static class Icons {
+namespace ConnectApp.constants
+{
+    public static class Icons
+    {
         public static readonly IconData notifications = new IconData(0xe7f4, fontFamily: "Material Icons");
         public static readonly IconData account_circle = new IconData(0xe853, fontFamily: "Material Icons");
         public static readonly IconData search = new IconData(0xe8b6, fontFamily: "Material Icons");
@@ -15,7 +17,8 @@ namespace ConnectApp.constants {
         public static readonly IconData settings = new IconData(0xe8b8, fontFamily: "Material Icons");
     }
 
-    public static class CColors {
+    public static class CColors
+    {
         public static readonly Color primary = new Color(0xFFE91E63);
         public static readonly Color secondary1 = new Color(0xFF00BCD4);
         public static readonly Color background1 = new Color(0xFF292929);

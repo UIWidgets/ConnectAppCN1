@@ -1,8 +1,10 @@
 using System;
 
-namespace ConnectApp.models {
+namespace ConnectApp.models
+{
     [Serializable]
-    public class Login {
+    public class LoginState
+    {
         public string email;
         public bool loading;
         public bool isLoggedIn;

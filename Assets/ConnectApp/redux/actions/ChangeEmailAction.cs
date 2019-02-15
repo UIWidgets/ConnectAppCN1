@@ -1,5 +1,7 @@
-namespace ConnectApp.redux.actions {
-    public class ChangeEmailAction : BaseAction {
+namespace ConnectApp.redux.actions
+{
+    public class ChangeEmailAction : BaseAction
+    {
         public string email;
     }
 }
