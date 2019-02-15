@@ -14,6 +14,8 @@ namespace ConnectApp.models
         public bool live;
         public string channelId;
         public User user;
-        public User[] hosts;
+        public List<User> hosts;
+        public string content;
+        public Dictionary<string, dynamic> contentMap;
     }
 }

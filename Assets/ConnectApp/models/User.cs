@@ -10,5 +10,6 @@ namespace ConnectApp.models {
         public string title;
         public string avatar;
         public string coverImage;
+        public string description;
     }
 }

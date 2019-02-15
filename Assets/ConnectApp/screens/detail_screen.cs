@@ -299,7 +299,7 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context)
         {
             return new StoreConnector<AppState,LiveInfo>(
-                converter: (state, dispatcher) => (LiveInfo)state.Get("live.info"),
+                converter: (state, dispatcher) => (LiveInfo)state.LiveState.liveInfo,
                 builder: (context1, liveInfo) =>
                 {
                     return new Container(

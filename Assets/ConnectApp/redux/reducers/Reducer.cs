@@ -10,7 +10,7 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case ChangeEmailAction action: {
-                    state.Login.email = action.email;
+                    state.LoginState.email = action.email;
                     break;
                 }
                 case EventsRequestAction action: {
@@ -24,14 +24,14 @@ namespace ConnectApp.redux.reducers {
                 }
                 case LiveRequestAction action:
                 {
-                    state.Set("live.loading", true);
+                    state.LiveState.loading = true;
                     
                     break;
                 }
                 case LiveResponseAction action:
                 {
-                    state.Set("live.loading", false);
-                    state.Set("live.info",action.liveInfo);
+                    state.LiveState.loading = false;
+                    state.LiveState.liveInfo = action.liveInfo;
                     break;
                 }
             }

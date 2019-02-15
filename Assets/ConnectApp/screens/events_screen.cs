@@ -138,7 +138,7 @@ namespace ConnectApp.screens {
                                 ))
                             ),
                             new StoreConnector<AppState, string>(
-                                converter: (state, dispatch) => $"Email: {state.Login.email}",
+                                converter: (state, dispatch) => $"Email: {state.LoginState.email}",
                                 builder: (context1, countText) => new Text(countText, style: new TextStyle(
                                     fontSize: 20, fontWeight: FontWeight.w700
                                 ))
