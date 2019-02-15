@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using ConnectApp.components;
 using ConnectApp.constants;
@@ -10,7 +9,6 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
@@ -21,10 +19,6 @@ namespace ConnectApp.screens {
         public override State createState() {
             return new _EventsScreen();
         }
-    }
-
-    internal class countActionModel {
-        public Action<int> onAdd;
     }
 
     internal class _EventsScreen : State<EventsScreen> {
@@ -52,7 +46,7 @@ namespace ConnectApp.screens {
                         new CustomButton(
                             padding: EdgeInsets.symmetric(horizontal: 8.0),
                             onPressed: () => {
-                                StoreProvider.store.Dispatch(new ChangeEmailAction() {email = "ods@ods.com"});
+                                StoreProvider.store.Dispatch(new ChangeEmailAction {email = "ods@ods.com"});
 //                                Navigator.pushName(context, "/mine");
                             },
                             child: new Icon(
@@ -106,23 +100,19 @@ namespace ConnectApp.screens {
                     child: new Container(
                         child: new StoreConnector<AppState, Dictionary<string, object>>(
                             converter: (state, dispatch) => new Dictionary<string, object> {
-                                {"loading", (bool) state.Get("event.loading")},
-                                {"events", state.Get("event.events")}
+                                {"loading", state.EventsLoading},
+                                {"events", state.Events}
                             },
                             builder: (context1, viewModel) => {
                                 var loading = (bool) viewModel["loading"];
                                 var events = viewModel["events"] as List<IEvent>;
                                 var cardList = new List<Widget>();
-                                Debug.Log($"loading: + {loading}");
-                                Debug.Log($"events: + {events}");
-                                if (!loading) {
+                                if (!loading)
                                     events.ForEach(action: model => {
                                         cardList.Add(new EventCard(Key.key(model.id), model));
                                     });
-                                }
-                                else {
+                                else
                                     cardList.Add(new Container());
-                                }
 
                                 return new ListView(
                                     physics: new AlwaysScrollableScrollPhysics(),
@@ -142,13 +132,13 @@ namespace ConnectApp.screens {
                     child: new Column(
                         children: new List<Widget> {
                             new StoreConnector<AppState, string>(
-                                converter: (state, dispatch) => $"Count:{state.Get("count", 0)}",
+                                converter: (state, dispatch) => $"Count: {state.Count}",
                                 builder: (context1, countText) => new Text(countText, style: new TextStyle(
                                     fontSize: 20, fontWeight: FontWeight.w700
                                 ))
                             ),
                             new StoreConnector<AppState, string>(
-                                converter: (state, dispatch) => $"Email:{state.Get("login.email", "")}",
+                                converter: (state, dispatch) => $"Email: {state.Login.email}",
                                 builder: (context1, countText) => new Text(countText, style: new TextStyle(
                                     fontSize: 20, fontWeight: FontWeight.w700
                                 ))

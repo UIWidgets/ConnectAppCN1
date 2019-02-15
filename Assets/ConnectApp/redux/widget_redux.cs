@@ -16,9 +16,7 @@ namespace ConnectApp.redux {
         public static Store<State> of(BuildContext context) {
             var type = _typeOf<StoreProvider<State>>();
             StoreProvider<State> provider = context.inheritFromWidgetOfExactType(type) as StoreProvider<State>;
-            if (provider == null) {
-                throw new UIWidgetsError("StoreProvider is missing");
-            }
+            if (provider == null) throw new UIWidgetsError("StoreProvider is missing");
 
             return provider._store;
         }
@@ -131,28 +129,22 @@ namespace ConnectApp.redux {
         }
 
         private void _handleStateChanged(State state) {
-            if (Window.hasInstance) {
+            if (Window.hasInstance)
                 _innerStateChanged(state);
-            }
-            else {
+            else
                 using (WindowProvider.of(context).getScope()) {
                     _innerStateChanged(state);
                 }
-            }
         }
 
         private void _innerStateChanged(State state) {
             var preValue = latestValue;
             latestValue = widget.converter(widget.store.state, widget.store.Dispatch);
             if (widget.shouldRebuild != null) {
-                if (!widget.shouldRebuild(preValue, latestValue)) {
-                    return;
-                }
+                if (!widget.shouldRebuild(preValue, latestValue)) return;
             }
             else if (widget.distinct) {
-                if (Equals(preValue, latestValue)) {
-                    return;
-                }
+                if (Equals(preValue, latestValue)) return;
             }
 
             setState(() => { });

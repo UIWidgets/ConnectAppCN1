@@ -27,9 +27,7 @@ namespace ConnectApp.redux {
             return _dispatcher(action);
         }
 
-        public State state {
-            get { return _state; }
-        }
+        public State state => _state;
 
         private Dispatcher ApplyMiddlewares(params Middleware<State>[] middlewares) {
             return middlewares.Reverse().Aggregate<Middleware<State>, Dispatcher>(InnerDispatch,
@@ -39,9 +37,7 @@ namespace ConnectApp.redux {
         private object InnerDispatch(object action) {
             _state = _reducer(_state, action);
 
-            if (stateChanged != null) {
-                stateChanged(_state);
-            }
+            if (stateChanged != null) stateChanged(_state);
 
             return action;
         }
