@@ -2,10 +2,14 @@ using ConnectApp.redux;
 using Newtonsoft.Json;
 using UnityEngine;
 
-namespace ConnectApp.redux_logging {
-    public class ReduxLogging {
-        public static Middleware<State> Create<State>() {
-            return (store) => (next) => (action) => {
+namespace ConnectApp.redux_logging
+{
+    public class ReduxLogging
+    {
+        public static Middleware<State> Create<State>()
+        {
+            return (store) => (next) => (action) =>
+            {
                 var previousState = store.state;
                 var previousStateDump = JsonConvert.SerializeObject(previousState);
                 var result = next(action);

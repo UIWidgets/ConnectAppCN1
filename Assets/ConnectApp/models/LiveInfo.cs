@@ -5,7 +5,7 @@ namespace ConnectApp.models
 {
     [Serializable]
     public class LiveInfo
-    { 
+    {
         public string id;
         public string background;
         public string createdTime;

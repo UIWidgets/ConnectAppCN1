@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
@@ -9,44 +7,44 @@ using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Image = Unity.UIWidgets.widgets.Image;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
-namespace ConnectApp.screens {
+namespace ConnectApp.screens
+{
     public class DetailScreen : StatefulWidget
     {
         public DetailScreen(
             Key key = null,
             string eventId = "5b9753f22920c6002ed2c22d"
-        ) : base(key){
+        ) : base(key)
+        {
             this.eventId = eventId;
         }
 
         public string eventId;
-        
-        public override State createState() {
+
+        public override State createState()
+        {
             return new _DetailScreen();
         }
     }
 
     internal class _DetailScreen : State<DetailScreen>
     {
-           
-        
         private string _eventId;
-        
+
         public override void initState()
         {
             base.initState();
-            StoreProvider.store.Dispatch(new LiveRequestAction() { eventId = widget.eventId});
+            StoreProvider.store.Dispatch(new LiveRequestAction() {eventId = widget.eventId});
         }
 
-        private Widget _headerView(BuildContext context) {
+        private Widget _headerView(BuildContext context)
+        {
             return new Container(
                 child: new Column(
-                    children: new List<Widget> {
+                    children: new List<Widget>
+                    {
                         new Container(
                             decoration: new BoxDecoration(
                                 CColors.black
@@ -54,7 +52,8 @@ namespace ConnectApp.screens {
                             height: 210,
                             child: new Stack(
                                 fit: StackFit.expand,
-                                children: new List<Widget> {
+                                children: new List<Widget>
+                                {
                                     Image.network(
                                         "https://blogs.unity3d.com/wp-content/uploads/2018/12/2018.3-BLOG_cover-1280x720.jpg",
                                         fit: BoxFit.cover
@@ -63,12 +62,14 @@ namespace ConnectApp.screens {
                                         Axis.vertical,
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: new List<Widget> {
+                                        children: new List<Widget>
+                                        {
                                             new Padding(
                                                 padding: EdgeInsets.symmetric(horizontal: 4),
                                                 child: new Row(
                                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                    children: new List<Widget> {
+                                                    children: new List<Widget>
+                                                    {
                                                         new CustomButton(
                                                             onPressed: () => Navigator.pop(context),
                                                             child: new Icon(
@@ -92,7 +93,8 @@ namespace ConnectApp.screens {
                                                 padding: EdgeInsets.symmetric(horizontal: 16),
                                                 child: new Row(
                                                     mainAxisAlignment: MainAxisAlignment.start,
-                                                    children: new List<Widget> {
+                                                    children: new List<Widget>
+                                                    {
                                                         new Container(
                                                             height: 20,
                                                             width: 48,
@@ -121,15 +123,17 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _contentHead(LiveInfo liveInfo) {
+        private Widget _contentHead(LiveInfo liveInfo)
+        {
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget> {
+                    children: new List<Widget>
+                    {
                         new Container(height: 16),
                         new Text(
-                            data:liveInfo.title,
+                            data: liveInfo.title,
                             style: new TextStyle(
                                 fontSize: 20,
                                 color: CColors.text1
@@ -139,14 +143,15 @@ namespace ConnectApp.screens {
                         new Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.center,
-                            children: new List<Widget> {
+                            children: new List<Widget>
+                            {
                                 new Container(
                                     margin: EdgeInsets.only(right: 10),
                                     decoration: new BoxDecoration(
                                         borderRadius: BorderRadius.all(18)
                                     ),
                                     child: Image.network(
-                                        src:liveInfo.user.avatar,
+                                        src: liveInfo.user.avatar,
                                         height: 36,
                                         width: 36,
                                         fit: BoxFit.fill
@@ -155,10 +160,11 @@ namespace ConnectApp.screens {
                                 new Column(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: new List<Widget> {
+                                    children: new List<Widget>
+                                    {
                                         new Container(height: 5),
                                         new Text(
-                                            data:liveInfo.user.fullName,
+                                            data: liveInfo.user.fullName,
                                             style: new TextStyle(
                                                 fontSize: 13,
                                                 color: CColors.text1
@@ -166,7 +172,7 @@ namespace ConnectApp.screens {
                                         ),
                                         new Container(height: 5),
                                         new Text(
-                                            data:liveInfo.createdTime,
+                                            data: liveInfo.createdTime,
                                             style: new TextStyle(
                                                 fontSize: 13,
                                                 color: CColors.text2
@@ -181,13 +187,15 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _contentDetail(LiveInfo liveInfo) {
+        private Widget _contentDetail(LiveInfo liveInfo)
+        {
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget> {
+                    children: new List<Widget>
+                    {
                         new Container(height: 40),
                         new Text(
                             "内容介绍",
@@ -198,7 +206,7 @@ namespace ConnectApp.screens {
                         ),
                         new Container(height: 16),
                         new Text(
-                            data:liveInfo.shortDescription,
+                            data: liveInfo.shortDescription,
                             style: new TextStyle(
                                 fontSize: 14,
                                 color: CColors.text1
@@ -209,11 +217,13 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _content(LiveInfo liveInfo) {
+        private Widget _content(LiveInfo liveInfo)
+        {
             return new Flexible(
                 child: new ListView(
                     physics: new AlwaysScrollableScrollPhysics(),
-                    children: new List<Widget> {
+                    children: new List<Widget>
+                    {
                         _contentHead(liveInfo),
                         new Container(height: 40),
                         //_contentDetail(liveInfo)
@@ -222,7 +232,8 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _joinBar() {
+        private Widget _joinBar()
+        {
             return new Container(
                 color: CColors.background1,
                 height: 64,
@@ -230,11 +241,13 @@ namespace ConnectApp.screens {
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    children: new List<Widget> {
+                    children: new List<Widget>
+                    {
                         new Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: new List<Widget> {
+                            children: new List<Widget>
+                            {
                                 new Container(height: 14),
                                 new Text(
                                     "正在直播",
@@ -263,7 +276,8 @@ namespace ConnectApp.screens {
                                 alignment: Alignment.center,
                                 child: new Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    children: new List<Widget> {
+                                    children: new List<Widget>
+                                    {
                                         new Text(
                                             "立即加入",
                                             maxLines: 1,
@@ -280,7 +294,8 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _chatWindow() {
+        private Widget _chatWindow()
+        {
             return new Container(
                 height: 420,
                 decoration: new BoxDecoration(
@@ -298,8 +313,8 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context)
         {
-            return new StoreConnector<AppState,LiveInfo>(
-                converter: (state, dispatcher) => (LiveInfo)state.LiveState.liveInfo,
+            return new StoreConnector<AppState, LiveInfo>(
+                converter: (state, dispatcher) => (LiveInfo) state.LiveState.liveInfo,
                 builder: (context1, liveInfo) =>
                 {
                     return new Container(
@@ -311,7 +326,7 @@ namespace ConnectApp.screens {
                                     children: new List<Widget>
                                     {
                                         _headerView(context),
-                                        new LiveDetail(liveInfo:liveInfo)
+                                        new LiveDetail(liveInfo: liveInfo)
                                     }
                                 ),
                                 _joinBar()
@@ -319,7 +334,6 @@ namespace ConnectApp.screens {
                         )
                     );
                 }
-
             );
         }
     }

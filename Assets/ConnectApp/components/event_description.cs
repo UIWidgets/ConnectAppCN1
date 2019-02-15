@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
@@ -15,8 +14,8 @@ namespace ConnectApp.components
         public EventDescription(
             Key key = null,
             string content = null,
-            Dictionary<string,object> contentMap = null
-        ):base(key)
+            Dictionary<string, object> contentMap = null
+        ) : base(key)
         {
             this.content = content;
             this.contentMap = contentMap;
@@ -24,22 +23,23 @@ namespace ConnectApp.components
 
         public string content;
         public Dictionary<string, object> contentMap;
-        
-        
+
+
         public override Widget build(BuildContext context)
         {
             if (content == null)
             {
                 return new Container();
             }
-            Dictionary<string,object> cont = JsonConvert.DeserializeObject<Dictionary<string,dynamic>>(content);
+
+            Dictionary<string, object> cont = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(content);
             return new Column(
-                crossAxisAlignment:CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: map(cont)
-             );
+            );
         }
 
-        private List<Widget> map(Dictionary<string,dynamic> cont)
+        private List<Widget> map(Dictionary<string, dynamic> cont)
         {
             List<Widget> widgets = new List<Widget>();
             /*
@@ -82,21 +82,22 @@ namespace ConnectApp.components
                 margin: EdgeInsets.only(bottom: 16),
                 child: new Text(
                     text,
-                    style:new TextStyle(
+                    style: new TextStyle(
                         color: Color.white,
-                         fontSize: 17.0,
+                        fontSize: 17.0,
                         letterSpacing: 0.3
                     )
                 )
             );
         }
+
         private Widget _H2(string text)
         {
             return new Container(
                 margin: EdgeInsets.only(bottom: 16),
                 child: new Text(
                     text,
-                    style:new TextStyle(
+                    style: new TextStyle(
                         color: Color.white,
                         fontSize: 15.0,
                         letterSpacing: 0.3
@@ -104,16 +105,17 @@ namespace ConnectApp.components
                 )
             );
         }
+
         private Widget _Unstyled(string text)
         {
             return new Container(
                 margin: EdgeInsets.only(bottom: 32),
                 child: new Text(
                     text,
-                    style:new TextStyle(
+                    style: new TextStyle(
                         color: new Color(0xffd8d8d8),
                         fontSize: 14.0,
-                        height:1.4
+                        height: 1.4
                     )
                 )
             );
@@ -135,7 +137,7 @@ namespace ConnectApp.components
                         text,
                         style: new TextStyle(
                             color: new Color(0xffffffff),
-                        height: 1.4
+                            height: 1.4
                         )
                     )
                 )
@@ -148,12 +150,12 @@ namespace ConnectApp.components
             return new Container(
                 margin: EdgeInsets.only(bottom: 32.0, left: 16.0),
                 decoration: new BoxDecoration(
-                    border:new Border(
-                    left: new BorderSide(
-                        color: new Color(0xffe91e63),
-                        width: 4.0
+                    border: new Border(
+                        left: new BorderSide(
+                            color: new Color(0xffe91e63),
+                            width: 4.0
+                        )
                     )
-                 )
                 ),
                 child: new Container(
                     margin: EdgeInsets.only(
@@ -170,6 +172,5 @@ namespace ConnectApp.components
                 )
             );
         }
-
     }
 }

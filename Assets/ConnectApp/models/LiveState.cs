@@ -6,8 +6,7 @@ namespace ConnectApp.models
     public class LiveState
     {
         public bool loading;
-        
+
         public LiveInfo liveInfo;
-        
     }
 }

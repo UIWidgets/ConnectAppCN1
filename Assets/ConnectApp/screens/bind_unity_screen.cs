@@ -5,22 +5,27 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.screens {
-    public class BindUnityScreen : StatelessWidget {
+namespace ConnectApp.screens
+{
+    public class BindUnityScreen : StatelessWidget
+    {
         private readonly FocusNode _emailFocusNode = new FocusNode();
         private readonly FocusNode _passwordFocusNode = new FocusNode();
 
-        public override Widget build(BuildContext context) {
+        public override Widget build(BuildContext context)
+        {
             return _content(context);
         }
 
-        private Widget _content(BuildContext context) {
+        private Widget _content(BuildContext context)
+        {
             return new Container(
                 decoration: new BoxDecoration(
                     CColors.background1
                 ),
                 child: new Column(
-                    children: new List<Widget> {
+                    children: new List<Widget>
+                    {
                         _topView(context),
                         _middleView(),
                         _bottomView()
@@ -29,15 +34,18 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _topView(BuildContext context) {
+        private Widget _topView(BuildContext context)
+        {
             return new Column(
-                children: new List<Widget> {
+                children: new List<Widget>
+                {
                     new Container(
                         height: 44,
                         padding: EdgeInsets.symmetric(horizontal: 16),
                         child: new Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: new List<Widget> {
+                            children: new List<Widget>
+                            {
                                 new CustomButton(
                                     onPressed: () => Navigator.pop(context),
                                     child: new Text(
@@ -62,12 +70,14 @@ namespace ConnectApp.screens {
                     ),
                     new Container(height: 30),
                     new Row(
-                        children: new List<Widget> {
+                        children: new List<Widget>
+                        {
                             new Container(
                                 padding: EdgeInsets.symmetric(horizontal: 24),
                                 child: new Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: new List<Widget> {
+                                    children: new List<Widget>
+                                    {
                                         new Text(
                                             "绑定你的 Unity 账号",
                                             style: new TextStyle(
@@ -93,11 +103,13 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _middleView() {
+        private Widget _middleView()
+        {
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 24),
                 child: new Column(
-                    children: new List<Widget> {
+                    children: new List<Widget>
+                    {
                         new Container(height: 42),
                         new Container(
                             height: 44,
@@ -168,12 +180,14 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _bottomView() {
+        private Widget _bottomView()
+        {
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget> {
+                    children: new List<Widget>
+                    {
                         new Container(height: 24),
                         new CustomButton(
                             child: new Container(
@@ -184,7 +198,8 @@ namespace ConnectApp.screens {
                                 ),
                                 child: new Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    children: new List<Widget> {
+                                    children: new List<Widget>
+                                    {
                                         new Text(
                                             "确定",
                                             maxLines: 1,

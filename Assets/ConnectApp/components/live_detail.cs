@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
@@ -9,7 +8,6 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using Image = Unity.UIWidgets.widgets.Image;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
-using Newtonsoft.Json.Converters;
 
 namespace ConnectApp.components
 {
@@ -18,30 +16,33 @@ namespace ConnectApp.components
         public LiveDetail(
             Key key = null,
             LiveInfo liveInfo = null
-        ) : base(key){
+        ) : base(key)
+        {
             this.liveInfo = liveInfo;
         }
 
         public LiveInfo liveInfo;
-        
-        public override State createState() {
+
+        public override State createState()
+        {
             return new _LiveDetailState();
         }
     }
 
     internal class _LiveDetailState : State<LiveDetail>
     {
-        
         public override Widget build(BuildContext context)
         {
-            return new Container(child:_content());
+            return new Container(child: _content());
         }
-        
-        private Widget _content() {
+
+        private Widget _content()
+        {
             return new Flexible(
                 child: new ListView(
                     physics: new AlwaysScrollableScrollPhysics(),
-                    children: new List<Widget> {
+                    children: new List<Widget>
+                    {
                         _contentHead(),
                         _contentDetail(),
                         _contentLecturerList()
@@ -49,6 +50,7 @@ namespace ConnectApp.components
                 )
             );
         }
+
         private Widget _contentHead()
         {
             LiveInfo liveInfo = widget.liveInfo;
@@ -56,10 +58,11 @@ namespace ConnectApp.components
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget> {
+                    children: new List<Widget>
+                    {
                         new Container(height: 16),
                         new Text(
-                            data:liveInfo.title,
+                            data: liveInfo.title,
                             style: new TextStyle(
                                 fontSize: 20,
                                 color: CColors.text1
@@ -69,14 +72,15 @@ namespace ConnectApp.components
                         new Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.center,
-                            children: new List<Widget> {
+                            children: new List<Widget>
+                            {
                                 new Container(
                                     margin: EdgeInsets.only(right: 10),
                                     decoration: new BoxDecoration(
                                         borderRadius: BorderRadius.all(18)
                                     ),
                                     child: Image.network(
-                                        src:liveInfo.user.avatar,
+                                        src: liveInfo.user.avatar,
                                         height: 36,
                                         width: 36,
                                         fit: BoxFit.fill
@@ -85,10 +89,11 @@ namespace ConnectApp.components
                                 new Column(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: new List<Widget> {
+                                    children: new List<Widget>
+                                    {
                                         new Container(height: 5),
                                         new Text(
-                                            data:liveInfo.user.fullName,
+                                            data: liveInfo.user.fullName,
                                             style: new TextStyle(
                                                 fontSize: 13,
                                                 color: CColors.text1
@@ -96,7 +101,7 @@ namespace ConnectApp.components
                                         ),
                                         new Container(height: 5),
                                         new Text(
-                                            data:liveInfo.createdTime,
+                                            data: liveInfo.createdTime,
                                             style: new TextStyle(
                                                 fontSize: 13,
                                                 color: CColors.text2
@@ -111,29 +116,30 @@ namespace ConnectApp.components
             );
         }
 
-        private Widget _contentDetail() {
+        private Widget _contentDetail()
+        {
             LiveInfo liveInfo = widget.liveInfo;
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget> {
+                    children: new List<Widget>
+                    {
                         new Container(height: 40),
                         new Padding(
                             padding: EdgeInsets.fromLTRB(0.0, 24.0, 0.0, 16.0),
                             child: new Container(
-                                child:new Text("内容介绍",
+                                child: new Text("内容介绍",
                                     style: new TextStyle(
                                         fontSize: 17,
                                         color: CColors.text1
                                     )
                                 )
                             )
-                            
                         ),
                         new Container(height: 16),
-                        new EventDescription(content:liveInfo.content,contentMap:liveInfo.contentMap)
+                        new EventDescription(content: liveInfo.content, contentMap: liveInfo.contentMap)
                     }
                 )
             );
@@ -144,28 +150,24 @@ namespace ConnectApp.components
             LiveInfo liveInfo = widget.liveInfo;
             List<User> hosts = liveInfo.hosts;
             var hostItems = new List<Widget>();
-            hosts.ForEach(action: host =>
-            {
-                hostItems.Add(_Lecture(host));
-            });
+            hosts.ForEach(action: host => { hostItems.Add(_Lecture(host)); });
             return new Column(
-                
-                crossAxisAlignment:CrossAxisAlignment.start,
-                children:new List<Widget>
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: new List<Widget>
                 {
-                   new Padding(
-                       padding: EdgeInsets.fromLTRB(16.0, 40.0, 0.0, 16.0),
-                       child:new Text("讲师",style:new TextStyle(color:Color.white,fontSize:17.0))),
-                   new Container(
-                       height:238,
-                       padding: EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
-                       child:new ListView(
-                           physics:new AlwaysScrollableScrollPhysics(),
-                           scrollDirection: Axis.horizontal,
-                           children:hostItems)
-                       ),
+                    new Padding(
+                        padding: EdgeInsets.fromLTRB(16.0, 40.0, 0.0, 16.0),
+                        child: new Text("讲师", style: new TextStyle(color: Color.white, fontSize: 17.0))),
+                    new Container(
+                        height: 238,
+                        padding: EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
+                        child: new ListView(
+                            physics: new AlwaysScrollableScrollPhysics(),
+                            scrollDirection: Axis.horizontal,
+                            children: hostItems)
+                    ),
                 }
-                );
+            );
         }
 
         private Widget _Lecture(User host)
@@ -177,35 +179,34 @@ namespace ConnectApp.components
                 decoration: new BoxDecoration(
                     color: Color.fromARGB(255, 76, 76, 76)
                 ),
-                child:new Column(
-                    children:new List<Widget>
+                child: new Column(
+                    children: new List<Widget>
                     {
                         new Container(
                             margin: EdgeInsets.only(right: 10),
                             decoration: new BoxDecoration(
                                 borderRadius: BorderRadius.all(18)
                             ),
-                            child:Image.network(src:host.avatar,width:80,height:80)
+                            child: Image.network(src: host.avatar, width: 80, height: 80)
                         ),
-                        new Container(margin: EdgeInsets.only(top:12),
-                            padding: EdgeInsets.symmetric(horizontal:16),
-                            child: new Text(host.fullName,style:new TextStyle(color:Color.white,fontSize:16))
-                            ),
-                        new Container(margin: EdgeInsets.only(top:4),
-                            padding: EdgeInsets.symmetric(horizontal:16),
-                            child: new Text(host.title,maxLines:1,overflow:TextOverflow.ellipsis,style:new TextStyle(color:new Color(0xFF959595),fontSize:16))
+                        new Container(margin: EdgeInsets.only(top: 12),
+                            padding: EdgeInsets.symmetric(horizontal: 16),
+                            child: new Text(host.fullName, style: new TextStyle(color: Color.white, fontSize: 16))
                         ),
-                        new Container(margin: EdgeInsets.only(top:12),
-                            padding: EdgeInsets.symmetric(horizontal:14),
-                            child: new Text(host.description,textAlign:TextAlign.center,maxLines:2,overflow:TextOverflow.ellipsis,style:new TextStyle(color:new Color(value:0xFFD8D8D8),fontSize:16))
+                        new Container(margin: EdgeInsets.only(top: 4),
+                            padding: EdgeInsets.symmetric(horizontal: 16),
+                            child: new Text(host.title, maxLines: 1, overflow: TextOverflow.ellipsis,
+                                style: new TextStyle(color: new Color(0xFF959595), fontSize: 16))
                         ),
-                    }    
-                )  
+                        new Container(margin: EdgeInsets.only(top: 12),
+                            padding: EdgeInsets.symmetric(horizontal: 14),
+                            child: new Text(host.description, textAlign: TextAlign.center, maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: new TextStyle(color: new Color(value: 0xFFD8D8D8), fontSize: 16))
+                        ),
+                    }
+                )
             );
         }
-
     }
-    
-    
-    
 }

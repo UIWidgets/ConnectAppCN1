@@ -5,19 +5,24 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.screens {
-    public class LoginScreen : StatelessWidget {
-        public override Widget build(BuildContext context) {
+namespace ConnectApp.screens
+{
+    public class LoginScreen : StatelessWidget
+    {
+        public override Widget build(BuildContext context)
+        {
             return _content(context);
         }
 
-        private Widget _content(BuildContext context) {
+        private Widget _content(BuildContext context)
+        {
             return new Container(
                 decoration: new BoxDecoration(
                     CColors.background1
                 ),
                 child: new Column(
-                    children: new List<Widget> {
+                    children: new List<Widget>
+                    {
                         _topView(context),
                         _middleView(),
                         new Flexible(child: new Container()),
@@ -27,11 +32,13 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _topView(BuildContext context) {
+        private Widget _topView(BuildContext context)
+        {
             return new Container(
                 padding: EdgeInsets.only(20, 8),
                 child: new Row(
-                    children: new List<Widget> {
+                    children: new List<Widget>
+                    {
                         new CustomButton(
                             onPressed: () => { Navigator.pop(context); },
                             child: new Icon(
@@ -45,9 +52,11 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _middleView() {
+        private Widget _middleView()
+        {
             return new Column(
-                children: new List<Widget> {
+                children: new List<Widget>
+                {
                     new Container(
                         margin: EdgeInsets.only(top: 100),
                         child: Image.asset(
@@ -70,11 +79,13 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _bottomView(BuildContext context) {
+        private Widget _bottomView(BuildContext context)
+        {
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 24),
                 child: new Column(
-                    children: new List<Widget> {
+                    children: new List<Widget>
+                    {
                         new CustomButton(
                             child: new Container(
                                 height: 48,
@@ -84,7 +95,8 @@ namespace ConnectApp.screens {
                                 ),
                                 child: new Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    children: new List<Widget> {
+                                    children: new List<Widget>
+                                    {
                                         Image.asset(
                                             "icon-wechat",
                                             width: 24,
@@ -115,7 +127,8 @@ namespace ConnectApp.screens {
                                 ),
                                 child: new Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    children: new List<Widget> {
+                                    children: new List<Widget>
+                                    {
                                         new Text(
                                             "使用 Unity ID 登录",
                                             maxLines: 1,

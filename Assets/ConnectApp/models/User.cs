@@ -1,8 +1,10 @@
 using System;
 
-namespace ConnectApp.models {
+namespace ConnectApp.models
+{
     [Serializable]
-    public class User {
+    public class User
+    {
         public string id;
         public string type;
         public string username;

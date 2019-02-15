@@ -1,23 +1,31 @@
 using ConnectApp.models;
 using ConnectApp.redux.actions;
 
-namespace ConnectApp.redux.reducers {
-    public static class AppReducer {
-        public static AppState Reduce(AppState state, object bAction) {
-            switch (bAction) {
-                case AddCountAction action: {
+namespace ConnectApp.redux.reducers
+{
+    public static class AppReducer
+    {
+        public static AppState Reduce(AppState state, object bAction)
+        {
+            switch (bAction)
+            {
+                case AddCountAction action:
+                {
                     state.Count += action.number;
                     break;
                 }
-                case ChangeEmailAction action: {
+                case ChangeEmailAction action:
+                {
                     state.LoginState.email = action.email;
                     break;
                 }
-                case EventsRequestAction action: {
+                case EventsRequestAction action:
+                {
                     state.EventsLoading = true;
                     break;
                 }
-                case EventsResponseAction action: {
+                case EventsResponseAction action:
+                {
                     state.EventsLoading = false;
                     state.Events = action.events;
                     break;
@@ -25,7 +33,7 @@ namespace ConnectApp.redux.reducers {
                 case LiveRequestAction action:
                 {
                     state.LiveState.loading = true;
-                    
+
                     break;
                 }
                 case LiveResponseAction action:
