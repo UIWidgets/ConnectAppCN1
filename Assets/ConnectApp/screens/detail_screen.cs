@@ -7,10 +7,7 @@ using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Image = Unity.UIWidgets.widgets.Image;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
     public class DetailScreen : StatefulWidget {
@@ -30,7 +27,8 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            StoreProvider.store.Dispatch(new LiveRequestAction() {eventId = StoreProvider.store.state.LiveState.detailId});
+            StoreProvider.store.Dispatch(new LiveRequestAction()
+                {eventId = StoreProvider.store.state.LiveState.detailId});
         }
 
         private Widget _headerView(BuildContext context, LiveInfo liveInfo) {
@@ -60,8 +58,7 @@ namespace ConnectApp.screens {
                                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                     children: new List<Widget> {
                                                         new CustomButton(
-                                                            onPressed: () =>
-                                                            {
+                                                            onPressed: () => {
                                                                 Navigator.pop(context);
                                                                 StoreProvider.store.Dispatch(new ClearLiveInfoAction());
                                                             },
@@ -280,7 +277,8 @@ namespace ConnectApp.screens {
                 converter: (state, dispatcher) => state.LiveState.openChatWindow,
                 builder: (context, openChatWindow) => {
                     return new GestureDetector(
-                        onTap: () => StoreProvider.store.Dispatch(new ChatWindowStatusAction { status = !openChatWindow}),
+                        onTap: () =>
+                            StoreProvider.store.Dispatch(new ChatWindowStatusAction {status = !openChatWindow}),
                         child: new Container(
                             height: openChatWindow ? 457 : 64,
                             width: 375,
@@ -309,16 +307,14 @@ namespace ConnectApp.screens {
                 },
                 builder: (context1, viewModel) => {
                     var liveInfo = viewModel["liveInfo"] as LiveInfo;
-                    var showChatWindow = (bool)viewModel["showChatWindow"];
-                    var openChatWindow = (bool)viewModel["openChatWindow"];
+                    var showChatWindow = (bool) viewModel["showChatWindow"];
+                    var openChatWindow = (bool) viewModel["openChatWindow"];
                     if (liveInfo == null)
-                    {
                         return new Container(
-                            color:CColors.background2,
-                            child:new Text("正在加载...")
+                            color: CColors.background2,
+                            child: new Text("正在加载...")
                         );
-                    }
-                    else {
+                    else
                         return new Container(
                             color: CColors.background2,
                             child: new Stack(
@@ -333,12 +329,8 @@ namespace ConnectApp.screens {
                                 }
                             )
                         );
-                    }
-
                 }
             );
         }
-        
-        
     }
 }

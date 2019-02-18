@@ -53,7 +53,7 @@ namespace ConnectApp.api {
             var request = UnityWebRequest.Get(apiAddress + "/api/live/events/" + eventId);
             yield return request.Send();
 
-            if (request.isNetworkError) { 
+            if (request.isNetworkError) {
                 // something went wrong
                 promise.Reject(new Exception(request.error));
             }
