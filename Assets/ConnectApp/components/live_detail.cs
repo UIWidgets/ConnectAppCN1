@@ -140,10 +140,11 @@ namespace ConnectApp.components {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: new List<Widget> {
                     new Padding(
-                        padding: EdgeInsets.fromLTRB(16.0, 40.0, 0.0, 16.0),
+                        padding: EdgeInsets.fromLTRB(16.0, 0.0, 0.0, 16.0),
                         child: new Text("讲师", style: new TextStyle(color: Color.white, fontSize: 17.0))),
                     new Container(
                         height: 238,
+                        margin:EdgeInsets.only(bottom:64),
                         padding: EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
                         child: new ListView(
                             physics: new AlwaysScrollableScrollPhysics(),

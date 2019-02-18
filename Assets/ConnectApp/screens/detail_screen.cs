@@ -288,8 +288,15 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, LiveInfo>(
-                converter: (state, dispatcher) => (LiveInfo) state.LiveState.liveInfo,
+                converter: (state, dispatcher) => state.LiveState.liveInfo,
                 builder: (context1, liveInfo) => {
+                    if (liveInfo == null)
+                    {
+                        return new Container(
+                            color:CColors.background2,
+                            child:new Text("正在加载...")
+                        );
+                    }
                     return new Container(
                         color: CColors.background2,
                         child: new Stack(
