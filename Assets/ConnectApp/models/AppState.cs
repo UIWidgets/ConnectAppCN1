@@ -23,7 +23,9 @@ namespace ConnectApp.models {
                 Events = new List<IEvent>(),
                 EventsLoading = false,
                 LiveState = new LiveState {
-                    loading = false
+                    loading = false,
+                    showChatWindow = false,
+                    openChatWindow = false
                 }
             };
         }

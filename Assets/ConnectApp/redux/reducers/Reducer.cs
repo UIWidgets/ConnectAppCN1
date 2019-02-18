@@ -32,6 +32,14 @@ namespace ConnectApp.redux.reducers {
                     state.LiveState.liveInfo = action.liveInfo;
                     break;
                 }
+                case ChatWindowShowAction action: {
+                    state.LiveState.showChatWindow = action.show;
+                    break;
+                }
+                case ChatWindowStatusAction action: {
+                    state.LiveState.openChatWindow = action.status;
+                    break;
+                }
             }
 
             return state;
