@@ -16,14 +16,14 @@ namespace ConnectApp.components {
         public EventDescription(
             Key key = null,
             string content = null,
-            Dictionary<string, object> contentMap = null
+            Dictionary<string, ContentMap> contentMap = null
         ) : base(key) {
             this.content = content;
             this.contentMap = contentMap;
         }
 
         public string content;
-        public Dictionary<string, object> contentMap;
+        public Dictionary<string, ContentMap> contentMap;
 
 
         public override Widget build(BuildContext context) {
@@ -92,8 +92,8 @@ namespace ConnectApp.components {
                         _EntityRange range = block.entityRanges.first();
                         var rangeKey = range.key.ToString();
                         var data = content.entityMap[rangeKey].data;
-                        widgets.Add(_Atomic(block.type, data.title,
-                            "1234"));
+                        ContentMap map = this.contentMap[data.contentId];
+                        widgets.Add(_Atomic(block.type, data.title,map.originalImage.url));
                     }
                         break;
 

@@ -42,5 +42,20 @@ namespace ConnectApp.models
         public int length;
         public int offset;
     }
+    
+    
+    /* contentMap 解析 */
+
+    [Serializable]
+    public class ContentMap
+    {
+        public _originalImage originalImage;
+    }
+    
+    [Serializable]
+    public class _originalImage
+    {
+        public string url;
+    }
 
 }
