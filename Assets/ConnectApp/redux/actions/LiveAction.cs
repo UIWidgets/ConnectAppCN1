@@ -14,4 +14,8 @@ namespace ConnectApp.redux.actions {
         public LiveInfo liveInfo;
         public string eventId;
     }
+
+    public class ClearLiveInfoAction : BaseAction
+    {
+    }
 }
