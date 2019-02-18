@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.redux;
+using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -156,7 +158,11 @@ namespace ConnectApp.components {
                 )
             );
             return new GestureDetector(
-                onTap: () => Navigator.pushName(context, "/detail"),
+                onTap: () =>
+                {
+                    StoreProvider.store.Dispatch(new NavigatorToLiveAction {eventId = this.model.id});
+                    Navigator.pushName(context, "/detail");
+                },
                 child: card
             );
         }

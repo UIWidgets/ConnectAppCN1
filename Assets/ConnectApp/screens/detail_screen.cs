@@ -12,13 +12,10 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.screens {
     public class DetailScreen : StatefulWidget {
         public DetailScreen(
-            Key key = null,
-            string eventId = "5b9753f22920c6002ed2c22d"
+            Key key = null
         ) : base(key) {
-            this.eventId = eventId;
         }
 
-        public string eventId;
 
         public override State createState() {
             return new _DetailScreen();
@@ -30,10 +27,10 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            StoreProvider.store.Dispatch(new LiveRequestAction() {eventId = widget.eventId});
+            StoreProvider.store.Dispatch(new LiveRequestAction() {eventId = StoreProvider.store.state.LiveState.detailId});
         }
 
-        private Widget _headerView(BuildContext context) {
+        private Widget _headerView(BuildContext context,LiveInfo liveInfo) {
             return new Container(
                 child: new Column(
                     children: new List<Widget> {
@@ -46,7 +43,7 @@ namespace ConnectApp.screens {
                                 fit: StackFit.expand,
                                 children: new List<Widget> {
                                     Image.network(
-                                        "https://blogs.unity3d.com/wp-content/uploads/2018/12/2018.3-BLOG_cover-1280x720.jpg",
+                                        liveInfo.background,
                                         fit: BoxFit.cover
                                     ),
                                     new Flex(
@@ -60,7 +57,11 @@ namespace ConnectApp.screens {
                                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                     children: new List<Widget> {
                                                         new CustomButton(
-                                                            onPressed: () => Navigator.pop(context),
+                                                            onPressed: () =>
+                                                            {
+                                                                Navigator.pop(context);
+                                                                StoreProvider.store.Dispatch(new ClearLiveInfoAction());
+                                                            },
                                                             child: new Icon(
                                                                 Icons.arrow_back,
                                                                 size: 28.0,
@@ -212,7 +213,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _joinBar() {
+        private Widget _joinBar(LiveInfo liveinfo) {
             return new Container(
                 color: CColors.background1,
                 height: 64,
@@ -235,7 +236,7 @@ namespace ConnectApp.screens {
                                 ),
                                 new Container(height: 2),
                                 new Text(
-                                    "34位观众",
+                                    $"{liveinfo.participantsCount}位观众",
                                     style: new TextStyle(
                                         fontSize: 16,
                                         color: CColors.text1
@@ -303,11 +304,11 @@ namespace ConnectApp.screens {
                             children: new List<Widget> {
                                 new Column(
                                     children: new List<Widget> {
-                                        _headerView(context),
+                                        _headerView(context,liveInfo),
                                         new LiveDetail(liveInfo: liveInfo)
                                     }
                                 ),
-                                _joinBar()
+                                _joinBar(liveInfo)
                             }
                         )
                     );

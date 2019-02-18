@@ -15,5 +15,6 @@ namespace ConnectApp.models {
         public List<User> hosts;
         public string content;
         public Dictionary<string, ContentMap> contentMap;
+        public int participantsCount;
     }
 }

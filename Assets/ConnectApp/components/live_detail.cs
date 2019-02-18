@@ -134,6 +134,10 @@ namespace ConnectApp.components {
         private Widget _contentLecturerList() {
             var liveInfo = widget.liveInfo;
             var hosts = liveInfo.hosts;
+            if (hosts.Count == 0)
+            {
+                return new Container();
+            }
             var hostItems = new List<Widget>();
             hosts.ForEach(host => { hostItems.Add(_Lecture(host)); });
             return new Column(
