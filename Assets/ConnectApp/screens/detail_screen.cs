@@ -27,10 +27,11 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            StoreProvider.store.Dispatch(new LiveRequestAction() {eventId = StoreProvider.store.state.LiveState.detailId});
+            StoreProvider.store.Dispatch(new LiveRequestAction()
+                {eventId = StoreProvider.store.state.LiveState.detailId});
         }
 
-        private Widget _headerView(BuildContext context,LiveInfo liveInfo) {
+        private Widget _headerView(BuildContext context, LiveInfo liveInfo) {
             return new Container(
                 child: new Column(
                     children: new List<Widget> {
@@ -57,8 +58,7 @@ namespace ConnectApp.screens {
                                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                     children: new List<Widget> {
                                                         new CustomButton(
-                                                            onPressed: () =>
-                                                            {
+                                                            onPressed: () => {
                                                                 Navigator.pop(context);
                                                                 StoreProvider.store.Dispatch(new ClearLiveInfoAction());
                                                             },
@@ -245,6 +245,7 @@ namespace ConnectApp.screens {
                             }
                         ),
                         new CustomButton(
+                            onPressed: () => StoreProvider.store.Dispatch(new ChatWindowShowAction {show = true}),
                             child: new Container(
                                 width: 100,
                                 height: 44,
@@ -272,46 +273,62 @@ namespace ConnectApp.screens {
         }
 
         private Widget _chatWindow() {
-            return new Container(
-                height: 420,
-                decoration: new BoxDecoration(
-                    CColors.red
-                ),
-                child: new Text(
-                    "chatWindow",
-                    style: new TextStyle(
-                        fontSize: 16,
-                        color: CColors.text1
-                    )
-                )
+            return new StoreConnector<AppState, bool>(
+                converter: (state, dispatcher) => state.LiveState.openChatWindow,
+                builder: (context, openChatWindow) => {
+                    return new GestureDetector(
+                        onTap: () =>
+                            StoreProvider.store.Dispatch(new ChatWindowStatusAction {status = !openChatWindow}),
+                        child: new Container(
+                            height: openChatWindow ? 457 : 64,
+                            width: 375,
+                            decoration: new BoxDecoration(
+                                CColors.red
+                            ),
+                            child: new Text(
+                                "chatWindow",
+                                style: new TextStyle(
+                                    fontSize: 16,
+                                    color: CColors.text1
+                                )
+                            )
+                        )
+                    );
+                }
             );
         }
 
         public override Widget build(BuildContext context) {
-            return new StoreConnector<AppState, LiveInfo>(
-                converter: (state, dispatcher) => state.LiveState.liveInfo,
-                builder: (context1, liveInfo) => {
+            return new StoreConnector<AppState, Dictionary<string, object>>(
+                converter: (state, dispatcher) => new Dictionary<string, object> {
+                    {"liveInfo", state.LiveState.liveInfo},
+                    {"showChatWindow", state.LiveState.showChatWindow},
+                    {"openChatWindow", state.LiveState.openChatWindow}
+                },
+                builder: (context1, viewModel) => {
+                    var liveInfo = viewModel["liveInfo"] as LiveInfo;
+                    var showChatWindow = (bool) viewModel["showChatWindow"];
+                    var openChatWindow = (bool) viewModel["openChatWindow"];
                     if (liveInfo == null)
-                    {
                         return new Container(
-                            color:CColors.background2,
-                            child:new Text("正在加载...")
+                            color: CColors.background2,
+                            child: new Text("正在加载...")
                         );
-                    }
-                    return new Container(
-                        color: CColors.background2,
-                        child: new Stack(
-                            children: new List<Widget> {
-                                new Column(
-                                    children: new List<Widget> {
-                                        _headerView(context,liveInfo),
-                                        new LiveDetail(liveInfo: liveInfo)
-                                    }
-                                ),
-                                _joinBar(liveInfo)
-                            }
-                        )
-                    );
+                    else
+                        return new Container(
+                            color: CColors.background2,
+                            child: new Stack(
+                                children: new List<Widget> {
+                                    new Column(
+                                        children: new List<Widget> {
+                                            _headerView(context1, liveInfo),
+                                            new LiveDetail(liveInfo: liveInfo)
+                                        }
+                                    ),
+                                    showChatWindow ? _chatWindow() : _joinBar(liveInfo)
+                                }
+                            )
+                        );
                 }
             );
         }
