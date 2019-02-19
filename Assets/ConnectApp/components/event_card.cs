@@ -17,7 +17,7 @@ namespace ConnectApp.components {
             this.model = model;
         }
 
-        public IEvent model;
+        public readonly IEvent model;
 
         public override Widget build(BuildContext context) {
             var card = new Container(

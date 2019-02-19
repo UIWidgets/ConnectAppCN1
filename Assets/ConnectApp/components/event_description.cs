@@ -21,8 +21,8 @@ namespace ConnectApp.components {
             this.contentMap = contentMap;
         }
 
-        public string content;
-        public Dictionary<string, ContentMap> contentMap;
+        public readonly string content;
+        public readonly Dictionary<string, ContentMap> contentMap;
 
 
         public override Widget build(BuildContext context) {
