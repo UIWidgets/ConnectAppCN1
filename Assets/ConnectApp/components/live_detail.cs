@@ -18,7 +18,7 @@ namespace ConnectApp.components {
             this.liveInfo = liveInfo;
         }
 
-        public LiveInfo liveInfo;
+        public readonly LiveInfo liveInfo;
 
         public override State createState() {
             return new _LiveDetailState();

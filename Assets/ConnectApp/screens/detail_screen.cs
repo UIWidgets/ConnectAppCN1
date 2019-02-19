@@ -7,7 +7,10 @@ using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Image = Unity.UIWidgets.widgets.Image;
+using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
     public class DetailScreen : StatefulWidget {
@@ -309,12 +312,15 @@ namespace ConnectApp.screens {
                     var liveInfo = viewModel["liveInfo"] as LiveInfo;
                     var showChatWindow = (bool) viewModel["showChatWindow"];
                     var openChatWindow = (bool) viewModel["openChatWindow"];
-                    if (liveInfo == null)
+                    if (StoreProvider.store.state.LiveState.loading)
                         return new Container(
                             color: CColors.background2,
-                            child: new Text("正在加载...")
+                            child: new Container(child:new CustomActivityIndicator(radius:16.0))
                         );
-                    else
+                    else if (liveInfo == null)
+                    {
+                     return new Container();
+                    }
                         return new Container(
                             color: CColors.background2,
                             child: new Stack(
@@ -322,7 +328,7 @@ namespace ConnectApp.screens {
                                     new Column(
                                         children: new List<Widget> {
                                             _headerView(context1, liveInfo),
-                                            new LiveDetail(liveInfo: liveInfo)
+                                            new LiveDetail(liveInfo: liveInfo),
                                         }
                                     ),
                                     showChatWindow ? _chatWindow() : _joinBar(liveInfo)
