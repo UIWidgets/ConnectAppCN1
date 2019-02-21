@@ -46,8 +46,8 @@ namespace ConnectApp.screens {
                         new CustomButton(
                             padding: EdgeInsets.symmetric(horizontal: 8.0),
                             onPressed: () => {
-                                StoreProvider.store.Dispatch(new ChangeEmailAction {email = "ods@ods.com"});
-//                                Navigator.pushName(context, "/mine");
+//                                StoreProvider.store.Dispatch(new ChangeEmailAction {email = "ods@ods.com"});
+                                Navigator.pushName(context, "/mine");
                             },
                             child: new Icon(
                                 Icons.notifications,
@@ -58,8 +58,8 @@ namespace ConnectApp.screens {
                         new CustomButton(
                             padding: EdgeInsets.only(8.0, right: 16.0),
                             onPressed: () => {
-                                StoreProvider.store.Dispatch(new AddCountAction() {number = 3});
-//                                Navigator.pushName(context, "/login");
+//                                StoreProvider.store.Dispatch(new AddCountAction() {number = 3});
+                                Navigator.pushName(context, "/login");
                             },
                             child: new Icon(
                                 Icons.account_circle,
@@ -129,18 +129,18 @@ namespace ConnectApp.screens {
                     color: CColors.background1,
                     child: new Column(
                         children: new List<Widget> {
-                            new StoreConnector<AppState, string>(
-                                converter: (state, dispatch) => $"Count: {state.Count}",
-                                builder: (context1, countText) => new Text(countText, style: new TextStyle(
-                                    fontSize: 20, fontWeight: FontWeight.w700
-                                ))
-                            ),
-                            new StoreConnector<AppState, string>(
-                                converter: (state, dispatch) => $"Email: {state.LoginState.email}",
-                                builder: (context1, countText) => new Text(countText, style: new TextStyle(
-                                    fontSize: 20, fontWeight: FontWeight.w700
-                                ))
-                            ),
+//                            new StoreConnector<AppState, string>(
+//                                converter: (state, dispatch) => $"Count: {state.Count}",
+//                                builder: (context1, countText) => new Text(countText, style: new TextStyle(
+//                                    fontSize: 20, fontWeight: FontWeight.w700
+//                                ))
+//                            ),
+//                            new StoreConnector<AppState, string>(
+//                                converter: (state, dispatch) => $"Email: {state.LoginState.email}",
+//                                builder: (context1, countText) => new Text(countText, style: new TextStyle(
+//                                    fontSize: 20, fontWeight: FontWeight.w700
+//                                ))
+//                            ),
                             _buildHeader(context), _buildContentList(context),
                         }
                     )
