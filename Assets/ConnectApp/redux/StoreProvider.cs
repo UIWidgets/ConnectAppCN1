@@ -1,6 +1,5 @@
 using ConnectApp.models;
 using ConnectApp.redux.reducers;
-using ConnectApp.redux_logging;
 
 namespace ConnectApp.redux {
     public static class StoreProvider {
