@@ -76,7 +76,8 @@ namespace ConnectApp.screens {
                                                                 Icons.share,
                                                                 size: 28.0,
                                                                 color: CColors.icon1
-                                                            )
+                                                            ),
+                                                            onPressed: () => { Share.showShareView(context, builder: (BuildContext c) => new ShareView()); }
                                                         )
                                                     }
                                                 )
