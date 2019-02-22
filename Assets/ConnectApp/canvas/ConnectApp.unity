@@ -412,6 +412,7 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
+  devicePixelRatioOverride: 0
 --- !u!222 &1906913594
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -449,7 +450,7 @@ MonoBehaviour:
   m_Script: {fileID: 1980459831, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 1
+  m_UiScaleMode: 0
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 375, y: 667}

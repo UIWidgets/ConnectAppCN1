@@ -7,10 +7,7 @@ using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Image = Unity.UIWidgets.widgets.Image;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
     public class DetailScreen : StatefulWidget {
@@ -77,7 +74,10 @@ namespace ConnectApp.screens {
                                                                 size: 28.0,
                                                                 color: CColors.icon1
                                                             ),
-                                                            onPressed: () => { Share.showShareView(context, builder: (BuildContext c) => new ShareView()); }
+                                                            onPressed: () => {
+                                                                Share.showShareView(context,
+                                                                    builder: (BuildContext c) => new ShareView());
+                                                            }
                                                         )
                                                     }
                                                 )
@@ -316,26 +316,23 @@ namespace ConnectApp.screens {
                     if (StoreProvider.store.state.LiveState.loading)
                         return new Container(
                             color: CColors.background2,
-                            child: new Container(child:new CustomActivityIndicator(radius:16.0))
+                            child: new Container(child: new CustomActivityIndicator(radius: 16.0))
                         );
-                    else if (liveInfo == null)
-                    {
-                     return new Container();
-                    }
-                        return new Container(
-                            color: CColors.background2,
-                            child: new Stack(
-                                children: new List<Widget> {
-                                    new Column(
-                                        children: new List<Widget> {
-                                            _headerView(context1, liveInfo),
-                                            new LiveDetail(liveInfo: liveInfo),
-                                        }
-                                    ),
-                                    showChatWindow ? _chatWindow() : _joinBar(liveInfo)
-                                }
-                            )
-                        );
+                    else if (liveInfo == null) return new Container();
+                    return new Container(
+                        color: CColors.background2,
+                        child: new Stack(
+                            children: new List<Widget> {
+                                new Column(
+                                    children: new List<Widget> {
+                                        _headerView(context1, liveInfo),
+                                        new LiveDetail(liveInfo: liveInfo),
+                                    }
+                                ),
+                                showChatWindow ? _chatWindow() : _joinBar(liveInfo)
+                            }
+                        )
+                    );
                 }
             );
         }

@@ -10,10 +10,8 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
-namespace ConnectApp.components
-{
-    public class Share
-    {
+namespace ConnectApp.components {
+    public class Share {
         public static void showShareView(BuildContext context,
             bool barrierDismissible = true, WidgetBuilder builder = null) {
             DialogUtils.showGeneralDialog(
@@ -30,7 +28,7 @@ namespace ConnectApp.components
             );
         }
 
-        static Widget _buildMaterialDialogTransitions(BuildContext context,
+        private static Widget _buildMaterialDialogTransitions(BuildContext context,
             Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
             return new ModalPageTransition(
                 routeAnimation: animation,
@@ -38,63 +36,52 @@ namespace ConnectApp.components
             );
         }
     }
-    
+
     public class ShareView : StatelessWidget {
-        public override Widget build(BuildContext context)
-        {
+        public override Widget build(BuildContext context) {
             var mediaQueryData = MediaQuery.of(context);
             return new Column(
                 mainAxisAlignment: MainAxisAlignment.end,
-                children:new List<Widget>
-                {
+                children: new List<Widget> {
                     new Container(
-                        decoration: new BoxDecoration(color:CColors.background1),
-                        width:mediaQueryData.size.width,
-                        height:165,
-                        child:new Column(
-                            mainAxisAlignment:MainAxisAlignment.start,
-                            children: new List<Widget>
-                            {
+                        decoration: new BoxDecoration(color: CColors.background1),
+                        width: mediaQueryData.size.width,
+                        height: 165,
+                        child: new Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: new List<Widget> {
                                 new Padding(
-                                    padding:EdgeInsets.only(top:15),
-                                    child:new  Text("分享至",style:new TextStyle(fontSize:17.0,color:Colors.white))
-                                    ),
+                                    padding: EdgeInsets.only(top: 15),
+                                    child: new Text("分享至", style: new TextStyle(fontSize: 17.0, color: Colors.white))
+                                ),
                                 new Container(
-                                    padding:EdgeInsets.only(top:10),
-                                    child:new Row(
-                                        mainAxisAlignment:MainAxisAlignment.start,
-                                        children:new List<Widget>
-                                        {
-                                            _shareItem("shareWeChat","微信好友",onTap: () => { }),
-                                            _shareItem("shareFriends","朋友圈",onTap: () => { }),
+                                    padding: EdgeInsets.only(top: 10),
+                                    child: new Row(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: new List<Widget> {
+                                            _shareItem("shareWeChat", "微信好友", onTap: () => { }),
+                                            _shareItem("shareFriends", "朋友圈", onTap: () => { }),
                                         })),
                                 new GestureDetector(
-                                    onTap: () => {
-                                        
-                                    },
-                                    child: new Text("取消",style:new TextStyle(fontSize:17.0,color:Colors.white))
+                                    onTap: () => { },
+                                    child: new Text("取消", style: new TextStyle(fontSize: 17.0, color: Colors.white))
                                 )
-                            
                             }
-                            )
+                        )
                     )
                 }
-                
             );
         }
-        private Widget _shareItem (string assetName,string title,VoidCallback onTap)
-        {
+
+        private Widget _shareItem(string assetName, string title, VoidCallback onTap) {
             return new GestureDetector(
-                onTap: () => {
-                                        
-                },
+                onTap: () => { },
                 child: new Container(
                     padding: EdgeInsets.symmetric(horizontal: 16.0),
                     decoration: new BoxDecoration(
                         color: CColors.background1
                     ),
-                    child:new Column(children:new List<Widget>
-                    {
+                    child: new Column(children: new List<Widget> {
                         new Container(
                             width: 48.0,
                             height: 48.0,
@@ -115,16 +102,10 @@ namespace ConnectApp.components
                                     fontWeight: FontWeight.w400
                                 )
                             )
-                        ), 
+                        ),
                     })
-                    
-                    
                 )
-                
-             );
+            );
         }
     }
-    
-   
-
 }
