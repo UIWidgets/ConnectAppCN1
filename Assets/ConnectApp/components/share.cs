@@ -13,7 +13,7 @@ using TextStyle = Unity.UIWidgets.painting.TextStyle;
 namespace ConnectApp.components {
     public class Share {
         public static void showShareView(BuildContext context,
-            bool barrierDismissible = true, WidgetBuilder builder = null) {
+            bool barrierDismissible = false, WidgetBuilder builder = null) {
             DialogUtils.showGeneralDialog(
                 context: context,
                 pageBuilder: (BuildContext buildContext, Animation<double> animation,
@@ -63,7 +63,7 @@ namespace ConnectApp.components {
                                             _shareItem("shareFriends", "朋友圈", onTap: () => { }),
                                         })),
                                 new GestureDetector(
-                                    onTap: () => { },
+                                    onTap: () => { Navigator.pop(context); },
                                     child: new Text("取消", style: new TextStyle(fontSize: 17.0, color: Colors.white))
                                 )
                             }
