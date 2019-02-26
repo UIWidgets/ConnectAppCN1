@@ -148,7 +148,7 @@ namespace ConnectApp.components {
                                     new Flexible(child: new Container()),
                                     new Icon(
                                         Icons.more_vert,
-                                        size: 28.0,
+                                        size: 28,
                                         color: CColors.icon2
                                     )
                                 }

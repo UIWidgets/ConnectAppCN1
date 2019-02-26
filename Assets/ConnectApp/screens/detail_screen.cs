@@ -64,14 +64,14 @@ namespace ConnectApp.screens {
                                                             },
                                                             child: new Icon(
                                                                 Icons.arrow_back,
-                                                                size: 28.0,
+                                                                size: 28,
                                                                 color: CColors.icon1
                                                             )
                                                         ),
                                                         new CustomButton(
                                                             child: new Icon(
                                                                 Icons.share,
-                                                                size: 28.0,
+                                                                size: 28,
                                                                 color: CColors.icon1
                                                             ),
                                                             onPressed: () => {
@@ -316,7 +316,7 @@ namespace ConnectApp.screens {
                     if (StoreProvider.store.state.LiveState.loading)
                         return new Container(
                             color: CColors.background2,
-                            child: new Container(child: new CustomActivityIndicator(radius: 16.0))
+                            child: new Container(child: new CustomActivityIndicator(radius: 16))
                         );
                     else if (liveInfo == null) return new Container();
                     return new Container(

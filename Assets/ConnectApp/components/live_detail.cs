@@ -114,7 +114,7 @@ namespace ConnectApp.components {
                     children: new List<Widget> {
                         new Container(height: 40),
                         new Padding(
-                            padding: EdgeInsets.fromLTRB(0.0, 24.0, 0.0, 16.0),
+                            padding: EdgeInsets.fromLTRB(0, 24, 0, 16),
                             child: new Container(
                                 child: new Text("内容介绍",
                                     style: new TextStyle(
@@ -141,12 +141,12 @@ namespace ConnectApp.components {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: new List<Widget> {
                     new Padding(
-                        padding: EdgeInsets.fromLTRB(16.0, 0.0, 0.0, 16.0),
-                        child: new Text("讲师", style: new TextStyle(color: Color.white, fontSize: 17.0))),
+                        padding: EdgeInsets.fromLTRB(16, 0, 0, 16),
+                        child: new Text("讲师", style: new TextStyle(color: Color.white, fontSize: 17))),
                     new Container(
                         height: 238,
                         margin: EdgeInsets.only(bottom: 64),
-                        padding: EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
+                        padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
                         child: new ListView(
                             physics: new AlwaysScrollableScrollPhysics(),
                             scrollDirection: Axis.horizontal,
@@ -158,9 +158,9 @@ namespace ConnectApp.components {
 
         private Widget _Lecture(User host) {
             return new Container(
-                width: 212.0,
-                padding: EdgeInsets.only(top: 24.0),
-                margin: EdgeInsets.only(right: 16.0),
+                width: 212,
+                padding: EdgeInsets.only(top: 24),
+                margin: EdgeInsets.only(right: 16),
                 decoration: new BoxDecoration(
                     Color.fromARGB(255, 76, 76, 76)
                 ),

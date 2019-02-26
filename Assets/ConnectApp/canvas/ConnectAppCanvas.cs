@@ -14,14 +14,17 @@ namespace ConnectApp.canvas {
     public class ConnectAppCanvas : WidgetCanvas {
         protected override void OnEnable() {
             base.OnEnable();
-            var font = Resources.Load<Font>("MaterialIcons-Regular");
-            FontManager.instance.addFont(font);
+            var iconFont = Resources.Load<Font>("MaterialIcons-Regular");
+            FontManager.instance.addFont(iconFont);
+            var pingfangFont = Resources.Load<Font>("PingFang");
+            FontManager.instance.addFont(pingfangFont);
         }
 
         protected override string initialRoute => "/";
 
         protected override Dictionary<string, WidgetBuilder> routes => new Dictionary<string, WidgetBuilder> {
             {"/", (context) => new EventsScreen()},
+//            {"/", (context) => new GuidelineScreen()},
             {"/detail", (context) => new DetailScreen()},
             {"/mine", (context) => new MineScreen()},
             {"/setting", (context) => new SettingScreen()},
@@ -59,7 +62,7 @@ namespace ConnectApp.canvas {
     internal class PushPageTransition : StatelessWidget {
         internal PushPageTransition(
             Key key = null,
-            Animation<double> routeAnimation = null, // The route's linear 0.0 - 1.0 animation.
+            Animation<float> routeAnimation = null, // The route's linear 0.0 - 1.0 animation.
             Widget child = null
         ) : base(key) {
             _positionAnimation = _leftPushTween.chain(_fastOutSlowInTween).animate(routeAnimation);
@@ -67,11 +70,11 @@ namespace ConnectApp.canvas {
         }
 
         private readonly Tween<Offset> _leftPushTween = new OffsetTween(
-            new Offset(1.0, 0.0),
+            new Offset(1.0f, 0.0f),
             Offset.zero
         );
 
-        private readonly Animatable<double> _fastOutSlowInTween = new CurveTween(Curves.fastOutSlowIn);
+        private readonly Animatable<float> _fastOutSlowInTween = new CurveTween(Curves.fastOutSlowIn);
         private readonly Animation<Offset> _positionAnimation;
         private readonly Widget child;
 
@@ -87,7 +90,7 @@ namespace ConnectApp.canvas {
     internal class ModalPageTransition : StatelessWidget {
         internal ModalPageTransition(
             Key key = null,
-            Animation<double> routeAnimation = null, // The route's linear 0.0 - 1.0 animation.
+            Animation<float> routeAnimation = null, // The route's linear 0.0 - 1.0 animation.
             Widget child = null
         ) : base(key) {
             _positionAnimation = _bottomUpTween.chain(_fastOutSlowInTween).animate(routeAnimation);
@@ -96,15 +99,15 @@ namespace ConnectApp.canvas {
         }
 
         private static Tween<Offset> _bottomUpTween = new OffsetTween(
-            new Offset(0.0, 1.0),
+            new Offset(0.0f, 1.0f),
             Offset.zero
         );
 
-        private static Animatable<double> _fastOutSlowInTween = new CurveTween(Curves.fastOutSlowIn);
-        private static Animatable<double> _easeInTween = new CurveTween(Curves.easeIn);
+        private static Animatable<float> _fastOutSlowInTween = new CurveTween(Curves.fastOutSlowIn);
+        private static Animatable<float> _easeInTween = new CurveTween(Curves.easeIn);
 
         private readonly Animation<Offset> _positionAnimation;
-        private readonly Animation<double> _opacityAnimation;
+        private readonly Animation<float> _opacityAnimation;
         public readonly Widget child;
 
         public override Widget build(BuildContext context) {

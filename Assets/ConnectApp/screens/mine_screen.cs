@@ -37,7 +37,7 @@ namespace ConnectApp.screens {
                         title: new Text(
                             "Mine",
                             style: new TextStyle(
-                                fontSize: 17.0,
+                                fontSize: 17,
                                 color: CColors.text1
                             )
                         ),
@@ -45,7 +45,7 @@ namespace ConnectApp.screens {
                             new CustomButton(
                                 child: new Icon(
                                     Icons.settings,
-                                    size: 28.0,
+                                    size: 28,
                                     color: CColors.icon2
                                 ),
                                 onPressed: () => Navigator.pushName(context, "/setting")

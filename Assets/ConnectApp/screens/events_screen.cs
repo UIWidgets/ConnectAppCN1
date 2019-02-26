@@ -20,14 +20,14 @@ namespace ConnectApp.screens {
     }
 
     internal class _EventsScreen : State<EventsScreen> {
-        private const double headerHeight = 80.0;
+        private const float headerHeight = 80;
 
-        private double _offsetY = 0.0;
+        private float _offsetY = 0;
 //        private List<IEvent> events;
 
         private Widget _buildHeader(BuildContext context) {
             return new Container(
-                padding: EdgeInsets.only(16.0, right: 8.0),
+                padding: EdgeInsets.only(16, right: 8),
                 height: headerHeight - _offsetY,
                 child: new Row(
                     children: new List<Widget> {
@@ -37,31 +37,31 @@ namespace ConnectApp.screens {
                             child: new Text(
                                 "Today",
                                 style: new TextStyle(
-                                    fontSize: 34.0 / headerHeight * (headerHeight - _offsetY),
+                                    fontSize: 34 / headerHeight * (headerHeight - _offsetY),
                                     color: CColors.white
                                 )
                             )),
                         new CustomButton(
-                            padding: EdgeInsets.symmetric(horizontal: 8.0),
+                            padding: EdgeInsets.symmetric(horizontal: 8),
                             onPressed: () => {
 //                                StoreProvider.store.Dispatch(new ChangeEmailAction {email = "ods@ods.com"});
                                 Navigator.pushName(context, "/mine");
                             },
                             child: new Icon(
                                 Icons.notifications,
-                                size: 28.0,
+                                size: 28,
                                 color: CColors.icon2
                             )
                         ),
                         new CustomButton(
-                            padding: EdgeInsets.only(8.0, right: 16.0),
+                            padding: EdgeInsets.only(8, right: 16),
                             onPressed: () => {
 //                                StoreProvider.store.Dispatch(new AddCountAction() {number = 3});
                                 Navigator.pushName(context, "/login");
                             },
                             child: new Icon(
                                 Icons.account_circle,
-                                size: 28.0,
+                                size: 28,
                                 color: CColors.icon2
                             )
                         )
@@ -78,11 +78,11 @@ namespace ConnectApp.screens {
 
         private bool _onNotification(ScrollNotification notification, BuildContext context) {
             var pixels = notification.metrics.pixels;
-            if (pixels >= 0.0) {
-                if (pixels <= headerHeight) setState(() => { _offsetY = pixels / 2.0; });
+            if (pixels >= 0) {
+                if (pixels <= headerHeight) setState(() => { _offsetY = pixels / 2; });
             }
             else {
-                if (_offsetY != 0.0) setState(() => { _offsetY = 0.0; });
+                if (_offsetY != 0) setState(() => { _offsetY = 0; });
             }
 
             return true;

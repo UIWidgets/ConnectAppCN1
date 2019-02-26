@@ -36,7 +36,7 @@ namespace ConnectApp.screens {
                             onPressed: () => { Navigator.pop(context); },
                             child: new Icon(
                                 Icons.close,
-                                size: 28.0,
+                                size: 28,
                                 color: CColors.icon1
                             )
                         )

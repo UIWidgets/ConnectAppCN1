@@ -13,11 +13,11 @@ using TextStyle = Unity.UIWidgets.painting.TextStyle;
 namespace ConnectApp.components {
     public class Share {
         public static void showShareView(BuildContext context,
-            bool barrierDismissible = false, WidgetBuilder builder = null) {
+            bool barrierDismissible = true, WidgetBuilder builder = null) {
             DialogUtils.showGeneralDialog(
                 context: context,
-                pageBuilder: (BuildContext buildContext, Animation<double> animation,
-                    Animation<double> secondaryAnimation) => {
+                pageBuilder: (BuildContext buildContext, Animation<float> animation,
+                    Animation<float> secondaryAnimation) => {
                     return builder(buildContext);
                 },
                 barrierDismissible: barrierDismissible,
@@ -29,7 +29,7 @@ namespace ConnectApp.components {
         }
 
         private static Widget _buildMaterialDialogTransitions(BuildContext context,
-            Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+            Animation<float> animation, Animation<float> secondaryAnimation, Widget child) {
             return new ModalPageTransition(
                 routeAnimation: animation,
                 child: child
@@ -52,7 +52,7 @@ namespace ConnectApp.components {
                             children: new List<Widget> {
                                 new Padding(
                                     padding: EdgeInsets.only(top: 15),
-                                    child: new Text("分享至", style: new TextStyle(fontSize: 17.0, color: Colors.white))
+                                    child: new Text("分享至", style: new TextStyle(fontSize: 17, color: Colors.white))
                                 ),
                                 new Container(
                                     padding: EdgeInsets.only(top: 10),
@@ -63,8 +63,8 @@ namespace ConnectApp.components {
                                             _shareItem("shareFriends", "朋友圈", onTap: () => { }),
                                         })),
                                 new GestureDetector(
-                                    onTap: () => { Navigator.pop(context); },
-                                    child: new Text("取消", style: new TextStyle(fontSize: 17.0, color: Colors.white))
+                                    onTap: () => { },
+                                    child: new Text("取消", style: new TextStyle(fontSize: 17, color: Colors.white))
                                 )
                             }
                         )
@@ -77,26 +77,26 @@ namespace ConnectApp.components {
             return new GestureDetector(
                 onTap: () => { },
                 child: new Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    padding: EdgeInsets.symmetric(horizontal: 16),
                     decoration: new BoxDecoration(
                         color: CColors.background1
                     ),
                     child: new Column(children: new List<Widget> {
                         new Container(
-                            width: 48.0,
-                            height: 48.0,
+                            width: 48,
+                            height: 48,
                             decoration: new BoxDecoration(
-                                borderRadius: BorderRadius.circular(24.0),
+                                borderRadius: BorderRadius.circular(24),
                                 image: new DecorationImage(image: new AssetImage(assetName))
                             )
                         ),
                         new Container(
-                            margin: EdgeInsets.only(top: 8.0),
-                            height: 20.0,
+                            margin: EdgeInsets.only(top: 8),
+                            height: 20,
                             child: new Text(
                                 title,
                                 style: new TextStyle(
-                                    fontSize: 12.0,
+                                    fontSize: 12,
                                     color: CColors.text2,
                                     decoration: TextDecoration.none,
                                     fontWeight: FontWeight.w400
