@@ -35,12 +35,13 @@ namespace ConnectApp.screens {
                                     border: Border.all(CColors.green)
                                 ),
                                 child: new Text(
-                                    "XTRA: 多重GPU粒子力场",
+                                    "Semibold: 多重GPU粒子力场",
                                     style: new TextStyle(
                                         height: 1.16f,
-                                        fontSize: 48,
+                                        fontSize: 40,
+                                        fontFamily: "PingFang-Semibold",
                                         color: CColors.black,
-                                        fontWeight: FontWeight.w700,
+//                                        fontWeight: FontWeight.w400,
                                         textBaseline: TextBaseline.alphabetic
                                     )
                                 )
@@ -52,13 +53,49 @@ namespace ConnectApp.screens {
                                     border: Border.all(CColors.green)
                                 ),
                                 child: new Text(
-                                    "XTRA: 多重GPU粒子力场",
+                                    "Medium: 多重GPU粒子力场",
                                     style: new TextStyle(
                                         height: 1.16f,
-                                        fontSize: 48,
-                                        fontFamily: "PingFang",
+                                        fontSize: 40,
+                                        fontFamily: "PingFang-Medium",
                                         color: CColors.black,
-                                        fontWeight: FontWeight.w700,
+//                                        fontWeight: FontWeight.w400,
+                                        textBaseline: TextBaseline.alphabetic
+                                    )
+                                )
+                            ),
+                            new Container(height: 10),
+                            new Container(
+                                decoration: new BoxDecoration(
+                                    CColors.white,
+                                    border: Border.all(CColors.green)
+                                ),
+                                child: new Text(
+                                    "Regular: 多重GPU粒子力场",
+                                    style: new TextStyle(
+                                        height: 1.16f,
+                                        fontSize: 40,
+                                        fontFamily: "PingFang-Regular",
+                                        color: CColors.black,
+//                                        fontWeight: FontWeight.w400,
+                                        textBaseline: TextBaseline.alphabetic
+                                    )
+                                )
+                            ),
+                            new Container(height: 10),
+                            new Container(
+                                decoration: new BoxDecoration(
+                                    CColors.white,
+                                    border: Border.all(CColors.green)
+                                ),
+                                child: new Text(
+                                    "Default: 多重GPU粒子力场",
+                                    style: new TextStyle(
+                                        height: 1.16f,
+                                        fontSize: 40,
+//                                        fontFamily: "Roboto Mono",
+                                        color: CColors.black,
+//                                        fontWeight: FontWeight.w400,
                                         textBaseline: TextBaseline.alphabetic
                                     )
                                 )
