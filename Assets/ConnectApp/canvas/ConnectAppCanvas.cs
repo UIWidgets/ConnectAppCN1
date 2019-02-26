@@ -14,14 +14,17 @@ namespace ConnectApp.canvas {
     public class ConnectAppCanvas : WidgetCanvas {
         protected override void OnEnable() {
             base.OnEnable();
-            var font = Resources.Load<Font>("MaterialIcons-Regular");
-            FontManager.instance.addFont(font);
+            var iconFont = Resources.Load<Font>("MaterialIcons-Regular");
+            FontManager.instance.addFont(iconFont);
+            var pingfangFont = Resources.Load<Font>("PingFang");
+            FontManager.instance.addFont(pingfangFont);
         }
 
         protected override string initialRoute => "/";
 
         protected override Dictionary<string, WidgetBuilder> routes => new Dictionary<string, WidgetBuilder> {
             {"/", (context) => new EventsScreen()},
+//            {"/", (context) => new GuidelineScreen()},
             {"/detail", (context) => new DetailScreen()},
             {"/mine", (context) => new MineScreen()},
             {"/setting", (context) => new SettingScreen()},
