@@ -103,8 +103,8 @@ namespace ConnectApp.components {
                     text,
                     style: new TextStyle(
                         color: Color.white,
-                        fontSize: 17.0,
-                        letterSpacing: 0.3
+                        fontSize: 17,
+                        letterSpacing: 0.3f
                     )
                 )
             );
@@ -117,8 +117,8 @@ namespace ConnectApp.components {
                     text,
                     style: new TextStyle(
                         color: Color.white,
-                        fontSize: 15.0,
-                        letterSpacing: 0.3
+                        fontSize: 15,
+                        letterSpacing: 0.3f
                     )
                 )
             );
@@ -131,8 +131,8 @@ namespace ConnectApp.components {
                     text,
                     style: new TextStyle(
                         color: new Color(0xffd8d8d8),
-                        fontSize: 14.0,
-                        height: 1.4
+                        fontSize: 14,
+                        height: 1.4f
                     )
                 )
             );
@@ -140,20 +140,20 @@ namespace ConnectApp.components {
 
         private Widget _CodeBlock(string text) {
             return new Container(
-                width: new MediaQuery().data.size.width - 32.0,
+                width: new MediaQuery().data.size.width - 32,
                 decoration: new BoxDecoration(
                     new Color(0xff141414)
                 ),
                 margin: EdgeInsets.only(
-                    bottom: 32.0
+                    bottom: 32
                 ),
                 child: new Container(
-                    margin: EdgeInsets.all(16.0),
+                    margin: EdgeInsets.all(16),
                     child: new Text(
                         text,
                         style: new TextStyle(
                             color: new Color(0xffffffff),
-                            height: 1.4
+                            height: 1.4f
                         )
                     )
                 )
@@ -163,25 +163,25 @@ namespace ConnectApp.components {
 
         private Widget _QuoteBlock(string text) {
             return new Container(
-                margin: EdgeInsets.only(bottom: 32.0, left: 16.0),
+                margin: EdgeInsets.only(bottom: 32, left: 16),
                 decoration: new BoxDecoration(
                     border: new Border(
                         left: new BorderSide(
                             new Color(0xffe91e63),
-                            4.0
+                            4
                         )
                     )
                 ),
                 child: new Container(
                     margin: EdgeInsets.only(
-                        8.0,
-                        bottom: 8.0
+                        8,
+                        bottom: 8
                     ),
                     child: new Text(
                         text,
                         style: new TextStyle(
                             color: new Color(0xffffffff),
-                            height: 1.4
+                            height: 1.4f
                         )
                     )
                 )
@@ -197,18 +197,18 @@ namespace ConnectApp.components {
                     decoration: new BoxDecoration(
                         border: new Border(
                             bottom: new BorderSide(
-                                width: 1.0,
+                                width: 1,
                                 color: new Color(0xffd8d8d8)
                             )
                         )
                     ),
                     child: new Container(
-                        margin: EdgeInsets.only(4.0, 8.0, 4.0, 4.0),
+                        margin: EdgeInsets.only(4, 8, 4, 4),
                         child: new Text(
                             title,
                             style: new TextStyle(
                                 color: new Color(0xffd8d8d8),
-                                fontSize: 12.0
+                                fontSize: 12
                             )
                         )
                     )
@@ -242,11 +242,11 @@ namespace ConnectApp.components {
                     ),
                 };
                 widgets.Add(
-                    new Container(margin: EdgeInsets.only(top: i == 0 ? 0.0 : 8.0),
+                    new Container(margin: EdgeInsets.only(top: i == 0 ? 0 : 8),
                         child: new RichText(
                             text: new TextSpan(
                                 style: new TextStyle(
-                                    height: 1.4
+                                    height: 1.4f
                                 ),
                                 children: spans
                             )
@@ -279,11 +279,11 @@ namespace ConnectApp.components {
                     ),
                 };
                 widgets.Add(
-                    new Container(margin: EdgeInsets.only(top: i == 0 ? 0.0 : 8.0),
+                    new Container(margin: EdgeInsets.only(top: i == 0 ? 0 : 8),
                         child: new RichText(
                             text: new TextSpan(
                                 style: new TextStyle(
-                                    height: 1.4
+                                    height: 1.4f
                                 ),
                                 children: spans
                             )

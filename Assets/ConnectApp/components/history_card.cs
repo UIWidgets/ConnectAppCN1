@@ -38,7 +38,7 @@ namespace ConnectApp.components {
                                             fontSize: 15,
                                             fontWeight: FontWeight.w700,
                                             color: CColors.text1,
-                                            height: 1.3
+                                            height: 1.3f
                                         )
                                     ),
                                     new Container(height: 8),

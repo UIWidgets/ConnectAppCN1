@@ -14,7 +14,7 @@ namespace ConnectApp.components {
             Widget child = null
         ) : base(key) {
             this.onPressed = onPressed;
-            this.padding = padding ?? EdgeInsets.all(8.0);
+            this.padding = padding ?? EdgeInsets.all(8.0f);
             this.backgroundColor = backgroundColor;
             this.child = child;
         }

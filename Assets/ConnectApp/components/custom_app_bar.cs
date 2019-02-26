@@ -27,7 +27,7 @@ namespace ConnectApp.components {
         public readonly Color backgroundColor;
 
         public override Widget build(BuildContext context) {
-            const double height = 56.0;
+            const float height = 56;
             return new Container(
                 height: height,
                 decoration: new BoxDecoration(backgroundColor ?? CColors.background1

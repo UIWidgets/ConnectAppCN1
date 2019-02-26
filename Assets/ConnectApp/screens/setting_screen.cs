@@ -15,7 +15,7 @@ namespace ConnectApp.screens {
                             title: new Text(
                                 "Setting",
                                 style: new TextStyle(
-                                    fontSize: 17.0,
+                                    fontSize: 17,
                                     color: CColors.text1
                                 )
                             )
@@ -112,7 +112,7 @@ namespace ConnectApp.screens {
                         ),
                         new Icon(
                             Icons.chevron_right,
-                            size: 16.0,
+                            size: 16,
                             color: CColors.icon1
                         )
                     }
