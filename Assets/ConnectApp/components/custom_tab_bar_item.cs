@@ -3,10 +3,8 @@
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.components
-{
-    public class CustomTabBarItem
-    {
+namespace ConnectApp.components {
+    public class CustomTabBarItem {
         public CustomTabBarItem(
             int index,
             IconData icon,
@@ -14,8 +12,7 @@ namespace ConnectApp.components
             Color activeColor,
             Color inActiveColor,
             int size = 24
-        )
-        {
+        ) {
             this.index = index;
             this.icon = icon;
             this.title = title;
