@@ -63,18 +63,22 @@ namespace ConnectApp.components {
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: new List<Widget> {
-                                new Container(
-                                    margin: EdgeInsets.only(right: 10),
-                                    decoration: new BoxDecoration(
-                                        borderRadius: BorderRadius.all(18)
-                                    ),
-                                    child: Image.network(
-                                        liveInfo.user.avatar,
-                                        height: 36,
-                                        width: 36,
-                                        fit: BoxFit.fill
+                                new ClipRect(
+                                    
+                                    child:new Container(
+                                        margin: EdgeInsets.only(right: 10),
+//                                        decoration: new BoxDecoration(
+//                                            borderRadius: BorderRadius.all(18)
+//                                        ),
+                                        child: Image.network(
+                                            liveInfo.user.avatar,
+                                            height: 36,
+                                            width: 36,
+                                            fit: BoxFit.cover
+                                        )
                                     )
                                 ),
+                                
                                 new Column(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     crossAxisAlignment: CrossAxisAlignment.start,
