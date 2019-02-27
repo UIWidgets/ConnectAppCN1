@@ -43,7 +43,7 @@ namespace ConnectApp.components
         private PageController _pageController;
         private int _selectedIndex;
         
-        private const int kTabBarHeight = 50;
+        private const int kTabBarHeight = 49;
         private Widget _body;
         
         public override Widget build(BuildContext context)
@@ -53,7 +53,7 @@ namespace ConnectApp.components
                 {
                     _contentView(),
                     new Positioned(
-                        bottom:0,
+                        bottom:MediaQuery.of(context).viewInsets.bottom,
                         left:0,
                         right:0,
                         child:_bottomTabBar()
@@ -78,12 +78,15 @@ namespace ConnectApp.components
         private Widget _bottomTabBar()
         {
             return new Container(
-                            height:kTabBarHeight,
-                            color: widget.tabbarBackgroudColor,
-                            child:new Row(
-                                mainAxisAlignment:MainAxisAlignment.spaceAround,
-                                children: _buildItems()
-                            )
+                decoration:new BoxDecoration(
+                    border:Border.all(Color.fromRGBO(0,0,0,0.3f)),
+                    color:widget.tabbarBackgroudColor
+                    ),
+                height:kTabBarHeight,
+                child:new Row(
+                    mainAxisAlignment:MainAxisAlignment.spaceAround,
+                    children: _buildItems()
+                )
             );
         }
 
