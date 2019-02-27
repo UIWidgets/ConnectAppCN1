@@ -110,7 +110,7 @@ namespace ConnectApp.screens {
                                 height: 48,
                                 decoration: new BoxDecoration(
                                     CColors.background1,
-                                    border: Border.all(CColors.white),
+                                    border: Border.all(CColors.White),
                                     borderRadius: BorderRadius.all(24)
                                 ),
                                 child: new Row(

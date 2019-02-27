@@ -11,7 +11,7 @@ namespace ConnectApp.screens {
                     padding: EdgeInsets.all(10),
                     decoration: new BoxDecoration(
                         CColors.background1,
-                        border: Border.all(CColors.red)
+                        border: Border.all(CColors.Red)
                     ),
                     child: new ListView(
                         physics: new BouncingScrollPhysics(),
@@ -26,8 +26,8 @@ namespace ConnectApp.screens {
                             ),
                             new Container(
                                 decoration: new BoxDecoration(
-                                    CColors.white,
-                                    border: Border.all(CColors.green)
+                                    CColors.White,
+                                    border: Border.all(CColors.Green)
                                 ),
                                 child: new Text(
                                     "Xtra: 多重GPU粒子力场",
@@ -37,8 +37,8 @@ namespace ConnectApp.screens {
                             new Container(height: 10),
                             new Container(
                                 decoration: new BoxDecoration(
-                                    CColors.white,
-                                    border: Border.all(CColors.green)
+                                    CColors.White,
+                                    border: Border.all(CColors.Green)
                                 ),
                                 child: new Text(
                                     "H1: 多重GPU粒子力场",
@@ -48,8 +48,8 @@ namespace ConnectApp.screens {
                             new Container(height: 10),
                             new Container(
                                 decoration: new BoxDecoration(
-                                    CColors.white,
-                                    border: Border.all(CColors.green)
+                                    CColors.White,
+                                    border: Border.all(CColors.Green)
                                 ),
                                 child: new Text(
                                     "H2: 多重GPU粒子力场",
@@ -59,8 +59,8 @@ namespace ConnectApp.screens {
                             new Container(height: 10),
                             new Container(
                                 decoration: new BoxDecoration(
-                                    CColors.white,
-                                    border: Border.all(CColors.green)
+                                    CColors.White,
+                                    border: Border.all(CColors.Green)
                                 ),
                                 child: new Text(
                                     "H3: 多重GPU粒子力场",
@@ -70,8 +70,8 @@ namespace ConnectApp.screens {
                             new Container(height: 10),
                             new Container(
                                 decoration: new BoxDecoration(
-                                    CColors.white,
-                                    border: Border.all(CColors.green)
+                                    CColors.White,
+                                    border: Border.all(CColors.Green)
                                 ),
                                 child: new Text(
                                     "H4: 多重GPU粒子力场",
@@ -81,8 +81,8 @@ namespace ConnectApp.screens {
                             new Container(height: 10),
                             new Container(
                                 decoration: new BoxDecoration(
-                                    CColors.white,
-                                    border: Border.all(CColors.green)
+                                    CColors.White,
+                                    border: Border.all(CColors.Green)
                                 ),
                                 child: new Text(
                                     "H2: 多重GPU粒子力场",
@@ -101,8 +101,8 @@ namespace ConnectApp.screens {
                             new Container(height: 10),
                             new Container(
                                 decoration: new BoxDecoration(
-                                    CColors.white,
-                                    border: Border.all(CColors.green)
+                                    CColors.White,
+                                    border: Border.all(CColors.Green)
                                 ),
                                 child: new Text(
                                     "P-Large: 设置粒子系统的方法是把任何附加了该组件的游戏对象的任何子Transform都视为作力场对象。然后我们可以从父对象动态添加或移除Transform，来创建或销毁力场。",
@@ -112,8 +112,8 @@ namespace ConnectApp.screens {
                             new Container(height: 10),
                             new Container(
                                 decoration: new BoxDecoration(
-                                    CColors.white,
-                                    border: Border.all(CColors.green)
+                                    CColors.White,
+                                    border: Border.all(CColors.Green)
                                 ),
                                 child: new Text(
                                     "P-Regular: 设置粒子系统的方法是把任何附加了该组件的游戏对象的任何子Transform都视为作力场对象。然后我们可以从父对象动态添加或移除Transform，来创建或销毁力场。 然后我们可以从父对象动态添加或移除Transform，来创建或销毁力场。",
@@ -124,8 +124,8 @@ namespace ConnectApp.screens {
                             new Container(height: 10),
                             new Container(
                                 decoration: new BoxDecoration(
-                                    CColors.white,
-                                    border: Border.all(CColors.green)
+                                    CColors.White,
+                                    border: Border.all(CColors.Green)
                                 ),
                                 child: new Text(
                                     "P-Small: 设置粒子系统的方法是把任何附加了该组件的游戏对象的任何子Transform都视为作力场对象。然后我们可以从父对象动态添加或移除Transform，来创建或销毁力场。",
@@ -135,8 +135,8 @@ namespace ConnectApp.screens {
                             new Container(height: 10),
                             new Container(
                                 decoration: new BoxDecoration(
-                                    CColors.white,
-                                    border: Border.all(CColors.green)
+                                    CColors.White,
+                                    border: Border.all(CColors.Green)
                                 ),
                                 child: new Text(
                                     "P-Caption: 即将开始",

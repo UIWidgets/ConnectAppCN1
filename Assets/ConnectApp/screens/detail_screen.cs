@@ -37,7 +37,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new Container(
                             decoration: new BoxDecoration(
-                                CColors.black
+                                CColors.Black
                             ),
                             height: 210,
                             child: new Stack(
@@ -287,7 +287,7 @@ namespace ConnectApp.screens {
                             height: openChatWindow ? 457 : 64,
                             width: 375,
                             decoration: new BoxDecoration(
-                                CColors.red
+                                CColors.Red
                             ),
                             child: new Text(
                                 "chatWindow",

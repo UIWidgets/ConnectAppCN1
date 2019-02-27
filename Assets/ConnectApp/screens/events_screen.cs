@@ -8,7 +8,6 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 
 namespace ConnectApp.screens {
     public class EventsScreen : StatefulWidget {
@@ -39,7 +38,7 @@ namespace ConnectApp.screens {
                                 "Today",
                                 style: new TextStyle(
                                     fontSize: 34 / headerHeight * (headerHeight - _offsetY),
-                                    color: CColors.white
+                                    color: CColors.White
                                 )
                             )),
                         new CustomButton(
@@ -123,9 +122,6 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            
-            
-            
             var container = new Container(
                 child: new Container(
                     color: CColors.background1,

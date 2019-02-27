@@ -15,7 +15,7 @@ namespace ConnectApp.canvas {
         protected override void OnEnable() {
             base.OnEnable();
             Application.targetFrameRate = 300;
-            var iconFont = Resources.Load<Font>("MaterialIcons-Regular");
+            var iconFont = Resources.Load<Font>("MaterialIcons");
             FontManager.instance.addFont(iconFont);
             var regularFont = Resources.Load<Font>("PingFang-Regular");
             FontManager.instance.addFont(regularFont);
