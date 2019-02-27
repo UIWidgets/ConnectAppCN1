@@ -16,8 +16,14 @@ namespace ConnectApp.canvas {
             base.OnEnable();
             var iconFont = Resources.Load<Font>("MaterialIcons-Regular");
             FontManager.instance.addFont(iconFont);
-            var pingfangFont = Resources.Load<Font>("PingFang");
-            FontManager.instance.addFont(pingfangFont);
+            var regularFont = Resources.Load<Font>("PingFang-Regular");
+            FontManager.instance.addFont(regularFont);
+            var mediumFont = Resources.Load<Font>("PingFang-Medium");
+            FontManager.instance.addFont(mediumFont);
+            var semiboldFont = Resources.Load<Font>("PingFang-Semibold");
+            FontManager.instance.addFont(semiboldFont);
+            
+            
         }
 
         protected override string initialRoute => "/";

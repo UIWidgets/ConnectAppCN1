@@ -1,5 +1,6 @@
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.constants {
     public static class Icons {
@@ -15,7 +16,82 @@ namespace ConnectApp.constants {
         public static readonly IconData settings = new IconData(0xe8b8, "Material Icons");
     }
 
+    public static class CTextStyle {
+        public static readonly TextStyle Xtra = new TextStyle(
+            height: 1.17f,
+            fontSize: 48,
+            fontFamily: "PingFang-Semibold",
+            color: CColors.TextTitle
+        );
+
+        public static readonly TextStyle H1 = new TextStyle(
+            height: 1.2f,
+            fontSize: 40,
+            fontFamily: "PingFang-Semibold",
+            color: CColors.TextTitle
+        );
+
+        public static readonly TextStyle H2 = new TextStyle(
+            height: 1.25f,
+            fontSize: 32,
+            fontFamily: "PingFang-Semibold",
+            color: CColors.TextTitle
+        );
+
+        public static readonly TextStyle H3 = new TextStyle(
+            height: 1.29f,
+            fontSize: 28,
+            fontFamily: "PingFang-Semibold",
+            color: CColors.TextTitle
+        );
+
+        public static readonly TextStyle H4 = new TextStyle(
+            height: 1.33f,
+            fontSize: 24,
+            fontFamily: "PingFang-Medium",
+            color: CColors.TextTitle
+        );
+
+        public static readonly TextStyle H5 = new TextStyle(
+            height: 1.4f,
+            fontSize: 20,
+            fontFamily: "PingFang-Medium",
+            color: CColors.TextTitle
+        );
+
+        public static readonly TextStyle PLarge = new TextStyle(
+            height: 1.5f,
+            fontSize: 16,
+            fontFamily: "PingFang-Regular",
+            color: CColors.TextParagraph
+        );
+
+        public static readonly TextStyle PRegular = new TextStyle(
+            height: 1.57f,
+            fontSize: 14,
+            fontFamily: "PingFang-Regular",
+            color: CColors.TextParagraph
+        );
+
+        public static readonly TextStyle PSmall = new TextStyle(
+            height: 1.67f,
+            fontSize: 12,
+            fontFamily: "PingFang-Regular",
+            color: CColors.TextParagraph
+        );
+
+        public static readonly TextStyle Caption = new TextStyle(
+            height: 1.67f,
+            fontSize: 12,
+            letterSpacing: 0.5f,
+            fontFamily: "PingFang-Medium",
+            color: CColors.TextParagraph
+        );
+    }
+
     public static class CColors {
+        public static readonly Color TextTitle = new Color(0xFF000000);
+        public static readonly Color TextParagraph = new Color(0xFF212121);
         public static readonly Color primary = new Color(0xFFE91E63);
         public static readonly Color secondary1 = new Color(0xFF00BCD4);
         public static readonly Color background1 = new Color(0xFF292929);
