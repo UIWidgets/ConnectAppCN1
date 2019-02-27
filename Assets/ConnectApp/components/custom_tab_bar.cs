@@ -8,6 +8,7 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Icons = ConnectApp.constants.Icons;
 using Image = Unity.UIWidgets.widgets.Image;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
@@ -18,14 +19,16 @@ namespace ConnectApp.components
         public CustomTabBar(
             List<Widget> controllers,
             List<CustomTabBarItem> items,
+            Color tabbarBackgroudColor,
             Key key = null
         ) : base(key)
         {
             this.controllers = controllers;
             this.items = items;
-            
+            this.tabbarBackgroudColor = tabbarBackgroudColor;
         }
 
+        public readonly Color tabbarBackgroudColor;
         public readonly List<Widget> controllers;
         public readonly List<CustomTabBarItem> items;
         
@@ -45,12 +48,16 @@ namespace ConnectApp.components
         
         public override Widget build(BuildContext context)
         {
-            return new Column(
-                mainAxisAlignment:MainAxisAlignment.start,
+            return new Stack(
                 children:new List<Widget>
                 {
                     _contentView(),
-                    _bottomTabBar()
+                    new Positioned(
+                        bottom:0,
+                        left:0,
+                        right:0,
+                        child:_bottomTabBar()
+                    )
                 }
             );
         }
@@ -59,7 +66,7 @@ namespace ConnectApp.components
         {
            return new Container(
                     child: new Container(
-                        height:MediaQuery.of(context).size.height-kTabBarHeight,
+                        height:MediaQuery.of(context).size.height,
                         color: CColors.blue,
                         decoration: new BoxDecoration(CColors.background1),
                         child: widget.controllers[_selectedIndex]
@@ -70,15 +77,13 @@ namespace ConnectApp.components
 
         private Widget _bottomTabBar()
         {
-            return new Flexible(
-                child: new Container(
-                    height:kTabBarHeight,
-                    color: Color.black,
-                    child:new Row(
-                        mainAxisAlignment:MainAxisAlignment.spaceAround,
-                        children: _buildItems()
-                    )
-                )
+            return new Container(
+                            height:kTabBarHeight,
+                            color: widget.tabbarBackgroudColor,
+                            child:new Row(
+                                mainAxisAlignment:MainAxisAlignment.spaceAround,
+                                children: _buildItems()
+                            )
             );
         }
 
@@ -107,17 +112,15 @@ namespace ConnectApp.components
                                         {
                                             new Padding(
                                                 padding: EdgeInsets.only(top: 5),
-                                                child: Image.asset(
-                                                    _selectedIndex == item.index ? item.activeImge : item.inactiveImge,
-                                                    height: 24, width: 24)
+                                                child: new Icon(item.icon,null,item.size,_selectedIndex == item.index?item.activeColor:item.inActiveColor)
                                             ),
                                             new Padding(
                                                 padding: EdgeInsets.only(top: 5),
                                                 child: new Text(item.title,
                                                     style: new TextStyle(fontSize: 9,
                                                         color: _selectedIndex == item.index
-                                                            ? Colors.blue
-                                                            : Color.white))
+                                                            ? item.activeColor
+                                                            : item.inActiveColor))
                                             ),
 
                                         }

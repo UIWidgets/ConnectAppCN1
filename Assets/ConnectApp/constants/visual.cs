@@ -4,6 +4,14 @@ using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.constants {
     public static class Icons {
+        
+//          首页
+        public static readonly IconData TabHome = new IconData(0xe873, "Material Icons");
+        public static readonly IconData TabNotification = new IconData(0xe7f4, "Material Icons");
+        public static readonly IconData TabMood = new IconData(0xe7f2, "Material Icons");
+
+        
+        
         public static readonly IconData notifications = new IconData(0xe7f4, "Material Icons");
         public static readonly IconData account_circle = new IconData(0xe853, "Material Icons");
         public static readonly IconData search = new IconData(0xe8b6, "Material Icons");
@@ -125,5 +133,13 @@ namespace ConnectApp.constants {
         public static readonly Color blue = new Color(0xFF0000FF);
 
         public static readonly Color header = new Color(0xFF060B0C);
+        
+        
+        public static readonly Color primaryBlue = new Color(0xFF2196F3);
+        public static readonly Color brownGrey = new Color(0xFFB5B5B5);
+
+        
+        
+        
     }
 }
