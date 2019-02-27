@@ -64,8 +64,7 @@ namespace ConnectApp.components {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: new List<Widget> {
                                 new ClipRect(
-                                    
-                                    child:new Container(
+                                    child: new Container(
                                         margin: EdgeInsets.only(right: 10),
 //                                        decoration: new BoxDecoration(
 //                                            borderRadius: BorderRadius.all(18)
@@ -78,7 +77,7 @@ namespace ConnectApp.components {
                                         )
                                     )
                                 ),
-                                
+
                                 new Column(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     crossAxisAlignment: CrossAxisAlignment.start,

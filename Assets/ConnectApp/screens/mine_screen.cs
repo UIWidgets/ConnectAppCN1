@@ -130,7 +130,7 @@ namespace ConnectApp.screens {
                             }
                         )
                     ),
-                    new Container(decoration: new BoxDecoration(CColors.black), height: 1)
+                    new Container(decoration: new BoxDecoration(CColors.Black), height: 1)
                 }
             );
         }

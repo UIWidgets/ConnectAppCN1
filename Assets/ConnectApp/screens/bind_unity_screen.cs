@@ -103,10 +103,10 @@ namespace ConnectApp.screens {
                             height: 44,
                             decoration: new BoxDecoration(
                                 border: new Border(
-                                    new BorderSide(CColors.transparent),
-                                    new BorderSide(CColors.transparent),
+                                    new BorderSide(CColors.Transparent),
+                                    new BorderSide(CColors.Transparent),
                                     new BorderSide(CColors.dividingLine1),
-                                    new BorderSide(CColors.transparent)
+                                    new BorderSide(CColors.Transparent)
                                 )
                             ),
                             alignment: Alignment.center,
@@ -135,10 +135,10 @@ namespace ConnectApp.screens {
                             height: 44,
                             decoration: new BoxDecoration(
                                 border: new Border(
-                                    new BorderSide(CColors.transparent),
-                                    new BorderSide(CColors.transparent),
+                                    new BorderSide(CColors.Transparent),
+                                    new BorderSide(CColors.Transparent),
                                     new BorderSide(CColors.dividingLine1),
-                                    new BorderSide(CColors.transparent)
+                                    new BorderSide(CColors.Transparent)
                                 )
                             ),
                             alignment: Alignment.center,

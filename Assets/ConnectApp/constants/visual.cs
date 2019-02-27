@@ -4,14 +4,10 @@ using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.constants {
     public static class Icons {
-        
-//          首页
-        public static readonly IconData TabHome = new IconData(0xe873, "Material Icons");
-        public static readonly IconData TabNotification = new IconData(0xe7f4, "Material Icons");
-        public static readonly IconData TabMood = new IconData(0xe7f2, "Material Icons");
+        public static readonly IconData Description = new IconData(0xe873, "Material Icons");
+        public static readonly IconData Notification = new IconData(0xe7f4, "Material Icons");
+        public static readonly IconData Mood = new IconData(0xe7f2, "Material Icons");
 
-        
-        
         public static readonly IconData notifications = new IconData(0xe7f4, "Material Icons");
         public static readonly IconData account_circle = new IconData(0xe853, "Material Icons");
         public static readonly IconData search = new IconData(0xe8b6, "Material Icons");
@@ -46,6 +42,13 @@ namespace ConnectApp.constants {
             color: CColors.TextTitle
         );
 
+        public static readonly TextStyle H2White = new TextStyle(
+            height: 1.25f,
+            fontSize: 32,
+            fontFamily: "PingFang-Semibold",
+            color: CColors.White
+        );
+
         public static readonly TextStyle H3 = new TextStyle(
             height: 1.29f,
             fontSize: 28,
@@ -67,25 +70,25 @@ namespace ConnectApp.constants {
             color: CColors.TextTitle
         );
 
+        public static readonly TextStyle H5White = new TextStyle(
+            height: 1.4f,
+            fontSize: 20,
+            fontFamily: "PingFang-Medium",
+            color: CColors.White
+        );
+
         public static readonly TextStyle PLarge = new TextStyle(
             height: 1.5f,
             fontSize: 16,
             fontFamily: "PingFang-Regular",
-            color: CColors.TextParagraph
+            color: CColors.TextBody
         );
 
         public static readonly TextStyle PRegular = new TextStyle(
             height: 1.57f,
             fontSize: 14,
             fontFamily: "PingFang-Regular",
-            color: CColors.TextParagraph
-        );
-
-        public static readonly TextStyle PSmall = new TextStyle(
-            height: 1.67f,
-            fontSize: 12,
-            fontFamily: "PingFang-Regular",
-            color: CColors.TextParagraph
+            color: CColors.TextBody
         );
 
         public static readonly TextStyle Caption = new TextStyle(
@@ -93,13 +96,45 @@ namespace ConnectApp.constants {
             fontSize: 12,
             letterSpacing: 0.5f,
             fontFamily: "PingFang-Medium",
-            color: CColors.TextParagraph
+            color: CColors.TextBody
+        );
+
+        public static readonly TextStyle CaptionWhite = new TextStyle(
+            height: 1.67f,
+            fontSize: 12,
+            letterSpacing: 0.5f,
+            fontFamily: "PingFang-Medium",
+            color: CColors.White
+        );
+
+        public static readonly TextStyle PSmall = new TextStyle(
+            height: 1.67f,
+            fontSize: 12,
+            fontFamily: "PingFang-Regular",
+            color: CColors.TextBody
         );
     }
 
     public static class CColors {
+        public static readonly Color PrimaryBlue = new Color(0xFF2196F3);
+        public static readonly Color SecondaryPink = new Color(0xFFF32194);
         public static readonly Color TextTitle = new Color(0xFF000000);
-        public static readonly Color TextParagraph = new Color(0xFF212121);
+        public static readonly Color TextBody = new Color(0xFF212121);
+        public static readonly Color TextSecondary = new Color(0xFF424242);
+        public static readonly Color TextThird = new Color(0xFF616161);
+        public static readonly Color TextThird2 = new Color(0xFF797979);
+        public static readonly Color Separator = new Color(0xFFE6E6E6);
+        public static readonly Color Separator2 = new Color(0xFFEEEEEE);
+        public static readonly Color BgGrey = new Color(0xFFFAFAFA);
+        public static readonly Color BrownGrey = new Color(0xFFB5B5B5);
+
+        public static readonly Color Transparent = new Color(0x00000000);
+        public static readonly Color White = new Color(0xFFFFFFFF);
+        public static readonly Color Black = new Color(0xFF000000);
+        public static readonly Color Red = new Color(0xFFFF0000);
+        public static readonly Color Green = new Color(0xFF00FF00);
+        public static readonly Color Blue = new Color(0xFF0000FF);
+
         public static readonly Color primary = new Color(0xFFE91E63);
         public static readonly Color secondary1 = new Color(0xFF00BCD4);
         public static readonly Color background1 = new Color(0xFF292929);
@@ -124,22 +159,5 @@ namespace ConnectApp.constants {
         public static readonly Color dividingLine2 = new Color(0xFF404040);
         public static readonly Color redPoint = new Color(0xFFCC122B);
         public static readonly Color mask = new Color(0x66000000);
-
-        public static readonly Color transparent = new Color(0x00000000);
-        public static readonly Color white = new Color(0xFFFFFFFF);
-        public static readonly Color black = new Color(0xFF000000);
-        public static readonly Color red = new Color(0xFFFF0000);
-        public static readonly Color green = new Color(0xFF00FF00);
-        public static readonly Color blue = new Color(0xFF0000FF);
-
-        public static readonly Color header = new Color(0xFF060B0C);
-        
-        
-        public static readonly Color primaryBlue = new Color(0xFF2196F3);
-        public static readonly Color brownGrey = new Color(0xFFB5B5B5);
-
-        
-        
-        
     }
 }

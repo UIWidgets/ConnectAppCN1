@@ -14,7 +14,8 @@ namespace ConnectApp.canvas {
     public class ConnectAppCanvas : WidgetCanvas {
         protected override void OnEnable() {
             base.OnEnable();
-            var iconFont = Resources.Load<Font>("MaterialIcons-Regular");
+            Application.targetFrameRate = 300;
+            var iconFont = Resources.Load<Font>("MaterialIcons");
             FontManager.instance.addFont(iconFont);
             var regularFont = Resources.Load<Font>("PingFang-Regular");
             FontManager.instance.addFont(regularFont);
@@ -22,8 +23,6 @@ namespace ConnectApp.canvas {
             FontManager.instance.addFont(mediumFont);
             var semiboldFont = Resources.Load<Font>("PingFang-Semibold");
             FontManager.instance.addFont(semiboldFont);
-            
-            
         }
 
         protected override string initialRoute => "/";

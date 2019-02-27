@@ -26,7 +26,7 @@ namespace ConnectApp.components {
                     children: new List<Widget> {
                         new Container(
                             decoration: new BoxDecoration(
-                                CColors.black
+                                CColors.Black
                             ),
                             height: 210,
                             child: new Stack(
@@ -84,7 +84,7 @@ namespace ConnectApp.components {
                                                             height: 20,
                                                             width: 36,
                                                             decoration: new BoxDecoration(
-                                                                model.live ? CColors.redPoint : CColors.black
+                                                                model.live ? CColors.redPoint : CColors.Black
                                                             ),
                                                             alignment: Alignment.center,
                                                             child: new Text(
@@ -114,7 +114,7 @@ namespace ConnectApp.components {
                                     new Container(
                                         margin: EdgeInsets.only(right: 10),
                                         decoration: new BoxDecoration(
-                                            CColors.white
+                                            CColors.White
                                         ),
                                         height: 36,
                                         width: 36,
