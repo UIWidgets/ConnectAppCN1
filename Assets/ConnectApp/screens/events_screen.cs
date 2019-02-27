@@ -8,6 +8,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 
 namespace ConnectApp.screens {
     public class EventsScreen : StatefulWidget {
@@ -122,29 +123,58 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            var container = new Container(
-                child: new Container(
-                    color: CColors.background1,
-                    child: new Column(
-                        children: new List<Widget> {
-//                            new StoreConnector<AppState, string>(
-//                                converter: (state, dispatch) => $"Count: {state.Count}",
-//                                builder: (context1, countText) => new Text(countText, style: new TextStyle(
-//                                    fontSize: 20, fontWeight: FontWeight.w700
-//                                ))
-//                            ),
-//                            new StoreConnector<AppState, string>(
-//                                converter: (state, dispatch) => $"Email: {state.LoginState.email}",
-//                                builder: (context1, countText) => new Text(countText, style: new TextStyle(
-//                                    fontSize: 20, fontWeight: FontWeight.w700
-//                                ))
-//                            ),
-                            _buildHeader(context), _buildContentList(context),
-                        }
-                    )
-                )
-            );
-            return container;
+            return new Container(
+                child: new CustomTabBar(
+                    new List<Widget>
+                    {
+                        new LoginScreen(),
+                        new MineScreen()
+                    },
+                    new List<CustomTabBarItem>
+                    {
+                        new CustomTabBarItem(
+                            0,
+                            "mario",
+                            "mario",
+                            "首页",
+                            Color.white,
+                            Color.white
+                        ),
+                        new CustomTabBarItem(
+                            0,
+                            "pikachu",
+                            "pikachu",
+                            "我的",
+                            Color.white,
+                            Color.white
+                        ),
+                    }
+                ));
+            
+            
+//            var container = new Container(
+//                child: new Container(
+//                    color: CColors.background1,
+//                    child: new Column(
+//                        children: new List<Widget> {
+////                            new StoreConnector<AppState, string>(
+////                                converter: (state, dispatch) => $"Count: {state.Count}",
+////                                builder: (context1, countText) => new Text(countText, style: new TextStyle(
+////                                    fontSize: 20, fontWeight: FontWeight.w700
+////                                ))
+////                            ),
+////                            new StoreConnector<AppState, string>(
+////                                converter: (state, dispatch) => $"Email: {state.LoginState.email}",
+////                                builder: (context1, countText) => new Text(countText, style: new TextStyle(
+////                                    fontSize: 20, fontWeight: FontWeight.w700
+////                                ))
+////                            ),
+//                            _buildHeader(context), _buildContentList(context),
+//                        }
+//                    )
+//                )
+//            );
+//            return container;
         }
     }
 }

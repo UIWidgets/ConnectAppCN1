@@ -18,7 +18,7 @@ namespace ConnectApp.components {
         public CustomActivityIndicator(
             Key key = null,
             AnimatingType animating = AnimatingType.repeat,
-            double radius = 16.0
+            float radius = 16.0f
         ) : base(key) {
             animating = this.animating;
             radius = this.radius;
@@ -26,7 +26,7 @@ namespace ConnectApp.components {
 
 
         public readonly AnimatingType animating;
-        public readonly double radius;
+        public readonly float radius;
 
         public override State createState() {
             return new _CustomActivityIndicatorState();
