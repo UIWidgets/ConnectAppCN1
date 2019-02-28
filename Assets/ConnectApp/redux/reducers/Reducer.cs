@@ -1,5 +1,6 @@
 using ConnectApp.models;
 using ConnectApp.redux.actions;
+using UnityEngine;
 
 namespace ConnectApp.redux.reducers {
     public static class AppReducer {
@@ -7,6 +8,8 @@ namespace ConnectApp.redux.reducers {
             switch (bAction) {
                 case AddCountAction action: {
                     state.Count += action.number;
+                    PlayerPrefs.SetInt("count", state.Count);
+                    PlayerPrefs.Save();
                     break;
                 }
                 case ChangeEmailAction action: {

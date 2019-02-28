@@ -64,8 +64,8 @@ namespace ConnectApp.components {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: new List<Widget> {
                                 new Padding(
-                                    padding:EdgeInsets.only(right:5),
-                                    child:new ClipRRect(
+                                    padding: EdgeInsets.only(right: 5),
+                                    child: new ClipRRect(
                                         borderRadius: BorderRadius.circular(18),
                                         child: new Container(
                                             height: 36,
@@ -76,8 +76,8 @@ namespace ConnectApp.components {
                                             )
                                         )
                                     )
-                                 ),
-                                
+                                ),
+
 
                                 new Column(
                                     mainAxisAlignment: MainAxisAlignment.start,
@@ -175,7 +175,7 @@ namespace ConnectApp.components {
                             decoration: new BoxDecoration(
                                 borderRadius: BorderRadius.all(18)
                             ),
-                            child:new ClipRRect(
+                            child: new ClipRRect(
                                 borderRadius: BorderRadius.circular(40),
                                 child: new Container(
                                     height: 80,

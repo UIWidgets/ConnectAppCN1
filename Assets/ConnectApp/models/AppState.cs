@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace ConnectApp.models {
     [Serializable]
@@ -13,8 +14,14 @@ namespace ConnectApp.models {
         public bool EventsLoading { get; set; }
 
         public static AppState initialState() {
+//            var xx = PlayerPrefs.GetString();
+            var xxxx = new LoginState {
+                email = "empty",
+                isLoggedIn = false,
+                loading = false
+            };
             return new AppState {
-                Count = 0,
+                Count = PlayerPrefs.GetInt("count", 0),
                 LoginState = new LoginState {
                     email = "empty",
                     isLoggedIn = false,

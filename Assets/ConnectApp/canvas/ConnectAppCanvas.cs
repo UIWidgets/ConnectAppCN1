@@ -28,7 +28,7 @@ namespace ConnectApp.canvas {
         protected override string initialRoute => "/";
 
         protected override Dictionary<string, WidgetBuilder> routes => new Dictionary<string, WidgetBuilder> {
-            {"/", (context) => new MainScreen()},
+            {"/", (context) => new EventsScreen()},
 //            {"/", (context) => new GuidelineScreen()},
             {"/detail", (context) => new DetailScreen()},
             {"/mine", (context) => new MineScreen()},

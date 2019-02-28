@@ -11,7 +11,7 @@ namespace ConnectApp.redux {
                     var api = new API();
                     api.FetchEvents(action.pageNumber)
                         .Then(events => {
-                            Debug.Log(events);
+//                            Debug.Log(events);
                             store.Dispatch(new EventsResponseAction {
                                 events = events
                             });
@@ -22,7 +22,7 @@ namespace ConnectApp.redux {
                     var api = new API();
                     api.FetchLiveDetail(liveRequestAction.eventId)
                         .Then(liveInfo => {
-                            Debug.Log(liveInfo);
+//                            Debug.Log(liveInfo);
                             store.Dispatch(new LiveResponseAction() {
                                 liveInfo = liveInfo,
                                 eventId = liveRequestAction.eventId
