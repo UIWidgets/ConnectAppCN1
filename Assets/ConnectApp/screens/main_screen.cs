@@ -9,29 +9,38 @@ namespace ConnectApp.screens {
             return new Container(
                 child: new CustomTabBar(
                     new List<Widget> {
+                        new ArticleScreen(),
                         new EventsScreen(),
-                        new LoginScreen(),
-                        new MineScreen()
+                        new NotificationScreen(),
+                        new PersonalScreen()
                     },
                     new List<CustomTabBarItem> {
                         new CustomTabBarItem(
                             0,
                             Icons.Description,
-                            "首页",
+                            "文章",
                             CColors.PrimaryBlue,
                             CColors.BrownGrey,
                             24
                         ),
                         new CustomTabBarItem(
                             1,
-                            Icons.Notification,
-                            "消息",
+                            Icons.Description,
+                            "活动",
                             CColors.PrimaryBlue,
                             CColors.BrownGrey,
                             24
                         ),
                         new CustomTabBarItem(
                             2,
+                            Icons.Notification,
+                            "通知",
+                            CColors.PrimaryBlue,
+                            CColors.BrownGrey,
+                            24
+                        ),
+                        new CustomTabBarItem(
+                            3,
                             Icons.Mood,
                             "我的",
                             CColors.PrimaryBlue,

@@ -63,20 +63,21 @@ namespace ConnectApp.components {
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: new List<Widget> {
-                                new ClipRect(
-                                    child: new Container(
-                                        margin: EdgeInsets.only(right: 10),
-//                                        decoration: new BoxDecoration(
-//                                            borderRadius: BorderRadius.all(18)
-//                                        ),
-                                        child: Image.network(
-                                            liveInfo.user.avatar,
+                                new Padding(
+                                    padding:EdgeInsets.only(right:5),
+                                    child:new ClipRRect(
+                                        borderRadius: BorderRadius.circular(18),
+                                        child: new Container(
                                             height: 36,
                                             width: 36,
-                                            fit: BoxFit.cover
+                                            child: Image.network(
+                                                liveInfo.user.avatar,
+                                                fit: BoxFit.cover
+                                            )
                                         )
                                     )
-                                ),
+                                 ),
+                                
 
                                 new Column(
                                     mainAxisAlignment: MainAxisAlignment.start,
@@ -174,7 +175,18 @@ namespace ConnectApp.components {
                             decoration: new BoxDecoration(
                                 borderRadius: BorderRadius.all(18)
                             ),
-                            child: Image.network(host.avatar, width: 80, height: 80)
+                            child:new ClipRRect(
+                                borderRadius: BorderRadius.circular(40),
+                                child: new Container(
+                                    height: 80,
+                                    width: 80,
+                                    child: Image.network(
+                                        host.avatar,
+                                        fit: BoxFit.cover
+                                    )
+                                )
+                            )
+                            //child:  Image.network(host.avatar, width: 80, height: 80)
                         ),
                         new Container(margin: EdgeInsets.only(top: 12),
                             padding: EdgeInsets.symmetric(horizontal: 16),

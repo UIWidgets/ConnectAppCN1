@@ -39,18 +39,18 @@ namespace ConnectApp.components {
         public override Widget build(BuildContext context) {
             return new Stack(
                 children: new List<Widget> {
-                    _contentView(),
+                    _contentView(context),
                     new Positioned(
                         bottom: MediaQuery.of(context).viewInsets.bottom,
                         left: 0,
                         right: 0,
-                        child: _bottomTabBar()
+                        child: _bottomTabBar(context)
                     )
                 }
             );
         }
 
-        private Widget _contentView() {
+        private Widget _contentView(BuildContext context) {
             return new Container(
                 child: new Container(
                     height: MediaQuery.of(context).size.height,
@@ -61,7 +61,7 @@ namespace ConnectApp.components {
             );
         }
 
-        private Widget _bottomTabBar() {
+        private Widget _bottomTabBar(BuildContext context) {
             return new Container(
                 decoration: new BoxDecoration(
                     border: Border.all(CColors.Separator),
