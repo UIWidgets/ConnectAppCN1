@@ -11,8 +11,8 @@ namespace ConnectApp.screens {
                     new List<Widget> {
                         new ArticleScreen(),
                         new EventsScreen(),
-                        new LoginScreen(),
-                        new MineScreen()
+                        new NotificationScreen(),
+                        new PersonalScreen()
                     },
                     new List<CustomTabBarItem> {
                         new CustomTabBarItem(
@@ -34,7 +34,7 @@ namespace ConnectApp.screens {
                         new CustomTabBarItem(
                             2,
                             Icons.Notification,
-                            "消息",
+                            "通知",
                             CColors.PrimaryBlue,
                             CColors.BrownGrey,
                             24
