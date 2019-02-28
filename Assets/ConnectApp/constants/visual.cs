@@ -18,6 +18,8 @@ namespace ConnectApp.constants {
         public static readonly IconData arrow_back = new IconData(0xe5c4, "Material Icons");
         public static readonly IconData share = new IconData(0xe80d, "Material Icons");
         public static readonly IconData settings = new IconData(0xe8b8, "Material Icons");
+        public static readonly IconData ellipsis = new IconData(0xe5d3, "Material Icons");
+
     }
 
     public static class CTextStyle {
