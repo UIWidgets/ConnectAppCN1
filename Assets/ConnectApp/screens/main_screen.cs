@@ -25,7 +25,7 @@ namespace ConnectApp.screens {
                         ),
                         new CustomTabBarItem(
                             1,
-                            Icons.Description,
+                            Icons.ievent,
                             "活动",
                             CColors.PrimaryBlue,
                             CColors.BrownGrey,

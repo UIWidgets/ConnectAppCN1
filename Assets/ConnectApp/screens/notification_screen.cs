@@ -18,8 +18,24 @@ namespace ConnectApp.screens {
                             child: new CustomNavigationBar(new Text("通知", style: CTextStyle.H2White), new List<Widget>
                                 { }, CColors.PrimaryBlue)
                         ),
-                        new Center(
-                            child: new Text("notification screen", style: new TextStyle(fontSize: 30)))
+                        new Container(
+                            padding:EdgeInsets.only(0,140,0,49),
+                            child:new ListView(
+                                scrollDirection:Axis.vertical,
+                                children:new List<Widget>
+                                {
+                                    new NotificationCard(),
+                                    new NotificationCard(),
+                                    new NotificationCard(),
+                                    new NotificationCard(),
+                                    new NotificationCard(),
+                                    new NotificationCard(),
+                                    new NotificationCard(),
+                                    new NotificationCard(),
+                                    new NotificationCard()
+                                }
+                            )
+                        )
                     }
                 )
             );
