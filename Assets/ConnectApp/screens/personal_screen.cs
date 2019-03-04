@@ -18,7 +18,7 @@ namespace ConnectApp.screens {
                             top: 0,
                             left: 0,
                             right: 0,
-                            child: new CustomNavigationBar(new Text("这是个昵称", style: CTextStyle.H2White),
+                            child: new CustomNavigationBar(new Text("这是个昵称", style: CTextStyle.H2),
                                 new List<Widget> {
                                     new Container(
                                         decoration: new BoxDecoration(
@@ -29,7 +29,6 @@ namespace ConnectApp.screens {
                                         child: new ClipRRect(
                                             borderRadius: BorderRadius.circular(19),
                                             child: new Container(
-                                                decoration: new BoxDecoration(),
                                                 color: CColors.White,
                                                 width: 38,
                                                 height: 38,
@@ -39,7 +38,7 @@ namespace ConnectApp.screens {
                                             )
                                         )
                                     )
-                                }, CColors.PrimaryBlue)
+                                }, CColors.White,0)
                         ),
                         new Container(
                             padding:EdgeInsets.only(0,140,0,49),

@@ -15,8 +15,8 @@ namespace ConnectApp.screens {
                             top: 0,
                             left: 0,
                             right: 0,
-                            child: new CustomNavigationBar(new Text("通知", style: CTextStyle.H2White), new List<Widget>
-                                { }, CColors.PrimaryBlue)
+                            child: new CustomNavigationBar(new Text("通知", style: CTextStyle.H2), new List<Widget>
+                                { }, CColors.White,0)
                         ),
                         new Container(
                             padding:EdgeInsets.only(0,140,0,49),
