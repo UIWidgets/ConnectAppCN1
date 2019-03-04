@@ -11,22 +11,26 @@ namespace ConnectApp.components {
             Widget leftWidget,
             List<Widget> rightWidgets,
             Color backgroundColor,
+            float offset,
             Key key = null
         ) : base(key) {
             this.leftWidget = leftWidget;
             this.rightWidgets = rightWidgets;
             this.backgroundColor = backgroundColor;
+            this.offset = offset;
         }
 
         public readonly Widget leftWidget;
         public readonly List<Widget> rightWidgets;
         public readonly Color backgroundColor;
+        public readonly float offset;
+        public readonly float height = 140;
 
 
         public override Widget build(BuildContext context) {
             return new Container(
                 color: backgroundColor,
-                height: 140,
+                height: height-offset,
                 child: new Container(
                     height: 52,
                     child: new Column(

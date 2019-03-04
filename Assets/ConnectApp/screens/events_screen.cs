@@ -75,7 +75,8 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            
+            _pageController = new PageController();
+            _selectedIndex = 0;
         }
 
 
@@ -145,10 +146,10 @@ namespace ConnectApp.screens {
                             top:0,
                             left:0,
                             right:0,
-                            child:new CustomNavigationBar(new Text("活动",style:CTextStyle.H2White),new List<Widget>
+                            child:new CustomNavigationBar(new Text("活动",style:CTextStyle.H2),new List<Widget>
                             {
                                 new Container(child:new Icon(Icons.search,null,28,Color.fromRGBO(255,255,255,0.8f))) 
-                            },CColors.PrimaryBlue)
+                            },CColors.White,_offsetY)
                         )
                     
                     }
@@ -156,7 +157,7 @@ namespace ConnectApp.screens {
             );
         }
         
-        private Widget buildSelectItem(string title, int index) {
+        private Widget buildSelectItem(BuildContext context,string title, int index) {
             var textColor = CColors.TextTitle;
             Widget lineView = new Positioned(new Container());
             if (index == _selectedIndex) {
@@ -186,7 +187,6 @@ namespace ConnectApp.screens {
                         new CustomButton(
                             onPressed: () => {
                                 if (_selectedIndex != index) setState(() => _selectedIndex = index);
-
                                 _pageController.animateToPage(
                                     index,
                                     new TimeSpan(0, 0,
@@ -221,7 +221,7 @@ namespace ConnectApp.screens {
                         child: new Row(
                             mainAxisAlignment:MainAxisAlignment.start,
                             children: new List<Widget> {
-                                buildSelectItem("即将开始", 0), buildSelectItem("往期活动", 1)
+                                buildSelectItem(context,"即将开始", 0), buildSelectItem(context,"往期活动", 1)
                             }
                         )
                     )
