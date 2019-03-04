@@ -6,7 +6,7 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.screens {
     public class MainScreen : StatelessWidget {
         public override Widget build(BuildContext context) {
-            return new Container(
+            return new SafeArea(
                 child: new CustomTabBar(
                     new List<Widget> {
                         new ArticleScreen(),

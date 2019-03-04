@@ -3,8 +3,9 @@ using ConnectApp.constants;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
@@ -37,25 +38,27 @@ namespace ConnectApp.components {
         private Widget _body;
 
         public override Widget build(BuildContext context) {
-            return new Stack(
-                children: new List<Widget> {
-                    _contentView(context),
-                    new Positioned(
-                        bottom: MediaQuery.of(context).viewInsets.bottom,
-                        left: 0,
-                        right: 0,
-                        child: _bottomTabBar(context)
-                    )
-                }
+            return new Container(
+                child:new Stack(
+                    children: new List<Widget>
+                    {
+                        _contentView(context),
+                        new Positioned(
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            child: _bottomTabBar(context)
+                        )
+                    }
+                )
             );
         }
 
         private Widget _contentView(BuildContext context) {
             return new Container(
                 child: new Container(
-                    height: MediaQuery.of(context).size.height,
-                    color: CColors.Blue,
-                    decoration: new BoxDecoration(CColors.background1),
+                    height: Screen.safeArea.height,
+                    color: CColors.background1,
                     child: widget.controllers[_selectedIndex]
                 )
             );
@@ -87,8 +90,6 @@ namespace ConnectApp.components {
                                     if (_selectedIndex != item.index) setState(() => _selectedIndex = item.index);
                                 },
                                 child: new Container(
-                                    decoration: new BoxDecoration(
-                                        color: Color.clear),
                                     child: new Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: new List<Widget> {

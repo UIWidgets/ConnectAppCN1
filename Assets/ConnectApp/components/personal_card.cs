@@ -55,6 +55,7 @@ namespace ConnectApp.components
                                             width:24,
                                             child:new Icon(widget.personalItem.icon,null,20,CColors.TextSecondary)
                                         ),
+//                                        new Text(widget.personalItem.title,style:CTextStyle.PLarge),
                                         new Text(widget.personalItem.title,style:new TextStyle(fontSize:16,height:1.5f,fontWeight:FontWeight.w400,color:CColors.TextBody))
                                     }
                                 )    
