@@ -16,14 +16,13 @@ namespace ConnectApp.screens {
                             left: 0,
                             right: 0,
                             child: new CustomNavigationBar(new Text("通知", style: CTextStyle.H2), new List<Widget>
-                                { }, CColors.White,0)
+                                { }, CColors.White, 0)
                         ),
                         new Container(
-                            padding:EdgeInsets.only(0,140,0,49),
-                            child:new ListView(
-                                scrollDirection:Axis.vertical,
-                                children:new List<Widget>
-                                {
+                            padding: EdgeInsets.only(0, 140, 0, 49),
+                            child: new ListView(
+                                scrollDirection: Axis.vertical,
+                                children: new List<Widget> {
                                     new NotificationCard(),
                                     new NotificationCard(),
                                     new NotificationCard(),

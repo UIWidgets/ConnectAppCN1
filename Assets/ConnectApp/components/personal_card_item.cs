@@ -1,7 +1,6 @@
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.components
-{
+namespace ConnectApp.components {
     public class PersonalCardItem {
         public PersonalCardItem(
             IconData icon,

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using ConnectApp.components;
 using ConnectApp.constants;
@@ -38,13 +37,13 @@ namespace ConnectApp.screens {
                                             )
                                         )
                                     )
-                                }, CColors.White,0)
+                                }, CColors.White, 0)
                         ),
                         new Container(
-                            padding:EdgeInsets.only(0,140,0,49),
-                            child:new ListView(
-                                scrollDirection:Axis.vertical,
-                                children:_buildItems()
+                            padding: EdgeInsets.only(0, 140, 0, 49),
+                            child: new ListView(
+                                scrollDirection: Axis.vertical,
+                                children: _buildItems()
                             )
                         )
                     }
@@ -52,21 +51,15 @@ namespace ConnectApp.screens {
             );
         }
 
-        private List<Widget> _buildItems()
-        {
-            List <PersonalCardItem> personalCardItems = new List<PersonalCardItem>
-            {
-                new PersonalCardItem(Icons.book,"我的收藏"),
-                new PersonalCardItem(Icons.ievent,"我的活动"),
-                new PersonalCardItem(Icons.eye,"浏览历史"),
-                new PersonalCardItem(Icons.settings,"设置"),
-
+        private List<Widget> _buildItems() {
+            List<PersonalCardItem> personalCardItems = new List<PersonalCardItem> {
+                new PersonalCardItem(Icons.book, "我的收藏"),
+                new PersonalCardItem(Icons.ievent, "我的活动"),
+                new PersonalCardItem(Icons.eye, "浏览历史"),
+                new PersonalCardItem(Icons.settings, "设置"),
             };
             List<Widget> widgets = new List<Widget>();
-            personalCardItems.ForEach((item) =>
-            {
-                  widgets.Add(new PersonalCard(item));  
-            });
+            personalCardItems.ForEach((item) => { widgets.Add(new PersonalCard(item)); });
             return widgets;
         }
     }

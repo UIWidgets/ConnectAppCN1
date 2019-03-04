@@ -6,7 +6,6 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
     public class CustomTabBar : StatefulWidget {
@@ -39,9 +38,8 @@ namespace ConnectApp.components {
 
         public override Widget build(BuildContext context) {
             return new Container(
-                child:new Stack(
-                    children: new List<Widget>
-                    {
+                child: new Stack(
+                    children: new List<Widget> {
                         _contentView(context),
                         new Positioned(
                             bottom: 0,

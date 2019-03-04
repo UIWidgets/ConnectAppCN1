@@ -22,9 +22,6 @@ namespace ConnectApp.constants {
         public static readonly IconData ievent = new IconData(0xe878, "Material Icons");
         public static readonly IconData book = new IconData(0xe865, "Material Icons");
         public static readonly IconData eye = new IconData(0xe417, "Material Icons");
-
-
-
     }
 
     public static class CTextStyle {
@@ -167,6 +164,5 @@ namespace ConnectApp.constants {
         public static readonly Color redPoint = new Color(0xFFCC122B);
         public static readonly Color mask = new Color(0x66000000);
         public static readonly Color secondaryPink = new Color(0xFFF32194);
-
     }
 }
