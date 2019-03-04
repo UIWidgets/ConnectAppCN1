@@ -30,7 +30,19 @@ namespace ConnectApp.redux {
                         })
                         .Catch(error => { Debug.Log(error); });
                 }
-
+                else if (bAction is LoginByEmailAction loginByEmailAction) {
+                    var api = new API();
+                    var email = store.state.LoginState.email;
+                    var password = store.state.LoginState.password;
+                    api.LoginByEmail(email, password)
+                        .Then(loginInfo => {
+                            Debug.Log(loginInfo);
+                            store.Dispatch(new LoginResponseAction {
+                                loginInfo = loginInfo
+                            });
+                        })
+                        .Catch(error => { Debug.Log(error); });
+                }
 
                 return next(bAction);
             };

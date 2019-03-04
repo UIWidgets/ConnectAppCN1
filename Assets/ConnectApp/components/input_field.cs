@@ -144,11 +144,13 @@ namespace ConnectApp.components {
                     obscureText: widget.obscureText,
                     style: widget.style,
                     cursorColor: widget.cursorColor,
-                    onChanged: str => {
-                        var isTextEmpty = str.Length > 0;
+                    onChanged: text => {
+                        var isTextEmpty = text.Length > 0;
                         if (_isHintTextHidden != isTextEmpty)
                             setState(() => { _isHintTextHidden = isTextEmpty; });
-                    }
+                        widget.onChanged(text);
+                    },
+                    onSubmitted: widget.onSubmitted
                 )
             );
         }
