@@ -42,6 +42,7 @@ namespace ConnectApp.canvas {
             {"/wechat-unity", (context) => new DetailScreen()},
         };
 
+
         protected override TextStyle textStyle => new TextStyle(fontSize: 24);
 
         protected override PageRouteFactory pageRouteBuilder => (RouteSettings settings, WidgetBuilder builder) =>

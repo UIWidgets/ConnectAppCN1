@@ -27,12 +27,29 @@ namespace ConnectApp.redux.reducers {
                 }
                 case LiveRequestAction action: {
                     state.LiveState.loading = true;
-
                     break;
                 }
                 case LiveResponseAction action: {
                     state.LiveState.loading = false;
                     state.LiveState.liveInfo = action.liveInfo;
+                    break;
+                }
+                case LoginChangeEmailAction action: {
+                    state.LoginState.email = action.changeText;
+                    break;
+                }
+                case LoginChangePasswordAction action: {
+                    state.LoginState.password = action.changeText;
+                    break;
+                }
+                case LoginByEmailAction action: {
+                    state.LoginState.loading = true;
+                    break;
+                }
+                case LoginResponseAction action: {
+                    state.LoginState.loading = false;
+                    state.LoginState.loginInfo = action.loginInfo;
+                    state.LoginState.isLoggedIn = true;
                     break;
                 }
                 case ChatWindowShowAction action: {

@@ -30,7 +30,7 @@ namespace ConnectApp.components {
         public override Widget build(BuildContext context) {
             return new Container(
                 color: backgroundColor,
-                height: height-offset,
+                height: height - offset,
                 child: new Container(
                     height: 52,
                     child: new Column(

@@ -1,11 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using ConnectApp.models;
 using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.ui;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace ConnectApp.api {
@@ -49,7 +51,7 @@ namespace ConnectApp.api {
             return promise;
         }
 
-        private IEnumerator _FetchLiveDetail(Promise<LiveInfo> promise, string eventId) {
+        private static IEnumerator _FetchLiveDetail(Promise<LiveInfo> promise, string eventId) {
             var request = UnityWebRequest.Get(apiAddress + "/api/live/events/" + eventId);
             yield return request.Send();
 
@@ -67,6 +69,46 @@ namespace ConnectApp.api {
                 var liveDetail = JsonConvert.DeserializeObject<LiveInfo>(json);
                 if (liveDetail != null)
                     promise.Resolve(liveDetail);
+                else
+                    promise.Reject(new Exception("No user under this username found!"));
+            }
+        }
+
+        public IPromise<LoginInfo> LoginByEmail(string email, string password) {
+            // We return a promise instantly and start the coroutine to do the real work
+            var promise = new Promise<LoginInfo>();
+            Window.instance.startCoroutine(_LoginByEmail(promise, email, password));
+            return promise;
+        }
+
+        private static IEnumerator _LoginByEmail(IPendingPromise<LoginInfo> promise, string email, string password) {
+            var para = new LoginParameter {
+                email = email,
+                password = password
+            };
+            var body = JsonConvert.SerializeObject(para);
+            var request = new UnityWebRequest(apiAddress + "/auth/live/login", "POST");
+            var bodyRaw = Encoding.UTF8.GetBytes(body);
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
+            yield return request.Send();
+
+            if (request.isNetworkError) {
+                // something went wrong
+                promise.Reject(new Exception(request.error));
+            }
+            else if (request.responseCode != 200) {
+                // or the response is not OK
+                promise.Reject(new Exception(request.downloadHandler.text));
+            }
+            else {
+                // Format output and resolve promise
+                var json = request.downloadHandler.text;
+                var loginInfo = JsonConvert.DeserializeObject<LoginInfo>(json);
+                Debug.Log(loginInfo);
+                if (loginInfo != null)
+                    promise.Resolve(loginInfo);
                 else
                     promise.Reject(new Exception("No user under this username found!"));
             }

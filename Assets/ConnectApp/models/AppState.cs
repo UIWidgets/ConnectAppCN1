@@ -15,15 +15,17 @@ namespace ConnectApp.models {
 
         public static AppState initialState() {
 //            var xx = PlayerPrefs.GetString();
-            var xxxx = new LoginState {
-                email = "empty",
-                isLoggedIn = false,
-                loading = false
-            };
+//            var xxxx = new LoginState {
+//                email = "empty",
+//                isLoggedIn = false,
+//                loading = false
+//            };
             return new AppState {
                 Count = PlayerPrefs.GetInt("count", 0),
                 LoginState = new LoginState {
-                    email = "empty",
+                    email = "",
+                    password = "",
+                    loginInfo = new LoginInfo(),
                     isLoggedIn = false,
                     loading = false
                 },

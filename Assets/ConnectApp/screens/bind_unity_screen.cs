@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using ConnectApp.components;
 using ConnectApp.constants;
+using ConnectApp.redux;
+using ConnectApp.redux.actions;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
@@ -22,7 +24,7 @@ namespace ConnectApp.screens {
                 child: new Column(
                     children: new List<Widget> {
                         _topView(context),
-                        _middleView(),
+                        _middleView(context),
                         _bottomView()
                     }
                 )
@@ -93,7 +95,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _middleView() {
+        private Widget _middleView(BuildContext context) {
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 24),
                 child: new Column(
@@ -127,7 +129,14 @@ namespace ConnectApp.screens {
                                     fontSize: 16,
                                     color: CColors.text2
                                 ),
-                                cursorColor: CColors.primary
+                                cursorColor: CColors.primary,
+                                onChanged: (text) => {
+                                    StoreProvider.store.Dispatch(new LoginChangeEmailAction {changeText = text});
+                                },
+                                onSubmitted: (text) => {
+                                    _emailFocusNode.unfocus();
+                                    FocusScope.of(context).requestFocus(_passwordFocusNode);
+                                }
                             )
                         ),
                         new Container(height: 42),
@@ -160,7 +169,15 @@ namespace ConnectApp.screens {
                                     fontSize: 16,
                                     color: CColors.text2
                                 ),
-                                cursorColor: CColors.primary
+                                cursorColor: CColors.primary,
+                                onChanged: (text) => {
+                                    StoreProvider.store.Dispatch(new LoginChangePasswordAction {changeText = text});
+                                },
+                                onSubmitted: (text) => {
+                                    _emailFocusNode.unfocus();
+                                    _passwordFocusNode.unfocus();
+                                    StoreProvider.store.Dispatch(new LoginByEmailAction());
+                                }
                             )
                         )
                     }
@@ -176,6 +193,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new Container(height: 24),
                         new CustomButton(
+                            onPressed: () => { StoreProvider.store.Dispatch(new LoginByEmailAction()); },
                             child: new Container(
                                 height: 48,
                                 decoration: new BoxDecoration(

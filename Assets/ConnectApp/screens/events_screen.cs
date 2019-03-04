@@ -4,7 +4,6 @@ using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
-using ConnectApp.redux.actions;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -29,6 +28,7 @@ namespace ConnectApp.screens {
         private int _selectedIndex;
 
         private float _offsetY = 0;
+
         private Widget _buildHeader(BuildContext context) {
             return new Container(
                 padding: EdgeInsets.only(16, right: 8),
@@ -59,9 +59,7 @@ namespace ConnectApp.screens {
                         ),
                         new CustomButton(
                             padding: EdgeInsets.only(8, right: 16),
-                            onPressed: () => {
-                                Navigator.pushName(context, "/login");
-                            },
+                            onPressed: () => { Navigator.pushName(context, "/login"); },
                             child: new Icon(
                                 Icons.account_circle,
                                 size: 28,
@@ -130,38 +128,34 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            return  new Container(
-                color:CColors.White,
-                child:new Stack(
-                    children:new List<Widget>
-                    {
-                        
+            return new Container(
+                color: CColors.White,
+                child: new Stack(
+                    children: new List<Widget> {
                         new Container(
-                            padding:EdgeInsets.only(0,140,0,49),
-                            child:new Column(
-                                children:new List<Widget>
-                                {
+                            padding: EdgeInsets.only(0, 140, 0, 49),
+                            child: new Column(
+                                children: new List<Widget> {
                                     buildSelectView(),
                                     contentView()
                                 }
                             )
                         ),
                         new Positioned(
-                            top:0,
-                            left:0,
-                            right:0,
-                            child:new CustomNavigationBar(new Text("活动",style:CTextStyle.H2),new List<Widget>
-                            {
-                                new Container(child:new Icon(Icons.search,null,28,Color.fromRGBO(255,255,255,0.8f))) 
-                            },CColors.White,_offsetY)
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            child: new CustomNavigationBar(new Text("活动", style: CTextStyle.H2), new List<Widget> {
+                                new Container(child: new Icon(Icons.search, null, 28,
+                                    Color.fromRGBO(255, 255, 255, 0.8f)))
+                            }, CColors.White, _offsetY)
                         )
-                    
                     }
                 )
             );
         }
-        
-        private Widget buildSelectItem(BuildContext context,string title, int index) {
+
+        private Widget buildSelectItem(BuildContext context, string title, int index) {
             var textColor = CColors.TextTitle;
             Widget lineView = new Positioned(new Container());
             if (index == _selectedIndex) {
@@ -200,7 +194,7 @@ namespace ConnectApp.screens {
                             },
                             child: new Container(
                                 height: 44,
-                                width:96,
+                                width: 96,
                                 alignment: Alignment.center,
                                 child: new Text(
                                     title,
@@ -221,14 +215,14 @@ namespace ConnectApp.screens {
         private Widget buildSelectView() {
             return new Container(
                 child: new Container(
-                        height: 44,
-                        child: new Row(
-                            mainAxisAlignment:MainAxisAlignment.start,
-                            children: new List<Widget> {
-                                buildSelectItem(context,"即将开始", 0), buildSelectItem(context,"往期活动", 1)
-                            }
-                        )
+                    height: 44,
+                    child: new Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: new List<Widget> {
+                            buildSelectItem(context, "即将开始", 0), buildSelectItem(context, "往期活动", 1)
+                        }
                     )
+                )
             );
         }
 
@@ -274,6 +268,5 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
     }
 }
