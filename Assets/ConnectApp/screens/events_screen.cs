@@ -73,6 +73,10 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
+            if (StoreProvider.store.state.Events.Count==0)
+            {
+                StoreProvider.store.Dispatch(new EventsRequestAction {pageNumber = 1});
+            }
             _pageController = new PageController();
             _selectedIndex = 0;
         }
@@ -222,15 +226,29 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget mineList() {
-            var acitveCard = new AcitveCard();
+        private Widget mineList()
+        {
             return new Container(
-                child: new ListView(
-                    physics: new AlwaysScrollableScrollPhysics(),
-                    children: new List<Widget> {
-                        acitveCard,
-                        acitveCard,
-                        acitveCard
+                child: new StoreConnector<AppState, Dictionary<string, object>>(
+                    converter: (state, dispatch) => new Dictionary<string, object>
+                    {
+                        {"loading", state.EventsLoading},
+                        {"events", state.Events}
+                    },
+                    builder: (context1, viewModel) =>
+                    {
+                        var loading = (bool) viewModel["loading"];
+                        var events = viewModel["events"] as List<IEvent>;
+                        var cardList = new List<Widget>();
+                        if (!loading)
+                            events.ForEach(model => { cardList.Add(new AcitveCard(model)); });
+                        else
+                            cardList.Add(new Container());
+
+                        return new ListView(
+                            physics: new AlwaysScrollableScrollPhysics(),
+                            children: cardList
+                        );
                     }
                 )
             );
