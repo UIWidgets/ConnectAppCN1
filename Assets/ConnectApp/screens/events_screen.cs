@@ -4,6 +4,7 @@ using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
+using ConnectApp.redux.actions;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -73,10 +74,8 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            if (StoreProvider.store.state.Events.Count==0)
-            {
+            if (StoreProvider.store.state.Events.Count == 0)
                 StoreProvider.store.Dispatch(new EventsRequestAction {pageNumber = 1});
-            }
             _pageController = new PageController();
             _selectedIndex = 0;
         }
@@ -226,17 +225,14 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget mineList()
-        {
+        private Widget mineList() {
             return new Container(
                 child: new StoreConnector<AppState, Dictionary<string, object>>(
-                    converter: (state, dispatch) => new Dictionary<string, object>
-                    {
+                    converter: (state, dispatch) => new Dictionary<string, object> {
                         {"loading", state.EventsLoading},
                         {"events", state.Events}
                     },
-                    builder: (context1, viewModel) =>
-                    {
+                    builder: (context1, viewModel) => {
                         var loading = (bool) viewModel["loading"];
                         var events = viewModel["events"] as List<IEvent>;
                         var cardList = new List<Widget>();
