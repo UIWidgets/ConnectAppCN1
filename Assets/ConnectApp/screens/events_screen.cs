@@ -1,13 +1,17 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
     public class EventsScreen : StatefulWidget {
@@ -21,10 +25,10 @@ namespace ConnectApp.screens {
 
     internal class _EventsScreen : State<EventsScreen> {
         private const float headerHeight = 80;
+        private PageController _pageController;
+        private int _selectedIndex;
 
         private float _offsetY = 0;
-//        private List<IEvent> events;
-
         private Widget _buildHeader(BuildContext context) {
             return new Container(
                 padding: EdgeInsets.only(16, right: 8),
@@ -56,7 +60,6 @@ namespace ConnectApp.screens {
                         new CustomButton(
                             padding: EdgeInsets.only(8, right: 16),
                             onPressed: () => {
-//                                StoreProvider.store.Dispatch(new AddCountAction() {number = 3});
                                 Navigator.pushName(context, "/login");
                             },
                             child: new Icon(
@@ -72,7 +75,7 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            StoreProvider.store.Dispatch(new EventsRequestAction {pageNumber = 1});
+            
         }
 
 
@@ -122,18 +125,137 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            var container = new Container(
-                child: new Container(
-                    color: CColors.background1,
-                    child: new Column(
+            return  new Container(
+                color:CColors.White,
+                child:new Stack(
+                    children:new List<Widget>
+                    {
+                        
+                        new Container(
+                            padding:EdgeInsets.only(0,140,0,49),
+                            child:new Column(
+                                children:new List<Widget>
+                                {
+                                    buildSelectView(),
+                                    contentView()
+                                }
+                            )
+                        ),
+                        new Positioned(
+                            top:0,
+                            left:0,
+                            right:0,
+                            child:new CustomNavigationBar(new Text("活动",style:CTextStyle.H2White),new List<Widget>
+                            {
+                                new Container(child:new Icon(Icons.search,null,28,Color.fromRGBO(255,255,255,0.8f))) 
+                            },CColors.PrimaryBlue)
+                        )
+                    
+                    }
+                )
+            );
+        }
+        
+        private Widget buildSelectItem(string title, int index) {
+            var textColor = CColors.TextTitle;
+            Widget lineView = new Positioned(new Container());
+            if (index == _selectedIndex) {
+                textColor = CColors.PrimaryBlue;
+                lineView = new Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: new Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: new List<Widget> {
-                            _buildHeader(context),
-                            _buildContentList(context),
+                            new Container(
+                                width: 80,
+                                height: 2,
+                                decoration: new BoxDecoration(
+                                    CColors.PrimaryBlue
+                                )
+                            )
+                        }
+                    )
+                );
+            }
+
+            return new Container(
+                child: new Stack(
+                    children: new List<Widget> {
+                        new CustomButton(
+                            onPressed: () => {
+                                if (_selectedIndex != index) setState(() => _selectedIndex = index);
+
+                                _pageController.animateToPage(
+                                    index,
+                                    new TimeSpan(0, 0,
+                                        0, 0, 250),
+                                    Curves.ease
+                                );
+                            },
+                            child: new Container(
+                                height: 44,
+                                width:96,
+                                alignment: Alignment.center,
+                                child: new Text(
+                                    title,
+                                    style: new TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w400,
+                                        color: textColor
+                                    )
+                                )
+                            )
+                        ),
+                        lineView
+                    }
+                )
+            );
+        }
+
+        private Widget buildSelectView() {
+            return new Container(
+                child: new Container(
+                        height: 44,
+                        child: new Row(
+                            mainAxisAlignment:MainAxisAlignment.start,
+                            children: new List<Widget> {
+                                buildSelectItem("即将开始", 0), buildSelectItem("往期活动", 1)
+                            }
+                        )
+                    )
+            );
+        }
+
+        private Widget mineList() {
+            var acitveCard = new AcitveCard();
+            return new Container(
+                child: new ListView(
+                    physics: new AlwaysScrollableScrollPhysics(),
+                    children: new List<Widget> {
+                        acitveCard,
+                        acitveCard,
+                        acitveCard
+                    }
+                )
+            );
+        }
+
+        private Widget contentView() {
+            return new Flexible(
+                child: new Container(
+                    child: new PageView(
+                        physics: new BouncingScrollPhysics(),
+                        controller: _pageController,
+                        onPageChanged: (int index) => { setState(() => { _selectedIndex = index; }); },
+                        children: new List<Widget> {
+                            mineList(), mineList()
                         }
                     )
                 )
             );
-            return container;
         }
+        
     }
 }

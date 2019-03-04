@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.constants;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
@@ -8,8 +9,24 @@ using Image = Unity.UIWidgets.widgets.Image;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
-    public class HistoryCard : StatelessWidget {
-        public override Widget build(BuildContext context) {
+    public class HistoryCard : StatefulWidget {
+        public HistoryCard(
+            Key key = null
+            ) : base(key)
+        {
+            
+        }
+
+        public override State createState()
+        {
+            return new _HistoryCardState();
+        }
+    }
+
+    internal class _HistoryCardState : State<HistoryCard>
+    {
+        public override Widget build(BuildContext context)
+        {
             var card = new Container(
                 height: 100,
                 padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -63,4 +80,5 @@ namespace ConnectApp.components {
             );
         }
     }
+
 }

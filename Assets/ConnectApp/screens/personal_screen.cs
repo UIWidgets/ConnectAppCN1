@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.components;
 using ConnectApp.constants;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
+using Icons = ConnectApp.constants.Icons;
 
 namespace ConnectApp.screens {
     public class PersonalScreen : StatelessWidget {
@@ -39,11 +41,34 @@ namespace ConnectApp.screens {
                                     )
                                 }, CColors.PrimaryBlue)
                         ),
-                        new Center(
-                            child: new Text("personal screen", style: new TextStyle(fontSize: 30)))
+                        new Container(
+                            padding:EdgeInsets.only(0,140,0,49),
+                            child:new ListView(
+                                scrollDirection:Axis.vertical,
+                                children:_buildItems()
+                            )
+                        )
                     }
                 )
             );
+        }
+
+        private List<Widget> _buildItems()
+        {
+            List <PersonalCardItem> personalCardItems = new List<PersonalCardItem>
+            {
+                new PersonalCardItem(Icons.book,"我的收藏"),
+                new PersonalCardItem(Icons.ievent,"我的活动"),
+                new PersonalCardItem(Icons.eye,"浏览历史"),
+                new PersonalCardItem(Icons.settings,"设置"),
+
+            };
+            List<Widget> widgets = new List<Widget>();
+            personalCardItems.ForEach((item) =>
+            {
+                  widgets.Add(new PersonalCard(item));  
+            });
+            return widgets;
         }
     }
 }
