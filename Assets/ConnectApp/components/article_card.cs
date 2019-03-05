@@ -1,5 +1,8 @@
 using System.Collections.Generic;
 using ConnectApp.constants;
+using ConnectApp.models;
+using ConnectApp.redux;
+using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -10,10 +13,13 @@ using Image = Unity.UIWidgets.widgets.Image;
 namespace ConnectApp.components {
     public class ArticleCard : StatefulWidget {
         public ArticleCard(
+            IEvent model = null,
             Key key = null
         ) : base(key) {
+            this._model = model;
         }
 
+        private readonly IEvent _model;
         public override State createState() {
             return new _ArticleCardState();
         }
@@ -21,7 +27,7 @@ namespace ConnectApp.components {
 
     internal class _ArticleCardState : State<ArticleCard> {
         public override Widget build(BuildContext context) {
-            return new Container(
+            var card = new Container(
                 child: new Padding(
                     padding: EdgeInsets.all(16),
                     child: new Container(
@@ -84,6 +90,14 @@ namespace ConnectApp.components {
                         )
                     )
                 )
+            );
+            return new GestureDetector(
+                child: card,
+                onTap: () =>
+                {
+//                    StoreProvider.store.Dispatch(new NavigatorToLiveAction {eventId = _model.id});
+                    Navigator.pushName(context, "/detail");
+                }
             );
         }
     }
