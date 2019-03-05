@@ -36,9 +36,7 @@ namespace ConnectApp.screens {
                 child: new Column(
                     children: new List<Widget> {
                         new Container(
-                            decoration: new BoxDecoration(
-                                CColors.Black
-                            ),
+                            color:CColors.Black,
                             height: 210,
                             child: new Stack(
                                 fit: StackFit.expand,
