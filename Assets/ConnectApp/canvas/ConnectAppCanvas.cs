@@ -11,7 +11,7 @@ using UnityEngine;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.canvas {
-    public class ConnectAppCanvas : WidgetCanvas {
+    public class ConnectAppCanvas : UIWidgetsPanel {
         protected override void OnEnable() {
             base.OnEnable();
             Application.targetFrameRate = 300;
@@ -25,44 +25,51 @@ namespace ConnectApp.canvas {
             FontManager.instance.addFont(semiboldFont);
         }
 
-        protected override string initialRoute => "/";
-
-        protected override Dictionary<string, WidgetBuilder> routes => new Dictionary<string, WidgetBuilder> {
-            {"/", (context) => new MainScreen()},
+        
+        protected override Widget createWidget() {
+            return new WidgetsApp(
+                initialRoute: "/",
+                textStyle: new TextStyle(fontSize: 24),
+                pageRouteBuilder: this.pageRouteBuilder,
+                routes: new Dictionary<string, WidgetBuilder> {
+                    {"/", (context) => new MainScreen()},
 //            {"/", (context) => new GuidelineScreen()},
-            {"/detail", (context) => new DetailScreen()},
-            {"/mine", (context) => new MineScreen()},
-            {"/setting", (context) => new SettingScreen()},
-            {"/login", (context) => new LoginScreen()},
-            {"/setting-unity", (context) => new BindUnityScreen()}
-        };
-
+                    {"/detail", (context) => new DetailScreen()},
+                    {"/mine", (context) => new MineScreen()},
+                    {"/setting", (context) => new SettingScreen()},
+                    {"/login", (context) => new LoginScreen()},
+                    {"/setting-unity", (context) => new BindUnityScreen()}
+                });
+        }
+        
         protected Dictionary<string, WidgetBuilder> fullScreenRoutes => new Dictionary<string, WidgetBuilder> {
             {"/login", (context) => new LoginScreen()},
             {"/wechat-unity", (context) => new DetailScreen()},
         };
 
+        protected PageRouteFactory pageRouteBuilder {
+            get {
+                return (RouteSettings settings, WidgetBuilder builder) =>
+                    new PageRouteBuilder(
+                        settings,
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            new StoreProvider<AppState>(StoreProvider.store, builder(context)),
+                        transitionsBuilder: (context, animation, secondaryAnimation, child) => {
+                            if (fullScreenRoutes.ContainsKey(settings.name))
+                                return new ModalPageTransition(
+                                    routeAnimation: animation,
+                                    child: child
+                                );
+                            else
+                                return new PushPageTransition(
+                                    routeAnimation: animation,
+                                    child: child
+                                );
+                        }
+                    );
+            }
+        }
 
-        protected override TextStyle textStyle => new TextStyle(fontSize: 24);
-
-        protected override PageRouteFactory pageRouteBuilder => (RouteSettings settings, WidgetBuilder builder) =>
-            new PageRouteBuilder(
-                settings,
-                (context, animation, secondaryAnimation) =>
-                    new StoreProvider<AppState>(StoreProvider.store, builder(context)),
-                (context, animation, secondaryAnimation, child) => {
-                    if (fullScreenRoutes.ContainsKey(settings.name))
-                        return new ModalPageTransition(
-                            routeAnimation: animation,
-                            child: child
-                        );
-                    else
-                        return new PushPageTransition(
-                            routeAnimation: animation,
-                            child: child
-                        );
-                }
-            );
     }
 
     internal class PushPageTransition : StatelessWidget {
