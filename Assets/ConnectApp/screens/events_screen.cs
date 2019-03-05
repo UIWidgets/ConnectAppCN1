@@ -237,7 +237,7 @@ namespace ConnectApp.screens {
                         var events = viewModel["events"] as List<IEvent>;
                         var cardList = new List<Widget>();
                         if (!loading)
-                            events.ForEach(model => { cardList.Add(new AcitveCard(model)); });
+                            events.ForEach(model => { cardList.Add(new ActiveCard(model)); });
                         else
                             cardList.Add(new Container());
 

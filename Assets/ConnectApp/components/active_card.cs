@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.redux;
+using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -11,29 +13,32 @@ using Image = Unity.UIWidgets.widgets.Image;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
-    public class AcitveCard : StatelessWidget {
-        public AcitveCard(
+    public class ActiveCard : StatelessWidget {
+        public ActiveCard(
             IEvent model,
             Key key = null
         ) : base(key) {
-            this.model = model;
+            this._model = model;
         }
 
-        public readonly IEvent model;
+        private readonly IEvent _model;
 
         public override Widget build(BuildContext context) {
-            DateTime time = Convert.ToDateTime(model.createdTime);
-            return new Container(
+            var time = Convert.ToDateTime(_model.createdTime);
+            var card = new Container(
                 height: 108,
-                padding: EdgeInsets.only(top: 16, bottom: 16, right: 16),
+                padding: EdgeInsets.all(16),
                 child: new Row(
-                    children: new List<Widget> {
+                    children: new List<Widget>
+                    {
                         //date
                         new Container(
-                            width: 58,
+                            width: 32,
+                            margin: EdgeInsets.only(right: 10),
                             child: new Column(
                                 crossAxisAlignment: CrossAxisAlignment.center,
-                                children: new List<Widget> {
+                                children: new List<Widget>
+                                {
                                     new Text(time.Day.ToString(), style: new TextStyle(height: 1.33f,
                                         fontSize: 24,
                                         fontFamily: "DINPro-Bold",
@@ -50,13 +55,14 @@ namespace ConnectApp.components {
                             child: new Column(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: new List<Widget> {
+                                children: new List<Widget>
+                                {
                                     new Container(
-                                        child: new Text(model.title, style: CTextStyle.PLarge, maxLines: 2)
+                                        child: new Text(_model.title, style: CTextStyle.PLarge, maxLines: 2)
                                     ),
 
                                     new Text(
-                                        model.live ? $"20:00 · {model.participantsCount}人已预订" : "20:00 · 旧金山Unity大厦",
+                                        _model.live ? $"20:00 · {_model.participantsCount}人已预订" : "20:00 · 旧金山Unity大厦",
                                         style: CTextStyle.PSmall)
                                 }
                             )
@@ -68,11 +74,12 @@ namespace ConnectApp.components {
                                 width: 114,
                                 height: 76,
                                 child: new Stack(
-                                    children: new List<Widget> {
+                                    children: new List<Widget>
+                                    {
                                         new Container(
                                             width: 114,
                                             height: 76,
-                                            child: Image.network(model.background, fit: BoxFit.fill)
+                                            child: Image.network(_model.background, fit: BoxFit.fill)
                                         ),
                                         new Positioned(
                                             bottom: 0,
@@ -80,10 +87,10 @@ namespace ConnectApp.components {
                                             child: new Container(
                                                 width: 41,
                                                 height: 24,
-                                                color: model.live ? CColors.PrimaryBlue : CColors.secondaryPink,
+                                                color: _model.live ? CColors.PrimaryBlue : CColors.secondaryPink,
                                                 alignment: Alignment.center,
                                                 child: new Text(
-                                                    model.live ? "线上" : "线下",
+                                                    _model.live ? "线上" : "线下",
                                                     style: new TextStyle(
 //                                                        height: 1.67f,
                                                         fontSize: 12,
@@ -100,6 +107,14 @@ namespace ConnectApp.components {
                         )
                     }
                 )
+            );
+            return new GestureDetector(
+                child: card,
+                onTap: () =>
+                {
+                    StoreProvider.store.Dispatch(new NavigatorToLiveAction {eventId = _model.id});
+                    Navigator.pushName(context, "/detail");
+                }
             );
         }
     }
