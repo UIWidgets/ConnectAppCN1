@@ -1,10 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Text;
-using System.Text.RegularExpressions;
 using ConnectApp.models;
 using Newtonsoft.Json;
 using RSG;
@@ -58,7 +55,7 @@ namespace ConnectApp.api {
         private static IEnumerator _FetchLiveDetail(Promise<LiveInfo> promise, string eventId) {
             var request = UnityWebRequest.Get(apiAddress + "/api/live/events/" + eventId);
             request.SetRequestHeader("Cookie", cookie);
-            
+
             yield return request.Send();
             if (request.isNetworkError) {
                 // something went wrong
@@ -87,9 +84,9 @@ namespace ConnectApp.api {
         }
 
         private static IEnumerator _FetchNotifications(Promise promise, int pageNumber) {
-            var request = UnityWebRequest.Get(apiAddress + "/api/notifications?page=" + pageNumber); 
+            var request = UnityWebRequest.Get(apiAddress + "/api/notifications?page=" + pageNumber);
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
-            
+
             yield return request.Send();
             if (request.isNetworkError) {
                 // something went wrong
@@ -109,7 +106,7 @@ namespace ConnectApp.api {
                     promise.Reject(new Exception("No user under this username found!"));
             }
         }
-        
+
         public static IPromise<LoginInfo> LoginByEmail(string email, string password) {
             // We return a promise instantly and start the coroutine to do the real work
             var promise = new Promise<LoginInfo>();
@@ -139,9 +136,8 @@ namespace ConnectApp.api {
                 promise.Reject(new Exception(request.downloadHandler.text));
             }
             else {
-                if(request.GetResponseHeaders().ContainsKey("SET-COOKIE")) {
+                if (request.GetResponseHeaders().ContainsKey("SET-COOKIE"))
                     cookie = request.GetResponseHeaders()["SET-COOKIE"];
-                }
                 // Format output and resolve promise
                 var json = request.downloadHandler.text;
                 var loginInfo = JsonConvert.DeserializeObject<LoginInfo>(json);

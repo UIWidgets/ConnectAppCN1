@@ -58,7 +58,9 @@ namespace ConnectApp.screens {
                     ),
                     new Container(height: 20),
                     new GestureDetector(
-                        onTap: () => { StoreProvider.store.Dispatch(new LiveRequestAction{eventId = "5b9753f22920c6002ed2c22d"}); },
+                        onTap: () => {
+                            StoreProvider.store.Dispatch(new LiveRequestAction {eventId = "5b9753f22920c6002ed2c22d"});
+                        },
                         child: new Container(
                             color: CColors.White,
                             child: new Text(
@@ -69,7 +71,7 @@ namespace ConnectApp.screens {
                     ),
                     new Container(height: 20),
                     new GestureDetector(
-                        onTap: () => { StoreProvider.store.Dispatch(new FetchNotificationsAction{pageNumber = 1}); },
+                        onTap: () => { StoreProvider.store.Dispatch(new FetchNotificationsAction {pageNumber = 1}); },
                         child: new Container(
                             color: CColors.White,
                             child: new Text(

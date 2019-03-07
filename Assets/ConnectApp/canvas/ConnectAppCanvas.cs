@@ -25,12 +25,12 @@ namespace ConnectApp.canvas {
             FontManager.instance.addFont(semiboldFont);
         }
 
-        
+
         protected override Widget createWidget() {
             return new WidgetsApp(
                 initialRoute: "/",
                 textStyle: new TextStyle(fontSize: 24),
-                pageRouteBuilder: this.pageRouteBuilder,
+                pageRouteBuilder: pageRouteBuilder,
                 routes: new Dictionary<string, WidgetBuilder> {
                     {"/", (context) => new MainScreen()},
 //                    {"/", (context) => new TestScreen()},
@@ -41,7 +41,7 @@ namespace ConnectApp.canvas {
                     {"/setting-unity", (context) => new BindUnityScreen()}
                 });
         }
-        
+
         protected Dictionary<string, WidgetBuilder> fullScreenRoutes => new Dictionary<string, WidgetBuilder> {
             {"/login", (context) => new LoginScreen()},
             {"/wechat-unity", (context) => new DetailScreen()},
@@ -69,7 +69,6 @@ namespace ConnectApp.canvas {
                     );
             }
         }
-
     }
 
     internal class PushPageTransition : StatelessWidget {
