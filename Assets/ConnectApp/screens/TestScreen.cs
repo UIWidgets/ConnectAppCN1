@@ -22,7 +22,7 @@ namespace ConnectApp.screens {
         }
 
         private static Widget renderTestView() {
-            return new Column(
+            return new ListView(
                 children: new List<Widget> {
                     new Container(
                         color: CColors.White,
@@ -31,6 +31,31 @@ namespace ConnectApp.screens {
                             builder: (context1, countText) => new Text(
                                 countText,
                                 style: CTextStyle.H1
+                            )
+                        )
+                    ),
+                    new Container(height: 20),
+                    new GestureDetector(
+                        onTap: () => { StoreProvider.store.Dispatch(new FetchArticlesAction()); },
+                        child: new Container(
+                            color: CColors.White,
+                            child: new Text(
+                                "FetchArticles",
+                                style: CTextStyle.H2
+                            )
+                        )
+                    ),
+                    new Container(height: 20),
+                    new GestureDetector(
+                        onTap: () => {
+                            StoreProvider.store.Dispatch(new FetchArticleDetailAction
+                                {articleId = "59c8cdfe09091500294d1bb9"});
+                        },
+                        child: new Container(
+                            color: CColors.White,
+                            child: new Text(
+                                "FetchArticleDetail",
+                                style: CTextStyle.H2
                             )
                         )
                     ),
@@ -47,7 +72,7 @@ namespace ConnectApp.screens {
                     ),
                     new Container(height: 20),
                     new GestureDetector(
-                        onTap: () => { StoreProvider.store.Dispatch(new EventsRequestAction {pageNumber = 1}); },
+                        onTap: () => { StoreProvider.store.Dispatch(new FetchEventsAction {pageNumber = 1}); },
                         child: new Container(
                             color: CColors.White,
                             child: new Text(
@@ -59,7 +84,8 @@ namespace ConnectApp.screens {
                     new Container(height: 20),
                     new GestureDetector(
                         onTap: () => {
-                            StoreProvider.store.Dispatch(new LiveRequestAction {eventId = "5b9753f22920c6002ed2c22d"});
+                            StoreProvider.store.Dispatch(new FetchEventDetailAction
+                                {eventId = "5b9753f22920c6002ed2c22d"});
                         },
                         child: new Container(
                             color: CColors.White,

@@ -12,7 +12,7 @@ namespace ConnectApp.redux.actions {
     public class LoginByEmailAction : RequestAction {
     }
 
-    public class LoginResponseAction : ResponseAction {
+    public class LoginByEmailSuccessAction : BaseAction {
         public LoginInfo loginInfo;
     }
 }

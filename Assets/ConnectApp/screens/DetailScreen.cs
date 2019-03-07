@@ -27,7 +27,7 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            StoreProvider.store.Dispatch(new LiveRequestAction()
+            StoreProvider.store.Dispatch(new FetchEventDetailAction()
                 {eventId = StoreProvider.store.state.LiveState.detailId});
         }
 

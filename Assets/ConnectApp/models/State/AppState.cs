@@ -7,10 +7,9 @@ namespace ConnectApp.models {
     public class AppState {
         public int Count { get; set; }
         public LoginState LoginState { get; set; }
+        public ArticleState ArticleState { get; set; }
         public List<IEvent> Events { get; set; }
-
         public LiveState LiveState { get; set; }
-
         public bool EventsLoading { get; set; }
 
         public static AppState initialState() {
@@ -28,6 +27,12 @@ namespace ConnectApp.models {
                     loginInfo = new LoginInfo(),
                     isLoggedIn = false,
                     loading = false
+                },
+                ArticleState = new ArticleState {
+                    Articles = new List<Article>(),
+                    ArticleDetail = null,
+                    ArticlesLoading = false,
+                    ArticleDetailLoading = false
                 },
                 Events = new List<IEvent>(),
                 EventsLoading = false,
