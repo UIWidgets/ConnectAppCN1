@@ -164,8 +164,8 @@ namespace ConnectApp.components.refresh
                 )
                 : null;
             Widget activity = new SizedBox(
-                width: 20,
-                height: 20,
+                width: 24,
+                height: 24,
                 child: new CustomActivityIndicator()
             );
             List<Widget> row = new List<Widget>();

@@ -5,7 +5,9 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 
 namespace ConnectApp.components.refresh
 {
@@ -387,7 +389,12 @@ namespace ConnectApp.components.refresh
             D.assert(result is Promise,"");
             {
                 result.Done(()=>{
+                    
                     changeState(RefreshState.drag);
+                    
+                }, (err) =>
+                {
+                    Debug.Log(err);
                 });
             }
             return result;
@@ -405,9 +412,7 @@ namespace ConnectApp.components.refresh
             }
         }
 
-        public void cancel(ScrollMetrics metrics)
-        {
-        }
+       public abstract void cancel(ScrollMetrics metrics);
     }
     
     class _RefreshHeaderHandler : _RefreshHandler {
@@ -431,7 +436,7 @@ namespace ConnectApp.components.refresh
             return -metrics.pixels;
         }
     
-        public void cancel(ScrollMetrics metrics) {
+        public override void cancel(ScrollMetrics metrics) {
             controller.value = metrics.pixels;
         }
     }
@@ -457,7 +462,7 @@ namespace ConnectApp.components.refresh
             return metrics.pixels - metrics.maxScrollExtent;
         }
     
-        public void cancel(ScrollMetrics metrics) {
+        public override void cancel(ScrollMetrics metrics) {
             controller.value = metrics.pixels;
         }
     }
