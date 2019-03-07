@@ -1,3 +1,4 @@
+using ConnectApp.api;
 using ConnectApp.models;
 using ConnectApp.redux.actions;
 using UnityEngine;
@@ -66,6 +67,10 @@ namespace ConnectApp.redux.reducers {
                 }
                 case ClearLiveInfoAction action: {
                     state.LiveState.liveInfo = null;
+                    break;
+                }
+                case FetchNotificationsAction action: {
+                    API.FetchNotifications(action.pageNumber);
                     break;
                 }
             }

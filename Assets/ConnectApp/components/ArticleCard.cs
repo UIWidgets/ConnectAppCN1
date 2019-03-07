@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
-using ConnectApp.redux;
-using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -16,10 +14,11 @@ namespace ConnectApp.components {
             IEvent model = null,
             Key key = null
         ) : base(key) {
-            this._model = model;
+            _model = model;
         }
 
         private readonly IEvent _model;
+
         public override State createState() {
             return new _ArticleCardState();
         }
@@ -93,8 +92,7 @@ namespace ConnectApp.components {
             );
             return new GestureDetector(
                 child: card,
-                onTap: () =>
-                {
+                onTap: () => {
 //                    StoreProvider.store.Dispatch(new NavigatorToLiveAction {eventId = _model.id});
                     Navigator.pushName(context, "/detail");
                 }

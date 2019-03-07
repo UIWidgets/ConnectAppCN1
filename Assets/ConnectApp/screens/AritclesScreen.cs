@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using ConnectApp.components;
 using ConnectApp.constants;
+using ConnectApp.redux;
+using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
@@ -54,7 +56,6 @@ namespace ConnectApp.screens {
                                 )
                             )
                         ),
-
                         new Positioned(
                             top: 0,
                             left: 0,
@@ -66,7 +67,17 @@ namespace ConnectApp.screens {
                                 color: CColors.TextTitle
                             )), new List<Widget> {
                                 new Container(child: new Icon(Icons.search, null, 28,
-                                    Color.fromRGBO(255, 255, 255, 0.8f)))
+                                    Color.fromRGBO(255, 255, 255, 0.8f))),
+                                new GestureDetector(
+                                    onTap: () => { StoreProvider.store.Dispatch(new LoginByEmailAction()); },
+                                    child: new Container(
+                                        color: CColors.BrownGrey,
+                                        child: new Text(
+                                            "LoginByEmail",
+                                            style: CTextStyle.H2
+                                        )
+                                    )
+                                )
                             }, CColors.White, _offsetY)
                         )
                     }
