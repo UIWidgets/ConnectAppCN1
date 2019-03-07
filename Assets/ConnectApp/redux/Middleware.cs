@@ -8,8 +8,7 @@ namespace ConnectApp.redux {
         public static Middleware<AppState> Create() {
             return (store) => (next) => (bAction) => {
                 if (bAction is EventsRequestAction action) {
-                    var api = new API();
-                    api.FetchEvents(action.pageNumber)
+                    API.FetchEvents(action.pageNumber)
                         .Then(events => {
 //                            Debug.Log(events);
                             store.Dispatch(new EventsResponseAction {
@@ -19,8 +18,7 @@ namespace ConnectApp.redux {
                         .Catch(error => { Debug.Log(error); });
                 }
                 else if (bAction is LiveRequestAction liveRequestAction) {
-                    var api = new API();
-                    api.FetchLiveDetail(liveRequestAction.eventId)
+                    API.FetchLiveDetail(liveRequestAction.eventId)
                         .Then(liveInfo => {
 //                            Debug.Log(liveInfo);
                             store.Dispatch(new LiveResponseAction() {
@@ -31,10 +29,9 @@ namespace ConnectApp.redux {
                         .Catch(error => { Debug.Log(error); });
                 }
                 else if (bAction is LoginByEmailAction loginByEmailAction) {
-                    var api = new API();
                     var email = store.state.LoginState.email;
                     var password = store.state.LoginState.password;
-                    api.LoginByEmail(email, password)
+                    API.LoginByEmail(email, password)
                         .Then(loginInfo => {
                             Debug.Log(loginInfo);
                             store.Dispatch(new LoginResponseAction {

@@ -33,7 +33,7 @@ namespace ConnectApp.canvas {
                 pageRouteBuilder: this.pageRouteBuilder,
                 routes: new Dictionary<string, WidgetBuilder> {
                     {"/", (context) => new MainScreen()},
-//            {"/", (context) => new GuidelineScreen()},
+//                    {"/", (context) => new TestScreen()},
                     {"/detail", (context) => new DetailScreen()},
                     {"/mine", (context) => new MineScreen()},
                     {"/setting", (context) => new SettingScreen()},

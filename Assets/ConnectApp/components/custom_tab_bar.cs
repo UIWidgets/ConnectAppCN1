@@ -25,15 +25,15 @@ namespace ConnectApp.components {
         public readonly List<CustomTabBarItem> items;
 
         public override State createState() {
-            return new _CustomTabBarState();
+            return new CustomTabBarState();
         }
     }
 
-    public class _CustomTabBarState : State<CustomTabBar> {
+    public class CustomTabBarState : State<CustomTabBar> {
         private PageController _pageController;
         private int _selectedIndex;
 
-        private const int kTabBarHeight = 49;
+        private const int KTabBarHeight = 49;
         private Widget _body;
 
         public override Widget build(BuildContext context) {
@@ -45,7 +45,7 @@ namespace ConnectApp.components {
                             bottom: 0,
                             left: 0,
                             right: 0,
-                            child: _bottomTabBar(context)
+                            child: _bottomTabBar()
                         )
                     }
                 )
@@ -62,13 +62,13 @@ namespace ConnectApp.components {
             );
         }
 
-        private Widget _bottomTabBar(BuildContext context) {
+        private Widget _bottomTabBar() {
             return new Container(
                 decoration: new BoxDecoration(
                     border: Border.all(CColors.Separator),
                     color: widget.tabbarBackgroudColor
                 ),
-                height: kTabBarHeight,
+                height: KTabBarHeight,
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: _buildItems()
@@ -77,9 +77,9 @@ namespace ConnectApp.components {
         }
 
         private List<Widget> _buildItems() {
-            List<Widget> _widgets = new List<Widget>();
+            var children = new List<Widget>();
             widget.items.ForEach(item => {
-                Widget _bulidItem = new Flexible(
+                Widget buildItem = new Flexible(
                     child: new Stack(
                         fit: StackFit.expand,
                         children: new List<Widget> {
@@ -88,6 +88,9 @@ namespace ConnectApp.components {
                                     if (_selectedIndex != item.index) setState(() => _selectedIndex = item.index);
                                 },
                                 child: new Container(
+                                    decoration: new BoxDecoration(
+                                        CColors.Transparent
+                                    ),
                                     child: new Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: new List<Widget> {
@@ -113,10 +116,10 @@ namespace ConnectApp.components {
                         }
                     )
                 );
-                _widgets.Add(_bulidItem);
+                children.Add(buildItem);
             });
 
-            return _widgets;
+            return children;
         }
     }
 }

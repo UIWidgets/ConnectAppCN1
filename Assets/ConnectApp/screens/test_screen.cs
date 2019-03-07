@@ -7,7 +7,7 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
-    public class GuidelineScreen : StatelessWidget {
+    public class TestScreen : StatelessWidget {
         public override Widget build(BuildContext context) {
             return new Container(
                 child: new Container(
@@ -40,7 +40,40 @@ namespace ConnectApp.screens {
                         child: new Container(
                             color: CColors.White,
                             child: new Text(
-                                "plus",
+                                "LoginByEmail",
+                                style: CTextStyle.H2
+                            )
+                        )
+                    ),
+                    new Container(height: 20),
+                    new GestureDetector(
+                        onTap: () => { StoreProvider.store.Dispatch(new EventsRequestAction {pageNumber = 1}); },
+                        child: new Container(
+                            color: CColors.White,
+                            child: new Text(
+                                "EventsRequest",
+                                style: CTextStyle.H2
+                            )
+                        )
+                    ),
+                    new Container(height: 20),
+                    new GestureDetector(
+                        onTap: () => { StoreProvider.store.Dispatch(new LiveRequestAction{eventId = "5b9753f22920c6002ed2c22d"}); },
+                        child: new Container(
+                            color: CColors.White,
+                            child: new Text(
+                                "LiveRequest",
+                                style: CTextStyle.H2
+                            )
+                        )
+                    ),
+                    new Container(height: 20),
+                    new GestureDetector(
+                        onTap: () => { StoreProvider.store.Dispatch(new FetchNotificationsAction{pageNumber = 1}); },
+                        child: new Container(
+                            color: CColors.White,
+                            child: new Text(
+                                "FetchNotifications",
                                 style: CTextStyle.H2
                             )
                         )
