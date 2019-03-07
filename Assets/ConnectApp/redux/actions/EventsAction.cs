@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using ConnectApp.models;
 
@@ -6,12 +5,11 @@ namespace ConnectApp.redux.actions {
     public class EventsAction : BaseAction {
     }
 
-    public class EventsRequestAction : RequestAction {
+    public class FetchEventsAction : RequestAction {
         public int pageNumber;
     }
 
-    [Serializable]
-    public class EventsResponseAction : ResponseAction {
+    public class FetchEventsSuccessAction : BaseAction {
         public List<IEvent> events;
     }
 }

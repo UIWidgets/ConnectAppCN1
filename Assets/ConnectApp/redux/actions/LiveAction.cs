@@ -1,18 +1,15 @@
-using System;
 using ConnectApp.models;
 
 namespace ConnectApp.redux.actions {
     public class LiveAction : BaseAction {
     }
 
-    public class LiveRequestAction : RequestAction {
+    public class FetchEventDetailAction : RequestAction {
         public string eventId;
     }
 
-    [Serializable]
-    public class LiveResponseAction : ResponseAction {
+    public class FetchEventDetailSuccessAction : BaseAction {
         public LiveInfo liveInfo;
-        public string eventId;
     }
 
     public class ClearLiveInfoAction : BaseAction {
