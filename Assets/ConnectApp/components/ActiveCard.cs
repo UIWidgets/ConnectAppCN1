@@ -18,7 +18,7 @@ namespace ConnectApp.components {
             IEvent model,
             Key key = null
         ) : base(key) {
-            this._model = model;
+            _model = model;
         }
 
         private readonly IEvent _model;
@@ -29,16 +29,14 @@ namespace ConnectApp.components {
                 height: 108,
                 padding: EdgeInsets.all(16),
                 child: new Row(
-                    children: new List<Widget>
-                    {
+                    children: new List<Widget> {
                         //date
                         new Container(
                             width: 32,
                             margin: EdgeInsets.only(right: 10),
                             child: new Column(
                                 crossAxisAlignment: CrossAxisAlignment.center,
-                                children: new List<Widget>
-                                {
+                                children: new List<Widget> {
                                     new Text(time.Day.ToString(), style: new TextStyle(height: 1.33f,
                                         fontSize: 24,
                                         fontFamily: "DINPro-Bold",
@@ -55,8 +53,7 @@ namespace ConnectApp.components {
                             child: new Column(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: new List<Widget>
-                                {
+                                children: new List<Widget> {
                                     new Container(
                                         child: new Text(_model.title, style: CTextStyle.PLarge, maxLines: 2)
                                     ),
@@ -74,8 +71,7 @@ namespace ConnectApp.components {
                                 width: 114,
                                 height: 76,
                                 child: new Stack(
-                                    children: new List<Widget>
-                                    {
+                                    children: new List<Widget> {
                                         new Container(
                                             width: 114,
                                             height: 76,
@@ -110,8 +106,7 @@ namespace ConnectApp.components {
             );
             return new GestureDetector(
                 child: card,
-                onTap: () =>
-                {
+                onTap: () => {
                     StoreProvider.store.Dispatch(new NavigatorToLiveAction {eventId = _model.id});
                     Navigator.pushName(context, "/detail");
                 }
