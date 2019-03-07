@@ -70,7 +70,7 @@ namespace ConnectApp.components {
             );
 
             return new GestureDetector(
-                onTap: () => Navigator.pushName(context, "/detail"),
+                onTap: () => Navigator.pushNamed(context, "/detail"),
                 child: card
             );
         }

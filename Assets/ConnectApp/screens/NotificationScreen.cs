@@ -3,36 +3,69 @@ using ConnectApp.components;
 using ConnectApp.constants;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
+using Unity.UIWidgets.foundation;
 
 namespace ConnectApp.screens {
-    public class NotificationScreen : StatelessWidget {
+    public class NotificationScreen : StatefulWidget {
+        
+        public NotificationScreen(
+            Key key = null
+        ) : base(key) {
+        }
+        
+        public override State createState() => new _NotificationScreenState();
+    }
+
+    public class _NotificationScreenState : State<NotificationScreen> {
+        
+        private const float headerHeight = 140;
+        private float _offsetY = 0;
+        
+        private bool _onNotification(ScrollNotification notification) {
+            var pixels = notification.metrics.pixels;
+            if (pixels >= 0) {
+                if (pixels <= headerHeight) setState(() => { _offsetY = pixels / 2.0f; });
+            } else {
+                if (_offsetY != 0) setState(() => { _offsetY = 0; });
+            }
+            return true;
+        }
+        
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
-                child: new Stack(
+                child: new Column(
                     children: new List<Widget> {
-                        new Positioned(
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            child: new CustomNavigationBar(new Text("通知", style: CTextStyle.H2), new List<Widget>
-                                { }, CColors.White, 0)
+                        new CustomNavigationBar(
+                            new Text(
+                                "通知",
+                                style: new TextStyle(
+                                    height: 1.25f,
+                                    fontSize: 32 / headerHeight * (headerHeight - _offsetY),
+                                    fontFamily: "PingFang-Semibold",
+                                    color: CColors.TextTitle
+                                )
+                             ),
+                            null,
+                            CColors.White,
+                            _offsetY
                         ),
-                        new Container(
-                            padding: EdgeInsets.only(0, 140, 0, 49),
-                            child: new ListView(
-                                scrollDirection: Axis.vertical,
-                                children: new List<Widget> {
-                                    new NotificationCard(),
-                                    new NotificationCard(),
-                                    new NotificationCard(),
-                                    new NotificationCard(),
-                                    new NotificationCard(),
-                                    new NotificationCard(),
-                                    new NotificationCard(),
-                                    new NotificationCard(),
-                                    new NotificationCard()
-                                }
+                        new CustomDivider(
+                            color: CColors.Separator2,
+                            height: 1
+                        ),
+                        new Flexible(
+                            child: new NotificationListener<ScrollNotification>(
+                                onNotification: _onNotification,
+                                child: new Container(
+                                    padding: EdgeInsets.only(bottom: 49),
+                                    child: ListView.builder(
+                                        itemCount: 10,
+                                        itemBuilder: (BuildContext cxt, int index) => {
+                                            return new NotificationCard();
+                                        }
+                                    )
+                                )
                             )
                         )
                     }
