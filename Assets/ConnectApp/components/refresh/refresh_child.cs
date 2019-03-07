@@ -126,7 +126,7 @@ namespace ConnectApp.components.refresh
                 0.0f,1.0f
             );
             _tween.animate(_animation);
-            _lastUpdate = new DateTime();
+            _lastUpdate = DateTime.Now;
         }
 
         

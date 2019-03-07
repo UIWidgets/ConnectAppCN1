@@ -16,8 +16,8 @@ namespace ConnectApp.components.refresh
     {
         public Refresh(
             Widget child,
-            RefresherCallback onHeaderRefresh,
-            RefresherCallback onFooterRefresh,
+            RefresherCallback onHeaderRefresh = null,
+            RefresherCallback onFooterRefresh = null,
             RefreshController controller = null,
             ScrollController scrollController = null,
             RefreshScrollViewBuilder childBuilder = null,

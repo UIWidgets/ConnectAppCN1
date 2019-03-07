@@ -29,8 +29,8 @@ namespace ConnectApp.models {
                     loading = false
                 },
                 ArticleState = new ArticleState {
-                    Articles = new List<Article>(),
-                    ArticleDetail = null,
+                    ArticleList = new List<string>(),
+                    ArticleDict = new Dictionary<string, Article>(),
                     ArticlesLoading = false,
                     ArticleDetailLoading = false
                 },

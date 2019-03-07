@@ -1,8 +1,12 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.components;
+using ConnectApp.components.refresh;
 using ConnectApp.constants;
+using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
+using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
@@ -25,37 +29,26 @@ namespace ConnectApp.screens {
     public class _ArticleScreenState : State<ArticleScreen> {
         private const float headerHeight = 140;
         private float _offsetY = 0;
+        private List<Article> _articles = new List<Article>();
+        private int pageNumber = 1;
+        
+        public override void initState()
+        {
+            base.initState();
+
+            if (_articles.Count==0)
+            {
+                StoreProvider.store.Dispatch(new FetchArticlesAction{pageNumber = pageNumber});
+            }
+            
+        }
 
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
                 child: new Stack(
                     children: new List<Widget> {
-                        new NotificationListener<ScrollNotification>(
-                            onNotification: (ScrollNotification notification) => {
-                                return _OnNotification(context, notification);
-                            },
-                            child: new Container(
-                                padding: EdgeInsets.only(0, headerHeight - _offsetY, 0, 49),
-                                child: new ListView(
-                                    scrollDirection: Axis.vertical,
-                                    children: new List<Widget> {
-                                        new ArticleCard(),
-                                        new ArticleCard(),
-                                        new ArticleCard(),
-                                        new ArticleCard(),
-                                        new ArticleCard(),
-                                        new ArticleCard(),
-                                        new ArticleCard(),
-                                        new ArticleCard(),
-                                        new ArticleCard(),
-                                        new ArticleCard(),
-                                        new ArticleCard(),
-                                        new ArticleCard()
-                                    }
-                                )
-                            )
-                        ),
+                        _ArticelList(context),
                         new Positioned(
                             top: 0,
                             left: 0,
@@ -83,6 +76,61 @@ namespace ConnectApp.screens {
                     }
                 )
             );
+        }
+
+        private Widget _ArticelList(BuildContext context)
+        {
+            return new NotificationListener<ScrollNotification>(
+                    onNotification: (ScrollNotification notification) => { return _OnNotification(context, notification); },
+                    child: new Container(
+                        padding: EdgeInsets.only(0, headerHeight - _offsetY, 0, 49),
+                            child:new StoreConnector<AppState,List<string>>(
+                                converter: (state, dispatch) => { return state.ArticleState.ArticleList; },
+                                builder: (_context, viewModel) => {
+                                    return new Refresh(
+                                        
+                                        child:new ListView(
+                                            physics: new AlwaysScrollableScrollPhysics(),
+                                            children: _buildArtileCards(viewModel)
+                                        )
+                                    );
+                                }
+                        )
+                    )
+            );
+
+        }
+
+        Promise onHeaderRefresh()
+        {
+            var promise = new Promise((resolve, reject) =>
+            {
+                setState(() =>
+                {
+                       
+                });
+                if (true)
+                {
+                    resolve();
+                }
+                else
+                {
+                    Exception exception  = new Exception("hahhahah");
+                    reject(exception);
+                }
+            }, true);
+            
+            return promise;
+        }
+        
+        List<Widget> _buildArtileCards(List<string> items)
+        {
+            var list = new List<Widget>();
+            items.ForEach((id) =>
+            {
+                list.Add(new ArticleCard(StoreProvider.store.state.ArticleState.ArticleDict[id]));
+            });
+            return list;
         }
 
 

@@ -35,10 +35,7 @@ namespace ConnectApp.screens
     {
         private List<Widget> _list = new List<Widget>
         {
-            new ArticleCard(),
-            new ArticleCard(),
-            new ArticleCard(),
-            new ArticleCard(),
+            
         };
 
         Promise onFooterRefresh()
@@ -49,17 +46,6 @@ namespace ConnectApp.screens
                 {
                     setState(() =>
                     {
-                        _list = new List<Widget>
-                        {
-                            new ArticleCard(),
-                            new ArticleCard(),
-                            new ArticleCard(),
-                            new ArticleCard(),
-                            new ArticleCard(),
-                            new ArticleCard(),
-                            new ArticleCard(),
-                            new ArticleCard(),
-                        };
                     });
                     if (true)
                     {
@@ -86,10 +72,7 @@ namespace ConnectApp.screens
                 {
                     setState(() =>
                     {
-                        _list = new List<Widget>
-                        {
-                            new ArticleCard(),
-                        };
+                       
                     });
                     if (true)
                     {

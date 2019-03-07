@@ -14,14 +14,14 @@ using UnityEngine.Networking;
 namespace ConnectApp.api {
     public class ArticleApi {
         // Article Api
-        public static Promise FetchArticles(int pageNumber) {
+        public static Promise<ArticlesResponse> FetchArticles(int pageNumber) {
             // We return a promise instantly and start the coroutine to do the real work
-            var promise = new Promise();
+            var promise = new Promise<ArticlesResponse>();
             Window.instance.startCoroutine(_FetchArticles(promise, pageNumber));
             return promise;
         }
 
-        private static IEnumerator _FetchArticles(Promise promise, int pageNumber) {
+        private static IEnumerator _FetchArticles(Promise<ArticlesResponse> promise, int pageNumber) {
             var request =
                 UnityWebRequest.Get(IApi.apiAddress + "/api/p?projectType=article&t=projects&page=" + pageNumber);
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
@@ -39,9 +39,10 @@ namespace ConnectApp.api {
             else {
                 // Format output and resolve promise
                 var responseText = request.downloadHandler.text;
-                Debug.Log(responseText);
+                var articlesResponse = JsonConvert.DeserializeObject<ArticlesResponse>(responseText);
+      
                 if (responseText != null)
-                    promise.Resolve();
+                    promise.Resolve(articlesResponse);
                 else
                     promise.Reject(new Exception("No user under this username found!"));
             }
@@ -71,7 +72,6 @@ namespace ConnectApp.api {
             else {
                 // Format output and resolve promise
                 var responseText = request.downloadHandler.text;
-                Debug.Log(responseText);
                 if (responseText != null)
                     promise.Resolve();
                 else
