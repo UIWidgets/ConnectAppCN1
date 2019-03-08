@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -37,7 +39,7 @@ namespace ConnectApp.components {
                     children: new List<Widget> {
                         _contentHead(),
                         _contentDetail(),
-                        _contentLecturerList()
+//                        _contentLecturerList()
                     }
                 )
             );
@@ -50,59 +52,55 @@ namespace ConnectApp.components {
                 child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        new Container(height: 16),
                         new Text(
                             liveInfo.title,
-                            style: new TextStyle(
-                                fontSize: 20,
-                                color: CColors.text1
-                            )
+                            style:CTextStyle.H3
                         ),
-                        new Container(height: 16),
-                        new Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: new List<Widget> {
-                                new Padding(
-                                    padding: EdgeInsets.only(right: 5),
-                                    child: new ClipRRect(
-                                        borderRadius: BorderRadius.circular(18),
-                                        child: new Container(
-                                            height: 36,
-                                            width: 36,
-                                            child: Image.network(
-                                                liveInfo.user.avatar,
-                                                fit: BoxFit.cover
+                        new Container(
+                            margin:EdgeInsets.only(top:8),
+                            child:new Text($"阅读 {liveInfo.participantsCount} · {DateConvert.DateStringFromNow(Convert.ToDateTime(liveInfo.createdTime))}",style:CTextStyle.PSmall)
+                        ),
+                        new Container(
+                            margin:EdgeInsets.only(top:24,bottom:24),
+                            child:new Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: new List<Widget> {
+                                    new Container(
+                                        margin:EdgeInsets.only(right:8),
+                                        child: new ClipRRect(
+                                            borderRadius: BorderRadius.circular(16),
+                                            child: new Container(
+                                                height: 32,
+                                                width: 32,
+                                                child: Image.network(
+                                                    liveInfo.user.avatar,
+                                                    fit: BoxFit.cover
+                                                )
                                             )
                                         )
+                                    ),
+
+
+                                    new Column(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: new List<Widget> {
+                                            new Container(height: 5),
+                                            new Text(
+                                                liveInfo.user.fullName,
+                                                style: CTextStyle.PRegular
+                                            ),
+                                            new Container(height: 5),
+                                            new Text(
+                                                liveInfo.createdTime,
+                                                style: CTextStyle.PSmall
+                                            )
+                                        }
                                     )
-                                ),
-
-
-                                new Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: new List<Widget> {
-                                        new Container(height: 5),
-                                        new Text(
-                                            liveInfo.user.fullName,
-                                            style: new TextStyle(
-                                                fontSize: 13,
-                                                color: CColors.text1
-                                            )
-                                        ),
-                                        new Container(height: 5),
-                                        new Text(
-                                            liveInfo.createdTime,
-                                            style: new TextStyle(
-                                                fontSize: 13,
-                                                color: CColors.text2
-                                            )
-                                        )
-                                    }
-                                )
-                            }
-                        )
+                                }
+                            )),
+                        
                     }
                 )
             );
@@ -121,10 +119,7 @@ namespace ConnectApp.components {
                             padding: EdgeInsets.fromLTRB(0, 24, 0, 16),
                             child: new Container(
                                 child: new Text("内容介绍",
-                                    style: new TextStyle(
-                                        fontSize: 17,
-                                        color: CColors.text1
-                                    )
+                                    style: CTextStyle.PLarge
                                 )
                             )
                         ),

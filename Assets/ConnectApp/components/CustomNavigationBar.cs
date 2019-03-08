@@ -48,7 +48,7 @@ namespace ConnectApp.components {
                                             height: 40,
                                             child: new Row(
                                                 mainAxisAlignment: MainAxisAlignment.end,
-                                                crossAxisAlignment: CrossAxisAlignment.end,
+                                                crossAxisAlignment: CrossAxisAlignment.center,
                                                 children: rightWidgets
                                             )
                                         )
