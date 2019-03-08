@@ -50,7 +50,7 @@ namespace ConnectApp.screens {
                             padding: EdgeInsets.symmetric(horizontal: 8),
                             onPressed: () => {
 //                                StoreProvider.store.Dispatch(new ChangeEmailAction {email = "ods@ods.com"});
-                                Navigator.pushName(context, "/mine");
+                                Navigator.pushNamed(context, "/mine");
                             },
                             child: new Icon(
                                 Icons.notifications,
@@ -60,7 +60,7 @@ namespace ConnectApp.screens {
                         ),
                         new CustomButton(
                             padding: EdgeInsets.only(8, right: 16),
-                            onPressed: () => { Navigator.pushName(context, "/login"); },
+                            onPressed: () => { Navigator.pushNamed(context, "/login"); },
                             child: new Icon(
                                 Icons.account_circle,
                                 size: 28,

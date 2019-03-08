@@ -48,7 +48,7 @@ namespace ConnectApp.screens {
                                     size: 28,
                                     color: CColors.icon2
                                 ),
-                                onPressed: () => Navigator.pushName(context, "/setting")
+                                onPressed: () => Navigator.pushNamed(context, "/setting")
                             )
                         }
                     ),

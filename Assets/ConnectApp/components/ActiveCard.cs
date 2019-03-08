@@ -108,7 +108,7 @@ namespace ConnectApp.components {
                 child: card,
                 onTap: () => {
                     StoreProvider.store.Dispatch(new NavigatorToLiveAction {eventId = _model.id});
-                    Navigator.pushName(context, "/detail");
+                    Navigator.pushNamed(context, "/detail");
                 }
             );
         }
