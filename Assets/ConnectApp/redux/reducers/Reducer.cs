@@ -14,11 +14,11 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case LoginChangeEmailAction action: {
-                    state.LoginState.email = action.changeText;
+                    state.loginState.email = action.changeText;
                     break;
                 }
                 case LoginChangePasswordAction action: {
-                    state.LoginState.password = action.changeText;
+                    state.loginState.password = action.changeText;
                     break;
                 }
                 case ChatWindowShowAction action: {
@@ -38,23 +38,23 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case LoginByEmailAction action: {
-                    state.LoginState.loading = true;
-                    var email = state.LoginState.email;
-                    var password = state.LoginState.password;
+                    state.loginState.loading = true;
+                    var email = state.loginState.email;
+                    var password = state.loginState.password;
                     LoginApi.LoginByEmail(email, password)
                         .Then(loginInfo => {
                             StoreProvider.store.Dispatch(new LoginByEmailSuccessAction {loginInfo = loginInfo});
                         })
                         .Catch(error => {
-                            state.LoginState.loading = false;
+                            state.loginState.loading = false;
                             Debug.Log(error);
                         });
                     break;
                 }
                 case LoginByEmailSuccessAction action: {
-                    state.LoginState.loading = false;
-                    state.LoginState.loginInfo = action.loginInfo;
-                    state.LoginState.isLoggedIn = true;
+                    state.loginState.loading = false;
+                    state.loginState.loginInfo = action.loginInfo;
+                    state.loginState.isLoggedIn = true;
                     break;
                 }
                 case FetchArticlesAction action: {
