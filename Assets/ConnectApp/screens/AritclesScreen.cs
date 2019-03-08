@@ -83,17 +83,20 @@ namespace ConnectApp.screens {
             return new NotificationListener<ScrollNotification>(
                     onNotification: (ScrollNotification notification) => { return _OnNotification(context, notification); },
                     child: new Container(
-                        padding: EdgeInsets.only(0, headerHeight - _offsetY, 0, 49),
-                            child:new StoreConnector<AppState,List<string>>(
-                                converter: (state, dispatch) => { return state.ArticleState.ArticleList; },
-                                builder: (_context, viewModel) => {
-                                    return new Refresh(
-                                        
-                                        child:new ListView(
+                        margin: EdgeInsets.only(0, headerHeight - _offsetY, 0, 49),
+                            child:new StoreConnector<AppState,ArticleState>(
+                                converter: (state, dispatch) => { return state.ArticleState; },
+                                builder: (_context, viewModel) =>
+                                {
+                                    var refreshPage = new Refresh(
+                                        onHeaderRefresh: onHeaderRefresh,
+                                        onFooterRefresh: onHeaderRefresh,
+                                        child: new ListView(
                                             physics: new AlwaysScrollableScrollPhysics(),
-                                            children: _buildArtileCards(viewModel)
+                                            children: _buildArtileCards(viewModel.ArticleList)
                                         )
                                     );
+                                    return refreshPage;
                                 }
                         )
                     )
@@ -103,22 +106,7 @@ namespace ConnectApp.screens {
 
         Promise onHeaderRefresh()
         {
-            var promise = new Promise((resolve, reject) =>
-            {
-                setState(() =>
-                {
-                       
-                });
-                if (true)
-                {
-                    resolve();
-                }
-                else
-                {
-                    Exception exception  = new Exception("hahhahah");
-                    reject(exception);
-                }
-            }, true);
+            var promise = new Promise((resolve, reject) => { resolve(); }, false);
             
             return promise;
         }
@@ -128,7 +116,13 @@ namespace ConnectApp.screens {
             var list = new List<Widget>();
             items.ForEach((id) =>
             {
-                list.Add(new ArticleCard(StoreProvider.store.state.ArticleState.ArticleDict[id]));
+                list.Add(new ArticleCard(
+                    StoreProvider.store.state.ArticleState.ArticleDict[id],
+                    () =>
+                    {
+                        StoreProvider.store.Dispatch(new NavigatorToLiveAction {eventId = id});
+                        Navigator.pushName(context, "/detail");
+                    }));
             });
             return list;
         }

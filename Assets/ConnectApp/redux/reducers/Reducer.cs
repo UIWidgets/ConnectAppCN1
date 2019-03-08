@@ -58,7 +58,9 @@ namespace ConnectApp.redux.reducers {
                     state.LoginState.isLoggedIn = true;
                     break;
                 }
-                case FetchArticlesAction action: {
+                case FetchArticlesAction action:
+                {
+                    state.ArticleState.ArticlesLoading = true;
                     ArticleApi.FetchArticles(action.pageNumber)
                         .Then((articlesResponse) =>
                         {
@@ -78,6 +80,7 @@ namespace ConnectApp.redux.reducers {
                 {
                     state.ArticleState.ArticleList = action.ArticleList;
                     state.ArticleState.ArticleDict = action.ArticleDict;
+                    state.ArticleState.ArticlesLoading = false;
                     break;
                 }
                 case FetchArticleDetailAction action: {

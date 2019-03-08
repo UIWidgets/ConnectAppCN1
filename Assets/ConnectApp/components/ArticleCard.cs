@@ -6,6 +6,7 @@ using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using ConnectApp.utils;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
@@ -16,12 +17,15 @@ namespace ConnectApp.components {
     public class ArticleCard : StatelessWidget {
         public ArticleCard(
             Article article,
+            GestureTapCallback onTap = null,
             Key key = null
         ) : base(key) {
             this.article = article;
+            this.onTap = onTap;
         }
 
         internal readonly Article article;
+        private readonly GestureTapCallback onTap;
 
         public override Widget build(BuildContext context)
         {
@@ -91,10 +95,7 @@ namespace ConnectApp.components {
             );
             return new GestureDetector(
                 child: card,
-                onTap: () => {
-                    StoreProvider.store.Dispatch(new NavigatorToLiveAction {eventId = article.id});
-                    Navigator.pushName(context, "/detail");
-                }
+                onTap: onTap
             );
         }
     }
