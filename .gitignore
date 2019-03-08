@@ -51,8 +51,7 @@ ProjectSettings/ProjectVersion.txt
 crashlytics-build.properties
 
 #Rider
-JetBrains.Rider.Unity.Editor.Plugin.Repacked.dll
-JetBrains.Rider.Unity.Editor.Plugin.Repacked.dll.meta
+Assets/Plugins/Editor/*
 
 # NuGet Packages
 # *.nupkg

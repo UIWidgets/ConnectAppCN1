@@ -160,7 +160,7 @@ namespace ConnectApp.components {
             return new GestureDetector(
                 onTap: () => {
                     StoreProvider.store.Dispatch(new NavigatorToLiveAction {eventId = model.id});
-                    Navigator.pushName(context, "/detail");
+                    Navigator.pushNamed(context, "/detail");
                 },
                 child: card
             );

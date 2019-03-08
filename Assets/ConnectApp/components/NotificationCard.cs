@@ -6,25 +6,19 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.components {
-    public class NotificationCard : StatefulWidget {
+    public class NotificationCard : StatelessWidget {
         public NotificationCard(
             Key key = null
         ) : base(key) {
         }
 
-        public override State createState() {
-            return new _NotificationCardState();
-        }
-    }
-
-    internal class _NotificationCardState : State<NotificationCard> {
         public override Widget build(BuildContext context) {
             return new Container(
                 child: new Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
                         new Container(
-                            padding: EdgeInsets.only(16, 20, 16, 0),
+                            padding: EdgeInsets.only(16, 16, 16),
                             width: 80,
                             child: new ClipRRect(
                                 borderRadius: BorderRadius.circular(24),
@@ -46,15 +40,15 @@ namespace ConnectApp.components {
                                         child: new RichText(
                                             text: new TextSpan(
                                                 children: new List<TextSpan> {
-                                                    new TextSpan("码农小哥", style: CTextStyle.PLarge),
-                                                    new TextSpan(" 评论了你的文章", style: CTextStyle.PRegular),
+                                                    new TextSpan("码农小哥", CTextStyle.PMedium),
+                                                    new TextSpan(" 评论了你的文章", CTextStyle.PRegular)
                                                 }
                                             )
                                         )
                                     ),
                                     new Container(child: new Text("谢谢关注哦,持续产出中,谢谢关注哦持续产出中,谢谢关注哦,持续产出中,谢谢关注哦,持续产出中",
                                         style: CTextStyle.PRegular)),
-                                    new Container(child: new Text("2小时前", style: CTextStyle.Caption)),
+                                    new Container(child: new Text("2小时前", style: CTextStyle.TextBody4))
                                 }
                             )
                         )

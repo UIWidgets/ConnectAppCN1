@@ -30,8 +30,7 @@ namespace ConnectApp.components {
             const float height = 56;
             return new Container(
                 height: height,
-                decoration: new BoxDecoration(backgroundColor ?? CColors.background1
-                ),
+                decoration: new BoxDecoration(backgroundColor ?? CColors.White),
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: new List<Widget> {
@@ -40,13 +39,13 @@ namespace ConnectApp.components {
                             child: new Icon(
                                 Icons.arrow_back,
                                 size: 28,
-                                color: CColors.icon1
+                                color: CColors.icon2
                             )
                         ),
                         title,
                         actions != null && actions.Count > 0
                             ? (Widget) new Row(children: actions)
-                            : new Container()
+                            : new Container(width: 52)
                     }
                 )
             );

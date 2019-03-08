@@ -4,6 +4,8 @@ using ConnectApp.constants;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
+using Unity.UIWidgets.gestures;
+using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.screens {
     public class SettingScreen : StatelessWidget {
@@ -13,60 +15,73 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new CustomAppBar(
                             title: new Text(
-                                "Setting",
+                                "设置",
                                 style: new TextStyle(
                                     fontSize: 17,
-                                    color: CColors.text1
+                                    color: CColors.TextTitle
                                 )
                             )
                         ),
-                        _content(context)
+                        _buildContent(context)
                     }
                 )
             );
         }
 
-        private Widget _content(BuildContext context) {
+        private static Widget _buildContent(BuildContext context) {
             return new Flexible(
                 child: new Container(
                     decoration: new BoxDecoration(
-                        CColors.background2
+                        CColors.White
                     ),
                     child: new ListView(
                         physics: new AlwaysScrollableScrollPhysics(),
                         children: new List<Widget> {
-                            _gapView(),
-                            _cellView("绑定Unity ID", ""),
-                            _gapView(),
-                            _cellView("自动播放视频", "开"),
-                            _cellView("语言", "简体中文"),
-                            _cellView("清除缓存", "110MB"),
-                            _gapView(),
-                            _cellView("评分", ""),
-                            _cellView("检查更新", "当前版本 1.1.1"),
-                            _gapView(),
-                            _logoutBtn()
+                            _buildGapView(),
+                            _buildCellView("修改手机", () => { }),
+                            _buildCellView("修改密码", () => { }),
+                            _buildGapView(),
+                            _buildCellView("评分", () => { }),
+                            _buildCellView("意见反馈", () => { }),
+                            _buildCellView("关于我们", () => { }),
+                            _buildCellView("清理缓存", () => {
+                                CustomDialogUtils.showCustomDialog(
+                                    context, 
+                                    child: new CustomDialog(
+                                        message: "正在清理缓存"
+                                    )
+                                );
+                            }),
+                            _buildGapView(),
+                            _buildLogoutBtn(context)
                         }
                     )
                 )
             );
         }
 
-        private Widget _gapView() {
-            return new Container(
-                height: 16,
-                decoration: new BoxDecoration(
-                )
+        private static Widget _buildGapView() {
+            return new CustomDivider(
+                color: CColors.background3
             );
         }
 
-        private Widget _logoutBtn() {
+        private static Widget _buildLogoutBtn(BuildContext context) {
             return new CustomButton(
                 padding: EdgeInsets.zero,
+                onPressed: () => {
+                    ActionSheetUtils.showModalActionSheet(context, new ActionSheet(
+                        title: "确定退出当前账号吗？",
+                        items: new List<ActionSheetItem> {
+                            new ActionSheetItem("退出", ActionType.destructive, () => { }),
+                            new ActionSheetItem("取消", ActionType.cancel, () => { })
+                        }
+                    ));
+                },
                 child: new Container(
                     height: 60,
                     decoration: new BoxDecoration(
-                        CColors.background1
+                        CColors.White
                     ),
                     child: new Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -85,37 +100,30 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _cellView(string title, string desc) {
-            return new Container(
-                height: 60,
-                padding: EdgeInsets.symmetric(0, 16),
-                decoration: new BoxDecoration(
-                    CColors.background1
-                ),
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: new List<Widget> {
-                        new Text(
-                            title,
-                            style: new TextStyle(
-                                fontSize: 13,
-                                color: CColors.text1
+        private static Widget _buildCellView(string title, GestureTapCallback onTap) {
+            return new GestureDetector(
+                onTap: onTap,
+                child: new Container(
+                    height: 60,
+                    padding: EdgeInsets.symmetric(0, 16),
+                    decoration: new BoxDecoration(
+                        CColors.White
+                    ),
+                    child: new Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: new List<Widget> {
+                            new Text(
+                                title,
+                                style: CTextStyle.PLarge
+                            ),
+                            new Flexible(child: new Container()),
+                            new Icon(
+                                Icons.chevron_right,
+                                size: 24,
+                                color: Color.fromRGBO(199, 203, 207, 1)
                             )
-                        ),
-                        new Flexible(child: new Container()),
-                        new Text(
-                            desc,
-                            style: new TextStyle(
-                                fontSize: 13,
-                                color: CColors.text1
-                            )
-                        ),
-                        new Icon(
-                            Icons.chevron_right,
-                            size: 16,
-                            color: CColors.icon1
-                        )
-                    }
+                        }
+                    )
                 )
             );
         }

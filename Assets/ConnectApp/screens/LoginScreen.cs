@@ -105,7 +105,7 @@ namespace ConnectApp.screens {
                         ),
                         new Container(height: 16),
                         new CustomButton(
-                            onPressed: () => Navigator.pushName(context, "/setting-unity"),
+                            onPressed: () => Navigator.pushNamed(context, "/setting-unity"),
                             child: new Container(
                                 height: 48,
                                 decoration: new BoxDecoration(

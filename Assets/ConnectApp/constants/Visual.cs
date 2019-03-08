@@ -83,6 +83,13 @@ namespace ConnectApp.constants {
             fontFamily: "PingFang-Medium",
             color: CColors.White
         );
+        
+        public static readonly TextStyle PMedium = new TextStyle(
+            height: 1.5f,
+            fontSize: 16,
+            fontFamily: "PingFang-Medium",
+            color: CColors.TextTitle
+        );
 
         public static readonly TextStyle PLarge = new TextStyle(
             height: 1.5f,
@@ -119,6 +126,13 @@ namespace ConnectApp.constants {
             fontSize: 12,
             fontFamily: "PingFang-Regular",
             color: CColors.TextBody
+        );
+        
+        public static readonly TextStyle TextBody4 = new TextStyle(
+            height: 1.67f,
+            fontSize: 12,
+            fontFamily: "PingFang-Regular",
+            color: CColors.TextThird2
         );
     }
 
