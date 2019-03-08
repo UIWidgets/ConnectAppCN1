@@ -12,7 +12,7 @@ namespace ConnectApp.models {
         public string description;
         public string userId;
         public string type;
-        public string publishedTime;
+        public DateTime publishedTime;
         public string bodyPlain;
         public int viewCount;
         public Thumbnail thumbnail;

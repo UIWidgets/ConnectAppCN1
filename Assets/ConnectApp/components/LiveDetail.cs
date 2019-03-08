@@ -58,7 +58,7 @@ namespace ConnectApp.components {
                         ),
                         new Container(
                             margin:EdgeInsets.only(top:8),
-                            child:new Text($"阅读 {liveInfo.participantsCount} · {DateConvert.DateStringFromNow(Convert.ToDateTime(liveInfo.createdTime))}",style:CTextStyle.PSmall)
+                            child:new Text($"阅读 {liveInfo.participantsCount} · {DateConvert.DateStringFromNow(liveInfo.createdTime)}",style:CTextStyle.PSmall)
                         ),
                         new Container(
                             margin:EdgeInsets.only(top:24,bottom:24),
@@ -93,7 +93,7 @@ namespace ConnectApp.components {
                                             ),
                                             new Container(height: 5),
                                             new Text(
-                                                liveInfo.createdTime,
+                                                DateConvert.DateStringFromNow(liveInfo.createdTime),
                                                 style: CTextStyle.PSmall
                                             )
                                         }

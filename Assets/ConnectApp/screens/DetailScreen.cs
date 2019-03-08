@@ -4,6 +4,7 @@ using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
+using ConnectApp.utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -159,7 +160,7 @@ namespace ConnectApp.screens {
                                         ),
                                         new Container(height: 5),
                                         new Text(
-                                            liveInfo.createdTime,
+                                            DateConvert.DateStringFromNow(liveInfo.createdTime) ,
                                             style: new TextStyle(
                                                 fontSize: 13,
                                                 color: CColors.text2

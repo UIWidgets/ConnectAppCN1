@@ -77,7 +77,7 @@ namespace ConnectApp.components {
                                     child: new Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: new List<Widget> {
-                                            new Text($" username · {DateConvert.DateStringFromNow(Convert.ToDateTime(article.publishedTime))} · {article.viewCount}", style: CTextStyle.PSmall),
+                                            new Text($" username · {DateConvert.DateStringFromNow(article.publishedTime)} · {article.viewCount}", style: CTextStyle.PSmall),
                                             new GestureDetector(
                                                 child: new Container(
                                                     height: 20,
