@@ -33,7 +33,8 @@ namespace ConnectApp.components.refresh
              this.lastUpdate = lastUpdate;
          }
 
-         static DefaultRefreshLocal en(string loading = "loading...",
+         static DefaultRefreshLocal en(
+             string loading = "loading...",
              string pullDownToRefresh="pull down to refresh",
              string pullUpToRefresh="pull up to refresh",
              string releaseToRefresh="release to refresh",
@@ -47,7 +48,8 @@ namespace ConnectApp.components.refresh
              );
          }
 
-         public static DefaultRefreshLocal zh(string loading = "加载中...",
+         public static DefaultRefreshLocal zh(
+             string loading = "加载中...",
              string pullDownToRefresh="下拉刷新",
              string pullUpToRefresh="上拉加载更多",
              string releaseToRefresh="放开加载",
@@ -93,6 +95,7 @@ namespace ConnectApp.components.refresh
             this.showState = showState;
             this.showLastUpdate = showLastUpdate;
             this.local = local ?? DefaultRefreshLocal.zh();
+            this.up = up;
         }
 
         public readonly bool showState;

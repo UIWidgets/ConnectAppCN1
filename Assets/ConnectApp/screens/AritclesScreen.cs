@@ -32,14 +32,13 @@ namespace ConnectApp.screens {
     public class _ArticleScreenState : State<ArticleScreen> {
         private const float headerHeight = 140;
         private float _offsetY = 0;
-        private List<Article> _articles = new List<Article>();
         private int pageNumber = 1;
         
         public override void initState()
         {
             base.initState();
 
-            if (_articles.Count==0)
+            if (StoreProvider.store.state.ArticleState.ArticleDict.Count==0)
             {
                 StoreProvider.store.Dispatch(new FetchArticlesAction{pageNumber = pageNumber});
             }
@@ -154,6 +153,10 @@ namespace ConnectApp.screens {
         
         List<Widget> _buildArtileCards(List<string> items)
         {
+            if (items.Count==0)
+            {
+                return new List<Widget>();
+            }
             var list = new List<Widget>();
             items.ForEach((id) =>
             {
