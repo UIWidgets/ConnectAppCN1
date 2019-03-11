@@ -65,7 +65,8 @@ namespace ConnectApp.components {
                                                     borderRadius: BorderRadius.all(4),
                                                     child: new Container(
                                                         width: 99,
-                                                        child: Image.network(article.thumbnail.url, fit: BoxFit.cover)
+                                                        child:new Container()
+//                                                        child: Image.network(article.thumbnail.url, fit: BoxFit.cover)
                                                     )
                                                 )
                                             ),

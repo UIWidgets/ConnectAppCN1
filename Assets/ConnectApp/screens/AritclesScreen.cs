@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using ConnectApp.api;
 using ConnectApp.components;
 using ConnectApp.components.refresh;
 using ConnectApp.constants;
@@ -9,8 +11,9 @@ using ConnectApp.redux.actions;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
@@ -88,9 +91,13 @@ namespace ConnectApp.screens {
                                 converter: (state, dispatch) => { return state.ArticleState; },
                                 builder: (_context, viewModel) =>
                                 {
+                                    if (viewModel.ArticlesLoading)
+                                    {
+                                        return new Container();
+                                    }
                                     var refreshPage = new Refresh(
                                         onHeaderRefresh: onHeaderRefresh,
-                                        onFooterRefresh: onHeaderRefresh,
+                                        onFooterRefresh: onFooterRefresh,
                                         child: new ListView(
                                             physics: new AlwaysScrollableScrollPhysics(),
                                             children: _buildArtileCards(viewModel.ArticleList)
@@ -104,11 +111,45 @@ namespace ConnectApp.screens {
 
         }
 
-        Promise onHeaderRefresh()
+        IPromise onHeaderRefresh()
         {
-            var promise = new Promise((resolve, reject) => { resolve(); }, false);
-            
-            return promise;
+           pageNumber = 1;
+           return  ArticleApi.FetchArticles(pageNumber)
+                .Then((articlesResponse) =>
+                {
+                    var articleList = new List<string>();
+                    var articleDict = new Dictionary<string, Article>();
+                    articlesResponse.items.ForEach((item) =>
+                    {
+                        articleList.Add(item.id);
+                        articleDict.Add(item.id,item);
+                    });
+                    StoreProvider.store.Dispatch(new FetchArticleSuccessAction{ ArticleDict = articleDict,ArticleList = articleList});
+                })
+                .Catch(error => { Debug.Log(error); });
+        }
+        IPromise onFooterRefresh()
+        {
+            pageNumber ++;
+            return  ArticleApi.FetchArticles(pageNumber)
+                .Then((articlesResponse) =>
+                {
+                    if (articlesResponse.items.Count!=0)
+                    {
+                        var articleList = StoreProvider.store.state.ArticleState.ArticleList;
+                        var articleDict = StoreProvider.store.state.ArticleState.ArticleDict;
+                        articlesResponse.items.ForEach((item) =>
+                        {
+                            if (!articleDict.Keys.Contains(item.id))
+                            {
+                                articleList.Add(item.id);
+                                articleDict.Add(item.id,item); 
+                            }
+                        });
+                        StoreProvider.store.Dispatch(new FetchArticleSuccessAction{ ArticleDict = articleDict,ArticleList = articleList});
+                    }
+                })
+                .Catch(error => { Debug.Log(error); });
         }
         
         List<Widget> _buildArtileCards(List<string> items)

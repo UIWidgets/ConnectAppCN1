@@ -12,11 +12,11 @@ namespace ConnectApp.components.refresh
 
     public class DefaultRefreshLocal
     {
-        public string loading;
-        public string pullDownToRefresh;
-        public string pullUpToRefresh;
-         public string releaseToRefresh;
-         public string lastUpdate;
+         public readonly string loading;
+         public readonly string pullDownToRefresh;
+         public readonly string pullUpToRefresh;
+         public readonly string releaseToRefresh;
+         public readonly string lastUpdate;
 
          DefaultRefreshLocal(
              string loading,
@@ -68,7 +68,7 @@ namespace ConnectApp.components.refresh
     
     public abstract class RefreshChild : StatefulWidget
     {
-        public RefreshWidgetController controller;
+        public readonly RefreshWidgetController controller;
         
         protected RefreshChild(
             RefreshWidgetController controller,
@@ -95,11 +95,11 @@ namespace ConnectApp.components.refresh
             this.local = local ?? DefaultRefreshLocal.zh();
         }
 
-        public bool showState;
-        public bool showLastUpdate;
-        public Widget icon;
-        public DefaultRefreshLocal local;
-        public bool up;
+        public readonly bool showState;
+        public readonly bool showLastUpdate;
+        public readonly Widget icon;
+        public readonly DefaultRefreshLocal local;
+        public readonly bool up;
 
         public override State createState()
         {

@@ -34,13 +34,13 @@ namespace ConnectApp.components.refresh
             
         }
 
-        public RefresherCallback onHeaderRefresh;
-        public RefresherCallback onFooterRefresh;
-        public RefreshController controller;
-        public ScrollController scrollController;
-        public RefreshScrollViewBuilder childBuilder;
-        public ScrollPhysics physics;
-        public Widget child;
+        public readonly RefresherCallback onHeaderRefresh;
+        public readonly RefresherCallback onFooterRefresh;
+        public readonly RefreshController controller;
+        public readonly ScrollController scrollController;
+        public readonly RefreshScrollViewBuilder childBuilder;
+        public readonly ScrollPhysics physics;
+        public readonly Widget child;
         
         static public  ScrollPhysics createScrollPhysics(ScrollPhysics src) {
             if (true) {
@@ -382,10 +382,10 @@ namespace ConnectApp.components.refresh
 
         public abstract float getRefreshWidgetMoveValue(ScrollMetrics metrics);
 
-        public Promise loading(ScrollMetrics metrics)
+        public IPromise loading(ScrollMetrics metrics)
         {
             changeState(RefreshState.loading);
-            Promise result = callback();
+            IPromise result = callback();
             D.assert(result is Promise,"");
             {
                 result.Done(()=>{
