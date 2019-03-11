@@ -111,7 +111,7 @@ namespace ConnectApp.screens {
                                 var events = viewModel["events"] as List<IEvent>;
                                 var cardList = new List<Widget>();
                                 if (!loading)
-                                    events.ForEach(model => { cardList.Add(new EventCard(Key.key(model.id), model)); });
+                                    events.ForEach(model => { cardList.Add(new EventCard(model)); });
                                 else
                                     cardList.Add(new Container());
 
@@ -238,7 +238,7 @@ namespace ConnectApp.screens {
                         var cardList = new List<Widget>();
                         if (!loading)
                             events.ForEach(model => { 
-                                cardList.Add(new ActiveCard(
+                                cardList.Add(new EventCard(
                                     model,
                                     () => {
                                         StoreProvider.store.Dispatch(new NavigatorToLiveAction {eventId = model.id});
