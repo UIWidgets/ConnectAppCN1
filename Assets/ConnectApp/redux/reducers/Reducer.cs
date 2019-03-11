@@ -34,7 +34,7 @@ namespace ConnectApp.redux.reducers {
                     state.eventState.detailId = action.eventId;
                     break;
                 }
-                case ClearLiveInfoAction action: {
+                case ClearEventDetailAction action: {
                     state.eventState.detailId = null;
                     break;
                 }
@@ -89,6 +89,51 @@ namespace ConnectApp.redux.reducers {
                 case FetchArticleDetailSuccessAction action: {
                     break;
                 }
+                case LikeArticleAction action: {
+                    ArticleApi.LikeArticle(action.articleId)
+                        .Then(() => { StoreProvider.store.Dispatch(new LikeArticleSuccessAction()); })
+                        .Catch(error => { Debug.Log(error); });
+                    break;
+                }
+                case LikeArticleSuccessAction action: {
+                    break;
+                }
+                case FetchArticleCommentsAction action: {
+                    ArticleApi.FetchArticleComments(action.channelId, action.currOldestMessageId)
+                        .Then(() => { StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction()); })
+                        .Catch(error => { Debug.Log(error); });
+                    break;
+                }
+                case FetchArticleCommentsSuccessAction action: {
+                    break;
+                }
+                case LikeCommentAction action: {
+                    ArticleApi.LikeComment(action.messageId)
+                        .Then(() => { StoreProvider.store.Dispatch(new LikeCommentSuccessAction()); })
+                        .Catch(error => { Debug.Log(error); });
+                    break;
+                }
+                case LikeCommentSuccessAction action: {
+                    break;
+                }
+                case RemoveLikeCommentAction action: {
+                    ArticleApi.RemoveLikeComment(action.messageId)
+                        .Then(() => { StoreProvider.store.Dispatch(new RemoveLikeSuccessAction()); })
+                        .Catch(error => { Debug.Log(error); });
+                    break;
+                }
+                case RemoveLikeSuccessAction action: {
+                    break;
+                }
+                case SendCommentAction action: {
+                    ArticleApi.SendComment(action.channelId, action.content, action.nonce, action.parentMessageId)
+                        .Then(() => { StoreProvider.store.Dispatch(new LikeArticleSuccessAction()); })
+                        .Catch(error => { Debug.Log(error); });
+                    break;
+                }
+                case SendCommentSuccessAction action: {
+                    break;
+                }
                 case FetchEventsAction action: {
                     state.eventState.eventsLoading = true;
                     EventApi.FetchEvents(action.pageNumber)
@@ -134,6 +179,15 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case FetchNotificationsSuccessAction action: {
+                    break;
+                }
+                case ReportItemAction action: {
+                    ReportApi.ReportItem(action.itemId, action.itemType, action.reportContext)
+                        .Then(() => { StoreProvider.store.Dispatch(new ReportItemSuccessAction()); })
+                        .Catch(error => { Debug.Log(error); });
+                    break;
+                }
+                case ReportItemSuccessAction action: {
                     break;
                 }
             }

@@ -32,8 +32,8 @@ namespace ConnectApp.canvas {
                 textStyle: new TextStyle(fontSize: 24),
                 pageRouteBuilder: pageRouteBuilder,
                 routes: new Dictionary<string, WidgetBuilder> {
-                    {"/", (context) => new MainScreen()},
-//                    {"/", (context) => new TestScreen()},
+//                    {"/", (context) => new MainScreen()},
+                    {"/", (context) => new TestScreen()},
                     {"/detail", (context) => new DetailScreen()},
                     {"/mine", (context) => new MineScreen()},
                     {"/setting", (context) => new SettingScreen()},

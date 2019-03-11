@@ -15,7 +15,19 @@ namespace ConnectApp.models {
     }
 
     [Serializable]
-    public class ReportArticleParameter {
+    public class ReactionParameter {
+        public string reactionType;
+    }
+
+    [Serializable]
+    public class SendCommentParameter {
+        public string content;
+        public string parentMessageId;
+        public string nonce;
+    }
+
+    [Serializable]
+    public class ReportParameter {
         public string itemType;
         public string itemId;
         public List<string> reasons;

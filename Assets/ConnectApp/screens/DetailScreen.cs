@@ -59,7 +59,8 @@ namespace ConnectApp.screens {
                                                         new CustomButton(
                                                             onPressed: () => {
                                                                 Navigator.pop(context);
-                                                                StoreProvider.store.Dispatch(new ClearLiveInfoAction());
+                                                                StoreProvider.store.Dispatch(
+                                                                    new ClearEventDetailAction());
                                                             },
                                                             child: new Icon(
                                                                 Icons.arrow_back,
@@ -305,7 +306,7 @@ namespace ConnectApp.screens {
                 new GestureDetector(
                     onTap: () => {
                         Navigator.pop(context);
-                        StoreProvider.store.Dispatch(new ClearLiveInfoAction());
+                        StoreProvider.store.Dispatch(new ClearEventDetailAction());
                     },
                     child: new Icon(Icons.arrow_back, size: 28, color: CColors.icon3)
                 ), new List<Widget> {
