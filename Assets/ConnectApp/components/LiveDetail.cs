@@ -114,16 +114,6 @@ namespace ConnectApp.components {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        new Container(height: 40),
-                        new Padding(
-                            padding: EdgeInsets.fromLTRB(0, 24, 0, 16),
-                            child: new Container(
-                                child: new Text("内容介绍",
-                                    style: CTextStyle.PLarge
-                                )
-                            )
-                        ),
-                        new Container(height: 16),
                         new EventDescription(content: liveInfo.content, contentMap: liveInfo.contentMap)
                     }
                 )

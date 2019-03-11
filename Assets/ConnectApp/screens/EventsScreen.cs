@@ -242,7 +242,7 @@ namespace ConnectApp.screens {
                                     model,
                                     () => {
                                         StoreProvider.store.Dispatch(new NavigatorToLiveAction {eventId = model.id});
-                                        Navigator.pushName(context, "/detail");
+                                        Navigator.pushNamed(context, "/detail");
                                     })); });
                         else
                             cardList.Add(new Container());

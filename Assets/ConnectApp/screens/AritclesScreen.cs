@@ -121,7 +121,7 @@ namespace ConnectApp.screens {
                     () =>
                     {
                         StoreProvider.store.Dispatch(new NavigatorToLiveAction {eventId = id});
-                        Navigator.pushName(context, "/detail");
+                        Navigator.pushNamed(context, "/detail");
                     }));
             });
             return list;
