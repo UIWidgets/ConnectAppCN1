@@ -238,19 +238,20 @@ namespace ConnectApp.screens {
                         var eventDict = viewModel["eventDict"] as Dictionary<string, IEvent>;
                         var cardList = new List<Widget>();
                         var eventObjs = new List<IEvent>();
-                        if (events != null && events.Count > 0) {
+                        if (events != null && events.Count > 0)
                             events.ForEach(eventId => {
-                                if (eventDict != null && eventDict.ContainsKey(eventId)) eventObjs.Add(eventDict[eventId]);
-                            }); 
-                        }
+                                if (eventDict != null && eventDict.ContainsKey(eventId))
+                                    eventObjs.Add(eventDict[eventId]);
+                            });
                         if (!loading)
-                            eventObjs.ForEach(model => { 
+                            eventObjs.ForEach(model => {
                                 cardList.Add(new EventCard(
                                     model,
                                     () => {
                                         StoreProvider.store.Dispatch(new NavigatorToLiveAction {eventId = model.id});
                                         Navigator.pushNamed(context, "/detail");
-                                    })); });
+                                    }));
+                            });
                         else
                             cardList.Add(new Container());
 

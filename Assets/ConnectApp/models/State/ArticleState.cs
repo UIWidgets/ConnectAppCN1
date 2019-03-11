@@ -6,9 +6,9 @@ namespace ConnectApp.models {
     public class ArticleState {
         public bool articlesLoading { get; set; }
         public bool articleDetailLoading { get; set; }
-        
+
         public List<string> articleList { get; set; }
-        
+
         public Dictionary<string, Article> articleDict { get; set; }
     }
 }

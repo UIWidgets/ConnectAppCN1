@@ -53,12 +53,10 @@ namespace ConnectApp.components {
             return _ticker;
         }
 
-        public override void didUpdateWidget(StatefulWidget oldWidget)
-        {
+        public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
-            if (oldWidget is CustomActivityIndicator)
-            {
-                CustomActivityIndicator customActivityIndicator = (CustomActivityIndicator) oldWidget;    
+            if (oldWidget is CustomActivityIndicator) {
+                CustomActivityIndicator customActivityIndicator = (CustomActivityIndicator) oldWidget;
                 if (widget.animating != customActivityIndicator.animating) {
                     if (widget.animating == AnimatingType.repeat)
                         _controller.repeat();
@@ -67,7 +65,6 @@ namespace ConnectApp.components {
                     else if (widget.animating == AnimatingType.reset) _controller.reset();
                 }
             }
-            
         }
 
         public override Widget build(BuildContext context) {

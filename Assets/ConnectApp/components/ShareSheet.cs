@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using ConnectApp.constants;
+using RSG;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
@@ -7,20 +9,17 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
-using RSG;
-using Unity.UIWidgets.foundation;
 
 namespace ConnectApp.components {
-    
     public enum ShareType {
         friends,
         moments
     }
-    
+
     public delegate void OnPressed(ShareType type);
-    
+
     public static class ShareUtils {
-        public static IPromise<object>  showShareView(
+        public static IPromise<object> showShareView(
             BuildContext context,
             Widget child
         ) {
@@ -29,7 +28,6 @@ namespace ConnectApp.components {
     }
 
     public class ShareView : StatelessWidget {
-
         public ShareView(
             Key key = null,
             OnPressed onPressed = null
@@ -61,8 +59,10 @@ namespace ConnectApp.components {
                                     child: new Row(
                                         mainAxisAlignment: MainAxisAlignment.start,
                                         children: new List<Widget> {
-                                            _buildShareItem("shareWeChat", "微信好友", () => { onPressed(ShareType.friends); }),
-                                            _buildShareItem("shareFriends", "朋友圈", () => { onPressed(ShareType.moments); })
+                                            _buildShareItem("shareWeChat", "微信好友",
+                                                () => { onPressed(ShareType.friends); }),
+                                            _buildShareItem("shareFriends", "朋友圈",
+                                                () => { onPressed(ShareType.moments); })
                                         }
                                     )
                                 ),

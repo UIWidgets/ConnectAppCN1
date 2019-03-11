@@ -1,17 +1,15 @@
 using System.Collections.Generic;
+using RSG;
 using Unity.UIWidgets.foundation;
-using DialogUtils = Unity.UIWidgets.material.DialogUtils;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using DialogUtils = Unity.UIWidgets.material.DialogUtils;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
-using RSG;
 
 namespace ConnectApp.components {
-    
     public class CustomDialog : StatelessWidget {
-
         public CustomDialog(
             Key key = null,
             Widget widget = null,
@@ -50,11 +48,9 @@ namespace ConnectApp.components {
                 )
             );
         }
-        
+
         private static Widget _buildMessage(string message) {
-            if (message == null || message.Length <= 0) {
-                return new Container();
-            }
+            if (message == null || message.Length <= 0) return new Container();
             return new Container(
                 margin: EdgeInsets.only(top: 8, left: 8, right: 8),
                 child: new Text(
@@ -70,7 +66,7 @@ namespace ConnectApp.components {
             );
         }
     }
-    
+
     public static class CustomDialogUtils {
         public static IPromise<object> showCustomDialog(
             BuildContext context,

@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
-using ConnectApp.redux;
-using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -26,7 +24,7 @@ namespace ConnectApp.components {
 
         private readonly IEvent _model;
         private readonly GestureTapCallback onTap;
-        
+
         public override Widget build(BuildContext context) {
             var time = Convert.ToDateTime(_model.createdTime);
             var card = new Container(

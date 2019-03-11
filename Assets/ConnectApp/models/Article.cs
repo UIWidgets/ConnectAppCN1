@@ -1,10 +1,8 @@
 using System;
 
 namespace ConnectApp.models {
-    
     [Serializable]
-    public class Article
-    {
+    public class Article {
         public string id;
         public string title;
         public string subTitle;
@@ -16,5 +14,4 @@ namespace ConnectApp.models {
         public int viewCount;
         public Thumbnail thumbnail;
     }
-
 }

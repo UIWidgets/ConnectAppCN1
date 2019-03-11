@@ -159,7 +159,7 @@ namespace ConnectApp.screens {
                                         ),
                                         new Container(height: 5),
                                         new Text(
-                                            DateConvert.DateStringFromNow(eventObj.createdTime) ,
+                                            DateConvert.DateStringFromNow(eventObj.createdTime),
                                             style: new TextStyle(
                                                 fontSize: 13,
                                                 color: CColors.text2
@@ -300,30 +300,29 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _navigationBar()
-        {
+        private Widget _navigationBar() {
             return new CustomNavigationBar(
                 new GestureDetector(
-                    onTap: () =>
-                    {
+                    onTap: () => {
                         Navigator.pop(context);
                         StoreProvider.store.Dispatch(new ClearLiveInfoAction());
                     },
-                    child:new Icon(Icons.arrow_back,size:28,color:CColors.icon3)
-                ), new List<Widget>
-            {
-                new Container(
-                    padding:EdgeInsets.all(1),
-                    width:88,
-                    height:28,
-                    decoration:new BoxDecoration(
-                        borderRadius:BorderRadius.all(14),
-                        border:Border.all(CColors.PrimaryBlue)
-                    ),
-                    alignment:Alignment.center,
-                    child:new Text("说点想法",style:new TextStyle(color:CColors.PrimaryBlue,fontSize:14,fontFamily:"PingFangSC-Medium"))
-                )
-            }, CColors.White, 52);
+                    child: new Icon(Icons.arrow_back, size: 28, color: CColors.icon3)
+                ), new List<Widget> {
+                    new Container(
+                        padding: EdgeInsets.all(1),
+                        width: 88,
+                        height: 28,
+                        decoration: new BoxDecoration(
+                            borderRadius: BorderRadius.all(14),
+                            border: Border.all(CColors.PrimaryBlue)
+                        ),
+                        alignment: Alignment.center,
+                        child: new Text("说点想法",
+                            style: new TextStyle(color: CColors.PrimaryBlue, fontSize: 14,
+                                fontFamily: "PingFangSC-Medium"))
+                    )
+                }, CColors.White, 52);
         }
 
 
@@ -341,9 +340,7 @@ namespace ConnectApp.screens {
                     // TODO: get eventObj from eventState.eventDict
                     var eventDict = (Dictionary<string, IEvent>) viewModel["eventDict"];
                     IEvent eventObj = null;
-                    if (eventDict.ContainsKey(detailId)) {
-                        eventObj = eventDict[detailId];
-                    }
+                    if (eventDict.ContainsKey(detailId)) eventObj = eventDict[detailId];
                     var showChatWindow = (bool) viewModel["showChatWindow"];
                     var openChatWindow = (bool) viewModel["openChatWindow"];
                     if (StoreProvider.store.state.eventState.eventDetailLoading)

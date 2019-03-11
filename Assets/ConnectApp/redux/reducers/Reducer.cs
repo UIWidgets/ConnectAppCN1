@@ -58,26 +58,23 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.isLoggedIn = true;
                     break;
                 }
-                case FetchArticlesAction action:
-                {
+                case FetchArticlesAction action: {
                     state.articleState.articlesLoading = true;
                     ArticleApi.FetchArticles(action.pageNumber)
-                        .Then((articlesResponse) =>
-                        {
+                        .Then((articlesResponse) => {
                             var articleList = new List<string>();
                             var articleDict = new Dictionary<string, Article>();
-                            articlesResponse.items.ForEach((item) =>
-                            {
+                            articlesResponse.items.ForEach((item) => {
                                 articleList.Add(item.id);
-                                articleDict.Add(item.id,item);
+                                articleDict.Add(item.id, item);
                             });
-                            StoreProvider.store.Dispatch(new FetchArticleSuccessAction{ ArticleDict = articleDict,ArticleList = articleList});
+                            StoreProvider.store.Dispatch(new FetchArticleSuccessAction
+                                {ArticleDict = articleDict, ArticleList = articleList});
                         })
                         .Catch(error => { Debug.Log(error); });
                     break;
                 }
-                case FetchArticleSuccessAction action:
-                {
+                case FetchArticleSuccessAction action: {
                     state.articleState.articleList = action.ArticleList;
                     state.articleState.articleDict = action.ArticleDict;
                     state.articleState.articlesLoading = false;

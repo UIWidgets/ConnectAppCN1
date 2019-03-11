@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
@@ -54,20 +53,22 @@ namespace ConnectApp.components {
                     children: new List<Widget> {
                         new Text(
                             eventObj.title,
-                            style:CTextStyle.H3
+                            style: CTextStyle.H3
                         ),
                         new Container(
-                            margin:EdgeInsets.only(top:8),
-                            child:new Text($"阅读 {eventObj.participantsCount} · {DateConvert.DateStringFromNow(eventObj.createdTime)}",style:CTextStyle.PSmall)
+                            margin: EdgeInsets.only(top: 8),
+                            child: new Text(
+                                $"阅读 {eventObj.participantsCount} · {DateConvert.DateStringFromNow(eventObj.createdTime)}",
+                                style: CTextStyle.PSmall)
                         ),
                         new Container(
-                            margin:EdgeInsets.only(top:24,bottom:24),
-                            child:new Row(
+                            margin: EdgeInsets.only(top: 24, bottom: 24),
+                            child: new Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: new List<Widget> {
                                     new Container(
-                                        margin:EdgeInsets.only(right:8),
+                                        margin: EdgeInsets.only(right: 8),
                                         child: new ClipRRect(
                                             borderRadius: BorderRadius.circular(16),
                                             child: new Container(
@@ -100,7 +101,6 @@ namespace ConnectApp.components {
                                     )
                                 }
                             )),
-                        
                     }
                 )
             );

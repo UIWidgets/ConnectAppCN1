@@ -24,7 +24,6 @@ namespace ConnectApp.constants {
         public static readonly IconData eye = new IconData(0xe417, "Material Icons");
         public static readonly IconData arrow_downward = new IconData(0xe5db, "Material Icons");
         public static readonly IconData arrow_upward = new IconData(0xe5d8, "Material Icons");
-
     }
 
     public static class CTextStyle {
@@ -83,7 +82,7 @@ namespace ConnectApp.constants {
             fontFamily: "PingFang-Medium",
             color: CColors.White
         );
-        
+
         public static readonly TextStyle PMedium = new TextStyle(
             height: 1.5f,
             fontSize: 16,
@@ -127,7 +126,7 @@ namespace ConnectApp.constants {
             fontFamily: "PingFang-Regular",
             color: CColors.TextBody
         );
-        
+
         public static readonly TextStyle TextBody4 = new TextStyle(
             height: 1.67f,
             fontSize: 12,
