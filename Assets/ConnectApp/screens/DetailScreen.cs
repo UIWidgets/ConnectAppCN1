@@ -29,10 +29,10 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             StoreProvider.store.Dispatch(new FetchEventDetailAction()
-                {eventId = StoreProvider.store.state.LiveState.detailId});
+                {eventId = StoreProvider.store.state.eventState.detailId});
         }
 
-        private Widget _headerView(BuildContext context, LiveInfo liveInfo) {
+        private Widget _headerView(BuildContext context, IEvent eventObj) {
             return new Container(
                 child: new Column(
                     children: new List<Widget> {
@@ -43,7 +43,7 @@ namespace ConnectApp.screens {
                                 fit: StackFit.expand,
                                 children: new List<Widget> {
                                     Image.network(
-                                        liveInfo.background,
+                                        eventObj.background,
                                         fit: BoxFit.cover
                                     ),
                                     new Flex(
@@ -114,7 +114,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _contentHead(LiveInfo liveInfo) {
+        private Widget _contentHead(IEvent eventObj) {
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
@@ -122,7 +122,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new Container(height: 16),
                         new Text(
-                            liveInfo.title,
+                            eventObj.title,
                             style: new TextStyle(
                                 fontSize: 20,
                                 color: CColors.text1
@@ -139,7 +139,7 @@ namespace ConnectApp.screens {
                                         borderRadius: BorderRadius.all(18)
                                     ),
                                     child: Image.network(
-                                        liveInfo.user.avatar,
+                                        eventObj.user.avatar,
                                         height: 36,
                                         width: 36,
                                         fit: BoxFit.fill
@@ -151,7 +151,7 @@ namespace ConnectApp.screens {
                                     children: new List<Widget> {
                                         new Container(height: 5),
                                         new Text(
-                                            liveInfo.user.fullName,
+                                            eventObj.user.fullName,
                                             style: new TextStyle(
                                                 fontSize: 13,
                                                 color: CColors.text1
@@ -159,7 +159,7 @@ namespace ConnectApp.screens {
                                         ),
                                         new Container(height: 5),
                                         new Text(
-                                            DateConvert.DateStringFromNow(liveInfo.createdTime) ,
+                                            DateConvert.DateStringFromNow(eventObj.createdTime),
                                             style: new TextStyle(
                                                 fontSize: 13,
                                                 color: CColors.text2
@@ -174,7 +174,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _contentDetail(LiveInfo liveInfo) {
+        private Widget _contentDetail(IEvent eventObj) {
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
@@ -191,7 +191,7 @@ namespace ConnectApp.screens {
                         ),
                         new Container(height: 16),
                         new Text(
-                            liveInfo.shortDescription,
+                            eventObj.shortDescription,
                             style: new TextStyle(
                                 fontSize: 14,
                                 color: CColors.text1
@@ -202,12 +202,12 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _content(LiveInfo liveInfo) {
+        private Widget _content(IEvent eventObj) {
             return new Flexible(
                 child: new ListView(
                     physics: new AlwaysScrollableScrollPhysics(),
                     children: new List<Widget> {
-                        _contentHead(liveInfo),
+                        _contentHead(eventObj),
                         new Container(height: 40),
                         //_contentDetail(liveInfo)
                     }
@@ -215,7 +215,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _joinBar(LiveInfo liveinfo) {
+        private Widget _joinBar(IEvent eventObj) {
             return new Container(
                 color: CColors.background1,
                 height: 64,
@@ -238,7 +238,7 @@ namespace ConnectApp.screens {
                                 ),
                                 new Container(height: 2),
                                 new Text(
-                                    $"{liveinfo.participantsCount}位观众",
+                                    $"{eventObj.participantsCount}位观众",
                                     style: new TextStyle(
                                         fontSize: 16,
                                         color: CColors.text1
@@ -276,7 +276,7 @@ namespace ConnectApp.screens {
 
         private Widget _chatWindow() {
             return new StoreConnector<AppState, bool>(
-                converter: (state, dispatcher) => state.LiveState.openChatWindow,
+                converter: (state, dispatcher) => state.eventState.openChatWindow,
                 builder: (context, openChatWindow) => {
                     return new GestureDetector(
                         onTap: () =>
@@ -300,50 +300,55 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _navigationBar()
-        {
+        private Widget _navigationBar() {
             return new CustomNavigationBar(
                 new GestureDetector(
-                    onTap: () =>
-                    {
+                    onTap: () => {
                         Navigator.pop(context);
                         StoreProvider.store.Dispatch(new ClearLiveInfoAction());
                     },
-                    child:new Icon(Icons.arrow_back,size:28,color:CColors.icon3)
-                ), new List<Widget>
-            {
-                new Container(
-                    padding:EdgeInsets.all(1),
-                    width:88,
-                    height:28,
-                    decoration:new BoxDecoration(
-                        borderRadius:BorderRadius.all(14),
-                        border:Border.all(CColors.PrimaryBlue)
-                    ),
-                    alignment:Alignment.center,
-                    child:new Text("说点想法",style:new TextStyle(color:CColors.PrimaryBlue,fontSize:14,fontFamily:"PingFangSC-Medium"))
-                )
-            }, CColors.White, 52);
+                    child: new Icon(Icons.arrow_back, size: 28, color: CColors.icon3)
+                ), new List<Widget> {
+                    new Container(
+                        padding: EdgeInsets.all(1),
+                        width: 88,
+                        height: 28,
+                        decoration: new BoxDecoration(
+                            borderRadius: BorderRadius.all(14),
+                            border: Border.all(CColors.PrimaryBlue)
+                        ),
+                        alignment: Alignment.center,
+                        child: new Text("说点想法",
+                            style: new TextStyle(color: CColors.PrimaryBlue, fontSize: 14,
+                                fontFamily: "PingFangSC-Medium"))
+                    )
+                }, CColors.White, 52);
         }
 
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, Dictionary<string, object>>(
                 converter: (state, dispatcher) => new Dictionary<string, object> {
-                    {"liveInfo", state.LiveState.liveInfo},
-                    {"showChatWindow", state.LiveState.showChatWindow},
-                    {"openChatWindow", state.LiveState.openChatWindow}
+                    {"detailId", state.eventState.detailId},
+                    {"eventDict", state.eventState.eventDict},
+                    {"showChatWindow", state.eventState.showChatWindow},
+                    {"openChatWindow", state.eventState.openChatWindow}
                 },
                 builder: (context1, viewModel) => {
-                    var liveInfo = viewModel["liveInfo"] as LiveInfo;
+//                    var liveInfo = viewModel["liveInfo"] as LiveInfo;
+                    var detailId = (string) viewModel["detailId"];
+                    // TODO: get eventObj from eventState.eventDict
+                    var eventDict = (Dictionary<string, IEvent>) viewModel["eventDict"];
+                    IEvent eventObj = null;
+                    if (eventDict.ContainsKey(detailId)) eventObj = eventDict[detailId];
                     var showChatWindow = (bool) viewModel["showChatWindow"];
                     var openChatWindow = (bool) viewModel["openChatWindow"];
-                    if (StoreProvider.store.state.LiveState.loading)
+                    if (StoreProvider.store.state.eventState.eventDetailLoading)
                         return new Container(
                             color: CColors.White,
                             child: new Container(child: new CustomActivityIndicator(radius: 16))
                         );
-                    else if (liveInfo == null) return new Container();
+                    else if (eventObj == null) return new Container();
                     return new Container(
                         color: CColors.White,
                         child: new Stack(
@@ -351,10 +356,10 @@ namespace ConnectApp.screens {
                                 new Column(
                                     children: new List<Widget> {
                                         _navigationBar(),
-                                        new LiveDetail(liveInfo: liveInfo),
+                                        new EventDetail(eventObj: eventObj),
                                     }
                                 ),
-                                !showChatWindow ? _chatWindow() : _joinBar(liveInfo)
+                                !showChatWindow ? _chatWindow() : _joinBar(eventObj)
                             }
                         )
                     );

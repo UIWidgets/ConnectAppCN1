@@ -4,24 +4,20 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.components.refresh
-{
-    public class RelativePositionedTransition : AnimatedWidget
-    {
+namespace ConnectApp.components.refresh {
+    public class RelativePositionedTransition : AnimatedWidget {
         public RelativePositionedTransition(
             Animation<Rect> rect,
             Size size,
             Widget child,
             Key key = null
-        ) : base(key, listenable:rect)
-        {
+        ) : base(key, listenable: rect) {
             this.rect = rect;
             this.size = size;
             this.child = child;
         }
 
-        protected override Widget build(BuildContext context)
-        {
+        protected override Widget build(BuildContext context) {
             RelativeRect offsets = RelativeRect.fromSize(rect.value, size);
             return new Positioned(
                 top: offsets.top,

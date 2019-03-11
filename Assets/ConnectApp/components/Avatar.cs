@@ -1,9 +1,8 @@
-using Unity.UIWidgets.widgets;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.components {
-    
     public class Avatar : StatelessWidget {
         public Avatar(
             string avatarUrl,

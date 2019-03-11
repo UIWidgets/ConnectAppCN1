@@ -1,36 +1,38 @@
 using System.Collections.Generic;
 using ConnectApp.components;
 using ConnectApp.constants;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
-using Unity.UIWidgets.foundation;
 
 namespace ConnectApp.screens {
     public class NotificationScreen : StatefulWidget {
-        
         public NotificationScreen(
             Key key = null
         ) : base(key) {
         }
-        
-        public override State createState() => new _NotificationScreenState();
+
+        public override State createState() {
+            return new _NotificationScreenState();
+        }
     }
 
     public class _NotificationScreenState : State<NotificationScreen> {
-        
         private const float headerHeight = 140;
         private float _offsetY = 0;
-        
+
         private bool _onNotification(ScrollNotification notification) {
             var pixels = notification.metrics.pixels;
             if (pixels >= 0) {
                 if (pixels <= headerHeight) setState(() => { _offsetY = pixels / 2.0f; });
-            } else {
+            }
+            else {
                 if (_offsetY != 0) setState(() => { _offsetY = 0; });
             }
+
             return true;
         }
-        
+
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
@@ -45,7 +47,7 @@ namespace ConnectApp.screens {
                                     fontFamily: "PingFang-Semibold",
                                     color: CColors.TextTitle
                                 )
-                             ),
+                            ),
                             null,
                             CColors.White,
                             _offsetY
@@ -61,9 +63,7 @@ namespace ConnectApp.screens {
                                     padding: EdgeInsets.only(bottom: 49),
                                     child: ListView.builder(
                                         itemCount: 10,
-                                        itemBuilder: (BuildContext cxt, int index) => {
-                                            return new NotificationCard();
-                                        }
+                                        itemBuilder: (BuildContext cxt, int index) => { return new NotificationCard(); }
                                     )
                                 )
                             )

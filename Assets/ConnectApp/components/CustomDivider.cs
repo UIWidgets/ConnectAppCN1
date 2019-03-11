@@ -1,11 +1,10 @@
-using Unity.UIWidgets.widgets;
+using ConnectApp.constants;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
-using ConnectApp.constants;
+using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.components {
-    
     public class CustomDivider : StatelessWidget {
         public CustomDivider(
             Key key = null,
@@ -16,7 +15,7 @@ namespace ConnectApp.components {
             this.color = color ?? CColors.Black;
             this.height = height;
         }
-        
+
         private readonly Color color;
         private readonly float height;
 

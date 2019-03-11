@@ -43,14 +43,14 @@ namespace ConnectApp.api {
             }
         }
 
-        public static IPromise<LiveInfo> FetchLiveDetail(string eventId) {
+        public static IPromise<IEvent> FetchLiveDetail(string eventId) {
             // We return a promise instantly and start the coroutine to do the real work
-            var promise = new Promise<LiveInfo>();
+            var promise = new Promise<IEvent>();
             Window.instance.startCoroutine(_FetchLiveDetail(promise, eventId));
             return promise;
         }
 
-        private static IEnumerator _FetchLiveDetail(Promise<LiveInfo> promise, string eventId) {
+        private static IEnumerator _FetchLiveDetail(Promise<IEvent> promise, string eventId) {
             var request = UnityWebRequest.Get(IApi.apiAddress + "/api/live/events/" + eventId);
 //            request.SetRequestHeader("Cookie", cookie);
 #pragma warning disable 618
@@ -67,7 +67,7 @@ namespace ConnectApp.api {
             else {
                 // Format output and resolve promise
                 var json = request.downloadHandler.text;
-                var liveDetail = JsonConvert.DeserializeObject<LiveInfo>(json);
+                var liveDetail = JsonConvert.DeserializeObject<IEvent>(json);
                 if (liveDetail != null)
                     promise.Resolve(liveDetail);
                 else

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using ConnectApp.api;
@@ -32,17 +31,13 @@ namespace ConnectApp.screens {
     public class _ArticleScreenState : State<ArticleScreen> {
         private const float headerHeight = 140;
         private float _offsetY = 0;
+        private List<Article> _articles = new List<Article>();
         private int pageNumber = 1;
-        
-        public override void initState()
-        {
+
+        public override void initState() {
             base.initState();
 
-            if (StoreProvider.store.state.ArticleState.ArticleDict.Count==0)
-            {
-                StoreProvider.store.Dispatch(new FetchArticlesAction{pageNumber = pageNumber});
-            }
-            
+            if (_articles.Count == 0) StoreProvider.store.Dispatch(new FetchArticlesAction {pageNumber = pageNumber});
         }
 
         public override Widget build(BuildContext context) {
@@ -80,90 +75,72 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _ArticelList(BuildContext context)
-        {
+        private Widget _ArticelList(BuildContext context) {
             return new NotificationListener<ScrollNotification>(
-                    onNotification: (ScrollNotification notification) => { return _OnNotification(context, notification); },
-                    child: new Container(
-                        margin: EdgeInsets.only(0, headerHeight - _offsetY, 0, 49),
-                            child:new StoreConnector<AppState,ArticleState>(
-                                converter: (state, dispatch) => { return state.ArticleState; },
-                                builder: (_context, viewModel) =>
-                                {
-                                    if (viewModel.ArticlesLoading)
-                                    {
-                                        return new Container();
-                                    }
-                                    var refreshPage = new Refresh(
-                                        onHeaderRefresh: onHeaderRefresh,
-                                        onFooterRefresh: onFooterRefresh,
-                                        child: new ListView(
-                                            physics: new AlwaysScrollableScrollPhysics(),
-                                            children: _buildArtileCards(viewModel.ArticleList)
-                                        )
-                                    );
-                                    return refreshPage;
-                                }
-                        )
+                onNotification: (ScrollNotification notification) => { return _OnNotification(context, notification); },
+                child: new Container(
+                    margin: EdgeInsets.only(0, headerHeight - _offsetY, 0, 49),
+                    child: new StoreConnector<AppState, ArticleState>(
+                        converter: (state, dispatch) => { return state.articleState; },
+                        builder: (_context, viewModel) => {
+                            if (viewModel.articlesLoading) return new Container();
+                            var refreshPage = new Refresh(
+                                onHeaderRefresh: onHeaderRefresh,
+                                onFooterRefresh: onFooterRefresh,
+                                child: new ListView(
+                                    physics: new AlwaysScrollableScrollPhysics(),
+                                    children: _buildArtileCards(viewModel.articleList)
+                                )
+                            );
+                            return refreshPage;
+                        }
                     )
+                )
             );
-
         }
 
-        IPromise onHeaderRefresh()
-        {
-           pageNumber = 1;
-           return  ArticleApi.FetchArticles(pageNumber)
-                .Then((articlesResponse) =>
-                {
+        private IPromise onHeaderRefresh() {
+            pageNumber = 1;
+            return ArticleApi.FetchArticles(pageNumber)
+                .Then((articlesResponse) => {
                     var articleList = new List<string>();
                     var articleDict = new Dictionary<string, Article>();
-                    articlesResponse.items.ForEach((item) =>
-                    {
+                    articlesResponse.items.ForEach((item) => {
                         articleList.Add(item.id);
-                        articleDict.Add(item.id,item);
+                        articleDict.Add(item.id, item);
                     });
-                    StoreProvider.store.Dispatch(new FetchArticleSuccessAction{ ArticleDict = articleDict,ArticleList = articleList});
+                    StoreProvider.store.Dispatch(new FetchArticleSuccessAction
+                        {ArticleDict = articleDict, ArticleList = articleList});
                 })
                 .Catch(error => { Debug.Log(error); });
         }
-        IPromise onFooterRefresh()
-        {
-            pageNumber ++;
-            return  ArticleApi.FetchArticles(pageNumber)
-                .Then((articlesResponse) =>
-                {
-                    if (articlesResponse.items.Count!=0)
-                    {
-                        var articleList = StoreProvider.store.state.ArticleState.ArticleList;
-                        var articleDict = StoreProvider.store.state.ArticleState.ArticleDict;
-                        articlesResponse.items.ForEach((item) =>
-                        {
-                            if (!articleDict.Keys.Contains(item.id))
-                            {
+
+        private IPromise onFooterRefresh() {
+            pageNumber++;
+            return ArticleApi.FetchArticles(pageNumber)
+                .Then((articlesResponse) => {
+                    if (articlesResponse.items.Count != 0) {
+                        var articleList = StoreProvider.store.state.articleState.articleList;
+                        var articleDict = StoreProvider.store.state.articleState.articleDict;
+                        articlesResponse.items.ForEach((item) => {
+                            if (!articleDict.Keys.Contains(item.id)) {
                                 articleList.Add(item.id);
-                                articleDict.Add(item.id,item); 
+                                articleDict.Add(item.id, item);
                             }
                         });
-                        StoreProvider.store.Dispatch(new FetchArticleSuccessAction{ ArticleDict = articleDict,ArticleList = articleList});
+                        StoreProvider.store.Dispatch(new FetchArticleSuccessAction
+                            {ArticleDict = articleDict, ArticleList = articleList});
                     }
                 })
                 .Catch(error => { Debug.Log(error); });
         }
-        
-        List<Widget> _buildArtileCards(List<string> items)
-        {
-            if (items.Count==0)
-            {
-                return new List<Widget>();
-            }
+
+        private List<Widget> _buildArtileCards(List<string> items) {
             var list = new List<Widget>();
-            items.ForEach((id) =>
-            {
+            items.ForEach((id) => {
                 list.Add(new ArticleCard(
-                    StoreProvider.store.state.ArticleState.ArticleDict[id],
-                    () =>
-                    {
+                    StoreProvider.store.state.articleState.articleDict[id],
+                    () => {
                         StoreProvider.store.Dispatch(new NavigatorToLiveAction {eventId = id});
                         Navigator.pushNamed(context, "/detail");
                     }));

@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using ConnectApp.components;
 using ConnectApp.constants;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Unity.UIWidgets.gestures;
-using Color = Unity.UIWidgets.ui.Color;
+using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
     public class SettingScreen : StatelessWidget {
@@ -46,7 +47,7 @@ namespace ConnectApp.screens {
                             _buildCellView("关于我们", () => { }),
                             _buildCellView("清理缓存", () => {
                                 CustomDialogUtils.showCustomDialog(
-                                    context, 
+                                    context,
                                     child: new CustomDialog(
                                         message: "正在清理缓存"
                                     )

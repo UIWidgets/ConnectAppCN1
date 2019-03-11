@@ -6,8 +6,7 @@ namespace ConnectApp.redux.actions {
         public int pageNumber = 1;
     }
 
-    public class FetchArticleSuccessAction : RequestAction
-    {
+    public class FetchArticleSuccessAction : RequestAction {
         public List<string> ArticleList;
         public Dictionary<string, Article> ArticleDict;
     }

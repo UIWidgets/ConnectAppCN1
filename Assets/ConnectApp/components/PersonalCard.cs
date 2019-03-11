@@ -43,7 +43,8 @@ namespace ConnectApp.components {
                                         ),
 //                                        new Text(widget.personalItem.title,style:CTextStyle.PLarge),
                                         new Text(personalItem.title,
-                                            style: new TextStyle(fontSize: 16, height: 1.5f, fontWeight: FontWeight.w400,
+                                            style: new TextStyle(fontSize: 16, height: 1.5f,
+                                                fontWeight: FontWeight.w400,
                                                 color: CColors.TextBody))
                                     }
                                 )

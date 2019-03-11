@@ -4,8 +4,8 @@ using ConnectApp.constants;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
-using Icons = ConnectApp.constants.Icons;
 using UnityEngine;
+using Icons = ConnectApp.constants.Icons;
 
 namespace ConnectApp.screens {
     public class PersonalScreen : StatelessWidget {
@@ -60,8 +60,8 @@ namespace ConnectApp.screens {
             List<PersonalCardItem> personalCardItems = new List<PersonalCardItem> {
                 new PersonalCardItem(Icons.book, "我的收藏", () => { Debug.Log("我的收藏"); }),
                 new PersonalCardItem(Icons.ievent, "我的活动", () => { Debug.Log("我的活动"); }),
-                new PersonalCardItem(Icons.eye, "浏览历史", () => { Navigator.pushNamed(context,"/login"); }),
-                new PersonalCardItem(Icons.settings, "设置", () => { Navigator.pushNamed(context,"/setting"); })
+                new PersonalCardItem(Icons.eye, "浏览历史", () => { Navigator.pushNamed(context, "/login"); }),
+                new PersonalCardItem(Icons.settings, "设置", () => { Navigator.pushNamed(context, "/setting"); })
             };
             List<Widget> widgets = new List<Widget>();
             personalCardItems.ForEach(item => { widgets.Add(new PersonalCard(item)); });
