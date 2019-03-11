@@ -35,49 +35,59 @@ namespace ConnectApp.screens
     {
         private List<Widget> _list = new List<Widget>
         {
-            new ArticleCard(),
-            new ArticleCard(),
-            new ArticleCard(),
-            new ArticleCard(),
+            
         };
 
         Promise onFooterRefresh()
         {
-//            Window.instance.run(new TimeSpan(0, 0, 0, 5), () =>
-//            {
-//                
-//            });
-//            setState(() =>
-//            {
-//                _list.Add(new ArticleCard());
-//                _list.Add(new ArticleCard());
-//                _list.Add(new ArticleCard());
-//                _list.Add(new ArticleCard());
-//            });
-            var promise = new Promise();
-            Window.instance.startCoroutine(_refresh(promise));
-            return promise;
-        }
+            var promise = new Promise((resolve, reject) =>
+            {
+                Window.instance.run(new TimeSpan(0, 0, 0, 1), () =>
+                {
+                    setState(() =>
+                    {
+                    });
+                    if (true)
+                    {
+                        resolve();
+                    }
+                    else
+                    {
+                        Exception exception  = new Exception("hahhahah");
+                        reject(exception);
+                    }
 
-        IEnumerator _refresh(Promise promise)
-        {
-           yield return null;
-           setState(() =>
-           {
-               _list = new List<Widget>
-               {
-                   new ArticleCard()
-               };
-           });
-           Debug.Log("asdasdasdasd");
-           promise.Resolve();
+                });
+            }, true);
+            
+            return promise;
         }
         
        
         Promise onHeaderRefresh()
         {
+            var promise = new Promise((resolve, reject) =>
+            {
+                Window.instance.run(new TimeSpan(0, 0, 0, 1), () =>
+                {
+                    setState(() =>
+                    {
+                       
+                    });
+                    if (true)
+                    {
+                        resolve();
+                    }
+                    else
+                    {
+                        Exception exception  = new Exception("hahhahah");
+                        reject(exception);
+                    }
 
-            return new Promise();
+                });
+            }, true);
+            
+            return promise;
         }
         
         public override Widget build(BuildContext context)

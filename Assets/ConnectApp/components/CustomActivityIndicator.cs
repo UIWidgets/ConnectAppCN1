@@ -53,15 +53,21 @@ namespace ConnectApp.components {
             return _ticker;
         }
 
-        public void didUpdateWidget(CustomActivityIndicator oldWidget) {
+        public override void didUpdateWidget(StatefulWidget oldWidget)
+        {
             base.didUpdateWidget(oldWidget);
-            if (widget.animating != oldWidget.animating) {
-                if (widget.animating == AnimatingType.repeat)
-                    _controller.repeat();
-                else if (widget.animating == AnimatingType.stop)
-                    _controller.stop();
-                else if (widget.animating == AnimatingType.reset) _controller.reset();
+            if (oldWidget is CustomActivityIndicator)
+            {
+                CustomActivityIndicator customActivityIndicator = (CustomActivityIndicator) oldWidget;    
+                if (widget.animating != customActivityIndicator.animating) {
+                    if (widget.animating == AnimatingType.repeat)
+                        _controller.repeat();
+                    else if (widget.animating == AnimatingType.stop)
+                        _controller.stop();
+                    else if (widget.animating == AnimatingType.reset) _controller.reset();
+                }
             }
+            
         }
 
         public override Widget build(BuildContext context) {

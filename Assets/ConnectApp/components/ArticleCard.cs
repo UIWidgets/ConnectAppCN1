@@ -1,7 +1,12 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.redux;
+using ConnectApp.redux.actions;
+using ConnectApp.utils;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
@@ -9,23 +14,21 @@ using Unity.UIWidgets.widgets;
 using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.components {
-    public class ArticleCard : StatefulWidget {
+    public class ArticleCard : StatelessWidget {
         public ArticleCard(
-            IEvent model = null,
+            Article article,
+            GestureTapCallback onTap = null,
             Key key = null
         ) : base(key) {
-            _model = model;
+            this.article = article;
+            this.onTap = onTap;
         }
 
-        private readonly IEvent _model;
+        internal readonly Article article;
+        private readonly GestureTapCallback onTap;
 
-        public override State createState() {
-            return new _ArticleCardState();
-        }
-    }
-
-    internal class _ArticleCardState : State<ArticleCard> {
-        public override Widget build(BuildContext context) {
+        public override Widget build(BuildContext context)
+        {
             var card = new Container(
                 child: new Padding(
                     padding: EdgeInsets.all(16),
@@ -37,7 +40,7 @@ namespace ConnectApp.components {
                                     children: new List<Widget> {
                                         new Container(
                                             width: MediaQuery.of(context).size.width - 32,
-                                            child: new Text("粒子特效教程 | 多重GPU粒子力场", style: CTextStyle.H5, maxLines: 2)
+                                            child: new Text(article.title, style: CTextStyle.H5, maxLines: 2)
                                         ),
                                     }
                                 ),
@@ -52,7 +55,7 @@ namespace ConnectApp.components {
                                             new Container(
                                                 width: MediaQuery.of(context).size.width - 139,
                                                 child: new Text(
-                                                    "我们将分享加拿大游戏特效大神Mirza Beig的粒子特效的系列教程,该系列教程将帮助你了解如何使用粒子系统制作精美的特效。",
+                                                    article.bodyPlain,
                                                     style: CTextStyle.PRegular, maxLines: 3,
                                                     overflow: TextOverflow.ellipsis)
                                             ),
@@ -62,7 +65,8 @@ namespace ConnectApp.components {
                                                     borderRadius: BorderRadius.all(4),
                                                     child: new Container(
                                                         width: 99,
-                                                        child: Image.asset("pikachu", fit: BoxFit.cover)
+                                                        child:new Container()
+//                                                        child: Image.network(article.thumbnail.url, fit: BoxFit.cover)
                                                     )
                                                 )
                                             ),
@@ -74,7 +78,7 @@ namespace ConnectApp.components {
                                     child: new Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: new List<Widget> {
-                                            new Text("Unity China · 刚刚 · 390", style: CTextStyle.PSmall),
+                                            new Text($" username · {DateConvert.DateStringFromNow(article.publishedTime)} · {article.viewCount}", style: CTextStyle.PSmall),
                                             new GestureDetector(
                                                 child: new Container(
                                                     height: 20,
@@ -92,10 +96,7 @@ namespace ConnectApp.components {
             );
             return new GestureDetector(
                 child: card,
-                onTap: () => {
-//                    StoreProvider.store.Dispatch(new NavigatorToLiveAction {eventId = _model.id});
-                    Navigator.pushNamed(context, "/detail");
-                }
+                onTap: onTap
             );
         }
     }
