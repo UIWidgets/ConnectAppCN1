@@ -4,6 +4,7 @@ using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
+using ConnectApp.utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -158,7 +159,7 @@ namespace ConnectApp.screens {
                                         ),
                                         new Container(height: 5),
                                         new Text(
-                                            liveInfo.createdTime,
+                                            DateConvert.DateStringFromNow(liveInfo.createdTime) ,
                                             style: new TextStyle(
                                                 fontSize: 13,
                                                 color: CColors.text2
@@ -299,6 +300,33 @@ namespace ConnectApp.screens {
             );
         }
 
+        private Widget _navigationBar()
+        {
+            return new CustomNavigationBar(
+                new GestureDetector(
+                    onTap: () =>
+                    {
+                        Navigator.pop(context);
+                        StoreProvider.store.Dispatch(new ClearLiveInfoAction());
+                    },
+                    child:new Icon(Icons.arrow_back,size:28,color:CColors.icon3)
+                ), new List<Widget>
+            {
+                new Container(
+                    padding:EdgeInsets.all(1),
+                    width:88,
+                    height:28,
+                    decoration:new BoxDecoration(
+                        borderRadius:BorderRadius.all(14),
+                        border:Border.all(CColors.PrimaryBlue)
+                    ),
+                    alignment:Alignment.center,
+                    child:new Text("说点想法",style:new TextStyle(color:CColors.PrimaryBlue,fontSize:14,fontFamily:"PingFangSC-Medium"))
+                )
+            }, CColors.White, 52);
+        }
+
+
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, Dictionary<string, object>>(
                 converter: (state, dispatcher) => new Dictionary<string, object> {
@@ -312,21 +340,21 @@ namespace ConnectApp.screens {
                     var openChatWindow = (bool) viewModel["openChatWindow"];
                     if (StoreProvider.store.state.LiveState.loading)
                         return new Container(
-                            color: CColors.background2,
+                            color: CColors.White,
                             child: new Container(child: new CustomActivityIndicator(radius: 16))
                         );
                     else if (liveInfo == null) return new Container();
                     return new Container(
-                        color: CColors.background2,
+                        color: CColors.White,
                         child: new Stack(
                             children: new List<Widget> {
                                 new Column(
                                     children: new List<Widget> {
-                                        _headerView(context1, liveInfo),
+                                        _navigationBar(),
                                         new LiveDetail(liveInfo: liveInfo),
                                     }
                                 ),
-                                showChatWindow ? _chatWindow() : _joinBar(liveInfo)
+                                !showChatWindow ? _chatWindow() : _joinBar(liveInfo)
                             }
                         )
                     );

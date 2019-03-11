@@ -5,7 +5,9 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 
 namespace ConnectApp.components.refresh
 {
@@ -14,8 +16,8 @@ namespace ConnectApp.components.refresh
     {
         public Refresh(
             Widget child,
-            RefresherCallback onHeaderRefresh,
-            RefresherCallback onFooterRefresh,
+            RefresherCallback onHeaderRefresh = null,
+            RefresherCallback onFooterRefresh = null,
             RefreshController controller = null,
             ScrollController scrollController = null,
             RefreshScrollViewBuilder childBuilder = null,
@@ -32,13 +34,13 @@ namespace ConnectApp.components.refresh
             
         }
 
-        public RefresherCallback onHeaderRefresh;
-        public RefresherCallback onFooterRefresh;
-        public RefreshController controller;
-        public ScrollController scrollController;
-        public RefreshScrollViewBuilder childBuilder;
-        public ScrollPhysics physics;
-        public Widget child;
+        public readonly RefresherCallback onHeaderRefresh;
+        public readonly RefresherCallback onFooterRefresh;
+        public readonly RefreshController controller;
+        public readonly ScrollController scrollController;
+        public readonly RefreshScrollViewBuilder childBuilder;
+        public readonly ScrollPhysics physics;
+        public readonly Widget child;
         
         static public  ScrollPhysics createScrollPhysics(ScrollPhysics src) {
             if (true) {
@@ -380,14 +382,19 @@ namespace ConnectApp.components.refresh
 
         public abstract float getRefreshWidgetMoveValue(ScrollMetrics metrics);
 
-        public Promise loading(ScrollMetrics metrics)
+        public IPromise loading(ScrollMetrics metrics)
         {
             changeState(RefreshState.loading);
-            Promise result = callback();
+            IPromise result = callback();
             D.assert(result is Promise,"");
             {
                 result.Done(()=>{
+                    
                     changeState(RefreshState.drag);
+                    
+                }, (err) =>
+                {
+                    Debug.Log(err);
                 });
             }
             return result;
@@ -405,9 +412,7 @@ namespace ConnectApp.components.refresh
             }
         }
 
-        public void cancel(ScrollMetrics metrics)
-        {
-        }
+       public abstract void cancel(ScrollMetrics metrics);
     }
     
     class _RefreshHeaderHandler : _RefreshHandler {
@@ -431,7 +436,7 @@ namespace ConnectApp.components.refresh
             return -metrics.pixels;
         }
     
-        public void cancel(ScrollMetrics metrics) {
+        public override void cancel(ScrollMetrics metrics) {
             controller.value = metrics.pixels;
         }
     }
@@ -457,7 +462,7 @@ namespace ConnectApp.components.refresh
             return metrics.pixels - metrics.maxScrollExtent;
         }
     
-        public void cancel(ScrollMetrics metrics) {
+        public override void cancel(ScrollMetrics metrics) {
             controller.value = metrics.pixels;
         }
     }

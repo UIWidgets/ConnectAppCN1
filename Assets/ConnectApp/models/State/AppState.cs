@@ -28,10 +28,10 @@ namespace ConnectApp.models {
                     loading = false
                 },
                 articleState = new ArticleState {
-                    Articles = new List<Article>(),
-                    ArticleDetail = null,
-                    ArticlesLoading = false,
-                    ArticleDetailLoading = false
+                    articleList = new List<string>(),
+                    articleDict = new Dictionary<string, Article>(),
+                    articlesLoading = false,
+                    articleDetailLoading = false
                 },
                 eventState = new EventState {
                     events = new List<string>(),

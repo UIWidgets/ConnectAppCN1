@@ -32,8 +32,8 @@ namespace ConnectApp.components.refresh
             );
         }
 
-        private Animation<Rect> rect;
-        private Size size;
-        private Widget child;
+        private readonly Animation<Rect> rect;
+        private readonly Size size;
+        private readonly Widget child;
     }
 }

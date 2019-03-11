@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using ConnectApp.api;
 using ConnectApp.models;
 using ConnectApp.redux.actions;
@@ -57,13 +58,29 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.isLoggedIn = true;
                     break;
                 }
-                case FetchArticlesAction action: {
+                case FetchArticlesAction action:
+                {
+                    state.ArticleState.ArticlesLoading = true;
                     ArticleApi.FetchArticles(action.pageNumber)
-                        .Then(() => { StoreProvider.store.Dispatch(new FetchArticleSuccessAction()); })
+                        .Then((articlesResponse) =>
+                        {
+                            var articleList = new List<string>();
+                            var articleDict = new Dictionary<string, Article>();
+                            articlesResponse.items.ForEach((item) =>
+                            {
+                                articleList.Add(item.id);
+                                articleDict.Add(item.id,item);
+                            });
+                            StoreProvider.store.Dispatch(new FetchArticleSuccessAction{ ArticleDict = articleDict,ArticleList = articleList});
+                        })
                         .Catch(error => { Debug.Log(error); });
                     break;
                 }
-                case FetchArticleSuccessAction action: {
+                case FetchArticleSuccessAction action:
+                {
+                    state.ArticleState.ArticleList = action.ArticleList;
+                    state.ArticleState.ArticleDict = action.ArticleDict;
+                    state.ArticleState.ArticlesLoading = false;
                     break;
                 }
                 case FetchArticleDetailAction action: {

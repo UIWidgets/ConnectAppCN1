@@ -182,7 +182,7 @@ namespace ConnectApp.components {
 
         private readonly WidgetBuilder builder;
         
-        public override string barrierLabel { get; }
+        public string barrierLabel { get; }
         
         public override Color barrierColor => new Color(0x6604040F);
         

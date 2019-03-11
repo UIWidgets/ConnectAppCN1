@@ -10,7 +10,7 @@ using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.components.refresh
 {
-    public delegate Promise RefresherCallback();
+    public delegate IPromise RefresherCallback();
     public delegate RectTween CreateTween(RefreshWidget widget);
 
     public enum RefreshState
@@ -32,7 +32,7 @@ namespace ConnectApp.components.refresh
             this._state = _state ?? new ValueNotifier<RefreshState>(RefreshState.drag) ;
         }
 
-        public ValueNotifier<RefreshState> _state;
+        public readonly ValueNotifier<RefreshState> _state;
 
         public RefreshState state
         {
@@ -67,17 +67,17 @@ namespace ConnectApp.components.refresh
     {
         
         
-        public float height;
+        public readonly float height;
 
-        public float maxOffset;
+        public readonly float maxOffset;
 
-        public RefreshChildBuilder childBuilder;
+        public readonly RefreshChildBuilder childBuilder;
 
-        public RefreshWidgetController controller;
+        public readonly RefreshWidgetController controller;
 
-        public CreateTween createTween;
+        public readonly CreateTween createTween;
 
-        public Alignment alignment;
+        public readonly Alignment alignment;
         
 
         public RefreshWidget(

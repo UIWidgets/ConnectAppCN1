@@ -1,168 +1,116 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Image = Unity.UIWidgets.widgets.Image;
+using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
     public class EventCard : StatelessWidget {
         public EventCard(
-            Key key = null,
-            IEvent model = null
+            IEvent model,
+            GestureTapCallback onTap = null,
+            Key key = null
         ) : base(key) {
-            this.model = model;
+            _model = model;
+            this.onTap = onTap;
         }
 
-        public readonly IEvent model;
-
+        private readonly IEvent _model;
+        private readonly GestureTapCallback onTap;
+        
         public override Widget build(BuildContext context) {
+            var time = Convert.ToDateTime(_model.createdTime);
             var card = new Container(
-                key,
-                child: new Column(
+                height: 108,
+                padding: EdgeInsets.all(16),
+                child: new Row(
                     children: new List<Widget> {
+                        //date
                         new Container(
-                            decoration: new BoxDecoration(
-                                CColors.Black
-                            ),
-                            height: 210,
-                            child: new Stack(
-                                fit: StackFit.expand,
+                            width: 32,
+                            margin: EdgeInsets.only(right: 10),
+                            child: new Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: new List<Widget> {
-                                    Image.network(
-                                        model.background,
-                                        fit: BoxFit.cover
-                                    ),
-                                    new Container(
-                                        decoration: new BoxDecoration(
-                                            CColors.mask
-                                        )
-                                    ),
-                                    new Flex(
-                                        Axis.vertical,
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: new List<Widget> {
-                                            new Padding(
-                                                padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
-                                                child: new Text(
-                                                    model.title,
-                                                    maxLines: 1,
-                                                    overflow: TextOverflow.ellipsis,
-                                                    style: new TextStyle(
-                                                        fontSize: 20,
-                                                        color: CColors.text1
-                                                    )
-                                                )
-                                            ),
-                                            new Container(
-                                                height: 40,
-                                                padding: EdgeInsets.symmetric(0, 16),
-                                                child: new Row(
-                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                    children: new List<Widget> {
-                                                        new Container(
-                                                            margin: EdgeInsets.only(right: 3),
-                                                            decoration: new BoxDecoration(
-                                                                CColors.redPoint,
-                                                                borderRadius: BorderRadius.all(3)
-                                                            ),
-                                                            height: 6,
-                                                            width: 6
-                                                        ),
-                                                        new Text(
-                                                            model.participantsCount + "人正在观看",
-                                                            style: new TextStyle(
-                                                                fontSize: 13,
-                                                                color: CColors.text1
-                                                            )),
-                                                        new Flexible(child: new Container()),
-                                                        new Container(
-                                                            height: 20,
-                                                            width: 36,
-                                                            decoration: new BoxDecoration(
-                                                                model.live ? CColors.redPoint : CColors.Black
-                                                            ),
-                                                            alignment: Alignment.center,
-                                                            child: new Text(
-                                                                model.live ? "直播" : "录播",
-                                                                style: new TextStyle(
-                                                                    fontSize: 12,
-                                                                    color: CColors.text1
-                                                                )
-                                                            )
-                                                        )
-                                                    }
-                                                )
-                                            )
-                                        }
-                                    )
+                                    new Text(time.Day.ToString(), style: new TextStyle(height: 1.33f,
+                                        fontSize: 24,
+                                        fontFamily: "DINPro-Bold",
+                                        color: CColors.secondaryPink)),
+                                    new Text($"{time.Month.ToString()}月", style: CTextStyle.PSmall)
                                 }
                             )
                         ),
+
+                        //content
                         new Container(
-                            color: CColors.background2,
-                            height: 66,
-                            padding: EdgeInsets.fromLTRB(16, 10, 16, 0),
-                            child: new Row(
+                            width: MediaQuery.of(context).size.width - 196,
+                            margin: EdgeInsets.only(right: 8),
+                            child: new Column(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: new List<Widget> {
                                     new Container(
-                                        margin: EdgeInsets.only(right: 10),
-                                        decoration: new BoxDecoration(
-                                            CColors.White
-                                        ),
-                                        height: 36,
-                                        width: 36,
-                                        child: Image.network(
-                                            model.user.avatar,
-                                            fit: BoxFit.cover
-                                        )
+                                        child: new Text(_model.title, style: CTextStyle.PLarge, maxLines: 2)
                                     ),
-                                    new Column(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: new List<Widget> {
-                                            new Container(height: 5),
-                                            new Text(
-                                                model.user.username,
-                                                style: new TextStyle(
-                                                    fontSize: 13,
-                                                    color: CColors.text1
-                                                )
-                                            ),
-                                            new Container(height: 5),
-                                            new Text(
-                                                "5天前发布",
-                                                style: new TextStyle(
-                                                    fontSize: 13,
-                                                    color: CColors.text2
+
+                                    new Text(
+                                        _model.live ? $"20:00 · {_model.participantsCount}人已预订" : "20:00 · 旧金山Unity大厦",
+                                        style: CTextStyle.PSmall)
+                                }
+                            )
+                        ),
+                        //pic
+                        new ClipRRect(
+                            borderRadius: BorderRadius.all(0),
+                            child: new Container(
+                                width: 114,
+                                height: 76,
+                                child: new Stack(
+                                    children: new List<Widget> {
+                                        new Container(
+                                            width: 114,
+                                            height: 76,
+                                            child: Image.network(_model.background, fit: BoxFit.fill)
+                                        ),
+                                        new Positioned(
+                                            bottom: 0,
+                                            right: 0,
+                                            child: new Container(
+                                                width: 41,
+                                                height: 24,
+                                                color: _model.live ? CColors.PrimaryBlue : CColors.secondaryPink,
+                                                alignment: Alignment.center,
+                                                child: new Text(
+                                                    _model.live ? "线上" : "线下",
+                                                    style: new TextStyle(
+//                                                        height: 1.67f,
+                                                        fontSize: 12,
+                                                        fontFamily: "PingFang-Regular",
+                                                        color: CColors.White
+                                                    ),
+                                                    textAlign: TextAlign.center
                                                 )
                                             )
-                                        }
-                                    ),
-                                    new Flexible(child: new Container()),
-                                    new Icon(
-                                        Icons.more_vert,
-                                        size: 28,
-                                        color: CColors.icon2
-                                    )
-                                }
+                                        )
+                                    }
+                                )
                             )
                         )
                     }
                 )
             );
             return new GestureDetector(
-                onTap: () => {
-                    StoreProvider.store.Dispatch(new NavigatorToLiveAction {eventId = model.id});
-                    Navigator.pushNamed(context, "/detail");
-                },
-                child: card
+                child: card,
+                onTap: onTap
             );
         }
     }
