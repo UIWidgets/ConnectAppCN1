@@ -9,7 +9,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchEventDetailSuccessAction : BaseAction {
-        public LiveInfo liveInfo;
+        public IEvent eventObj;
     }
 
     public class ClearLiveInfoAction : BaseAction {

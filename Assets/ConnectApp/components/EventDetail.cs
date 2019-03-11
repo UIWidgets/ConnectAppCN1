@@ -12,22 +12,22 @@ using Image = Unity.UIWidgets.widgets.Image;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
-    public class LiveDetail : StatefulWidget {
-        public LiveDetail(
+    public class EventDetail : StatefulWidget {
+        public EventDetail(
             Key key = null,
-            LiveInfo liveInfo = null
+            IEvent eventObj = null
         ) : base(key) {
-            this.liveInfo = liveInfo;
+            this.eventObj = eventObj;
         }
 
-        public readonly LiveInfo liveInfo;
+        public readonly IEvent eventObj;
 
         public override State createState() {
-            return new _LiveDetailState();
+            return new _EventDetailState();
         }
     }
 
-    internal class _LiveDetailState : State<LiveDetail> {
+    internal class _EventDetailState : State<EventDetail> {
         public override Widget build(BuildContext context) {
             return new Container(child: _content());
         }
@@ -46,19 +46,19 @@ namespace ConnectApp.components {
         }
 
         private Widget _contentHead() {
-            var liveInfo = widget.liveInfo;
+            var eventObj = widget.eventObj;
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
                         new Text(
-                            liveInfo.title,
+                            eventObj.title,
                             style:CTextStyle.H3
                         ),
                         new Container(
                             margin:EdgeInsets.only(top:8),
-                            child:new Text($"阅读 {liveInfo.participantsCount} · {DateConvert.DateStringFromNow(liveInfo.createdTime)}",style:CTextStyle.PSmall)
+                            child:new Text($"阅读 {eventObj.participantsCount} · {DateConvert.DateStringFromNow(eventObj.createdTime)}",style:CTextStyle.PSmall)
                         ),
                         new Container(
                             margin:EdgeInsets.only(top:24,bottom:24),
@@ -74,7 +74,7 @@ namespace ConnectApp.components {
                                                 height: 32,
                                                 width: 32,
                                                 child: Image.network(
-                                                    liveInfo.user.avatar,
+                                                    eventObj.user.avatar,
                                                     fit: BoxFit.cover
                                                 )
                                             )
@@ -88,12 +88,12 @@ namespace ConnectApp.components {
                                         children: new List<Widget> {
                                             new Container(height: 5),
                                             new Text(
-                                                liveInfo.user.fullName,
+                                                eventObj.user.fullName,
                                                 style: CTextStyle.PRegular
                                             ),
                                             new Container(height: 5),
                                             new Text(
-                                                DateConvert.DateStringFromNow(liveInfo.createdTime),
+                                                DateConvert.DateStringFromNow(eventObj.createdTime),
                                                 style: CTextStyle.PSmall
                                             )
                                         }
@@ -107,22 +107,22 @@ namespace ConnectApp.components {
         }
 
         private Widget _contentDetail() {
-            var liveInfo = widget.liveInfo;
+            var eventObj = widget.eventObj;
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        new EventDescription(content: liveInfo.content, contentMap: liveInfo.contentMap)
+                        new EventDescription(content: eventObj.content, contentMap: eventObj.contentMap)
                     }
                 )
             );
         }
 
         private Widget _contentLecturerList() {
-            var liveInfo = widget.liveInfo;
-            var hosts = liveInfo.hosts;
+            var eventObj = widget.eventObj;
+            var hosts = eventObj.hosts;
             if (hosts.Count == 0) return new Container();
             var hostItems = new List<Widget>();
             hosts.ForEach(host => { hostItems.Add(_Lecture(host)); });

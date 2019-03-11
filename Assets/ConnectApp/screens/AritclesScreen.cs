@@ -88,7 +88,7 @@ namespace ConnectApp.screens {
                     child: new Container(
                         margin: EdgeInsets.only(0, headerHeight - _offsetY, 0, 49),
                             child:new StoreConnector<AppState,ArticleState>(
-                                converter: (state, dispatch) => { return state.ArticleState; },
+                                converter: (state, dispatch) => { return state.articleState; },
                                 builder: (_context, viewModel) =>
                                 {
                                     if (viewModel.articlesLoading)
@@ -136,8 +136,8 @@ namespace ConnectApp.screens {
                 {
                     if (articlesResponse.items.Count!=0)
                     {
-                        var articleList = StoreProvider.store.state.ArticleState.ArticleList;
-                        var articleDict = StoreProvider.store.state.ArticleState.ArticleDict;
+                        var articleList = StoreProvider.store.state.articleState.articleList;
+                        var articleDict = StoreProvider.store.state.articleState.articleDict;
                         articlesResponse.items.ForEach((item) =>
                         {
                             if (!articleDict.Keys.Contains(item.id))
@@ -158,7 +158,7 @@ namespace ConnectApp.screens {
             items.ForEach((id) =>
             {
                 list.Add(new ArticleCard(
-                    StoreProvider.store.state.ArticleState.ArticleDict[id],
+                    StoreProvider.store.state.articleState.articleDict[id],
                     () =>
                     {
                         StoreProvider.store.Dispatch(new NavigatorToLiveAction {eventId = id});
