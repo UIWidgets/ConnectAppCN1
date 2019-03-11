@@ -6,11 +6,10 @@ namespace ConnectApp.models {
     [Serializable]
     public class AppState {
         public int Count { get; set; }
-        public LoginState LoginState { get; set; }
-        public ArticleState ArticleState { get; set; }
-        public List<IEvent> Events { get; set; }
-        public LiveState LiveState { get; set; }
-        public bool EventsLoading { get; set; }
+        public LoginState loginState { get; set; }
+        public ArticleState articleState { get; set; }
+        public EventState eventState { get; set; }
+        public UserState userState { get; set; }
 
         public static AppState initialState() {
 //            var xx = PlayerPrefs.GetString();
@@ -21,25 +20,26 @@ namespace ConnectApp.models {
 //            };
             return new AppState {
                 Count = PlayerPrefs.GetInt("count", 0),
-                LoginState = new LoginState {
+                loginState = new LoginState {
                     email = "ods@ods.com",
                     password = "Welcome123",
                     loginInfo = new LoginInfo(),
                     isLoggedIn = false,
                     loading = false
                 },
-                ArticleState = new ArticleState {
-                    ArticleList = new List<string>(),
-                    ArticleDict = new Dictionary<string, Article>(),
-                    ArticlesLoading = false,
-                    ArticleDetailLoading = false
+                articleState = new ArticleState {
+                    articleList = new List<string>(),
+                    articleDict = new Dictionary<string, Article>(),
+                    articlesLoading = false,
+                    articleDetailLoading = false
                 },
-                Events = new List<IEvent>(),
-                EventsLoading = false,
-                LiveState = new LiveState {
-                    loading = false,
-                    showChatWindow = false,
-                    openChatWindow = false
+                eventState = new EventState {
+                    events = new List<string>(),
+                    eventDict = new Dictionary<string, IEvent>(),
+                    eventsLoading = false
+                },
+                userState = new UserState {
+                    UserDict = new Dictionary<string, User>()
                 }
             };
         }

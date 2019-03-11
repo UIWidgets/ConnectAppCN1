@@ -40,7 +40,7 @@ namespace ConnectApp.api {
                 // Format output and resolve promise
                 var responseText = request.downloadHandler.text;
                 var articlesResponse = JsonConvert.DeserializeObject<ArticlesResponse>(responseText);
-      
+
                 if (responseText != null)
                     promise.Resolve(articlesResponse);
                 else

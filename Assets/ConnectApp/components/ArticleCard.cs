@@ -1,9 +1,6 @@
-using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
-using ConnectApp.redux;
-using ConnectApp.redux.actions;
 using ConnectApp.utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -11,7 +8,6 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.components {
     public class ArticleCard : StatelessWidget {
@@ -27,8 +23,7 @@ namespace ConnectApp.components {
         internal readonly Article article;
         private readonly GestureTapCallback onTap;
 
-        public override Widget build(BuildContext context)
-        {
+        public override Widget build(BuildContext context) {
             var card = new Container(
                 child: new Padding(
                     padding: EdgeInsets.all(16),
@@ -65,7 +60,7 @@ namespace ConnectApp.components {
                                                     borderRadius: BorderRadius.all(4),
                                                     child: new Container(
                                                         width: 99,
-                                                        child:new Container()
+                                                        child: new Container()
 //                                                        child: Image.network(article.thumbnail.url, fit: BoxFit.cover)
                                                     )
                                                 )
@@ -78,7 +73,9 @@ namespace ConnectApp.components {
                                     child: new Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: new List<Widget> {
-                                            new Text($" username · {DateConvert.DateStringFromNow(article.publishedTime)} · {article.viewCount}", style: CTextStyle.PSmall),
+                                            new Text(
+                                                $" username · {DateConvert.DateStringFromNow(article.publishedTime)} · {article.viewCount}",
+                                                style: CTextStyle.PSmall),
                                             new GestureDetector(
                                                 child: new Container(
                                                     height: 20,

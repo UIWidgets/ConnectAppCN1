@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace ConnectApp.models {
     [Serializable]
@@ -10,8 +11,12 @@ namespace ConnectApp.models {
         public int participantsCount;
         public int onlineMemberCount;
         public int recordWatchCount;
-        public string createdTime;
+        public DateTime createdTime;
         public string shortDescription;
         public bool live;
+        public string channelId;
+        public List<User> hosts;
+        public string content;
+        public Dictionary<string, ContentMap> contentMap;
     }
 }

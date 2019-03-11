@@ -74,8 +74,7 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            if (StoreProvider.store.state.Events.Count == 0)
-                StoreProvider.store.Dispatch(new FetchEventsAction {pageNumber = 1});
+            StoreProvider.store.Dispatch(new FetchEventsAction {pageNumber = 1});
             _pageController = new PageController();
             _selectedIndex = 0;
         }
@@ -103,8 +102,8 @@ namespace ConnectApp.screens {
                     child: new Container(
                         child: new StoreConnector<AppState, Dictionary<string, object>>(
                             converter: (state, dispatch) => new Dictionary<string, object> {
-                                {"loading", state.EventsLoading},
-                                {"events", state.Events}
+                                {"loading", state.eventState.eventsLoading},
+                                {"events", state.eventState.events}
                             },
                             builder: (context1, viewModel) => {
                                 var loading = (bool) viewModel["loading"];
@@ -229,21 +228,30 @@ namespace ConnectApp.screens {
             return new Container(
                 child: new StoreConnector<AppState, Dictionary<string, object>>(
                     converter: (state, dispatch) => new Dictionary<string, object> {
-                        {"loading", state.EventsLoading},
-                        {"events", state.Events}
+                        {"loading", state.eventState.eventsLoading},
+                        {"events", state.eventState.events},
+                        {"eventDict", state.eventState.eventDict}
                     },
                     builder: (context1, viewModel) => {
                         var loading = (bool) viewModel["loading"];
-                        var events = viewModel["events"] as List<IEvent>;
+                        var events = viewModel["events"] as List<string>;
+                        var eventDict = viewModel["eventDict"] as Dictionary<string, IEvent>;
                         var cardList = new List<Widget>();
+                        var eventObjs = new List<IEvent>();
+                        if (events != null && events.Count > 0)
+                            events.ForEach(eventId => {
+                                if (eventDict != null && eventDict.ContainsKey(eventId))
+                                    eventObjs.Add(eventDict[eventId]);
+                            });
                         if (!loading)
-                            events.ForEach(model => { 
+                            eventObjs.ForEach(model => {
                                 cardList.Add(new EventCard(
                                     model,
                                     () => {
                                         StoreProvider.store.Dispatch(new NavigatorToLiveAction {eventId = model.id});
                                         Navigator.pushNamed(context, "/detail");
-                                    })); });
+                                    }));
+                            });
                         else
                             cardList.Add(new Container());
 

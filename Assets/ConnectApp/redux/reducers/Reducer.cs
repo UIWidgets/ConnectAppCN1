@@ -15,72 +15,69 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case LoginChangeEmailAction action: {
-                    state.LoginState.email = action.changeText;
+                    state.loginState.email = action.changeText;
                     break;
                 }
                 case LoginChangePasswordAction action: {
-                    state.LoginState.password = action.changeText;
+                    state.loginState.password = action.changeText;
                     break;
                 }
                 case ChatWindowShowAction action: {
-                    state.LiveState.showChatWindow = action.show;
+                    state.eventState.showChatWindow = action.show;
                     break;
                 }
                 case ChatWindowStatusAction action: {
-                    state.LiveState.openChatWindow = action.status;
+                    state.eventState.openChatWindow = action.status;
                     break;
                 }
                 case NavigatorToLiveAction action: {
-                    state.LiveState.detailId = action.eventId;
+                    state.eventState.detailId = action.eventId;
                     break;
                 }
                 case ClearLiveInfoAction action: {
-                    state.LiveState.liveInfo = null;
+                    state.eventState.detailId = null;
                     break;
                 }
                 case LoginByEmailAction action: {
-                    state.LoginState.loading = true;
-                    var email = state.LoginState.email;
-                    var password = state.LoginState.password;
+                    state.loginState.loading = true;
+                    var email = state.loginState.email;
+                    var password = state.loginState.password;
                     LoginApi.LoginByEmail(email, password)
                         .Then(loginInfo => {
                             StoreProvider.store.Dispatch(new LoginByEmailSuccessAction {loginInfo = loginInfo});
                         })
                         .Catch(error => {
-                            state.LoginState.loading = false;
+                            state.loginState.loading = false;
                             Debug.Log(error);
                         });
                     break;
                 }
                 case LoginByEmailSuccessAction action: {
-                    state.LoginState.loading = false;
-                    state.LoginState.loginInfo = action.loginInfo;
-                    state.LoginState.isLoggedIn = true;
+                    state.loginState.loading = false;
+                    state.loginState.loginInfo = action.loginInfo;
+                    state.loginState.isLoggedIn = true;
                     break;
                 }
-                case FetchArticlesAction action:
-                {
-                    state.ArticleState.ArticlesLoading = true;
+                case FetchArticlesAction action: {
+                    state.articleState.articlesLoading = true;
                     ArticleApi.FetchArticles(action.pageNumber)
-                        .Then((articlesResponse) =>
-                        {
+                        .Then((articlesResponse) => {
                             var articleList = new List<string>();
                             var articleDict = new Dictionary<string, Article>();
-                            articlesResponse.items.ForEach((item) =>
-                            {
+                            articlesResponse.items.ForEach((item) => {
                                 articleList.Add(item.id);
-                                articleDict.Add(item.id,item);
+                                articleDict.Add(item.id, item);
                             });
-                            StoreProvider.store.Dispatch(new FetchArticleSuccessAction{ ArticleDict = articleDict,ArticleList = articleList});
+                            StoreProvider.store.Dispatch(new FetchArticleSuccessAction
+                                {ArticleDict = articleDict, ArticleList = articleList});
                         })
                         .Catch(error => { Debug.Log(error); });
                     break;
                 }
-                case FetchArticleSuccessAction action:
-                {
-                    state.ArticleState.ArticleList = action.ArticleList;
-                    state.ArticleState.ArticleDict = action.ArticleDict;
-                    state.ArticleState.ArticlesLoading = false;
+                case FetchArticleSuccessAction action: {
+                    state.articleState.articleList = action.ArticleList;
+                    state.articleState.articleDict = action.ArticleDict;
+                    state.articleState.articlesLoading = false;
                     break;
                 }
                 case FetchArticleDetailAction action: {
@@ -93,37 +90,41 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case FetchEventsAction action: {
-                    state.EventsLoading = true;
+                    state.eventState.eventsLoading = true;
                     EventApi.FetchEvents(action.pageNumber)
                         .Then(events => {
                             StoreProvider.store.Dispatch(new FetchEventsSuccessAction {events = events});
                         })
                         .Catch(error => {
-                            state.EventsLoading = false;
+                            state.eventState.eventsLoading = false;
                             Debug.Log(error);
                         });
                     break;
                 }
                 case FetchEventsSuccessAction action: {
-                    state.EventsLoading = false;
-                    state.Events = action.events;
+                    state.eventState.eventsLoading = false;
+                    action.events.ForEach(eventObj => {
+                        state.eventState.events.Add(eventObj.id);
+                        state.eventState.eventDict[eventObj.id] = eventObj;
+                    });
                     break;
                 }
                 case FetchEventDetailAction action: {
-                    state.LiveState.loading = true;
+                    state.eventState.eventDetailLoading = true;
                     EventApi.FetchLiveDetail(action.eventId)
-                        .Then(liveInfo => {
-                            StoreProvider.store.Dispatch(new FetchEventDetailSuccessAction {liveInfo = liveInfo});
+                        .Then(eventObj => {
+                            StoreProvider.store.Dispatch(new FetchEventDetailSuccessAction {eventObj = eventObj});
                         })
                         .Catch(error => {
-                            state.LiveState.loading = false;
+                            state.eventState.eventDetailLoading = false;
                             Debug.Log(error);
                         });
                     break;
                 }
                 case FetchEventDetailSuccessAction action: {
-                    state.LiveState.loading = false;
-                    state.LiveState.liveInfo = action.liveInfo;
+                    state.eventState.eventDetailLoading = false;
+                    state.eventState.eventDict[action.eventObj.id] = action.eventObj;
+                    state.eventState.detailId = action.eventObj.id;
                     break;
                 }
                 case FetchNotificationsAction action: {

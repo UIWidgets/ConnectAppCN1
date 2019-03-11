@@ -1,25 +1,23 @@
-using ConnectApp.constants;
-using Unity.UIWidgets.widgets;
-using Unity.UIWidgets.ui;
-using Unity.UIWidgets.animation;
-using Unity.UIWidgets.painting;
-using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.rendering;
-using System.Collections.Generic;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
-using RSG;
 using System;
+using System.Collections.Generic;
+using ConnectApp.constants;
+using RSG;
+using Unity.UIWidgets.animation;
+using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.painting;
+using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.ui;
+using Unity.UIWidgets.widgets;
+using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
-    
     public enum ActionType {
         normal,
         cancel,
         destructive
     }
-    
-    public class ActionSheetItem {
 
+    public class ActionSheetItem {
         public ActionSheetItem(
             string title,
             ActionType type = ActionType.normal,
@@ -37,7 +35,6 @@ namespace ConnectApp.components {
     }
 
     public class ActionSheet : StatelessWidget {
-
         public ActionSheet(
             Key key = null,
             string title = null,
@@ -65,11 +62,9 @@ namespace ConnectApp.components {
                 )
             );
         }
-        
+
         private static Widget _buildTitle(string title) {
-            if (title == null || title.Length <= 0) {
-                return new Container();
-            }
+            if (title == null || title.Length <= 0) return new Container();
             return new Column(
                 children: new List<Widget> {
                     new Container(
@@ -91,11 +86,9 @@ namespace ConnectApp.components {
                 }
             );
         }
-        
+
         private static Widget _buildButtons(BuildContext context, List<ActionSheetItem> items) {
-            if (items == null || items.Count <= 0) {
-                return new Container();
-            }
+            if (items == null || items.Count <= 0) return new Container();
             List<Widget> widgets = new List<Widget>();
             List<Widget> normalWidgets = new List<Widget>();
             List<Widget> destructiveWidgets = new List<Widget>();
@@ -103,12 +96,10 @@ namespace ConnectApp.components {
             items.ForEach(item => {
                 ActionType type = item.type;
                 Color titleColor = Color.fromRGBO(40, 187, 40, 1);
-                if (type == ActionType.destructive) {
-                    titleColor = Color.fromRGBO(240, 81, 60, 1);
-                }
+                if (type == ActionType.destructive) titleColor = Color.fromRGBO(240, 81, 60, 1);
 
                 Widget widget = new Column(
-                    children: new List<Widget>{
+                    children: new List<Widget> {
                         new GestureDetector(
                             onTap: () => {
                                 Navigator.pop(context);
@@ -126,7 +117,7 @@ namespace ConnectApp.components {
                                         decoration: TextDecoration.none,
                                         fontWeight: FontWeight.w400
                                     )
-                                )    
+                                )
                             )
                         ),
                         new CustomDivider(
@@ -134,13 +125,12 @@ namespace ConnectApp.components {
                         )
                     }
                 );
-                if (type == ActionType.destructive) {
+                if (type == ActionType.destructive)
                     destructiveWidgets.Add(widget);
-                } else if (type == ActionType.cancel) {
+                else if (type == ActionType.cancel)
                     cancelWidgets.Add(widget);
-                } else {
+                else
                     normalWidgets.Add(widget);
-                }
             });
             widgets.AddRange(normalWidgets);
             widgets.AddRange(destructiveWidgets);
@@ -152,7 +142,6 @@ namespace ConnectApp.components {
     }
 
     public static class ActionSheetUtils {
-        
         public static IPromise<object> showModalActionSheet(
             BuildContext context,
             Widget child
@@ -169,11 +158,11 @@ namespace ConnectApp.components {
             return Navigator.pop(context);
         }
     }
-    
+
     internal class _ModalPopupRoute : PopupRoute {
         public _ModalPopupRoute(
             WidgetBuilder builder = null,
-            string barrierLabel= "",
+            string barrierLabel = "",
             RouteSettings settings = null
         ) : base(settings) {
             this.builder = builder;
@@ -181,21 +170,21 @@ namespace ConnectApp.components {
         }
 
         private readonly WidgetBuilder builder;
-        
+
         public string barrierLabel { get; }
-        
+
         public override Color barrierColor => new Color(0x6604040F);
-        
+
         public override bool barrierDismissible => true;
 
-        public override TimeSpan transitionDuration => new TimeSpan(0,0,0,0,335);
+        public override TimeSpan transitionDuration => new TimeSpan(0, 0, 0, 0, 335);
 
         private AnimationController _animationController;
-        
+
         private Animation<float> _animation;
 
         private Tween<Offset> _offsetTween;
-        
+
         public override Animation<float> createAnimation() {
             D.assert(_animation == null);
             _animation = new CurvedAnimation(
@@ -210,11 +199,13 @@ namespace ConnectApp.components {
             return _animation;
         }
 
-        public override Widget buildPage(BuildContext context, Animation<float> animation, Animation<float> secondaryAnimation) {
+        public override Widget buildPage(BuildContext context, Animation<float> animation,
+            Animation<float> secondaryAnimation) {
             return builder(context);
         }
-        
-        public override Widget buildTransitions(BuildContext context, Animation<float> animation, Animation<float> secondaryAnimation, Widget child) {
+
+        public override Widget buildTransitions(BuildContext context, Animation<float> animation,
+            Animation<float> secondaryAnimation, Widget child) {
             return new Align(
                 alignment: Alignment.bottomCenter,
                 child: new FractionalTranslation(
