@@ -35,7 +35,8 @@ namespace ConnectApp.canvas {
                     {"/", context => new MainScreen()},
 //                    {"/", context => new TestScreen()},
                     {"/search", context => new SearchScreen()},
-                    {"/detail", context => new DetailScreen()},
+                    {"/event-detail", context => new EventDetailScreen()},
+                    {"/article-detail", context => new ArticleDetailScreen()},
                     {"/mine", context => new MineScreen()},
                     {"/setting", context => new SettingScreen()},
                     {"/login", context => new LoginScreen()},
@@ -45,7 +46,7 @@ namespace ConnectApp.canvas {
 
         protected static Dictionary<string, WidgetBuilder> fullScreenRoutes => new Dictionary<string, WidgetBuilder> {
             {"/login", context => new LoginScreen()},
-            {"/wechat-unity", context => new DetailScreen()}
+            {"/wechat-unity", context => new EventDetailScreen()}
         };
 
         protected static PageRouteFactory pageRouteBuilder {

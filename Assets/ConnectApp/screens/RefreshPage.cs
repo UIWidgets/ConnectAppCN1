@@ -24,36 +24,14 @@ namespace ConnectApp.screens {
         };
 
         private Promise onFooterRefresh() {
-            var promise = new Promise((resolve, reject) => {
-                Window.instance.run(new TimeSpan(0, 0, 0, 1), () => {
-                    setState(() => { });
-                    if (true) {
-                        resolve();
-                    }
-                    else {
-                        Exception exception = new Exception("hahhahah");
-                        reject(exception);
-                    }
-                });
-            }, true);
+            var promise = new Promise();
 
             return promise;
         }
 
 
         private Promise onHeaderRefresh() {
-            var promise = new Promise((resolve, reject) => {
-                Window.instance.run(new TimeSpan(0, 0, 0, 1), () => {
-                    setState(() => { });
-                    if (true) {
-                        resolve();
-                    }
-                    else {
-                        Exception exception = new Exception("hahhahah");
-                        reject(exception);
-                    }
-                });
-            }, true);
+            var promise = new Promise();
 
             return promise;
         }

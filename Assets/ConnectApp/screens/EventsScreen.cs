@@ -209,8 +209,8 @@ namespace ConnectApp.screens {
                                 cardList.Add(new EventCard(
                                     model,
                                     () => {
-                                        StoreProvider.store.Dispatch(new NavigatorToLiveAction {eventId = model.id});
-                                        Navigator.pushNamed(context, "/detail");
+                                        StoreProvider.store.Dispatch(new NavigatorToLiveAction() {eventId = model.id});
+                                        Navigator.pushNamed(context, "/event-detail");
                                     }));
                             });
                         else

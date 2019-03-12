@@ -34,6 +34,10 @@ namespace ConnectApp.redux.reducers {
                     state.eventState.detailId = action.eventId;
                     break;
                 }
+                case NavigatorToArticleDetailAction action: {
+                    state.articleState.detailId = action.detailId;
+                    break;
+                }
                 case ClearEventDetailAction action: {
                     state.eventState.detailId = null;
                     break;
@@ -80,13 +84,24 @@ namespace ConnectApp.redux.reducers {
                     state.articleState.articlesLoading = false;
                     break;
                 }
-                case FetchArticleDetailAction action: {
+                case FetchArticleDetailAction action:
+                {
+                    state.articleState.articleDetailLoading = true;
                     ArticleApi.FetchArticleDetail(action.articleId)
-                        .Then(() => { StoreProvider.store.Dispatch(new FetchArticleDetailSuccessAction()); })
+                        .Then((articleDetailResponse) =>
+                        {
+                            StoreProvider.store.Dispatch(new FetchArticleDetailSuccessAction()
+                            {
+                                articleDetail = articleDetailResponse.project
+                            });
+                        })
                         .Catch(error => { Debug.Log(error); });
                     break;
                 }
-                case FetchArticleDetailSuccessAction action: {
+                case FetchArticleDetailSuccessAction action:
+                {
+                    state.articleState.articleDetailLoading = false;
+                    state.articleState.articleDetail = action.articleDetail;
                     break;
                 }
                 case LikeArticleAction action: {
