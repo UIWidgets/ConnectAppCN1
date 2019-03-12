@@ -12,7 +12,9 @@ namespace ConnectApp.screens
 {
     public class ArticleDetailScreen : StatefulWidget
     {
-        public ArticleDetailScreen(Key key = null) : base(key)
+        public ArticleDetailScreen(
+            Key key = null
+        ) : base(key)
         {
             
         }
@@ -24,7 +26,7 @@ namespace ConnectApp.screens
         
     }
 
-    public class _ArticleDetailScreenState : State<ArticleDetailScreen>
+    internal class _ArticleDetailScreenState : State<ArticleDetailScreen>
     {
         public override void initState()
         {
@@ -37,18 +39,18 @@ namespace ConnectApp.screens
         {
             return new StoreConnector<AppState, Dictionary<string, object>>(
                 converter: (state, dispatcher) => new Dictionary<string, object> {
-                    {"detailId", state.articleState.detailId},
                     {"articleDetail", state.articleState.articleDetail},
                 },
                 builder: (context1, viewModel) => {
-                    var detailId = (string) viewModel["detailId"];
                     var articleDetail = (ArticleDetail) viewModel["articleDetail"];
                     if (StoreProvider.store.state.articleState.articleDetailLoading)
+                    {
                         return new Container(
                             color: CColors.White,
                             child: new Container(child: new CustomActivityIndicator(radius: 16))
-                        );
-                    else if (articleDetail == null) return new Container();
+                        ); 
+                    }
+                    if (articleDetail == null) return new Container();
                     return new Container(
                         color: CColors.White,
                         child: new Stack(

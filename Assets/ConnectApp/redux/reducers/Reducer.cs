@@ -86,7 +86,7 @@ namespace ConnectApp.redux.reducers {
                 }
                 case FetchArticleDetailAction action:
                 {
-                    state.articleState.articlesLoading = true;
+                    state.articleState.articleDetailLoading = true;
                     ArticleApi.FetchArticleDetail(action.articleId)
                         .Then((articleDetailResponse) =>
                         {
