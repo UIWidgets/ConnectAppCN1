@@ -30,54 +30,11 @@ namespace ConnectApp.screens {
 
         private float _offsetY = 0;
 
-        private Widget _buildHeader(BuildContext context) {
-            return new Container(
-                padding: EdgeInsets.only(16, right: 8),
-                height: headerHeight - _offsetY,
-                child: new Row(
-                    children: new List<Widget> {
-                        new Flexible(
-                            flex: 1,
-                            fit: FlexFit.tight,
-                            child: new Text(
-                                "Today",
-                                style: new TextStyle(
-                                    fontSize: 34 / headerHeight * (headerHeight - _offsetY),
-                                    color: CColors.White
-                                )
-                            )),
-                        new CustomButton(
-                            padding: EdgeInsets.symmetric(horizontal: 8),
-                            onPressed: () => {
-//                                StoreProvider.store.Dispatch(new ChangeEmailAction {email = "ods@ods.com"});
-                                Navigator.pushNamed(context, "/mine");
-                            },
-                            child: new Icon(
-                                Icons.notifications,
-                                size: 28,
-                                color: CColors.icon2
-                            )
-                        ),
-                        new CustomButton(
-                            padding: EdgeInsets.only(8, right: 16),
-                            onPressed: () => { Navigator.pushNamed(context, "/login"); },
-                            child: new Icon(
-                                Icons.account_circle,
-                                size: 28,
-                                color: CColors.icon2
-                            )
-                        )
-                    }
-                )
-            );
-        }
 
         public override void initState() {
             base.initState();
-            if (StoreProvider.store.state.eventState.events.Count==0)
-            {
+            if (StoreProvider.store.state.eventState.events.Count == 0)
                 StoreProvider.store.Dispatch(new FetchEventsAction {pageNumber = 1});
-            }
             _pageController = new PageController();
             _selectedIndex = 0;
         }
@@ -131,26 +88,27 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
-                child: new Stack(
+                child: new Column(
                     children: new List<Widget> {
-                        new Container(
-                            padding: EdgeInsets.only(0, 140, 0, 49),
-                            child: new Column(
-                                children: new List<Widget> {
-                                    buildSelectView(),
-                                    contentView()
-                                }
-                            )
+                        new CustomNavigationBar(
+                            new Text("活动", style: CTextStyle.H2),
+                            new List<Widget> {
+                                new CustomButton(
+                                    onPressed: () => { Navigator.pushNamed(context, "/search"); },
+                                    child: new Container(
+                                        child: new Icon(
+                                            Icons.search,
+                                            size: 28,
+                                            color: Color.fromRGBO(181, 181, 181, 0.8f)
+                                        )
+                                    )
+                                )
+                            },
+                            CColors.White,
+                            _offsetY
                         ),
-                        new Positioned(
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            child: new CustomNavigationBar(new Text("活动", style: CTextStyle.H2), new List<Widget> {
-                                new Container(child: new Icon(Icons.search, null, 28,
-                                    Color.fromRGBO(255, 255, 255, 0.8f)))
-                            }, CColors.White, _offsetY)
-                        )
+                        buildSelectView(),
+                        buildContentView()
                     }
                 )
             );
@@ -267,13 +225,14 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget contentView() {
+        private Widget buildContentView() {
             return new Flexible(
                 child: new Container(
+                    padding: EdgeInsets.only(bottom: 49),
                     child: new PageView(
                         physics: new BouncingScrollPhysics(),
                         controller: _pageController,
-                        onPageChanged: (int index) => { setState(() => { _selectedIndex = index; }); },
+                        onPageChanged: index => { setState(() => { _selectedIndex = index; }); },
                         children: new List<Widget> {
                             mineList(), mineList()
                         }

@@ -59,7 +59,8 @@ namespace ConnectApp.screens {
                                                         new CustomButton(
                                                             onPressed: () => {
                                                                 Navigator.pop(context);
-                                                                StoreProvider.store.Dispatch(new ClearLiveInfoAction());
+                                                                StoreProvider.store.Dispatch(
+                                                                    new ClearEventDetailAction());
                                                             },
                                                             child: new Icon(
                                                                 Icons.arrow_back,
@@ -299,13 +300,13 @@ namespace ConnectApp.screens {
                 }
             );
         }
-        
-        private Widget _navigationBar(BuildContext context ) {
+
+        private Widget _navigationBar(BuildContext context) {
             return new CustomNavigationBar(
                 new GestureDetector(
                     onTap: () => {
                         Navigator.pop(context);
-                        StoreProvider.store.Dispatch(new ClearLiveInfoAction());
+                        StoreProvider.store.Dispatch(new ClearEventDetailAction());
                     },
                     child: new Icon(Icons.arrow_back, size: 28, color: CColors.icon3)
                 ), new List<Widget> {
@@ -359,16 +360,16 @@ namespace ConnectApp.screens {
                                     }
                                 ),
                                 new Positioned(
-                                    bottom:0,
-                                    left:0,
-                                    right:0,
-                                    child:new ArticleTabBar(
+                                    bottom: 0,
+                                    left: 0,
+                                    right: 0,
+                                    child: new ArticleTabBar(
                                         commentCallback: () => { },
                                         favorCallback: () => { },
                                         bookmarkCallback: () => { },
                                         shareCallback: () => { }
                                     )
-                                )   
+                                )
 //                                !showChatWindow ? _chatWindow() : _joinBar(eventObj)
                             }
                         )

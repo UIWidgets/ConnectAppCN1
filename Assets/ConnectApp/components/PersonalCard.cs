@@ -39,17 +39,21 @@ namespace ConnectApp.components {
                                             margin: EdgeInsets.only(right: 12),
                                             height: 24,
                                             width: 24,
-                                            child: new Icon(personalItem.icon, null, 20, CColors.TextSecondary)
+                                            child: new Icon(personalItem.icon, size: 24, color: CColors.TextSecondary)
                                         ),
-//                                        new Text(widget.personalItem.title,style:CTextStyle.PLarge),
-                                        new Text(personalItem.title,
-                                            style: new TextStyle(fontSize: 16, height: 1.5f,
+                                        new Text(
+                                            personalItem.title,
+                                            style: new TextStyle(
+                                                fontSize: 16,
                                                 fontWeight: FontWeight.w400,
-                                                color: CColors.TextBody))
+                                                fontFamily: "PingFang-Regular",
+                                                color: CColors.TextBody
+                                            )
+                                        )
                                     }
                                 )
                             ),
-                            new Icon(Icons.chevron_right, null, 24, Color.fromRGBO(199, 203, 207, 1))
+                            new Icon(Icons.chevron_right, size: 24, color: Color.fromRGBO(199, 203, 207, 1))
                         }
                     )
                 )

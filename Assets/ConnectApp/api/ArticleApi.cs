@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Text;
 using ConnectApp.constants;
 using ConnectApp.models;
@@ -79,49 +78,18 @@ namespace ConnectApp.api {
             }
         }
 
-        public static Promise FetchArticleCommentFirst(string channelId) {
+        public static Promise FetchArticleComments(string channelId, string currOldestMessageId) {
             // We return a promise instantly and start the coroutine to do the real work
             var promise = new Promise();
-            Window.instance.startCoroutine(_FetchArticleCommentFirst(promise, channelId));
+            Window.instance.startCoroutine(_FetchArticleComments(promise, channelId, currOldestMessageId));
             return promise;
         }
 
-        private static IEnumerator _FetchArticleCommentFirst(Promise promise, string channelId) {
-            var request = UnityWebRequest.Get(IApi.apiAddress + "/api/channels/" + channelId + "/messages?limit=5");
-            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
-#pragma warning disable 618
-            yield return request.Send();
-#pragma warning restore 618
-            if (request.isNetworkError) {
-                // something went wrong
-                promise.Reject(new Exception(request.error));
-            }
-            else if (request.responseCode != 200) {
-                // or the response is not OK
-                promise.Reject(new Exception(request.downloadHandler.text));
-            }
-            else {
-                // Format output and resolve promise
-                var responseText = request.downloadHandler.text;
-                Debug.Log(responseText);
-                if (responseText != null)
-                    promise.Resolve();
-                else
-                    promise.Reject(new Exception("No user under this username found!"));
-            }
-        }
-
-        public static Promise FetchArticleCommentMore(string channelId, string currOldestMessageId) {
-            // We return a promise instantly and start the coroutine to do the real work
-            var promise = new Promise();
-            Window.instance.startCoroutine(_FetchArticleCommentMore(promise, channelId, currOldestMessageId));
-            return promise;
-        }
-
-        private static IEnumerator _FetchArticleCommentMore(Promise promise, string channelId,
-            string currOldestMessageId) {
-            var request = UnityWebRequest.Get(IApi.apiAddress + "/api/channels/" + channelId +
-                                              "/messages?limit=5&before=" + currOldestMessageId);
+        private static IEnumerator
+            _FetchArticleComments(Promise promise, string channelId, string currOldestMessageId) {
+            var url = IApi.apiAddress + "/api/channels/" + channelId + "/messages?limit=5";
+            if (currOldestMessageId.Length > 0) url += "&before=" + currOldestMessageId;
+            var request = UnityWebRequest.Get(url);
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
 #pragma warning disable 618
             yield return request.Send();
@@ -162,6 +130,7 @@ namespace ConnectApp.api {
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             request.SetRequestHeader("Content-Type", "application/json");
 #pragma warning disable 618
             yield return request.Send();
@@ -185,24 +154,107 @@ namespace ConnectApp.api {
             }
         }
 
-        public static Promise ReportArticle(string articleId, string reportContext) {
+        public static Promise LikeComment(string commentId) {
             // We return a promise instantly and start the coroutine to do the real work
             var promise = new Promise();
-            Window.instance.startCoroutine(_ReportArticle(promise, articleId, reportContext));
+            Window.instance.startCoroutine(_LikeComment(promise, commentId));
             return promise;
         }
 
-        private static IEnumerator _ReportArticle(Promise promise, string articleId, string reportContext) {
-            var para = new ReportArticleParameter {
-                itemType = "project",
-                itemId = articleId,
-                reasons = new List<string> {"other:" + reportContext}
+        private static IEnumerator _LikeComment(Promise promise, string commentId) {
+            var para = new ReactionParameter {
+                reactionType = "like"
             };
             var body = JsonConvert.SerializeObject(para);
-            var request = new UnityWebRequest(IApi.apiAddress + "/api/report", "POST");
+            var request = new UnityWebRequest(IApi.apiAddress + "/api/messages/" + commentId + "/addReaction", "POST");
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
+            request.SetRequestHeader("Content-Type", "application/json");
+#pragma warning disable 618
+            yield return request.Send();
+#pragma warning restore 618
+
+            if (request.isNetworkError) {
+                // something went wrong
+                promise.Reject(new Exception(request.error));
+            }
+            else if (request.responseCode != 200) {
+                // or the response is not OK
+                promise.Reject(new Exception(request.downloadHandler.text));
+            }
+            else {
+                var json = request.downloadHandler.text;
+                Debug.Log(json);
+                if (json != null)
+                    promise.Resolve();
+                else
+                    promise.Reject(new Exception("No user under this username found!"));
+            }
+        }
+
+        public static Promise RemoveLikeComment(string commentId) {
+            // We return a promise instantly and start the coroutine to do the real work
+            var promise = new Promise();
+            Window.instance.startCoroutine(_RemoveLikeComment(promise, commentId));
+            return promise;
+        }
+
+        private static IEnumerator _RemoveLikeComment(Promise promise, string commentId) {
+            var para = new ReactionParameter {
+                reactionType = "like"
+            };
+            var body = JsonConvert.SerializeObject(para);
+            var request =
+                new UnityWebRequest(IApi.apiAddress + "/api/messages/" + commentId + "/removeReaction", "POST");
+            var bodyRaw = Encoding.UTF8.GetBytes(body);
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
+            request.SetRequestHeader("Content-Type", "application/json");
+#pragma warning disable 618
+            yield return request.Send();
+#pragma warning restore 618
+
+            if (request.isNetworkError) {
+                // something went wrong
+                promise.Reject(new Exception(request.error));
+            }
+            else if (request.responseCode != 200) {
+                // or the response is not OK
+                promise.Reject(new Exception(request.downloadHandler.text));
+            }
+            else {
+                var json = request.downloadHandler.text;
+                Debug.Log(json);
+                if (json != null)
+                    promise.Resolve();
+                else
+                    promise.Reject(new Exception("No user under this username found!"));
+            }
+        }
+
+        public static Promise SendComment(string channelId, string content, string nonce, string parentMessageId = "") {
+            // We return a promise instantly and start the coroutine to do the real work
+            var promise = new Promise();
+            Window.instance.startCoroutine(_SendComment(promise, channelId, content, nonce, parentMessageId));
+            return promise;
+        }
+
+        private static IEnumerator _SendComment(Promise promise, string channelId, string content, string nonce,
+            string parentMessageId = "") {
+            var para = new SendCommentParameter {
+                content = content,
+                parentMessageId = parentMessageId,
+                nonce = nonce
+            };
+            var body = JsonConvert.SerializeObject(para);
+            var request = new UnityWebRequest(IApi.apiAddress + "/api/channels/" + channelId + "/messages", "POST");
+            var bodyRaw = Encoding.UTF8.GetBytes(body);
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             request.SetRequestHeader("Content-Type", "application/json");
 #pragma warning disable 618
             yield return request.Send();

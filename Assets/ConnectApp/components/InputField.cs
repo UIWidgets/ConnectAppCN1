@@ -23,7 +23,7 @@ namespace ConnectApp.components {
             string labelText = null,
             TextStyle labelStyle = null,
             Color cursorColor = null,
-            double cursorWidth = 2.0,
+            float height = 44.0f,
             ValueChanged<string> onChanged = null,
             ValueChanged<string> onSubmitted = null,
             EdgeInsets scrollPadding = null
@@ -41,7 +41,7 @@ namespace ConnectApp.components {
             this.hintStyle = hintStyle;
             this.labelText = labelText;
             this.labelStyle = labelStyle;
-            this.cursorWidth = cursorWidth;
+            this.height = height;
             this.cursorColor = cursorColor;
             this.onChanged = onChanged;
             this.onSubmitted = onSubmitted;
@@ -61,7 +61,7 @@ namespace ConnectApp.components {
         public readonly string labelText;
         public readonly TextStyle labelStyle;
         public readonly Color cursorColor;
-        public readonly double cursorWidth;
+        public readonly float height;
         public readonly ValueChanged<string> onChanged;
         public readonly ValueChanged<string> onSubmitted;
 
@@ -101,12 +101,13 @@ namespace ConnectApp.components {
         }
 
         private Widget _buildLabelText() {
-            if (widget.hintText == null || !_isHintTextHidden) return new Container(height: 20);
+            if (widget.labelText == null) return new Container();
+            if (!_isHintTextHidden) return new Container(height: 20);
 
             return new Container(
                 height: 20,
                 alignment: Alignment.bottomLeft,
-                child: new Text(widget.hintText,
+                child: new Text(widget.labelText,
                     style: widget.labelStyle
                 )
             );
@@ -123,8 +124,11 @@ namespace ConnectApp.components {
                         var focusNode = widget.focusNode ?? _focusNode;
                         FocusScope.of(context).requestFocus(focusNode);
                     },
-                    child: new Text(widget.hintText,
-                        style: widget.hintStyle
+                    child: new Container(
+                        alignment: Alignment.center,
+                        child: new Text(widget.hintText,
+                            style: widget.hintStyle
+                        )
                     )
                 )
             );
@@ -136,21 +140,28 @@ namespace ConnectApp.components {
                     var focusNode = widget.focusNode ?? _focusNode;
                     FocusScope.of(context).requestFocus(focusNode);
                 },
-                child: new EditableText(
-                    maxLines: widget.maxLines,
-                    controller: widget.controller ?? _textEditingController,
-                    focusNode: widget.focusNode ?? _focusNode,
-                    autofocus: widget.autofocus,
-                    obscureText: widget.obscureText,
-                    style: widget.style,
-                    cursorColor: widget.cursorColor,
-                    onChanged: text => {
-                        var isTextEmpty = text.Length > 0;
-                        if (_isHintTextHidden != isTextEmpty)
-                            setState(() => { _isHintTextHidden = isTextEmpty; });
-                        widget.onChanged(text);
-                    },
-                    onSubmitted: widget.onSubmitted
+                child: new Container(
+                    height: widget.height,
+                    alignment: Alignment.center,
+                    child: new EditableText(
+                        maxLines: widget.maxLines,
+                        controller: widget.controller ?? _textEditingController,
+                        focusNode: widget.focusNode ?? _focusNode,
+                        autofocus: widget.autofocus,
+                        obscureText: widget.obscureText,
+                        style: widget.style,
+                        cursorColor: widget.cursorColor,
+                        autocorrect: widget.autocorrect,
+                        textAlign: widget.textAlign,
+                        scrollPadding: widget.scrollPadding,
+                        onChanged: text => {
+                            var isTextEmpty = text.Length > 0;
+                            if (_isHintTextHidden != isTextEmpty)
+                                setState(() => { _isHintTextHidden = isTextEmpty; });
+                            widget.onChanged(text);
+                        },
+                        onSubmitted: widget.onSubmitted
+                    )
                 )
             );
         }
