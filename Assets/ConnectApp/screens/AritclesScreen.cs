@@ -31,13 +31,12 @@ namespace ConnectApp.screens {
     public class _ArticleScreenState : State<ArticleScreen> {
         private const float headerHeight = 140;
         private float _offsetY = 0;
-        private List<Article> _articles = new List<Article>();
         private int pageNumber = 1;
 
         public override void initState() {
             base.initState();
 
-            if (_articles.Count == 0) StoreProvider.store.Dispatch(new FetchArticlesAction {pageNumber = pageNumber});
+            if (StoreProvider.store.state.articleState.articleList.Count == 0) StoreProvider.store.Dispatch(new FetchArticlesAction {pageNumber = pageNumber});
         }
 
         public override Widget build(BuildContext context) {
@@ -143,7 +142,7 @@ namespace ConnectApp.screens {
                     () => {
                         StoreProvider.store.Dispatch(new NavigatorToLiveAction {eventId = id});
                         Navigator.pushNamed(context, "/detail");
-                    }));
+                    },Key.key(id)));
             });
             return list;
         }

@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -31,10 +33,16 @@ namespace ConnectApp.components {
 
     public class CustomTabBarState : State<CustomTabBar> {
         private PageController _pageController;
-        private int _selectedIndex;
+        private int _selectedIndex = 0;
 
         private const int KTabBarHeight = 49;
         private Widget _body;
+
+        public override void initState()
+        {
+            base.initState();
+            _pageController = new PageController(initialPage:_selectedIndex);
+        }
 
         public override Widget build(BuildContext context) {
             return new Container(
@@ -57,7 +65,12 @@ namespace ConnectApp.components {
                 child: new Container(
                     height: Screen.safeArea.height,
                     color: CColors.background1,
-                    child: widget.controllers[_selectedIndex]
+                    child: new PageView(
+                        physics:new NeverScrollableScrollPhysics(),
+                        children: widget.controllers,
+                        controller:_pageController,
+                        onPageChanged:onPageChanged
+                    )
                 )
             );
         }
@@ -85,7 +98,11 @@ namespace ConnectApp.components {
                         children: new List<Widget> {
                             new GestureDetector(
                                 onTap: () => {
-                                    if (_selectedIndex != item.index) setState(() => _selectedIndex = item.index);
+                                    if (_selectedIndex != item.index) setState(() =>
+                                    {
+                                        _selectedIndex = item.index;
+                                        _pageController.animateToPage(item.index,new TimeSpan(0,0,0,0), Curves.ease);
+                                    });
                                 },
                                 child: new Container(
                                     decoration: new BoxDecoration(
@@ -120,6 +137,13 @@ namespace ConnectApp.components {
             });
 
             return children;
+        }
+        
+        void onPageChanged(int page) {
+            setState(() =>
+            {
+                this._selectedIndex = page;
+            });
         }
     }
 }

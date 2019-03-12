@@ -74,7 +74,10 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            StoreProvider.store.Dispatch(new FetchEventsAction {pageNumber = 1});
+            if (StoreProvider.store.state.eventState.events.Count==0)
+            {
+                StoreProvider.store.Dispatch(new FetchEventsAction {pageNumber = 1});
+            }
             _pageController = new PageController();
             _selectedIndex = 0;
         }

@@ -24,6 +24,11 @@ namespace ConnectApp.constants {
         public static readonly IconData eye = new IconData(0xe417, "Material Icons");
         public static readonly IconData arrow_downward = new IconData(0xe5db, "Material Icons");
         public static readonly IconData arrow_upward = new IconData(0xe5d8, "Material Icons");
+        public static readonly IconData bookmark = new IconData(0xe866, "Material Icons");
+        public static readonly IconData favorite = new IconData(0xe87d, "Material Icons");
+        public static readonly IconData favorite_border = new IconData(0xe87e, "Material Icons");
+        public static readonly IconData comment = new IconData(0xe0b9, "Material Icons");
+
     }
 
     public static class CTextStyle {
