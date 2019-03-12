@@ -38,7 +38,7 @@ namespace ConnectApp.components {
 
         private List<Widget> map(EventContent content) {
             var widgets = new List<Widget>();
-            ///*
+            
             var blocks = content.blocks;
             for (var i = 0; i < blocks.Count; i++) {
                 var block = blocks[i];
@@ -133,7 +133,7 @@ namespace ConnectApp.components {
                     text,
                     style: new TextStyle(
                         color: CColors.TextBody,
-                        fontSize: 14,
+                        fontSize: 18,
                         height: 1.4f
                     )
                 )

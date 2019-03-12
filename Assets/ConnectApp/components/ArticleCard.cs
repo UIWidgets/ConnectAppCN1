@@ -8,6 +8,7 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.components {
     public class ArticleCard : StatelessWidget {
@@ -50,7 +51,7 @@ namespace ConnectApp.components {
                                             new Container(
                                                 width: MediaQuery.of(context).size.width - 139,
                                                 child: new Text(
-                                                    article.bodyPlain,
+                                                    article.subTitle,
                                                     style: CTextStyle.PRegular, maxLines: 3,
                                                     overflow: TextOverflow.ellipsis)
                                             ),
@@ -60,8 +61,7 @@ namespace ConnectApp.components {
                                                     borderRadius: BorderRadius.all(4),
                                                     child: new Container(
                                                         width: 99,
-                                                        child: new Container()
-//                                                        child: Image.network(article.thumbnail.url, fit: BoxFit.cover)
+                                                        child: Image.network(article.thumbnail.url, fit: BoxFit.cover)
                                                     )
                                                 )
                                             ),

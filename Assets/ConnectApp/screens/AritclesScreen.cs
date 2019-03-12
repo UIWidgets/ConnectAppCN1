@@ -80,16 +80,23 @@ namespace ConnectApp.screens {
                 onNotification: (ScrollNotification notification) => { return _OnNotification(context, notification); },
                 child: new Container(
                     margin: EdgeInsets.only(0, headerHeight - _offsetY, 0, 49),
-                    child: new StoreConnector<AppState, ArticleState>(
-                        converter: (state, dispatch) => { return state.articleState; },
-                        builder: (_context, viewModel) => {
-                            if (viewModel.articlesLoading) return new Container();
+                    child: new StoreConnector<AppState, Dictionary<string,object>>(
+                        converter: (state, dispatch) => new Dictionary<string, object>()
+                        {
+                            {"articlesLoading",state.articleState.articlesLoading},
+                            {"articleList",state.articleState.articleList}
+                        },
+                        builder: (_context, viewModel) =>
+                        {
+                            bool articlesLoading = (bool)viewModel["articlesLoading"];
+                            if (articlesLoading) return new Container();
+                            var articleList = (List<string>)viewModel["articleList"];
                             var refreshPage = new Refresh(
                                 onHeaderRefresh: onHeaderRefresh,
                                 onFooterRefresh: onFooterRefresh,
                                 child: new ListView(
                                     physics: new AlwaysScrollableScrollPhysics(),
-                                    children: _buildArtileCards(viewModel.articleList)
+                                    children: _buildArtileCards(context,articleList)
                                 )
                             );
                             return refreshPage;
@@ -135,15 +142,16 @@ namespace ConnectApp.screens {
                 .Catch(error => { Debug.Log(error); });
         }
 
-        private List<Widget> _buildArtileCards(List<string> items) {
+        private List<Widget> _buildArtileCards(BuildContext context,List<string> items) {
             var list = new List<Widget>();
             items.ForEach((id) => {
                 list.Add(new ArticleCard(
                     StoreProvider.store.state.articleState.articleDict[id],
                     () => {
-                        StoreProvider.store.Dispatch(new NavigatorToLiveAction {eventId = id});
-                        Navigator.pushNamed(context, "/detail");
-                    }, Key.key(id)));
+                        StoreProvider.store.Dispatch(new NavigatorToArticleDetailAction() {detailId = id});
+                        Navigator.pushNamed(context, "/article-detail");
+                    }
+                ));
             });
             return list;
         }

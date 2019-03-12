@@ -33,12 +33,15 @@ namespace ConnectApp.models {
                     articleList = new List<string>(),
                     articleDict = new Dictionary<string, Article>(),
                     articlesLoading = false,
-                    articleDetailLoading = false
+                    articleDetailLoading = false,
+                    detailId = null,
+                    articleDetail = null
                 },
                 eventState = new EventState {
                     events = new List<string>(),
                     eventDict = new Dictionary<string, IEvent>(),
-                    eventsLoading = false
+                    eventsLoading = false,
+                    detailId = null
                 },
                 userState = new UserState {
                     UserDict = new Dictionary<string, User>()
