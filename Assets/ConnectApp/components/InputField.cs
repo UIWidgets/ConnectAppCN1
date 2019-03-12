@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using ConnectApp.constants;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -130,7 +129,7 @@ namespace ConnectApp.components {
                         child: new Text(widget.hintText,
                             style: widget.hintStyle
                         )
-                    ) 
+                    )
                 )
             );
         }

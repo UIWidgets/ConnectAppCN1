@@ -36,7 +36,8 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
 
-            if (StoreProvider.store.state.articleState.articleList.Count == 0) StoreProvider.store.Dispatch(new FetchArticlesAction {pageNumber = pageNumber});
+            if (StoreProvider.store.state.articleState.articleList.Count == 0)
+                StoreProvider.store.Dispatch(new FetchArticlesAction {pageNumber = pageNumber});
         }
 
         public override Widget build(BuildContext context) {
@@ -142,7 +143,7 @@ namespace ConnectApp.screens {
                     () => {
                         StoreProvider.store.Dispatch(new NavigatorToLiveAction {eventId = id});
                         Navigator.pushNamed(context, "/detail");
-                    },Key.key(id)));
+                    }, Key.key(id)));
             });
             return list;
         }

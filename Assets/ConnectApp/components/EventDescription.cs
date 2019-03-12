@@ -106,7 +106,7 @@ namespace ConnectApp.components {
                         color: CColors.TextTitle,
                         fontSize: 24,
                         letterSpacing: 0.0f,
-                        height:32
+                        height: 32
                     )
                 )
             );
@@ -120,7 +120,7 @@ namespace ConnectApp.components {
                     style: new TextStyle(
                         color: CColors.TextTitle,
                         fontSize: 20,
-                        height:28
+                        height: 28
                     )
                 )
             );

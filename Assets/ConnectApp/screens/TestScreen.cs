@@ -3,6 +3,7 @@ using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
+using ConnectApp.utils;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
 
@@ -55,6 +56,136 @@ namespace ConnectApp.screens {
                             color: CColors.White,
                             child: new Text(
                                 "FetchArticleDetail",
+                                style: CTextStyle.H2
+                            )
+                        )
+                    ),
+                    new Container(height: 20),
+                    new GestureDetector(
+                        onTap: () => {
+                            StoreProvider.store.Dispatch(new LikeArticleAction
+                                {articleId = "59c8cdfe09091500294d1bb9"});
+                        },
+                        child: new Container(
+                            color: CColors.White,
+                            child: new Text(
+                                "LikeArticle",
+                                style: CTextStyle.H2
+                            )
+                        )
+                    ),
+                    new Container(height: 20),
+                    new GestureDetector(
+                        onTap: () => {
+                            StoreProvider.store.Dispatch(new ReportItemAction
+                                {itemId = "59c8cdfe09091500294d1bb9", itemType = "project"});
+                        },
+                        child: new Container(
+                            color: CColors.White,
+                            child: new Text(
+                                "ReportArticle",
+                                style: CTextStyle.H2
+                            )
+                        )
+                    ),
+                    new Container(height: 20),
+                    new GestureDetector(
+                        onTap: () => {
+                            StoreProvider.store.Dispatch(new FetchArticleCommentsAction
+                                {channelId = "032f7a336d800000"});
+                        },
+                        child: new Container(
+                            color: CColors.White,
+                            child: new Text(
+                                "FetchArticleCommentsFirst",
+                                style: CTextStyle.H2
+                            )
+                        )
+                    ),
+                    new Container(height: 20),
+                    new GestureDetector(
+                        onTap: () => {
+                            StoreProvider.store.Dispatch(new FetchArticleCommentsAction
+                                {channelId = "032f7a336d800000", currOldestMessageId = "0587f55b2b40c000"});
+                        },
+                        child: new Container(
+                            color: CColors.White,
+                            child: new Text(
+                                "FetchArticleCommentsMore",
+                                style: CTextStyle.H2
+                            )
+                        )
+                    ),
+                    new Container(height: 20),
+                    new GestureDetector(
+                        onTap: () => {
+                            StoreProvider.store.Dispatch(new LikeCommentAction
+                                {messageId = "05d5ffd1ed800000"});
+                        },
+                        child: new Container(
+                            color: CColors.White,
+                            child: new Text(
+                                "LikeComment",
+                                style: CTextStyle.H2
+                            )
+                        )
+                    ),
+                    new Container(height: 20),
+                    new GestureDetector(
+                        onTap: () => {
+                            StoreProvider.store.Dispatch(new RemoveLikeCommentAction
+                                {messageId = "05d5ffd1ed800000"});
+                        },
+                        child: new Container(
+                            color: CColors.White,
+                            child: new Text(
+                                "RemoveLikeComment",
+                                style: CTextStyle.H2
+                            )
+                        )
+                    ),
+                    new Container(height: 20),
+                    new GestureDetector(
+                        onTap: () => {
+                            var nonce = Snowflake.CreateNonce();
+                            StoreProvider.store.Dispatch(new SendCommentAction
+                                {channelId = "032f7a336d800000", content = "wow!", nonce = nonce});
+                        },
+                        child: new Container(
+                            color: CColors.White,
+                            child: new Text(
+                                "SendComment",
+                                style: CTextStyle.H2
+                            )
+                        )
+                    ),
+                    new Container(height: 20),
+                    new GestureDetector(
+                        onTap: () => {
+                            var nonce = Snowflake.CreateNonce();
+                            StoreProvider.store.Dispatch(new SendCommentAction {
+                                channelId = "032f7a336d800000", content = "good!", nonce = nonce,
+                                parentMessageId = "04c4adc7ed800000"
+                            });
+                        },
+                        child: new Container(
+                            color: CColors.White,
+                            child: new Text(
+                                "SendReplyComment",
+                                style: CTextStyle.H2
+                            )
+                        )
+                    ),
+                    new Container(height: 20),
+                    new GestureDetector(
+                        onTap: () => {
+                            StoreProvider.store.Dispatch(new ReportItemAction
+                                {itemId = "05d5ffd1ed800000", itemType = "comment", reportContext = "测试举报功能测试举报功能"});
+                        },
+                        child: new Container(
+                            color: CColors.White,
+                            child: new Text(
+                                "ReportComment",
                                 style: CTextStyle.H2
                             )
                         )

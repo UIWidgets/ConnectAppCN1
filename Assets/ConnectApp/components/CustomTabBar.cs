@@ -38,10 +38,9 @@ namespace ConnectApp.components {
         private const int KTabBarHeight = 49;
         private Widget _body;
 
-        public override void initState()
-        {
+        public override void initState() {
             base.initState();
-            _pageController = new PageController(initialPage:_selectedIndex);
+            _pageController = new PageController(initialPage: _selectedIndex);
         }
 
         public override Widget build(BuildContext context) {
@@ -66,10 +65,10 @@ namespace ConnectApp.components {
                     height: Screen.safeArea.height,
                     color: CColors.background1,
                     child: new PageView(
-                        physics:new NeverScrollableScrollPhysics(),
+                        physics: new NeverScrollableScrollPhysics(),
                         children: widget.controllers,
-                        controller:_pageController,
-                        onPageChanged:onPageChanged
+                        controller: _pageController,
+                        onPageChanged: onPageChanged
                     )
                 )
             );
@@ -98,11 +97,12 @@ namespace ConnectApp.components {
                         children: new List<Widget> {
                             new GestureDetector(
                                 onTap: () => {
-                                    if (_selectedIndex != item.index) setState(() =>
-                                    {
-                                        _selectedIndex = item.index;
-                                        _pageController.animateToPage(item.index,new TimeSpan(0,0,0,0), Curves.ease);
-                                    });
+                                    if (_selectedIndex != item.index)
+                                        setState(() => {
+                                            _selectedIndex = item.index;
+                                            _pageController.animateToPage(item.index, new TimeSpan(0, 0, 0, 0),
+                                                Curves.ease);
+                                        });
                                 },
                                 child: new Container(
                                     decoration: new BoxDecoration(
@@ -138,12 +138,9 @@ namespace ConnectApp.components {
 
             return children;
         }
-        
-        void onPageChanged(int page) {
-            setState(() =>
-            {
-                this._selectedIndex = page;
-            });
+
+        private void onPageChanged(int page) {
+            setState(() => { _selectedIndex = page; });
         }
     }
 }
