@@ -38,7 +38,7 @@ namespace ConnectApp.components {
                     children: new List<Widget> {
                         _contentHead(),
                         _contentDetail(),
-//                        _contentLecturerList()
+                        _contentLecturerList()
                     }
                 )
             );

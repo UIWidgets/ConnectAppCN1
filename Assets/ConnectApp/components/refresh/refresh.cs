@@ -48,8 +48,6 @@ namespace ConnectApp.components.refresh {
                 if (src != null) return physics.applyTo(src);
                 return physics;
             }
-
-            return src;
         }
 
 
@@ -172,7 +170,6 @@ namespace ConnectApp.components.refresh {
                         scrollDirection: listView.scrollDirection
                     );
                 }
-                    break;
                 case ListView listView: {
                     return ListView.custom(
                         childrenDelegate: listView.childrenDelegate,

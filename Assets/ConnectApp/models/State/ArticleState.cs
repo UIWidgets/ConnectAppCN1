@@ -9,6 +9,10 @@ namespace ConnectApp.models {
 
         public List<string> articleList { get; set; }
 
+        public string detailId { get; set; }
+        
+        public ArticleDetail articleDetail { get; set; }
+
         public Dictionary<string, Article> articleDict { get; set; }
     }
 }

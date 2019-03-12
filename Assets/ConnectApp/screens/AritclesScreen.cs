@@ -89,7 +89,7 @@ namespace ConnectApp.screens {
                                 onFooterRefresh: onFooterRefresh,
                                 child: new ListView(
                                     physics: new AlwaysScrollableScrollPhysics(),
-                                    children: _buildArtileCards(viewModel.articleList)
+                                    children: _buildArtileCards(context,viewModel.articleList)
                                 )
                             );
                             return refreshPage;
@@ -135,14 +135,14 @@ namespace ConnectApp.screens {
                 .Catch(error => { Debug.Log(error); });
         }
 
-        private List<Widget> _buildArtileCards(List<string> items) {
+        private List<Widget> _buildArtileCards(BuildContext context,List<string> items) {
             var list = new List<Widget>();
             items.ForEach((id) => {
                 list.Add(new ArticleCard(
                     StoreProvider.store.state.articleState.articleDict[id],
                     () => {
-                        StoreProvider.store.Dispatch(new NavigatorToLiveAction {eventId = id});
-                        Navigator.pushNamed(context, "/detail");
+                        StoreProvider.store.Dispatch(new NavigatorToArticleDetailAction() {detailId = id});
+                        Navigator.pushNamed(context, "/article-detail");
                     }, Key.key(id)));
             });
             return list;

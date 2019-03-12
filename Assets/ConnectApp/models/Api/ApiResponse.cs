@@ -7,4 +7,10 @@ namespace ConnectApp.models {
         public List<Article> items;
         public Dictionary<string, User> userMap;
     }
+
+    [Serializable]
+    public class ArticleDetailResponse
+    {
+        public ArticleDetail project;
+    }
 }

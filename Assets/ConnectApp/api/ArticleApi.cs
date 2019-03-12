@@ -47,14 +47,14 @@ namespace ConnectApp.api {
             }
         }
 
-        public static Promise FetchArticleDetail(string articleId) {
+        public static Promise<ArticleDetailResponse> FetchArticleDetail(string articleId) {
             // We return a promise instantly and start the coroutine to do the real work
-            var promise = new Promise();
+            var promise = new Promise<ArticleDetailResponse>();
             Window.instance.startCoroutine(_FetchArticleDetail(promise, articleId));
             return promise;
         }
 
-        private static IEnumerator _FetchArticleDetail(Promise promise, string articleId) {
+        private static IEnumerator _FetchArticleDetail(Promise<ArticleDetailResponse> promise, string articleId) {
             var request = UnityWebRequest.Get(IApi.apiAddress + "/api/p/" + articleId);
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
 #pragma warning disable 618
@@ -71,8 +71,9 @@ namespace ConnectApp.api {
             else {
                 // Format output and resolve promise
                 var responseText = request.downloadHandler.text;
+                var articleDetailResponse = JsonConvert.DeserializeObject<ArticleDetailResponse>(responseText);
                 if (responseText != null)
-                    promise.Resolve();
+                    promise.Resolve(articleDetailResponse);
                 else
                     promise.Reject(new Exception("No user under this username found!"));
             }
