@@ -31,22 +31,33 @@ namespace ConnectApp.screens {
                             converter: (state, dispatch) => $"Count: {state.Count}",
                             builder: (context1, countText) => new Text(
                                 countText,
-                                style: CTextStyle.H1
+                                style: CTextStyle.H4
                             )
                         )
                     ),
-                    new Container(height: 20),
+                    new Container(height: 10),
+                    new GestureDetector(
+                        onTap: () => { StoreProvider.store.Dispatch(new LoginByEmailAction()); },
+                        child: new Container(
+                            color: CColors.White,
+                            child: new Text(
+                                "LoginByEmail",
+                                style: CTextStyle.H4
+                            )
+                        )
+                    ),
+                    new Container(height: 10),
                     new GestureDetector(
                         onTap: () => { StoreProvider.store.Dispatch(new FetchArticlesAction()); },
                         child: new Container(
                             color: CColors.White,
                             child: new Text(
                                 "FetchArticles",
-                                style: CTextStyle.H2
+                                style: CTextStyle.H4
                             )
                         )
                     ),
-                    new Container(height: 20),
+                    new Container(height: 10),
                     new GestureDetector(
                         onTap: () => {
                             StoreProvider.store.Dispatch(new FetchArticleDetailAction
@@ -56,11 +67,11 @@ namespace ConnectApp.screens {
                             color: CColors.White,
                             child: new Text(
                                 "FetchArticleDetail",
-                                style: CTextStyle.H2
+                                style: CTextStyle.H4
                             )
                         )
                     ),
-                    new Container(height: 20),
+                    new Container(height: 10),
                     new GestureDetector(
                         onTap: () => {
                             StoreProvider.store.Dispatch(new LikeArticleAction
@@ -70,11 +81,11 @@ namespace ConnectApp.screens {
                             color: CColors.White,
                             child: new Text(
                                 "LikeArticle",
-                                style: CTextStyle.H2
+                                style: CTextStyle.H4
                             )
                         )
                     ),
-                    new Container(height: 20),
+                    new Container(height: 10),
                     new GestureDetector(
                         onTap: () => {
                             StoreProvider.store.Dispatch(new ReportItemAction
@@ -84,11 +95,11 @@ namespace ConnectApp.screens {
                             color: CColors.White,
                             child: new Text(
                                 "ReportArticle",
-                                style: CTextStyle.H2
+                                style: CTextStyle.H4
                             )
                         )
                     ),
-                    new Container(height: 20),
+                    new Container(height: 10),
                     new GestureDetector(
                         onTap: () => {
                             StoreProvider.store.Dispatch(new FetchArticleCommentsAction
@@ -98,11 +109,11 @@ namespace ConnectApp.screens {
                             color: CColors.White,
                             child: new Text(
                                 "FetchArticleCommentsFirst",
-                                style: CTextStyle.H2
+                                style: CTextStyle.H4
                             )
                         )
                     ),
-                    new Container(height: 20),
+                    new Container(height: 10),
                     new GestureDetector(
                         onTap: () => {
                             StoreProvider.store.Dispatch(new FetchArticleCommentsAction
@@ -112,11 +123,11 @@ namespace ConnectApp.screens {
                             color: CColors.White,
                             child: new Text(
                                 "FetchArticleCommentsMore",
-                                style: CTextStyle.H2
+                                style: CTextStyle.H4
                             )
                         )
                     ),
-                    new Container(height: 20),
+                    new Container(height: 10),
                     new GestureDetector(
                         onTap: () => {
                             StoreProvider.store.Dispatch(new LikeCommentAction
@@ -126,11 +137,11 @@ namespace ConnectApp.screens {
                             color: CColors.White,
                             child: new Text(
                                 "LikeComment",
-                                style: CTextStyle.H2
+                                style: CTextStyle.H4
                             )
                         )
                     ),
-                    new Container(height: 20),
+                    new Container(height: 10),
                     new GestureDetector(
                         onTap: () => {
                             StoreProvider.store.Dispatch(new RemoveLikeCommentAction
@@ -140,11 +151,11 @@ namespace ConnectApp.screens {
                             color: CColors.White,
                             child: new Text(
                                 "RemoveLikeComment",
-                                style: CTextStyle.H2
+                                style: CTextStyle.H4
                             )
                         )
                     ),
-                    new Container(height: 20),
+                    new Container(height: 10),
                     new GestureDetector(
                         onTap: () => {
                             var nonce = Snowflake.CreateNonce();
@@ -155,11 +166,11 @@ namespace ConnectApp.screens {
                             color: CColors.White,
                             child: new Text(
                                 "SendComment",
-                                style: CTextStyle.H2
+                                style: CTextStyle.H4
                             )
                         )
                     ),
-                    new Container(height: 20),
+                    new Container(height: 10),
                     new GestureDetector(
                         onTap: () => {
                             var nonce = Snowflake.CreateNonce();
@@ -172,11 +183,11 @@ namespace ConnectApp.screens {
                             color: CColors.White,
                             child: new Text(
                                 "SendReplyComment",
-                                style: CTextStyle.H2
+                                style: CTextStyle.H4
                             )
                         )
                     ),
-                    new Container(height: 20),
+                    new Container(height: 10),
                     new GestureDetector(
                         onTap: () => {
                             StoreProvider.store.Dispatch(new ReportItemAction
@@ -186,54 +197,120 @@ namespace ConnectApp.screens {
                             color: CColors.White,
                             child: new Text(
                                 "ReportComment",
-                                style: CTextStyle.H2
+                                style: CTextStyle.H4
                             )
                         )
                     ),
-                    new Container(height: 20),
-                    new GestureDetector(
-                        onTap: () => { StoreProvider.store.Dispatch(new LoginByEmailAction()); },
-                        child: new Container(
-                            color: CColors.White,
-                            child: new Text(
-                                "LoginByEmail",
-                                style: CTextStyle.H2
-                            )
-                        )
-                    ),
-                    new Container(height: 20),
+                    new Container(height: 10),
                     new GestureDetector(
                         onTap: () => { StoreProvider.store.Dispatch(new FetchEventsAction {pageNumber = 1}); },
                         child: new Container(
                             color: CColors.White,
                             child: new Text(
-                                "EventsRequest",
-                                style: CTextStyle.H2
+                                "FetchEvents",
+                                style: CTextStyle.H4
                             )
                         )
                     ),
-                    new Container(height: 20),
+                    new Container(height: 10),
                     new GestureDetector(
                         onTap: () => {
                             StoreProvider.store.Dispatch(new FetchEventDetailAction
-                                {eventId = "5b9753f22920c6002ed2c22d"});
+                                {eventId = "5b9753f22910c6002ed2c22d"});
                         },
                         child: new Container(
                             color: CColors.White,
                             child: new Text(
-                                "LiveRequest",
-                                style: CTextStyle.H2
+                                "FetchEventDetail",
+                                style: CTextStyle.H4
                             )
                         )
                     ),
-                    new Container(height: 20),
+                    new Container(height: 10),
                     new GestureDetector(
                         onTap: () => { StoreProvider.store.Dispatch(new FetchNotificationsAction {pageNumber = 1}); },
                         child: new Container(
                             color: CColors.White,
                             child: new Text(
                                 "FetchNotifications",
-                                style: CTextStyle.H2
+                                style: CTextStyle.H4
+                            )
+                        )
+                    ),
+                    new Container(height: 10),
+                    new GestureDetector(
+                        onTap: () => {
+                            StoreProvider.store.Dispatch(new JoinEventAction {eventId = "5bc84dd8edbc2a001f2d927c"});
+                        },
+                        child: new Container(
+                            color: CColors.White,
+                            child: new Text(
+                                "JoinEvent",
+                                style: CTextStyle.H4
+                            )
+                        )
+                    ),
+                    new Container(height: 10),
+                    new GestureDetector(
+                        onTap: () => { StoreProvider.store.Dispatch(new FetchMyFutureEventsAction()); },
+                        child: new Container(
+                            color: CColors.White,
+                            child: new Text(
+                                "FetchMyFutureEvents",
+                                style: CTextStyle.H4
+                            )
+                        )
+                    ),
+                    new Container(height: 10),
+                    new GestureDetector(
+                        onTap: () => { StoreProvider.store.Dispatch(new FetchMyPastEventsAction()); },
+                        child: new Container(
+                            color: CColors.White,
+                            child: new Text(
+                                "FetchMyPastEvents",
+                                style: CTextStyle.H4
+                            )
+                        )
+                    ),
+                    new Container(height: 10),
+                    new GestureDetector(
+                        onTap: () => {
+                            StoreProvider.store.Dispatch(new FetchMessagesAction {channelId = "0522ffbb43000001"});
+                        },
+                        child: new Container(
+                            color: CColors.White,
+                            child: new Text(
+                                "FetchMessagesFirst",
+                                style: CTextStyle.H4
+                            )
+                        )
+                    ),
+                    new Container(height: 10),
+                    new GestureDetector(
+                        onTap: () => {
+                            StoreProvider.store.Dispatch(new FetchMessagesAction
+                                {channelId = "0522ffbb43000001", currOldestMessageId = "0587f55b2b40c000"});
+                        },
+                        child: new Container(
+                            color: CColors.White,
+                            child: new Text(
+                                "FetchMessagesMore",
+                                style: CTextStyle.H4
+                            )
+                        )
+                    ),
+                    new Container(height: 10),
+                    new GestureDetector(
+                        onTap: () => {
+                            var nonce = Snowflake.CreateNonce();
+                            StoreProvider.store.Dispatch(new SendMessageAction
+                                {channelId = "032f7a336d800000", content = "wow!!!", nonce = nonce});
+                        },
+                        child: new Container(
+                            color: CColors.White,
+                            child: new Text(
+                                "SendMessage",
+                                style: CTextStyle.H4
                             )
                         )
                     )
@@ -281,8 +358,8 @@ namespace ConnectApp.screens {
                             border: Border.all(CColors.Green)
                         ),
                         child: new Text(
-                            "H2: 多重GPU粒子力场",
-                            style: CTextStyle.H2
+                            "H4: 多重GPU粒子力场",
+                            style: CTextStyle.H4
                         )
                     ),
                     new Container(height: 10),
@@ -314,8 +391,8 @@ namespace ConnectApp.screens {
                             border: Border.all(CColors.Green)
                         ),
                         child: new Text(
-                            "H2: 多重GPU粒子力场",
-                            style: CTextStyle.H5
+                            "H4: 多重GPU粒子力场",
+                            style: CTextStyle.H4
                         )
                     ),
                     new Container(height: 10),

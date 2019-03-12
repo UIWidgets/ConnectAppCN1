@@ -43,8 +43,13 @@ namespace ConnectApp.api {
                 promise.Reject(new Exception(request.downloadHandler.text));
             }
             else {
-//                if (request.GetResponseHeaders().ContainsKey("SET-COOKIE"))
+//                var cookie = "";
+//                if (request.GetResponseHeaders().ContainsKey("SET-COOKIE")) {
 //                    cookie = request.GetResponseHeaders()["SET-COOKIE"];
+//                    PlayerPrefs.SetString("cookie", cookie);
+//                    PlayerPrefs.Save();
+//                }
+//                Debug.Log(cookie);
                 // Format output and resolve promise
                 var json = request.downloadHandler.text;
                 var loginInfo = JsonConvert.DeserializeObject<LoginInfo>(json);
