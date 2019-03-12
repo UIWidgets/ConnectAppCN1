@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace ConnectApp.models
 {
     [Serializable]
-    public class ArticleDetail
+    public class Project
     {
         public Article projectData;
         public List<string> pureContentIds;

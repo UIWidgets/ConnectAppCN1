@@ -13,13 +13,13 @@ using TextStyle = Unity.UIWidgets.painting.TextStyle;
 namespace ConnectApp.components {
     public class ArticleDetailComponent : StatefulWidget {
         public ArticleDetailComponent(
-            ArticleDetail articleDetail,
+            Project articleDetail,
             Key key = null
         ) : base(key) {
             this.articleDetail = articleDetail;
         }
 
-        public readonly ArticleDetail articleDetail;
+        public readonly Project articleDetail;
 
         public override State createState() {
             return new _ArticleDetailState();

@@ -17,7 +17,7 @@ namespace ConnectApp.redux.actions {
 
     public class FetchArticleDetailSuccessAction : BaseAction
     {
-        public ArticleDetail articleDetail;
+        public Project articleDetail;
     }
 
     public class FetchArticleCommentsAction : RequestAction {

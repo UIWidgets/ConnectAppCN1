@@ -3,14 +3,14 @@ using System.Collections.Generic;
 
 namespace ConnectApp.models {
     [Serializable]
-    public class ArticlesResponse {
+    public class FetchArticlesResponse {
         public List<Article> items;
         public Dictionary<string, User> userMap;
     }
 
     [Serializable]
-    public class ArticleDetailResponse
+    public class FetchArticleDetailResponse
     {
-        public ArticleDetail project;
+        public Project project;
     }
 }

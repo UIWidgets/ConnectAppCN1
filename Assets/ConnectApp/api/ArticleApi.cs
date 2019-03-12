@@ -13,14 +13,14 @@ using UnityEngine.Networking;
 namespace ConnectApp.api {
     public class ArticleApi {
         // Article Api
-        public static Promise<ArticlesResponse> FetchArticles(int pageNumber) {
+        public static Promise<FetchArticlesResponse> FetchArticles(int pageNumber) {
             // We return a promise instantly and start the coroutine to do the real work
-            var promise = new Promise<ArticlesResponse>();
+            var promise = new Promise<FetchArticlesResponse>();
             Window.instance.startCoroutine(_FetchArticles(promise, pageNumber));
             return promise;
         }
 
-        private static IEnumerator _FetchArticles(Promise<ArticlesResponse> promise, int pageNumber) {
+        private static IEnumerator _FetchArticles(Promise<FetchArticlesResponse> promise, int pageNumber) {
             var request =
                 UnityWebRequest.Get(IApi.apiAddress + "/api/p?projectType=article&t=projects&page=" + pageNumber);
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
@@ -38,7 +38,7 @@ namespace ConnectApp.api {
             else {
                 // Format output and resolve promise
                 var responseText = request.downloadHandler.text;
-                var articlesResponse = JsonConvert.DeserializeObject<ArticlesResponse>(responseText);
+                var articlesResponse = JsonConvert.DeserializeObject<FetchArticlesResponse>(responseText);
 
                 if (responseText != null)
                     promise.Resolve(articlesResponse);
@@ -47,14 +47,14 @@ namespace ConnectApp.api {
             }
         }
 
-        public static Promise<ArticleDetailResponse> FetchArticleDetail(string articleId) {
+        public static Promise<FetchArticleDetailResponse> FetchArticleDetail(string articleId) {
             // We return a promise instantly and start the coroutine to do the real work
-            var promise = new Promise<ArticleDetailResponse>();
+            var promise = new Promise<FetchArticleDetailResponse>();
             Window.instance.startCoroutine(_FetchArticleDetail(promise, articleId));
             return promise;
         }
 
-        private static IEnumerator _FetchArticleDetail(Promise<ArticleDetailResponse> promise, string articleId) {
+        private static IEnumerator _FetchArticleDetail(Promise<FetchArticleDetailResponse> promise, string articleId) {
             var request = UnityWebRequest.Get(IApi.apiAddress + "/api/p/" + articleId);
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
 #pragma warning disable 618
@@ -71,7 +71,7 @@ namespace ConnectApp.api {
             else {
                 // Format output and resolve promise
                 var responseText = request.downloadHandler.text;
-                var articleDetailResponse = JsonConvert.DeserializeObject<ArticleDetailResponse>(responseText);
+                var articleDetailResponse = JsonConvert.DeserializeObject<FetchArticleDetailResponse>(responseText);
                 if (responseText != null)
                     promise.Resolve(articleDetailResponse);
                 else

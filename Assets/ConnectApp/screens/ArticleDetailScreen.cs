@@ -42,7 +42,7 @@ namespace ConnectApp.screens
                     {"articleDetail", state.articleState.articleDetail},
                 },
                 builder: (context1, viewModel) => {
-                    var articleDetail = (ArticleDetail) viewModel["articleDetail"];
+                    var articleDetail = (Project) viewModel["articleDetail"];
                     if (StoreProvider.store.state.articleState.articleDetailLoading)
                     {
                         return new Container(
