@@ -31,7 +31,7 @@ namespace ConnectApp.components {
 
             var cont = JsonConvert.DeserializeObject<EventContent>(content);
             return new Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment:CrossAxisAlignment.start,
                 children: map(cont)
             );
         }
@@ -99,6 +99,7 @@ namespace ConnectApp.components {
 
         private Widget _H1(string text) {
             return new Container(
+                padding:EdgeInsets.only(top:16),
                 margin: EdgeInsets.only(bottom: 24),
                 child: new Text(
                     text,
@@ -106,7 +107,7 @@ namespace ConnectApp.components {
                         color: CColors.TextTitle,
                         fontSize: 24,
                         letterSpacing: 0.0f,
-                        height: 32
+                        height: 1.33f
                     )
                 )
             );
@@ -114,13 +115,14 @@ namespace ConnectApp.components {
 
         private Widget _H2(string text) {
             return new Container(
+                padding:EdgeInsets.only(top:16),
                 margin: EdgeInsets.only(bottom: 24),
                 child: new Text(
                     text,
                     style: new TextStyle(
                         color: CColors.TextTitle,
                         fontSize: 20,
-                        height: 28
+                        height: 1.4f
                     )
                 )
             );
@@ -128,35 +130,28 @@ namespace ConnectApp.components {
 
         private Widget _Unstyled(string text) {
             return new Container(
-                margin: EdgeInsets.only(bottom: 32),
+                margin: EdgeInsets.only(bottom: 24),
                 child: new Text(
                     text,
-                    style: new TextStyle(
-                        color: CColors.TextBody,
-                        fontSize: 18,
-                        height: 1.4f
-                    )
+                    style: CTextStyle.TextBody1
                 )
             );
         }
 
         private Widget _CodeBlock(string text) {
             return new Container(
-                width: new MediaQuery().data.size.width - 32,
+                width: new MediaQuery().data.size.width,
                 decoration: new BoxDecoration(
-                    new Color(0xff141414)
+                    color:Color.fromRGBO(110,198,255,0.12f)
                 ),
                 margin: EdgeInsets.only(
-                    bottom: 32
+                    bottom: 24
                 ),
+                padding:EdgeInsets.all(16),
                 child: new Container(
-                    margin: EdgeInsets.all(16),
                     child: new Text(
                         text,
-                        style: new TextStyle(
-                            color: CColors.TextBody,
-                            height: 1.4f
-                        )
+                        style: CTextStyle.PRegular
                     )
                 )
             );
@@ -165,26 +160,19 @@ namespace ConnectApp.components {
 
         private Widget _QuoteBlock(string text) {
             return new Container(
-                margin: EdgeInsets.only(bottom: 32, left: 16),
+                margin: EdgeInsets.only(bottom: 24, left: 8),
                 decoration: new BoxDecoration(
                     border: new Border(
                         left: new BorderSide(
-                            new Color(0xffe91e63),
-                            4
+                            Color.fromRGBO(60,131,212,0.3f),
+                            16
                         )
                     )
                 ),
                 child: new Container(
-                    margin: EdgeInsets.only(
-                        8,
-                        bottom: 8
-                    ),
                     child: new Text(
                         text,
-                        style: new TextStyle(
-                            color: CColors.TextBody,
-                            height: 1.4f
-                        )
+                        style: CTextStyle.TextBody4
                     )
                 )
             );
@@ -232,24 +220,18 @@ namespace ConnectApp.components {
                 var spans = new List<TextSpan>() {
                     new TextSpan(
                         $"i+1",
-                        new TextStyle(
-                            color: CColors.TextBody
-                        )
+                        CTextStyle.TextBody1
                     ),
                     new TextSpan(
                         items[i],
-                        new TextStyle(
-                            color: CColors.TextBody
-                        )
+                        CTextStyle.TextBody1
                     ),
                 };
                 widgets.Add(
                     new Container(margin: EdgeInsets.only(top: i == 0 ? 0 : 8),
                         child: new RichText(
                             text: new TextSpan(
-                                style: new TextStyle(
-                                    height: 1.4f
-                                ),
+                                style: CTextStyle.TextBody1,
                                 children: spans
                             )
                         )
@@ -258,7 +240,7 @@ namespace ConnectApp.components {
             }
 
 
-            return new Container(margin: EdgeInsets.only(bottom: 32, left: 16),
+            return new Container(margin: EdgeInsets.only(bottom: 24, left: 16),
                 child: new Column(crossAxisAlignment: CrossAxisAlignment.start, children: widgets));
         }
 
@@ -269,24 +251,18 @@ namespace ConnectApp.components {
                 var spans = new List<TextSpan>() {
                     new TextSpan(
                         "\\u{25cf}",
-                        new TextStyle(
-                            color: CColors.TextBody
-                        )
+                        CTextStyle.TextBody1
                     ),
                     new TextSpan(
                         items[i],
-                        new TextStyle(
-                            color: CColors.TextBody
-                        )
+                        CTextStyle.TextBody1
                     ),
                 };
                 widgets.Add(
                     new Container(margin: EdgeInsets.only(top: i == 0 ? 0 : 8),
                         child: new RichText(
                             text: new TextSpan(
-                                style: new TextStyle(
-                                    height: 1.4f
-                                ),
+                                style: CTextStyle.TextBody1,
                                 children: spans
                             )
                         )
@@ -295,7 +271,7 @@ namespace ConnectApp.components {
             }
 
 
-            return new Container(margin: EdgeInsets.only(bottom: 32, left: 16),
+            return new Container(margin: EdgeInsets.only(bottom: 24, left: 16),
                 child: new Column(crossAxisAlignment: CrossAxisAlignment.start, children: widgets));
         }
     }

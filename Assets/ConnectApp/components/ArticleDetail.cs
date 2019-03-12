@@ -11,8 +11,8 @@ using Image = Unity.UIWidgets.widgets.Image;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
-    public class ArticleDetailComponent : StatefulWidget {
-        public ArticleDetailComponent(
+    public class ArticleDetail : StatefulWidget {
+        public ArticleDetail(
             Project articleDetail,
             Key key = null
         ) : base(key) {
@@ -26,7 +26,7 @@ namespace ConnectApp.components {
         }
     }
 
-    internal class _ArticleDetailState : State<ArticleDetailComponent>
+    internal class _ArticleDetailState : State<ArticleDetail>
     {
         private Article _article = null;
         private Dictionary<string,ContentMap> _contentMap = null;
@@ -48,6 +48,7 @@ namespace ConnectApp.components {
                     physics: new AlwaysScrollableScrollPhysics(),
                     children: new List<Widget> {
                         _contentHead(context),
+                        _subTitle(context),
                         _contentDetail(context)
                     }
                 )
@@ -68,7 +69,13 @@ namespace ConnectApp.components {
                             margin: EdgeInsets.only(top: 8),
                             child: new Text(
                                 $"阅读 { _article.viewCount } · {DateConvert.DateStringFromNow(_article.createdTime)}",
-                                style: CTextStyle.PSmall)
+                                style: new TextStyle(
+                                    height: 1.67f,
+                                    fontSize: 12,
+                                    fontFamily: "PingFang-Regular",
+                                    color: CColors.TextBody4
+                                    )
+                                )
                         ),
                         new Container(
                             margin: EdgeInsets.only(top: 24, bottom: 24),
@@ -115,6 +122,24 @@ namespace ConnectApp.components {
                 )
             );
         }
+
+
+        private Widget _subTitle(BuildContext context)
+        {
+            return new Container(
+                decoration:new BoxDecoration(
+                   color:CColors.Separator2,
+                   borderRadius:BorderRadius.all(4)
+                ),
+                   
+                margin:EdgeInsets.only(bottom:24,left:16,right:16),
+                child:new Container(
+                    padding:EdgeInsets.only(16,12,16,12), 
+                    child:new Text($"题头：{_article.subTitle}",style:CTextStyle.PLargeGray)
+                    )  
+            );
+        }
+
 
         private Widget _contentDetail(BuildContext context) {
             return new Container(

@@ -58,7 +58,7 @@ namespace ConnectApp.screens
                                 new Column(
                                     children: new List<Widget> {
                                         _navigationBar(context),
-                                        new ArticleDetailComponent(articleDetail: articleDetail),
+                                        new ArticleDetail(articleDetail: articleDetail),
                                     }
                                 ),
                                 
