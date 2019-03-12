@@ -53,7 +53,7 @@ namespace ConnectApp.components {
                                     }
                                 )
                             ),
-                            new Icon(Icons.chevron_right, size: 24, color:Color.fromRGBO(199, 203, 207, 1))
+                            new Icon(Icons.chevron_right, size: 24, color: Color.fromRGBO(199, 203, 207, 1))
                         }
                     )
                 )

@@ -300,8 +300,8 @@ namespace ConnectApp.screens {
                 }
             );
         }
-        
-        private Widget _navigationBar(BuildContext context ) {
+
+        private Widget _navigationBar(BuildContext context) {
             return new CustomNavigationBar(
                 new GestureDetector(
                     onTap: () => {
@@ -360,16 +360,16 @@ namespace ConnectApp.screens {
                                     }
                                 ),
                                 new Positioned(
-                                    bottom:0,
-                                    left:0,
-                                    right:0,
-                                    child:new ArticleTabBar(
+                                    bottom: 0,
+                                    left: 0,
+                                    right: 0,
+                                    child: new ArticleTabBar(
                                         commentCallback: () => { },
                                         favorCallback: () => { },
                                         bookmarkCallback: () => { },
                                         shareCallback: () => { }
                                     )
-                                )   
+                                )
 //                                !showChatWindow ? _chatWindow() : _joinBar(eventObj)
                             }
                         )
