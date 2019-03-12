@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.ui;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace ConnectApp.api {
@@ -19,7 +20,8 @@ namespace ConnectApp.api {
         }
 
         private static IEnumerator _FetchEvents(Promise<List<IEvent>> promise, int pageNumber) {
-            var request = UnityWebRequest.Get(IApi.apiAddress + "/api/live/events");
+            var request = UnityWebRequest.Get(IApi.apiAddress + $"/api/live/events?page={pageNumber}");
+            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
 #pragma warning disable 618
             yield return request.Send();
 #pragma warning restore 618
@@ -43,16 +45,16 @@ namespace ConnectApp.api {
             }
         }
 
-        public static IPromise<IEvent> FetchLiveDetail(string eventId) {
+        public static IPromise<IEvent> FetchEventDetail(string eventId) {
             // We return a promise instantly and start the coroutine to do the real work
             var promise = new Promise<IEvent>();
-            Window.instance.startCoroutine(_FetchLiveDetail(promise, eventId));
+            Window.instance.startCoroutine(_FetchEventDetail(promise, eventId));
             return promise;
         }
 
-        private static IEnumerator _FetchLiveDetail(Promise<IEvent> promise, string eventId) {
+        private static IEnumerator _FetchEventDetail(Promise<IEvent> promise, string eventId) {
             var request = UnityWebRequest.Get(IApi.apiAddress + "/api/live/events/" + eventId);
-//            request.SetRequestHeader("Cookie", cookie);
+            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
 #pragma warning disable 618
             yield return request.Send();
 #pragma warning restore 618
@@ -70,6 +72,39 @@ namespace ConnectApp.api {
                 var liveDetail = JsonConvert.DeserializeObject<IEvent>(json);
                 if (liveDetail != null)
                     promise.Resolve(liveDetail);
+                else
+                    promise.Reject(new Exception("No user under this username found!"));
+            }
+        }
+
+        public static Promise JoinEvent(string eventId) {
+            // We return a promise instantly and start the coroutine to do the real work
+            var promise = new Promise();
+            Window.instance.startCoroutine(_JoinEvent(promise, eventId));
+            return promise;
+        }
+
+        private static IEnumerator _JoinEvent(Promise promise, string eventId) {
+            var request = new UnityWebRequest(IApi.apiAddress + $"/api/live/events/{eventId}/join", "POST");
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
+#pragma warning disable 618
+            yield return request.Send();
+#pragma warning restore 618
+
+            if (request.isNetworkError) {
+                // something went wrong
+                promise.Reject(new Exception(request.error));
+            }
+            else if (request.responseCode != 200) {
+                // or the response is not OK
+                promise.Reject(new Exception(request.downloadHandler.text));
+            }
+            else {
+                var json = request.downloadHandler.text;
+                Debug.Log(json);
+                if (json != null)
+                    promise.Resolve();
                 else
                     promise.Reject(new Exception("No user under this username found!"));
             }
