@@ -28,6 +28,7 @@ namespace ConnectApp.api {
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             request.SetRequestHeader("Content-Type", "application/json");
 #pragma warning disable 618
             yield return request.Send();

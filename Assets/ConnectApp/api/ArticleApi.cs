@@ -130,6 +130,7 @@ namespace ConnectApp.api {
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             request.SetRequestHeader("Content-Type", "application/json");
 #pragma warning disable 618
             yield return request.Send();
@@ -165,10 +166,11 @@ namespace ConnectApp.api {
                 reactionType = "like"
             };
             var body = JsonConvert.SerializeObject(para);
-            var request = new UnityWebRequest(IApi.apiAddress + "/api/messages" + commentId + "/addReaction", "POST");
+            var request = new UnityWebRequest(IApi.apiAddress + "/api/messages/" + commentId + "/addReaction", "POST");
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             request.SetRequestHeader("Content-Type", "application/json");
 #pragma warning disable 618
             yield return request.Send();
@@ -205,10 +207,11 @@ namespace ConnectApp.api {
             };
             var body = JsonConvert.SerializeObject(para);
             var request =
-                new UnityWebRequest(IApi.apiAddress + "/api/messages" + commentId + "/removeReaction", "POST");
+                new UnityWebRequest(IApi.apiAddress + "/api/messages/" + commentId + "/removeReaction", "POST");
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             request.SetRequestHeader("Content-Type", "application/json");
 #pragma warning disable 618
             yield return request.Send();
@@ -247,10 +250,11 @@ namespace ConnectApp.api {
                 nonce = nonce
             };
             var body = JsonConvert.SerializeObject(para);
-            var request = new UnityWebRequest(IApi.apiAddress + "/api/channels" + channelId + "/messages", "POST");
+            var request = new UnityWebRequest(IApi.apiAddress + "/api/channels/" + channelId + "/messages", "POST");
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             request.SetRequestHeader("Content-Type", "application/json");
 #pragma warning disable 618
             yield return request.Send();

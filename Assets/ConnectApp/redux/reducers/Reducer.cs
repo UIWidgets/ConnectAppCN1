@@ -127,7 +127,7 @@ namespace ConnectApp.redux.reducers {
                 }
                 case SendCommentAction action: {
                     ArticleApi.SendComment(action.channelId, action.content, action.nonce, action.parentMessageId)
-                        .Then(() => { StoreProvider.store.Dispatch(new LikeArticleSuccessAction()); })
+                        .Then(() => { StoreProvider.store.Dispatch(new SendCommentSuccessAction()); })
                         .Catch(error => { Debug.Log(error); });
                     break;
                 }
