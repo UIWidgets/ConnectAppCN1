@@ -10,6 +10,8 @@ namespace ConnectApp.models {
         public ArticleState articleState { get; set; }
         public EventState eventState { get; set; }
         public UserState userState { get; set; }
+        public MineState mineState { get; set; }
+        public MessageState messageState { get; set; }
 
         public static AppState initialState() {
 //            var xx = PlayerPrefs.GetString();
@@ -40,7 +42,14 @@ namespace ConnectApp.models {
                 },
                 userState = new UserState {
                     UserDict = new Dictionary<string, User>()
-                }
+                },
+                mineState = new MineState {
+                    futureEventsList = new List<string>(),
+                    pastEventsList = new List<string>(),
+                    futureListLoading = false,
+                    pastListLoading = false
+                },
+                messageState = new MessageState()
             };
         }
     }

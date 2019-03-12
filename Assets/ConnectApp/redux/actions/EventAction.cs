@@ -3,7 +3,7 @@ using ConnectApp.models;
 
 namespace ConnectApp.redux.actions {
     public class FetchEventsAction : RequestAction {
-        public int pageNumber;
+        public int pageNumber = 1;
     }
 
     public class FetchEventsSuccessAction : BaseAction {
@@ -16,6 +16,13 @@ namespace ConnectApp.redux.actions {
 
     public class FetchEventDetailSuccessAction : BaseAction {
         public IEvent eventObj;
+    }
+
+    public class JoinEventAction : RequestAction {
+        public string eventId;
+    }
+
+    public class JoinEventSuccessAction : BaseAction {
     }
 
     public class ClearEventDetailAction : BaseAction {

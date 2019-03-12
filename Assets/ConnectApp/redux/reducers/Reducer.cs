@@ -156,7 +156,7 @@ namespace ConnectApp.redux.reducers {
                 }
                 case FetchEventDetailAction action: {
                     state.eventState.eventDetailLoading = true;
-                    EventApi.FetchLiveDetail(action.eventId)
+                    EventApi.FetchEventDetail(action.eventId)
                         .Then(eventObj => {
                             StoreProvider.store.Dispatch(new FetchEventDetailSuccessAction {eventObj = eventObj});
                         })
@@ -170,6 +170,15 @@ namespace ConnectApp.redux.reducers {
                     state.eventState.eventDetailLoading = false;
                     state.eventState.eventDict[action.eventObj.id] = action.eventObj;
                     state.eventState.detailId = action.eventObj.id;
+                    break;
+                }
+                case JoinEventAction action: {
+                    EventApi.JoinEvent(action.eventId)
+                        .Then(() => { StoreProvider.store.Dispatch(new JoinEventSuccessAction()); })
+                        .Catch(error => { Debug.Log(error); });
+                    break;
+                }
+                case JoinEventSuccessAction action: {
                     break;
                 }
                 case FetchNotificationsAction action: {
@@ -188,6 +197,46 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case ReportItemSuccessAction action: {
+                    break;
+                }
+                case FetchMyFutureEventsAction action: {
+                    state.mineState.futureListLoading = true;
+                    MineApi.FetchMyFutureEvents(action.pageNumber)
+                        .Then(() => { StoreProvider.store.Dispatch(new FetchMyFutureEventsSuccessAction()); })
+                        .Catch(error => { Debug.Log(error); });
+                    break;
+                }
+                case FetchMyFutureEventsSuccessAction action: {
+                    state.articleState.articlesLoading = false;
+                    break;
+                }
+                case FetchMyPastEventsAction action: {
+                    state.mineState.pastListLoading = true;
+                    MineApi.FetchMyPastEvents(action.pageNumber)
+                        .Then(() => { StoreProvider.store.Dispatch(new FetchMyPastEventsSuccessAction()); })
+                        .Catch(error => { Debug.Log(error); });
+                    break;
+                }
+                case FetchMyPastEventsSuccessAction action: {
+                    state.mineState.pastListLoading = false;
+                    break;
+                }
+                case FetchMessagesAction action: {
+                    MessageApi.FetchMessages(action.channelId, action.currOldestMessageId)
+                        .Then(() => { StoreProvider.store.Dispatch(new FetchMessagesSuccessAction()); })
+                        .Catch(error => { Debug.Log(error); });
+                    break;
+                }
+                case FetchMessagesSuccessAction action: {
+                    break;
+                }
+                case SendMessageAction action: {
+                    MessageApi.SendMessage(action.channelId, action.content, action.nonce, action.parentMessageId)
+                        .Then(() => { StoreProvider.store.Dispatch(new SendMessageSuccessAction()); })
+                        .Catch(error => { Debug.Log(error); });
+                    break;
+                }
+                case SendMessageSuccessAction action: {
                     break;
                 }
             }
