@@ -19,6 +19,7 @@ namespace ConnectApp.screens {
                                 "设置",
                                 style: new TextStyle(
                                     fontSize: 17,
+                                    fontFamily: "PingFang-Regular",
                                     color: CColors.TextTitle
                                 )
                             )
