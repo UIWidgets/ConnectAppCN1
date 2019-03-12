@@ -32,39 +32,39 @@ namespace ConnectApp.canvas {
                 textStyle: new TextStyle(fontSize: 24),
                 pageRouteBuilder: pageRouteBuilder,
                 routes: new Dictionary<string, WidgetBuilder> {
-                    {"/", (context) => new MainScreen()},
-//                    {"/", (context) => new TestScreen()},
-                    {"/detail", (context) => new DetailScreen()},
-                    {"/mine", (context) => new MineScreen()},
-                    {"/setting", (context) => new SettingScreen()},
-                    {"/login", (context) => new LoginScreen()},
-                    {"/setting-unity", (context) => new BindUnityScreen()}
+                    {"/", context => new MainScreen()},
+//                    {"/", context => new TestScreen()},
+                    {"/search", context => new SearchScreen()},
+                    {"/detail", context => new DetailScreen()},
+                    {"/mine", context => new MineScreen()},
+                    {"/setting", context => new SettingScreen()},
+                    {"/login", context => new LoginScreen()},
+                    {"/setting-unity", context => new BindUnityScreen()}
                 });
         }
 
-        protected Dictionary<string, WidgetBuilder> fullScreenRoutes => new Dictionary<string, WidgetBuilder> {
-            {"/login", (context) => new LoginScreen()},
-            {"/wechat-unity", (context) => new DetailScreen()},
+        protected static Dictionary<string, WidgetBuilder> fullScreenRoutes => new Dictionary<string, WidgetBuilder> {
+            {"/login", context => new LoginScreen()},
+            {"/wechat-unity", context => new DetailScreen()}
         };
 
-        protected PageRouteFactory pageRouteBuilder {
+        protected static PageRouteFactory pageRouteBuilder {
             get {
                 return (RouteSettings settings, WidgetBuilder builder) =>
                     new PageRouteBuilder(
                         settings,
-                        pageBuilder: (context, animation, secondaryAnimation) =>
+                        (context, animation, secondaryAnimation) =>
                             new StoreProvider<AppState>(StoreProvider.store, builder(context)),
-                        transitionsBuilder: (context, animation, secondaryAnimation, child) => {
+                        (context, animation, secondaryAnimation, child) => {
                             if (fullScreenRoutes.ContainsKey(settings.name))
                                 return new ModalPageTransition(
                                     routeAnimation: animation,
                                     child: child
                                 );
-                            else
-                                return new PushPageTransition(
-                                    routeAnimation: animation,
-                                    child: child
-                                );
+                            return new PushPageTransition(
+                                routeAnimation: animation,
+                                child: child
+                            );
                         }
                     );
             }
@@ -110,17 +110,17 @@ namespace ConnectApp.canvas {
             this.child = child;
         }
 
-        private static Tween<Offset> _bottomUpTween = new OffsetTween(
+        private readonly Tween<Offset> _bottomUpTween = new OffsetTween(
             new Offset(0.0f, 1.0f),
             Offset.zero
         );
 
-        private static Animatable<float> _fastOutSlowInTween = new CurveTween(Curves.fastOutSlowIn);
-        private static Animatable<float> _easeInTween = new CurveTween(Curves.easeIn);
+        private readonly Animatable<float> _fastOutSlowInTween = new CurveTween(Curves.fastOutSlowIn);
+        private readonly Animatable<float> _easeInTween = new CurveTween(Curves.easeIn);
 
         private readonly Animation<Offset> _positionAnimation;
         private readonly Animation<float> _opacityAnimation;
-        public readonly Widget child;
+        private readonly Widget child;
 
         public override Widget build(BuildContext context) {
             return new SlideTransition(

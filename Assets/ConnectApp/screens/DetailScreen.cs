@@ -300,8 +300,8 @@ namespace ConnectApp.screens {
                 }
             );
         }
-
-        private Widget _navigationBar() {
+        
+        private Widget _navigationBar(BuildContext context ) {
             return new CustomNavigationBar(
                 new GestureDetector(
                     onTap: () => {
@@ -336,7 +336,6 @@ namespace ConnectApp.screens {
                     {"openChatWindow", state.eventState.openChatWindow}
                 },
                 builder: (context1, viewModel) => {
-//                    var liveInfo = viewModel["liveInfo"] as LiveInfo;
                     var detailId = (string) viewModel["detailId"];
                     // TODO: get eventObj from eventState.eventDict
                     var eventDict = (Dictionary<string, IEvent>) viewModel["eventDict"];
@@ -356,11 +355,22 @@ namespace ConnectApp.screens {
                             children: new List<Widget> {
                                 new Column(
                                     children: new List<Widget> {
-                                        _navigationBar(),
+                                        _navigationBar(context),
                                         new EventDetail(eventObj: eventObj),
                                     }
                                 ),
-                                !showChatWindow ? _chatWindow() : _joinBar(eventObj)
+                                new Positioned(
+                                    bottom:0,
+                                    left:0,
+                                    right:0,
+                                    child:new ArticleTabBar(
+                                        commentCallback: () => { },
+                                        favorCallback: () => { },
+                                        bookmarkCallback: () => { },
+                                        shareCallback: () => { }
+                                    )
+                                )   
+//                                !showChatWindow ? _chatWindow() : _joinBar(eventObj)
                             }
                         )
                     );

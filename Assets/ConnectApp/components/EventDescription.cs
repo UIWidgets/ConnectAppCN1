@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using ConnectApp.constants;
 using ConnectApp.models;
 using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
@@ -98,13 +99,14 @@ namespace ConnectApp.components {
 
         private Widget _H1(string text) {
             return new Container(
-                margin: EdgeInsets.only(bottom: 16),
+                margin: EdgeInsets.only(bottom: 24),
                 child: new Text(
                     text,
                     style: new TextStyle(
-                        color: Color.white,
-                        fontSize: 17,
-                        letterSpacing: 0.3f
+                        color: CColors.TextTitle,
+                        fontSize: 24,
+                        letterSpacing: 0.0f,
+                        height:32
                     )
                 )
             );
@@ -112,13 +114,13 @@ namespace ConnectApp.components {
 
         private Widget _H2(string text) {
             return new Container(
-                margin: EdgeInsets.only(bottom: 16),
+                margin: EdgeInsets.only(bottom: 24),
                 child: new Text(
                     text,
                     style: new TextStyle(
-                        color: Color.white,
-                        fontSize: 15,
-                        letterSpacing: 0.3f
+                        color: CColors.TextTitle,
+                        fontSize: 20,
+                        height:28
                     )
                 )
             );
@@ -130,7 +132,7 @@ namespace ConnectApp.components {
                 child: new Text(
                     text,
                     style: new TextStyle(
-                        color: new Color(0xffd8d8d8),
+                        color: CColors.TextBody,
                         fontSize: 14,
                         height: 1.4f
                     )
@@ -152,7 +154,7 @@ namespace ConnectApp.components {
                     child: new Text(
                         text,
                         style: new TextStyle(
-                            color: new Color(0xffffffff),
+                            color: CColors.TextBody,
                             height: 1.4f
                         )
                     )
@@ -180,7 +182,7 @@ namespace ConnectApp.components {
                     child: new Text(
                         text,
                         style: new TextStyle(
-                            color: new Color(0xffffffff),
+                            color: CColors.TextBody,
                             height: 1.4f
                         )
                     )
@@ -198,7 +200,7 @@ namespace ConnectApp.components {
                         border: new Border(
                             bottom: new BorderSide(
                                 width: 1,
-                                color: new Color(0xffd8d8d8)
+                                color: CColors.TextBody
                             )
                         )
                     ),
@@ -207,7 +209,7 @@ namespace ConnectApp.components {
                         child: new Text(
                             title,
                             style: new TextStyle(
-                                color: new Color(0xffd8d8d8),
+                                color: CColors.TextBody,
                                 fontSize: 12
                             )
                         )
@@ -231,13 +233,13 @@ namespace ConnectApp.components {
                     new TextSpan(
                         $"i+1",
                         new TextStyle(
-                            color: new Color(0xffffffff)
+                            color: CColors.TextBody
                         )
                     ),
                     new TextSpan(
                         items[i],
                         new TextStyle(
-                            color: new Color(0xffd8d8d8)
+                            color: CColors.TextBody
                         )
                     ),
                 };
@@ -268,13 +270,13 @@ namespace ConnectApp.components {
                     new TextSpan(
                         "\\u{25cf}",
                         new TextStyle(
-                            color: new Color(0xffffffff)
+                            color: CColors.TextBody
                         )
                     ),
                     new TextSpan(
                         items[i],
                         new TextStyle(
-                            color: new Color(0xffd8d8d8)
+                            color: CColors.TextBody
                         )
                     ),
                 };

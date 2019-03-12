@@ -85,6 +85,7 @@ namespace ConnectApp.components.refresh {
             this.showState = showState;
             this.showLastUpdate = showLastUpdate;
             this.local = local ?? DefaultRefreshLocal.zh();
+            this.up = up;
         }
 
         public readonly bool showState;

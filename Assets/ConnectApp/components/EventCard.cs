@@ -30,6 +30,7 @@ namespace ConnectApp.components {
             var card = new Container(
                 height: 108,
                 padding: EdgeInsets.all(16),
+                color: CColors.Transparent,
                 child: new Row(
                     children: new List<Widget> {
                         //date
@@ -57,7 +58,7 @@ namespace ConnectApp.components {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: new List<Widget> {
                                     new Container(
-                                        child: new Text(_model.title, style: CTextStyle.PLarge, maxLines: 2)
+                                        child: new Text(_model.title, style: CTextStyle.PMedium, maxLines: 2)
                                     ),
 
                                     new Text(
