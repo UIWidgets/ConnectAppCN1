@@ -90,6 +90,7 @@ namespace ConnectApp.screens {
                         {
                             bool articlesLoading = (bool)viewModel["articlesLoading"];
                             if (articlesLoading) return new Container();
+                            
                             var articleList = (List<string>)viewModel["articleList"];
                             var refreshPage = new Refresh(
                                 onHeaderRefresh: onHeaderRefresh,
@@ -116,6 +117,7 @@ namespace ConnectApp.screens {
                         articleList.Add(item.id);
                         articleDict.Add(item.id, item);
                     });
+                    StoreProvider.store.Dispatch(new UserMapAction(){userMap = articlesResponse.userMap});
                     StoreProvider.store.Dispatch(new FetchArticleSuccessAction
                         {ArticleDict = articleDict, ArticleList = articleList});
                 })
@@ -135,6 +137,7 @@ namespace ConnectApp.screens {
                                 articleDict.Add(item.id, item);
                             }
                         });
+                        StoreProvider.store.Dispatch(new UserMapAction(){userMap = articlesResponse.userMap});
                         StoreProvider.store.Dispatch(new FetchArticleSuccessAction
                             {ArticleDict = articleDict, ArticleList = articleList});
                     }
@@ -144,10 +147,18 @@ namespace ConnectApp.screens {
 
         private List<Widget> _buildArtileCards(BuildContext context,List<string> items) {
             var list = new List<Widget>();
-            items.ForEach((id) => {
+            items.ForEach((id) =>
+            {
+                var article = StoreProvider.store.state.articleState.articleDict[id];
+                var user = new User();
+                if (StoreProvider.store.state.userState.UserDict.ContainsKey(article.userId))
+                {
+                    user = StoreProvider.store.state.userState.UserDict[article.userId];
+                }
                 list.Add(new ArticleCard(
-                    StoreProvider.store.state.articleState.articleDict[id],
-                    () => {
+                    article,
+                    user,
+                    onTap:() => {
                         StoreProvider.store.Dispatch(new NavigatorToArticleDetailAction() {detailId = id});
                         Navigator.pushNamed(context, "/article-detail");
                     }

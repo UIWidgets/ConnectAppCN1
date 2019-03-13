@@ -5,8 +5,10 @@ using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
+using Icons = ConnectApp.constants.Icons;
 
 namespace ConnectApp.screens
 {
@@ -51,17 +53,16 @@ namespace ConnectApp.screens
                         ); 
                     }
                     if (articleDetail == null) return new Container();
-                    return new Container(
+                    var child = new Container(
                         color: CColors.White,
                         child: new Stack(
                             children: new List<Widget> {
                                 new Column(
                                     children: new List<Widget> {
                                         _navigationBar(context),
-                                        new ArticleDetail(articleDetail: articleDetail),
+                                        new ArticleDetail(articleDetail: articleDetail)
                                     }
-                                ),
-                                
+                                ),                             
                                 new Positioned(
                                     bottom: 0,
                                     left: 0,
@@ -75,6 +76,10 @@ namespace ConnectApp.screens
                                 )
                             }
                         )
+                    );
+                    return new SafeArea(
+                        top: false,
+                        child: child
                     );
                 }
             );

@@ -72,6 +72,8 @@ namespace ConnectApp.redux.reducers {
                                 articleList.Add(item.id);
                                 articleDict.Add(item.id, item);
                             });
+                            StoreProvider.store.Dispatch(new UserMapAction()
+                                {userMap = articlesResponse.userMap});
                             StoreProvider.store.Dispatch(new FetchArticleSuccessAction
                                 {ArticleDict = articleDict, ArticleList = articleList});
                         })
@@ -252,6 +254,17 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case SendMessageSuccessAction action: {
+                    break;
+                }
+                case UserMapAction action:
+                {
+                    foreach (var keyValuePair in action.userMap)
+                    {
+                        if (!state.userState.UserDict.ContainsKey(keyValuePair.Key))
+                        {
+                            state.userState.UserDict.Add(keyValuePair.Key,keyValuePair.Value); 
+                        }
+                    }
                     break;
                 }
             }

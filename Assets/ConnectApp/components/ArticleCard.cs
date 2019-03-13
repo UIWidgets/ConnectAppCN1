@@ -14,14 +14,17 @@ namespace ConnectApp.components {
     public class ArticleCard : StatelessWidget {
         public ArticleCard(
             Article article,
+            User user = null,
             GestureTapCallback onTap = null,
             Key key = null
         ) : base(key) {
             this.article = article;
             this.onTap = onTap;
+            this.user = user;
         }
 
-        internal readonly Article article;
+        private readonly Article article;
+        private readonly User user;
         private readonly GestureTapCallback onTap;
 
         public override Widget build(BuildContext context) {
@@ -46,10 +49,8 @@ namespace ConnectApp.components {
                                     height: 66,
                                     margin: EdgeInsets.only(0, 8.0f, 0, 8.0f),
                                     child: new Row(
-                                        mainAxisAlignment: MainAxisAlignment.end,
                                         children: new List<Widget> {
-                                            new Container(
-                                                width: MediaQuery.of(context).size.width - 139,
+                                            new Expanded(
                                                 child: new Text(
                                                     article.subTitle,
                                                     style: CTextStyle.PRegular, maxLines: 3,
@@ -74,7 +75,7 @@ namespace ConnectApp.components {
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: new List<Widget> {
                                             new Text(
-                                                $" username · {DateConvert.DateStringFromNow(article.publishedTime)} · {article.viewCount}",
+                                                $" {user.username} · {DateConvert.DateStringFromNow(article.publishedTime)} · {article.viewCount}",
                                                 style: CTextStyle.PSmall),
                                             new GestureDetector(
                                                 child: new Container(

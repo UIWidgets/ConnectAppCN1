@@ -83,9 +83,8 @@ namespace ConnectApp.components {
                     }
                         break;
                     case "atomic": {
-                        var range = block.entityRanges.first();
-                        var rangeKey = range.key.ToString();
-                        var data = content.entityMap[rangeKey].data;
+                        var key = block.entityRanges.first().key.ToString();
+                        var data = content.entityMap[key].data;
                         var map = contentMap[data.contentId];
                         widgets.Add(_Atomic(block.type, data.title, map.originalImage.url));
                     }
