@@ -9,6 +9,7 @@ namespace ConnectApp.models {
         public LoginState loginState { get; set; }
         public ArticleState articleState { get; set; }
         public EventState eventState { get; set; }
+        public NotificationState notificationState { get; set; }
         public UserState userState { get; set; }
         public MineState mineState { get; set; }
         public MessageState messageState { get; set; }
@@ -42,6 +43,10 @@ namespace ConnectApp.models {
                     eventDict = new Dictionary<string, IEvent>(),
                     eventsLoading = false,
                     detailId = null
+                },
+                notificationState = new NotificationState {
+                    loading = false,
+                    notifications = new List<Notification>()
                 },
                 userState = new UserState {
                     UserDict = new Dictionary<string, User>()
