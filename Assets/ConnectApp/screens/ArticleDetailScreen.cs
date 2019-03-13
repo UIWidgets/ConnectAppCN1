@@ -8,35 +8,26 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.screens
-{
-    public class ArticleDetailScreen : StatefulWidget
-    {
+namespace ConnectApp.screens {
+    public class ArticleDetailScreen : StatefulWidget {
         public ArticleDetailScreen(
             Key key = null
-        ) : base(key)
-        {
-            
+        ) : base(key) {
         }
-        
-        public override State createState()
-        {
+
+        public override State createState() {
             return new _ArticleDetailScreenState();
         }
-        
     }
 
-    internal class _ArticleDetailScreenState : State<ArticleDetailScreen>
-    {
-        public override void initState()
-        {
+    internal class _ArticleDetailScreenState : State<ArticleDetailScreen> {
+        public override void initState() {
             base.initState();
             StoreProvider.store.Dispatch(new FetchArticleDetailAction()
                 {articleId = StoreProvider.store.state.articleState.detailId});
         }
 
-        public override Widget build(BuildContext context)
-        {
+        public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, Dictionary<string, object>>(
                 converter: (state, dispatcher) => new Dictionary<string, object> {
                     {"articleDetail", state.articleState.articleDetail},
@@ -44,12 +35,10 @@ namespace ConnectApp.screens
                 builder: (context1, viewModel) => {
                     var articleDetail = (Project) viewModel["articleDetail"];
                     if (StoreProvider.store.state.articleState.articleDetailLoading)
-                    {
                         return new Container(
                             color: CColors.White,
-                            child: new Container(child: new CustomActivityIndicator(radius: 16))
-                        ); 
-                    }
+                            child: new Container(child: new CustomActivityIndicator())
+                        );
                     if (articleDetail == null) return new Container();
                     return new Container(
                         color: CColors.White,
@@ -61,7 +50,7 @@ namespace ConnectApp.screens
                                         new ArticleDetailComponent(articleDetail: articleDetail),
                                     }
                                 ),
-                                
+
                                 new Positioned(
                                     bottom: 0,
                                     left: 0,
@@ -79,6 +68,7 @@ namespace ConnectApp.screens
                 }
             );
         }
+
         private Widget _navigationBar(BuildContext context) {
             return new CustomNavigationBar(
                 new GestureDetector(
@@ -104,8 +94,4 @@ namespace ConnectApp.screens
                 }, CColors.White, 52);
         }
     }
-
-    
-
-
 }

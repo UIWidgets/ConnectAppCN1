@@ -40,7 +40,7 @@ namespace ConnectApp.canvas {
                     {"/mine", context => new MineScreen()},
                     {"/setting", context => new SettingScreen()},
                     {"/login", context => new LoginScreen()},
-                    {"/setting-unity", context => new BindUnityScreen()}
+                    {"/bind-unity", context => new BindUnityScreen()}
                 });
         }
 

@@ -13,20 +13,18 @@ namespace ConnectApp.components {
         reset
     }
 
-
     public class CustomActivityIndicator : StatefulWidget {
         public CustomActivityIndicator(
             Key key = null,
             AnimatingType animating = AnimatingType.repeat,
-            float radius = 16.0f
+            float size = 36
         ) : base(key) {
-            animating = this.animating;
-            radius = this.radius;
+            this.animating = animating;
+            this.size = size;
         }
 
-
         public readonly AnimatingType animating;
-        public readonly float radius;
+        public readonly float size;
 
         public override State createState() {
             return new _CustomActivityIndicatorState();
@@ -72,7 +70,7 @@ namespace ConnectApp.components {
                 turns: _controller,
                 child: new Column(mainAxisAlignment: MainAxisAlignment.center,
                     children: new List<Widget> {
-                        Image.asset("loading", width: 36, height: 36)
+                        Image.asset("loading", width: widget.size, height: widget.size)
                     })
             );
         }

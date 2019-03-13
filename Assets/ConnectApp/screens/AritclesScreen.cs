@@ -59,12 +59,12 @@ namespace ConnectApp.screens {
                                 new Container(child: new Icon(Icons.search, null, 28,
                                     Color.fromRGBO(255, 255, 255, 0.8f))),
                                 new GestureDetector(
-                                    onTap: () => { StoreProvider.store.Dispatch(new LoginByEmailAction()); },
+                                    onTap: () => Navigator.pushNamed(context, "/bind-unity"),
                                     child: new Container(
                                         color: CColors.BrownGrey,
                                         child: new Text(
-                                            "LoginByEmail",
-                                            style: CTextStyle.H2
+                                            "Login",
+                                            style: CTextStyle.H4
                                         )
                                     )
                                 )
@@ -80,23 +80,21 @@ namespace ConnectApp.screens {
                 onNotification: (ScrollNotification notification) => { return _OnNotification(context, notification); },
                 child: new Container(
                     margin: EdgeInsets.only(0, headerHeight - _offsetY, 0, 49),
-                    child: new StoreConnector<AppState, Dictionary<string,object>>(
-                        converter: (state, dispatch) => new Dictionary<string, object>()
-                        {
-                            {"articlesLoading",state.articleState.articlesLoading},
-                            {"articleList",state.articleState.articleList}
+                    child: new StoreConnector<AppState, Dictionary<string, object>>(
+                        converter: (state, dispatch) => new Dictionary<string, object>() {
+                            {"articlesLoading", state.articleState.articlesLoading},
+                            {"articleList", state.articleState.articleList}
                         },
-                        builder: (_context, viewModel) =>
-                        {
-                            bool articlesLoading = (bool)viewModel["articlesLoading"];
+                        builder: (_context, viewModel) => {
+                            bool articlesLoading = (bool) viewModel["articlesLoading"];
                             if (articlesLoading) return new Container();
-                            var articleList = (List<string>)viewModel["articleList"];
+                            var articleList = (List<string>) viewModel["articleList"];
                             var refreshPage = new Refresh(
                                 onHeaderRefresh: onHeaderRefresh,
                                 onFooterRefresh: onFooterRefresh,
                                 child: new ListView(
                                     physics: new AlwaysScrollableScrollPhysics(),
-                                    children: _buildArtileCards(context,articleList)
+                                    children: _buildArtileCards(context, articleList)
                                 )
                             );
                             return refreshPage;
@@ -142,7 +140,7 @@ namespace ConnectApp.screens {
                 .Catch(error => { Debug.Log(error); });
         }
 
-        private List<Widget> _buildArtileCards(BuildContext context,List<string> items) {
+        private List<Widget> _buildArtileCards(BuildContext context, List<string> items) {
             var list = new List<Widget>();
             items.ForEach((id) => {
                 list.Add(new ArticleCard(

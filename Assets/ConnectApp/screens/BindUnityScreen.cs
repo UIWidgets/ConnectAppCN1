@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using ConnectApp.components;
 using ConnectApp.constants;
+using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 
 namespace ConnectApp.screens {
     public class BindUnityScreen : StatelessWidget {
@@ -104,6 +106,7 @@ namespace ConnectApp.screens {
                         new Container(
                             height: 44,
                             decoration: new BoxDecoration(
+                                CColors.Transparent,
                                 border: new Border(
                                     new BorderSide(CColors.Transparent),
                                     new BorderSide(CColors.Transparent),
@@ -112,30 +115,39 @@ namespace ConnectApp.screens {
                                 )
                             ),
                             alignment: Alignment.center,
-                            child: new InputField(
-                                focusNode: _emailFocusNode,
-                                maxLines: 1,
-                                autofocus: false,
-                                style: new TextStyle(
-                                    fontSize: 16,
-                                    color: CColors.text1
-                                ),
-                                hintText: "邮箱",
-                                hintStyle: new TextStyle(
-                                    fontSize: 16,
-                                    color: CColors.text2
-                                ),
-                                labelStyle: new TextStyle(
-                                    fontSize: 16,
-                                    color: CColors.text2
-                                ),
-                                cursorColor: CColors.primary,
-                                onChanged: (text) => {
-                                    StoreProvider.store.Dispatch(new LoginChangeEmailAction {changeText = text});
-                                },
-                                onSubmitted: (text) => {
-                                    _emailFocusNode.unfocus();
-                                    FocusScope.of(context).requestFocus(_passwordFocusNode);
+                            child: new StoreConnector<AppState, bool>(
+                                converter: (state, dispatch) => state.loginState.loading,
+                                builder: (context1, loading) => {
+                                    return new IgnorePointer(
+                                        ignoring: loading,
+                                        child: new InputField(
+                                            focusNode: _emailFocusNode,
+                                            maxLines: 1,
+                                            autofocus: false,
+                                            style: new TextStyle(
+                                                fontSize: 16,
+                                                color: CColors.text1
+                                            ),
+                                            hintText: "邮箱",
+                                            hintStyle: new TextStyle(
+                                                fontSize: 16,
+                                                color: CColors.text2
+                                            ),
+                                            labelStyle: new TextStyle(
+                                                fontSize: 16,
+                                                color: CColors.text2
+                                            ),
+                                            cursorColor: CColors.primary,
+                                            onChanged: (text) => {
+                                                StoreProvider.store.Dispatch(new LoginChangeEmailAction
+                                                    {changeText = text});
+                                            },
+                                            onSubmitted: (text) => {
+                                                _emailFocusNode.unfocus();
+                                                FocusScope.of(context).requestFocus(_passwordFocusNode);
+                                            }
+                                        )
+                                    );
                                 }
                             )
                         ),
@@ -143,6 +155,7 @@ namespace ConnectApp.screens {
                         new Container(
                             height: 44,
                             decoration: new BoxDecoration(
+                                CColors.Transparent,
                                 border: new Border(
                                     new BorderSide(CColors.Transparent),
                                     new BorderSide(CColors.Transparent),
@@ -151,32 +164,41 @@ namespace ConnectApp.screens {
                                 )
                             ),
                             alignment: Alignment.center,
-                            child: new InputField(
-                                focusNode: _passwordFocusNode,
-                                maxLines: 1,
-                                autofocus: false,
-                                obscureText: true,
-                                style: new TextStyle(
-                                    fontSize: 16,
-                                    color: CColors.text1
-                                ),
-                                hintText: "密码",
-                                hintStyle: new TextStyle(
-                                    fontSize: 16,
-                                    color: CColors.text2
-                                ),
-                                labelStyle: new TextStyle(
-                                    fontSize: 16,
-                                    color: CColors.text2
-                                ),
-                                cursorColor: CColors.primary,
-                                onChanged: (text) => {
-                                    StoreProvider.store.Dispatch(new LoginChangePasswordAction {changeText = text});
-                                },
-                                onSubmitted: (text) => {
-                                    _emailFocusNode.unfocus();
-                                    _passwordFocusNode.unfocus();
-                                    StoreProvider.store.Dispatch(new LoginByEmailAction());
+                            child: new StoreConnector<AppState, bool>(
+                                converter: (state, dispatch) => state.loginState.loading,
+                                builder: (context1, loading) => {
+                                    return new IgnorePointer(
+                                        ignoring: loading,
+                                        child: new InputField(
+                                            focusNode: _passwordFocusNode,
+                                            maxLines: 1,
+                                            autofocus: false,
+                                            obscureText: true,
+                                            style: new TextStyle(
+                                                fontSize: 16,
+                                                color: CColors.text1
+                                            ),
+                                            hintText: "密码",
+                                            hintStyle: new TextStyle(
+                                                fontSize: 16,
+                                                color: CColors.text2
+                                            ),
+                                            labelStyle: new TextStyle(
+                                                fontSize: 16,
+                                                color: CColors.text2
+                                            ),
+                                            cursorColor: CColors.primary,
+                                            onChanged: (text) => {
+                                                StoreProvider.store.Dispatch(new LoginChangePasswordAction
+                                                    {changeText = text});
+                                            },
+                                            onSubmitted: (text) => {
+                                                _emailFocusNode.unfocus();
+                                                _passwordFocusNode.unfocus();
+                                                StoreProvider.store.Dispatch(new LoginByEmailAction());
+                                            }
+                                        )
+                                    );
                                 }
                             )
                         )
@@ -193,25 +215,58 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new Container(height: 24),
                         new CustomButton(
-                            onPressed: () => { StoreProvider.store.Dispatch(new LoginByEmailAction()); },
-                            child: new Container(
-                                height: 48,
-                                decoration: new BoxDecoration(
-                                    CColors.primary,
-                                    borderRadius: BorderRadius.all(24)
-                                ),
-                                child: new Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: new List<Widget> {
-                                        new Text(
-                                            "确定",
-                                            maxLines: 1,
-                                            style: new TextStyle(
-                                                fontSize: 16,
-                                                color: CColors.text1
-                                            )
+                            onPressed: () => {
+                                _emailFocusNode.unfocus();
+                                _passwordFocusNode.unfocus();
+                                StoreProvider.store.Dispatch(new LoginByEmailAction());
+                            },
+                            child: new StoreConnector<AppState, Dictionary<string, object>>(
+                                converter: (state, dispatch) => new Dictionary<string, object> {
+                                    {"loading", state.loginState.loading},
+                                    {"email", state.loginState.email},
+                                    {"password", state.loginState.password}
+                                },
+                                builder: (context1, viewModel) => {
+                                    var loading = (bool) viewModel["loading"];
+                                    var email = viewModel["email"] as string;
+                                    var password = viewModel["password"] as string;
+                                    var btnEnable = email.Length > 0 && password.Length > 0;
+                                    Debug.Log($"{email}, {password}, {btnEnable}");
+                                    Widget right = new Container();
+                                    if (loading)
+                                        right = new Padding(
+                                            padding: EdgeInsets.only(right: 24),
+                                            child: new CustomActivityIndicator(size: 20)
+                                        );
+                                    return new Container(
+                                        height: 48,
+                                        decoration: new BoxDecoration(
+                                            btnEnable
+                                                ? (loading ? CColors.primary2 : CColors.primary)
+                                                : CColors.BrownGrey,
+                                            borderRadius: BorderRadius.all(24)
+                                        ),
+                                        child: new Stack(
+                                            children: new List<Widget> {
+                                                new Align(
+                                                    alignment: Alignment.center,
+                                                    child: new Text(
+                                                        "确定",
+                                                        maxLines: 1,
+                                                        style: new TextStyle(
+                                                            fontSize: 16,
+                                                            color: CColors.text1
+                                                        )
+                                                    )
+                                                ),
+                                                new Align(
+                                                    alignment: Alignment.centerRight,
+                                                    child: right
+                                                )
+                                            }
                                         )
-                                    })
+                                    );
+                                }
                             )
                         ),
                         new Container(height: 8),
@@ -222,6 +277,14 @@ namespace ConnectApp.screens {
                                     fontSize: 16,
                                     color: CColors.text2
                                 )
+                            )
+                        ),
+                        new Container(height: 20),
+                        new StoreConnector<AppState, bool>(
+                            converter: (state, dispatch) => state.loginState.isLoggedIn,
+                            builder: (context1, isLoggedIn) => new Text(
+                                isLoggedIn ? "已登陆" : "未登录",
+                                style: CTextStyle.H2White
                             )
                         )
                     }
