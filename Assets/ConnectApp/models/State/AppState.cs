@@ -46,7 +46,7 @@ namespace ConnectApp.models {
                 },
                 notificationState = new NotificationState {
                     loading = false,
-                    results = new List<NotificationResult>()
+                    notifications = new List<Notification>()
                 },
                 userState = new UserState {
                     UserDict = new Dictionary<string, User>()

@@ -4,18 +4,6 @@ using System.Collections.Generic;
 namespace ConnectApp.models {
     [Serializable]
     public class Notification {
-        public int unreadCount;
-        public int unseenCount;
-        public string current;
-        public string next;
-        public int total;
-        public int page;
-        public int pageTotal;
-        public List<NotificationResult> results;
-    }
-    
-    [Serializable]
-    public class NotificationResult {
         public string id;
         public string userId;
         public string read;

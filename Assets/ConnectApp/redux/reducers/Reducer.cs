@@ -195,9 +195,9 @@ namespace ConnectApp.redux.reducers {
                 case FetchNotificationsAction action: {
                     state.notificationState.loading = true;
                     NotificationApi.FetchNotifications(action.pageNumber)
-                        .Then(notificationObj => {
+                        .Then(notificationResponse => {
                             StoreProvider.store.Dispatch(new FetchNotificationsSuccessAction {
-                                notificationObj = notificationObj,
+                                notificationResponse = notificationResponse,
                                 pageNumber = action.pageNumber
                             });
                         })
@@ -209,19 +209,13 @@ namespace ConnectApp.redux.reducers {
                 }
                 case FetchNotificationsSuccessAction action: {
                     state.notificationState.loading = false;
-                    state.notificationState.unreadCount = action.notificationObj.unreadCount;
-                    state.notificationState.unseenCount = action.notificationObj.unseenCount;
-                    state.notificationState.current = action.notificationObj.current;
-                    state.notificationState.next = action.notificationObj.next;
-                    state.notificationState.total = action.notificationObj.total;
-                    state.notificationState.page = action.notificationObj.page;
-                    state.notificationState.pageTotal = action.notificationObj.pageTotal;
+                    state.notificationState.total = action.notificationResponse.total;
                     if (action.pageNumber == 1) {
-                        state.notificationState.results = action.notificationObj.results;
+                        state.notificationState.notifications = action.notificationResponse.results;
                     } else {
-                        var results = state.notificationState.results;
-                        results.AddRange(action.notificationObj.results);
-                        state.notificationState.results = results;
+                        var results = state.notificationState.notifications;
+                        results.AddRange(action.notificationResponse.results);
+                        state.notificationState.notifications = results;
                     }
                     break;
                 }

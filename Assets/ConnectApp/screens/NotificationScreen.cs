@@ -31,7 +31,7 @@ namespace ConnectApp.screens {
         
         public override void initState() {
             base.initState();
-            var results = StoreProvider.store.state.notificationState.results;
+            var results = StoreProvider.store.state.notificationState.notifications;
             if (results == null || results.Count == 0)
                 StoreProvider.store.Dispatch(new FetchNotificationsAction{pageNumber = 1});
         }
@@ -50,9 +50,9 @@ namespace ConnectApp.screens {
         
         private static IPromise _onRefresh(int pageIndex) {
             return NotificationApi.FetchNotifications(pageIndex)
-                .Then(notificationObj => {
+                .Then(notificationResponse => {
                     StoreProvider.store.Dispatch(new FetchNotificationsSuccessAction {
-                        notificationObj = notificationObj,
+                        notificationResponse = notificationResponse,
                         pageNumber = pageIndex
                     });
                 })
@@ -91,8 +91,8 @@ namespace ConnectApp.screens {
                                         converter: (state, dispatch) => state.notificationState,
                                         builder: (_context, viewModel) => {
                                             if (viewModel.loading) return new Container();
-                                            var results = viewModel.results;
-                                            var isLoadMore = results.Count == viewModel.total;
+                                            var notifications = viewModel.notifications;
+                                            var isLoadMore = notifications.Count == viewModel.total;
                                             RefresherCallback onFooterRefresh = null;
                                             if (!isLoadMore) {
                                                 onFooterRefresh = () => {
@@ -109,11 +109,11 @@ namespace ConnectApp.screens {
                                                 onFooterRefresh: onFooterRefresh,
                                                 child: ListView.builder(
                                                     physics: new AlwaysScrollableScrollPhysics(),
-                                                    itemCount: results.Count,
+                                                    itemCount: notifications.Count,
                                                     itemBuilder: (cxt, index) => {
-                                                        var notificationResult = results[index];
+                                                        var notification = notifications[index];
                                                         return new NotificationCard(
-                                                            notificationResult: notificationResult
+                                                            notification: notification
                                                         );
                                                     }
                                                 )

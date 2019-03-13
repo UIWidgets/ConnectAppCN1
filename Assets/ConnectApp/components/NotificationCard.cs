@@ -8,24 +8,25 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
+using Notification = ConnectApp.models.Notification;
 
 namespace ConnectApp.components {
     public class NotificationCard : StatelessWidget {
         public NotificationCard(
             Key key = null,
-            NotificationResult notificationResult = null
+            Notification notification = null
         ) : base(key) {
-            this.notificationResult = notificationResult;
+            this.notification = notification;
         }
 
-        public readonly NotificationResult notificationResult;
+        public readonly Notification notification;
 
         public override Widget build(BuildContext context) {
-            if (notificationResult == null) {
+            if (notification == null) {
                 return new Container();
             }
 
-            var data = notificationResult.data;
+            var data = notification.data;
             return new GestureDetector(
                 onTap: () => {
                     StoreProvider.store.Dispatch(new NavigatorToLiveAction {eventId = data.projectId});
@@ -67,8 +68,8 @@ namespace ConnectApp.components {
         }
         
         private Widget _buildNotificationTitle() {
-            var type = notificationResult.type;
-            var data = notificationResult.data;
+            var type = notification.type;
+            var data = notification.data;
             var subTitle = new TextSpan();
             if (type == "project_liked") {
                 subTitle = new TextSpan(
@@ -101,7 +102,7 @@ namespace ConnectApp.components {
         }
         
         private Widget _buildNotificationTime() {
-            var createdTime = notificationResult.createdTime;
+            var createdTime = notification.createdTime;
             return new Container(
                 child: new Text(
                     DateConvert.DateStringFromNow(createdTime),
