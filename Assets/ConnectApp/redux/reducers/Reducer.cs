@@ -86,22 +86,18 @@ namespace ConnectApp.redux.reducers {
                     state.articleState.articlesLoading = false;
                     break;
                 }
-                case FetchArticleDetailAction action:
-                {
+                case FetchArticleDetailAction action: {
                     state.articleState.articleDetailLoading = true;
                     ArticleApi.FetchArticleDetail(action.articleId)
-                        .Then((articleDetailResponse) =>
-                        {
-                            StoreProvider.store.Dispatch(new FetchArticleDetailSuccessAction()
-                            {
+                        .Then((articleDetailResponse) => {
+                            StoreProvider.store.Dispatch(new FetchArticleDetailSuccessAction() {
                                 articleDetail = articleDetailResponse.project
                             });
                         })
                         .Catch(error => { Debug.Log(error); });
                     break;
                 }
-                case FetchArticleDetailSuccessAction action:
-                {
+                case FetchArticleDetailSuccessAction action: {
                     state.articleState.articleDetailLoading = false;
                     state.articleState.articleDetail = action.articleDetail;
                     break;
@@ -199,12 +195,30 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case FetchNotificationsAction action: {
+                    state.notificationState.loading = true;
                     NotificationApi.FetchNotifications(action.pageNumber)
-                        .Then(() => { StoreProvider.store.Dispatch(new FetchNotificationsSuccessAction()); })
-                        .Catch(error => { Debug.Log(error); });
+                        .Then(notificationResponse => {
+                            StoreProvider.store.Dispatch(new FetchNotificationsSuccessAction {
+                                notificationResponse = notificationResponse,
+                                pageNumber = action.pageNumber
+                            });
+                        })
+                        .Catch(error => {
+                            state.notificationState.loading = false;
+                            Debug.Log($"{error}");
+                        });
                     break;
                 }
                 case FetchNotificationsSuccessAction action: {
+                    state.notificationState.loading = false;
+                    state.notificationState.total = action.notificationResponse.total;
+                    if (action.pageNumber == 1) {
+                        state.notificationState.notifications = action.notificationResponse.results;
+                    } else {
+                        var results = state.notificationState.notifications;
+                        results.AddRange(action.notificationResponse.results);
+                        state.notificationState.notifications = results;
+                    }
                     break;
                 }
                 case ReportItemAction action: {
@@ -262,9 +276,18 @@ namespace ConnectApp.redux.reducers {
                     {
                         if (!state.userState.UserDict.ContainsKey(keyValuePair.Key))
                         {
-                            state.userState.UserDict.Add(keyValuePair.Key,keyValuePair.Value); 
+                            state.userState.UserDict.Add(keyValuePair.Key, keyValuePair.Value);
                         }
                     }
+                    break;
+                }
+                case SearchArticleAction action: {
+                    SearchApi.SearchArticle(action.keyword, action.pageNumber)
+                        .Then(() => { StoreProvider.store.Dispatch(new SearchArticleSuccessAction()); })
+                        .Catch(error => { Debug.Log(error); });
+                    break;
+                }
+                case SearchArticleSuccessAction action: {
                     break;
                 }
             }

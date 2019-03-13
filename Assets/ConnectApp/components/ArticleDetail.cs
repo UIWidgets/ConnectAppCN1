@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.WindowsRuntime;
 using ConnectApp.api;
@@ -25,14 +26,13 @@ namespace ConnectApp.components {
             this.articleDetail = articleDetail;
         }
 
-        private readonly Project articleDetail;
+        public readonly Project articleDetail;
         private Article _article;
-        private Dictionary<string, ContentMap> _contentMap;
+        private List<Article> _relArticles;
         
         public override Widget build(BuildContext context) {
-            _article  = articleDetail.projectData;
-            _contentMap = articleDetail.contentMap;
-
+            _article = articleDetail.projectData;
+            _relArticles = articleDetail.projects;
             return new Container(child: _content(context));
         }
 
@@ -77,7 +77,9 @@ namespace ConnectApp.components {
         }
         
         
-        private Widget _contentHead(BuildContext context) {
+        private Widget _contentHead(BuildContext context)
+        {
+            
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
@@ -148,6 +150,7 @@ namespace ConnectApp.components {
 
         private Widget _subTitle(BuildContext context)
         {
+            
             return new Container(
                 decoration:new BoxDecoration(
                    color:CColors.Separator2,
@@ -170,7 +173,7 @@ namespace ConnectApp.components {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        new EventDescription(content: _article.body, contentMap: _contentMap)
+                        new EventDescription(content: _article.body, contentMap: articleDetail.contentMap)
                     }
                 )
             );
@@ -202,19 +205,24 @@ namespace ConnectApp.components {
                     new Container(height:1,color:CColors.Separator2,margin:EdgeInsets.only(bottom:24)),
                     new Container(
                         child: new Column(
-                            children: new List<Widget>
-                            {
-                                new RelatedArticleCard(),
-                                new RelatedArticleCard(),
-                                new RelatedArticleCard(),
-                                new RelatedArticleCard()
-                            }
+                            children: _buildArticles()
                         )
                     )
                 }) 
 
             );
         }
+
+        List<Widget> _buildArticles()
+        {
+            var widgets = new List<Widget>();
+            _relArticles.ForEach((article) =>
+            {
+                widgets.Add(new RelatedArticleCard(article)); 
+            });
+            return widgets;
+        }
+
         private Widget _comments(BuildContext context)
         {
             return new Container(

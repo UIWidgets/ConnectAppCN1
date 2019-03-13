@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.redux;
+using ConnectApp.utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -15,7 +17,7 @@ namespace ConnectApp.components
     public class RelatedArticleCard : StatelessWidget
     {
         public RelatedArticleCard(
-             Article article = null, 
+             Article article, 
              GestureTapCallback onTap = null,
              Key key = null
         ) : base(key)
@@ -29,6 +31,7 @@ namespace ConnectApp.components
         
         public override Widget build(BuildContext context)
         {
+            var user = StoreProvider.store.state.userState.UserDict[article.userId];
             var child = new Container(
                 padding:EdgeInsets.only(top:16,bottom:16),
                 child:new Row(
@@ -40,13 +43,13 @@ namespace ConnectApp.components
                                   crossAxisAlignment:CrossAxisAlignment.start,
                                   children:new List<Widget>
                                   {
-                                      new Text("伴随Simplex噪声的GPU粒子动画教程",style:new TextStyle(
+                                      new Text(article.title,style:new TextStyle(
                                           height: 1.5f,
                                           fontSize: 16,
                                           fontFamily: "PingFangSC-Regular",
                                           color: CColors.TextTitle
                                       ),maxLines:2,overflow:TextOverflow.ellipsis,textAlign:TextAlign.left),
-                                      new Text("Unity China · 刚刚 · 阅读 390",style:new TextStyle(
+                                      new Text($"{ user.username } · { DateConvert.DateStringFromNow(article.updatedTime)} · 阅读 {article.viewCount }",style:new TextStyle(
                                           height: 1.67f,
                                           fontSize: 12,
                                           fontFamily: "PingFangSC-Regular",
@@ -63,7 +66,7 @@ namespace ConnectApp.components
                               child: new Container(
                                   width:114,
                                   height:76,
-                                  child: Image.network("1234",fit:BoxFit.fill)
+                                  child: Image.network(article.thumbnail.url,fit:BoxFit.fill)
                               )
                           )
                       ),
