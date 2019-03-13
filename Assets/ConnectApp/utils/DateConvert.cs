@@ -1,9 +1,9 @@
 using System;
 
 namespace ConnectApp.utils {
-    public class DateConvert {
+    public static class DateConvert {
         public static string DateStringFromNow(DateTime dt) {
-            TimeSpan span = DateTime.Now - dt;
+            TimeSpan span = DateTime.UtcNow - dt;
             if (span.TotalDays > 60)
                 return dt.ToShortDateString();
             else if (span.TotalDays > 30)

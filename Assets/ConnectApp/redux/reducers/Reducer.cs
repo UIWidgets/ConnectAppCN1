@@ -197,12 +197,36 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case FetchNotificationsAction action: {
+                    state.notificationState.loading = true;
                     NotificationApi.FetchNotifications(action.pageNumber)
-                        .Then(() => { StoreProvider.store.Dispatch(new FetchNotificationsSuccessAction()); })
-                        .Catch(error => { Debug.Log(error); });
+                        .Then(notificationObj => {
+                            StoreProvider.store.Dispatch(new FetchNotificationsSuccessAction {
+                                notificationObj = notificationObj,
+                                pageNumber = action.pageNumber
+                            });
+                        })
+                        .Catch(error => {
+                            state.notificationState.loading = false;
+                            Debug.Log($"{error}");
+                        });
                     break;
                 }
                 case FetchNotificationsSuccessAction action: {
+                    state.notificationState.loading = false;
+                    state.notificationState.unreadCount = action.notificationObj.unreadCount;
+                    state.notificationState.unseenCount = action.notificationObj.unseenCount;
+                    state.notificationState.current = action.notificationObj.current;
+                    state.notificationState.next = action.notificationObj.next;
+                    state.notificationState.total = action.notificationObj.total;
+                    state.notificationState.page = action.notificationObj.page;
+                    state.notificationState.pageTotal = action.notificationObj.pageTotal;
+                    if (action.pageNumber == 1) {
+                        state.notificationState.results = action.notificationObj.results;
+                    } else {
+                        var results = state.notificationState.results;
+                        results.AddRange(action.notificationObj.results);
+                        state.notificationState.results = results;
+                    }
                     break;
                 }
                 case ReportItemAction action: {
