@@ -3,7 +3,7 @@ using ConnectApp.models;
 
 namespace ConnectApp.redux.actions {
     public class FetchEventsAction : RequestAction {
-        public int pageNumber = 1;
+        public int pageNumber = 0;
     }
 
     public class FetchEventsSuccessAction : BaseAction {

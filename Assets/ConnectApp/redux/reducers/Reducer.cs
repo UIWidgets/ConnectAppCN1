@@ -84,22 +84,18 @@ namespace ConnectApp.redux.reducers {
                     state.articleState.articlesLoading = false;
                     break;
                 }
-                case FetchArticleDetailAction action:
-                {
+                case FetchArticleDetailAction action: {
                     state.articleState.articleDetailLoading = true;
                     ArticleApi.FetchArticleDetail(action.articleId)
-                        .Then((articleDetailResponse) =>
-                        {
-                            StoreProvider.store.Dispatch(new FetchArticleDetailSuccessAction()
-                            {
+                        .Then((articleDetailResponse) => {
+                            StoreProvider.store.Dispatch(new FetchArticleDetailSuccessAction() {
                                 articleDetail = articleDetailResponse.project
                             });
                         })
                         .Catch(error => { Debug.Log(error); });
                     break;
                 }
-                case FetchArticleDetailSuccessAction action:
-                {
+                case FetchArticleDetailSuccessAction action: {
                     state.articleState.articleDetailLoading = false;
                     state.articleState.articleDetail = action.articleDetail;
                     break;
@@ -276,6 +272,15 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case SendMessageSuccessAction action: {
+                    break;
+                }
+                case SearchArticleAction action: {
+                    SearchApi.SearchArticle(action.keyword, action.pageNumber)
+                        .Then(() => { StoreProvider.store.Dispatch(new SearchArticleSuccessAction()); })
+                        .Catch(error => { Debug.Log(error); });
+                    break;
+                }
+                case SearchArticleSuccessAction action: {
                     break;
                 }
             }

@@ -313,6 +313,20 @@ namespace ConnectApp.screens {
                                 style: CTextStyle.H4
                             )
                         )
+                    ),
+                    new Container(height: 10),
+                    new GestureDetector(
+                        onTap: () => {
+                            StoreProvider.store.Dispatch(new SearchArticleAction
+                                {keyword = "low"});
+                        },
+                        child: new Container(
+                            color: CColors.White,
+                            child: new Text(
+                                "SearchArticle",
+                                style: CTextStyle.H4
+                            )
+                        )
                     )
                 }
             );
