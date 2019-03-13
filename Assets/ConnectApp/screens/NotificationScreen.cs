@@ -1,9 +1,16 @@
 using System.Collections.Generic;
+using ConnectApp.api;
+using ConnectApp.components.refresh;
 using ConnectApp.components;
 using ConnectApp.constants;
+using ConnectApp.models;
+using ConnectApp.redux;
+using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
+using RSG;
+using UnityEngine;
 
 namespace ConnectApp.screens {
     public class NotificationScreen : StatefulWidget {
@@ -20,6 +27,14 @@ namespace ConnectApp.screens {
     public class _NotificationScreenState : State<NotificationScreen> {
         private const float headerHeight = 140;
         private float _offsetY = 0;
+        private int pageNumber = 1;
+        
+        public override void initState() {
+            base.initState();
+            var results = StoreProvider.store.state.notificationState.notifications;
+            if (results == null || results.Count == 0)
+                StoreProvider.store.Dispatch(new FetchNotificationsAction{pageNumber = 1});
+        }
 
         private bool _onNotification(ScrollNotification notification) {
             var pixels = notification.metrics.pixels;
@@ -31,6 +46,17 @@ namespace ConnectApp.screens {
             }
 
             return true;
+        }
+        
+        private static IPromise _onRefresh(int pageIndex) {
+            return NotificationApi.FetchNotifications(pageIndex)
+                .Then(notificationResponse => {
+                    StoreProvider.store.Dispatch(new FetchNotificationsSuccessAction {
+                        notificationResponse = notificationResponse,
+                        pageNumber = pageIndex
+                    });
+                })
+                .Catch(error => { Debug.Log($"{error}"); });
         }
 
         public override Widget build(BuildContext context) {
@@ -61,9 +87,38 @@ namespace ConnectApp.screens {
                                 onNotification: _onNotification,
                                 child: new Container(
                                     padding: EdgeInsets.only(bottom: 49),
-                                    child: ListView.builder(
-                                        itemCount: 10,
-                                        itemBuilder: (BuildContext cxt, int index) => { return new NotificationCard(); }
+                                    child: new StoreConnector<AppState, NotificationState>(
+                                        converter: (state, dispatch) => state.notificationState,
+                                        builder: (_context, viewModel) => {
+                                            if (viewModel.loading) return new Container();
+                                            var notifications = viewModel.notifications;
+                                            var isLoadMore = notifications.Count == viewModel.total;
+                                            RefresherCallback onFooterRefresh = null;
+                                            if (!isLoadMore) {
+                                                onFooterRefresh = () => {
+                                                    pageNumber++;
+                                                    return _onRefresh(pageNumber);
+                                                };
+                                            }
+
+                                            return new Refresh(
+                                                onHeaderRefresh: () => {
+                                                    pageNumber = 1;
+                                                    return _onRefresh(pageNumber);
+                                                },
+                                                onFooterRefresh: onFooterRefresh,
+                                                child: ListView.builder(
+                                                    physics: new AlwaysScrollableScrollPhysics(),
+                                                    itemCount: notifications.Count,
+                                                    itemBuilder: (cxt, index) => {
+                                                        var notification = notifications[index];
+                                                        return new NotificationCard(
+                                                            notification: notification
+                                                        );
+                                                    }
+                                                )
+                                            );
+                                        }
                                     )
                                 )
                             )

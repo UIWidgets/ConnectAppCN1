@@ -193,12 +193,30 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case FetchNotificationsAction action: {
+                    state.notificationState.loading = true;
                     NotificationApi.FetchNotifications(action.pageNumber)
-                        .Then(() => { StoreProvider.store.Dispatch(new FetchNotificationsSuccessAction()); })
-                        .Catch(error => { Debug.Log(error); });
+                        .Then(notificationResponse => {
+                            StoreProvider.store.Dispatch(new FetchNotificationsSuccessAction {
+                                notificationResponse = notificationResponse,
+                                pageNumber = action.pageNumber
+                            });
+                        })
+                        .Catch(error => {
+                            state.notificationState.loading = false;
+                            Debug.Log($"{error}");
+                        });
                     break;
                 }
                 case FetchNotificationsSuccessAction action: {
+                    state.notificationState.loading = false;
+                    state.notificationState.total = action.notificationResponse.total;
+                    if (action.pageNumber == 1) {
+                        state.notificationState.notifications = action.notificationResponse.results;
+                    } else {
+                        var results = state.notificationState.notifications;
+                        results.AddRange(action.notificationResponse.results);
+                        state.notificationState.notifications = results;
+                    }
                     break;
                 }
                 case ReportItemAction action: {
