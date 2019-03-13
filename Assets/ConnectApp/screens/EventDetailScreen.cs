@@ -4,7 +4,6 @@ using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
-using ConnectApp.utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -220,7 +219,7 @@ namespace ConnectApp.screens {
                     if (StoreProvider.store.state.eventState.eventDetailLoading)
                         return new Container(
                             color: CColors.White,
-                            child: new Container(child: new CustomActivityIndicator(radius: 16))
+                            child: new Container(child: new CustomActivityIndicator())
                         );
                     else if (eventObj == null) return new Container();
                     return new Container(

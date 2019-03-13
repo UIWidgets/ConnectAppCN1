@@ -15,4 +15,7 @@ namespace ConnectApp.redux.actions {
     public class LoginByEmailSuccessAction : BaseAction {
         public LoginInfo loginInfo;
     }
+
+    public class LoginByEmailFailedAction : BaseAction {
+    }
 }

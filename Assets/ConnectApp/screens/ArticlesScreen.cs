@@ -75,12 +75,12 @@ namespace ConnectApp.screens {
                         )
                      ),
                     new GestureDetector(
-                        onTap: () => { StoreProvider.store.Dispatch(new LoginByEmailAction()); },
+                        onTap: () => Navigator.pushNamed(context, "/bind-unity"),
                         child: new Container(
                             color: CColors.BrownGrey,
                             child: new Text(
-                                "LoginByEmail",
-                                style: CTextStyle.H2
+                                "Login",
+                                style: CTextStyle.H4
                             )
                         )
                     )
@@ -101,9 +101,9 @@ namespace ConnectApp.screens {
                             {"articleList",state.articleState.articleList}
                         },
                         builder: (_context, viewModel) => {
-                            bool articlesLoading = (bool)viewModel["articlesLoading"];
+                            bool articlesLoading = (bool) viewModel["articlesLoading"];
                             if (articlesLoading) return new Container();
-                            var articleList = (List<string>)viewModel["articleList"];
+                            var articleList = (List<string>) viewModel["articleList"];
                             var refreshPage = new Refresh(
                                 onHeaderRefresh: onHeaderRefresh,
                                 onFooterRefresh: onFooterRefresh,
