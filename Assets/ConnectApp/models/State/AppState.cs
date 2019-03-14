@@ -57,7 +57,11 @@ namespace ConnectApp.models {
                     futureListLoading = false,
                     pastListLoading = false
                 },
-                messageState = new MessageState()
+                messageState = new MessageState
+                {
+                    channelMessageDict = new Dictionary<string, Dictionary<string, Message>>(),
+                    channelMessageList = new Dictionary<string, List<string>>()
+                }
             };
         }
     }

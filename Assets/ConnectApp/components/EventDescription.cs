@@ -86,7 +86,7 @@ namespace ConnectApp.components {
                         var key = block.entityRanges.first().key.ToString();
                         var data = content.entityMap[key].data;
                         var map = contentMap[data.contentId];
-                        widgets.Add(_Atomic(block.type, data.title, map.originalImage.url));
+                        widgets.Add(_Atomic(block.type, data.title, map.originalImage?.url));
                     }
                         break;
                 }
@@ -98,7 +98,7 @@ namespace ConnectApp.components {
 
         private Widget _H1(string text) {
             return new Container(
-                padding:EdgeInsets.only(top:16),
+                padding:EdgeInsets.only(top:16,left:16,right:16),
                 margin: EdgeInsets.only(bottom: 24),
                 child: new Text(
                     text,
@@ -114,7 +114,7 @@ namespace ConnectApp.components {
 
         private Widget _H2(string text) {
             return new Container(
-                padding:EdgeInsets.only(top:16),
+                padding:EdgeInsets.only(top:16,left:16,right:16),
                 margin: EdgeInsets.only(bottom: 24),
                 child: new Text(
                     text,
@@ -129,6 +129,7 @@ namespace ConnectApp.components {
 
         private Widget _Unstyled(string text) {
             return new Container(
+                padding:EdgeInsets.only(left:16,right:16),
                 margin: EdgeInsets.only(bottom: 24),
                 child: new Text(
                     text,
@@ -139,14 +140,12 @@ namespace ConnectApp.components {
 
         private Widget _CodeBlock(string text) {
             return new Container(
-                width: new MediaQuery().data.size.width,
                 decoration: new BoxDecoration(
                     color:Color.fromRGBO(110,198,255,0.12f)
                 ),
-                margin: EdgeInsets.only(
-                    bottom: 24
+                padding: EdgeInsets.only(
+                    bottom: 24,left:16,right:16
                 ),
-                padding:EdgeInsets.all(16),
                 child: new Container(
                     child: new Text(
                         text,
@@ -159,7 +158,7 @@ namespace ConnectApp.components {
 
         private Widget _QuoteBlock(string text) {
             return new Container(
-                margin: EdgeInsets.only(bottom: 24, left: 8),
+                margin: EdgeInsets.only(bottom: 24, left: 24),
                 decoration: new BoxDecoration(
                     border: new Border(
                         left: new BorderSide(
@@ -168,6 +167,7 @@ namespace ConnectApp.components {
                         )
                     )
                 ),
+                padding:EdgeInsets.only(left:4,right:16),
                 child: new Container(
                     child: new Text(
                         text,
@@ -207,7 +207,8 @@ namespace ConnectApp.components {
 
             return new Container(
                 margin: EdgeInsets.only(bottom: 32),
-                child: new Column(children: nodes)
+                child: new Container(padding:EdgeInsets.only(left:16,right:16),
+                    child:new Column(children: nodes))
             );
         }
 
@@ -227,7 +228,9 @@ namespace ConnectApp.components {
                     ),
                 };
                 widgets.Add(
-                    new Container(margin: EdgeInsets.only(top: i == 0 ? 0 : 8),
+                    new Container(
+                        padding:EdgeInsets.only(left:16,right:16),
+                        margin: EdgeInsets.only(top: i == 0 ? 0 : 8),
                         child: new RichText(
                             text: new TextSpan(
                                 style: CTextStyle.TextBody1,
@@ -258,7 +261,7 @@ namespace ConnectApp.components {
                     ),
                 };
                 widgets.Add(
-                    new Container(margin: EdgeInsets.only(top: i == 0 ? 0 : 8),
+                    new Container(padding:EdgeInsets.only(left:16,right:16),margin: EdgeInsets.only(top: i == 0 ? 0 : 8),
                         child: new RichText(
                             text: new TextSpan(
                                 style: CTextStyle.TextBody1,

@@ -29,21 +29,20 @@ namespace ConnectApp.components {
 
         public override Widget build(BuildContext context) {
             var card = new Container(
+                color:CColors.Transparent,
                 child: new Padding(
                     padding: EdgeInsets.all(16),
                     child: new Container(
                         child: new Column(
                             mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment:CrossAxisAlignment.start,
                             children: new List<Widget> {
-                                new Row(
-                                    children: new List<Widget> {
-                                        new Container(
-                                            width: MediaQuery.of(context).size.width - 32,
-                                            child: new Text(article.title, style: CTextStyle.H5, maxLines: 2)
-                                        ),
-                                    }
-                                ),
+                                
                                 //title
+                                new Container(
+                                    child: new Text(article.title, style: CTextStyle.H5, maxLines: 2,textAlign:TextAlign.left)
+                                ),
+                                
                                 //content
                                 new Container(
                                     height: 66,
@@ -52,17 +51,17 @@ namespace ConnectApp.components {
                                         children: new List<Widget> {
                                             new Expanded(
                                                 child: new Text(
-                                                    article.subTitle,
+                                                    article.bodyPlain,
                                                     style: CTextStyle.PRegular, maxLines: 3,
                                                     overflow: TextOverflow.ellipsis)
                                             ),
-                                            new Padding(
-                                                padding: EdgeInsets.only(left: 8.0f),
+                                            new Container(
+                                                margin: EdgeInsets.only(left: 8.0f),
+                                                width: 99,
                                                 child: new ClipRRect(
                                                     borderRadius: BorderRadius.all(4),
                                                     child: new Container(
-                                                        width: 99,
-                                                        child: Image.network(article.thumbnail.url, fit: BoxFit.cover)
+                                                        child:Image.network(article.thumbnail.url, fit: BoxFit.cover)
                                                     )
                                                 )
                                             ),

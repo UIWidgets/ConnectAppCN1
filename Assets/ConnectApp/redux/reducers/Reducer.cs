@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using System.Linq;
 using ConnectApp.api;
 using ConnectApp.models;
 using ConnectApp.redux.actions;
+using Unity.UIWidgets.foundation;
 using UnityEngine;
 
 namespace ConnectApp.redux.reducers {
@@ -90,6 +92,32 @@ namespace ConnectApp.redux.reducers {
                     state.articleState.articleDetailLoading = true;
                     ArticleApi.FetchArticleDetail(action.articleId)
                         .Then((articleDetailResponse) => {
+                            
+                            if( articleDetailResponse.project.comments.items.Count>0)
+                            {
+                                var channelId = articleDetailResponse.project.comments.items.first().channelId;
+                                var channelMessageList = new Dictionary<string,List<string>>();
+                                var channelMessageDict = new Dictionary<string,Dictionary<string, Message>>();
+                                var itemIds = new List<string>();
+                                var messageItem = new Dictionary<string,Message>();
+                                articleDetailResponse.project.comments.items.ForEach((message) =>
+                                {
+                                    itemIds.Add(message.id);
+                                    messageItem[message.id] = message;
+                                });
+                                channelMessageList.Add(channelId,itemIds);
+                                channelMessageDict.Add(channelId,messageItem);
+                            
+                                StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction()
+                                {
+                                    channelMessageDict = channelMessageDict,
+                                    channelMessageList = channelMessageList
+                                });
+                            }
+                            
+                            StoreProvider.store.Dispatch(new UserMapAction() {
+                                userMap = articleDetailResponse.project.userMap
+                            });
                             StoreProvider.store.Dispatch(new FetchArticleDetailSuccessAction() {
                                 articleDetail = articleDetailResponse.project
                             });
@@ -113,11 +141,70 @@ namespace ConnectApp.redux.reducers {
                 }
                 case FetchArticleCommentsAction action: {
                     ArticleApi.FetchArticleComments(action.channelId, action.currOldestMessageId)
-                        .Then(() => { StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction()); })
+                        .Then((responseComments) =>
+                        {
+                            var channelMessageList = new Dictionary<string,List<string>>();
+                            var channelMessageDict = new Dictionary<string,Dictionary<string, Message>>();
+                            var itemIds = new List<string>();
+                            var messageItem = new Dictionary<string,Message>();
+                            responseComments.items.ForEach((message) =>
+                            {
+                                itemIds.Add(message.id);
+                                messageItem[message.id] = message;
+                            });
+                            channelMessageList.Add(action.channelId,itemIds);
+                            channelMessageDict.Add(action.channelId,messageItem);
+                            
+                            StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction()
+                            {
+                                channelMessageDict = channelMessageDict,
+                                channelMessageList = channelMessageList
+                            });
+                        })
                         .Catch(error => { Debug.Log(error); });
                     break;
                 }
-                case FetchArticleCommentsSuccessAction action: {
+                case FetchArticleCommentsSuccessAction action:
+                {
+                    foreach (var keyValuePair in action.channelMessageList)
+                    {
+                        if (state.messageState.channelMessageList.ContainsKey(keyValuePair.Key))
+                        {
+                            var oldList = state.messageState.channelMessageList[keyValuePair.Key];
+                            oldList.AddRange(keyValuePair.Value);
+                            state.messageState.channelMessageList[keyValuePair.Key] = oldList;
+                        }
+                        else
+                        {
+                            state.messageState.channelMessageList.Add(keyValuePair.Key,keyValuePair.Value);
+                        }
+                    }
+                    foreach (var keyValuePair in action.channelMessageDict)
+                    {
+                        if (state.messageState.channelMessageDict.ContainsKey(keyValuePair.Key))
+                        {
+                            var oldDict = state.messageState.channelMessageDict[keyValuePair.Key];
+                            var newDict = state.messageState.channelMessageDict[keyValuePair.Key];
+                            foreach (var valuePair in newDict)
+                            {
+                                if (oldDict.ContainsKey(valuePair.Key))
+                                {
+                                    oldDict[valuePair.Key] = valuePair.Value;
+                                }
+                                else
+                                {
+                                    oldDict.Add(valuePair.Key,valuePair.Value);
+                                }
+                            }
+                            state.messageState.channelMessageDict[keyValuePair.Key] = oldDict;
+                        }
+                        else
+                        {
+                            state.messageState.channelMessageDict.Add(keyValuePair.Key,keyValuePair.Value);
+                        }
+                    }
+                    
+
                     break;
                 }
                 case LikeCommentAction action: {
@@ -274,7 +361,11 @@ namespace ConnectApp.redux.reducers {
                 {
                     foreach (var keyValuePair in action.userMap)
                     {
-                        if (!state.userState.UserDict.ContainsKey(keyValuePair.Key))
+                        if (state.userState.UserDict.ContainsKey(keyValuePair.Key))
+                        {
+                            state.userState.UserDict[keyValuePair.Key] = keyValuePair.Value;
+                        }
+                        else
                         {
                             state.userState.UserDict.Add(keyValuePair.Key, keyValuePair.Value);
                         }

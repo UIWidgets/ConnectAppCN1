@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using ConnectApp.constants;
+using ConnectApp.models;
+using ConnectApp.utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -10,11 +12,14 @@ namespace ConnectApp.components
     public class CommentCard : StatelessWidget
     {
         public CommentCard(
+            Message message,
             Key key = null
         ) : base(key)
         {
-            
+            this.message = message;
         }
+
+        public readonly Message message;
 
         public override Widget build(BuildContext context)
         {
@@ -29,10 +34,9 @@ namespace ConnectApp.components
                             child:new ClipRRect(
                                 borderRadius:BorderRadius.circular(12),
                                 child:new Container(
-                                    color:CColors.Red,
                                     width:24,
                                     height:24,
-                                    child:Image.network("",fit:BoxFit.fill)
+                                    child:Image.network(message.author.avatar,fit:BoxFit.fill)
                                 )
                             )
                         ),
@@ -46,7 +50,7 @@ namespace ConnectApp.components
                                         children:new List<Widget>
                                         {
                                             new Expanded(
-                                                child:new Text("码农小哥",style:new TextStyle(
+                                                child:new Text(message.author.username,style:new TextStyle(
                                                     height: 1.57f,
                                                     fontSize: 14,
                                                     fontFamily: "PingFangSC-Regular",
@@ -56,7 +60,7 @@ namespace ConnectApp.components
                                             )
                                         }
                                     ),
-                                    new Text("现在仅需启用自定义顶点流，添加Center流，和之前一样，请无视警告信息，一旦我们使用新的着色器分配新材质，警告会自动消失。",style:CTextStyle.PLarge),
+                                    new Text(message.content,style:CTextStyle.PLarge),
                                     new Row(
                                         mainAxisAlignment:MainAxisAlignment.spaceBetween,
                                         children:new List<Widget>
@@ -67,11 +71,11 @@ namespace ConnectApp.components
                                                     children:new List<Widget>
                                                     {
                                                         new GestureDetector(
-                                                            child:new Text("点赞 10",style:CTextStyle.TextBody4)
+                                                            child:new Text($"点赞 {message.reactions.Count}",style:CTextStyle.TextBody4)
                                                         ),
                                                         new Container(width:10),
                                                         new GestureDetector(
-                                                            child:new Text("回复 24",style:CTextStyle.TextBody4)
+                                                            child:new Text($"回复 { message.replyMessageIds.Count }",style:CTextStyle.TextBody4)
                                                         ),
                                                     }
                                                 )

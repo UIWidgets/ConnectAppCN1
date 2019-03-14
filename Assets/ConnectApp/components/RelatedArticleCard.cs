@@ -31,7 +31,11 @@ namespace ConnectApp.components
         
         public override Widget build(BuildContext context)
         {
-            var user = StoreProvider.store.state.userState.UserDict[article.userId];
+            var user = new User();
+            if (StoreProvider.store.state.userState.UserDict.ContainsKey(article.userId))
+            {
+                user = StoreProvider.store.state.userState.UserDict[article.userId];
+            }
             var child = new Container(
                 padding:EdgeInsets.only(top:16,bottom:16),
                 child:new Row(
@@ -40,6 +44,7 @@ namespace ConnectApp.components
                       new Expanded(
                           child:new Container(
                               child:new Column(
+                                  mainAxisAlignment:MainAxisAlignment.spaceAround,
                                   crossAxisAlignment:CrossAxisAlignment.start,
                                   children:new List<Widget>
                                   {
