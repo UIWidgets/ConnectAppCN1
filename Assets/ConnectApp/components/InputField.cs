@@ -4,6 +4,7 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Unity.UIWidgets.service;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
@@ -23,12 +24,13 @@ namespace ConnectApp.components {
             string labelText = null,
             TextStyle labelStyle = null,
             Color cursorColor = null,
+            TextInputAction textInputAction = TextInputAction.none,
             float height = 44.0f,
             ValueChanged<string> onChanged = null,
             ValueChanged<string> onSubmitted = null,
             EdgeInsets scrollPadding = null
         ) : base(key) {
-            this.controller = controller;
+            this.controller = controller ?? new TextEditingController("");
             this.textAlign = textAlign;
             this.focusNode = focusNode;
             this.obscureText = obscureText;
@@ -43,6 +45,7 @@ namespace ConnectApp.components {
             this.labelStyle = labelStyle;
             this.height = height;
             this.cursorColor = cursorColor;
+            this.textInputAction = textInputAction;
             this.onChanged = onChanged;
             this.onSubmitted = onSubmitted;
             this.scrollPadding = scrollPadding;
@@ -61,6 +64,7 @@ namespace ConnectApp.components {
         public readonly string labelText;
         public readonly TextStyle labelStyle;
         public readonly Color cursorColor;
+        public readonly TextInputAction textInputAction;
         public readonly float height;
         public readonly ValueChanged<string> onChanged;
         public readonly ValueChanged<string> onSubmitted;
@@ -76,14 +80,24 @@ namespace ConnectApp.components {
     }
 
     internal class _InputField : State<InputField> {
-        private TextEditingController _textEditingController;
         private FocusNode _focusNode;
         private bool _isHintTextHidden = false;
 
         public override void initState() {
             base.initState();
-            _textEditingController = new TextEditingController("");
             _focusNode = new FocusNode();
+            widget.controller.addListener(_controllerListener);
+        }
+        
+        public override void dispose() {
+            widget.controller.removeListener(_controllerListener);
+            base.dispose();
+        }
+
+        private void _controllerListener() {
+            var isTextEmpty = widget.controller.text.Length > 0;
+            if (_isHintTextHidden != isTextEmpty)
+                setState(() => { _isHintTextHidden = isTextEmpty; });
         }
 
         public override Widget build(BuildContext context) {
@@ -145,13 +159,14 @@ namespace ConnectApp.components {
                     alignment: Alignment.center,
                     child: new EditableText(
                         maxLines: widget.maxLines,
-                        controller: widget.controller ?? _textEditingController,
+                        controller: widget.controller,
                         focusNode: widget.focusNode ?? _focusNode,
                         autofocus: widget.autofocus,
                         obscureText: widget.obscureText,
                         style: widget.style,
                         cursorColor: widget.cursorColor,
                         autocorrect: widget.autocorrect,
+                        textInputAction: widget.textInputAction,
                         textAlign: widget.textAlign,
                         scrollPadding: widget.scrollPadding,
                         onChanged: text => {

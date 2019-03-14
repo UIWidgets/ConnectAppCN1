@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace ConnectApp.models {
@@ -9,6 +10,7 @@ namespace ConnectApp.models {
         public LoginState loginState { get; set; }
         public ArticleState articleState { get; set; }
         public EventState eventState { get; set; }
+        public SearchState searchState { get; set; }
         public NotificationState notificationState { get; set; }
         public UserState userState { get; set; }
         public MineState mineState { get; set; }
@@ -43,6 +45,11 @@ namespace ConnectApp.models {
                     eventDict = new Dictionary<string, IEvent>(),
                     eventsLoading = false,
                     detailId = null
+                },
+                searchState = new SearchState {
+                    loading = false,
+                    keyword = "",
+                    searchArticles = new List<Article>()
                 },
                 notificationState = new NotificationState {
                     loading = false,

@@ -31,8 +31,7 @@ namespace ConnectApp.models {
     }
     
     [Serializable]
-    public class HeaderImage
-    {
+    public class HeaderImage {
         public string url;
     }
 

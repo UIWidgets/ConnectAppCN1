@@ -21,7 +21,7 @@ namespace ConnectApp.components {
             this.onTap = onTap;
         }
 
-        internal readonly Article article;
+        private readonly Article article;
         private readonly GestureTapCallback onTap;
 
         public override Widget build(BuildContext context) {
@@ -30,45 +30,40 @@ namespace ConnectApp.components {
                     padding: EdgeInsets.all(16),
                     child: new Container(
                         child: new Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: new List<Widget> {
-                                new Row(
-                                    children: new List<Widget> {
-                                        new Container(
-                                            width: MediaQuery.of(context).size.width - 32,
-                                            child: new Text(article.title, style: CTextStyle.H5, maxLines: 2)
-                                        ),
-                                    }
+                                new Container(
+                                    child: new Text(article.title, style: CTextStyle.H5, maxLines: 2)
                                 ),
-                                //title
-                                //content
                                 new Container(
                                     height: 66,
-                                    margin: EdgeInsets.only(0, 8.0f, 0, 8.0f),
+                                    margin: EdgeInsets.only(top: 8, right: 8),
                                     child: new Row(
                                         mainAxisAlignment: MainAxisAlignment.end,
                                         children: new List<Widget> {
-                                            new Container(
-                                                width: MediaQuery.of(context).size.width - 139,
-                                                child: new Text(
-                                                    article.subTitle,
-                                                    style: CTextStyle.PRegular, maxLines: 3,
-                                                    overflow: TextOverflow.ellipsis)
+                                            new Expanded(
+                                                child: new Container(
+                                                    child: new Text(
+                                                        article.subTitle,
+                                                        style: CTextStyle.PRegular, maxLines: 3,
+                                                        overflow: TextOverflow.ellipsis)
+                                                )
                                             ),
                                             new Padding(
-                                                padding: EdgeInsets.only(left: 8.0f),
+                                                padding: EdgeInsets.only(8.0f),
                                                 child: new ClipRRect(
                                                     borderRadius: BorderRadius.all(4),
                                                     child: new Container(
-                                                        width: 99,
+                                                        width: 100,
+                                                        height: 66,
+                                                        color: Color.fromRGBO(245, 245, 245, 1),
                                                         child: Image.network(article.thumbnail.url, fit: BoxFit.cover)
                                                     )
                                                 )
-                                            ),
+                                            )
                                         }
                                     )
                                 ),
-                                //bottom
                                 new Container(
                                     child: new Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -76,12 +71,17 @@ namespace ConnectApp.components {
                                             new Text(
                                                 $" username · {DateConvert.DateStringFromNow(article.publishedTime)} · {article.viewCount}",
                                                 style: CTextStyle.PSmall),
-                                            new GestureDetector(
+                                            new CustomButton(
                                                 child: new Container(
-                                                    height: 20,
-                                                    child: new Icon(Icons.ellipsis, null, 20,
-                                                        Color.fromRGBO(181, 181, 181, 1))),
-                                                onTap: () => { }
+                                                    child: new Icon(
+                                                        Icons.ellipsis,
+                                                        size: 28,
+                                                        color: Color.fromRGBO(181, 181, 181, 1)
+                                                    )
+                                                ),
+                                                onPressed: () => {
+                                                    ShareUtils.showShareView(context, new ShareView());
+                                                }
                                             )
                                         }
                                     )

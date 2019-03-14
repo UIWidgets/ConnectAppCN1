@@ -2,10 +2,14 @@ using System.Collections.Generic;
 using ConnectApp.api;
 using ConnectApp.models;
 using ConnectApp.redux.actions;
+using Unity.UIWidgets.foundation;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace ConnectApp.redux.reducers {
     public static class AppReducer {
+        private const string _searchHistoryKey = "searchHistoryKey";
+        
         public static AppState Reduce(AppState state, object bAction) {
             switch (bAction) {
                 case AddCountAction action: {
@@ -273,12 +277,85 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case SearchArticleAction action: {
+                    state.searchState.loading = true;
                     SearchApi.SearchArticle(action.keyword, action.pageNumber)
-                        .Then(() => { StoreProvider.store.Dispatch(new SearchArticleSuccessAction()); })
-                        .Catch(error => { Debug.Log(error); });
+                        .Then(searchResponse => {
+                            StoreProvider.store.Dispatch(new SearchArticleSuccessAction {
+                                keyword = action.keyword,
+                                pageNumber = action.pageNumber,
+                                searchResponse = searchResponse.projects
+                            });
+                        })
+                        .Catch(error => {
+                            state.searchState.loading = false;
+                            Debug.Log(error);
+                        });
                     break;
                 }
                 case SearchArticleSuccessAction action: {
+                    state.searchState.loading = false;
+                    state.searchState.keyword = action.keyword;
+                    if (action.pageNumber == 0) {
+                        state.searchState.searchArticles = action.searchResponse;
+                    } else {
+                        var searchArticles = state.searchState.searchArticles;
+                        searchArticles.AddRange(action.searchResponse);
+                        state.searchState.searchArticles = searchArticles;
+                    }
+
+                    break;
+                }
+                case ClearSearchArticleAction action: {
+                    state.searchState.keyword = "";
+                    state.searchState.searchArticles = new List<Article>();
+                    break;
+                }
+                case GetSearchHistoryAction action: {
+                    var searchHistory = PlayerPrefs.GetString(_searchHistoryKey);
+                    var searchHistoryList = new List<string>();
+                    if (searchHistory.isNotEmpty()) {
+                        searchHistoryList = JsonConvert.DeserializeObject<List<string>>(searchHistory);
+                    }
+                    state.searchState.searchHistoryList = searchHistoryList;
+                    break;
+                }
+                case SaveSearchHistoryAction action: {
+                    var searchHistory = PlayerPrefs.GetString(_searchHistoryKey);
+                    var searchHistoryList = new List<string>();
+                    if (searchHistory.isNotEmpty()) {
+                        searchHistoryList = JsonConvert.DeserializeObject<List<string>>(searchHistory);
+                    }
+                    if (searchHistoryList.Contains(action.keyword)) {
+                        searchHistoryList.Remove(action.keyword);
+                    }
+                    searchHistoryList.Insert(0, action.keyword);
+                    if (searchHistoryList.Count > 5) {
+                        searchHistoryList.RemoveRange(5, searchHistoryList.Count - 5);
+                    }
+                    state.searchState.searchHistoryList = searchHistoryList;
+                    var newSearchHistory = JsonConvert.SerializeObject(searchHistoryList);
+                    PlayerPrefs.SetString(_searchHistoryKey, newSearchHistory);
+                    PlayerPrefs.Save();
+                    break;
+                }
+                case DeleteSearchHistoryAction action: {
+                    var searchHistory = PlayerPrefs.GetString(_searchHistoryKey);
+                    var searchHistoryList = new List<string>();
+                    if (searchHistory.isNotEmpty()) {
+                        searchHistoryList = JsonConvert.DeserializeObject<List<string>>(searchHistory);
+                    }
+                    if (searchHistoryList.Contains(action.keyword)) {
+                        searchHistoryList.Remove(action.keyword);
+                    }
+                    state.searchState.searchHistoryList = searchHistoryList;
+                    var newSearchHistory = JsonConvert.SerializeObject(searchHistoryList);
+                    PlayerPrefs.SetString(_searchHistoryKey, newSearchHistory);
+                    PlayerPrefs.Save();
+                    break;
+                }
+                case DeleteAllSearchHistoryAction action: {
+                    state.searchState.searchHistoryList = new List<string>();
+                    PlayerPrefs.DeleteKey(_searchHistoryKey);
                     break;
                 }
             }
