@@ -12,7 +12,7 @@ namespace ConnectApp.models
         public List<Article> projects;
         public Dictionary<string, ContentMap> contentMap;
         public Dictionary<string, User> userMap;
-        [FormerlySerializedAs("comments")] public FetchCommentsResponse fetchCommentsResponse;
+        public FetchCommentsResponse comments;
         public string channelId;
         public bool like;
         public bool edit;
