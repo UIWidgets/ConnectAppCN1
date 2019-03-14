@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine.Serialization;
 
 namespace ConnectApp.models
 {
@@ -11,7 +12,7 @@ namespace ConnectApp.models
         public List<Article> projects;
         public Dictionary<string, ContentMap> contentMap;
         public Dictionary<string, User> userMap;
-        public Comments comments;
+        [FormerlySerializedAs("comments")] public FetchCommentsResponse fetchCommentsResponse;
         public string channelId;
         public bool like;
         public bool edit;

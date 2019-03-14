@@ -97,14 +97,14 @@ namespace ConnectApp.redux.reducers {
                     ArticleApi.FetchArticleDetail(action.articleId)
                         .Then((articleDetailResponse) => {
                             
-                            if( articleDetailResponse.project.comments.items.Count>0)
+                            if( articleDetailResponse.project.fetchCommentsResponse.items.Count>0)
                             {
-                                var channelId = articleDetailResponse.project.comments.items.first().channelId;
+                                var channelId = articleDetailResponse.project.fetchCommentsResponse.items.first().channelId;
                                 var channelMessageList = new Dictionary<string,List<string>>();
                                 var channelMessageDict = new Dictionary<string,Dictionary<string, Message>>();
                                 var itemIds = new List<string>();
                                 var messageItem = new Dictionary<string,Message>();
-                                articleDetailResponse.project.comments.items.ForEach((message) =>
+                                articleDetailResponse.project.fetchCommentsResponse.items.ForEach((message) =>
                                 {
                                     itemIds.Add(message.id);
                                     messageItem[message.id] = message;

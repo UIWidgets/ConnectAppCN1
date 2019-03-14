@@ -79,15 +79,15 @@ namespace ConnectApp.api {
             }
         }
 
-        public static Promise<Comments> FetchArticleComments(string channelId, string currOldestMessageId) {
+        public static Promise<FetchCommentsResponse> FetchArticleComments(string channelId, string currOldestMessageId) {
             // We return a promise instantly and start the coroutine to do the real work
-            var promise = new Promise<Comments>();
+            var promise = new Promise<FetchCommentsResponse>();
             Window.instance.startCoroutine(_FetchArticleComments(promise, channelId, currOldestMessageId));
             return promise;
         }
 
         private static IEnumerator
-            _FetchArticleComments(Promise<Comments> promise, string channelId, string currOldestMessageId) {
+            _FetchArticleComments(Promise<FetchCommentsResponse> promise, string channelId, string currOldestMessageId) {
             var url = IApi.apiAddress + "/api/channels/" + channelId + "/messages?limit=5";
             if (currOldestMessageId.Length > 0) url += "&before=" + currOldestMessageId;
             var request = UnityWebRequest.Get(url);
@@ -106,7 +106,7 @@ namespace ConnectApp.api {
             else {
                 // Format output and resolve promise
                 var responseText = request.downloadHandler.text;
-                var responseComments = JsonConvert.DeserializeObject<Comments>(responseText);
+                var responseComments = JsonConvert.DeserializeObject<FetchCommentsResponse>(responseText);
                 if (responseText != null)
                     promise.Resolve(responseComments);
                 else

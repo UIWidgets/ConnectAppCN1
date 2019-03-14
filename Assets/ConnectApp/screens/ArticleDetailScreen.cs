@@ -71,7 +71,7 @@ namespace ConnectApp.screens
                     {
                         return new Container(
                             color: CColors.White,
-                            child: new Container(child: new CustomActivityIndicator(radius: 16))
+                            child: new Container(child: new CustomActivityIndicator())
                         ); 
                     }
                     var articleDetail = (Project) viewModel["articleDetail"];
@@ -91,7 +91,7 @@ namespace ConnectApp.screens
                         _channelComments = channelMessageList[articleDetail.channelId];
                     }
                     _contentMap = articleDetail.contentMap;
-                    _lastCommentId = articleDetail.comments.currOldestMessageId;
+                    _lastCommentId = articleDetail.fetchCommentsResponse.currOldestMessageId;
                     var child = new Container(
                         color: CColors.White,
                         child: new Stack(
@@ -104,7 +104,7 @@ namespace ConnectApp.screens
                                 ),
                                 new Container(
                                     padding:EdgeInsets.only(top:98,bottom:45),
-                                    child:articleDetail.comments.hasMore?new Refresh(
+                                    child:articleDetail.fetchCommentsResponse.hasMore?new Refresh(
                                         onFooterRefresh:onFooterRefresh,
                                         child: new ListView(
                                             physics: new AlwaysScrollableScrollPhysics(),

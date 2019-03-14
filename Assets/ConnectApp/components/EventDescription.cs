@@ -252,7 +252,7 @@ namespace ConnectApp.components {
             for (var i = 0; i < items.Length; i++) {
                 var spans = new List<TextSpan>() {
                     new TextSpan(
-                        "\\u{25cf}",
+                        "\u25cf",
                         CTextStyle.TextBody1
                     ),
                     new TextSpan(

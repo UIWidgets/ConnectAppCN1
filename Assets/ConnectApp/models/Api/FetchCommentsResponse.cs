@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace ConnectApp.models
 {
     [Serializable]
-    public class Comments
+    public class FetchCommentsResponse
     {
         public List<Message> items;
         public List<Message> parents;
