@@ -29,7 +29,7 @@ namespace ConnectApp.components {
             var data = notification.data;
             return new GestureDetector(
                 onTap: () => {
-                    StoreProvider.store.Dispatch(new NavigatorToLiveAction {eventId = data.projectId});
+                    StoreProvider.store.Dispatch(new NavigatorToEventDetailAction {eventId = data.projectId});
                     Navigator.pushNamed(context, "/detail");
                 },
                 child: new Container(

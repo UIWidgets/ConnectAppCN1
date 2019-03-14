@@ -182,6 +182,7 @@ namespace ConnectApp.constants {
         public static readonly Color Blue = new Color(0xFF0000FF);
 
         public static readonly Color primary = new Color(0xFFE91E63);
+        public static readonly Color primary2 = new Color(0xFF872546);
         public static readonly Color secondary1 = new Color(0xFF00BCD4);
         public static readonly Color background1 = new Color(0xFF292929);
         public static readonly Color background2 = new Color(0xFF383838);

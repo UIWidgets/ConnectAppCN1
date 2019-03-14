@@ -32,7 +32,7 @@ namespace ConnectApp.redux.reducers {
                     state.eventState.openChatWindow = action.status;
                     break;
                 }
-                case NavigatorToLiveAction action: {
+                case NavigatorToEventDetailAction action: {
                     state.eventState.detailId = action.eventId;
                     break;
                 }
@@ -53,8 +53,8 @@ namespace ConnectApp.redux.reducers {
                             StoreProvider.store.Dispatch(new LoginByEmailSuccessAction {loginInfo = loginInfo});
                         })
                         .Catch(error => {
-                            state.loginState.loading = false;
                             Debug.Log(error);
+                            StoreProvider.store.Dispatch(new LoginByEmailFailedAction());
                         });
                     break;
                 }
@@ -62,6 +62,10 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.loading = false;
                     state.loginState.loginInfo = action.loginInfo;
                     state.loginState.isLoggedIn = true;
+                    break;
+                }
+                case LoginByEmailFailedAction action: {
+                    state.loginState.loading = false;
                     break;
                 }
                 case FetchArticlesAction action: {

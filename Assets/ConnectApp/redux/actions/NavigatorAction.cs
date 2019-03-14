@@ -1,10 +1,9 @@
 namespace ConnectApp.redux.actions {
-    public class NavigatorToLiveAction : BaseAction {
+    public class NavigatorToEventDetailAction : BaseAction {
         public string eventId;
     }
-    
+
     public class NavigatorToArticleDetailAction : BaseAction {
         public string detailId;
     }
-    
 }
