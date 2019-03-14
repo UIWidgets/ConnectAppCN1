@@ -7,6 +7,6 @@ namespace ConnectApp.redux.actions {
 
     public class FetchNotificationsSuccessAction : BaseAction {
         public int pageNumber;
-        public NotificationResponse notificationResponse;
+        public FetchNotificationResponse notificationResponse;
     }
 }

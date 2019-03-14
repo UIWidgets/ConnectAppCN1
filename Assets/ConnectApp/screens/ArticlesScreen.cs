@@ -73,7 +73,7 @@ namespace ConnectApp.screens {
                             size: 28,
                             color: Color.fromRGBO(181, 181, 181, 0.8f)
                         )
-                     ),
+                    ),
                     new GestureDetector(
                         onTap: () => { StoreProvider.store.Dispatch(new LoginByEmailAction()); },
                         child: new Container(

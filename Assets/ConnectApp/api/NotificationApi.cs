@@ -4,21 +4,20 @@ using ConnectApp.constants;
 using RSG;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.ui;
-using UnityEngine;
 using UnityEngine.Networking;
 using ConnectApp.models;
 using Newtonsoft.Json;
 
 namespace ConnectApp.api {
     public static class NotificationApi {
-        public static Promise<NotificationResponse> FetchNotifications(int pageNumber) {
+        public static Promise<FetchNotificationResponse> FetchNotifications(int pageNumber) {
             // We return a promise instantly and start the coroutine to do the real work
-            var promise = new Promise<NotificationResponse>();
+            var promise = new Promise<FetchNotificationResponse>();
             Window.instance.startCoroutine(_FetchNotifications(promise, pageNumber));
             return promise;
         }
 
-        private static IEnumerator _FetchNotifications(Promise<NotificationResponse> promise, int pageNumber) {
+        private static IEnumerator _FetchNotifications(Promise<FetchNotificationResponse> promise, int pageNumber) {
             var request = UnityWebRequest.Get(IApi.apiAddress + "/api/notifications?page=" + pageNumber);
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
 #pragma warning disable 618
@@ -35,7 +34,7 @@ namespace ConnectApp.api {
             else {
                 // Format output and resolve promise
                 var responseText = request.downloadHandler.text;
-                var notificationResponse = JsonConvert.DeserializeObject<NotificationResponse>(responseText);
+                var notificationResponse = JsonConvert.DeserializeObject<FetchNotificationResponse>(responseText);
                 if (notificationResponse != null)
                     promise.Resolve(notificationResponse);
                 else

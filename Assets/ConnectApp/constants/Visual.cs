@@ -28,6 +28,8 @@ namespace ConnectApp.constants {
         public static readonly IconData favorite = new IconData(0xe87d, "Material Icons");
         public static readonly IconData favorite_border = new IconData(0xe87e, "Material Icons");
         public static readonly IconData comment = new IconData(0xe0b9, "Material Icons");
+        public static readonly IconData history = new IconData(0xe889, "Material Icons");
+        public static readonly IconData delete = new IconData(0xe872, "Material Icons");
     }
 
     public static class CTextStyle {
