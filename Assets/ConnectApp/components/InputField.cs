@@ -30,7 +30,7 @@ namespace ConnectApp.components {
             ValueChanged<string> onSubmitted = null,
             EdgeInsets scrollPadding = null
         ) : base(key) {
-            this.controller = controller ?? new TextEditingController("");
+            this.controller = controller;
             this.textAlign = textAlign;
             this.focusNode = focusNode;
             this.obscureText = obscureText;
@@ -80,17 +80,23 @@ namespace ConnectApp.components {
     }
 
     internal class _InputField : State<InputField> {
+        private TextEditingController _textEditingController;
         private FocusNode _focusNode;
         private bool _isHintTextHidden = false;
 
         public override void initState() {
             base.initState();
+            _textEditingController = new TextEditingController("");
             _focusNode = new FocusNode();
-            widget.controller.addListener(_controllerListener);
+            if (widget.controller != null) { 
+                widget.controller.addListener(_controllerListener);
+            }
         }
         
         public override void dispose() {
-            widget.controller.removeListener(_controllerListener);
+            if (widget.controller != null) { 
+                widget.controller.removeListener(_controllerListener);
+            }
             base.dispose();
         }
 
@@ -159,7 +165,7 @@ namespace ConnectApp.components {
                     alignment: Alignment.center,
                     child: new EditableText(
                         maxLines: widget.maxLines,
-                        controller: widget.controller,
+                        controller: widget.controller ?? _textEditingController,
                         focusNode: widget.focusNode ?? _focusNode,
                         autofocus: widget.autofocus,
                         obscureText: widget.obscureText,

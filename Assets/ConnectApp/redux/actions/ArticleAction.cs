@@ -18,14 +18,17 @@ namespace ConnectApp.redux.actions {
     public class FetchArticleDetailSuccessAction : BaseAction {
         public Project articleDetail;
     }
+    
+    public class SaveArticleDetailSuccessAction : BaseAction {
+        public Project articleDetail;
+    }
 
     public class FetchArticleCommentsAction : RequestAction {
         public string channelId;
         public string currOldestMessageId = "";
     }
 
-    public class FetchArticleCommentsSuccessAction : BaseAction
-    {
+    public class FetchArticleCommentsSuccessAction : BaseAction {
         public Dictionary<string, List<string>> channelMessageList;
         public Dictionary<string, Dictionary<string, Message>> channelMessageDict;
     }

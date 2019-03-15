@@ -16,7 +16,6 @@ namespace ConnectApp.screens {
         ) : base(key) {
         }
 
-
         public override State createState() {
             return new _EventDetailScreenState();
         }
@@ -27,94 +26,89 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            StoreProvider.store.Dispatch(new FetchEventDetailAction()
+            StoreProvider.store.Dispatch(new FetchEventDetailAction
                 {eventId = StoreProvider.store.state.eventState.detailId});
         }
 
-        private Widget _headerView(BuildContext context, IEvent eventObj) {
+        private static Widget _buildHeaderView(BuildContext context, IEvent eventObj) {
             return new Container(
-                child: new Column(
-                    children: new List<Widget> {
-                        new Container(
-                            color: CColors.Black,
-                            height: 210,
-                            child: new Stack(
-                                fit: StackFit.expand,
+                color: CColors.Black,
+                child: new AspectRatio(
+                    aspectRatio: 16.0f / 9.0f,
+                    child: new Stack(
+                        fit: StackFit.expand,
+                        children: new List<Widget> {
+                            Image.network(
+                                eventObj.background,
+                                fit: BoxFit.cover
+                            ),
+                            new Flex(
+                                Axis.vertical,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: new List<Widget> {
-                                    Image.network(
-                                        eventObj.background,
-                                        fit: BoxFit.cover
+                                    new Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: 4),
+                                        child: new Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: new List<Widget> {
+                                                new CustomButton(
+                                                    onPressed: () => {
+                                                        Navigator.pop(context);
+                                                        StoreProvider.store.Dispatch(new ClearEventDetailAction());
+                                                    },
+                                                    child: new Icon(
+                                                        Icons.arrow_back,
+                                                        size: 28,
+                                                        color: CColors.icon1
+                                                    )
+                                                ),
+                                                new CustomButton(
+                                                    child: new Icon(
+                                                        Icons.share,
+                                                        size: 28,
+                                                        color: CColors.icon1
+                                                    ),
+                                                    onPressed: () => {
+                                                        ShareUtils.showShareView(context, new ShareView());
+                                                     }
+                                                )
+                                            }
+                                        )
                                     ),
-                                    new Flex(
-                                        Axis.vertical,
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: new List<Widget> {
-                                            new Padding(
-                                                padding: EdgeInsets.symmetric(horizontal: 4),
-                                                child: new Row(
-                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                    children: new List<Widget> {
-                                                        new CustomButton(
-                                                            onPressed: () => {
-                                                                Navigator.pop(context);
-                                                                StoreProvider.store.Dispatch(
-                                                                    new ClearEventDetailAction());
-                                                            },
-                                                            child: new Icon(
-                                                                Icons.arrow_back,
-                                                                size: 28,
-                                                                color: CColors.icon1
-                                                            )
-                                                        ),
-                                                        new CustomButton(
-                                                            child: new Icon(
-                                                                Icons.share,
-                                                                size: 28,
-                                                                color: CColors.icon1
-                                                            ),
-                                                            onPressed: () => {
-                                                                ShareUtils.showShareView(context, new ShareView());
-                                                            }
+                                    new Container(
+                                        height: 40,
+                                        padding: EdgeInsets.symmetric(horizontal: 16),
+                                        child: new Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            children: new List<Widget> {
+                                                new Container(
+                                                    height: 20,
+                                                    width: 48,
+                                                    decoration: new BoxDecoration(
+                                                        CColors.text4
+                                                    ),
+                                                    alignment: Alignment.center,
+                                                    child: new Text(
+                                                        "未开始",
+                                                        style: new TextStyle(
+                                                            fontSize: 12,
+                                                            color: CColors.text1
                                                         )
-                                                    }
+                                                    )
                                                 )
-                                            ),
-                                            new Container(
-                                                height: 40,
-                                                padding: EdgeInsets.symmetric(horizontal: 16),
-                                                child: new Row(
-                                                    mainAxisAlignment: MainAxisAlignment.start,
-                                                    children: new List<Widget> {
-                                                        new Container(
-                                                            height: 20,
-                                                            width: 48,
-                                                            decoration: new BoxDecoration(
-                                                                CColors.text4
-                                                            ),
-                                                            alignment: Alignment.center,
-                                                            child: new Text(
-                                                                "未开始",
-                                                                style: new TextStyle(
-                                                                    fontSize: 12,
-                                                                    color: CColors.text1
-                                                                )
-                                                            )
-                                                        )
-                                                    }
-                                                )
-                                            )
-                                        }
+                                            }
+                                        )
                                     )
                                 }
                             )
-                        )
-                    }
+                        }
+                    )     
                 )
             );
         }
 
-        private Widget _joinBar(IEvent eventObj) {
+        private static Widget _buildJoinBar(IEvent eventObj) {
             return new Container(
                 color: CColors.background1,
                 height: 64,
@@ -173,7 +167,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _chatWindow() {
+        private static Widget _buildChatWindow() {
             return new StoreConnector<AppState, bool>(
                 converter: (state, dispatcher) => state.eventState.openChatWindow,
                 builder: (context, openChatWindow) => {
@@ -203,36 +197,38 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, Dictionary<string, object>>(
                 converter: (state, dispatcher) => new Dictionary<string, object> {
+                    {"isLoggedIn", state.loginState.isLoggedIn},
                     {"detailId", state.eventState.detailId},
+                    {"loading", state.eventState.eventDetailLoading},
                     {"eventDict", state.eventState.eventDict},
                     {"showChatWindow", state.eventState.showChatWindow},
                     {"openChatWindow", state.eventState.openChatWindow}
                 },
-                builder: (context1, viewModel) => {
+                builder: (_context, viewModel) => {
+                    var isLoggedIn = (bool) viewModel["isLoggedIn"];
                     var detailId = (string) viewModel["detailId"];
-                    // TODO: get eventObj from eventState.eventDict
                     var eventDict = (Dictionary<string, IEvent>) viewModel["eventDict"];
                     IEvent eventObj = null;
                     if (eventDict.ContainsKey(detailId)) eventObj = eventDict[detailId];
                     var showChatWindow = (bool) viewModel["showChatWindow"];
                     var openChatWindow = (bool) viewModel["openChatWindow"];
-                    if (StoreProvider.store.state.eventState.eventDetailLoading)
+                    var loading = (bool) viewModel["loading"];
+                    if (loading && eventObj == null)
                         return new Container(
                             color: CColors.White,
-                            child: new Container(child: new CustomActivityIndicator())
+                            child: new CustomActivityIndicator()
                         );
-                    else if (eventObj == null) return new Container();
                     return new Container(
                         color: CColors.White,
                         child: new Stack(
                             children: new List<Widget> {
                                 new Column(
                                     children: new List<Widget> {
-                                        _headerView(context1, eventObj),
-                                        new EventDetail(eventObj: eventObj),
+                                        _buildHeaderView(context, eventObj),
+                                        new EventDetail(eventObj: eventObj)
                                     }
                                 ),
-                                !showChatWindow ? _chatWindow() : _joinBar(eventObj)
+                                !showChatWindow ? _buildChatWindow() : _buildJoinBar(eventObj)
                             }
                         )
                     );

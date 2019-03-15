@@ -51,13 +51,18 @@ namespace ConnectApp.components
                             child: new Container(
                                 padding:EdgeInsets.only(left:16),
                                 height:32,
-                                width:MediaQuery.of(context).size.width-208,
+                                width:MediaQuery.of(context).size.width-164,
                                 decoration:new BoxDecoration(
                                     color:CColors.Separator2,
                                     borderRadius:BorderRadius.all(16)),
                                 child: new Text(
                                     "说点想法...",
-                                    style:CTextStyle.PRegular
+                                    style:new TextStyle(
+                                        height: 1.57f,
+                                        fontSize: 14,
+                                        fontFamily: "PingFang-Regular",
+                                        color: CColors.TextBody4
+                                     )
                                 )
                             )
                         ),
@@ -70,10 +75,10 @@ namespace ConnectApp.components
                             onTap:favorCallback,
                             child:new Icon(Icons.favorite_border,null,24,CColors.icon3)
                         ),
-                        new GestureDetector(
-                            onTap:bookmarkCallback,
-                            child:new Icon(Icons.bookmark,null,24,CColors.icon3)
-                        ),
+//                        new GestureDetector(
+//                            onTap:bookmarkCallback,
+//                            child:new Icon(Icons.bookmark,null,24,CColors.icon3)
+//                        ),
                         new GestureDetector(
                             onTap:shareCallback,
                             child:new Icon(Icons.share,null,24,CColors.icon3)

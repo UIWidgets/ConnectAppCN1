@@ -48,7 +48,8 @@ namespace ConnectApp.screens
         private List<Article> _relArticles = new List<Article>();
         private Dictionary<string, ContentMap> _contentMap = new Dictionary<string, ContentMap>();
         private string _lastCommentId = null;
-        
+        private bool _hasMore = false;
+
         
         public override void initState()
         {
@@ -64,7 +65,7 @@ namespace ConnectApp.screens
                     {"articleDetail", state.articleState.articleDetail},
                     {"channelMessageDict",state.messageState.channelMessageDict},
                     {"channelMessageList",state.messageState.channelMessageList},
-                    {"userDict",state.userState.UserDict}
+                    {"userDict",state.userState.userDict}
                 },
                 builder: (context1, viewModel) => {
                     if (StoreProvider.store.state.articleState.articleDetailLoading)
@@ -92,8 +93,9 @@ namespace ConnectApp.screens
                     }
                     _contentMap = articleDetail.contentMap;
                     _lastCommentId = articleDetail.comments.currOldestMessageId;
+                    _hasMore = articleDetail.comments.hasMore;
                     var child = new Container(
-                        color: CColors.White,
+                        color: CColors.background3,
                         child: new Stack(
                             children: new List<Widget> {
                                 new Positioned(
@@ -103,8 +105,8 @@ namespace ConnectApp.screens
                                     child:_navigationBar(context)
                                 ),
                                 new Container(
-                                    padding:EdgeInsets.only(top:98,bottom:45),
-                                    child:articleDetail.comments.hasMore?new Refresh(
+                                    padding:EdgeInsets.only(top:88,bottom:45),
+                                    child:_hasMore?new Refresh(
                                         onFooterRefresh:onFooterRefresh,
                                         child: new ListView(
                                             physics: new AlwaysScrollableScrollPhysics(),
@@ -141,7 +143,6 @@ namespace ConnectApp.screens
                                     child: new ArticleTabBar(
                                         commentCallback: () => { },
                                         favorCallback: () => { },
-                                        bookmarkCallback: () => { },
                                         shareCallback: () => { }
                                     )
                                 )
@@ -184,6 +185,8 @@ namespace ConnectApp.screens
             return ArticleApi.FetchArticleComments(_channelId, _lastCommentId)
                 .Then((responseComments) =>
                 {
+                    _lastCommentId = responseComments.currOldestMessageId;
+                    _hasMore = responseComments.hasMore;
                     var channelMessageList = new Dictionary<string,List<string>>();
                     var channelMessageDict = new Dictionary<string,Dictionary<string, Message>>();
                     var itemIds = new List<string>();
@@ -191,6 +194,10 @@ namespace ConnectApp.screens
                     responseComments.items.ForEach((message) =>
                     {
                         itemIds.Add(message.id);
+                        messageItem[message.id] = message;
+                    });
+                    responseComments.parents.ForEach((message) =>
+                    {
                         messageItem[message.id] = message;
                     });
                     channelMessageList.Add(_channelId,itemIds);
@@ -210,6 +217,7 @@ namespace ConnectApp.screens
         {
             
             return new Container(
+                color:CColors.White,
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -280,22 +288,24 @@ namespace ConnectApp.screens
         {
             
             return new Container(
-                decoration:new BoxDecoration(
-                   color:CColors.Separator2,
-                   borderRadius:BorderRadius.all(4)
-                ),
-                   
-                margin:EdgeInsets.only(bottom:24,left:16,right:16),
+                color:CColors.White,
                 child:new Container(
+                    margin:EdgeInsets.only(bottom:24,left:16,right:16),
+                    child:new Container(
+                    decoration:new BoxDecoration(
+                        color:CColors.Separator2,
+                        borderRadius:BorderRadius.all(4)
+                    ),
                     padding:EdgeInsets.only(16,12,16,12), 
                     child:new Text($"{_article.subTitle}",style:CTextStyle.PLargeGray)
-                    )  
+                )  ) 
             );
         }
 
 
         private Widget _contentDetail(BuildContext context) {
             return new Container(
+                color:CColors.White,
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -309,14 +319,21 @@ namespace ConnectApp.screens
         private Widget _actionCards(BuildContext context)
         {
             return new Container(
-                padding:EdgeInsets.only(top:40,bottom:40),
+                color:CColors.White,
+                padding:EdgeInsets.only(bottom:40),
                 child: new Row(
                     mainAxisAlignment:MainAxisAlignment.center,
                     crossAxisAlignment:CrossAxisAlignment.center,
                     children:new List<Widget>{
-                        new ActionCard(Icons.favorite,"点赞",false),
+                        new ActionCard(Icons.favorite,"点赞",false,onTap: () =>
+                        {
+                            
+                        }),
                         new Container(width:16),
-                        new ActionCard(Icons.bookmark,"收藏",false),
+                        new ActionCard(Icons.share,"分享",false,onTap: () =>
+                        {
+                            
+                        }),
                     }
                 ) 
 
@@ -326,7 +343,9 @@ namespace ConnectApp.screens
         private Widget _relatedArticles(BuildContext context)
         {
             return new Container(
+                color:CColors.White,
                 padding:EdgeInsets.only(left:16,right:16),
+                margin:EdgeInsets.only(bottom:16),
                 child: new Column(children:new List<Widget>
                 {
                     new Container(height:1,color:CColors.Separator2,margin:EdgeInsets.only(bottom:24)),
@@ -350,7 +369,10 @@ namespace ConnectApp.screens
             }
             _relArticles.ForEach((article) =>
             {
-                widgets.Add(new RelatedArticleCard(article)); 
+                widgets.Add(new RelatedArticleCard(article,onTap: () =>
+                {
+                    
+                })); 
             });
             return widgets;
         }
@@ -362,6 +384,7 @@ namespace ConnectApp.screens
                 return new Container();
             }
             return new Container(
+                color:CColors.White,
                 padding:EdgeInsets.only(left:16,right:16),
                 child: new Column(
                     crossAxisAlignment:CrossAxisAlignment.start,
@@ -384,9 +407,21 @@ namespace ConnectApp.screens
             var messageDict = channelMessageDict[_channelId];
             _channelComments.ForEach((commentId) =>
             {
-                comments.Add(new CommentCard(messageDict[commentId])); 
+                var card = new CommentCard(messageDict[commentId],
+                    moreCallBack: () =>
+                    {
+                        
+                    }, 
+                    replyCallBack: () =>
+                    {
+                        
+                    },
+                    praiseCallBack: () =>
+                    {
+                        
+                    });
+                comments.Add(card); 
             });
-            
             return comments;
         }
 
@@ -399,6 +434,7 @@ namespace ConnectApp.screens
             }
             return new Container(
                 height:52,
+                alignment:Alignment.center,
                 child:new Text("一 已经全部加载完毕 一",style:new TextStyle(height: 1.57f,
                     fontSize: 14,
                     fontFamily: "PingFang-Regular",

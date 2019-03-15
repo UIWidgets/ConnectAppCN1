@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using RSG;
+using ConnectApp.constants;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -29,11 +30,11 @@ namespace ConnectApp.components {
                     color: Color.fromRGBO(0, 0, 0, 0.1f),
                     child: new Center(
                         child: new Container(
-                            width: 120,
-                            height: 107,
+                            width: 132,
+                            height: 110,
                             decoration: new BoxDecoration(
                                 Color.fromRGBO(0, 0, 0, 0.8f),
-                                borderRadius: BorderRadius.circular(3.0f)
+                                borderRadius: BorderRadius.circular(4)
                             ),
                             child: new Column(
                                 mainAxisSize: MainAxisSize.min,
@@ -56,8 +57,9 @@ namespace ConnectApp.components {
                 child: new Text(
                     message,
                     style: new TextStyle(
-                        color: Color.fromRGBO(216, 216, 216, 1),
-                        fontSize: 14.0f,
+                        color: CColors.White,
+                        fontSize: 14,
+                        fontFamily: "PingFang-Regular",
                         decoration: TextDecoration.none,
                         fontWeight: FontWeight.w400
                     ),

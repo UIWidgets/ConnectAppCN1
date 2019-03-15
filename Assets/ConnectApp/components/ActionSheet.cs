@@ -69,19 +69,21 @@ namespace ConnectApp.components {
                 children: new List<Widget> {
                     new Container(
                         alignment: Alignment.center,
-                        height: 100.0f,
+                        height: 54,
                         child: new Text(
                             title,
                             style: new TextStyle(
-                                color: Color.fromRGBO(171, 170, 174, 1),
-                                fontSize: 16.0f,
+                                color: CColors.TextThird2,
+                                fontSize: 14,
+                                fontFamily: "PingFang-Regular",
                                 decoration: TextDecoration.none,
                                 fontWeight: FontWeight.w400
                             )
                         )
                     ),
                     new CustomDivider(
-                        height: 1.0f
+                        height: 1,
+                        color: CColors.Separator2
                     )
                 }
             );
@@ -95,8 +97,8 @@ namespace ConnectApp.components {
             List<Widget> cancelWidgets = new List<Widget>();
             items.ForEach(item => {
                 ActionType type = item.type;
-                Color titleColor = Color.fromRGBO(40, 187, 40, 1);
-                if (type == ActionType.destructive) titleColor = Color.fromRGBO(240, 81, 60, 1);
+                Color titleColor = CColors.TextBody;
+                if (type == ActionType.destructive) titleColor = CColors.warning;
 
                 Widget widget = new Column(
                     children: new List<Widget> {
@@ -113,7 +115,8 @@ namespace ConnectApp.components {
                                     item.title,
                                     style: new TextStyle(
                                         color: titleColor,
-                                        fontSize: 16.0f,
+                                        fontSize: 16,
+                                        fontFamily: "PingFang-Regular",
                                         decoration: TextDecoration.none,
                                         fontWeight: FontWeight.w400
                                     )
@@ -121,7 +124,8 @@ namespace ConnectApp.components {
                             )
                         ),
                         new CustomDivider(
-                            height: 1.0f
+                            height: 1,
+                            color: CColors.Separator2
                         )
                     }
                 );

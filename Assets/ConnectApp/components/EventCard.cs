@@ -30,7 +30,7 @@ namespace ConnectApp.components {
             var card = new Container(
                 height: 108,
                 padding: EdgeInsets.all(16),
-                color: CColors.Transparent,
+                color: CColors.White,
                 child: new Row(
                     children: new List<Widget> {
                         //date
