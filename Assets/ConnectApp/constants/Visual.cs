@@ -190,7 +190,7 @@ namespace ConnectApp.constants {
         public static readonly Color background2 = new Color(0xFF383838);
         public static readonly Color background3 = new Color(0xFFF5F5F5);
         public static readonly Color background4 = new Color(0xFF00BCD4);
-        public static readonly Color warning = new Color(0xFFF0513C);
+        public static readonly Color warning = new Color(0xFFF44336);
         public static readonly Color icon1 = new Color(0xFFFFFFFF);
         public static readonly Color icon2 = new Color(0xFFA4A4A4);
         public static readonly Color icon3 = new Color(0xFF979A9E);

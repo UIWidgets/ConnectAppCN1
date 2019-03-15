@@ -39,6 +39,8 @@ namespace ConnectApp.canvas {
                     {"/article-detail", context => new ArticleDetailScreen()},
                     {"/mine", context => new MineScreen()},
                     {"/setting", context => new SettingScreen()},
+                    {"/my-event", context => new MyEventsScreen()},
+                    {"/history", context => new HistoryScreen()},
                     {"/login", context => new LoginScreen()},
                     {"/bind-unity", context => new BindUnityScreen()}
                 });

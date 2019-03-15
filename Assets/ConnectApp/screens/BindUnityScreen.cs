@@ -104,7 +104,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new Container(height: 42),
                         new Container(
-                            height: 44,
+                            height: 64,
                             decoration: new BoxDecoration(
                                 CColors.Transparent,
                                 border: new Border(
@@ -133,6 +133,7 @@ namespace ConnectApp.screens {
                                                 fontSize: 16,
                                                 color: CColors.text2
                                             ),
+                                            labelText: "邮箱",
                                             labelStyle: new TextStyle(
                                                 fontSize: 16,
                                                 color: CColors.text2
@@ -153,7 +154,7 @@ namespace ConnectApp.screens {
                         ),
                         new Container(height: 42),
                         new Container(
-                            height: 44,
+                            height: 64,
                             decoration: new BoxDecoration(
                                 CColors.Transparent,
                                 border: new Border(
@@ -183,6 +184,7 @@ namespace ConnectApp.screens {
                                                 fontSize: 16,
                                                 color: CColors.text2
                                             ),
+                                            labelText: "密码",
                                             labelStyle: new TextStyle(
                                                 fontSize: 16,
                                                 color: CColors.text2

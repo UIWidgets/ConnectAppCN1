@@ -32,9 +32,9 @@ namespace ConnectApp.components
         public override Widget build(BuildContext context)
         {
             var user = new User();
-            if (StoreProvider.store.state.userState.UserDict.ContainsKey(article.userId))
+            if (StoreProvider.store.state.userState.userDict.ContainsKey(article.userId))
             {
-                user = StoreProvider.store.state.userState.UserDict[article.userId];
+                user = StoreProvider.store.state.userState.userDict[article.userId];
             }
             var child = new Container(
                 padding:EdgeInsets.only(top:16,bottom:16),
