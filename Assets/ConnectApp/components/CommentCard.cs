@@ -23,8 +23,8 @@ namespace ConnectApp.components
         {
             this.message = message;
             this.moreCallBack = moreCallBack;
-            this.moreCallBack = praiseCallBack;
-            this.moreCallBack = replyCallBack;
+            this.praiseCallBack = praiseCallBack;
+            this.replyCallBack = replyCallBack;
 
         }
 

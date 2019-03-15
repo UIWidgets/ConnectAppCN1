@@ -114,7 +114,7 @@ namespace ConnectApp.screens
                                                 _contentHead(context),
                                                 _subTitle(context),
                                                 _contentDetail(context),
-                                                _actionCards(context),
+                                                _actionCards(context,articleDetail.like),
                                                 _relatedArticles(context),
                                                 _comments(context)
                                             }
@@ -126,7 +126,7 @@ namespace ConnectApp.screens
                                                 _contentHead(context),
                                                 _subTitle(context),
                                                 _contentDetail(context),
-                                                _actionCards(context),
+                                                _actionCards(context,articleDetail.like),
                                                 _relatedArticles(context),
                                                 _comments(context),
                                                 _buildEnd(context)
@@ -141,6 +141,7 @@ namespace ConnectApp.screens
                                     left: 0,
                                     right: 0,
                                     child: new ArticleTabBar(
+                                        articleDetail.like,
                                         commentCallback: () => { },
                                         favorCallback: () => { },
                                         shareCallback: () => { }
@@ -316,7 +317,7 @@ namespace ConnectApp.screens
             );
         }
         
-        private Widget _actionCards(BuildContext context)
+        private Widget _actionCards(BuildContext context,bool like)
         {
             return new Container(
                 color:CColors.White,
@@ -325,7 +326,7 @@ namespace ConnectApp.screens
                     mainAxisAlignment:MainAxisAlignment.center,
                     crossAxisAlignment:CrossAxisAlignment.center,
                     children:new List<Widget>{
-                        new ActionCard(Icons.favorite,"点赞",false,onTap: () =>
+                        new ActionCard(Icons.favorite,"点赞",like,onTap: () =>
                         {
                             
                         }),
@@ -416,8 +417,9 @@ namespace ConnectApp.screens
                     {
                         
                     },
-                    praiseCallBack: () =>
-                    {
+                    praiseCallBack: () => { 
+                        
+                        StoreProvider.store.Dispatch(new LikeCommentAction(){messageId = commentId});
                         
                     });
                 comments.Add(card); 
