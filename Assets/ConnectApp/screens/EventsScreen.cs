@@ -92,18 +92,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new CustomNavigationBar(
                             new Text("活动", style: CTextStyle.H2),
-                            new List<Widget> {
-                                new CustomButton(
-                                    onPressed: () => { Navigator.pushNamed(context, "/search"); },
-                                    child: new Container(
-                                        child: new Icon(
-                                            Icons.search,
-                                            size: 28,
-                                            color: Color.fromRGBO(181, 181, 181, 0.8f)
-                                        )
-                                    )
-                                )
-                            },
+                            null,
                             CColors.White,
                             _offsetY
                         ),
