@@ -43,6 +43,7 @@ namespace ConnectApp.components
                   {
                       new Expanded(
                           child:new Container(
+                              height:76,
                               child:new Column(
                                   mainAxisAlignment:MainAxisAlignment.spaceAround,
                                   crossAxisAlignment:CrossAxisAlignment.start,
