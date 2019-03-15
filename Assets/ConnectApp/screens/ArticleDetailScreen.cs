@@ -64,7 +64,7 @@ namespace ConnectApp.screens
                     {"articleDetail", state.articleState.articleDetail},
                     {"channelMessageDict",state.messageState.channelMessageDict},
                     {"channelMessageList",state.messageState.channelMessageList},
-                    {"userDict",state.userState.UserDict}
+                    {"userDict",state.userState.userDict}
                 },
                 builder: (context1, viewModel) => {
                     if (StoreProvider.store.state.articleState.articleDetailLoading)

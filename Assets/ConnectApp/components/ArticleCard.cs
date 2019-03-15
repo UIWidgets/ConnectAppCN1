@@ -28,8 +28,9 @@ namespace ConnectApp.components {
         private readonly GestureTapCallback onTap;
 
         public override Widget build(BuildContext context) {
+            var username = user != null ? user.username : "";
             var card = new Container(
-                color:CColors.Transparent,
+                color: CColors.Transparent,
                 child: new Padding(
                     padding: EdgeInsets.all(16),
                     child: new Container(
@@ -37,51 +38,59 @@ namespace ConnectApp.components {
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment:CrossAxisAlignment.start,
                             children: new List<Widget> {
-                                
-                                //title
                                 new Container(
-                                    child: new Text(article.title, style: CTextStyle.H5, maxLines: 2,textAlign:TextAlign.left)
+                                    child: new Text(
+                                        article.title,
+                                        style: CTextStyle.H5,
+                                        maxLines: 2,
+                                        textAlign: TextAlign.left
+                                    )
                                 ),
-                                
-                                //content
                                 new Container(
-                                    height: 66,
-                                    margin: EdgeInsets.only(0, 8.0f, 0, 8.0f),
+                                    margin: EdgeInsets.only(top: 8, bottom:8),
                                     child: new Row(
                                         children: new List<Widget> {
                                             new Expanded(
                                                 child: new Text(
                                                     article.bodyPlain,
-                                                    style: CTextStyle.PRegular, maxLines: 3,
-                                                    overflow: TextOverflow.ellipsis)
+                                                    style: CTextStyle.PRegular,
+                                                    maxLines: 3,
+                                                    overflow: TextOverflow.ellipsis
+                                                )
                                             ),
                                             new Container(
-                                                margin: EdgeInsets.only(left: 8.0f),
-                                                width: 99,
+                                                margin: EdgeInsets.only(8.0f),
+                                                width: 100,
+                                                height: 66,
                                                 child: new ClipRRect(
                                                     borderRadius: BorderRadius.all(4),
                                                     child: new Container(
-                                                        child:Image.network(article.thumbnail.url, fit: BoxFit.cover)
+                                                        color: Color.fromRGBO(245, 245, 245, 1),
+                                                        child: Image.network(article.thumbnail.url, fit: BoxFit.cover)
                                                     )
                                                 )
                                             ),
                                         }
                                     )
                                 ),
-                                //bottom
                                 new Container(
                                     child: new Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: new List<Widget> {
                                             new Text(
-                                                $" {user.username} · {DateConvert.DateStringFromNow(article.publishedTime)} · {article.viewCount}",
-                                                style: CTextStyle.PSmall),
-                                            new GestureDetector(
+                                                $" {username} · {DateConvert.DateStringFromNow(article.publishedTime)} · {article.viewCount}",
+                                                style: CTextStyle.PSmall
+                                            ),
+                                            new CustomButton(
                                                 child: new Container(
-                                                    height: 20,
-                                                    child: new Icon(Icons.ellipsis, null, 20,
-                                                        Color.fromRGBO(181, 181, 181, 1))),
-                                                onTap: () => { }
+                                                    height: 28,
+                                                    child: new Icon(
+                                                        Icons.ellipsis,
+                                                        size:20,
+                                                        color:Color.fromRGBO(181, 181, 181, 1)
+                                                    )
+                                                ),
+                                                onPressed: () => ShareUtils.showShareView(context, new ShareView())
                                             )
                                         }
                                     )

@@ -11,7 +11,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 namespace ConnectApp.api {
-    public class EventApi {
+    public static class EventApi {
         public static IPromise<List<IEvent>> FetchEvents(int pageNumber) {
             // We return a promise instantly and start the coroutine to do the real work
             var promise = new Promise<List<IEvent>>();
@@ -26,12 +26,12 @@ namespace ConnectApp.api {
             yield return request.Send();
 #pragma warning restore 618
 
-            if (request.isNetworkError) // something went wrong
-            {
+            if (request.isNetworkError) {
+                // something went wrong
                 promise.Reject(new Exception(request.error));
             }
-            else if (request.responseCode != 200) // or the response is not OK 
-            {
+            else if (request.responseCode != 200) {
+                // or the response is not OK
                 promise.Reject(new Exception(request.downloadHandler.text));
             }
             else {

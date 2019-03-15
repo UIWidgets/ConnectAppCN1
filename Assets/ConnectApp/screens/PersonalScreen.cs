@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using ConnectApp.components;
 using ConnectApp.constants;
-using Unity.UIWidgets.material;
+using ConnectApp.models;
+using ConnectApp.redux;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
+using Unity.UIWidgets.rendering;
 using Icons = ConnectApp.constants.Icons;
 
 namespace ConnectApp.screens {
@@ -12,42 +13,67 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
-                child: new Column(
-                    children: new List<Widget> {
-                        new CustomNavigationBar(
-                            new Text("这是个昵称", style: CTextStyle.H2),
-                            new List<Widget> {
-                                new Container(
-                                    decoration: new BoxDecoration(
-                                        borderRadius: BorderRadius.all(20),
-                                        border: Border.all(Colors.white),
-                                        color: CColors.White
-                                    ),
-                                    child: new ClipRRect(
-                                        borderRadius: BorderRadius.circular(19),
-                                        child: new Container(
-                                            color: CColors.White,
-                                            width: 38,
-                                            height: 38,
-                                            child: Image.asset(
-                                                "mario", fit: BoxFit.cover
-                                            )
+                child: new StoreConnector<AppState, LoginState>(
+                    converter: (state, dispatch) => state.loginState,
+                    builder: (_context, viewModel) => {
+                        var isLoggedIn = viewModel.isLoggedIn;
+                        var navigationBar = isLoggedIn 
+                            ? _buildLoginInNavigationBar(viewModel) 
+                            : _buildNotLoginInNavigationBar(context);
+
+                        return new Column(
+                            children: new List<Widget> {
+                                navigationBar,
+                                new CustomDivider(
+                                    color: CColors.Separator2,
+                                    height: 1
+                                ),
+                                new Flexible(
+                                    child: new Container(
+                                        padding: EdgeInsets.only(bottom: 49),
+                                        child: new ListView(
+                                            children: _buildItems(context, isLoggedIn)
                                         )
                                     )
                                 )
-                            },
-                            CColors.White,
-                            0
-                        ),
-                        new CustomDivider(
-                            color: CColors.Separator2,
-                            height: 1
-                        ),
-                        new Flexible(
-                            child: new Container(
-                                padding: EdgeInsets.only(bottom: 49),
-                                child: new ListView(
-                                    children: _buildItems(context)
+                            }
+                        );
+                    }
+                )
+            );
+        }
+
+        private static Widget _buildNotLoginInNavigationBar(BuildContext context) {
+            return new Container(
+                color: CColors.White,
+                width: MediaQuery.of(context).size.width,
+                height: 240,
+                padding: EdgeInsets.only(16, right: 16, bottom: 16),
+                child: new Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: new List<Widget> {
+                        new Text("欢迎来到", style: CTextStyle.H2),
+                        new Text("Unity Connect", style: CTextStyle.H2),
+                        new Container(
+                            margin: EdgeInsets.only(top: 16),
+                            child: new CustomButton(
+                                padding: EdgeInsets.zero,
+                                onPressed: () => { Navigator.pushNamed(context, "/login"); },
+                                child: new Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                                    decoration: new BoxDecoration(
+                                        border: Border.all(CColors.PrimaryBlue),
+                                        borderRadius: BorderRadius.all(20)
+                                    ),
+                                    child: new Text(
+                                        "登录/注册",
+                                        style: new TextStyle(
+                                            fontSize: 16,
+                                            fontFamily: "PingFang-Medium",
+                                            color: CColors.PrimaryBlue
+                                        )
+                                    )
                                 )
                             )
                         )
@@ -55,16 +81,51 @@ namespace ConnectApp.screens {
                 )
             );
         }
+        
+        private static Widget _buildLoginInNavigationBar(LoginState loginState) {
+            var loginInfo = loginState.loginInfo;
+            return new CustomNavigationBar(
+                new Expanded(
+                    child: new Text(loginInfo.userFullName, style: CTextStyle.H2)
+                ),
+                new List<Widget> {
+                    new ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: new Container(
+                            color: CColors.White,
+                            width: 40,
+                            height: 40,
+                            child: Image.asset(
+                                "mario", fit: BoxFit.cover
+                            )
+                        )
+                    )
+                },
+                CColors.White,
+                0
+            );
+        }
 
-        private static List<Widget> _buildItems(BuildContext context) {
+        private static List<Widget> _buildItems(BuildContext context, bool isLoginIn) {
             List<PersonalCardItem> personalCardItems = new List<PersonalCardItem> {
-                new PersonalCardItem(Icons.book, "我的收藏", () => { Debug.Log("我的收藏"); }),
-                new PersonalCardItem(Icons.ievent, "我的活动", () => { Debug.Log("我的活动"); }),
-                new PersonalCardItem(Icons.eye, "浏览历史", () => { Navigator.pushNamed(context, "/login"); }),
-                new PersonalCardItem(Icons.settings, "设置", () => { Navigator.pushNamed(context, "/setting"); })
+                new PersonalCardItem(Icons.book, "我的收藏", () => {
+                    if (isLoginIn) {
+                    } else {
+                        Navigator.pushNamed(context, "/login");
+                    }
+                }),
+                new PersonalCardItem(Icons.ievent, "我的活动", () => {
+                    var routeName = isLoginIn ? "/my-event" : "/login";
+                    Navigator.pushNamed(context, routeName);
+                }),
+                new PersonalCardItem(Icons.eye, "浏览历史", () => Navigator.pushNamed(context, "/history")),
+                new PersonalCardItem(Icons.settings, "设置", () => {
+                    var routeName = isLoginIn ? "/setting" : "/login";
+                    Navigator.pushNamed(context, routeName);
+                })
             };
             List<Widget> widgets = new List<Widget>();
-            personalCardItems.ForEach(item => { widgets.Add(new PersonalCard(item)); });
+            personalCardItems.ForEach(item => widgets.Add(new PersonalCard(item)));
             return widgets;
         }
     }

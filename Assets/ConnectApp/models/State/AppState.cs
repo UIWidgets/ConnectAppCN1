@@ -56,16 +56,15 @@ namespace ConnectApp.models {
                     notifications = new List<Notification>()
                 },
                 userState = new UserState {
-                    UserDict = new Dictionary<string, User>()
+                    userDict = new Dictionary<string, User>()
                 },
                 mineState = new MineState {
-                    futureEventsList = new List<string>(),
-                    pastEventsList = new List<string>(),
+                    futureEventsList = new List<IEvent>(),
+                    pastEventsList = new List<IEvent>(),
                     futureListLoading = false,
                     pastListLoading = false
                 },
-                messageState = new MessageState
-                {
+                messageState = new MessageState {
                     channelMessageDict = new Dictionary<string, Dictionary<string, Message>>(),
                     channelMessageList = new Dictionary<string, List<string>>()
                 }

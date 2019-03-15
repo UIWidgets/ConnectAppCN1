@@ -19,11 +19,11 @@ namespace ConnectApp.screens {
         }
 
         public override State createState() {
-            return new _EventsScreen();
+            return new _EventsScreenState();
         }
     }
 
-    internal class _EventsScreen : State<EventsScreen> {
+    internal class _EventsScreenState : State<EventsScreen> {
         private const float headerHeight = 80;
         private PageController _pageController;
         private int _selectedIndex;

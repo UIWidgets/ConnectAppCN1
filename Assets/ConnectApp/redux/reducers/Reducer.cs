@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using ConnectApp.api;
 using ConnectApp.models;
 using ConnectApp.redux.actions;
@@ -37,6 +36,7 @@ namespace ConnectApp.redux.reducers {
                 }
                 case NavigatorToEventDetailAction action: {
                     state.eventState.detailId = action.eventId;
+                    state.eventState.eventType = action.eventType;
                     break;
                 }
                 case NavigatorToArticleDetailAction action: {
@@ -77,11 +77,11 @@ namespace ConnectApp.redux.reducers {
                         .Then((articlesResponse) => {
                             var articleList = new List<string>();
                             var articleDict = new Dictionary<string, Article>();
-                            articlesResponse.items.ForEach((item) => {
+                            articlesResponse.items.ForEach(item => {
                                 articleList.Add(item.id);
                                 articleDict.Add(item.id, item);
                             });
-                            StoreProvider.store.Dispatch(new UserMapAction()
+                            StoreProvider.store.Dispatch(new UserMapAction
                                 {userMap = articlesResponse.userMap});
                             StoreProvider.store.Dispatch(new FetchArticleSuccessAction
                                 {ArticleDict = articleDict, ArticleList = articleList});
@@ -98,34 +98,30 @@ namespace ConnectApp.redux.reducers {
                 case FetchArticleDetailAction action: {
                     state.articleState.articleDetailLoading = true;
                     ArticleApi.FetchArticleDetail(action.articleId)
-                        .Then((articleDetailResponse) => {
-                            
-                            if( articleDetailResponse.project.comments.items.Count>0)
-                            {
+                        .Then(articleDetailResponse => {
+                            if( articleDetailResponse.project.comments.items.Count>0) {
                                 var channelId = articleDetailResponse.project.comments.items.first().channelId;
                                 var channelMessageList = new Dictionary<string,List<string>>();
                                 var channelMessageDict = new Dictionary<string,Dictionary<string, Message>>();
                                 var itemIds = new List<string>();
                                 var messageItem = new Dictionary<string,Message>();
-                                articleDetailResponse.project.comments.items.ForEach((message) =>
-                                {
+                                articleDetailResponse.project.comments.items.ForEach(message => {
                                     itemIds.Add(message.id);
                                     messageItem[message.id] = message;
                                 });
                                 channelMessageList.Add(channelId,itemIds);
                                 channelMessageDict.Add(channelId,messageItem);
                             
-                                StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction()
-                                {
+                                StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction{
                                     channelMessageDict = channelMessageDict,
                                     channelMessageList = channelMessageList
                                 });
                             }
                             
-                            StoreProvider.store.Dispatch(new UserMapAction() {
+                            StoreProvider.store.Dispatch(new UserMapAction {
                                 userMap = articleDetailResponse.project.userMap
                             });
-                            StoreProvider.store.Dispatch(new FetchArticleDetailSuccessAction() {
+                            StoreProvider.store.Dispatch(new FetchArticleDetailSuccessAction {
                                 articleDetail = articleDetailResponse.project
                             });
                         })
@@ -134,6 +130,10 @@ namespace ConnectApp.redux.reducers {
                 }
                 case FetchArticleDetailSuccessAction action: {
                     state.articleState.articleDetailLoading = false;
+                    state.articleState.articleDetail = action.articleDetail;
+                    break;
+                }
+                case SaveArticleDetailSuccessAction action: {
                     state.articleState.articleDetail = action.articleDetail;
                     break;
                 }
@@ -148,22 +148,19 @@ namespace ConnectApp.redux.reducers {
                 }
                 case FetchArticleCommentsAction action: {
                     ArticleApi.FetchArticleComments(action.channelId, action.currOldestMessageId)
-                        .Then((responseComments) =>
-                        {
-                            var channelMessageList = new Dictionary<string,List<string>>();
-                            var channelMessageDict = new Dictionary<string,Dictionary<string, Message>>();
+                        .Then(responseComments => {
+                            var channelMessageList = new Dictionary<string, List<string>>();
+                            var channelMessageDict = new Dictionary<string, Dictionary<string, Message>>();
                             var itemIds = new List<string>();
-                            var messageItem = new Dictionary<string,Message>();
-                            responseComments.items.ForEach((message) =>
-                            {
+                            var messageItem = new Dictionary<string, Message>();
+                            responseComments.items.ForEach(message => {
                                 itemIds.Add(message.id);
                                 messageItem[message.id] = message;
                             });
                             channelMessageList.Add(action.channelId,itemIds);
                             channelMessageDict.Add(action.channelId,messageItem);
                             
-                            StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction()
-                            {
+                            StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction{
                                 channelMessageDict = channelMessageDict,
                                 channelMessageList = channelMessageList
                             });
@@ -171,47 +168,32 @@ namespace ConnectApp.redux.reducers {
                         .Catch(error => { Debug.Log(error); });
                     break;
                 }
-                case FetchArticleCommentsSuccessAction action:
-                {
-                    foreach (var keyValuePair in action.channelMessageList)
-                    {
-                        if (state.messageState.channelMessageList.ContainsKey(keyValuePair.Key))
-                        {
+                case FetchArticleCommentsSuccessAction action: {
+                    foreach (var keyValuePair in action.channelMessageList) {
+                        if (state.messageState.channelMessageList.ContainsKey(keyValuePair.Key)) {
                             var oldList = state.messageState.channelMessageList[keyValuePair.Key];
                             oldList.AddRange(keyValuePair.Value);
                             state.messageState.channelMessageList[keyValuePair.Key] = oldList;
-                        }
-                        else
-                        {
+                        } else {
                             state.messageState.channelMessageList.Add(keyValuePair.Key,keyValuePair.Value);
                         }
                     }
-                    foreach (var keyValuePair in action.channelMessageDict)
-                    {
-                        if (state.messageState.channelMessageDict.ContainsKey(keyValuePair.Key))
-                        {
+                    foreach (var keyValuePair in action.channelMessageDict) {
+                        if (state.messageState.channelMessageDict.ContainsKey(keyValuePair.Key)) {
                             var oldDict = state.messageState.channelMessageDict[keyValuePair.Key];
                             var newDict = state.messageState.channelMessageDict[keyValuePair.Key];
-                            foreach (var valuePair in newDict)
-                            {
-                                if (oldDict.ContainsKey(valuePair.Key))
-                                {
+                            foreach (var valuePair in newDict) {
+                                if (oldDict.ContainsKey(valuePair.Key)) {
                                     oldDict[valuePair.Key] = valuePair.Value;
-                                }
-                                else
-                                {
+                                } else {
                                     oldDict.Add(valuePair.Key,valuePair.Value);
                                 }
                             }
                             state.messageState.channelMessageDict[keyValuePair.Key] = oldDict;
-                        }
-                        else
-                        {
+                        } else {
                             state.messageState.channelMessageDict.Add(keyValuePair.Key,keyValuePair.Value);
                         }
                     }
-                    
-
                     break;
                 }
                 case LikeCommentAction action: {
@@ -256,6 +238,10 @@ namespace ConnectApp.redux.reducers {
                 case FetchEventsSuccessAction action: {
                     state.eventState.eventsLoading = false;
                     action.events.ForEach(eventObj => {
+                        var userMap = new Dictionary<string, User> {
+                            {eventObj.user.id, eventObj.user}
+                        };
+                        StoreProvider.store.Dispatch(new UserMapAction{userMap = userMap});
                         state.eventState.events.Add(eventObj.id);
                         state.eventState.eventDict[eventObj.id] = eventObj;
                     });
@@ -275,6 +261,11 @@ namespace ConnectApp.redux.reducers {
                 }
                 case FetchEventDetailSuccessAction action: {
                     state.eventState.eventDetailLoading = false;
+                    var userMap = new Dictionary<string, User> {
+                        {action.eventObj.user.id, action.eventObj.user}
+                    };
+                    action.eventObj.hosts.ForEach(host => userMap.Add(host.id, host));
+                    StoreProvider.store.Dispatch(new UserMapAction{userMap = userMap});
                     state.eventState.eventDict[action.eventObj.id] = action.eventObj;
                     state.eventState.detailId = action.eventObj.id;
                     break;
@@ -327,23 +318,51 @@ namespace ConnectApp.redux.reducers {
                 case FetchMyFutureEventsAction action: {
                     state.mineState.futureListLoading = true;
                     MineApi.FetchMyFutureEvents(action.pageNumber)
-                        .Then(() => { StoreProvider.store.Dispatch(new FetchMyFutureEventsSuccessAction()); })
-                        .Catch(error => { Debug.Log(error); });
+                        .Then(events => {
+                            StoreProvider.store.Dispatch(new FetchMyFutureEventsSuccessAction{events = events});
+                        })
+                        .Catch(error => {
+                            state.mineState.futureListLoading = false;
+                            Debug.Log(error);
+                        });
                     break;
                 }
                 case FetchMyFutureEventsSuccessAction action: {
-                    state.articleState.articlesLoading = false;
+                    state.mineState.futureListLoading = false;
+                    if (action.events != null && action.events.Count > 0) {
+                        action.events.ForEach(item => {
+                            var userMap = new Dictionary<string, User> {
+                                {item.user.id, item.user}
+                            };
+                            StoreProvider.store.Dispatch(new UserMapAction{userMap = userMap});
+                        });
+                    }
+                    state.mineState.futureEventsList = action.events;
                     break;
                 }
                 case FetchMyPastEventsAction action: {
                     state.mineState.pastListLoading = true;
                     MineApi.FetchMyPastEvents(action.pageNumber)
-                        .Then(() => { StoreProvider.store.Dispatch(new FetchMyPastEventsSuccessAction()); })
-                        .Catch(error => { Debug.Log(error); });
+                        .Then(events => {
+                            StoreProvider.store.Dispatch(new FetchMyPastEventsSuccessAction{events = events});
+                        })
+                        .Catch(error => {
+                            state.mineState.pastListLoading = false;
+                            Debug.Log(error);
+                        });
                     break;
                 }
                 case FetchMyPastEventsSuccessAction action: {
                     state.mineState.pastListLoading = false;
+                    if (action.events != null && action.events.Count > 0) {
+                        action.events.ForEach(item => {
+                            var userMap = new Dictionary<string, User> {
+                                {item.user.id, item.user}
+                            };
+                            StoreProvider.store.Dispatch(new UserMapAction{userMap = userMap});
+                        });
+                    }
+                    state.mineState.pastEventsList = action.events;
                     break;
                 }
                 case FetchMessagesAction action: {
@@ -364,17 +383,12 @@ namespace ConnectApp.redux.reducers {
                 case SendMessageSuccessAction action: {
                     break;
                 }
-                case UserMapAction action:
-                {
-                    foreach (var keyValuePair in action.userMap)
-                    {
-                        if (state.userState.UserDict.ContainsKey(keyValuePair.Key))
-                        {
-                            state.userState.UserDict[keyValuePair.Key] = keyValuePair.Value;
-                        }
-                        else
-                        {
-                            state.userState.UserDict.Add(keyValuePair.Key, keyValuePair.Value);
+                case UserMapAction action: {
+                    foreach (var keyValuePair in action.userMap) {
+                        if (state.userState.userDict.ContainsKey(keyValuePair.Key)) {
+                            state.userState.userDict[keyValuePair.Key] = keyValuePair.Value;
+                        } else {
+                            state.userState.userDict.Add(keyValuePair.Key, keyValuePair.Value);
                         }
                     }
                     break;
