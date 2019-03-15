@@ -70,10 +70,10 @@ namespace ConnectApp.components
                             onTap:favorCallback,
                             child:new Icon(Icons.favorite_border,null,24,CColors.icon3)
                         ),
-                        new GestureDetector(
-                            onTap:bookmarkCallback,
-                            child:new Icon(Icons.bookmark,null,24,CColors.icon3)
-                        ),
+//                        new GestureDetector(
+//                            onTap:bookmarkCallback,
+//                            child:new Icon(Icons.bookmark,null,24,CColors.icon3)
+//                        ),
                         new GestureDetector(
                             onTap:shareCallback,
                             child:new Icon(Icons.share,null,24,CColors.icon3)

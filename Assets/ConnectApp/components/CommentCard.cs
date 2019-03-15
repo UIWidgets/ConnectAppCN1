@@ -3,6 +3,7 @@ using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.utils;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
@@ -13,18 +14,31 @@ namespace ConnectApp.components
     {
         public CommentCard(
             Message message,
+            GestureTapCallback moreCallBack = null,
+            GestureTapCallback praiseCallBack = null,
+            GestureTapCallback replyCallBack = null,
             Key key = null
         ) : base(key)
         {
             this.message = message;
+            this.moreCallBack = moreCallBack;
+            this.moreCallBack = praiseCallBack;
+            this.moreCallBack = replyCallBack;
+
         }
 
         public readonly Message message;
+        public readonly GestureTapCallback moreCallBack;
+        public readonly GestureTapCallback praiseCallBack;
+        public readonly GestureTapCallback replyCallBack;
+
+        
+        
 
         public override Widget build(BuildContext context)
         {
             return new Container(
-                padding:EdgeInsets.only(bottom:16),
+                padding:EdgeInsets.only(top:8),
                 child:new Row(
                     crossAxisAlignment:CrossAxisAlignment.start,
                     children:new List<Widget>
@@ -56,6 +70,7 @@ namespace ConnectApp.components
                                                     fontFamily: "PingFangSC-Regular",
                                                     color: CColors.TextThird))),
                                             new GestureDetector(
+                                                onTap:moreCallBack,
                                                 child:new Icon(Icons.ellipsis,size:20,color:CColors.BrownGrey)
                                             )
                                         }
@@ -71,10 +86,12 @@ namespace ConnectApp.components
                                                     children:new List<Widget>
                                                     {
                                                         new GestureDetector(
+                                                            onTap:praiseCallBack,
                                                             child:new Text($"点赞 {message.reactions.Count}",style:CTextStyle.TextBody4)
                                                         ),
                                                         new Container(width:10),
                                                         new GestureDetector(
+                                                            onTap:replyCallBack,
                                                             child:new Text($"回复 { message.replyMessageIds.Count }",style:CTextStyle.TextBody4)
                                                         ),
                                                     }
@@ -82,7 +99,7 @@ namespace ConnectApp.components
                                             )
                                         }
                                     ),
-                                    new Container(height:1,color:CColors.Separator2)
+                                    new Container(margin:EdgeInsets.only(top:12),height:1,color:CColors.Separator2)
                                     
                                 }
                             )
