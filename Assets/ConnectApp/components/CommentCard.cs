@@ -120,7 +120,7 @@ namespace ConnectApp.components
                                         mainAxisAlignment:MainAxisAlignment.spaceBetween,
                                         children:new List<Widget>
                                         {
-                                            new Text("2天前",style:CTextStyle.TextBody4),
+                                            new Text($"{DateConvert.DateStringFromNonce(message.nonce)}",style:CTextStyle.TextBody4),
                                             new Container(
                                                child: new Row(
                                                     children:new List<Widget>

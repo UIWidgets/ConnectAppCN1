@@ -299,6 +299,11 @@ namespace ConnectApp.screens {
                     Debug.Log(error);
                 });
         }
-        
+
+        public override void dispose()
+        {
+            base.dispose();
+            _pageController.dispose();
+        }
     }
 }
