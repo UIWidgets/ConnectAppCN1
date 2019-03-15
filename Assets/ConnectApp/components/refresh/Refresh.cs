@@ -371,7 +371,7 @@ namespace ConnectApp.components.refresh {
             IPromise result = callback();
             D.assert(result is Promise, "");
             {
-                result.Done(() => { changeState(RefreshState.drag); }, (err) => { Debug.Log(err); });
+                result.Done(() => { changeState(RefreshState.drag); }, (err) => { changeState(RefreshState.drag);Debug.Log(err); });
             }
             return result;
         }

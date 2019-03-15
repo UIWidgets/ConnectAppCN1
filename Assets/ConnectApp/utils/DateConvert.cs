@@ -21,5 +21,16 @@ namespace ConnectApp.utils {
             else
                 return "刚刚";
         }
+        
+        public static string DateStringFromNonce(string nonce)
+        {
+            var startTime = TimeZone.CurrentTimeZone.ToLocalTime( new System.DateTime(2016, 1, 1)); 
+            var span = Convert.ToInt64(nonce,16);
+            var shifted = (span + 1) >> 22;
+            var timespan = (shifted - 1);
+            var dt = startTime.AddMilliseconds(timespan);
+            return DateStringFromNow(dt) ;
+        }
+
     }
 }

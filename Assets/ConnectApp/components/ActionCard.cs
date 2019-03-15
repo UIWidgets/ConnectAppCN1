@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using ConnectApp.constants;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
@@ -15,23 +16,28 @@ namespace ConnectApp.components
             IconData iconData,
             string title,
             bool done,
+            GestureTapCallback onTap = null,
             Key key = null
             ) : base(key)
         {
             this.title = title;
             this.iconData = iconData;
+            this.done = done;
+            this.onTap = onTap;
         }
 
         public readonly IconData iconData;
         public readonly string title;
         public readonly bool done;
+        public readonly GestureTapCallback onTap;
 
         public override Widget build(BuildContext context)
         {
             var iconColor = done ? CColors.PrimaryBlue: new Color(0xFFC7CBCF);
             var textColor = done ? CColors.PrimaryBlue: CColors.TextSecondary;
-            return new Container(
+            var child = new Container(
                 decoration:new BoxDecoration(
+                    color:CColors.Transparent,
                     borderRadius:BorderRadius.circular(4),
                     border:Border.all(CColors.Separator)
                 ),
@@ -56,6 +62,9 @@ namespace ConnectApp.components
                     
                  )    
             );
+            return new GestureDetector(
+                onTap: onTap,
+                child: child);
         }
     }
 }

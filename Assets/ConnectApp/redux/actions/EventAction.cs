@@ -4,10 +4,13 @@ using ConnectApp.models;
 namespace ConnectApp.redux.actions {
     public class FetchEventsAction : RequestAction {
         public int pageNumber = 0;
+        public string tab;
     }
 
     public class FetchEventsSuccessAction : BaseAction {
         public List<IEvent> events;
+        public int pageNumber = 0;
+        public string tab;
     }
 
     public class FetchEventDetailAction : RequestAction {
