@@ -43,73 +43,61 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
-                child: new Column(
+                child: new Stack(
                     children: new List<Widget> {
-                        _buildNavigationBar(context),
-                        new Flexible(
-                            child: _buildArticlesList(context)
+                        _ArticelList(context),
+                        new Positioned(
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            child: new CustomNavigationBar(new Text("文章", style: new TextStyle(
+                                height: 1.25f,
+                                fontSize: 32 / headerHeight * (headerHeight - _offsetY),
+                                fontFamily: "PingFang-Semibold",
+                                color: CColors.TextTitle
+                            )), new List<Widget> {
+                                new Container(child: new Icon(Icons.search, null, 28,
+                                    Color.fromRGBO(255, 255, 255, 0.8f))),
+                                new GestureDetector(
+                                    onTap: () => { StoreProvider.store.Dispatch(new LoginByEmailAction()); },
+                                    child: new Container(
+                                        color: CColors.BrownGrey,
+                                        child: new Text(
+                                            "LoginByEmail",
+                                            style: CTextStyle.H2
+                                        )
+                                    )
+                                )
+                            }, CColors.White, _offsetY)
                         )
                     }
                 )
             );
         }
 
-        private Widget _buildNavigationBar(BuildContext context) {
-            return new CustomNavigationBar(
-                new Text(
-                    "文章", 
-                    style: new TextStyle(
-                        height: 1.25f,
-                        fontSize: 32 / headerHeight * (headerHeight - _offsetY),
-                        fontFamily: "PingFang-Semibold",
-                        color: CColors.TextTitle
-                    )
-                ),
-                new List<Widget> {
-                    new CustomButton(
-                        onPressed: () => { Navigator.pushNamed(context, "/search"); },
-                        child: new Icon(
-                            Icons.search,
-                            size: 28,
-                            color: Color.fromRGBO(181, 181, 181, 0.8f)
-                        )
-                    ),
-                    new GestureDetector(
-                        onTap: () => Navigator.pushNamed(context, "/bind-unity"),
-                        child: new Container(
-                            color: CColors.BrownGrey,
-                            child: new Text(
-                                "Login",
-                                style: CTextStyle.H4
-                            )
-                        )
-                    )
-                },
-                CColors.White,
-                _offsetY
-            );
-        }
-
-        private Widget _buildArticlesList(BuildContext context) {
+        private Widget _ArticelList(BuildContext context) {
             return new NotificationListener<ScrollNotification>(
-                onNotification: _onNotification,
+                onNotification: (ScrollNotification notification) => { return _OnNotification(context, notification); },
                 child: new Container(
-                    padding: EdgeInsets.only(bottom: 49),
+                    margin: EdgeInsets.only(0, headerHeight - _offsetY, 0, 49),
                     child: new StoreConnector<AppState, Dictionary<string,object>>(
-                        converter: (state, dispatch) => new Dictionary<string, object>{
+                        converter: (state, dispatch) => new Dictionary<string, object>()
+                        {
                             {"articlesLoading",state.articleState.articlesLoading},
                             {"articleList",state.articleState.articleList}
                         },
-                        builder: (_context, viewModel) => {
-                            bool articlesLoading = (bool) viewModel["articlesLoading"];
+                        builder: (_context, viewModel) =>
+                        {
+                            bool articlesLoading = (bool)viewModel["articlesLoading"];
                             if (articlesLoading) return new Container();
-                            var articleList = (List<string>) viewModel["articleList"];
+                            
+                            var articleList = (List<string>)viewModel["articleList"];
                             var refreshPage = new Refresh(
                                 onHeaderRefresh: onHeaderRefresh,
                                 onFooterRefresh: onFooterRefresh,
                                 child: new ListView(
                                     physics: new AlwaysScrollableScrollPhysics(),
-                                    children: _buildArticleCards(context, articleList)
+                                    children: _buildArtileCards(context,articleList)
                                 )
                             );
                             return refreshPage;
@@ -122,46 +110,56 @@ namespace ConnectApp.screens {
         private IPromise onHeaderRefresh() {
             pageNumber = 1;
             return ArticleApi.FetchArticles(pageNumber)
-                .Then(articlesResponse => {
+                .Then((articlesResponse) => {
                     var articleList = new List<string>();
                     var articleDict = new Dictionary<string, Article>();
-                    articlesResponse.items.ForEach(item => {
+                    articlesResponse.items.ForEach((item) => {
                         articleList.Add(item.id);
                         articleDict.Add(item.id, item);
                     });
+                    StoreProvider.store.Dispatch(new UserMapAction(){userMap = articlesResponse.userMap});
                     StoreProvider.store.Dispatch(new FetchArticleSuccessAction
                         {ArticleDict = articleDict, ArticleList = articleList});
                 })
-                .Catch(error => { Debug.Log($"{error}"); });
+                .Catch(error => { Debug.Log(error); });
         }
 
         private IPromise onFooterRefresh() {
             pageNumber++;
             return ArticleApi.FetchArticles(pageNumber)
-                .Then(articlesResponse => {
+                .Then((articlesResponse) => {
                     if (articlesResponse.items.Count != 0) {
                         var articleList = StoreProvider.store.state.articleState.articleList;
                         var articleDict = StoreProvider.store.state.articleState.articleDict;
-                        articlesResponse.items.ForEach(item => {
+                        articlesResponse.items.ForEach((item) => {
                             if (!articleDict.Keys.Contains(item.id)) {
                                 articleList.Add(item.id);
                                 articleDict.Add(item.id, item);
                             }
                         });
+                        StoreProvider.store.Dispatch(new UserMapAction(){userMap = articlesResponse.userMap});
                         StoreProvider.store.Dispatch(new FetchArticleSuccessAction
                             {ArticleDict = articleDict, ArticleList = articleList});
                     }
                 })
-                .Catch(error => { Debug.Log($"{error}"); });
+                .Catch(error => { Debug.Log(error); });
         }
 
-        private List<Widget> _buildArticleCards(BuildContext context, List<string> items) {
+        private List<Widget> _buildArtileCards(BuildContext context,List<string> items) {
             var list = new List<Widget>();
-            items.ForEach(id => {
+            items.ForEach((id) =>
+            {
+                var article = StoreProvider.store.state.articleState.articleDict[id];
+                var user = new User();
+                if (StoreProvider.store.state.userState.UserDict.ContainsKey(article.userId))
+                {
+                    user = StoreProvider.store.state.userState.UserDict[article.userId];
+                }
                 list.Add(new ArticleCard(
-                    StoreProvider.store.state.articleState.articleDict[id],
-                    () => {
-                        StoreProvider.store.Dispatch(new NavigatorToArticleDetailAction{detailId = id});
+                    article,
+                    user,
+                    onTap:() => {
+                        StoreProvider.store.Dispatch(new NavigatorToArticleDetailAction() {detailId = id});
                         Navigator.pushNamed(context, "/article-detail");
                     }
                 ));
@@ -170,7 +168,7 @@ namespace ConnectApp.screens {
         }
 
 
-        private bool _onNotification(ScrollNotification notification) {
+        private bool _OnNotification(BuildContext context, ScrollNotification notification) {
             var pixels = notification.metrics.pixels;
             if (pixels >= 0) {
                 if (pixels <= headerHeight) setState(() => { _offsetY = pixels / 2.0f; });

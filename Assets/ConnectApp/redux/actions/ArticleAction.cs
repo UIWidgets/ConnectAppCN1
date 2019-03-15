@@ -24,7 +24,10 @@ namespace ConnectApp.redux.actions {
         public string currOldestMessageId = "";
     }
 
-    public class FetchArticleCommentsSuccessAction : BaseAction {
+    public class FetchArticleCommentsSuccessAction : BaseAction
+    {
+        public Dictionary<string, List<string>> channelMessageList;
+        public Dictionary<string, Dictionary<string, Message>> channelMessageDict;
     }
 
     public class LikeArticleAction : RequestAction {

@@ -11,6 +11,7 @@ namespace ConnectApp.models {
     [Serializable]
     public class FetchArticleDetailResponse {
         public Project project;
+        
     }
     
     [Serializable]

@@ -109,8 +109,7 @@ namespace ConnectApp.screens {
                                                     itemBuilder: (cxt, index) => {
                                                         var searchArticle = searchArticles[index];
                                                         return new ArticleCard(
-                                                            searchArticle,
-                                                            () => { }
+                                                            searchArticle
                                                         );
                                                     }
                                                 )

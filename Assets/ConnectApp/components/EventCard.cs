@@ -50,23 +50,25 @@ namespace ConnectApp.components {
                         ),
 
                         //content
-                        new Container(
-                            width: MediaQuery.of(context).size.width - 196,
-                            margin: EdgeInsets.only(right: 8),
-                            child: new Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: new List<Widget> {
-                                    new Container(
-                                        child: new Text(_model.title, style: CTextStyle.PMedium, maxLines: 2)
-                                    ),
+                        new Expanded(
+                            child:new Container(
+                                margin: EdgeInsets.only(right: 8),
+                                child: new Column(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: new List<Widget> {
+                                        new Container(
+                                            child: new Text(_model.title, style: CTextStyle.PMedium, maxLines: 2)
+                                        ),
 
-                                    new Text(
-                                        _model.live ? $"20:00 · {_model.participantsCount}人已预订" : "20:00 · 旧金山Unity大厦",
-                                        style: CTextStyle.PSmall)
-                                }
+                                        new Text(
+                                            _model.live ? $"20:00 · {_model.participantsCount}人已预订" : "20:00 · 旧金山Unity大厦",
+                                            style: CTextStyle.PSmall)
+                                    }
+                                )
                             )
                         ),
+                        
                         //pic
                         new ClipRRect(
                             borderRadius: BorderRadius.all(0),
