@@ -159,6 +159,10 @@ namespace ConnectApp.redux.reducers {
                                 itemIds.Add(message.id);
                                 messageItem[message.id] = message;
                             });
+                            responseComments.parents.ForEach((message) =>
+                            {
+                                messageItem[message.id] = message;
+                            });
                             channelMessageList.Add(action.channelId,itemIds);
                             channelMessageDict.Add(action.channelId,messageItem);
                             

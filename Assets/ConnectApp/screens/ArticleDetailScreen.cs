@@ -196,6 +196,10 @@ namespace ConnectApp.screens
                         itemIds.Add(message.id);
                         messageItem[message.id] = message;
                     });
+                    responseComments.parents.ForEach((message) =>
+                    {
+                        messageItem[message.id] = message;
+                    });
                     channelMessageList.Add(_channelId,itemIds);
                     channelMessageDict.Add(_channelId,messageItem);
                             

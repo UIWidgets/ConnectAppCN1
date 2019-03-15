@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.redux;
 using ConnectApp.utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -37,6 +38,45 @@ namespace ConnectApp.components
 
         public override Widget build(BuildContext context)
         {
+
+            
+            
+            Widget _content = null;
+            if (message.parentMessageId ==null )
+            {
+                _content = new Text(message.content, style: CTextStyle.PLarge);
+            }
+            else
+            {
+                var parentMessage =
+                    StoreProvider.store.state.messageState.channelMessageDict[message.channelId][message.parentMessageId];
+                _content = new Container(child:new RichText(text:new TextSpan("回复@", children: new List<TextSpan>
+                {
+                    new TextSpan(
+                        $"{parentMessage.author.username}",
+                        children: new List<TextSpan>
+                        {
+                            new TextSpan(
+                                $":{message.content}", style: CTextStyle.PLarge
+                            )
+                        },
+                        style:new TextStyle(
+                            height: 1.5f,
+                            fontSize: 16,
+                            fontFamily: "PingFang-Regular",
+                            color: CColors.PrimaryBlue
+                        )
+
+                    )
+                },style:new TextStyle(
+                    height: 1.5f,
+                    fontSize: 16,
+                    fontFamily: "PingFang-Regular",
+                    color: CColors.TextBody4
+                )))); 
+            }
+            
+            
             return new Container(
                 padding:EdgeInsets.only(top:8),
                 child:new Row(
@@ -75,7 +115,7 @@ namespace ConnectApp.components
                                             )
                                         }
                                     ),
-                                    new Text(message.content,style:CTextStyle.PLarge),
+                                    _content,
                                     new Row(
                                         mainAxisAlignment:MainAxisAlignment.spaceBetween,
                                         children:new List<Widget>
