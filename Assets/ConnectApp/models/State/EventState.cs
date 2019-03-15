@@ -13,6 +13,11 @@ namespace ConnectApp.models {
         public List<string> events { get; set; }
         public Dictionary<string, IEvent> eventDict { get; set; }
 
+        public List<string> completedEvents { get; set; }
+        
+        public Dictionary<string, IEvent> completedEventDict { get; set; }
+
+        
         public bool eventDetailLoading { get; set; }
         public string detailId { get; set; }
         public EventType eventType { get; set; }

@@ -43,6 +43,8 @@ namespace ConnectApp.models {
                 eventState = new EventState {
                     events = new List<string>(),
                     eventDict = new Dictionary<string, IEvent>(),
+                    completedEvents = new List<string>(),
+                    completedEventDict = new Dictionary<string, IEvent>(),
                     eventsLoading = false,
                     detailId = null
                 },
