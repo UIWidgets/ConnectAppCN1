@@ -12,15 +12,15 @@ using UnityEngine.Networking;
 
 namespace ConnectApp.api {
     public class EventApi {
-        public static IPromise<List<IEvent>> FetchEvents(int pageNumber) {
+        public static IPromise<List<IEvent>> FetchEvents(int pageNumber,string tab) {
             // We return a promise instantly and start the coroutine to do the real work
             var promise = new Promise<List<IEvent>>();
-            Window.instance.startCoroutine(_FetchEvents(promise, pageNumber));
+            Window.instance.startCoroutine(_FetchEvents(promise, pageNumber,tab));
             return promise;
         }
 
-        private static IEnumerator _FetchEvents(Promise<List<IEvent>> promise, int pageNumber) {
-            var request = UnityWebRequest.Get(IApi.apiAddress + $"/api/live/events?page={pageNumber}");
+        private static IEnumerator _FetchEvents(Promise<List<IEvent>> promise, int pageNumber,string tab) {
+            var request = UnityWebRequest.Get(IApi.apiAddress + $"/api/live/events?tab={tab}&page={pageNumber}");
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
 #pragma warning disable 618
             yield return request.Send();

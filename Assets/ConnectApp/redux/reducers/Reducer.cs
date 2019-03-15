@@ -247,9 +247,9 @@ namespace ConnectApp.redux.reducers {
                 }
                 case FetchEventsAction action: {
                     state.eventState.eventsLoading = true;
-                    EventApi.FetchEvents(action.pageNumber)
+                    EventApi.FetchEvents(action.pageNumber,action.tab)
                         .Then(events => {
-                            StoreProvider.store.Dispatch(new FetchEventsSuccessAction {events = events});
+                            StoreProvider.store.Dispatch(new FetchEventsSuccessAction {events = events,tab = action.tab});
                         })
                         .Catch(error => {
                             state.eventState.eventsLoading = false;
@@ -259,9 +259,45 @@ namespace ConnectApp.redux.reducers {
                 }
                 case FetchEventsSuccessAction action: {
                     state.eventState.eventsLoading = false;
+                    if (action.pageNumber == 1)
+                    {
+                        if (action.tab == "ongoing")
+                        {
+                            state.eventState.events.Clear();
+                        }
+                        else
+                        {
+                            state.eventState.completedEvents.Clear();
+                        }
+
+                    }
                     action.events.ForEach(eventObj => {
-                        state.eventState.events.Add(eventObj.id);
-                        state.eventState.eventDict[eventObj.id] = eventObj;
+                        if (action.tab == "ongoing")
+                        {
+                            state.eventState.events.Add(eventObj.id);
+                            if (state.eventState.eventDict.ContainsKey(eventObj.id))
+                            {
+                                state.eventState.eventDict[eventObj.id] = eventObj;
+                            }
+                            else
+                            {
+                                state.eventState.eventDict.Add(eventObj.id,eventObj);
+                            }
+                        }
+                        else
+                        {
+                            state.eventState.completedEvents.Add(eventObj.id);
+                            if (state.eventState.eventDict.ContainsKey(eventObj.id))
+                            {
+                                state.eventState.completedEventDict[eventObj.id] = eventObj;
+                            }
+                            else
+                            {
+                                state.eventState.completedEventDict.Add(eventObj.id,eventObj);
+                            }
+                        }
+
+
                     });
                     break;
                 }

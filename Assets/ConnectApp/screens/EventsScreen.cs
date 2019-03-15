@@ -1,16 +1,20 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.api;
 using ConnectApp.components;
+using ConnectApp.components.refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
+using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
@@ -27,14 +31,19 @@ namespace ConnectApp.screens {
         private const float headerHeight = 80;
         private PageController _pageController;
         private int _selectedIndex;
-
+        private int pageNumber = 1;
+        private int CompletedPageNumber = 1;
         private float _offsetY = 0;
 
 
         public override void initState() {
             base.initState();
             if (StoreProvider.store.state.eventState.events.Count == 0)
-                StoreProvider.store.Dispatch(new FetchEventsAction {pageNumber = 1});
+            {
+                StoreProvider.store.Dispatch(new FetchEventsAction {pageNumber = 1,tab = "ongoing"});
+                StoreProvider.store.Dispatch(new FetchEventsAction {pageNumber = 1,tab = "completed"});
+            }
+
             _pageController = new PageController();
             _selectedIndex = 0;
         }
@@ -52,38 +61,6 @@ namespace ConnectApp.screens {
             return true;
         }
 
-        private Widget _buildContentList(BuildContext context) {
-            return new NotificationListener<ScrollNotification>(
-                onNotification: (ScrollNotification notification) => {
-                    _onNotification(notification, context);
-                    return true;
-                },
-                child: new Flexible(
-                    child: new Container(
-                        child: new StoreConnector<AppState, Dictionary<string, object>>(
-                            converter: (state, dispatch) => new Dictionary<string, object> {
-                                {"loading", state.eventState.eventsLoading},
-                                {"events", state.eventState.events}
-                            },
-                            builder: (context1, viewModel) => {
-                                var loading = (bool) viewModel["loading"];
-                                var events = viewModel["events"] as List<IEvent>;
-                                var cardList = new List<Widget>();
-                                if (!loading)
-                                    events.ForEach(model => { cardList.Add(new EventCard(model)); });
-                                else
-                                    cardList.Add(new Container());
-
-                                return new ListView(
-                                    physics: new AlwaysScrollableScrollPhysics(),
-                                    children: cardList
-                                );
-                            }
-                        )
-                    )
-                )
-            );
-        }
 
         public override Widget build(BuildContext context) {
             return new Container(
@@ -96,8 +73,8 @@ namespace ConnectApp.screens {
                             CColors.White,
                             _offsetY
                         ),
-                        buildSelectView(),
-                        buildContentView()
+                        buildSelectView(context),
+                        buildContentView(context)
                     }
                 )
             );
@@ -160,9 +137,12 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget buildSelectView() {
+        private Widget buildSelectView(BuildContext context) {
             return new Container(
                 child: new Container(
+                    decoration:new BoxDecoration(
+                        border:new Border(bottom:new BorderSide(CColors.Separator2))
+                        ),
                     height: 44,
                     child: new Row(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -174,7 +154,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget mineList() {
+        private Widget _ongoingEventList(BuildContext context) {
             return new Container(
                 child: new StoreConnector<AppState, Dictionary<string, object>>(
                     converter: (state, dispatch) => new Dictionary<string, object> {
@@ -205,17 +185,66 @@ namespace ConnectApp.screens {
                             });
                         else
                             cardList.Add(new Container());
-
-                        return new ListView(
-                            physics: new AlwaysScrollableScrollPhysics(),
-                            children: cardList
+                        return new Refresh(
+                            onHeaderRefresh: onHeaderRefresh,
+                            onFooterRefresh: onFooterRefresh,
+                            child: new ListView(
+                                physics: new AlwaysScrollableScrollPhysics(),
+                                children: cardList
+                            )
                         );
+                        
                     }
                 )
             );
         }
-
-        private Widget buildContentView() {
+        
+        private Widget _completedEventList(BuildContext context) {
+            return new Container(
+                child: new StoreConnector<AppState, Dictionary<string, object>>(
+                    converter: (state, dispatch) => new Dictionary<string, object> {
+                        {"loading", state.eventState.eventsLoading},
+                        {"completedEvents", state.eventState.completedEvents},
+                        {"completedEventDict", state.eventState.completedEventDict}
+                    },
+                    builder: (context1, viewModel) => {
+                        var loading = (bool) viewModel["loading"];
+                        var events = viewModel["completedEvents"] as List<string>;
+                        var eventDict = viewModel["completedEventDict"] as Dictionary<string, IEvent>;
+                        var cardList = new List<Widget>();
+                        var eventObjs = new List<IEvent>();
+                        if (events != null && events.Count > 0)
+                            events.ForEach(eventId => {
+                                if (eventDict != null && eventDict.ContainsKey(eventId))
+                                    eventObjs.Add(eventDict[eventId]);
+                            });
+                        if (!loading)
+                            eventObjs.ForEach(model => {
+                                cardList.Add(new EventCard(
+                                    model,
+                                    () => {
+                                        StoreProvider.store.Dispatch(new NavigatorToEventDetailAction()
+                                            {eventId = model.id});
+                                        Navigator.pushNamed(context, "/event-detail");
+                                    }));
+                            });
+                        else
+                            cardList.Add(new Container());
+                        return new Refresh(
+                            onHeaderRefresh: onHeaderRefresh,
+                            onFooterRefresh: onFooterRefresh,
+                            child: new ListView(
+                                physics: new AlwaysScrollableScrollPhysics(),
+                                children: cardList
+                            )
+                        );
+                        
+                    }
+                )
+            );
+        }
+        
+        private Widget buildContentView(BuildContext context) {
             return new Flexible(
                 child: new Container(
                     padding: EdgeInsets.only(bottom: 49),
@@ -224,11 +253,52 @@ namespace ConnectApp.screens {
                         controller: _pageController,
                         onPageChanged: index => { setState(() => { _selectedIndex = index; }); },
                         children: new List<Widget> {
-                            mineList(), mineList()
+                            _ongoingEventList(context), _completedEventList(context)
                         }
                     )
                 )
             );
         }
+        
+        private IPromise onHeaderRefresh() {
+            if (_selectedIndex ==0)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                CompletedPageNumber = 1;
+            }
+
+            var tab = _selectedIndex == 0 ? "ongoing" : "completed";
+            return EventApi.FetchEvents(_selectedIndex==0?pageNumber:CompletedPageNumber,tab)
+                .Then(events => {
+                    StoreProvider.store.Dispatch(new FetchEventsSuccessAction {events = events,tab = tab,pageNumber = 1});
+                })
+                .Catch(error => {
+                    Debug.Log(error);
+                });
+        }
+
+        private IPromise onFooterRefresh()
+        {
+            if (_selectedIndex ==0)
+            {
+                pageNumber++;
+            }
+            else
+            {
+                CompletedPageNumber++;
+            }
+            var tab = _selectedIndex == 0 ? "ongoing" : "completed";
+            return EventApi.FetchEvents(_selectedIndex==0?pageNumber:CompletedPageNumber,tab)
+                .Then(events => {
+                    StoreProvider.store.Dispatch(new FetchEventsSuccessAction {events = events,tab = tab});
+                })
+                .Catch(error => {
+                    Debug.Log(error);
+                });
+        }
+        
     }
 }
