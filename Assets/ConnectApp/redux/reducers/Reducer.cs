@@ -154,7 +154,11 @@ namespace ConnectApp.redux.reducers {
                 }
                 case FetchArticleCommentsAction action: {
                     ArticleApi.FetchArticleComments(action.channelId, action.currOldestMessageId)
-                        .Then(responseComments => {
+                        .Then((responseComments) =>
+                        {
+
+                            state.articleState.articleDetail.comments = responseComments;
+                            
                             var channelMessageList = new Dictionary<string, List<string>>();
                             var channelMessageDict = new Dictionary<string, Dictionary<string, Message>>();
                             var itemIds = new List<string>();
@@ -234,11 +238,43 @@ namespace ConnectApp.redux.reducers {
                 }
                 case SendCommentAction action: {
                     ArticleApi.SendComment(action.channelId, action.content, action.nonce, action.parentMessageId)
-                        .Then(() => { StoreProvider.store.Dispatch(new SendCommentSuccessAction()); })
+                        .Then((message) => { 
+                            StoreProvider.store.Dispatch(new SendCommentSuccessAction()
+                        {
+                            message = message
+                        }); })
                         .Catch(error => { Debug.Log(error); });
                     break;
                 }
                 case SendCommentSuccessAction action: {
+                    if (state.messageState.channelMessageList.ContainsKey(action.message.channelId))
+                    {
+                        var list = state.messageState.channelMessageList[action.message.channelId];
+                        list.Insert(0,action.message.id);
+                        state.messageState.channelMessageList[action.message.channelId] = list;
+                    }
+                    else
+                    {
+                        state.messageState.channelMessageList.Add(action.message.channelId,new List<string>{action.message.id});
+                    }
+                    
+                    if (state.messageState.channelMessageDict.ContainsKey(action.message.channelId))
+                    {
+                        var dict = state.messageState.channelMessageDict[action.message.channelId];
+                        dict.Add(action.message.id,action.message);
+                        state.messageState.channelMessageDict[action.message.channelId] = dict;
+                    }
+                    else
+                    {
+                        state.messageState.channelMessageDict.Add(
+                            action.message.channelId,
+                            new Dictionary<string, Message>()
+                            {
+                                {action.message.id,action.message}
+                            }
+                         );
+                    }
+
                     break;
                 }
                 case FetchEventsAction action: {
@@ -268,8 +304,6 @@ namespace ConnectApp.redux.reducers {
                             {eventObj.user.id, eventObj.user}
                         };
                         StoreProvider.store.Dispatch(new UserMapAction{userMap = userMap});
-                        state.eventState.events.Add(eventObj.id);
-                        state.eventState.eventDict[eventObj.id] = eventObj;
                         if (action.tab == "ongoing") {
                             state.eventState.events.Add(eventObj.id);
                             if (state.eventState.eventDict.ContainsKey(eventObj.id)) {

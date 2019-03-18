@@ -142,8 +142,32 @@ namespace ConnectApp.screens
                                     right: 0,
                                     child: new ArticleTabBar(
                                         articleDetail.like,
-                                        commentCallback: () => { },
-                                        favorCallback: () => { },
+                                        addommentCallback: () =>
+                                        {
+                                            ActionSheetUtils.showModalActionSheet(context, new CustomInput(
+                                                doneCallBack: (text) => { 
+                                                   StoreProvider.store.Dispatch(new SendCommentAction()
+                                                {
+                                                    channelId = articleDetail.channelId,
+                                                    content = text,
+                                                    nonce = Snowflake.CreateNonce()
+                                                }); }));
+
+                                        },
+                                        commentCallback: () =>
+                                        {
+                                            ActionSheetUtils.showModalActionSheet(context, new CustomInput());
+                                        },
+                                        favorCallback: () =>
+                                        {
+                                            if (!articleDetail.like)
+                                            {
+                                                StoreProvider.store.Dispatch(new LikeArticleAction()
+                                                {
+                                                    articleId = _article.id
+                                                });
+                                            }
+                                        },
                                         shareCallback: () => { }
                                     )
                                 )
@@ -186,6 +210,7 @@ namespace ConnectApp.screens
             return ArticleApi.FetchArticleComments(_channelId, _lastCommentId)
                 .Then((responseComments) =>
                 {
+                    StoreProvider.store.state.articleState.articleDetail.comments = responseComments;
                     _lastCommentId = responseComments.currOldestMessageId;
                     _hasMore = responseComments.hasMore;
                     var channelMessageList = new Dictionary<string,List<string>>();
@@ -207,7 +232,8 @@ namespace ConnectApp.screens
                     StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction()
                     {
                         channelMessageDict = channelMessageDict,
-                        channelMessageList = channelMessageList
+                        channelMessageList = channelMessageList,
+                        isRefreshList = false
                     });
                 })
                 .Catch(error => { Debug.Log(error); });
@@ -426,7 +452,15 @@ namespace ConnectApp.screens
                     }, 
                     replyCallBack: () =>
                     {
-                        
+                        ActionSheetUtils.showModalActionSheet(context, new CustomInput(
+                            doneCallBack: (text) => { 
+                                StoreProvider.store.Dispatch(new SendCommentAction()
+                                {
+                                    channelId = _channelId,
+                                    content = text,
+                                    nonce = Snowflake.CreateNonce(),
+                                    parentMessageId = commentId
+                                }); }));
                     },
                     praiseCallBack: () => {
                         if (isPraised)

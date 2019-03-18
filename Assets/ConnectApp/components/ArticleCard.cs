@@ -9,6 +9,7 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using Image = Unity.UIWidgets.widgets.Image;
+using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
     public class ArticleCard : StatelessWidget {
@@ -79,7 +80,12 @@ namespace ConnectApp.components {
                                         children: new List<Widget> {
                                             new Text(
                                                 $" {username} · {DateConvert.DateStringFromNow(article.publishedTime)} · {article.viewCount}",
-                                                style: CTextStyle.PSmall
+                                                style: new TextStyle(
+                                                    height: 1.67f,
+                                                    fontSize: 12,
+                                                    fontFamily: "PingFang-Regular",
+                                                    color: CColors.TextThird
+                                                )
                                             ),
                                             new CustomButton(
                                                 child: new Container(

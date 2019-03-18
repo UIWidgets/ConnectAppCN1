@@ -67,5 +67,6 @@ namespace ConnectApp.redux.actions {
     }
 
     public class SendCommentSuccessAction : BaseAction {
+        public Message message;
     }
 }

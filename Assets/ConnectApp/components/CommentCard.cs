@@ -7,7 +7,10 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Image = Unity.UIWidgets.widgets.Image;
+using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components
 {
@@ -45,13 +48,16 @@ namespace ConnectApp.components
             Widget _content = null;
             if (message.parentMessageId ==null )
             {
-                _content = new Text(message.content, style: CTextStyle.PLarge);
+                _content = new Container(
+                    child:new Text(message.content, style: CTextStyle.PLarge),
+                    alignment:Alignment.centerLeft
+                ); 
             }
             else
             {
                 var parentMessage =
                     StoreProvider.store.state.messageState.channelMessageDict[message.channelId][message.parentMessageId];
-                _content = new Container(child:new RichText(text:new TextSpan("回复@", children: new List<TextSpan>
+                _content = new Container(alignment:Alignment.centerLeft,child:new RichText(text:new TextSpan("回复@", children: new List<TextSpan>
                 {
                     new TextSpan(
                         $"{parentMessage.author.fullName}",

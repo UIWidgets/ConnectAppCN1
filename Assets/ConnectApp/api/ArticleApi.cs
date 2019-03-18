@@ -237,14 +237,14 @@ namespace ConnectApp.api {
             }
         }
 
-        public static Promise SendComment(string channelId, string content, string nonce, string parentMessageId = "") {
+        public static Promise<Message> SendComment(string channelId, string content, string nonce, string parentMessageId = "") {
             // We return a promise instantly and start the coroutine to do the real work
-            var promise = new Promise();
+            var promise = new Promise<Message>();
             Window.instance.startCoroutine(_SendComment(promise, channelId, content, nonce, parentMessageId));
             return promise;
         }
 
-        private static IEnumerator _SendComment(Promise promise, string channelId, string content, string nonce,
+        private static IEnumerator _SendComment(Promise<Message> promise, string channelId, string content, string nonce,
             string parentMessageId = "") {
             var para = new SendCommentParameter {
                 content = content,
@@ -271,10 +271,10 @@ namespace ConnectApp.api {
                 promise.Reject(new Exception(request.downloadHandler.text));
             }
             else {
-                var json = request.downloadHandler.text;
-                Debug.Log(json);
-                if (json != null)
-                    promise.Resolve();
+                var responseText = request.downloadHandler.text;
+                var message = JsonConvert.DeserializeObject<Message>(responseText);
+                if (responseText != null)
+                    promise.Resolve(message);
                 else
                     promise.Reject(new Exception("No user under this username found!"));
             }
