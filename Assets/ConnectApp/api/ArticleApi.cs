@@ -155,14 +155,14 @@ namespace ConnectApp.api {
             }
         }
 
-        public static Promise LikeComment(string commentId) {
+        public static Promise<Message> LikeComment(string commentId) {
             // We return a promise instantly and start the coroutine to do the real work
-            var promise = new Promise();
+            var promise = new Promise<Message>();
             Window.instance.startCoroutine(_LikeComment(promise, commentId));
             return promise;
         }
 
-        private static IEnumerator _LikeComment(Promise promise, string commentId) {
+        private static IEnumerator _LikeComment(Promise<Message> promise, string commentId) {
             var para = new ReactionParameter {
                 reactionType = "like"
             };
@@ -186,23 +186,23 @@ namespace ConnectApp.api {
                 promise.Reject(new Exception(request.downloadHandler.text));
             }
             else {
-                var json = request.downloadHandler.text;
-                Debug.Log(json);
-                if (json != null)
-                    promise.Resolve();
+                var responseText = request.downloadHandler.text;
+                var message = JsonConvert.DeserializeObject<Message>(responseText);
+                if (responseText != null)
+                    promise.Resolve(message);
                 else
                     promise.Reject(new Exception("No user under this username found!"));
             }
         }
 
-        public static Promise RemoveLikeComment(string commentId) {
+        public static Promise<Message> RemoveLikeComment(string commentId) {
             // We return a promise instantly and start the coroutine to do the real work
-            var promise = new Promise();
+            var promise = new Promise<Message>();
             Window.instance.startCoroutine(_RemoveLikeComment(promise, commentId));
             return promise;
         }
 
-        private static IEnumerator _RemoveLikeComment(Promise promise, string commentId) {
+        private static IEnumerator _RemoveLikeComment(Promise<Message> promise, string commentId) {
             var para = new ReactionParameter {
                 reactionType = "like"
             };
@@ -227,10 +227,11 @@ namespace ConnectApp.api {
                 promise.Reject(new Exception(request.downloadHandler.text));
             }
             else {
-                var json = request.downloadHandler.text;
-                Debug.Log(json);
-                if (json != null)
-                    promise.Resolve();
+                var responseText = request.downloadHandler.text;
+                var message = JsonConvert.DeserializeObject<Message>(responseText);
+                Debug.Log(responseText);
+                if (responseText != null)
+                    promise.Resolve(message);
                 else
                     promise.Reject(new Exception("No user under this username found!"));
             }

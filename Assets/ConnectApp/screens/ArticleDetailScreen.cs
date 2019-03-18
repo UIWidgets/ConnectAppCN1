@@ -268,7 +268,7 @@ namespace ConnectApp.screens
                                         children: new List<Widget> {
                                             new Container(height: 5),
                                             new Text(
-                                                _user==null?"昵称":_user.username,
+                                                _user==null?"昵称":_user.fullName,
                                                 style: CTextStyle.PRegular
                                             ),
                                             new Text(
@@ -328,7 +328,14 @@ namespace ConnectApp.screens
                     children:new List<Widget>{
                         new ActionCard(Icons.favorite,"点赞",like,onTap: () =>
                         {
-                            
+                            if (!like)
+                            {
+                                StoreProvider.store.Dispatch(new LikeArticleAction()
+                                {
+                                    articleId = _article.id
+                                });
+                            }
+
                         }),
                         new Container(width:16),
                         new ActionCard(Icons.share,"分享",false,onTap: () =>
@@ -408,7 +415,11 @@ namespace ConnectApp.screens
             var messageDict = channelMessageDict[_channelId];
             _channelComments.ForEach((commentId) =>
             {
-                var card = new CommentCard(messageDict[commentId],
+                var message = messageDict[commentId];
+                bool isPraised = _isPraised(message);
+                var card = new CommentCard(
+                    message,
+                    isPraised,
                     moreCallBack: () =>
                     {
                         
@@ -417,16 +428,34 @@ namespace ConnectApp.screens
                     {
                         
                     },
-                    praiseCallBack: () => { 
-                        
-                        StoreProvider.store.Dispatch(new LikeCommentAction(){messageId = commentId});
-                        
+                    praiseCallBack: () => {
+                        if (isPraised)
+                        {
+                            StoreProvider.store.Dispatch(new RemoveLikeCommentAction(){messageId = commentId});
+                        }
+                        else
+                        {
+                            StoreProvider.store.Dispatch(new LikeCommentAction(){messageId = commentId});
+                        }
+
+
                     });
                 comments.Add(card); 
             });
             return comments;
         }
 
+        private bool _isPraised(Message message)
+        {
+            foreach (var reaction in message.reactions)
+            {
+                if (reaction.user.id == StoreProvider.store.state.loginState.loginInfo.userId)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         private Widget _buildEnd(BuildContext context)
         {

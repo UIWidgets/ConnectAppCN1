@@ -15,6 +15,7 @@ namespace ConnectApp.components
     {
         public CommentCard(
             Message message,
+            bool isPraised,
             GestureTapCallback moreCallBack = null,
             GestureTapCallback praiseCallBack = null,
             GestureTapCallback replyCallBack = null,
@@ -22,17 +23,17 @@ namespace ConnectApp.components
         ) : base(key)
         {
             this.message = message;
+            this.isPraised = isPraised;
             this.moreCallBack = moreCallBack;
             this.praiseCallBack = praiseCallBack;
             this.replyCallBack = replyCallBack;
-
         }
 
         public readonly Message message;
+        public readonly bool isPraised;
         public readonly GestureTapCallback moreCallBack;
         public readonly GestureTapCallback praiseCallBack;
         public readonly GestureTapCallback replyCallBack;
-
         
         
 
@@ -53,7 +54,7 @@ namespace ConnectApp.components
                 _content = new Container(child:new RichText(text:new TextSpan("回复@", children: new List<TextSpan>
                 {
                     new TextSpan(
-                        $"{parentMessage.author.username}",
+                        $"{parentMessage.author.fullName}",
                         children: new List<TextSpan>
                         {
                             new TextSpan(
@@ -104,7 +105,7 @@ namespace ConnectApp.components
                                         children:new List<Widget>
                                         {
                                             new Expanded(
-                                                child:new Text(message.author.username,style:new TextStyle(
+                                                child:new Text(message.author.fullName,style:new TextStyle(
                                                     height: 1.57f,
                                                     fontSize: 14,
                                                     fontFamily: "PingFangSC-Regular",
@@ -127,8 +128,12 @@ namespace ConnectApp.components
                                                     {
                                                         new GestureDetector(
                                                             onTap:praiseCallBack,
-                                                            child:new Text($"点赞 {message.reactions.Count}",style:CTextStyle.TextBody4)
-                                                        ),
+                                                            child:new Text($"点赞 {message.reactions.Count}",style:isPraised?new TextStyle(
+                                                                height: 1.67f,
+                                                                fontSize: 12,
+                                                                fontFamily: "PingFang-Regular",
+                                                                color: CColors.PrimaryBlue
+                                                        ):CTextStyle.TextBody4)),
                                                         new Container(width:10),
                                                         new GestureDetector(
                                                             onTap:replyCallBack,

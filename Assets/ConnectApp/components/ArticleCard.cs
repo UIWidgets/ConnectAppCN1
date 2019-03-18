@@ -28,7 +28,7 @@ namespace ConnectApp.components {
         private readonly GestureTapCallback onTap;
 
         public override Widget build(BuildContext context) {
-            var username = user != null ? user.username : "";
+            var username = user != null ? user.fullName : "";
             var card = new Container(
                 color: CColors.Transparent,
                 child: new Padding(

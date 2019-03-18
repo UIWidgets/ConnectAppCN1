@@ -114,7 +114,8 @@ namespace ConnectApp.redux.reducers {
                             
                                 StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction{
                                     channelMessageDict = channelMessageDict,
-                                    channelMessageList = channelMessageList
+                                    channelMessageList = channelMessageList,
+                                    isRefreshList = true
                                 });
                             }
                             
@@ -125,7 +126,10 @@ namespace ConnectApp.redux.reducers {
                                 articleDetail = articleDetailResponse.project
                             });
                         })
-                        .Catch(error => { Debug.Log(error); });
+                        .Catch(error =>
+                        {
+                            Debug.Log(error);
+                        });
                     break;
                 }
                 case FetchArticleDetailSuccessAction action: {
@@ -139,11 +143,13 @@ namespace ConnectApp.redux.reducers {
                 }
                 case LikeArticleAction action: {
                     ArticleApi.LikeArticle(action.articleId)
-                        .Then(() => { StoreProvider.store.Dispatch(new LikeArticleSuccessAction()); })
+                        .Then(() => { StoreProvider.store.Dispatch(new LikeArticleSuccessAction(){articleId = action.articleId}); })
                         .Catch(error => { Debug.Log(error); });
                     break;
                 }
-                case LikeArticleSuccessAction action: {
+                case LikeArticleSuccessAction action:
+                {
+                    state.articleState.articleDetail.like = true;
                     break;
                 }
                 case FetchArticleCommentsAction action: {
@@ -166,7 +172,8 @@ namespace ConnectApp.redux.reducers {
                             
                             StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction{
                                 channelMessageDict = channelMessageDict,
-                                channelMessageList = channelMessageList
+                                channelMessageList = channelMessageList,
+                                isRefreshList = false
                             });
                         })
                         .Catch(error => { Debug.Log(error); });
@@ -176,6 +183,10 @@ namespace ConnectApp.redux.reducers {
                     foreach (var keyValuePair in action.channelMessageList) {
                         if (state.messageState.channelMessageList.ContainsKey(keyValuePair.Key)) {
                             var oldList = state.messageState.channelMessageList[keyValuePair.Key];
+                            if (action.isRefreshList)
+                            {
+                                oldList.Clear();   
+                            }
                             oldList.AddRange(keyValuePair.Value);
                             state.messageState.channelMessageList[keyValuePair.Key] = oldList;
                         } else {
@@ -185,7 +196,7 @@ namespace ConnectApp.redux.reducers {
                     foreach (var keyValuePair in action.channelMessageDict) {
                         if (state.messageState.channelMessageDict.ContainsKey(keyValuePair.Key)) {
                             var oldDict = state.messageState.channelMessageDict[keyValuePair.Key];
-                            var newDict = state.messageState.channelMessageDict[keyValuePair.Key];
+                            var newDict = keyValuePair.Value;
                             foreach (var valuePair in newDict) {
                                 if (oldDict.ContainsKey(valuePair.Key)) {
                                     oldDict[valuePair.Key] = valuePair.Value;
@@ -202,20 +213,23 @@ namespace ConnectApp.redux.reducers {
                 }
                 case LikeCommentAction action: {
                     ArticleApi.LikeComment(action.messageId)
-                        .Then(() => { StoreProvider.store.Dispatch(new LikeCommentSuccessAction()); })
+                        .Then((message) => { StoreProvider.store.Dispatch(new LikeCommentSuccessAction(){message = message}); })
                         .Catch(error => { Debug.Log(error); });
                     break;
                 }
-                case LikeCommentSuccessAction action: {
+                case LikeCommentSuccessAction action:
+                {
+                    state.messageState.channelMessageDict[action.message.channelId][action.message.id] = action.message;
                     break;
                 }
                 case RemoveLikeCommentAction action: {
                     ArticleApi.RemoveLikeComment(action.messageId)
-                        .Then(() => { StoreProvider.store.Dispatch(new RemoveLikeSuccessAction()); })
+                        .Then((message) => { StoreProvider.store.Dispatch(new RemoveLikeSuccessAction(){message = message}); })
                         .Catch(error => { Debug.Log(error); });
                     break;
                 }
                 case RemoveLikeSuccessAction action: {
+                    state.messageState.channelMessageDict[action.message.channelId][action.message.id] = action.message;
                     break;
                 }
                 case SendCommentAction action: {
