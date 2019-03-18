@@ -16,6 +16,7 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+using Avatar = ConnectApp.components.Avatar;
 using Icons = ConnectApp.constants.Icons;
 using Image = Unity.UIWidgets.widgets.Image;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
@@ -273,23 +274,10 @@ namespace ConnectApp.screens
                                 children: new List<Widget> {
                                     new Container(
                                         margin: EdgeInsets.only(right: 8),
-                                        child: new ClipRRect(
-                                            borderRadius: BorderRadius.circular(16),
-                                            child: new Container(
-                                                height: 32,
-                                                width: 32,
-                                                child: Image.network(
-//                                                    "123",
-                                                    _user==null?"头像":_user.avatar,
-                                                    fit: BoxFit.cover
-                                                )
-                                            )
-                                        )
+                                        child: new Avatar(_user.id,null,32)
                                     ),
-
-
                                     new Column(
-                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: new List<Widget> {
                                             new Container(height: 5),
@@ -299,7 +287,12 @@ namespace ConnectApp.screens
                                             ),
                                             new Text(
                                                 DateConvert.DateStringFromNow(_article.createdTime),
-                                                style: CTextStyle.PSmall
+                                                style: new TextStyle(
+                                                    height: 1.67f,
+                                                    fontSize: 12,
+                                                    fontFamily: "PingFang-Regular",
+                                                    color: CColors.TextThird
+                                                    )
                                             )
                                         }
                                     )

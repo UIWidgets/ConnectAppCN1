@@ -94,11 +94,7 @@ namespace ConnectApp.components
                             margin:EdgeInsets.only(right:8,top:2),
                             child:new ClipRRect(
                                 borderRadius:BorderRadius.circular(12),
-                                child:new Container(
-                                    width:24,
-                                    height:24,
-                                    child:Image.network(message.author.avatar,fit:BoxFit.fill)
-                                )
+                                child:new Avatar(message.author.id,null,24)
                             )
                         ),
                         
