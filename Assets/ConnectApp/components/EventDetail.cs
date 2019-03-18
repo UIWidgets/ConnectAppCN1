@@ -39,36 +39,24 @@ namespace ConnectApp.components {
         }
 
         private Widget _buildContentHead() {
+            var user = eventObj.user ?? new User();
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
                         new Text(
-                            eventObj.title,
+                            eventObj.title ?? "",
                             style: CTextStyle.H3
                         ),
                         new Container(
-                            margin: EdgeInsets.only(top: 8),
-                            child: new Text(
-                                $"阅读 {eventObj.participantsCount} · {DateConvert.DateStringFromNow(eventObj.createdTime)}",
-                                style: new TextStyle(
-                                    fontSize: 12,
-                                    fontFamily: "PingFang-Regular",
-                                    color: CColors.TextThird2
-                                )
-                            )
-                        ),
-                        new Container(
-                            margin: EdgeInsets.only(top: 24),
+                            margin: EdgeInsets.only(top: 20),
                             child: new Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: new List<Widget> {
                                     new Container(
                                         margin: EdgeInsets.only(right: 8),
                                         child: new Avatar(
-                                            eventObj.user.id,
+                                            user.id ?? "",
                                             size: 32
                                         )
                                     ),
@@ -77,7 +65,7 @@ namespace ConnectApp.components {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: new List<Widget> {
                                             new Text(
-                                                eventObj.user.fullName,
+                                                user.fullName ?? "",
                                                 style: new TextStyle(
                                                     fontSize: 14,
                                                     fontFamily: "PingFang-Medium",
@@ -85,7 +73,7 @@ namespace ConnectApp.components {
                                                 )
                                             ),
                                             new Text(
-                                                DateConvert.DateStringFromNow(eventObj.createdTime),
+                                                $"{DateConvert.DateStringFromNow(eventObj.createdTime)}发布",
                                                 style: new TextStyle(
                                                     fontSize: 12,
                                                     fontFamily: "PingFang-Regular",

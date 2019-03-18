@@ -8,8 +8,8 @@ using Unity.UIWidgets.painting;
 namespace ConnectApp.components {
     public class BlankView : StatelessWidget {
         public BlankView(
-            Key key,
-            string title
+            string title,
+            Key key = null
         ) : base(key) {
             this.title = title;
         }
@@ -19,7 +19,7 @@ namespace ConnectApp.components {
         public override Widget build(BuildContext context) {
             var width = MediaQuery.of(context).size.width;
             return new Container(
-                color: CColors.background1,
+                color: CColors.White,
                 width: width,
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -28,9 +28,9 @@ namespace ConnectApp.components {
                         new Text(
                             title ?? "",
                             style: new TextStyle(
-                                color: CColors.text2,
+                                color: CColors.TextBody,
                                 fontFamily: "PingFang-Regular",
-                                fontSize: 15
+                                fontSize: 20
                             )
                         )
                     }
