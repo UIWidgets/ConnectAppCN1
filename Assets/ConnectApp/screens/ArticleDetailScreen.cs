@@ -345,7 +345,7 @@ namespace ConnectApp.screens
                     mainAxisAlignment:MainAxisAlignment.center,
                     crossAxisAlignment:CrossAxisAlignment.center,
                     children:new List<Widget>{
-                        new ActionCard(Icons.favorite,"点赞",like,onTap: () =>
+                        new ActionCard(Icons.favorite,like?"已赞":"点赞",like,onTap: () =>
                         {
                             if (!like)
                             {
@@ -441,7 +441,12 @@ namespace ConnectApp.screens
                     isPraised,
                     moreCallBack: () =>
                     {
-                        
+                        ActionSheetUtils.showModalActionSheet(context, new ActionSheet(
+                            items: new List<ActionSheetItem> {
+                                new ActionSheetItem("举报", ActionType.destructive, () => { }),
+                                new ActionSheetItem("取消", ActionType.cancel)
+                            }
+                        ));
                     }, 
                     replyCallBack: () =>
                     {

@@ -76,7 +76,7 @@ namespace ConnectApp.components
                         ),
                         new GestureDetector(
                             onTap:favorCallback,
-                            child:new Icon(Icons.favorite_border,null,24,like?CColors.PrimaryBlue:CColors.icon3)
+                            child:new Icon(Icons.favorite,null,24,like?CColors.PrimaryBlue:CColors.icon3)
                         ),
 //                        new GestureDetector(
 //                            onTap:bookmarkCallback,

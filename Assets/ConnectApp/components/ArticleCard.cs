@@ -17,16 +17,19 @@ namespace ConnectApp.components {
             Article article,
             User user = null,
             GestureTapCallback onTap = null,
+            GestureTapCallback moreCallBack = null,
             Key key = null
         ) : base(key) {
             this.article = article;
             this.onTap = onTap;
+            this.moreCallBack = moreCallBack;
             this.user = user;
         }
 
         private readonly Article article;
         private readonly User user;
         private readonly GestureTapCallback onTap;
+        public readonly GestureTapCallback moreCallBack;
 
         public override Widget build(BuildContext context) {
             var username = user != null ? user.fullName : "";
@@ -96,7 +99,7 @@ namespace ConnectApp.components {
                                                         color:Color.fromRGBO(181, 181, 181, 1)
                                                     )
                                                 ),
-                                                onPressed: () => ShareUtils.showShareView(context, new ShareView())
+                                                onPressed: moreCallBack
                                             )
                                         }
                                     )
