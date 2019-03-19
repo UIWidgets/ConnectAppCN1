@@ -69,17 +69,7 @@ namespace ConnectApp.screens {
                             Icons.search,
                             size: 28,
                             color: Color.fromRGBO(181, 181, 181, 1))
-                     ),
-                    new GestureDetector(
-                        onTap: () => { StoreProvider.store.Dispatch(new LoginByEmailAction()); },
-                        child: new Container(
-                            color: CColors.BrownGrey,
-                            child: new Text(
-                                "LoginByEmail",
-                                style: CTextStyle.H2
-                            )
-                        )
-                    )
+                     )
                 },
                 CColors.White,
                 _offsetY);
