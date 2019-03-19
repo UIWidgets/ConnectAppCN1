@@ -4,14 +4,8 @@ namespace ConnectApp.utils {
     public static class DateConvert {
         public static string DateStringFromNow(DateTime dt) {
             TimeSpan span = DateTime.UtcNow - dt;
-            if (span.TotalDays > 60)
-                return dt.ToShortDateString();
-            else if (span.TotalDays > 30)
-                return "1个月前";
-            else if (span.TotalDays > 14)
-                return "2周前";
-            else if (span.TotalDays > 7)
-                return "1周前";
+            if (span.TotalDays > 3)
+                return dt.ToString("yyyy-MM-dd");
             else if (span.TotalDays > 1)
                 return $"{(int) Math.Floor(span.TotalDays)}天前";
             else if (span.TotalHours > 1)

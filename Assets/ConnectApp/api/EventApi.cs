@@ -7,7 +7,6 @@ using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.ui;
-using UnityEngine;
 using UnityEngine.Networking;
 
 namespace ConnectApp.api {
@@ -77,14 +76,14 @@ namespace ConnectApp.api {
             }
         }
 
-        public static Promise JoinEvent(string eventId) {
+        public static Promise<string> JoinEvent(string eventId) {
             // We return a promise instantly and start the coroutine to do the real work
-            var promise = new Promise();
+            var promise = new Promise<string>();
             Window.instance.startCoroutine(_JoinEvent(promise, eventId));
             return promise;
         }
 
-        private static IEnumerator _JoinEvent(Promise promise, string eventId) {
+        private static IEnumerator _JoinEvent(Promise<string> promise, string eventId) {
             var request = new UnityWebRequest(IApi.apiAddress + $"/api/live/events/{eventId}/join", "POST");
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
@@ -102,9 +101,8 @@ namespace ConnectApp.api {
             }
             else {
                 var json = request.downloadHandler.text;
-                Debug.Log(json);
                 if (json != null)
-                    promise.Resolve();
+                    promise.Resolve(eventId);
                 else
                     promise.Reject(new Exception("No user under this username found!"));
             }

@@ -9,6 +9,7 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using Image = Unity.UIWidgets.widgets.Image;
+using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
     public class ArticleCard : StatelessWidget {
@@ -16,19 +17,22 @@ namespace ConnectApp.components {
             Article article,
             User user = null,
             GestureTapCallback onTap = null,
+            GestureTapCallback moreCallBack = null,
             Key key = null
         ) : base(key) {
             this.article = article;
             this.onTap = onTap;
+            this.moreCallBack = moreCallBack;
             this.user = user;
         }
 
         private readonly Article article;
         private readonly User user;
         private readonly GestureTapCallback onTap;
+        public readonly GestureTapCallback moreCallBack;
 
         public override Widget build(BuildContext context) {
-            var username = user != null ? user.username : "";
+            var username = user != null ? user.fullName : "";
             var card = new Container(
                 color: CColors.Transparent,
                 child: new Padding(
@@ -79,7 +83,12 @@ namespace ConnectApp.components {
                                         children: new List<Widget> {
                                             new Text(
                                                 $" {username} · {DateConvert.DateStringFromNow(article.publishedTime)} · {article.viewCount}",
-                                                style: CTextStyle.PSmall
+                                                style: new TextStyle(
+                                                    height: 1.67f,
+                                                    fontSize: 12,
+                                                    fontFamily: "PingFang-Regular",
+                                                    color: CColors.TextThird
+                                                )
                                             ),
                                             new CustomButton(
                                                 child: new Container(
@@ -90,7 +99,7 @@ namespace ConnectApp.components {
                                                         color:Color.fromRGBO(181, 181, 181, 1)
                                                     )
                                                 ),
-                                                onPressed: () => ShareUtils.showShareView(context, new ShareView())
+                                                onPressed: moreCallBack
                                             )
                                         }
                                     )
