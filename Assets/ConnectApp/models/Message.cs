@@ -13,7 +13,7 @@ namespace ConnectApp.models {
         public string content;
         public string nonce;
         public List<string> replyMessageIds;
-        public List<object> reactions;
+        public List<Reaction> reactions;
 
     }
 }

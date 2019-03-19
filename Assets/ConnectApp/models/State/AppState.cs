@@ -26,8 +26,8 @@ namespace ConnectApp.models {
             return new AppState {
                 Count = PlayerPrefs.GetInt("count", 0),
                 loginState = new LoginState {
-                    email = "",
-                    password = "",
+                    email = "ods@ods.com",
+                    password = "Welcome123",
                     loginInfo = new LoginInfo(),
                     isLoggedIn = false,
                     loading = false

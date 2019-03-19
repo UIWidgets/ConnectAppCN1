@@ -167,6 +167,15 @@ namespace ConnectApp.screens {
                     () => {
                         StoreProvider.store.Dispatch(new NavigatorToArticleDetailAction{detailId = id});
                         Navigator.pushNamed(context, "/article-detail");
+                    },
+                    moreCallBack: () =>
+                    {
+                        ActionSheetUtils.showModalActionSheet(context, new ActionSheet(
+                            items: new List<ActionSheetItem> {
+                                new ActionSheetItem("举报", ActionType.destructive, () => { }),
+                                new ActionSheetItem("取消", ActionType.cancel)
+                            }
+                        ));
                     }
                 ));
             });

@@ -55,7 +55,7 @@ namespace ConnectApp.components
                                           fontFamily: "PingFangSC-Regular",
                                           color: CColors.TextTitle
                                       ),maxLines:2,overflow:TextOverflow.ellipsis,textAlign:TextAlign.left),
-                                      new Text($"{ user.username } · { DateConvert.DateStringFromNow(article.updatedTime)} · 阅读 {article.viewCount }",style:new TextStyle(
+                                      new Text($"{ user.fullName } · { DateConvert.DateStringFromNow(article.updatedTime)} · 阅读 {article.viewCount }",style:new TextStyle(
                                           height: 1.67f,
                                           fontSize: 12,
                                           fontFamily: "PingFangSC-Regular",
