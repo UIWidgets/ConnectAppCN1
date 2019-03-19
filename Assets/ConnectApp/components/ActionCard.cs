@@ -34,7 +34,7 @@ namespace ConnectApp.components
         public override Widget build(BuildContext context)
         {
             var iconColor = done ? CColors.PrimaryBlue: new Color(0xFFC7CBCF);
-            var textColor = done ? CColors.PrimaryBlue: CColors.TextSecondary;
+            var textColor = done ? CColors.PrimaryBlue: CColors.TextBody2;
             var child = new Container(
                 decoration:new BoxDecoration(
                     color:CColors.Transparent,

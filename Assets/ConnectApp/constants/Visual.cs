@@ -27,8 +27,6 @@ namespace ConnectApp.constants {
         public static readonly IconData bookmark = new IconData(0xe866, "Material Icons");
         public static readonly IconData favorite = new IconData(0xe87d, "Material Icons");
         public static readonly IconData comment = new IconData(0xe0b9, "Material Icons");
-        public static readonly IconData history = new IconData(0xe889, "Material Icons");
-        public static readonly IconData delete = new IconData(0xe872, "Material Icons");
     }
 
     public static class CTextStyle {
@@ -142,7 +140,7 @@ namespace ConnectApp.constants {
             height: 1.67f,
             fontSize: 12,
             fontFamily: "PingFang-Regular",
-            color: CColors.TextThird2
+            color: CColors.TextBody4
         );
         
         public static readonly TextStyle TextBody1 = new TextStyle(
@@ -151,25 +149,23 @@ namespace ConnectApp.constants {
             fontFamily: "PingFangSC-Regular",
             color: CColors.TextBody
         );
-        public static readonly TextStyle TextBody1Gray = new TextStyle(
-            height: 1.7f,
-            fontSize: 18,
+        
+        public static readonly TextStyle TextBody3 = new TextStyle(
+            fontSize: 12,
             fontFamily: "PingFangSC-Regular",
-            color: CColors.TextBody4
+            color: CColors.TextBody3
         );
-        
-        
     }
 
     public static class CColors {
         public static readonly Color PrimaryBlue = new Color(0xFF2196F3);
         public static readonly Color SecondaryPink = new Color(0xFFF32194);
+        public static readonly Color Error = new Color(0xFFF44336);
         public static readonly Color TextTitle = new Color(0xFF000000);
         public static readonly Color TextBody = new Color(0xFF212121);
+        public static readonly Color TextBody2 = new Color(0xFF424242);
+        public static readonly Color TextBody3 = new Color(0xFF616161);
         public static readonly Color TextBody4 = new Color(0xFF797979);
-        public static readonly Color TextSecondary = new Color(0xFF424242);
-        public static readonly Color TextThird = new Color(0xFF616161);
-        public static readonly Color TextThird2 = new Color(0xFF797979);
         public static readonly Color Separator = new Color(0xFFE6E6E6);
         public static readonly Color Separator2 = new Color(0xFFEEEEEE);
         public static readonly Color BgGrey = new Color(0xFFFAFAFA);
@@ -189,7 +185,6 @@ namespace ConnectApp.constants {
         public static readonly Color background2 = new Color(0xFF383838);
         public static readonly Color background3 = new Color(0xFFF5F5F5);
         public static readonly Color background4 = new Color(0xFF00BCD4);
-        public static readonly Color warning = new Color(0xFFF44336);
         public static readonly Color icon1 = new Color(0xFFFFFFFF);
         public static readonly Color icon2 = new Color(0xFFA4A4A4);
         public static readonly Color icon3 = new Color(0xFF979A9E);

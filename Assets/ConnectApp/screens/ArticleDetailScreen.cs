@@ -291,8 +291,8 @@ namespace ConnectApp.screens
                                                     height: 1.67f,
                                                     fontSize: 12,
                                                     fontFamily: "PingFang-Regular",
-                                                    color: CColors.TextThird
-                                                    )
+                                                    color: CColors.TextBody3
+                                                )
                                             )
                                         }
                                     )
