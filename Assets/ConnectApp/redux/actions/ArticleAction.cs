@@ -41,6 +41,7 @@ namespace ConnectApp.redux.actions {
     public class FetchArticleCommentsSuccessAction : BaseAction {
         public Dictionary<string, List<string>> channelMessageList;
         public Dictionary<string, Dictionary<string, Message>> channelMessageDict;
+        public bool isRefreshList;
     }
 
     public class LikeArticleAction : RequestAction {
@@ -48,13 +49,16 @@ namespace ConnectApp.redux.actions {
     }
 
     public class LikeArticleSuccessAction : BaseAction {
+        public string articleId;
     }
 
     public class LikeCommentAction : RequestAction {
         public string messageId;
     }
 
-    public class LikeCommentSuccessAction : BaseAction {
+    public class LikeCommentSuccessAction : BaseAction
+    {
+        public Message message;
     }
 
     public class RemoveLikeCommentAction : RequestAction {
@@ -62,6 +66,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class RemoveLikeSuccessAction : BaseAction {
+        public Message message;
     }
 
     public class SendCommentAction : RequestAction {
@@ -72,5 +77,6 @@ namespace ConnectApp.redux.actions {
     }
 
     public class SendCommentSuccessAction : BaseAction {
+        public Message message;
     }
 }

@@ -16,6 +16,7 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+using Avatar = ConnectApp.components.Avatar;
 using Icons = ConnectApp.constants.Icons;
 using Image = Unity.UIWidgets.widgets.Image;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
@@ -114,7 +115,7 @@ namespace ConnectApp.screens
                                                 _contentHead(context),
                                                 _subTitle(context),
                                                 _contentDetail(context),
-                                                _actionCards(context),
+                                                _actionCards(context,articleDetail.like),
                                                 _relatedArticles(context),
                                                 _comments(context)
                                             }
@@ -126,7 +127,7 @@ namespace ConnectApp.screens
                                                 _contentHead(context),
                                                 _subTitle(context),
                                                 _contentDetail(context),
-                                                _actionCards(context),
+                                                _actionCards(context,articleDetail.like),
                                                 _relatedArticles(context),
                                                 _comments(context),
                                                 _buildEnd(context)
@@ -141,8 +142,33 @@ namespace ConnectApp.screens
                                     left: 0,
                                     right: 0,
                                     child: new ArticleTabBar(
-                                        commentCallback: () => { },
-                                        favorCallback: () => { },
+                                        articleDetail.like,
+                                        addommentCallback: () =>
+                                        {
+                                            ActionSheetUtils.showModalActionSheet(context, new CustomInput(
+                                                doneCallBack: (text) => { 
+                                                   StoreProvider.store.Dispatch(new SendCommentAction()
+                                                {
+                                                    channelId = articleDetail.channelId,
+                                                    content = text,
+                                                    nonce = Snowflake.CreateNonce()
+                                                }); }));
+
+                                        },
+                                        commentCallback: () =>
+                                        {
+                                            ActionSheetUtils.showModalActionSheet(context, new CustomInput());
+                                        },
+                                        favorCallback: () =>
+                                        {
+                                            if (!articleDetail.like)
+                                            {
+                                                StoreProvider.store.Dispatch(new LikeArticleAction()
+                                                {
+                                                    articleId = _article.id
+                                                });
+                                            }
+                                        },
                                         shareCallback: () => { }
                                     )
                                 )
@@ -185,6 +211,7 @@ namespace ConnectApp.screens
             return ArticleApi.FetchArticleComments(_channelId, _lastCommentId)
                 .Then((responseComments) =>
                 {
+                    StoreProvider.store.state.articleState.articleDetail.comments = responseComments;
                     _lastCommentId = responseComments.currOldestMessageId;
                     _hasMore = responseComments.hasMore;
                     var channelMessageList = new Dictionary<string,List<string>>();
@@ -206,7 +233,8 @@ namespace ConnectApp.screens
                     StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction()
                     {
                         channelMessageDict = channelMessageDict,
-                        channelMessageList = channelMessageList
+                        channelMessageList = channelMessageList,
+                        isRefreshList = false
                     });
                 })
                 .Catch(error => { Debug.Log(error); });
@@ -246,33 +274,25 @@ namespace ConnectApp.screens
                                 children: new List<Widget> {
                                     new Container(
                                         margin: EdgeInsets.only(right: 8),
-                                        child: new ClipRRect(
-                                            borderRadius: BorderRadius.circular(16),
-                                            child: new Container(
-                                                height: 32,
-                                                width: 32,
-                                                child: Image.network(
-//                                                    "123",
-                                                    _user==null?"头像":_user.avatar,
-                                                    fit: BoxFit.cover
-                                                )
-                                            )
-                                        )
+                                        child: new Avatar(_user.id,null,32)
                                     ),
-
-
                                     new Column(
-                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: new List<Widget> {
                                             new Container(height: 5),
                                             new Text(
-                                                _user==null?"昵称":_user.username,
+                                                _user==null?"昵称":_user.fullName,
                                                 style: CTextStyle.PRegular
                                             ),
                                             new Text(
                                                 DateConvert.DateStringFromNow(_article.createdTime),
-                                                style: CTextStyle.PSmall
+                                                style: new TextStyle(
+                                                    height: 1.67f,
+                                                    fontSize: 12,
+                                                    fontFamily: "PingFang-Regular",
+                                                    color: CColors.TextThird
+                                                    )
                                             )
                                         }
                                     )
@@ -316,7 +336,7 @@ namespace ConnectApp.screens
             );
         }
         
-        private Widget _actionCards(BuildContext context)
+        private Widget _actionCards(BuildContext context,bool like)
         {
             return new Container(
                 color:CColors.White,
@@ -325,9 +345,16 @@ namespace ConnectApp.screens
                     mainAxisAlignment:MainAxisAlignment.center,
                     crossAxisAlignment:CrossAxisAlignment.center,
                     children:new List<Widget>{
-                        new ActionCard(Icons.favorite,"点赞",false,onTap: () =>
+                        new ActionCard(Icons.favorite,like?"已赞":"点赞",like,onTap: () =>
                         {
-                            
+                            if (!like)
+                            {
+                                StoreProvider.store.Dispatch(new LikeArticleAction()
+                                {
+                                    articleId = _article.id
+                                });
+                            }
+
                         }),
                         new Container(width:16),
                         new ActionCard(Icons.share,"分享",false,onTap: () =>
@@ -407,24 +434,60 @@ namespace ConnectApp.screens
             var messageDict = channelMessageDict[_channelId];
             _channelComments.ForEach((commentId) =>
             {
-                var card = new CommentCard(messageDict[commentId],
+                var message = messageDict[commentId];
+                bool isPraised = _isPraised(message);
+                var card = new CommentCard(
+                    message,
+                    isPraised,
                     moreCallBack: () =>
                     {
-                        
+                        ActionSheetUtils.showModalActionSheet(context, new ActionSheet(
+                            items: new List<ActionSheetItem> {
+                                new ActionSheetItem("举报", ActionType.destructive, () => { }),
+                                new ActionSheetItem("取消", ActionType.cancel)
+                            }
+                        ));
                     }, 
                     replyCallBack: () =>
                     {
-                        
+                        ActionSheetUtils.showModalActionSheet(context, new CustomInput(
+                            doneCallBack: (text) => { 
+                                StoreProvider.store.Dispatch(new SendCommentAction()
+                                {
+                                    channelId = _channelId,
+                                    content = text,
+                                    nonce = Snowflake.CreateNonce(),
+                                    parentMessageId = commentId
+                                }); }));
                     },
-                    praiseCallBack: () =>
-                    {
-                        
+                    praiseCallBack: () => {
+                        if (isPraised)
+                        {
+                            StoreProvider.store.Dispatch(new RemoveLikeCommentAction(){messageId = commentId});
+                        }
+                        else
+                        {
+                            StoreProvider.store.Dispatch(new LikeCommentAction(){messageId = commentId});
+                        }
+
+
                     });
                 comments.Add(card); 
             });
             return comments;
         }
 
+        private bool _isPraised(Message message)
+        {
+            foreach (var reaction in message.reactions)
+            {
+                if (reaction.user.id == StoreProvider.store.state.loginState.loginInfo.userId)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         private Widget _buildEnd(BuildContext context)
         {

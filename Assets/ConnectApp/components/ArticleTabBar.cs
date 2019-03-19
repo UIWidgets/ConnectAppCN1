@@ -12,6 +12,7 @@ namespace ConnectApp.components
     public class ArticleTabBar : StatelessWidget
     {
         public ArticleTabBar(
+            bool like,
             GestureTapCallback addommentCallback = null,
             GestureTapCallback commentCallback = null,
             GestureTapCallback favorCallback = null,
@@ -20,6 +21,7 @@ namespace ConnectApp.components
             Key key = null
         ) : base(key)
         {
+            this.like = like;
             this.addommentCallback = addommentCallback;
             this.commentCallback = commentCallback;
             this.favorCallback = favorCallback;
@@ -31,6 +33,7 @@ namespace ConnectApp.components
         public readonly GestureTapCallback favorCallback;
         public readonly GestureTapCallback bookmarkCallback;
         public readonly GestureTapCallback shareCallback;
+        public readonly bool like;
         
         public override Widget build(BuildContext context)
         {
@@ -73,7 +76,7 @@ namespace ConnectApp.components
                         ),
                         new GestureDetector(
                             onTap:favorCallback,
-                            child:new Icon(Icons.favorite_border,null,24,CColors.icon3)
+                            child:new Icon(Icons.favorite,null,24,like?CColors.PrimaryBlue:CColors.icon3)
                         ),
 //                        new GestureDetector(
 //                            onTap:bookmarkCallback,
