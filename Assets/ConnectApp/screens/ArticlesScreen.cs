@@ -86,13 +86,20 @@ namespace ConnectApp.screens {
                             {"articleList",state.articleState.articleList}
                         },
                         builder: (_context, viewModel) => {
-                            bool articlesLoading = (bool)viewModel["articlesLoading"];
-                            if (articlesLoading) return new Container();
+                            var articlesLoading = (bool)viewModel["articlesLoading"];
+                            if (articlesLoading) {
+                                return ListView.builder(
+                                    itemCount: 4,
+                                    itemBuilder: (cxt, index) => new ArticleLoading()
+                                );
+                            }
                             
                             var articleList = (List<string>)viewModel["articleList"];
                             var refreshPage = new Refresh(
                                 onHeaderRefresh: onHeaderRefresh,
                                 onFooterRefresh: onFooterRefresh,
+                                headerBuilder: (cxt, controller) => new RefreshHeader(controller),
+                                footerBuilder: (cxt, controller) => new RefreshFooter(controller),
                                 child: new ListView(
                                     physics: new AlwaysScrollableScrollPhysics(),
                                     children: _buildArticleCards(context, articleList)

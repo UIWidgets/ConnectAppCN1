@@ -77,7 +77,7 @@ namespace ConnectApp.components {
                                                 style: new TextStyle(
                                                     fontSize: 12,
                                                     fontFamily: "PingFang-Regular",
-                                                    color: CColors.TextThird
+                                                    color: CColors.TextBody3
                                                 )
                                             )
                                         }

@@ -48,8 +48,6 @@ namespace ConnectApp.components {
                                 }
                             )
                         ),
-
-                        //content
                         new Expanded(
                             child:new Container(
                                 margin: EdgeInsets.only(right: 8),
@@ -68,8 +66,6 @@ namespace ConnectApp.components {
                                 )
                             )
                         ),
-                        
-                        //pic
                         new ClipRRect(
                             borderRadius: BorderRadius.all(0),
                             child: new Container(
@@ -80,6 +76,7 @@ namespace ConnectApp.components {
                                         new Container(
                                             width: 114,
                                             height: 76,
+                                            color: new Color(0xFFD8D8D8),
                                             child: Image.network(_model.background, fit: BoxFit.fill)
                                         ),
                                         new Positioned(
@@ -93,7 +90,6 @@ namespace ConnectApp.components {
                                                 child: new Text(
                                                     _model.live ? "线上" : "线下",
                                                     style: new TextStyle(
-//                                                        height: 1.67f,
                                                         fontSize: 12,
                                                         fontFamily: "PingFang-Regular",
                                                         color: CColors.White

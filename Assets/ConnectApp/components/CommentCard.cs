@@ -111,7 +111,7 @@ namespace ConnectApp.components
                                                     height: 1.57f,
                                                     fontSize: 14,
                                                     fontFamily: "PingFangSC-Regular",
-                                                    color: CColors.TextThird))),
+                                                    color: CColors.TextBody3))),
                                             new GestureDetector(
                                                 onTap:moreCallBack,
                                                 child:new Icon(Icons.ellipsis,size:20,color:CColors.BrownGrey)

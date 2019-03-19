@@ -356,7 +356,7 @@ namespace ConnectApp.redux.reducers {
                             }
                         } else {
                             state.eventState.completedEvents.Add(eventObj.id);
-                            if (state.eventState.eventDict.ContainsKey(eventObj.id)) {
+                            if (state.eventState.completedEventDict.ContainsKey(eventObj.id)) {
                                 state.eventState.completedEventDict[eventObj.id] = eventObj;
                             } else {
                                 state.eventState.completedEventDict.Add(eventObj.id, eventObj);

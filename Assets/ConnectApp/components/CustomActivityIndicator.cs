@@ -13,17 +13,25 @@ namespace ConnectApp.components {
         reset
     }
 
+    public enum AnimationImage {
+        white,
+        black
+    }
+
     public class CustomActivityIndicator : StatefulWidget {
         public CustomActivityIndicator(
             Key key = null,
             AnimatingType animating = AnimatingType.repeat,
+            AnimationImage animationImage = AnimationImage.black,
             float size = 36
         ) : base(key) {
             this.animating = animating;
+            this.animationImage = animationImage;
             this.size = size;
         }
 
         public readonly AnimatingType animating;
+        public readonly AnimationImage animationImage;
         public readonly float size;
 
         public override State createState() {
@@ -47,7 +55,7 @@ namespace ConnectApp.components {
         }
 
         public Ticker createTicker(TickerCallback onTick) {
-            Ticker _ticker = new Ticker(onTick, debugLabel: $"created by {this}");
+            Ticker _ticker = new Ticker(onTick, $"created by {this}");
             return _ticker;
         }
 
@@ -66,11 +74,12 @@ namespace ConnectApp.components {
         }
 
         public override Widget build(BuildContext context) {
+            var imageName = widget.animationImage == AnimationImage.white ? "white-loading" : "black-loading";
             return new RotationTransition(
                 turns: _controller,
                 child: new Column(mainAxisAlignment: MainAxisAlignment.center,
                     children: new List<Widget> {
-                        Image.asset("loading", width: widget.size, height: widget.size)
+                        Image.asset(imageName, width: widget.size, height: widget.size)
                     })
             );
         }

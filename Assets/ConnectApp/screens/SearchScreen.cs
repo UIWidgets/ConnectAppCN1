@@ -14,6 +14,7 @@ using TextStyle = Unity.UIWidgets.painting.TextStyle;
 using Unity.UIWidgets.rendering;
 using UnityEngine;
 using RSG;
+using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.screens {
     public class SearchScreen : StatefulWidget {
@@ -90,37 +91,38 @@ namespace ConnectApp.screens {
                                 child: new StoreConnector<AppState, SearchState>(
                                     converter: (state, dispatch) => state.searchState,
                                     builder: (_context, viewModel) => {
-                                        if (viewModel.loading) return new Container();
-        
-                                        var searchArticles = viewModel.searchArticles;
-                                        if (viewModel.searchArticles.Count > 0) {
-                                            return new Refresh(
-                                                onHeaderRefresh: () => {
-                                                    pageNumber = 0;
-                                                    return _onRefresh(pageNumber);
-                                                },
-                                                onFooterRefresh: () => {
-                                                    pageNumber++;
-                                                    return _onRefresh(pageNumber);
-                                                },
-                                                child: ListView.builder(
-                                                    physics: new AlwaysScrollableScrollPhysics(),
-                                                    itemCount: searchArticles.Count,
-                                                    itemBuilder: (cxt, index) => {
-                                                        var searchArticle = searchArticles[index];
-                                                        return new ArticleCard(
-                                                            searchArticle
-                                                        );
-                                                    }
-                                                )
-                                            );
+                                        if (viewModel.loading) return new GlobalLoading();
+
+                                        if (viewModel.keyword.Length > 0) {
+                                            var searchArticles = viewModel.searchArticles;
+                                            if (searchArticles.Count > 0) {
+                                                return new Refresh(
+                                                    onHeaderRefresh: () => {
+                                                        pageNumber = 0;
+                                                        return _onRefresh(pageNumber);
+                                                    },
+                                                    onFooterRefresh: () => {
+                                                        pageNumber++;
+                                                        return _onRefresh(pageNumber);
+                                                    },
+                                                    child: ListView.builder(
+                                                        physics: new AlwaysScrollableScrollPhysics(),
+                                                        itemCount: searchArticles.Count,
+                                                        itemBuilder: (cxt, index) => {
+                                                            var searchArticle = searchArticles[index];
+                                                            return new ArticleCard(
+                                                                searchArticle
+                                                            );
+                                                        }
+                                                    )
+                                                );
+                                            }
+                                            return new BlankView("暂无搜索结果");
                                         }
-        
-                                        return new Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                        return new ListView(
                                             children: new List<Widget> {
-                                                _buildHotSearch(),
-                                                _buildSearchHistory(viewModel.searchHistoryList)
+                                                _buildSearchHistory(viewModel.searchHistoryList),
+                                                _buildHotSearch()
                                             }
                                         );
                                     }
@@ -134,45 +136,47 @@ namespace ConnectApp.screens {
 
         private Widget _buildSearchBar(BuildContext context) {
             return new Container(
-                padding: EdgeInsets.only(16, 40, 16, 16),
+                height: 140,
+                padding: EdgeInsets.only(16, 0, 16, 12),
                 color: CColors.White,
-                child: new Row(
+                child: new Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: new List<Widget> {
-                        new Expanded(
-                            child: new Container(
-                                decoration: new BoxDecoration(
-                                    CColors.White,
-                                    border: Border.all(CColors.Separator2),
-                                    borderRadius: BorderRadius.circular(22)
-                                ),
-                                height: 44,
-                                child: new InputField(
-                                    controller: _controller,
-                                    style: new TextStyle(
-                                        fontSize: 25,
-                                        color: CColors.TextThird
-                                    ),
-                                    autofocus: true,
-                                    hintText: "热门搜索",
-                                    hintStyle: new TextStyle(
-                                        fontSize: 20,
-                                        color: CColors.TextThird
-                                    ),
-                                    cursorColor: CColors.primary,
-                                    textInputAction: TextInputAction.search,
-                                    onChanged: text => {
-                                        if (text == null || text.Length <= 0) {
-                                            _clearSearchArticle();
-                                        }
-                                    },
-                                    onSubmitted: _searchArticle
+                        new CustomButton(
+                            padding: EdgeInsets.only(8, 8, 0,8),
+                            onPressed: () => { Navigator.pop(context); },
+                            child: new Text(
+                                "取消",
+                                style: new TextStyle(
+                                    color: CColors.PrimaryBlue,
+                                    fontFamily: "PingFang-Regular",
+                                    fontSize: 16
                                 )
                             )
                         ),
-                        new Container(width: 8),
-                        new CustomButton(
-                            onPressed: () => { Navigator.pop(context); },
-                            child: new Text("取消")
+                        new InputField(
+                            controller: _controller,
+                            style: new TextStyle(
+                                fontSize: 32,
+                                fontFamily: "PingFang-Semibold",
+                                color: CColors.TextTitle
+                            ),
+                            autofocus: true,
+                            hintText: "搜索",
+                            hintStyle: new TextStyle(
+                                fontSize: 32,
+                                fontFamily: "PingFang-Semibold",
+                                color: CColors.TextBody4
+                            ),
+                            cursorColor: CColors.PrimaryBlue,
+                            textInputAction: TextInputAction.search,
+                            onChanged: text => {
+                                if (text == null || text.Length <= 0) {
+                                    _clearSearchArticle();
+                                }
+                            },
+                            onSubmitted: _searchArticle
                         )
                     }
                 )
@@ -186,19 +190,19 @@ namespace ConnectApp.screens {
             List<Widget> widgets = new List<Widget>();
             hotSearch.ForEach(item => {
                 Widget widget = new GestureDetector(
-                    onTap: () => { _searchArticle(item); },
+                    onTap: () => _searchArticle(item),
                     child: new Container(
                         decoration: new BoxDecoration(
-                            CColors.background2,
-                            borderRadius: BorderRadius.circular(11)
+                            CColors.Separator2,
+                            borderRadius: BorderRadius.circular(16)
                         ),
-                        height: 22,
-                        padding: EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                        height: 32,
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                         child: new Text(
                             item, 
                             style: new TextStyle(
                                 fontSize: 16,
-                                color: CColors.White,
+                                color: CColors.TextBody,
                                 fontFamily: "PingFang-Regular"
                             )
                         )
@@ -207,23 +211,24 @@ namespace ConnectApp.screens {
                 widgets.Add(widget);
             });
             return new Container(
-                padding: EdgeInsets.only(16, 0, 16, 16),
+                padding: EdgeInsets.only(16, 24, 16),
                 color: CColors.White,
                 child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
                         new Container(
-                            margin: EdgeInsets.only(top: 16),
+                            margin: EdgeInsets.only(bottom: 16),
                             child: new Text(
                                 "热门搜索",
                                 style: new TextStyle(
-                                    fontSize: 20,
-                                    fontFamily: "PingFang-Regular"
+                                    fontSize: 18,
+                                    fontFamily: "PingFang-Regular",
+                                    color: CColors.TextBody4
                                 )
                             )
                         ),
                         new Wrap(
-                            spacing: 10,
+                            spacing: 8,
                             runSpacing: 20,
                             children: widgets
                         )
@@ -240,13 +245,31 @@ namespace ConnectApp.screens {
             var widgets = new List<Widget>();
             widgets.Add(
                 new Container(
-                    margin: EdgeInsets.only(bottom: 10),
-                    child: new Text(
-                        "搜索历史",
-                        style: new TextStyle(
-                            fontSize: 20,
-                            fontFamily: "PingFang-Regular"
-                        )
+                    margin: EdgeInsets.only(top: 24, bottom: 10),
+                    child: new Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: new List<Widget> {
+                            new Text(
+                                "搜索历史",
+                                style: new TextStyle(
+                                    fontSize: 18,
+                                    fontFamily: "PingFang-Regular",
+                                    color: CColors.TextBody4
+                                )
+                            ),
+                            new CustomButton(
+                                padding: EdgeInsets.only(8, 8, 0,8),
+                                onPressed: _deleteAllSearchHistory,
+                                child: new Text(
+                                    "清空",
+                                    style: new TextStyle(
+                                        fontSize: 14,
+                                        fontFamily: "PingFang-Regular",
+                                        color: CColors.TextBody4
+                                    )
+                                )
+                            )
+                        }
                     )
                 )
             );
@@ -254,38 +277,26 @@ namespace ConnectApp.screens {
                 var widget = new GestureDetector(
                     onTap: () => { _searchArticle(item); },
                     child: new Container(
-                        height: 60,
-                        decoration: new BoxDecoration(
-                            border: new Border(bottom: new BorderSide(CColors.Separator2))
-                        ),
+                        height: 44,
+                        color: CColors.White,
                         child: new Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: new List<Widget> {
-                                new Row(
-                                    children: new List<Widget> {
-                                        new Icon(
-                                            Icons.history,
-                                            size: 28,
-                                            color: CColors.Black
-                                        ),
-                                        new Container(
-                                            margin: EdgeInsets.only(8),
-                                            child: new Text(
-                                                item,
-                                                style: new TextStyle(
-                                                    fontSize: 16,
-                                                    fontFamily: "PingFang-Regular"
-                                                )
-                                            )
-                                        )
-                                    }
+                                new Text(
+                                    item,
+                                    style: new TextStyle(
+                                        fontSize: 16,
+                                        fontFamily: "PingFang-Regular",
+                                        color: CColors.TextBody
+                                    )
                                 ),
                                 new CustomButton(
-                                    onPressed: () => { _deleteSearchHistory(item); },
+                                    padding: EdgeInsets.only(8, 8, 0,8),
+                                    onPressed: () => _deleteSearchHistory(item),
                                     child: new Icon(
                                         Icons.close,
-                                        size: 28,
-                                        color: CColors.Black
+                                        size: 16,
+                                        color: Color.fromRGBO(199, 203, 207, 1)
                                     )
                                 )
                             }
@@ -294,34 +305,6 @@ namespace ConnectApp.screens {
                 );
                 widgets.Add(widget);
             });
-            
-            widgets.Add(
-                new GestureDetector(
-                    onTap: _deleteAllSearchHistory,
-                    child: new Container(
-                        height: 60,
-                        child: new Row(
-                            children: new List<Widget> {
-                                new Icon(
-                                    Icons.delete,
-                                    size: 28,
-                                    color: CColors.Black
-                                ),
-                                new Container(
-                                    margin: EdgeInsets.only(8),
-                                    child: new Text(
-                                        "清空搜索历史",
-                                        style: new TextStyle(
-                                            fontSize: 16,
-                                            fontFamily: "PingFang-Regular"
-                                        )
-                                    )
-                                )
-                            }
-                        )
-                    )
-                )
-            );
 
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
