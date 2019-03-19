@@ -10,11 +10,14 @@ using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.components {
+
+    public delegate void SelectTabCallBack(int index);
     public class CustomTabBar : StatefulWidget {
         public CustomTabBar(
             List<Widget> controllers,
             List<CustomTabBarItem> items,
             Color tabbarBackgroudColor,
+            SelectTabCallBack tapCallBack = null,
             Key key = null
         ) : base(key) {
             this.controllers = controllers;
@@ -22,6 +25,7 @@ namespace ConnectApp.components {
             this.tabbarBackgroudColor = tabbarBackgroudColor;
         }
 
+        public readonly SelectTabCallBack tapCallBack;
         public readonly Color tabbarBackgroudColor;
         public readonly List<Widget> controllers;
         public readonly List<CustomTabBarItem> items;
@@ -100,7 +104,7 @@ namespace ConnectApp.components {
                                     if (_selectedIndex != item.index)
                                         setState(() => {
                                             _selectedIndex = item.index;
-                                            _pageController.animateToPage(item.index, new TimeSpan(0, 0, 0, 0),
+                                            _pageController.animateToPage(item.index, new TimeSpan(0, 0, 0, 0,1),
                                                 Curves.ease);
                                         });
                                 },

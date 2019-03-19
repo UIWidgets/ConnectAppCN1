@@ -42,7 +42,7 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             return new Container(
-                color: CColors.White,
+                color: CColors.BgGrey,
                 child: new Column(
                     children: new List<Widget> {
                         _buildNavigationBar(context),
@@ -176,7 +176,8 @@ namespace ConnectApp.screens {
                                 new ActionSheetItem("取消", ActionType.cancel)
                             }
                         ));
-                    }
+                    },
+                    new ObjectKey(article.id)
                 ));
             });
             return list;

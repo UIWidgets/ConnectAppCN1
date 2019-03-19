@@ -181,7 +181,7 @@ namespace ConnectApp.screens {
                                         StoreProvider.store.Dispatch(new NavigatorToEventDetailAction()
                                             {eventId = model.id});
                                         Navigator.pushNamed(context, "/event-detail");
-                                    }));
+                                    },new ObjectKey(model.id)));
                             });
                         else
                             cardList.Add(new Container());

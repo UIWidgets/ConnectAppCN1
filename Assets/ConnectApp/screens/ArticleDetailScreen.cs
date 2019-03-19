@@ -274,7 +274,7 @@ namespace ConnectApp.screens
                                 children: new List<Widget> {
                                     new Container(
                                         margin: EdgeInsets.only(right: 8),
-                                        child: new Avatar(_user.id,null,32)
+                                        child: new Avatar(_user==null?"1234":_user.id,null,32)
                                     ),
                                     new Column(
                                         mainAxisAlignment: MainAxisAlignment.center,

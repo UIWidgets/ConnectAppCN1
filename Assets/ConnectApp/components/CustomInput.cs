@@ -35,8 +35,6 @@ namespace ConnectApp.components
             return new Container(
                 child: new Column(
                     mainAxisAlignment:MainAxisAlignment.end,
-//                reverse:true,
-//                scrollDirection:Axis.vertical,
                 children:new List<Widget>
                 {
                     new Container(

@@ -55,7 +55,6 @@ namespace ConnectApp.screens {
                                                 new CustomButton(
                                                     onPressed: () => {
                                                         Navigator.pop(context);
-                                                        StoreProvider.store.Dispatch(new ClearEventDetailAction());
                                                     },
                                                     child: new Icon(
                                                         Icons.arrow_back,
