@@ -15,6 +15,7 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+using EventType = ConnectApp.models.EventType;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
@@ -35,11 +36,9 @@ namespace ConnectApp.screens {
         private int CompletedPageNumber = 1;
         private float _offsetY = 0;
 
-
         public override void initState() {
             base.initState();
-            if (StoreProvider.store.state.eventState.events.Count == 0)
-            {
+            if (StoreProvider.store.state.eventState.events.Count == 0) {
                 StoreProvider.store.Dispatch(new FetchEventsAction {pageNumber = 1,tab = "ongoing"});
                 StoreProvider.store.Dispatch(new FetchEventsAction {pageNumber = 1,tab = "completed"});
             }
@@ -178,8 +177,8 @@ namespace ConnectApp.screens {
                                 cardList.Add(new EventCard(
                                     model,
                                     () => {
-                                        StoreProvider.store.Dispatch(new NavigatorToEventDetailAction()
-                                            {eventId = model.id});
+                                        StoreProvider.store.Dispatch(new NavigatorToEventDetailAction
+                                            {eventId = model.id, eventType = model.live ? EventType.onLine : EventType.offline});
                                         Navigator.pushNamed(context, "/event-detail");
                                     },new ObjectKey(model.id)));
                             });
@@ -223,8 +222,8 @@ namespace ConnectApp.screens {
                                 cardList.Add(new EventCard(
                                     model,
                                     () => {
-                                        StoreProvider.store.Dispatch(new NavigatorToEventDetailAction()
-                                            {eventId = model.id});
+                                        StoreProvider.store.Dispatch(new NavigatorToEventDetailAction
+                                            {eventId = model.id, eventType = model.live ? EventType.onLine : EventType.offline});
                                         Navigator.pushNamed(context, "/event-detail");
                                     }));
                             });

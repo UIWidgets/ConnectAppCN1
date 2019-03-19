@@ -14,5 +14,7 @@ namespace ConnectApp.models {
         public Project articleDetail { get; set; }
 
         public Dictionary<string, Article> articleDict { get; set; }
+        
+        public List<Article> articleHistory { get; set; }
     }
 }
