@@ -21,6 +21,8 @@ namespace ConnectApp.components.refresh {
             RefreshController controller = null,
             ScrollController scrollController = null,
             RefreshScrollViewBuilder childBuilder = null,
+            RefreshChildBuilder headerBuilder = null,
+            RefreshChildBuilder footerBuilder = null,
             ScrollPhysics physics = null,
             Key key = null) : base(key) {
             this.onHeaderRefresh = onHeaderRefresh;
@@ -28,6 +30,8 @@ namespace ConnectApp.components.refresh {
             this.controller = controller;
             this.scrollController = scrollController;
             this.childBuilder = childBuilder;
+            this.headerBuilder = headerBuilder;
+            this.footerBuilder = footerBuilder;
             this.physics = physics;
             this.child = child;
         }
@@ -37,6 +41,8 @@ namespace ConnectApp.components.refresh {
         public readonly RefreshController controller;
         public readonly ScrollController scrollController;
         public readonly RefreshScrollViewBuilder childBuilder;
+        public readonly RefreshChildBuilder headerBuilder;
+        public readonly RefreshChildBuilder footerBuilder;
         public readonly ScrollPhysics physics;
         public readonly Widget child;
 
@@ -59,8 +65,8 @@ namespace ConnectApp.components.refresh {
     internal delegate void StateHandler(ScrollNotification notification);
 
     internal class _RefreshState : State<Refresh> {
-        private float _headerRefreshOffset = 50.0f;
-        private float _footerRefreshOffset = 50.0f;
+        private const float _headerRefreshOffset = 50.0f;
+        private const float _footerRefreshOffset = 50.0f;
 
         private RefreshWidgetController _headerValue;
         private RefreshWidgetController _footerValue;
@@ -80,8 +86,8 @@ namespace ConnectApp.components.refresh {
             Widget notificationChild = new NotificationListener<ScrollNotification>(
                 child: widget.child == null
                     ? widget.childBuilder(context,
-                        controller: controller,
-                        physics: Refresh.createScrollPhysics(widget.physics))
+                        controller,
+                        Refresh.createScrollPhysics(widget.physics))
                     : _cloneChild(widget.child),
                 onNotification: _handleScrollNotification
             );
@@ -90,33 +96,36 @@ namespace ConnectApp.components.refresh {
 
             if (widget.onHeaderRefresh != null)
                 children.Add(new RefreshWidget(
-                    height: _headerRefreshOffset,
+                    _headerRefreshOffset,
                     controller: _headerValue,
                     createTween: createTweenForHeader,
                     alignment: Alignment.topCenter,
                     maxOffset: 300,
-                    childBuilder:
-                    (BuildContext _context, RefreshWidgetController controller) => {
+                    childBuilder: (_context, controller) => {
+                        if (widget.headerBuilder != null) {
+                            return widget.headerBuilder(_context, controller);
+                        }
                         return new DefaultRefreshChild(
-                            controller: controller,
-                            icon: new Icon(Icons.arrow_downward),
-                            up: true
+                            controller,
+                            new Icon(Icons.arrow_downward)
                         );
                     })
                 );
 
             if (widget.onFooterRefresh != null)
                 children.Add(new RefreshWidget(
-                    height: _footerRefreshOffset,
+                    _footerRefreshOffset,
                     controller: _footerValue,
                     createTween: createTweenForFooter,
                     maxOffset: 300,
                     alignment: Alignment.bottomCenter,
-                    childBuilder:
-                    (BuildContext _context, RefreshWidgetController controller) => {
+                    childBuilder: (_context, controller) => {
+                        if (widget.footerBuilder != null) {
+                            return widget.footerBuilder(_context, controller);
+                        }
                         return new DefaultRefreshChild(
-                            controller: controller,
-                            icon: new Icon(Icons.arrow_upward),
+                            controller,
+                            new Icon(Icons.arrow_upward),
                             showLastUpdate: false,
                             up: false
                         );
@@ -124,7 +133,7 @@ namespace ConnectApp.components.refresh {
                 );
 
             return new Stack(
-                key: widget.key,
+                widget.key,
                 children: children
             );
         }
@@ -146,14 +155,14 @@ namespace ConnectApp.components.refresh {
         }
 
 
-        public RectTween createTweenForHeader(RefreshWidget widget) {
+        public static RectTween createTweenForHeader(RefreshWidget widget) {
             return new RectTween(
                 begin: Rect.fromLTRB(0, -widget.height, 0, 0),
                 end: Rect.fromLTRB(0, 300, 0, 0)
             );
         }
 
-        public RectTween createTweenForFooter(RefreshWidget widget) {
+        public static RectTween createTweenForFooter(RefreshWidget widget) {
             return new RectTween(
                 begin: Rect.fromLTRB(0, 0, 0, widget.height),
                 end: Rect.fromLTRB(0, 0, 0, -300)

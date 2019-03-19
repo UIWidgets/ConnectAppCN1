@@ -33,7 +33,7 @@ namespace ConnectApp.screens {
         private PageController _pageController;
         private int _selectedIndex;
         private int pageNumber = 1;
-        private int CompletedPageNumber = 1;
+        private int completedPageNumber = 1;
         private float _offsetY = 0;
 
         public override void initState() {
@@ -81,9 +81,11 @@ namespace ConnectApp.screens {
 
         private Widget buildSelectItem(BuildContext context, string title, int index) {
             var textColor = CColors.TextTitle;
+            var textFontFamily = "PingFang-Regular";
             Widget lineView = new Positioned(new Container());
             if (index == _selectedIndex) {
                 textColor = CColors.PrimaryBlue;
+                textFontFamily = "PingFang-Medium";
                 lineView = new Positioned(
                     bottom: 0,
                     left: 0,
@@ -125,6 +127,7 @@ namespace ConnectApp.screens {
                                     style: new TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w400,
+                                        fontFamily: textFontFamily,
                                         color: textColor
                                     )
                                 )
@@ -167,6 +170,7 @@ namespace ConnectApp.screens {
                         var eventDict = viewModel["eventDict"] as Dictionary<string, IEvent>;
                         var cardList = new List<Widget>();
                         var eventObjs = new List<IEvent>();
+                        if (loading) return new GlobalLoading();
                         if (events != null && events.Count > 0)
                             events.ForEach(eventId => {
                                 if (eventDict != null && eventDict.ContainsKey(eventId))
@@ -187,6 +191,8 @@ namespace ConnectApp.screens {
                         return new Refresh(
                             onHeaderRefresh: onHeaderRefresh,
                             onFooterRefresh: onFooterRefresh,
+                            headerBuilder: (cxt, controller) => new RefreshHeader(controller),
+                            footerBuilder: (cxt, controller) => new RefreshFooter(controller),
                             child: new ListView(
                                 physics: new AlwaysScrollableScrollPhysics(),
                                 children: cardList
@@ -212,6 +218,7 @@ namespace ConnectApp.screens {
                         var eventDict = viewModel["completedEventDict"] as Dictionary<string, IEvent>;
                         var cardList = new List<Widget>();
                         var eventObjs = new List<IEvent>();
+                        if (loading) return new GlobalLoading();
                         if (events != null && events.Count > 0)
                             events.ForEach(eventId => {
                                 if (eventDict != null && eventDict.ContainsKey(eventId))
@@ -232,6 +239,8 @@ namespace ConnectApp.screens {
                         return new Refresh(
                             onHeaderRefresh: onHeaderRefresh,
                             onFooterRefresh: onFooterRefresh,
+                            headerBuilder: (cxt, controller) => new RefreshHeader(controller),
+                            footerBuilder: (cxt, controller) => new RefreshFooter(controller),
                             child: new ListView(
                                 physics: new AlwaysScrollableScrollPhysics(),
                                 children: cardList
@@ -260,47 +269,39 @@ namespace ConnectApp.screens {
         }
         
         private IPromise onHeaderRefresh() {
-            if (_selectedIndex ==0)
-            {
+            if (_selectedIndex == 0) {
                 pageNumber = 1;
-            }
-            else
-            {
-                CompletedPageNumber = 1;
+            } else {
+                completedPageNumber = 1;
             }
 
             var tab = _selectedIndex == 0 ? "ongoing" : "completed";
-            return EventApi.FetchEvents(_selectedIndex==0?pageNumber:CompletedPageNumber,tab)
+            return EventApi.FetchEvents(_selectedIndex==0 ? pageNumber : completedPageNumber, tab)
                 .Then(events => {
-                    StoreProvider.store.Dispatch(new FetchEventsSuccessAction {events = events,tab = tab,pageNumber = 1});
+                    StoreProvider.store.Dispatch(new FetchEventsSuccessAction {events = events, tab = tab, pageNumber = 1});
                 })
                 .Catch(error => {
                     Debug.Log(error);
                 });
         }
 
-        private IPromise onFooterRefresh()
-        {
-            if (_selectedIndex ==0)
-            {
+        private IPromise onFooterRefresh() {
+            if (_selectedIndex == 0) {
                 pageNumber++;
-            }
-            else
-            {
-                CompletedPageNumber++;
+            } else {
+                completedPageNumber++;
             }
             var tab = _selectedIndex == 0 ? "ongoing" : "completed";
-            return EventApi.FetchEvents(_selectedIndex==0?pageNumber:CompletedPageNumber,tab)
+            return EventApi.FetchEvents(_selectedIndex == 0 ? pageNumber : completedPageNumber, tab)
                 .Then(events => {
-                    StoreProvider.store.Dispatch(new FetchEventsSuccessAction {events = events,tab = tab});
+                    StoreProvider.store.Dispatch(new FetchEventsSuccessAction {events = events, tab = tab});
                 })
                 .Catch(error => {
                     Debug.Log(error);
                 });
         }
 
-        public override void dispose()
-        {
+        public override void dispose() {
             base.dispose();
             _pageController.dispose();
         }

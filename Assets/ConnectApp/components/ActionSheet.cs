@@ -73,7 +73,7 @@ namespace ConnectApp.components {
                         child: new Text(
                             title,
                             style: new TextStyle(
-                                color: CColors.TextThird2,
+                                color: CColors.TextBody4,
                                 fontSize: 14,
                                 fontFamily: "PingFang-Regular",
                                 decoration: TextDecoration.none,
@@ -98,7 +98,7 @@ namespace ConnectApp.components {
             items.ForEach(item => {
                 ActionType type = item.type;
                 Color titleColor = CColors.TextBody;
-                if (type == ActionType.destructive) titleColor = CColors.warning;
+                if (type == ActionType.destructive) titleColor = CColors.Error;
 
                 Widget widget = new Column(
                     children: new List<Widget> {

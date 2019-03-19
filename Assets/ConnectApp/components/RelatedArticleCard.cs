@@ -59,7 +59,7 @@ namespace ConnectApp.components
                                           height: 1.67f,
                                           fontSize: 12,
                                           fontFamily: "PingFangSC-Regular",
-                                          color: CColors.TextThird    
+                                          color: CColors.TextBody3    
                                       ),textAlign:TextAlign.left)
                                   }
                               )
