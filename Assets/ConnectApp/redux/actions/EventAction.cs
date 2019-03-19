@@ -20,12 +20,27 @@ namespace ConnectApp.redux.actions {
     public class FetchEventDetailSuccessAction : BaseAction {
         public IEvent eventObj;
     }
+    
+    public class GetEventHistoryAction : BaseAction {
+    }
+    
+    public class SaveEventHistoryAction : BaseAction {
+        public IEvent eventObj;
+    }
+    
+    public class DeleteEventHistoryAction : BaseAction {
+        public string eventId;
+    }
+    
+    public class DeleteAllEventHistoryAction : BaseAction {
+    }
 
     public class JoinEventAction : RequestAction {
         public string eventId;
     }
 
     public class JoinEventSuccessAction : BaseAction {
+        public string eventId;
     }
 
     public class ClearEventDetailAction : BaseAction {

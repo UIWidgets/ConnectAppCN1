@@ -29,8 +29,41 @@ namespace ConnectApp.screens {
             StoreProvider.store.Dispatch(new FetchEventDetailAction
                 {eventId = StoreProvider.store.state.eventState.detailId});
         }
+        
+        public override void dispose() {
+            StoreProvider.store.Dispatch(new ClearEventDetailAction());
+            base.dispose();
+        }
 
-        private static Widget _buildHeaderView(BuildContext context, IEvent eventObj) {
+        private static Widget _buildHeaderView(BuildContext context, IEvent eventObj, EventType eventType) {
+            var bottomWidget = new Container();
+            if (eventType == EventType.onLine) {
+                bottomWidget = new Container(
+                    height: 40,
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: new Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: new List<Widget> {
+                            new Container(
+                                height: 20,
+                                width: 48,
+                                decoration: new BoxDecoration(
+                                    CColors.text4
+                                ),
+                                alignment: Alignment.center,
+                                child: new Text(
+                                    "未开始",
+                                    style: new TextStyle(
+                                        fontSize: 12,
+                                        color: CColors.text1
+                                    )
+                                )
+                            )
+                        }
+                    )
+                );
+            }
+
             return new Container(
                 color: CColors.Black,
                 child: new AspectRatio(
@@ -53,10 +86,7 @@ namespace ConnectApp.screens {
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: new List<Widget> {
                                                 new CustomButton(
-                                                    onPressed: () => {
-                                                        Navigator.pop(context);
-                                                        StoreProvider.store.Dispatch(new ClearEventDetailAction());
-                                                    },
+                                                    onPressed: () => Navigator.pop(context),
                                                     child: new Icon(
                                                         Icons.arrow_back,
                                                         size: 28,
@@ -76,30 +106,7 @@ namespace ConnectApp.screens {
                                             }
                                         )
                                     ),
-                                    new Container(
-                                        height: 40,
-                                        padding: EdgeInsets.symmetric(horizontal: 16),
-                                        child: new Row(
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            children: new List<Widget> {
-                                                new Container(
-                                                    height: 20,
-                                                    width: 48,
-                                                    decoration: new BoxDecoration(
-                                                        CColors.text4
-                                                    ),
-                                                    alignment: Alignment.center,
-                                                    child: new Text(
-                                                        "未开始",
-                                                        style: new TextStyle(
-                                                            fontSize: 12,
-                                                            color: CColors.text1
-                                                        )
-                                                    )
-                                                )
-                                            }
-                                        )
-                                    )
+                                    bottomWidget
                                 }
                             )
                         }
@@ -192,12 +199,57 @@ namespace ConnectApp.screens {
                 }
             );
         }
+        
+        private static Widget _buildOfflineRegisterNow(BuildContext context, IEvent eventObj, bool isLoggedIn) {
+            var buttonText = "立即报名";
+            var isEnabled = false;
+            if (eventObj.userIsCheckedIn && isLoggedIn) {
+                buttonText = "已报名";
+                isEnabled = true;
+            }
+            return new Container(
+                color: CColors.White,
+                height: 64,
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: new CustomButton(
+                    onPressed: () => {
+                        if (isEnabled) return;
+
+                        if (isLoggedIn) {
+                            StoreProvider.store.Dispatch(new JoinEventAction{eventId = eventObj.id});
+                        } else {
+                            Navigator.pushNamed(context, "/login");
+                        }
+                    },
+                    child: new Container(
+                        decoration: new BoxDecoration(
+                            CColors.PrimaryBlue,
+                            borderRadius: BorderRadius.all(4)
+                        ),
+                        child: new Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: new List<Widget> {
+                                new Text(
+                                    buttonText,
+                                    style: new TextStyle(
+                                        color: CColors.White,
+                                        fontSize: 16,
+                                        fontFamily: "PingFang-Medium"
+                                    )
+                                )
+                            }
+                        )
+                    )
+                )
+            );
+        }
 
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, Dictionary<string, object>>(
                 converter: (state, dispatcher) => new Dictionary<string, object> {
                     {"isLoggedIn", state.loginState.isLoggedIn},
+                    {"eventType", state.eventState.eventType},
                     {"detailId", state.eventState.detailId},
                     {"loading", state.eventState.eventDetailLoading},
                     {"eventDict", state.eventState.eventDict},
@@ -206,6 +258,7 @@ namespace ConnectApp.screens {
                 },
                 builder: (_context, viewModel) => {
                     var isLoggedIn = (bool) viewModel["isLoggedIn"];
+                    var eventType = (EventType) viewModel["eventType"];
                     var detailId = (string) viewModel["detailId"];
                     var eventDict = (Dictionary<string, IEvent>) viewModel["eventDict"];
                     IEvent eventObj = null;
@@ -218,17 +271,21 @@ namespace ConnectApp.screens {
                             color: CColors.White,
                             child: new CustomActivityIndicator()
                         );
+                    var bottomWidget = eventType == EventType.offline
+                        ? _buildOfflineRegisterNow(context, eventObj, isLoggedIn)
+                        : !showChatWindow ? _buildChatWindow() : _buildJoinBar(eventObj);
+
                     return new Container(
                         color: CColors.White,
                         child: new Stack(
                             children: new List<Widget> {
                                 new Column(
                                     children: new List<Widget> {
-                                        _buildHeaderView(context, eventObj),
+                                        _buildHeaderView(context, eventObj, eventType),
                                         new EventDetail(eventObj: eventObj)
                                     }
                                 ),
-                                !showChatWindow ? _buildChatWindow() : _buildJoinBar(eventObj)
+                                bottomWidget
                             }
                         )
                     );

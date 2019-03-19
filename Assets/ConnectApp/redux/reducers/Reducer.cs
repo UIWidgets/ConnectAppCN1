@@ -9,6 +9,8 @@ using UnityEngine;
 namespace ConnectApp.redux.reducers {
     public static class AppReducer {
         private const string _searchHistoryKey = "searchHistoryKey";
+        private const string _articleHistoryKey = "articleHistoryKey";
+        private const string _eventHistoryKey = "eventHistoryKey";
         
         public static AppState Reduce(AppState state, object bAction) {
             switch (bAction) {
@@ -126,8 +128,9 @@ namespace ConnectApp.redux.reducers {
                                 articleDetail = articleDetailResponse.project
                             });
                         })
-                        .Catch(error =>
-                        {
+                        .Catch(error => {
+                            state.articleState.articleDetailLoading = false;
+                            Debug.Log(error);
                             Debug.Log(error);
                         });
                     break;
@@ -135,10 +138,50 @@ namespace ConnectApp.redux.reducers {
                 case FetchArticleDetailSuccessAction action: {
                     state.articleState.articleDetailLoading = false;
                     state.articleState.articleDetail = action.articleDetail;
+                    StoreProvider.store.Dispatch(new SaveArticleHistoryAction {
+                        article = action.articleDetail.projectData
+                    });
                     break;
                 }
-                case SaveArticleDetailSuccessAction action: {
-                    state.articleState.articleDetail = action.articleDetail;
+                case SaveArticleHistoryAction action: {
+                    var articleHistory = PlayerPrefs.GetString(_articleHistoryKey);
+                    var articleHistoryList = new List<Article>();
+                    if (articleHistory.isNotEmpty()) {
+                        articleHistoryList = JsonConvert.DeserializeObject<List<Article>>(articleHistory);
+                    }
+                    articleHistoryList.RemoveAll(item => item.id == action.article.id);
+                    articleHistoryList.Insert(0, action.article);
+                    state.articleState.articleHistory = articleHistoryList;
+                    var newArticleHistory = JsonConvert.SerializeObject(articleHistoryList);
+                    PlayerPrefs.SetString(_articleHistoryKey, newArticleHistory);
+                    PlayerPrefs.Save();
+                    break;
+                }
+                case GetArticleHistoryAction action: {
+                    var articleHistory = PlayerPrefs.GetString(_articleHistoryKey);
+                    var articleHistoryList = new List<Article>();
+                    if (articleHistory.isNotEmpty()) {
+                        articleHistoryList = JsonConvert.DeserializeObject<List<Article>>(articleHistory);
+                    }
+                    state.articleState.articleHistory = articleHistoryList;
+                    break;
+                }
+                case DeleteArticleHistoryAction action: {
+                    var articleHistory = PlayerPrefs.GetString(_articleHistoryKey);
+                    var articleHistoryList = new List<Article>();
+                    if (articleHistory.isNotEmpty()) {
+                        articleHistoryList = JsonConvert.DeserializeObject<List<Article>>(articleHistory);
+                    }
+                    articleHistoryList.RemoveAll(item => item.id == action.articleId);
+                    state.articleState.articleHistory = articleHistoryList;
+                    var newArticleHistory = JsonConvert.SerializeObject(articleHistoryList);
+                    PlayerPrefs.SetString(_articleHistoryKey, newArticleHistory);
+                    PlayerPrefs.Save();
+                    break;
+                }
+                case DeleteAllArticleHistoryAction action: {
+                    state.articleState.articleHistory = new List<Article>();
+                    PlayerPrefs.DeleteKey(_articleHistoryKey);
                     break;
                 }
                 case LikeArticleAction action: {
@@ -343,15 +386,65 @@ namespace ConnectApp.redux.reducers {
                     StoreProvider.store.Dispatch(new UserMapAction{userMap = userMap});
                     state.eventState.eventDict[action.eventObj.id] = action.eventObj;
                     state.eventState.detailId = action.eventObj.id;
+                    StoreProvider.store.Dispatch(new SaveEventHistoryAction {eventObj = action.eventObj});
+                    break;
+                }
+                case SaveEventHistoryAction action: {
+                    var eventHistory = PlayerPrefs.GetString(_eventHistoryKey);
+                    var eventHistoryList = new List<IEvent>();
+                    if (eventHistory.isNotEmpty()) {
+                        eventHistoryList = JsonConvert.DeserializeObject<List<IEvent>>(eventHistory);
+                    }
+                    eventHistoryList.RemoveAll(item => item.id == action.eventObj.id);
+                    eventHistoryList.Insert(0, action.eventObj);
+                    state.eventState.eventHistory = eventHistoryList;
+                    var newEventHistory = JsonConvert.SerializeObject(eventHistoryList);
+                    PlayerPrefs.SetString(_eventHistoryKey, newEventHistory);
+                    PlayerPrefs.Save();
+                    break;
+                }
+                case GetEventHistoryAction action: {
+                    var eventHistory = PlayerPrefs.GetString(_eventHistoryKey);
+                    var eventHistoryList = new List<IEvent>();
+                    if (eventHistory.isNotEmpty()) {
+                        eventHistoryList = JsonConvert.DeserializeObject<List<IEvent>>(eventHistory);
+                    }
+                    state.eventState.eventHistory = eventHistoryList;
+                    break;
+                }
+                case DeleteEventHistoryAction action: {
+                    var eventHistory = PlayerPrefs.GetString(_eventHistoryKey);
+                    var eventHistoryList = new List<IEvent>();
+                    if (eventHistory.isNotEmpty()) {
+                        eventHistoryList = JsonConvert.DeserializeObject<List<IEvent>>(eventHistory);
+                    }
+                    eventHistoryList.RemoveAll(item => item.id == action.eventId);
+                    state.eventState.eventHistory = eventHistoryList;
+                    var newEventHistory = JsonConvert.SerializeObject(eventHistoryList);
+                    PlayerPrefs.SetString(_eventHistoryKey, newEventHistory);
+                    PlayerPrefs.Save();
+                    break;
+                }
+                case DeleteAllEventHistoryAction action: {
+                    state.eventState.eventHistory = new List<IEvent>();
+                    PlayerPrefs.DeleteKey(_eventHistoryKey);
                     break;
                 }
                 case JoinEventAction action: {
+                    state.eventState.joinEventLoading = true;
                     EventApi.JoinEvent(action.eventId)
-                        .Then(() => { StoreProvider.store.Dispatch(new JoinEventSuccessAction()); })
-                        .Catch(error => { Debug.Log(error); });
+                        .Then(eventId => { StoreProvider.store.Dispatch(new JoinEventSuccessAction{eventId = action.eventId}); })
+                        .Catch(error => {
+                            state.eventState.joinEventLoading = false;
+                            Debug.Log(error);
+                        });
                     break;
                 }
                 case JoinEventSuccessAction action: {
+                    state.eventState.joinEventLoading = false;
+                    var eventObj = state.eventState.eventDict[action.eventId];
+                    eventObj.userIsCheckedIn = true;
+                    state.eventState.eventDict[action.eventId] = eventObj;
                     break;
                 }
                 case FetchNotificationsAction action: {

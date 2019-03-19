@@ -19,8 +19,18 @@ namespace ConnectApp.redux.actions {
         public Project articleDetail;
     }
     
-    public class SaveArticleDetailSuccessAction : BaseAction {
-        public Project articleDetail;
+    public class GetArticleHistoryAction : BaseAction {
+    }
+    
+    public class SaveArticleHistoryAction : BaseAction {
+        public Article article;
+    }
+    
+    public class DeleteArticleHistoryAction : BaseAction {
+        public string articleId;
+    }
+    
+    public class DeleteAllArticleHistoryAction : BaseAction {
     }
 
     public class FetchArticleCommentsAction : RequestAction {

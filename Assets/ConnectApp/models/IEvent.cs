@@ -14,6 +14,7 @@ namespace ConnectApp.models {
         public DateTime createdTime;
         public string shortDescription;
         public bool live;
+        public bool userIsCheckedIn;
         public string channelId;
         public List<User> hosts;
         public string content;

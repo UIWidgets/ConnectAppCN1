@@ -38,7 +38,8 @@ namespace ConnectApp.models {
                     articlesLoading = false,
                     articleDetailLoading = false,
                     detailId = null,
-                    articleDetail = null
+                    articleDetail = null,
+                    articleHistory = new List<Article>()
                 },
                 eventState = new EventState {
                     events = new List<string>(),
@@ -46,7 +47,9 @@ namespace ConnectApp.models {
                     completedEvents = new List<string>(),
                     completedEventDict = new Dictionary<string, IEvent>(),
                     eventsLoading = false,
-                    detailId = null
+                    detailId = null,
+                    eventType = EventType.offline,
+                    eventHistory = new List<IEvent>()
                 },
                 searchState = new SearchState {
                     loading = false,
