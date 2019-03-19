@@ -39,7 +39,7 @@ namespace ConnectApp.components {
                                             margin: EdgeInsets.only(right: 12),
                                             height: 24,
                                             width: 24,
-                                            child: new Icon(personalItem.icon, size: 24, color: CColors.TextSecondary)
+                                            child: new Icon(personalItem.icon, size: 24, color: CColors.TextBody2)
                                         ),
                                         new Text(
                                             personalItem.title,

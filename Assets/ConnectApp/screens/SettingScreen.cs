@@ -116,7 +116,7 @@ namespace ConnectApp.screens {
                                 style: new TextStyle(
                                     fontSize: 16,
                                     fontFamily: "PingFang-Regular",
-                                    color: CColors.warning
+                                    color: CColors.Error
                                 )
                             )
                         }

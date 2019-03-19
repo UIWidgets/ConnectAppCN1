@@ -51,7 +51,7 @@ namespace ConnectApp.components {
                                     )
                                 ),
                                 new Container(
-                                    margin: EdgeInsets.only(top: 8, bottom:8),
+                                    margin: EdgeInsets.only(top: 8, bottom: 8),
                                     child: new Row(
                                         children: new List<Widget> {
                                             new Expanded(
@@ -69,11 +69,11 @@ namespace ConnectApp.components {
                                                 child: new ClipRRect(
                                                     borderRadius: BorderRadius.all(4),
                                                     child: new Container(
-                                                        color: Color.fromRGBO(245, 245, 245, 1),
+                                                        color: new Color(0xFFD8D8D8),
                                                         child: Image.network(article.thumbnail.url, fit: BoxFit.cover)
                                                     )
                                                 )
-                                            ),
+                                            )
                                         }
                                     )
                                 ),
@@ -81,13 +81,10 @@ namespace ConnectApp.components {
                                     child: new Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: new List<Widget> {
-                                            new Text(
-                                                $" {username} · {DateConvert.DateStringFromNow(article.publishedTime)} · {article.viewCount}",
-                                                style: new TextStyle(
-                                                    height: 1.67f,
-                                                    fontSize: 12,
-                                                    fontFamily: "PingFang-Regular",
-                                                    color: CColors.TextThird
+                                            new Expanded(
+                                                child: new Text(
+                                                    $" {username} · {DateConvert.DateStringFromNow(article.publishedTime)} · 阅读 {article.viewCount}",
+                                                    style: CTextStyle.TextBody3
                                                 )
                                             ),
                                             new CustomButton(
@@ -95,8 +92,8 @@ namespace ConnectApp.components {
                                                     height: 28,
                                                     child: new Icon(
                                                         Icons.ellipsis,
-                                                        size:20,
-                                                        color:Color.fromRGBO(181, 181, 181, 1)
+                                                        size: 20,
+                                                        color: CColors.BrownGrey
                                                     )
                                                 ),
                                                 onPressed: moreCallBack
