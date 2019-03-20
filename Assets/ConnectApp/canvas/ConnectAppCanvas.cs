@@ -45,7 +45,6 @@ namespace ConnectApp.canvas {
             }
         }
     }
-
     internal class Router : StatelessWidget {
         static readonly GlobalKey globalKey = GlobalKey.key(debugLabel: "main-router");
         public static NavigatorState navigator => globalKey.currentState as NavigatorState;
@@ -59,17 +58,17 @@ namespace ConnectApp.canvas {
             {"/setting", context => new SettingScreen()},
             {"/my-event", context => new MyEventsScreen()},
             {"/history", context => new HistoryScreen()},
-            {"/login", context => new LoginScreen()},
+            {"/login", context => new LoginSwitchScreen()},
             {"/bind-unity", context => new BindUnityScreen()}
         };
         
         private static Dictionary<string, WidgetBuilder> fullScreenRoutes => new Dictionary<string, WidgetBuilder> {
-            {"/login", context => new LoginScreen()}
+            {"/login", context => new LoginSwitchScreen()}
         };
 
         public override Widget build(BuildContext context) {
             return new Navigator(
-                globalKey,
+//                globalKey,
                 onGenerateRoute: (RouteSettings settings) => {
                     return new PageRouteBuilder(
                         settings,

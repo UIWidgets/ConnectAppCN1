@@ -4,6 +4,7 @@ using ConnectApp.models;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Newtonsoft.Json;
+using Unity.UIWidgets.widgets;
 using UnityEngine;
 
 namespace ConnectApp.redux.reducers {
@@ -55,7 +56,10 @@ namespace ConnectApp.redux.reducers {
                     var password = state.loginState.password;
                     LoginApi.LoginByEmail(email, password)
                         .Then(loginInfo => {
-                            StoreProvider.store.Dispatch(new LoginByEmailSuccessAction {loginInfo = loginInfo});
+                            StoreProvider.store.Dispatch(new LoginByEmailSuccessAction {
+                                loginInfo = loginInfo, 
+                                context = action.context
+                            });
                         })
                         .Catch(error => {
                             Debug.Log(error);
@@ -67,6 +71,8 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.loading = false;
                     state.loginState.loginInfo = action.loginInfo;
                     state.loginState.isLoggedIn = true;
+                    Navigator.pop(action.context);
+                    Navigator.pop(action.context);
                     break;
                 }
                 case LoginByEmailFailedAction action: {

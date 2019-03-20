@@ -23,14 +23,11 @@ namespace ConnectApp.screens {
                 onGenerateRoute: (RouteSettings settings) => {
                     return new PageRouteBuilder(
                         settings,
-                        (context1, animation, secondaryAnimation) => { return loginRoutes[settings.name](context1); },
-                        (context1, animation, secondaryAnimation, child) => {
-                            return new ModalPageTransition(
-                                routeAnimation: animation,
-                                child: child
-                            );
-                        }
-                    );
+                        (context1, animation, secondaryAnimation) => loginRoutes[settings.name](context1),
+                        (context1, animation, secondaryAnimation, child) => new PushPageTransition(
+                            routeAnimation: animation,
+                            child: child
+                        ));
                 }
             );
         }
@@ -136,7 +133,7 @@ namespace ConnectApp.screens {
                         ),
                         new Container(height: 16),
                         new CustomButton(
-                            onPressed: () => LoginScreen.navigator.pushNamed("/bind-unity"),
+                            onPressed: () => Navigator.pushNamed( context,"/bind-unity"),
                             child: new Container(
                                 height: 48,
                                 decoration: new BoxDecoration(

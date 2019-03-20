@@ -17,12 +17,12 @@ namespace ConnectApp.screens {
                         CColors.background1,
                         border: Border.all(CColors.Red)
                     ),
-                    child: renderTestView()
+                    child: renderTestView(context)
                 )
             );
         }
 
-        private static Widget renderTestView() {
+        private static Widget renderTestView(BuildContext context) {
             return new ListView(
                 children: new List<Widget> {
                     new Container(
@@ -37,7 +37,7 @@ namespace ConnectApp.screens {
                     ),
                     new Container(height: 10),
                     new GestureDetector(
-                        onTap: () => { StoreProvider.store.Dispatch(new LoginByEmailAction()); },
+                        onTap: () => { StoreProvider.store.Dispatch(new LoginByEmailAction{context = context}); },
                         child: new Container(
                             color: CColors.White,
                             child: new Text(
