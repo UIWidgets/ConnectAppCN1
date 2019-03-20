@@ -42,19 +42,20 @@ namespace ConnectApp.screens
     internal class _ArticleDetailScreenState : State<ArticleDetailScreen>
     {
 
-        private Article _article = null;
-        private User _user = null;
-        private string _channelId = null;
+        private Article _article = new Article();
+        private User _user = new User();
+        private string _channelId = "";
         private List<string> _channelComments = new List<string>();
         private List<Article> _relArticles = new List<Article>();
         private Dictionary<string, ContentMap> _contentMap = new Dictionary<string, ContentMap>();
-        private string _lastCommentId = null;
+        private string _lastCommentId = "";
         private bool _hasMore = false;
 
         
         public override void initState()
         {
             base.initState();
+            StoreProvider.store.state.articleState.detailId = "5c19bf85edbc2a1f80031c68";
             StoreProvider.store.Dispatch(new FetchArticleDetailAction()
                 {articleId = StoreProvider.store.state.articleState.detailId});
         }
