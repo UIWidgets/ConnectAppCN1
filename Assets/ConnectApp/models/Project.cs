@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine.Serialization;
 
-namespace ConnectApp.models
-{
+namespace ConnectApp.models {
     [Serializable]
-    public class Project
-    {
+    public class Project {
         public Article projectData;
         public List<string> pureContentIds;
         public List<Article> projects;
@@ -16,5 +13,5 @@ namespace ConnectApp.models
         public string channelId;
         public bool like;
         public bool edit;
-    }   
+    }
 }

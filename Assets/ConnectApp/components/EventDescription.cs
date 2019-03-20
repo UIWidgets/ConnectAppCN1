@@ -31,14 +31,14 @@ namespace ConnectApp.components {
 
             var cont = JsonConvert.DeserializeObject<EventContent>(content);
             return new Column(
-                crossAxisAlignment:CrossAxisAlignment.start,
-                children: map(context,cont)
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: map(cont)
             );
         }
 
-        private List<Widget> map(BuildContext context,EventContent content) {
+        private List<Widget> map(EventContent content) {
             var widgets = new List<Widget>();
-            
+
             var blocks = content.blocks;
             for (var i = 0; i < blocks.Count; i++) {
                 var block = blocks[i];
@@ -46,19 +46,19 @@ namespace ConnectApp.components {
                 var text = block.text;
                 switch (type) {
                     case "header-one":
-                        widgets.Add(_H1(context,text));
+                        widgets.Add(_H1(text));
                         break;
                     case "header-two":
-                        widgets.Add(_H2(context,text));
+                        widgets.Add(_H2(text));
                         break;
                     case "blockquote":
-                        widgets.Add(_QuoteBlock(context,text));
+                        widgets.Add(_QuoteBlock(text));
                         break;
                     case "code-block":
-                        widgets.Add(_CodeBlock(context,text));
+                        widgets.Add(_CodeBlock(text));
                         break;
                     case "unstyled":
-                        if (text != null) widgets.Add(_Unstyled(context,text));
+                        if (text != null) widgets.Add(_Unstyled(text));
                         break;
                     case "unordered-list-item": {
                         string[] items = {block.text};
@@ -68,7 +68,7 @@ namespace ConnectApp.components {
                             i++;
                         }
 
-                        widgets.Add(_UnorderedList(context,items));
+                        widgets.Add(_UnorderedList(items));
                     }
                         break;
                     case "ordered-list-item": {
@@ -79,14 +79,14 @@ namespace ConnectApp.components {
                             i++;
                         }
 
-                        widgets.Add(_OrderedList(context,items));
+                        widgets.Add(_OrderedList(items));
                     }
                         break;
                     case "atomic": {
                         var key = block.entityRanges.first().key.ToString();
                         var data = content.entityMap[key].data;
                         var map = contentMap[data.contentId];
-                        widgets.Add(_Atomic(context,block.type, data.title, map.originalImage==null?"":map.originalImage.url));
+                        widgets.Add(_Atomic(block.type, data.title, map.originalImage?.url));
                     }
                         break;
                 }
@@ -96,9 +96,9 @@ namespace ConnectApp.components {
             return widgets;
         }
 
-        private Widget _H1(BuildContext context,string text) {
+        private Widget _H1(string text) {
             return new Container(
-                padding:EdgeInsets.only(top:16,left:16,right:16),
+                padding: EdgeInsets.only(top: 16, left: 16, right: 16),
                 margin: EdgeInsets.only(bottom: 24),
                 child: new Text(
                     text,
@@ -112,9 +112,9 @@ namespace ConnectApp.components {
             );
         }
 
-        private Widget _H2(BuildContext context,string text) {
+        private Widget _H2(string text) {
             return new Container(
-                padding:EdgeInsets.only(top:16,left:16,right:16),
+                padding: EdgeInsets.only(top: 16, left: 16, right: 16),
                 margin: EdgeInsets.only(bottom: 24),
                 child: new Text(
                     text,
@@ -127,9 +127,9 @@ namespace ConnectApp.components {
             );
         }
 
-        private Widget _Unstyled(BuildContext context,string text) {
+        private Widget _Unstyled(string text) {
             return new Container(
-                padding:EdgeInsets.only(left:16,right:16),
+                padding: EdgeInsets.only(left: 16, right: 16),
                 margin: EdgeInsets.only(bottom: 24),
                 child: new Text(
                     text,
@@ -138,14 +138,13 @@ namespace ConnectApp.components {
             );
         }
 
-        private Widget _CodeBlock(BuildContext context, string text) {
+        private Widget _CodeBlock(string text) {
             return new Container(
                 decoration: new BoxDecoration(
-                    color:Color.fromRGBO(110,198,255,0.12f)
+                    color: Color.fromRGBO(110, 198, 255, 0.12f)
                 ),
-                width:MediaQuery.of(context).size.width,
                 padding: EdgeInsets.only(
-                    bottom: 24,left:16,right:16
+                    bottom: 24, left: 16, right: 16
                 ),
                 child: new Container(
                     child: new Text(
@@ -157,18 +156,18 @@ namespace ConnectApp.components {
         }
 
 
-        private Widget _QuoteBlock(BuildContext context,string text) {
+        private Widget _QuoteBlock(string text) {
             return new Container(
                 margin: EdgeInsets.only(bottom: 24, left: 24),
                 decoration: new BoxDecoration(
                     border: new Border(
                         left: new BorderSide(
-                            Color.fromRGBO(60,131,212,0.3f),
+                            Color.fromRGBO(60, 131, 212, 0.3f),
                             16
                         )
                     )
                 ),
-                padding:EdgeInsets.only(left:4,right:16),
+                padding: EdgeInsets.only(left: 4, right: 16),
                 child: new Container(
                     child: new Text(
                         text,
@@ -178,7 +177,7 @@ namespace ConnectApp.components {
             );
         }
 
-        private Widget _Atomic(BuildContext context,string type, string title, string url) {
+        private Widget _Atomic(string type, string title, string url) {
             var nodes = new List<Widget>() {
                 Image.network(url)
             };
@@ -208,13 +207,13 @@ namespace ConnectApp.components {
 
             return new Container(
                 margin: EdgeInsets.only(bottom: 32),
-                child: new Container(padding:EdgeInsets.only(left:16,right:16),
-                    child:new Column(children: nodes))
+                child: new Container(padding: EdgeInsets.only(left: 16, right: 16),
+                    child: new Column(children: nodes))
             );
         }
 
 
-        private Widget _OrderedList(BuildContext context,string[] items) {
+        private Widget _OrderedList(string[] items) {
             var widgets = new List<Widget>();
 
             for (var i = 0; i < items.Length; i++) {
@@ -230,7 +229,7 @@ namespace ConnectApp.components {
                 };
                 widgets.Add(
                     new Container(
-                        padding:EdgeInsets.only(left:16,right:16),
+                        padding: EdgeInsets.only(left: 16, right: 16),
                         margin: EdgeInsets.only(top: i == 0 ? 0 : 8),
                         child: new RichText(
                             text: new TextSpan(
@@ -247,7 +246,7 @@ namespace ConnectApp.components {
                 child: new Column(crossAxisAlignment: CrossAxisAlignment.start, children: widgets));
         }
 
-        private Widget _UnorderedList(BuildContext context,string[] items) {
+        private Widget _UnorderedList(string[] items) {
             var widgets = new List<Widget>();
 
             for (var i = 0; i < items.Length; i++) {
@@ -262,7 +261,8 @@ namespace ConnectApp.components {
                     ),
                 };
                 widgets.Add(
-                    new Container(padding:EdgeInsets.only(left:16,right:16),margin: EdgeInsets.only(top: i == 0 ? 0 : 8),
+                    new Container(padding: EdgeInsets.only(left: 16, right: 16),
+                        margin: EdgeInsets.only(top: i == 0 ? 0 : 8),
                         child: new RichText(
                             text: new TextSpan(
                                 style: CTextStyle.TextBody1,

@@ -9,7 +9,6 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using Image = Unity.UIWidgets.widgets.Image;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
     public class ArticleCard : StatelessWidget {
@@ -40,7 +39,7 @@ namespace ConnectApp.components {
                     child: new Container(
                         child: new Column(
                             mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment:CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: new List<Widget> {
                                 new Container(
                                     child: new Text(

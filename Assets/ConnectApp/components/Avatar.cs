@@ -1,14 +1,14 @@
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.widgets;
 using Unity.UIWidgets.ui;
+using Unity.UIWidgets.widgets;
 using Image = Unity.UIWidgets.widgets.Image;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
-using System.Text.RegularExpressions;
 
 namespace ConnectApp.components {
     public class Avatar : StatelessWidget {
@@ -27,7 +27,9 @@ namespace ConnectApp.components {
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, User>(
-                converter: (state, dispatch) => state.userState.userDict.ContainsKey(userId) ? state.userState.userDict[userId] : new User(),
+                converter: (state, dispatch) => state.userState.userDict.ContainsKey(userId)
+                    ? state.userState.userDict[userId]
+                    : new User(),
                 builder: (_context, viewModel) => {
                     var avatarUrl = viewModel.avatar ?? "";
                     var fullName = viewModel.fullName;
@@ -47,26 +49,20 @@ namespace ConnectApp.components {
                 }
             );
         }
-        
+
         private static string _extractName(string name) {
-            if (name == null || name.Length <= 0) {
-                return "";
-            }
+            if (name == null || name.Length <= 0) return "";
             name = name.Trim();
             var regex = new Regex(@"^\W+");
-            if (regex.IsMatch(name)) {
-                return name[0].ToString();
-            }
+            if (regex.IsMatch(name)) return name[0].ToString();
             var sep = name.IndexOf(" ") > 0 ? ' ' : ',';
             var tokens = name.Split(sep);
             var length = tokens.Length;
-            if (length > 1) {
-                return $"{tokens[0][0]}{tokens[length - 1][0]}";
-            }
+            if (length > 1) return $"{tokens[0][0]}{tokens[length - 1][0]}";
             return tokens[0][0].ToString();
         }
     }
-    
+
     internal class _Placeholder : StatelessWidget {
         public _Placeholder(
             string title,

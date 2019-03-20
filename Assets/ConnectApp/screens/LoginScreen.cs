@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
 using Unity.UIWidgets.painting;
@@ -7,6 +8,31 @@ using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
     public class LoginScreen : StatelessWidget {
+        private static readonly GlobalKey globalKey = GlobalKey.key(debugLabel: "login-router");
+        public static NavigatorState navigator => globalKey.currentState as NavigatorState;
+
+        private static Dictionary<string, WidgetBuilder> loginRoutes => new Dictionary<string, WidgetBuilder> {
+            {"/", context => new LoginSwitchScreen()},
+            {"/bind-unity", context => new BindUnityScreen()}
+        };
+
+        public override Widget build(BuildContext context) {
+            return new Navigator(
+                globalKey,
+                onGenerateRoute: (RouteSettings settings) => {
+                    return new PageRouteBuilder(
+                        settings,
+                        (context1, animation, secondaryAnimation) => loginRoutes[settings.name](context1),
+                        (context1, animation, secondaryAnimation, child) => new PushPageTransition(
+                            routeAnimation: animation,
+                            child: child
+                        ));
+                }
+            );
+        }
+    }
+
+    public class LoginSwitchScreen : StatelessWidget {
         public override Widget build(BuildContext context) {
             return _content(context);
         }

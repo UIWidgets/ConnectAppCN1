@@ -1,12 +1,12 @@
 using System;
 using System.Collections;
 using ConnectApp.constants;
+using ConnectApp.models;
+using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.ui;
 using UnityEngine.Networking;
-using ConnectApp.models;
-using Newtonsoft.Json;
 
 namespace ConnectApp.api {
     public static class NotificationApi {

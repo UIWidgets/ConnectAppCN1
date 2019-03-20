@@ -4,9 +4,8 @@ using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.widgets;
 using Unity.UIWidgets.rendering;
-using Icons = ConnectApp.constants.Icons;
+using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
     public class PersonalScreen : StatelessWidget {
@@ -17,8 +16,8 @@ namespace ConnectApp.screens {
                     converter: (state, dispatch) => state.loginState,
                     builder: (_context, viewModel) => {
                         var isLoggedIn = viewModel.isLoggedIn;
-                        var navigationBar = isLoggedIn 
-                            ? _buildLoginInNavigationBar(viewModel) 
+                        var navigationBar = isLoggedIn
+                            ? _buildLoginInNavigationBar(viewModel)
                             : _buildNotLoginInNavigationBar(context);
 
                         return new Column(
@@ -81,7 +80,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         private static Widget _buildLoginInNavigationBar(LoginState loginState) {
             var loginInfo = loginState.loginInfo;
             return new CustomNavigationBar(
@@ -110,7 +109,8 @@ namespace ConnectApp.screens {
             List<PersonalCardItem> personalCardItems = new List<PersonalCardItem> {
                 new PersonalCardItem(Icons.book, "我的收藏", () => {
                     if (isLoginIn) {
-                    } else {
+                    }
+                    else {
                         Navigator.pushNamed(context, "/login");
                     }
                 }),

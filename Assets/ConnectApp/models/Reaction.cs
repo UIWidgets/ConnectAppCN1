@@ -1,10 +1,8 @@
 using System;
 
-namespace ConnectApp.models
-{
+namespace ConnectApp.models {
     [Serializable]
-    public class Reaction
-    {
+    public class Reaction {
         public string id;
         public string type;
         public string messageId;

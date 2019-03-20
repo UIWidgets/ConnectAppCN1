@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Unity.UIWidgets.service;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
@@ -88,15 +88,11 @@ namespace ConnectApp.components {
             base.initState();
             _textEditingController = new TextEditingController("");
             _focusNode = new FocusNode();
-            if (widget.controller != null) { 
-                widget.controller.addListener(_controllerListener);
-            }
+            if (widget.controller != null) widget.controller.addListener(_controllerListener);
         }
-        
+
         public override void dispose() {
-            if (widget.controller != null) { 
-                widget.controller.removeListener(_controllerListener);
-            }
+            if (widget.controller != null) widget.controller.removeListener(_controllerListener);
             base.dispose();
         }
 

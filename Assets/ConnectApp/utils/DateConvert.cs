@@ -3,7 +3,7 @@ using System;
 namespace ConnectApp.utils {
     public static class DateConvert {
         public static string DateStringFromNow(DateTime dt) {
-            var span = DateTime.UtcNow - dt;
+            TimeSpan span = DateTime.UtcNow - dt;
             if (span.TotalDays > 3)
                 return dt.ToString("yyyy-MM-dd");
             else if (span.TotalDays > 1)
@@ -15,16 +15,14 @@ namespace ConnectApp.utils {
             else
                 return "刚刚";
         }
-        
-        public static string DateStringFromNonce(string nonce)
-        {
+
+        public static string DateStringFromNonce(string nonce) {
             var startTime =System.TimeZoneInfo.ConvertTime(new System.DateTime(2016, 1, 1), TimeZoneInfo.Local);
-            var span = Convert.ToInt64(nonce,16);
+            var span = Convert.ToInt64(nonce, 16);
             var shifted = (span + 1) >> 22;
             var timespan = (shifted - 1);
             var dt = startTime.AddMilliseconds(timespan);
-            return DateStringFromNow(dt) ;
+            return DateStringFromNow(dt);
         }
-
     }
 }

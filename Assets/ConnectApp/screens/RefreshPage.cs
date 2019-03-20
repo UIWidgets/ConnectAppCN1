@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using ConnectApp.components.refresh;
 using ConnectApp.constants;
@@ -6,7 +5,6 @@ using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.scheduler;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {

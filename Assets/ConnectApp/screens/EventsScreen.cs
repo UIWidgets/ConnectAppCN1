@@ -39,8 +39,8 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             if (StoreProvider.store.state.eventState.events.Count == 0) {
-                StoreProvider.store.Dispatch(new FetchEventsAction {pageNumber = 1,tab = "ongoing"});
-                StoreProvider.store.Dispatch(new FetchEventsAction {pageNumber = 1,tab = "completed"});
+                StoreProvider.store.Dispatch(new FetchEventsAction {pageNumber = 1, tab = "ongoing"});
+                StoreProvider.store.Dispatch(new FetchEventsAction {pageNumber = 1, tab = "completed"});
             }
 
             _pageController = new PageController();
@@ -142,9 +142,9 @@ namespace ConnectApp.screens {
         private Widget buildSelectView(BuildContext context) {
             return new Container(
                 child: new Container(
-                    decoration:new BoxDecoration(
-                        border:new Border(bottom:new BorderSide(CColors.Separator2))
-                        ),
+                    decoration: new BoxDecoration(
+                        border: new Border(bottom: new BorderSide(CColors.Separator2))
+                    ),
                     height: 44,
                     child: new Row(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -181,8 +181,10 @@ namespace ConnectApp.screens {
                                 cardList.Add(new EventCard(
                                     model,
                                     () => {
-                                        StoreProvider.store.Dispatch(new NavigatorToEventDetailAction
-                                            {eventId = model.id, eventType = model.live ? EventType.onLine : EventType.offline});
+                                        StoreProvider.store.Dispatch(new NavigatorToEventDetailAction {
+                                            eventId = model.id,
+                                            eventType = model.live ? EventType.onLine : EventType.offline
+                                        });
                                         Navigator.pushNamed(context, "/event-detail");
                                     },new ObjectKey(model.id)));
                             });
@@ -199,12 +201,11 @@ namespace ConnectApp.screens {
                                 itemBuilder:(cxt,index) => cardList[index]
                             )
                         );
-                        
                     }
                 )
             );
         }
-        
+
         private Widget _completedEventList(BuildContext context) {
             return new Container(
                 child: new StoreConnector<AppState, Dictionary<string, object>>(
@@ -230,8 +231,10 @@ namespace ConnectApp.screens {
                                 cardList.Add(new EventCard(
                                     model,
                                     () => {
-                                        StoreProvider.store.Dispatch(new NavigatorToEventDetailAction
-                                            {eventId = model.id, eventType = model.live ? EventType.onLine : EventType.offline});
+                                        StoreProvider.store.Dispatch(new NavigatorToEventDetailAction {
+                                            eventId = model.id,
+                                            eventType = model.live ? EventType.onLine : EventType.offline
+                                        });
                                         Navigator.pushNamed(context, "/event-detail");
                                     }));
                             });
@@ -247,12 +250,11 @@ namespace ConnectApp.screens {
                                 children: cardList
                             )
                         );
-                        
                     }
                 )
             );
         }
-        
+
         private Widget buildContentView(BuildContext context) {
             return new Flexible(
                 child: new Container(
@@ -268,38 +270,33 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         private IPromise onHeaderRefresh() {
-            if (_selectedIndex == 0) {
+            if (_selectedIndex == 0)
                 pageNumber = 1;
-            } else {
+            else
                 completedPageNumber = 1;
-            }
 
             var tab = _selectedIndex == 0 ? "ongoing" : "completed";
-            return EventApi.FetchEvents(_selectedIndex==0 ? pageNumber : completedPageNumber, tab)
+            return EventApi.FetchEvents(_selectedIndex == 0 ? pageNumber : completedPageNumber, tab)
                 .Then(events => {
-                    StoreProvider.store.Dispatch(new FetchEventsSuccessAction {events = events, tab = tab, pageNumber = 1});
+                    StoreProvider.store.Dispatch(new FetchEventsSuccessAction
+                        {events = events, tab = tab, pageNumber = 1});
                 })
-                .Catch(error => {
-                    Debug.Log(error);
-                });
+                .Catch(error => { Debug.Log(error); });
         }
 
         private IPromise onFooterRefresh() {
-            if (_selectedIndex == 0) {
+            if (_selectedIndex == 0)
                 pageNumber++;
-            } else {
+            else
                 completedPageNumber++;
-            }
             var tab = _selectedIndex == 0 ? "ongoing" : "completed";
             return EventApi.FetchEvents(_selectedIndex == 0 ? pageNumber : completedPageNumber, tab)
                 .Then(events => {
                     StoreProvider.store.Dispatch(new FetchEventsSuccessAction {events = events, tab = tab});
                 })
-                .Catch(error => {
-                    Debug.Log(error);
-                });
+                .Catch(error => { Debug.Log(error); });
         }
 
         public override void dispose() {

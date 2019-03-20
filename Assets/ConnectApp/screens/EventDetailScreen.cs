@@ -29,7 +29,7 @@ namespace ConnectApp.screens {
             StoreProvider.store.Dispatch(new FetchEventDetailAction
                 {eventId = StoreProvider.store.state.eventState.detailId});
         }
-        
+
         public override void dispose() {
             StoreProvider.store.Dispatch(new ClearEventDetailAction());
             base.dispose();
@@ -37,7 +37,7 @@ namespace ConnectApp.screens {
 
         private static Widget _buildHeaderView(BuildContext context, IEvent eventObj, EventType eventType) {
             var bottomWidget = new Container();
-            if (eventType == EventType.onLine) {
+            if (eventType == EventType.onLine)
                 bottomWidget = new Container(
                     height: 40,
                     padding: EdgeInsets.symmetric(horizontal: 16),
@@ -62,7 +62,6 @@ namespace ConnectApp.screens {
                         }
                     )
                 );
-            }
 
             return new Container(
                 color: CColors.Black,
@@ -101,7 +100,7 @@ namespace ConnectApp.screens {
                                                     ),
                                                     onPressed: () => {
                                                         ShareUtils.showShareView(context, new ShareView());
-                                                     }
+                                                    }
                                                 )
                                             }
                                         )
@@ -110,7 +109,7 @@ namespace ConnectApp.screens {
                                 }
                             )
                         }
-                    )     
+                    )
                 )
             );
         }
@@ -199,7 +198,7 @@ namespace ConnectApp.screens {
                 }
             );
         }
-        
+
         private static Widget _buildOfflineRegisterNow(BuildContext context, IEvent eventObj, bool isLoggedIn) {
             var buttonText = "立即报名";
             var isEnabled = false;
@@ -207,6 +206,7 @@ namespace ConnectApp.screens {
                 buttonText = "已报名";
                 isEnabled = true;
             }
+
             return new Container(
                 color: CColors.White,
                 height: 64,
@@ -215,11 +215,10 @@ namespace ConnectApp.screens {
                     onPressed: () => {
                         if (isEnabled) return;
 
-                        if (isLoggedIn) {
-                            StoreProvider.store.Dispatch(new JoinEventAction{eventId = eventObj.id});
-                        } else {
+                        if (isLoggedIn)
+                            StoreProvider.store.Dispatch(new JoinEventAction {eventId = eventObj.id});
+                        else
                             Navigator.pushNamed(context, "/login");
-                        }
                     },
                     child: new Container(
                         decoration: new BoxDecoration(
@@ -273,7 +272,9 @@ namespace ConnectApp.screens {
                         );
                     var bottomWidget = eventType == EventType.offline
                         ? _buildOfflineRegisterNow(context, eventObj, isLoggedIn)
-                        : !showChatWindow ? _buildChatWindow() : _buildJoinBar(eventObj);
+                        : !showChatWindow
+                            ? _buildChatWindow()
+                            : _buildJoinBar(eventObj);
 
                     return new Container(
                         color: CColors.White,

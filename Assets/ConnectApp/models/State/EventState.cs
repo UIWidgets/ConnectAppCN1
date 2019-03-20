@@ -6,7 +6,7 @@ namespace ConnectApp.models {
         onLine,
         offline
     }
-    
+
     [Serializable]
     public class EventState {
         public bool eventsLoading { get; set; }
