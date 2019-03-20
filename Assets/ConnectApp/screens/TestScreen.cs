@@ -37,7 +37,7 @@ namespace ConnectApp.screens {
                     ),
                     new Container(height: 10),
                     new GestureDetector(
-                        onTap: () => { StoreProvider.store.Dispatch(new LoginByEmailAction{context = context}); },
+                        onTap: () => { StoreProvider.store.Dispatch(new LoginByEmailAction {context = context}); },
                         child: new Container(
                             color: CColors.White,
                             child: new Text(

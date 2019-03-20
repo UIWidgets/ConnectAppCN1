@@ -1,68 +1,67 @@
+using System.Collections.Generic;
 using ConnectApp.api;
-using ConnectApp.constants;
 using ConnectApp.components;
 using ConnectApp.components.refresh;
+using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
-using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.widgets;
-using Unity.UIWidgets.service;
-using System.Collections.Generic;
-using Unity.UIWidgets.painting;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
-using Unity.UIWidgets.rendering;
-using UnityEngine;
 using RSG;
+using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.painting;
+using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.service;
+using Unity.UIWidgets.widgets;
+using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.screens {
     public class SearchScreen : StatefulWidget {
-
         public SearchScreen(
             Key key = null
         ) : base(key) {
-            
         }
-        public override State createState() => new _SearchScreenState();
+
+        public override State createState() {
+            return new _SearchScreenState();
+        }
     }
 
     internal class _SearchScreenState : State<SearchScreen> {
-        
         private readonly TextEditingController _controller = new TextEditingController(null);
         private int pageNumber = 0;
-        
+
         public override void initState() {
             base.initState();
             StoreProvider.store.Dispatch(new GetSearchHistoryAction());
         }
-        
+
         public override void dispose() {
             _clearSearchArticle();
             base.dispose();
         }
-        
+
         private void _searchArticle(string text) {
             if (text.isEmpty()) return;
             _saveSearchHistory(text);
             _controller.text = text;
-            StoreProvider.store.Dispatch(new SearchArticleAction{keyword = text});
+            StoreProvider.store.Dispatch(new SearchArticleAction {keyword = text});
         }
-        
+
         private static void _clearSearchArticle() {
             StoreProvider.store.Dispatch(new ClearSearchArticleAction());
         }
 
         private static void _saveSearchHistory(string text) {
             if (text.isEmpty()) return;
-            StoreProvider.store.Dispatch(new SaveSearchHistoryAction{keyword = text});
+            StoreProvider.store.Dispatch(new SaveSearchHistoryAction {keyword = text});
         }
-        
+
         private static void _deleteSearchHistory(string text) {
             if (text.isEmpty()) return;
-            StoreProvider.store.Dispatch(new DeleteSearchHistoryAction{keyword = text});
+            StoreProvider.store.Dispatch(new DeleteSearchHistoryAction {keyword = text});
         }
-        
+
         private static void _deleteAllSearchHistory() {
             StoreProvider.store.Dispatch(new DeleteAllSearchHistoryAction());
         }
@@ -95,7 +94,7 @@ namespace ConnectApp.screens {
 
                                         if (viewModel.keyword.Length > 0) {
                                             var searchArticles = viewModel.searchArticles;
-                                            if (searchArticles.Count > 0) {
+                                            if (searchArticles.Count > 0)
                                                 return new Refresh(
                                                     onHeaderRefresh: () => {
                                                         pageNumber = 0;
@@ -116,9 +115,9 @@ namespace ConnectApp.screens {
                                                         }
                                                     )
                                                 );
-                                            }
                                             return new BlankView("暂无搜索结果");
                                         }
+
                                         return new ListView(
                                             children: new List<Widget> {
                                                 _buildSearchHistory(viewModel.searchHistoryList),
@@ -144,7 +143,7 @@ namespace ConnectApp.screens {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: new List<Widget> {
                         new CustomButton(
-                            padding: EdgeInsets.only(8, 8, 0,8),
+                            padding: EdgeInsets.only(8, 8, 0, 8),
                             onPressed: () => { Navigator.pop(context); },
                             child: new Text(
                                 "取消",
@@ -172,9 +171,7 @@ namespace ConnectApp.screens {
                             cursorColor: CColors.PrimaryBlue,
                             textInputAction: TextInputAction.search,
                             onChanged: text => {
-                                if (text == null || text.Length <= 0) {
-                                    _clearSearchArticle();
-                                }
+                                if (text == null || text.Length <= 0) _clearSearchArticle();
                             },
                             onSubmitted: _searchArticle
                         )
@@ -182,7 +179,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         private Widget _buildHotSearch() {
             List<string> hotSearch = new List<string> {
                 "Unity", "Animation", "AR", "Icon", "Component", "Flutter", "C#"
@@ -199,7 +196,7 @@ namespace ConnectApp.screens {
                         height: 32,
                         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                         child: new Text(
-                            item, 
+                            item,
                             style: new TextStyle(
                                 fontSize: 16,
                                 color: CColors.TextBody,
@@ -236,11 +233,9 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         private Widget _buildSearchHistory(List<string> searchHistoryList) {
-            if (searchHistoryList.Count <= 0) {
-                return new Container();
-            }
+            if (searchHistoryList.Count <= 0) return new Container();
 
             var widgets = new List<Widget>();
             widgets.Add(
@@ -258,7 +253,7 @@ namespace ConnectApp.screens {
                                 )
                             ),
                             new CustomButton(
-                                padding: EdgeInsets.only(8, 8, 0,8),
+                                padding: EdgeInsets.only(8, 8, 0, 8),
                                 onPressed: _deleteAllSearchHistory,
                                 child: new Text(
                                     "清空",
@@ -291,7 +286,7 @@ namespace ConnectApp.screens {
                                     )
                                 ),
                                 new CustomButton(
-                                    padding: EdgeInsets.only(8, 8, 0,8),
+                                    padding: EdgeInsets.only(8, 8, 0, 8),
                                     onPressed: () => _deleteSearchHistory(item),
                                     child: new Icon(
                                         Icons.close,

@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using ConnectApp.constants;
-using ConnectApp.models;
-using ConnectApp.utils;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
+using ConnectApp.utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -22,9 +21,7 @@ namespace ConnectApp.components {
         public readonly Notification notification;
 
         public override Widget build(BuildContext context) {
-            if (notification == null) {
-                return new Container();
-            }
+            if (notification == null) return new Container();
 
             var data = notification.data;
             return new GestureDetector(
@@ -66,22 +63,21 @@ namespace ConnectApp.components {
                 )
             );
         }
-        
+
         private Widget _buildNotificationTitle() {
             var type = notification.type;
             var data = notification.data;
             var subTitle = new TextSpan();
-            if (type == "project_liked") {
+            if (type == "project_liked")
                 subTitle = new TextSpan(
-                    $"点赞了你的{data.projectTitle}文章", 
+                    $"点赞了你的{data.projectTitle}文章",
                     new TextStyle(
                         fontSize: 16,
                         fontFamily: "PingFang-Regular",
                         color: CColors.TextBody2
                     )
                 );
-            }
-            
+
             return new Container(
                 child: new RichText(
                     text: new TextSpan(
@@ -100,7 +96,7 @@ namespace ConnectApp.components {
                 )
             );
         }
-        
+
         private Widget _buildNotificationTime() {
             var createdTime = notification.createdTime;
             return new Container(

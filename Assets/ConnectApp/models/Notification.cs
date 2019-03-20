@@ -12,7 +12,7 @@ namespace ConnectApp.models {
         public DateTime createdTime;
         public DateTime updatedTime;
     }
-    
+
     [Serializable]
     public class NotificationData {
         public string id;

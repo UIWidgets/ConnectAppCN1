@@ -2,11 +2,11 @@ using System;
 using System.Collections;
 using ConnectApp.constants;
 using ConnectApp.models;
+using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.ui;
 using UnityEngine.Networking;
-using Newtonsoft.Json;
 
 namespace ConnectApp.api {
     public static class SearchApi {
@@ -17,7 +17,8 @@ namespace ConnectApp.api {
             return promise;
         }
 
-        private static IEnumerator _SearchArticle(Promise<FetchSearchResponse> promise, string keyword, int pageNumber) {
+        private static IEnumerator
+            _SearchArticle(Promise<FetchSearchResponse> promise, string keyword, int pageNumber) {
             var request = UnityWebRequest.Get(IApi.apiAddress +
                                               $"/api/search?t=project&projectType=article&k=[%22q:{keyword}%22]&searchAllLoadMore=false&page={pageNumber}");
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");

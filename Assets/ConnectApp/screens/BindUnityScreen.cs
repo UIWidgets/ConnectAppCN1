@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
@@ -44,9 +43,7 @@ namespace ConnectApp.screens {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: new List<Widget> {
                                 new CustomButton(
-                                    onPressed: () => {
-                                        Navigator.pop(context);
-                                    },
+                                    onPressed: () => { Navigator.pop(context); },
                                     child: new Text(
                                         "跳过",
                                         style: new TextStyle(
@@ -200,7 +197,8 @@ namespace ConnectApp.screens {
                                             onSubmitted: (text) => {
                                                 _emailFocusNode.unfocus();
                                                 _passwordFocusNode.unfocus();
-                                                StoreProvider.store.Dispatch(new LoginByEmailAction{context = context});
+                                                StoreProvider.store.Dispatch(new LoginByEmailAction
+                                                    {context = context});
                                             }
                                         )
                                     );
@@ -223,7 +221,7 @@ namespace ConnectApp.screens {
                             onPressed: () => {
                                 _emailFocusNode.unfocus();
                                 _passwordFocusNode.unfocus();
-                                StoreProvider.store.Dispatch(new LoginByEmailAction{context = context});
+                                StoreProvider.store.Dispatch(new LoginByEmailAction {context = context});
                             },
                             child: new StoreConnector<AppState, Dictionary<string, object>>(
                                 converter: (state, dispatch) => new Dictionary<string, object> {

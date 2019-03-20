@@ -1,8 +1,8 @@
-using ConnectApp.constants;
 using System.Collections.Generic;
+using ConnectApp.constants;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.widgets;
 using Unity.UIWidgets.ui;
+using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.components {
     public class ArticleLoading : StatelessWidget {

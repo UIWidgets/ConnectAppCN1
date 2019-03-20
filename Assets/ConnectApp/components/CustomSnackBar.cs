@@ -1,22 +1,20 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
-using Unity.UIWidgets.material;
-using Unity.UIWidgets.widgets;
-using Unity.UIWidgets.painting;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
-using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.animation;
-using Unity.UIWidgets.ui;
-using Unity.UIWidgets.async;
-using Unity.UIWidgets.scheduler;
-using Unity.UIWidgets.rendering;
 using RSG;
+using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async;
+using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.material;
+using Unity.UIWidgets.painting;
+using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.ui;
+using Unity.UIWidgets.widgets;
+using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
-    
     internal class _SnackBarRoute : OverlayRoute {
-        
         public _SnackBarRoute(
             ThemeData theme = null,
             CustomSnackBar customSnackBar = null,
@@ -24,21 +22,19 @@ namespace ConnectApp.components {
         ) : base(settings) {
             this.theme = theme;
             this.customSnackBar = customSnackBar;
-            this._builder = new Builder(builder: innerContext => customSnackBar);
+            _builder = new Builder(builder: innerContext => customSnackBar);
         }
 
         private readonly ThemeData theme;
         private readonly CustomSnackBar customSnackBar;
-        
+
         private readonly Builder _builder;
         private Alignment _initialAlignment = new Alignment(-1, 2);
         private Alignment _endAlignment = new Alignment(-1, 1);
         private Timer _timer;
-        
-        public bool opaque {
-            get { return false; }
-        }
-        
+
+        public bool opaque => false;
+
         public override ICollection<OverlayEntry> createOverlayEntries() {
             return new List<OverlayEntry> {
                 new OverlayEntry(
@@ -47,12 +43,11 @@ namespace ConnectApp.components {
                             alignment: animation,
                             child: _builder
                         );
-                        if (theme != null) {
+                        if (theme != null)
                             return new Theme(
                                 data: theme,
                                 child: annotatedChild
                             );
-                        }
                         return annotatedChild;
                     },
                     maintainState: false,
@@ -60,23 +55,17 @@ namespace ConnectApp.components {
                 )
             };
         }
-        
-        protected override bool finishedWhenPopped {
-            get { return controller.status == AnimationStatus.dismissed; }
-        }
-        
-        private Animation<Alignment> animation {
-            get { return _animation; }
-        }
+
+        protected override bool finishedWhenPopped => controller.status == AnimationStatus.dismissed;
+
+        private Animation<Alignment> animation => _animation;
         private Animation<Alignment> _animation;
-        
-        private AnimationController controller {
-            get { return _controller; }
-        }
+
+        private AnimationController controller => _controller;
         private AnimationController _controller;
-        
+
         private AnimationController createAnimationController() {
-            var duration = new TimeSpan(0,0,1);
+            var duration = new TimeSpan(0, 0, 1);
             D.assert(duration != null && duration >= TimeSpan.Zero);
             return new AnimationController(
                 duration: duration,
@@ -84,7 +73,7 @@ namespace ConnectApp.components {
                 vsync: navigator
             );
         }
-        
+
         private Animation<Alignment> createAnimation() {
             D.assert(_controller != null);
             return new AlignmentTween(_initialAlignment, _endAlignment).animate(
@@ -95,17 +84,18 @@ namespace ConnectApp.components {
                 )
             );
         }
-        
+
         protected override void install(OverlayEntry insertionPoint) {
             _controller = createAnimationController();
-            D.assert(_controller != null,$"runtimeType.createAnimationController() returned null.");
+            D.assert(_controller != null, $"runtimeType.createAnimationController() returned null.");
             _animation = createAnimation();
             D.assert(_animation != null, "runtimeType.createAnimation() returned null.");
             base.install(insertionPoint);
         }
-        
+
         protected override TickerFuture didPush() {
-            D.assert(_controller != null,"runtimeType.didPush called before calling install() or after calling dispose().");
+            D.assert(_controller != null,
+                "runtimeType.didPush called before calling install() or after calling dispose().");
             _configureTimer();
             return _controller.forward();
         }
@@ -117,19 +107,13 @@ namespace ConnectApp.components {
             _controller.reverse();
             return base.didPop(result);
         }
-        
+
         private void _configureTimer() {
-            if (_timer != null) {
-                return;
-            }
-            _timer = Window.instance.run(customSnackBar.duration, () => {
-                navigator.pop();
-            });
+            if (_timer != null) return;
+            _timer = Window.instance.run(customSnackBar.duration, () => { navigator.pop(); });
         }
 
-        public static string debugLabel {
-            get { return "runtimeType"; }
-        }
+        public static string debugLabel => "runtimeType";
     }
 
     public class CustomSnackBar : StatefulWidget {
@@ -141,6 +125,7 @@ namespace ConnectApp.components {
             this.message = message;
             this.duration = duration;
         }
+
         public readonly string message;
         public readonly TimeSpan duration;
         public readonly Curve forwardAnimationCurve = Curves.easeOut;
@@ -154,15 +139,16 @@ namespace ConnectApp.components {
                 Theme.of(context),
                 this,
                 new RouteSettings("/snackBarRoute")
-           );
-           return Navigator.push(context, _snackBarRoute);
+            );
+            return Navigator.push(context, _snackBarRoute);
         }
-        
-        public override State createState() => new _CustomSnackBarState();
+
+        public override State createState() {
+            return new _CustomSnackBarState();
+        }
     }
-    
+
     internal class _CustomSnackBarState : State<CustomSnackBar> {
-      
         public override Widget build(BuildContext context) {
             var mediaQuery = MediaQuery.of(context);
             return new Container(
@@ -177,7 +163,7 @@ namespace ConnectApp.components {
                             bottom: 15 + mediaQuery.padding.bottom,
                             left: 24,
                             right: 24
-                         ),
+                        ),
                         child: new Text(
                             widget.message,
                             textAlign: TextAlign.center,

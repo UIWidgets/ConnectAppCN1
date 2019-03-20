@@ -1,6 +1,5 @@
 using ConnectApp.models;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 
 namespace ConnectApp.redux.actions {
     public class LoginChangeEmailAction : BaseAction {

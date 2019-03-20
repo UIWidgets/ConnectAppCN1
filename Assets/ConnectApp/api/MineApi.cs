@@ -3,11 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
+using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.ui;
 using UnityEngine.Networking;
-using Newtonsoft.Json;
 
 namespace ConnectApp.api {
     public static class MineApi {

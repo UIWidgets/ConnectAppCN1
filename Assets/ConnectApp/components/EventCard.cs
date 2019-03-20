@@ -49,7 +49,7 @@ namespace ConnectApp.components {
                             )
                         ),
                         new Expanded(
-                            child:new Container(
+                            child: new Container(
                                 margin: EdgeInsets.only(right: 8),
                                 child: new Column(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -60,7 +60,9 @@ namespace ConnectApp.components {
                                         ),
 
                                         new Text(
-                                            _model.live ? $"20:00 · {_model.participantsCount}人已预订" : "20:00 · 旧金山Unity大厦",
+                                            _model.live
+                                                ? $"20:00 · {_model.participantsCount}人已预订"
+                                                : "20:00 · 旧金山Unity大厦",
                                             style: CTextStyle.PSmall)
                                     }
                                 )

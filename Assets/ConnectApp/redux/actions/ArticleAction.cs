@@ -18,18 +18,18 @@ namespace ConnectApp.redux.actions {
     public class FetchArticleDetailSuccessAction : BaseAction {
         public Project articleDetail;
     }
-    
+
     public class GetArticleHistoryAction : BaseAction {
     }
-    
+
     public class SaveArticleHistoryAction : BaseAction {
         public Article article;
     }
-    
+
     public class DeleteArticleHistoryAction : BaseAction {
         public string articleId;
     }
-    
+
     public class DeleteAllArticleHistoryAction : BaseAction {
     }
 
@@ -56,8 +56,7 @@ namespace ConnectApp.redux.actions {
         public string messageId;
     }
 
-    public class LikeCommentSuccessAction : BaseAction
-    {
+    public class LikeCommentSuccessAction : BaseAction {
         public Message message;
     }
 

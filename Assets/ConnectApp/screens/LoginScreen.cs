@@ -7,11 +7,10 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
-
     public class LoginScreen : StatelessWidget {
-
-        static readonly GlobalKey globalKey = GlobalKey.key(debugLabel: "login-router");
+        private static readonly GlobalKey globalKey = GlobalKey.key(debugLabel: "login-router");
         public static NavigatorState navigator => globalKey.currentState as NavigatorState;
+
         private static Dictionary<string, WidgetBuilder> loginRoutes => new Dictionary<string, WidgetBuilder> {
             {"/", context => new LoginSwitchScreen()},
             {"/bind-unity", context => new BindUnityScreen()}
@@ -34,11 +33,10 @@ namespace ConnectApp.screens {
     }
 
     public class LoginSwitchScreen : StatelessWidget {
-        
         public override Widget build(BuildContext context) {
             return _content(context);
         }
-        
+
         private Widget _content(BuildContext context) {
             return new Container(
                 decoration: new BoxDecoration(
@@ -133,7 +131,7 @@ namespace ConnectApp.screens {
                         ),
                         new Container(height: 16),
                         new CustomButton(
-                            onPressed: () => Navigator.pushNamed( context,"/bind-unity"),
+                            onPressed: () => Navigator.pushNamed(context, "/bind-unity"),
                             child: new Container(
                                 height: 48,
                                 decoration: new BoxDecoration(

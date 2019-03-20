@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using ConnectApp.constants;
-using Unity.UIWidgets.widgets;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.components {
     public class BlankView : StatelessWidget {
@@ -24,7 +24,7 @@ namespace ConnectApp.components {
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    children: new List<Widget>{
+                    children: new List<Widget> {
                         new Text(
                             title ?? "",
                             style: new TextStyle(

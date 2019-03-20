@@ -29,10 +29,9 @@ namespace ConnectApp.models {
         public bool like;
         public bool edit;
     }
-    
+
     [Serializable]
     public class HeaderImage {
         public string url;
     }
-
 }

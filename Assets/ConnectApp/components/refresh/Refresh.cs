@@ -102,9 +102,7 @@ namespace ConnectApp.components.refresh {
                     alignment: Alignment.topCenter,
                     maxOffset: 300,
                     childBuilder: (_context, controller) => {
-                        if (widget.headerBuilder != null) {
-                            return widget.headerBuilder(_context, controller);
-                        }
+                        if (widget.headerBuilder != null) return widget.headerBuilder(_context, controller);
                         return new DefaultRefreshChild(
                             controller,
                             new Icon(Icons.arrow_downward)
@@ -120,9 +118,7 @@ namespace ConnectApp.components.refresh {
                     maxOffset: 300,
                     alignment: Alignment.bottomCenter,
                     childBuilder: (_context, controller) => {
-                        if (widget.footerBuilder != null) {
-                            return widget.footerBuilder(_context, controller);
-                        }
+                        if (widget.footerBuilder != null) return widget.footerBuilder(_context, controller);
                         return new DefaultRefreshChild(
                             controller,
                             new Icon(Icons.arrow_upward),
@@ -380,7 +376,10 @@ namespace ConnectApp.components.refresh {
             IPromise result = callback();
             D.assert(result is Promise, "");
             {
-                result.Done(() => { changeState(RefreshState.drag); }, (err) => { changeState(RefreshState.drag);Debug.Log(err); });
+                result.Done(() => { changeState(RefreshState.drag); }, (err) => {
+                    changeState(RefreshState.drag);
+                    Debug.Log(err);
+                });
             }
             return result;
         }

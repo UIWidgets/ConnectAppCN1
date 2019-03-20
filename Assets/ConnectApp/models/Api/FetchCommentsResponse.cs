@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace ConnectApp.models
-{
-    
+namespace ConnectApp.models {
     [Serializable]
-    public class FetchCommentsResponse
-    {
+    public class FetchCommentsResponse {
         public List<Message> items;
         public List<Message> parents;
         public string currOldestMessageId;
