@@ -59,7 +59,7 @@ namespace ConnectApp.screens {
                 child: new Row(
                     children: new List<Widget> {
                         new CustomButton(
-                            onPressed: () => { Router.navigator.pop(context); },
+                            onPressed: () => { Navigator.pop(context); },
                             child: new Icon(
                                 Icons.close,
                                 size: 28,
