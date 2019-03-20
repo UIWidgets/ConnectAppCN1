@@ -86,7 +86,7 @@ namespace ConnectApp.components {
                         var key = block.entityRanges.first().key.ToString();
                         var data = content.entityMap[key].data;
                         var map = contentMap[data.contentId];
-                        widgets.Add(_Atomic(context,block.type, data.title, map.originalImage?.url));
+                        widgets.Add(_Atomic(context,block.type, data.title, map.originalImage==null?"":map.originalImage.url));
                     }
                         break;
                 }

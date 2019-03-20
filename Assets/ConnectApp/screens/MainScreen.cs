@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using ConnectApp.components;
 using ConnectApp.constants;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 
 namespace ConnectApp.screens {
     public class MainScreen : StatelessWidget {
@@ -11,7 +12,7 @@ namespace ConnectApp.screens {
                 top: false,
                 child: new CustomTabBar(
                     new List<Widget> {
-                        new ArticleScreen(),
+                        new ArticleDetailScreen(),
                         new EventsScreen(),
                         new NotificationScreen(),
                         new PersonalScreen()
@@ -51,6 +52,7 @@ namespace ConnectApp.screens {
                         ),
                     },
                     CColors.White
+//                    tapCallBack: (index) => { Debug.Log(); }
                 ));
         }
     }

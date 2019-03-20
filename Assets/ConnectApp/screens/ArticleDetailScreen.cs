@@ -55,7 +55,7 @@ namespace ConnectApp.screens
         public override void initState()
         {
             base.initState();
-            
+            StoreProvider.store.state.articleState.detailId = "5c19bf85edbc2a1f80031c68";
             StoreProvider.store.Dispatch(new FetchArticleDetailAction()
                 {articleId = StoreProvider.store.state.articleState.detailId});
         }
@@ -331,16 +331,11 @@ namespace ConnectApp.screens
         }
 
 
-        private Widget _contentDetail(BuildContext context) {
+        private Widget _contentDetail(BuildContext context)
+        {
             return new Container(
-                color:CColors.White,
-                child: new Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget> {
-                        new EventDescription(content: _article.body, contentMap: _contentMap)
-                    }
-                )
+                color: CColors.White,
+                child: new EventDescription(content: _article.body, contentMap: _contentMap)
             );
         }
         
