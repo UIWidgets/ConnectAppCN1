@@ -100,13 +100,18 @@ namespace ConnectApp.components {
                         fit: StackFit.expand,
                         children: new List<Widget> {
                             new GestureDetector(
-                                onTap: () => {
+                                onTap: () =>
+                                {
                                     if (_selectedIndex != item.index)
+                                    {
+                                        widget.tapCallBack(_selectedIndex);
                                         setState(() => {
                                             _selectedIndex = item.index;
                                             _pageController.animateToPage(item.index, new TimeSpan(0, 0, 0, 0,1),
                                                 Curves.ease);
-                                        });
+                                        }); 
+                                    }
+                                    
                                 },
                                 child: new Container(
                                     decoration: new BoxDecoration(

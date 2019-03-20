@@ -12,7 +12,7 @@ namespace ConnectApp.screens {
                 top: false,
                 child: new CustomTabBar(
                     new List<Widget> {
-                        new ArticleDetailScreen(),
+                        new ArticleScreen(),
                         new EventsScreen(),
                         new NotificationScreen(),
                         new PersonalScreen()

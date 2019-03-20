@@ -55,7 +55,7 @@ namespace ConnectApp.screens
         public override void initState()
         {
             base.initState();
-            StoreProvider.store.state.articleState.detailId = "5c19bf85edbc2a1f80031c68";
+            
             StoreProvider.store.Dispatch(new FetchArticleDetailAction()
                 {articleId = StoreProvider.store.state.articleState.detailId});
         }
@@ -103,6 +103,9 @@ namespace ConnectApp.screens
                     _contentMap = articleDetail.contentMap;
                     _lastCommentId = articleDetail.comments.currOldestMessageId;
                     _hasMore = articleDetail.comments.hasMore;
+                    
+                    var originItems = _buildItems(context, articleDetail);
+                    
                     var child = new Container(
                         color: CColors.background3,
                         child: new Stack(
@@ -117,30 +120,24 @@ namespace ConnectApp.screens
                                     padding:EdgeInsets.only(top:88,bottom:45),
                                     child:_hasMore?new Refresh(
                                         onFooterRefresh:onFooterRefresh,
-                                        child: new ListView(
-                                            physics: new AlwaysScrollableScrollPhysics(),
-                                            children: new List<Widget> {
-                                                _contentHead(context),
-                                                _subTitle(context),
-                                                _contentDetail(context),
-                                                _actionCards(context,articleDetail.like),
-                                                _relatedArticles(context),
-                                                _comments(context)
-                                            }
-                                        )
+                                        child:ListView.builder(
+                                                physics: new AlwaysScrollableScrollPhysics(),
+                                                itemCount:originItems.Count,
+                                                itemBuilder: (_context,index) =>
+                                                {
+                                                    return originItems[index];
+                                                }
+                                            
+                                        )  
                                     ):new Refresh(
-                                        child: new ListView(
-                                            physics: new AlwaysScrollableScrollPhysics(),
-                                            children: new List<Widget> {
-                                                _contentHead(context),
-                                                _subTitle(context),
-                                                _contentDetail(context),
-                                                _actionCards(context,articleDetail.like),
-                                                _relatedArticles(context),
-                                                _comments(context),
-                                                _buildEnd(context)
-                                            }
-                                        )
+                                        child: ListView.builder(
+                                                physics: new AlwaysScrollableScrollPhysics(),
+                                                itemCount:originItems.Count,
+                                                itemBuilder: (_context,index) =>
+                                                {
+                                                    return originItems[index];
+                                                }
+                                        )  
                                     )
                                 ),
                                 
@@ -190,6 +187,23 @@ namespace ConnectApp.screens
                 }
             );
         }
+
+        private List<Widget> _buildItems(BuildContext context,Project articleDetail)
+        {
+            var originItems = new List<Widget>();
+            originItems.Add(_contentHead(context));
+            originItems.Add(_subTitle(context));
+            originItems.AddRange(ArticleDescription.map(context,_article.body,_contentMap));
+            originItems.Add(_actionCards(context,articleDetail.like));
+            originItems.Add(_relatedArticles(context));
+            originItems.Add( _comments(context));
+            if (!articleDetail.comments.hasMore)
+            {
+               originItems.Add(_buildEnd(context)); 
+            }
+            return originItems;
+        }
+
         private Widget _navigationBar(BuildContext context) {
             return new CustomNavigationBar(
                 new GestureDetector(
