@@ -71,9 +71,16 @@ namespace ConnectApp.screens
                 builder: (context1, viewModel) => {
                     if (StoreProvider.store.state.articleState.articleDetailLoading)
                     {
-                        return new Container(
-                            color: CColors.White,
-                            child: new Container(child: new CustomActivityIndicator())
+                        return new SafeArea(
+                            child:new Column(
+                                children: new List<Widget>
+                                {
+                                    new Container(
+                                        child: _navigationBar(context)
+                                    ),
+                                    new ArticleDetailLoading()
+                                }
+                            )
                         ); 
                     }
                     var articleDetail = (Project) viewModel["articleDetail"];
