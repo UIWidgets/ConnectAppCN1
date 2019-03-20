@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
 using Unity.UIWidgets.painting;
@@ -6,11 +7,41 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
+
     public class LoginScreen : StatelessWidget {
+
+        static readonly GlobalKey globalKey = GlobalKey.key(debugLabel: "login-router");
+        public static NavigatorState navigator => globalKey.currentState as NavigatorState;
+        private static Dictionary<string, WidgetBuilder> loginRoutes => new Dictionary<string, WidgetBuilder> {
+            {"/", context => new LoginSwitchScreen()},
+            {"/bind-unity", context => new BindUnityScreen()}
+        };
+
+        public override Widget build(BuildContext context) {
+            return new Navigator(
+                globalKey,
+                onGenerateRoute: (RouteSettings settings) => {
+                    return new PageRouteBuilder(
+                        settings,
+                        (context1, animation, secondaryAnimation) => { return loginRoutes[settings.name](context1); },
+                        (context1, animation, secondaryAnimation, child) => {
+                            return new ModalPageTransition(
+                                routeAnimation: animation,
+                                child: child
+                            );
+                        }
+                    );
+                }
+            );
+        }
+    }
+
+    public class LoginSwitchScreen : StatelessWidget {
+        
         public override Widget build(BuildContext context) {
             return _content(context);
         }
-
+        
         private Widget _content(BuildContext context) {
             return new Container(
                 decoration: new BoxDecoration(
@@ -33,7 +64,7 @@ namespace ConnectApp.screens {
                 child: new Row(
                     children: new List<Widget> {
                         new CustomButton(
-                            onPressed: () => { Navigator.pop(context); },
+                            onPressed: () => { Router.navigator.pop(context); },
                             child: new Icon(
                                 Icons.close,
                                 size: 28,
@@ -105,7 +136,7 @@ namespace ConnectApp.screens {
                         ),
                         new Container(height: 16),
                         new CustomButton(
-                            onPressed: () => Navigator.pushNamed(context, "/bind-unity"),
+                            onPressed: () => LoginScreen.navigator.pushNamed("/bind-unity"),
                             child: new Container(
                                 height: 48,
                                 decoration: new BoxDecoration(
