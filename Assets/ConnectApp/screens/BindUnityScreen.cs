@@ -27,7 +27,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         _topView(context),
                         _middleView(context),
-                        _bottomView()
+                        _bottomView(context)
                     }
                 )
             );
@@ -43,7 +43,7 @@ namespace ConnectApp.screens {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: new List<Widget> {
                                 new CustomButton(
-                                    onPressed: () => Navigator.pop(context),
+                                    onPressed: () => { Navigator.pop(context); },
                                     child: new Text(
                                         "跳过",
                                         style: new TextStyle(
@@ -197,7 +197,8 @@ namespace ConnectApp.screens {
                                             onSubmitted: (text) => {
                                                 _emailFocusNode.unfocus();
                                                 _passwordFocusNode.unfocus();
-                                                StoreProvider.store.Dispatch(new LoginByEmailAction());
+                                                StoreProvider.store.Dispatch(new LoginByEmailAction
+                                                    {context = context});
                                             }
                                         )
                                     );
@@ -209,7 +210,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _bottomView() {
+        private Widget _bottomView(BuildContext context) {
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
@@ -220,7 +221,7 @@ namespace ConnectApp.screens {
                             onPressed: () => {
                                 _emailFocusNode.unfocus();
                                 _passwordFocusNode.unfocus();
-                                StoreProvider.store.Dispatch(new LoginByEmailAction());
+                                StoreProvider.store.Dispatch(new LoginByEmailAction {context = context});
                             },
                             child: new StoreConnector<AppState, Dictionary<string, object>>(
                                 converter: (state, dispatch) => new Dictionary<string, object> {

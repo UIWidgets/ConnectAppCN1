@@ -1,15 +1,15 @@
 using System.Collections.Generic;
 using ConnectApp.api;
-using ConnectApp.components.refresh;
 using ConnectApp.components;
+using ConnectApp.components.refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
+using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
-using RSG;
 using UnityEngine;
 
 namespace ConnectApp.screens {
@@ -28,12 +28,12 @@ namespace ConnectApp.screens {
         private const float headerHeight = 140;
         private float _offsetY = 0;
         private int pageNumber = 1;
-        
+
         public override void initState() {
             base.initState();
             var results = StoreProvider.store.state.notificationState.notifications;
             if (results == null || results.Count == 0)
-                StoreProvider.store.Dispatch(new FetchNotificationsAction{pageNumber = 1});
+                StoreProvider.store.Dispatch(new FetchNotificationsAction {pageNumber = 1});
         }
 
         private bool _onNotification(ScrollNotification notification) {
@@ -47,7 +47,7 @@ namespace ConnectApp.screens {
 
             return true;
         }
-        
+
         private static IPromise _onRefresh(int pageIndex) {
             return NotificationApi.FetchNotifications(pageIndex)
                 .Then(notificationResponse => {
@@ -94,12 +94,11 @@ namespace ConnectApp.screens {
                                             var notifications = viewModel.notifications;
                                             var isLoadMore = notifications.Count == viewModel.total;
                                             RefresherCallback onFooterRefresh = null;
-                                            if (!isLoadMore) {
+                                            if (!isLoadMore)
                                                 onFooterRefresh = () => {
                                                     pageNumber++;
                                                     return _onRefresh(pageNumber);
                                                 };
-                                            }
 
                                             return new Refresh(
                                                 onHeaderRefresh: () => {

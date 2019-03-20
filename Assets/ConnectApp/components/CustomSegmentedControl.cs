@@ -1,15 +1,14 @@
-using ConnectApp.constants;
 using System.Collections.Generic;
+using ConnectApp.constants;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.widgets;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
+using Unity.UIWidgets.widgets;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
     public class CustomSegmentedControl : StatefulWidget {
-
         public CustomSegmentedControl(
             List<string> items,
             ValueChanged<int> onValueChanged,
@@ -34,13 +33,14 @@ namespace ConnectApp.components {
         public readonly Color unselectedColor;
         public readonly Color selectedColor;
 
-        public override State createState() => new _CustomSegmentedControlState();
+        public override State createState() {
+            return new _CustomSegmentedControlState();
+        }
     }
 
     internal class _CustomSegmentedControlState : State<CustomSegmentedControl> {
-        
         private int _selectedIndex;
-        
+
         public override void initState() {
             base.initState();
             _selectedIndex = widget.currentIndex;
@@ -50,9 +50,8 @@ namespace ConnectApp.components {
             base.didUpdateWidget(oldWidget);
             if (oldWidget is CustomSegmentedControl) {
                 var customSegmentedControl = (CustomSegmentedControl) oldWidget;
-                if (widget.currentIndex != customSegmentedControl.currentIndex) {
+                if (widget.currentIndex != customSegmentedControl.currentIndex)
                     setState(() => _selectedIndex = widget.currentIndex);
-                }
             }
         }
 
@@ -67,7 +66,7 @@ namespace ConnectApp.components {
                 )
             );
         }
-        
+
         private List<Widget> _buildChildren() {
             var widgets = new List<Widget>();
             widget.items.ForEach(item => {
@@ -77,7 +76,7 @@ namespace ConnectApp.components {
             });
             return widgets;
         }
-        
+
         private Widget _buildSelectItem(string title, int index) {
             var textColor = widget.unselectedColor;
             Widget lineView = new Positioned(new Container());
@@ -107,11 +106,10 @@ namespace ConnectApp.components {
                         new CustomButton(
                             onPressed: () => {
                                 if (_selectedIndex != index) {
-                                    if (widget.onValueChanged != null) {
+                                    if (widget.onValueChanged != null)
                                         widget.onValueChanged(index);
-                                    } else {
+                                    else
                                         setState(() => _selectedIndex = index);
-                                    }
                                 }
                             },
                             child: new Container(

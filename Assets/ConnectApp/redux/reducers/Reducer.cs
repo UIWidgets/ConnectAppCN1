@@ -2,8 +2,9 @@ using System.Collections.Generic;
 using ConnectApp.api;
 using ConnectApp.models;
 using ConnectApp.redux.actions;
-using Unity.UIWidgets.foundation;
 using Newtonsoft.Json;
+using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.widgets;
 using UnityEngine;
 
 namespace ConnectApp.redux.reducers {
@@ -11,7 +12,7 @@ namespace ConnectApp.redux.reducers {
         private const string _searchHistoryKey = "searchHistoryKey";
         private const string _articleHistoryKey = "articleHistoryKey";
         private const string _eventHistoryKey = "eventHistoryKey";
-        
+
         public static AppState Reduce(AppState state, object bAction) {
             switch (bAction) {
                 case AddCountAction action: {
@@ -55,7 +56,10 @@ namespace ConnectApp.redux.reducers {
                     var password = state.loginState.password;
                     LoginApi.LoginByEmail(email, password)
                         .Then(loginInfo => {
-                            StoreProvider.store.Dispatch(new LoginByEmailSuccessAction {loginInfo = loginInfo});
+                            StoreProvider.store.Dispatch(new LoginByEmailSuccessAction {
+                                loginInfo = loginInfo,
+                                context = action.context
+                            });
                         })
                         .Catch(error => {
                             Debug.Log(error);
@@ -67,6 +71,8 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.loading = false;
                     state.loginState.loginInfo = action.loginInfo;
                     state.loginState.isLoggedIn = true;
+                    Navigator.pop(action.context);
+                    Navigator.pop(action.context);
                     break;
                 }
                 case LoginByEmailFailedAction action: {
@@ -101,26 +107,26 @@ namespace ConnectApp.redux.reducers {
                     state.articleState.articleDetailLoading = true;
                     ArticleApi.FetchArticleDetail(action.articleId)
                         .Then(articleDetailResponse => {
-                            if( articleDetailResponse.project.comments.items.Count>0) {
+                            if (articleDetailResponse.project.comments.items.Count > 0) {
                                 var channelId = articleDetailResponse.project.comments.items.first().channelId;
-                                var channelMessageList = new Dictionary<string,List<string>>();
-                                var channelMessageDict = new Dictionary<string,Dictionary<string, Message>>();
+                                var channelMessageList = new Dictionary<string, List<string>>();
+                                var channelMessageDict = new Dictionary<string, Dictionary<string, Message>>();
                                 var itemIds = new List<string>();
-                                var messageItem = new Dictionary<string,Message>();
+                                var messageItem = new Dictionary<string, Message>();
                                 articleDetailResponse.project.comments.items.ForEach(message => {
                                     itemIds.Add(message.id);
                                     messageItem[message.id] = message;
                                 });
-                                channelMessageList.Add(channelId,itemIds);
-                                channelMessageDict.Add(channelId,messageItem);
-                            
-                                StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction{
+                                channelMessageList.Add(channelId, itemIds);
+                                channelMessageDict.Add(channelId, messageItem);
+
+                                StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction {
                                     channelMessageDict = channelMessageDict,
                                     channelMessageList = channelMessageList,
                                     isRefreshList = true
                                 });
                             }
-                            
+
                             StoreProvider.store.Dispatch(new UserMapAction {
                                 userMap = articleDetailResponse.project.userMap
                             });
@@ -146,9 +152,8 @@ namespace ConnectApp.redux.reducers {
                 case SaveArticleHistoryAction action: {
                     var articleHistory = PlayerPrefs.GetString(_articleHistoryKey);
                     var articleHistoryList = new List<Article>();
-                    if (articleHistory.isNotEmpty()) {
+                    if (articleHistory.isNotEmpty())
                         articleHistoryList = JsonConvert.DeserializeObject<List<Article>>(articleHistory);
-                    }
                     articleHistoryList.RemoveAll(item => item.id == action.article.id);
                     articleHistoryList.Insert(0, action.article);
                     state.articleState.articleHistory = articleHistoryList;
@@ -160,18 +165,16 @@ namespace ConnectApp.redux.reducers {
                 case GetArticleHistoryAction action: {
                     var articleHistory = PlayerPrefs.GetString(_articleHistoryKey);
                     var articleHistoryList = new List<Article>();
-                    if (articleHistory.isNotEmpty()) {
+                    if (articleHistory.isNotEmpty())
                         articleHistoryList = JsonConvert.DeserializeObject<List<Article>>(articleHistory);
-                    }
                     state.articleState.articleHistory = articleHistoryList;
                     break;
                 }
                 case DeleteArticleHistoryAction action: {
                     var articleHistory = PlayerPrefs.GetString(_articleHistoryKey);
                     var articleHistoryList = new List<Article>();
-                    if (articleHistory.isNotEmpty()) {
+                    if (articleHistory.isNotEmpty())
                         articleHistoryList = JsonConvert.DeserializeObject<List<Article>>(articleHistory);
-                    }
                     articleHistoryList.RemoveAll(item => item.id == action.articleId);
                     state.articleState.articleHistory = articleHistoryList;
                     var newArticleHistory = JsonConvert.SerializeObject(articleHistoryList);
@@ -186,22 +189,21 @@ namespace ConnectApp.redux.reducers {
                 }
                 case LikeArticleAction action: {
                     ArticleApi.LikeArticle(action.articleId)
-                        .Then(() => { StoreProvider.store.Dispatch(new LikeArticleSuccessAction(){articleId = action.articleId}); })
+                        .Then(() => {
+                            StoreProvider.store.Dispatch(new LikeArticleSuccessAction() {articleId = action.articleId});
+                        })
                         .Catch(error => { Debug.Log(error); });
                     break;
                 }
-                case LikeArticleSuccessAction action:
-                {
+                case LikeArticleSuccessAction action: {
                     state.articleState.articleDetail.like = true;
                     break;
                 }
                 case FetchArticleCommentsAction action: {
                     ArticleApi.FetchArticleComments(action.channelId, action.currOldestMessageId)
-                        .Then((responseComments) =>
-                        {
-
+                        .Then((responseComments) => {
                             state.articleState.articleDetail.comments = responseComments;
-                            
+
                             var channelMessageList = new Dictionary<string, List<string>>();
                             var channelMessageDict = new Dictionary<string, Dictionary<string, Message>>();
                             var itemIds = new List<string>();
@@ -210,14 +212,11 @@ namespace ConnectApp.redux.reducers {
                                 itemIds.Add(message.id);
                                 messageItem[message.id] = message;
                             });
-                            responseComments.parents.ForEach((message) =>
-                            {
-                                messageItem[message.id] = message;
-                            });
-                            channelMessageList.Add(action.channelId,itemIds);
-                            channelMessageDict.Add(action.channelId,messageItem);
-                            
-                            StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction{
+                            responseComments.parents.ForEach((message) => { messageItem[message.id] = message; });
+                            channelMessageList.Add(action.channelId, itemIds);
+                            channelMessageDict.Add(action.channelId, messageItem);
+
+                            StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction {
                                 channelMessageDict = channelMessageDict,
                                 channelMessageList = channelMessageList,
                                 isRefreshList = false
@@ -227,51 +226,51 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case FetchArticleCommentsSuccessAction action: {
-                    foreach (var keyValuePair in action.channelMessageList) {
+                    foreach (var keyValuePair in action.channelMessageList)
                         if (state.messageState.channelMessageList.ContainsKey(keyValuePair.Key)) {
                             var oldList = state.messageState.channelMessageList[keyValuePair.Key];
-                            if (action.isRefreshList)
-                            {
-                                oldList.Clear();   
-                            }
+                            if (action.isRefreshList) oldList.Clear();
                             oldList.AddRange(keyValuePair.Value);
                             state.messageState.channelMessageList[keyValuePair.Key] = oldList;
-                        } else {
-                            state.messageState.channelMessageList.Add(keyValuePair.Key,keyValuePair.Value);
                         }
-                    }
-                    foreach (var keyValuePair in action.channelMessageDict) {
+                        else {
+                            state.messageState.channelMessageList.Add(keyValuePair.Key, keyValuePair.Value);
+                        }
+
+                    foreach (var keyValuePair in action.channelMessageDict)
                         if (state.messageState.channelMessageDict.ContainsKey(keyValuePair.Key)) {
                             var oldDict = state.messageState.channelMessageDict[keyValuePair.Key];
                             var newDict = keyValuePair.Value;
-                            foreach (var valuePair in newDict) {
-                                if (oldDict.ContainsKey(valuePair.Key)) {
+                            foreach (var valuePair in newDict)
+                                if (oldDict.ContainsKey(valuePair.Key))
                                     oldDict[valuePair.Key] = valuePair.Value;
-                                } else {
-                                    oldDict.Add(valuePair.Key,valuePair.Value);
-                                }
-                            }
+                                else
+                                    oldDict.Add(valuePair.Key, valuePair.Value);
                             state.messageState.channelMessageDict[keyValuePair.Key] = oldDict;
-                        } else {
-                            state.messageState.channelMessageDict.Add(keyValuePair.Key,keyValuePair.Value);
                         }
-                    }
+                        else {
+                            state.messageState.channelMessageDict.Add(keyValuePair.Key, keyValuePair.Value);
+                        }
+
                     break;
                 }
                 case LikeCommentAction action: {
                     ArticleApi.LikeComment(action.messageId)
-                        .Then((message) => { StoreProvider.store.Dispatch(new LikeCommentSuccessAction(){message = message}); })
+                        .Then((message) => {
+                            StoreProvider.store.Dispatch(new LikeCommentSuccessAction() {message = message});
+                        })
                         .Catch(error => { Debug.Log(error); });
                     break;
                 }
-                case LikeCommentSuccessAction action:
-                {
+                case LikeCommentSuccessAction action: {
                     state.messageState.channelMessageDict[action.message.channelId][action.message.id] = action.message;
                     break;
                 }
                 case RemoveLikeCommentAction action: {
                     ArticleApi.RemoveLikeComment(action.messageId)
-                        .Then((message) => { StoreProvider.store.Dispatch(new RemoveLikeSuccessAction(){message = message}); })
+                        .Then((message) => {
+                            StoreProvider.store.Dispatch(new RemoveLikeSuccessAction() {message = message});
+                        })
                         .Catch(error => { Debug.Log(error); });
                     break;
                 }
@@ -281,50 +280,47 @@ namespace ConnectApp.redux.reducers {
                 }
                 case SendCommentAction action: {
                     ArticleApi.SendComment(action.channelId, action.content, action.nonce, action.parentMessageId)
-                        .Then((message) => { 
-                            StoreProvider.store.Dispatch(new SendCommentSuccessAction()
-                        {
-                            message = message
-                        }); })
+                        .Then((message) => {
+                            StoreProvider.store.Dispatch(new SendCommentSuccessAction() {
+                                message = message
+                            });
+                        })
                         .Catch(error => { Debug.Log(error); });
                     break;
                 }
                 case SendCommentSuccessAction action: {
-                    if (state.messageState.channelMessageList.ContainsKey(action.message.channelId))
-                    {
+                    if (state.messageState.channelMessageList.ContainsKey(action.message.channelId)) {
                         var list = state.messageState.channelMessageList[action.message.channelId];
-                        list.Insert(0,action.message.id);
+                        list.Insert(0, action.message.id);
                         state.messageState.channelMessageList[action.message.channelId] = list;
                     }
-                    else
-                    {
-                        state.messageState.channelMessageList.Add(action.message.channelId,new List<string>{action.message.id});
+                    else {
+                        state.messageState.channelMessageList.Add(action.message.channelId,
+                            new List<string> {action.message.id});
                     }
-                    
-                    if (state.messageState.channelMessageDict.ContainsKey(action.message.channelId))
-                    {
+
+                    if (state.messageState.channelMessageDict.ContainsKey(action.message.channelId)) {
                         var dict = state.messageState.channelMessageDict[action.message.channelId];
-                        dict.Add(action.message.id,action.message);
+                        dict.Add(action.message.id, action.message);
                         state.messageState.channelMessageDict[action.message.channelId] = dict;
                     }
-                    else
-                    {
+                    else {
                         state.messageState.channelMessageDict.Add(
                             action.message.channelId,
-                            new Dictionary<string, Message>()
-                            {
-                                {action.message.id,action.message}
+                            new Dictionary<string, Message>() {
+                                {action.message.id, action.message}
                             }
-                         );
+                        );
                     }
 
                     break;
                 }
                 case FetchEventsAction action: {
                     state.eventState.eventsLoading = true;
-                    EventApi.FetchEvents(action.pageNumber,action.tab)
+                    EventApi.FetchEvents(action.pageNumber, action.tab)
                         .Then(events => {
-                            StoreProvider.store.Dispatch(new FetchEventsSuccessAction {events = events,tab = action.tab});
+                            StoreProvider.store.Dispatch(new FetchEventsSuccessAction
+                                {events = events, tab = action.tab});
                         })
                         .Catch(error => {
                             state.eventState.eventsLoading = false;
@@ -335,32 +331,30 @@ namespace ConnectApp.redux.reducers {
                 case FetchEventsSuccessAction action: {
                     state.eventState.eventsLoading = false;
                     if (action.pageNumber == 1) {
-                        if (action.tab == "ongoing") {
+                        if (action.tab == "ongoing")
                             state.eventState.events.Clear();
-                        } else {
+                        else
                             state.eventState.completedEvents.Clear();
-                        }
-
                     }
+
                     action.events.ForEach(eventObj => {
                         var userMap = new Dictionary<string, User> {
                             {eventObj.user.id, eventObj.user}
                         };
-                        StoreProvider.store.Dispatch(new UserMapAction{userMap = userMap});
+                        StoreProvider.store.Dispatch(new UserMapAction {userMap = userMap});
                         if (action.tab == "ongoing") {
                             state.eventState.events.Add(eventObj.id);
-                            if (state.eventState.eventDict.ContainsKey(eventObj.id)) {
+                            if (state.eventState.eventDict.ContainsKey(eventObj.id))
                                 state.eventState.eventDict[eventObj.id] = eventObj;
-                            } else {
+                            else
                                 state.eventState.eventDict.Add(eventObj.id, eventObj);
-                            }
-                        } else {
+                        }
+                        else {
                             state.eventState.completedEvents.Add(eventObj.id);
-                            if (state.eventState.completedEventDict.ContainsKey(eventObj.id)) {
+                            if (state.eventState.completedEventDict.ContainsKey(eventObj.id))
                                 state.eventState.completedEventDict[eventObj.id] = eventObj;
-                            } else {
+                            else
                                 state.eventState.completedEventDict.Add(eventObj.id, eventObj);
-                            }
                         }
                     });
                     break;
@@ -383,7 +377,7 @@ namespace ConnectApp.redux.reducers {
                         {action.eventObj.user.id, action.eventObj.user}
                     };
                     action.eventObj.hosts.ForEach(host => userMap.Add(host.id, host));
-                    StoreProvider.store.Dispatch(new UserMapAction{userMap = userMap});
+                    StoreProvider.store.Dispatch(new UserMapAction {userMap = userMap});
                     state.eventState.eventDict[action.eventObj.id] = action.eventObj;
                     state.eventState.detailId = action.eventObj.id;
                     StoreProvider.store.Dispatch(new SaveEventHistoryAction {eventObj = action.eventObj});
@@ -392,9 +386,8 @@ namespace ConnectApp.redux.reducers {
                 case SaveEventHistoryAction action: {
                     var eventHistory = PlayerPrefs.GetString(_eventHistoryKey);
                     var eventHistoryList = new List<IEvent>();
-                    if (eventHistory.isNotEmpty()) {
+                    if (eventHistory.isNotEmpty())
                         eventHistoryList = JsonConvert.DeserializeObject<List<IEvent>>(eventHistory);
-                    }
                     eventHistoryList.RemoveAll(item => item.id == action.eventObj.id);
                     eventHistoryList.Insert(0, action.eventObj);
                     state.eventState.eventHistory = eventHistoryList;
@@ -406,18 +399,16 @@ namespace ConnectApp.redux.reducers {
                 case GetEventHistoryAction action: {
                     var eventHistory = PlayerPrefs.GetString(_eventHistoryKey);
                     var eventHistoryList = new List<IEvent>();
-                    if (eventHistory.isNotEmpty()) {
+                    if (eventHistory.isNotEmpty())
                         eventHistoryList = JsonConvert.DeserializeObject<List<IEvent>>(eventHistory);
-                    }
                     state.eventState.eventHistory = eventHistoryList;
                     break;
                 }
                 case DeleteEventHistoryAction action: {
                     var eventHistory = PlayerPrefs.GetString(_eventHistoryKey);
                     var eventHistoryList = new List<IEvent>();
-                    if (eventHistory.isNotEmpty()) {
+                    if (eventHistory.isNotEmpty())
                         eventHistoryList = JsonConvert.DeserializeObject<List<IEvent>>(eventHistory);
-                    }
                     eventHistoryList.RemoveAll(item => item.id == action.eventId);
                     state.eventState.eventHistory = eventHistoryList;
                     var newEventHistory = JsonConvert.SerializeObject(eventHistoryList);
@@ -433,7 +424,9 @@ namespace ConnectApp.redux.reducers {
                 case JoinEventAction action: {
                     state.eventState.joinEventLoading = true;
                     EventApi.JoinEvent(action.eventId)
-                        .Then(eventId => { StoreProvider.store.Dispatch(new JoinEventSuccessAction{eventId = action.eventId}); })
+                        .Then(eventId => {
+                            StoreProvider.store.Dispatch(new JoinEventSuccessAction {eventId = action.eventId});
+                        })
                         .Catch(error => {
                             state.eventState.joinEventLoading = false;
                             Debug.Log(error);
@@ -467,11 +460,13 @@ namespace ConnectApp.redux.reducers {
                     state.notificationState.total = action.notificationResponse.total;
                     if (action.pageNumber == 1) {
                         state.notificationState.notifications = action.notificationResponse.results;
-                    } else {
+                    }
+                    else {
                         var results = state.notificationState.notifications;
                         results.AddRange(action.notificationResponse.results);
                         state.notificationState.notifications = results;
                     }
+
                     break;
                 }
                 case ReportItemAction action: {
@@ -487,7 +482,7 @@ namespace ConnectApp.redux.reducers {
                     state.mineState.futureListLoading = true;
                     MineApi.FetchMyFutureEvents(action.pageNumber)
                         .Then(events => {
-                            StoreProvider.store.Dispatch(new FetchMyFutureEventsSuccessAction{events = events});
+                            StoreProvider.store.Dispatch(new FetchMyFutureEventsSuccessAction {events = events});
                         })
                         .Catch(error => {
                             state.mineState.futureListLoading = false;
@@ -497,14 +492,13 @@ namespace ConnectApp.redux.reducers {
                 }
                 case FetchMyFutureEventsSuccessAction action: {
                     state.mineState.futureListLoading = false;
-                    if (action.events != null && action.events.Count > 0) {
+                    if (action.events != null && action.events.Count > 0)
                         action.events.ForEach(item => {
                             var userMap = new Dictionary<string, User> {
                                 {item.user.id, item.user}
                             };
-                            StoreProvider.store.Dispatch(new UserMapAction{userMap = userMap});
+                            StoreProvider.store.Dispatch(new UserMapAction {userMap = userMap});
                         });
-                    }
                     state.mineState.futureEventsList = action.events;
                     break;
                 }
@@ -512,7 +506,7 @@ namespace ConnectApp.redux.reducers {
                     state.mineState.pastListLoading = true;
                     MineApi.FetchMyPastEvents(action.pageNumber)
                         .Then(events => {
-                            StoreProvider.store.Dispatch(new FetchMyPastEventsSuccessAction{events = events});
+                            StoreProvider.store.Dispatch(new FetchMyPastEventsSuccessAction {events = events});
                         })
                         .Catch(error => {
                             state.mineState.pastListLoading = false;
@@ -522,14 +516,13 @@ namespace ConnectApp.redux.reducers {
                 }
                 case FetchMyPastEventsSuccessAction action: {
                     state.mineState.pastListLoading = false;
-                    if (action.events != null && action.events.Count > 0) {
+                    if (action.events != null && action.events.Count > 0)
                         action.events.ForEach(item => {
                             var userMap = new Dictionary<string, User> {
                                 {item.user.id, item.user}
                             };
-                            StoreProvider.store.Dispatch(new UserMapAction{userMap = userMap});
+                            StoreProvider.store.Dispatch(new UserMapAction {userMap = userMap});
                         });
-                    }
                     state.mineState.pastEventsList = action.events;
                     break;
                 }
@@ -552,13 +545,11 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case UserMapAction action: {
-                    foreach (var keyValuePair in action.userMap) {
-                        if (state.userState.userDict.ContainsKey(keyValuePair.Key)) {
+                    foreach (var keyValuePair in action.userMap)
+                        if (state.userState.userDict.ContainsKey(keyValuePair.Key))
                             state.userState.userDict[keyValuePair.Key] = keyValuePair.Value;
-                        } else {
+                        else
                             state.userState.userDict.Add(keyValuePair.Key, keyValuePair.Value);
-                        }
-                    }
                     break;
                 }
                 case SearchArticleAction action: {
@@ -582,7 +573,8 @@ namespace ConnectApp.redux.reducers {
                     state.searchState.keyword = action.keyword;
                     if (action.pageNumber == 0) {
                         state.searchState.searchArticles = action.searchResponse;
-                    } else {
+                    }
+                    else {
                         var searchArticles = state.searchState.searchArticles;
                         searchArticles.AddRange(action.searchResponse);
                         state.searchState.searchArticles = searchArticles;
@@ -598,25 +590,19 @@ namespace ConnectApp.redux.reducers {
                 case GetSearchHistoryAction action: {
                     var searchHistory = PlayerPrefs.GetString(_searchHistoryKey);
                     var searchHistoryList = new List<string>();
-                    if (searchHistory.isNotEmpty()) {
+                    if (searchHistory.isNotEmpty())
                         searchHistoryList = JsonConvert.DeserializeObject<List<string>>(searchHistory);
-                    }
                     state.searchState.searchHistoryList = searchHistoryList;
                     break;
                 }
                 case SaveSearchHistoryAction action: {
                     var searchHistory = PlayerPrefs.GetString(_searchHistoryKey);
                     var searchHistoryList = new List<string>();
-                    if (searchHistory.isNotEmpty()) {
+                    if (searchHistory.isNotEmpty())
                         searchHistoryList = JsonConvert.DeserializeObject<List<string>>(searchHistory);
-                    }
-                    if (searchHistoryList.Contains(action.keyword)) {
-                        searchHistoryList.Remove(action.keyword);
-                    }
+                    if (searchHistoryList.Contains(action.keyword)) searchHistoryList.Remove(action.keyword);
                     searchHistoryList.Insert(0, action.keyword);
-                    if (searchHistoryList.Count > 5) {
-                        searchHistoryList.RemoveRange(5, searchHistoryList.Count - 5);
-                    }
+                    if (searchHistoryList.Count > 5) searchHistoryList.RemoveRange(5, searchHistoryList.Count - 5);
                     state.searchState.searchHistoryList = searchHistoryList;
                     var newSearchHistory = JsonConvert.SerializeObject(searchHistoryList);
                     PlayerPrefs.SetString(_searchHistoryKey, newSearchHistory);
@@ -626,12 +612,9 @@ namespace ConnectApp.redux.reducers {
                 case DeleteSearchHistoryAction action: {
                     var searchHistory = PlayerPrefs.GetString(_searchHistoryKey);
                     var searchHistoryList = new List<string>();
-                    if (searchHistory.isNotEmpty()) {
+                    if (searchHistory.isNotEmpty())
                         searchHistoryList = JsonConvert.DeserializeObject<List<string>>(searchHistory);
-                    }
-                    if (searchHistoryList.Contains(action.keyword)) {
-                        searchHistoryList.Remove(action.keyword);
-                    }
+                    if (searchHistoryList.Contains(action.keyword)) searchHistoryList.Remove(action.keyword);
                     state.searchState.searchHistoryList = searchHistoryList;
                     var newSearchHistory = JsonConvert.SerializeObject(searchHistoryList);
                     PlayerPrefs.SetString(_searchHistoryKey, newSearchHistory);

@@ -7,7 +7,6 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Image = Unity.UIWidgets.widgets.Image;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
@@ -20,7 +19,7 @@ namespace ConnectApp.components {
         }
 
         public readonly IEvent eventObj;
-   
+
         public override Widget build(BuildContext context) {
             return new Container(child: _buildContent());
         }
@@ -120,7 +119,7 @@ namespace ConnectApp.components {
                                 fontFamily: "PingFang-Medium",
                                 fontSize: 20
                             )
-                         )
+                        )
                     ),
                     new Container(
                         height: 238,

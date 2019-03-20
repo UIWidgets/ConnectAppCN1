@@ -5,23 +5,24 @@ using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
-using Unity.UIWidgets.widgets;
-using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.painting;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.painting;
+using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
     public class MyEventsScreen : StatefulWidget {
-        
         public MyEventsScreen(
             Key key = null
         ) : base(key) {
         }
 
-        public override State createState() => new _MyEventsScreenState();
+        public override State createState() {
+            return new _MyEventsScreenState();
+        }
     }
-    
+
     internal class _MyEventsScreenState : State<EventsScreen> {
         private PageController _pageController;
         private int _selectedIndex;
@@ -53,7 +54,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         private static Widget _buildNavigationBar(BuildContext context) {
             return new Container(
                 color: CColors.White,
@@ -83,15 +84,13 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         private Widget _buildSelectView() {
             return new CustomSegmentedControl(
-                new List<string>{"即将开始", "往期活动"},
+                new List<string> {"即将开始", "往期活动"},
                 index => {
                     if (_selectedIndex != index) {
-                        if (index == 1) {
-                            _fetchMyPastEvents();
-                        }
+                        if (index == 1) _fetchMyPastEvents();
                         setState(() => _selectedIndex = index);
                         _pageController.animateToPage(
                             index,
@@ -103,7 +102,7 @@ namespace ConnectApp.screens {
                 _selectedIndex
             );
         }
-        
+
         private Widget _buildContentView() {
             return new Flexible(
                 child: new Container(
@@ -111,9 +110,7 @@ namespace ConnectApp.screens {
                         physics: new BouncingScrollPhysics(),
                         controller: _pageController,
                         onPageChanged: index => {
-                            if (index == 1) {
-                                _fetchMyPastEvents();
-                            }
+                            if (index == 1) _fetchMyPastEvents();
                             setState(() => { _selectedIndex = index; });
                         },
                         children: new List<Widget> {

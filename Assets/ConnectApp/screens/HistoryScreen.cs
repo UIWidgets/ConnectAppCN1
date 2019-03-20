@@ -5,28 +5,28 @@ using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
-using Unity.UIWidgets.widgets;
-using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.painting;
-using UnityEngine;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.painting;
+using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
     public class HistoryScreen : StatefulWidget {
-        
         public HistoryScreen(
             Key key = null
         ) : base(key) {
         }
 
-        public override State createState() => new _HistoryScreenState();
+        public override State createState() {
+            return new _HistoryScreenState();
+        }
     }
-    
+
     internal class _HistoryScreenState : State<HistoryScreen> {
         private PageController _pageController;
         private int _selectedIndex;
-        
+
         public override void initState() {
             base.initState();
             _pageController = new PageController();
@@ -36,7 +36,7 @@ namespace ConnectApp.screens {
             if (StoreProvider.store.state.eventState.eventHistory.Count == 0)
                 StoreProvider.store.Dispatch(new GetEventHistoryAction());
         }
-        
+
         public override Widget build(BuildContext context) {
             return new SafeArea(
                 child: new Container(
@@ -51,7 +51,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         private static Widget _buildNavigationBar(BuildContext context) {
             return new Container(
                 color: CColors.White,
@@ -81,10 +81,10 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         private Widget _buildSelectView() {
             return new CustomSegmentedControl(
-                new List<string>{"文章", "活动"},
+                new List<string> {"文章", "活动"},
                 index => {
                     if (_selectedIndex != index) {
                         setState(() => _selectedIndex = index);
@@ -98,16 +98,14 @@ namespace ConnectApp.screens {
                 _selectedIndex
             );
         }
-        
+
         private Widget _buildContentView() {
             return new Flexible(
                 child: new Container(
                     child: new PageView(
                         physics: new BouncingScrollPhysics(),
                         controller: _pageController,
-                        onPageChanged: index => {
-                            setState(() => { _selectedIndex = index; });
-                        },
+                        onPageChanged: index => { setState(() => { _selectedIndex = index; }); },
                         children: new List<Widget> {
                             _buildArticleHistory(),
                             _buildEventHistory()
@@ -120,14 +118,12 @@ namespace ConnectApp.screens {
         private static Widget _buildArticleHistory() {
             return new Container(
                 child: new StoreConnector<AppState, Dictionary<string, List<Article>>>(
-                    converter: (state, dispatch) => new Dictionary<string, List<Article>>{
+                    converter: (state, dispatch) => new Dictionary<string, List<Article>> {
                         {"articleHistory", state.articleState.articleHistory}
-                    }, 
+                    },
                     builder: (_context, viewModel) => {
                         var data = viewModel["articleHistory"];
-                        if (data.Count <= 0) {
-                            return new BlankView("暂无浏览文章记录");
-                        }
+                        if (data.Count <= 0) return new BlankView("暂无浏览文章记录");
                         return ListView.builder(
                             physics: new AlwaysScrollableScrollPhysics(),
                             itemCount: data.Count,
@@ -153,7 +149,9 @@ namespace ConnectApp.screens {
                                         )
                                     ),
                                     direction: DismissDirection.endToStart,
-                                    onDismissed: direction => StoreProvider.store.Dispatch(new DeleteArticleHistoryAction{articleId = model.id})
+                                    onDismissed: direction =>
+                                        StoreProvider.store.Dispatch(new DeleteArticleHistoryAction
+                                            {articleId = model.id})
                                 );
                             }
                         );
@@ -161,18 +159,16 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         private static Widget _buildEventHistory() {
             return new Container(
                 child: new StoreConnector<AppState, Dictionary<string, List<IEvent>>>(
-                    converter: (state, dispatch) => new Dictionary<string, List<IEvent>>{
+                    converter: (state, dispatch) => new Dictionary<string, List<IEvent>> {
                         {"eventHistory", state.eventState.eventHistory}
-                    }, 
+                    },
                     builder: (_context, viewModel) => {
                         var data = viewModel["eventHistory"];
-                        if (data.Count <= 0) {
-                            return new BlankView("暂无浏览活动记录");
-                        }
+                        if (data.Count <= 0) return new BlankView("暂无浏览活动记录");
                         return ListView.builder(
                             physics: new AlwaysScrollableScrollPhysics(),
                             itemCount: data.Count,
@@ -198,7 +194,8 @@ namespace ConnectApp.screens {
                                         )
                                     ),
                                     direction: DismissDirection.endToStart,
-                                    onDismissed: direction => StoreProvider.store.Dispatch(new DeleteEventHistoryAction{eventId = model.id})
+                                    onDismissed: direction =>
+                                        StoreProvider.store.Dispatch(new DeleteEventHistoryAction {eventId = model.id})
                                 );
                             }
                         );

@@ -8,10 +8,9 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.canvas {
-    public class ConnectAppCanvas : UIWidgetsPanel {
+    public sealed class ConnectAppCanvas : UIWidgetsPanel {
         protected override void OnEnable() {
             base.OnEnable();
             Application.targetFrameRate = 300;
@@ -25,40 +24,58 @@ namespace ConnectApp.canvas {
             FontManager.instance.addFont(semiboldFont);
         }
 
-
         protected override Widget createWidget() {
-            return new WidgetsApp(
-                initialRoute: "/",
-                textStyle: new TextStyle(fontSize: 24),
-                pageRouteBuilder: pageRouteBuilder,
-                routes: new Dictionary<string, WidgetBuilder> {
-                    {"/", context => new MainScreen()},
-//                    {"/", context => new TestScreen()},
-                    {"/search", context => new SearchScreen()},
-                    {"/event-detail", context => new EventDetailScreen()},
-                    {"/article-detail", context => new ArticleDetailScreen()},
-                    {"/mine", context => new MineScreen()},
-                    {"/setting", context => new SettingScreen()},
-                    {"/my-event", context => new MyEventsScreen()},
-                    {"/history", context => new HistoryScreen()},
-                    {"/login", context => new LoginScreen()},
-                    {"/bind-unity", context => new BindUnityScreen()}
-                });
+            return new StoreProvider<AppState>(
+                StoreProvider.store,
+                new WidgetsApp(
+                    home: new Router(),
+                    pageRouteBuilder: pageRouteBuilder
+                )
+            );
         }
 
-        protected static Dictionary<string, WidgetBuilder> fullScreenRoutes => new Dictionary<string, WidgetBuilder> {
-            {"/login", context => new LoginScreen()},
-            {"/wechat-unity", context => new EventDetailScreen()}
-        };
-
-        protected static PageRouteFactory pageRouteBuilder {
+        private PageRouteFactory pageRouteBuilder {
             get {
                 return (RouteSettings settings, WidgetBuilder builder) =>
                     new PageRouteBuilder(
                         settings,
-                        (context, animation, secondaryAnimation) =>
-                            new StoreProvider<AppState>(StoreProvider.store, builder(context)),
-                        (context, animation, secondaryAnimation, child) => {
+                        pageBuilder: (BuildContext context, Animation<float> animation,
+                            Animation<float> secondaryAnimation) => builder(context)
+                    );
+            }
+        }
+    }
+
+    internal class Router : StatelessWidget {
+        private static readonly GlobalKey globalKey = GlobalKey.key(debugLabel: "main-router");
+        public static NavigatorState navigator => globalKey.currentState as NavigatorState;
+
+        private static Dictionary<string, WidgetBuilder> mainRoutes => new Dictionary<string, WidgetBuilder> {
+            {"/", context => new MainScreen()},
+//            {"/", context => new TestScreen()},
+            {"/search", context => new SearchScreen()},
+            {"/event-detail", context => new EventDetailScreen()},
+            {"/article-detail", context => new ArticleDetailScreen()},
+            {"/mine", context => new MineScreen()},
+            {"/setting", context => new SettingScreen()},
+            {"/my-event", context => new MyEventsScreen()},
+            {"/history", context => new HistoryScreen()},
+            {"/login", context => new LoginSwitchScreen()},
+            {"/bind-unity", context => new BindUnityScreen()}
+        };
+
+        private static Dictionary<string, WidgetBuilder> fullScreenRoutes => new Dictionary<string, WidgetBuilder> {
+            {"/login", context => new LoginSwitchScreen()}
+        };
+
+        public override Widget build(BuildContext context) {
+            return new Navigator(
+//                globalKey,
+                onGenerateRoute: (RouteSettings settings) => {
+                    return new PageRouteBuilder(
+                        settings,
+                        (context1, animation, secondaryAnimation) => mainRoutes[settings.name](context1),
+                        (context1, animation, secondaryAnimation, child) => {
                             if (fullScreenRoutes.ContainsKey(settings.name))
                                 return new ModalPageTransition(
                                     routeAnimation: animation,
@@ -70,7 +87,8 @@ namespace ConnectApp.canvas {
                             );
                         }
                     );
-            }
+                }
+            );
         }
     }
 

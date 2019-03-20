@@ -79,7 +79,8 @@ namespace ConnectApp.api {
             }
         }
 
-        public static Promise<FetchCommentsResponse> FetchArticleComments(string channelId, string currOldestMessageId) {
+        public static Promise<FetchCommentsResponse>
+            FetchArticleComments(string channelId, string currOldestMessageId) {
             // We return a promise instantly and start the coroutine to do the real work
             var promise = new Promise<FetchCommentsResponse>();
             Window.instance.startCoroutine(_FetchArticleComments(promise, channelId, currOldestMessageId));
@@ -87,7 +88,8 @@ namespace ConnectApp.api {
         }
 
         private static IEnumerator
-            _FetchArticleComments(Promise<FetchCommentsResponse> promise, string channelId, string currOldestMessageId) {
+            _FetchArticleComments(Promise<FetchCommentsResponse> promise, string channelId,
+                string currOldestMessageId) {
             var url = IApi.apiAddress + "/api/channels/" + channelId + "/messages?limit=5";
             if (currOldestMessageId.Length > 0) url += "&before=" + currOldestMessageId;
             var request = UnityWebRequest.Get(url);
@@ -237,14 +239,16 @@ namespace ConnectApp.api {
             }
         }
 
-        public static Promise<Message> SendComment(string channelId, string content, string nonce, string parentMessageId = "") {
+        public static Promise<Message> SendComment(string channelId, string content, string nonce,
+            string parentMessageId = "") {
             // We return a promise instantly and start the coroutine to do the real work
             var promise = new Promise<Message>();
             Window.instance.startCoroutine(_SendComment(promise, channelId, content, nonce, parentMessageId));
             return promise;
         }
 
-        private static IEnumerator _SendComment(Promise<Message> promise, string channelId, string content, string nonce,
+        private static IEnumerator _SendComment(Promise<Message> promise, string channelId, string content,
+            string nonce,
             string parentMessageId = "") {
             var para = new SendCommentParameter {
                 content = content,

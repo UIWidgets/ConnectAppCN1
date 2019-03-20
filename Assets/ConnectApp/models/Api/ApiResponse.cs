@@ -11,9 +11,8 @@ namespace ConnectApp.models {
     [Serializable]
     public class FetchArticleDetailResponse {
         public Project project;
-        
     }
-    
+
     [Serializable]
     public class FetchNotificationResponse {
         public int unreadCount;
@@ -25,7 +24,7 @@ namespace ConnectApp.models {
         public int pageTotal;
         public List<Notification> results;
     }
-    
+
     [Serializable]
     public class FetchSearchResponse {
         public List<Article> projects;

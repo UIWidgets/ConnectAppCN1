@@ -69,7 +69,7 @@ namespace ConnectApp.screens {
                             Icons.search,
                             size: 28,
                             color: Color.fromRGBO(181, 181, 181, 1))
-                     ),
+                    ),
                     new GestureDetector(
                         onTap: () => { StoreProvider.store.Dispatch(new LoginByEmailAction()); },
                         child: new Container(
@@ -90,21 +90,20 @@ namespace ConnectApp.screens {
                 onNotification: _onNotification,
                 child: new Container(
                     margin: EdgeInsets.only(bottom: 49),
-                    child: new StoreConnector<AppState, Dictionary<string,object>>(
-                        converter: (state, dispatch) => new Dictionary<string, object>{
-                            {"articlesLoading",state.articleState.articlesLoading},
-                            {"articleList",state.articleState.articleList}
+                    child: new StoreConnector<AppState, Dictionary<string, object>>(
+                        converter: (state, dispatch) => new Dictionary<string, object> {
+                            {"articlesLoading", state.articleState.articlesLoading},
+                            {"articleList", state.articleState.articleList}
                         },
                         builder: (_context, viewModel) => {
-                            var articlesLoading = (bool)viewModel["articlesLoading"];
-                            if (articlesLoading) {
+                            var articlesLoading = (bool) viewModel["articlesLoading"];
+                            if (articlesLoading)
                                 return ListView.builder(
                                     itemCount: 4,
                                     itemBuilder: (cxt, index) => new ArticleLoading()
                                 );
-                            }
-                            
-                            var articleList = (List<string>)viewModel["articleList"];
+
+                            var articleList = (List<string>) viewModel["articleList"];
                             var refreshPage = new Refresh(
                                 onHeaderRefresh: onHeaderRefresh,
                                 onFooterRefresh: onFooterRefresh,
@@ -132,7 +131,7 @@ namespace ConnectApp.screens {
                         articleList.Add(item.id);
                         articleDict.Add(item.id, item);
                     });
-                    StoreProvider.store.Dispatch(new UserMapAction{userMap = articlesResponse.userMap});
+                    StoreProvider.store.Dispatch(new UserMapAction {userMap = articlesResponse.userMap});
                     StoreProvider.store.Dispatch(new FetchArticleSuccessAction
                         {ArticleDict = articleDict, ArticleList = articleList});
                 })
@@ -152,7 +151,7 @@ namespace ConnectApp.screens {
                                 articleDict.Add(item.id, item);
                             }
                         });
-                        StoreProvider.store.Dispatch(new UserMapAction{userMap = articlesResponse.userMap});
+                        StoreProvider.store.Dispatch(new UserMapAction {userMap = articlesResponse.userMap});
                         StoreProvider.store.Dispatch(new FetchArticleSuccessAction
                             {ArticleDict = articleDict, ArticleList = articleList});
                     }
@@ -165,18 +164,16 @@ namespace ConnectApp.screens {
             items.ForEach(id => {
                 var article = StoreProvider.store.state.articleState.articleDict[id];
                 var user = new User();
-                if (StoreProvider.store.state.userState.userDict.ContainsKey(article.userId)) {
+                if (StoreProvider.store.state.userState.userDict.ContainsKey(article.userId))
                     user = StoreProvider.store.state.userState.userDict[article.userId];
-                }
                 list.Add(new ArticleCard(
                     article,
                     user,
                     () => {
-                        StoreProvider.store.Dispatch(new NavigatorToArticleDetailAction{detailId = id});
+                        StoreProvider.store.Dispatch(new NavigatorToArticleDetailAction {detailId = id});
                         Navigator.pushNamed(context, "/article-detail");
                     },
-                    moreCallBack: () =>
-                    {
+                    moreCallBack: () => {
                         ActionSheetUtils.showModalActionSheet(context, new ActionSheet(
                             items: new List<ActionSheetItem> {
                                 new ActionSheetItem("举报", ActionType.destructive, () => { }),
