@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using ConnectApp.api;
 using ConnectApp.components;
 using ConnectApp.components.refresh;
@@ -10,7 +9,6 @@ using ConnectApp.redux.actions;
 using ConnectApp.utils;
 using RSG;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
@@ -18,7 +16,6 @@ using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Avatar = ConnectApp.components.Avatar;
 using Icons = ConnectApp.constants.Icons;
-using Image = Unity.UIWidgets.widgets.Image;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens
@@ -93,7 +90,7 @@ namespace ConnectApp.screens
                     {
                         _user = userDict[_article.userId];
                     }
-
+                
                     _channelId = articleDetail.channelId;
                     _relArticles = articleDetail.projects;
                     if (channelMessageList.ContainsKey(articleDetail.channelId))
@@ -105,6 +102,12 @@ namespace ConnectApp.screens
                     _hasMore = articleDetail.comments.hasMore;
                     
                     var originItems = _buildItems(context, articleDetail);
+
+                    RefresherCallback footerCallback = null;
+                    if (_hasMore)
+                    {
+                        footerCallback = onFooterRefresh;
+                    }
                     
                     var child = new Container(
                         color: CColors.background3,
@@ -118,25 +121,16 @@ namespace ConnectApp.screens
                                 ),
                                 new Container(
                                     padding:EdgeInsets.only(top:88,bottom:45),
-                                    child:_hasMore?new Refresh(
-                                        onFooterRefresh:onFooterRefresh,
+                                    child:new Refresh(
+                                        onFooterRefresh:footerCallback,
                                         child:ListView.builder(
-                                                physics: new AlwaysScrollableScrollPhysics(),
-                                                itemCount:originItems.Count,
-                                                itemBuilder: (_context,index) =>
-                                                {
-                                                    return originItems[index];
-                                                }
+                                            physics: new AlwaysScrollableScrollPhysics(),
+                                            itemCount:originItems.Count,
+                                            itemBuilder: (cxt,index) =>
+                                            {
+                                                return originItems[index];
+                                            }
                                             
-                                        )  
-                                    ):new Refresh(
-                                        child: ListView.builder(
-                                                physics: new AlwaysScrollableScrollPhysics(),
-                                                itemCount:originItems.Count,
-                                                itemBuilder: (_context,index) =>
-                                                {
-                                                    return originItems[index];
-                                                }
                                         )  
                                     )
                                 ),
@@ -197,6 +191,7 @@ namespace ConnectApp.screens
             originItems.Add(_actionCards(context,articleDetail.like));
             originItems.Add(_relatedArticles(context));
             originItems.Add( _comments(context));
+            originItems.AddRange(_buildComments(context));
             if (!articleDetail.comments.hasMore)
             {
                originItems.Add(_buildEnd(context)); 
@@ -430,22 +425,17 @@ namespace ConnectApp.screens
             return new Container(
                 color:CColors.White,
                 padding:EdgeInsets.only(left:16,right:16),
-                child: new Column(
-                    crossAxisAlignment:CrossAxisAlignment.start,
-                    children:new List<Widget>{
-                    new Text("评论",style:CTextStyle.H5,textAlign:TextAlign.left),
-                    new Container(
-                        child: new Column(
-                            children: _buildComments()
-                        )
-                    )
-                }) 
+                child: new Text("评论",style:CTextStyle.H5,textAlign:TextAlign.left)
 
             );
         }
 
-        private List<Widget> _buildComments()
+        private List<Widget> _buildComments(BuildContext context)
         {
+            if (_channelComments.isEmpty())
+            {
+                return new List<Widget>();
+            }
             var comments = new List<Widget>();
             var channelMessageDict = StoreProvider.store.state.messageState.channelMessageDict;
             var messageDict = channelMessageDict[_channelId];

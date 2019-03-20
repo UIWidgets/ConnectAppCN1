@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using ConnectApp.constants;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
@@ -23,6 +24,7 @@ namespace ConnectApp.components {
             this.controllers = controllers;
             this.items = items;
             this.tabbarBackgroudColor = tabbarBackgroudColor;
+            this.tapCallBack = tapCallBack;
         }
 
         public readonly SelectTabCallBack tapCallBack;
@@ -104,7 +106,10 @@ namespace ConnectApp.components {
                                 {
                                     if (_selectedIndex != item.index)
                                     {
-                                        widget.tapCallBack(_selectedIndex);
+                                        if (widget.tapCallBack != null)
+                                        {
+                                            widget.tapCallBack(_selectedIndex);
+                                        }
                                         setState(() => {
                                             _selectedIndex = item.index;
                                             _pageController.animateToPage(item.index, new TimeSpan(0, 0, 0, 0,1),

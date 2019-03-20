@@ -51,8 +51,8 @@ namespace ConnectApp.screens {
                             24
                         ),
                     },
-                    CColors.White
-//                    tapCallBack: (index) => { Debug.Log(); }
+                    CColors.White,
+                    tapCallBack: (index) => { Debug.Log($"index == {index}"); }
                 ));
         }
     }

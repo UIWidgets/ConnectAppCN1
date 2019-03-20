@@ -37,7 +37,8 @@ namespace ConnectApp.components
                 user = StoreProvider.store.state.userState.userDict[article.userId];
             }
             var child = new Container(
-                padding:EdgeInsets.only(top:16,bottom:16),
+                color:CColors.White,
+                padding:EdgeInsets.all(16),
                 child:new Row(
                   children:new List<Widget>
                   {
