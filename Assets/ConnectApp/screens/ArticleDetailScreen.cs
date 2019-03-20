@@ -55,7 +55,7 @@ namespace ConnectApp.screens
         public override void initState()
         {
             base.initState();
-            StoreProvider.store.state.articleState.detailId = "5c19bf85edbc2a1f80031c68";
+            
             StoreProvider.store.Dispatch(new FetchArticleDetailAction()
                 {articleId = StoreProvider.store.state.articleState.detailId});
         }
