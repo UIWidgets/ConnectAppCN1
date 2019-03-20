@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using ConnectApp.constants;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
@@ -10,18 +11,23 @@ using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.components {
+
+    public delegate void SelectTabCallBack(int index);
     public class CustomTabBar : StatefulWidget {
         public CustomTabBar(
             List<Widget> controllers,
             List<CustomTabBarItem> items,
             Color tabbarBackgroudColor,
+            SelectTabCallBack tapCallBack = null,
             Key key = null
         ) : base(key) {
             this.controllers = controllers;
             this.items = items;
             this.tabbarBackgroudColor = tabbarBackgroudColor;
+            this.tapCallBack = tapCallBack;
         }
 
+        public readonly SelectTabCallBack tapCallBack;
         public readonly Color tabbarBackgroudColor;
         public readonly List<Widget> controllers;
         public readonly List<CustomTabBarItem> items;
@@ -96,13 +102,21 @@ namespace ConnectApp.components {
                         fit: StackFit.expand,
                         children: new List<Widget> {
                             new GestureDetector(
-                                onTap: () => {
+                                onTap: () =>
+                                {
                                     if (_selectedIndex != item.index)
+                                    {
+                                        if (widget.tapCallBack != null)
+                                        {
+                                            widget.tapCallBack(_selectedIndex);
+                                        }
                                         setState(() => {
                                             _selectedIndex = item.index;
-                                            _pageController.animateToPage(item.index, new TimeSpan(0, 0, 0, 0),
+                                            _pageController.animateToPage(item.index, new TimeSpan(0, 0, 0, 0,1),
                                                 Curves.ease);
-                                        });
+                                        }); 
+                                    }
+                                    
                                 },
                                 child: new Container(
                                     decoration: new BoxDecoration(

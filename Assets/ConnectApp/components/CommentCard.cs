@@ -71,7 +71,8 @@ namespace ConnectApp.components {
 
 
             return new Container(
-                padding: EdgeInsets.only(top: 8),
+                color:CColors.White,
+                padding: EdgeInsets.only(top: 8,left:16,right:16),
                 child: new Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {

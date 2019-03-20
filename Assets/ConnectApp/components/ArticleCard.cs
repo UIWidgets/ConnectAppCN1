@@ -33,7 +33,7 @@ namespace ConnectApp.components {
         public override Widget build(BuildContext context) {
             var username = user != null ? user.fullName : "";
             var card = new Container(
-                color: CColors.Transparent,
+                color: CColors.White,
                 child: new Padding(
                     padding: EdgeInsets.all(16),
                     child: new Container(
