@@ -186,7 +186,7 @@ namespace ConnectApp.screens {
                                             eventType = model.live ? EventType.onLine : EventType.offline
                                         });
                                         Navigator.pushNamed(context, "/event-detail");
-                                    }));
+                                    },new ObjectKey(model.id)));
                             });
                         else
                             cardList.Add(new Container());
@@ -195,9 +195,10 @@ namespace ConnectApp.screens {
                             onFooterRefresh: onFooterRefresh,
                             headerBuilder: (cxt, controller) => new RefreshHeader(controller),
                             footerBuilder: (cxt, controller) => new RefreshFooter(controller),
-                            child: new ListView(
+                            child: ListView.builder(
                                 physics: new AlwaysScrollableScrollPhysics(),
-                                children: cardList
+                                itemCount:cardList.Count,
+                                itemBuilder:(cxt,index) => cardList[index]
                             )
                         );
                     }

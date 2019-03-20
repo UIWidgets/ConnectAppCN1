@@ -17,7 +17,7 @@ namespace ConnectApp.utils {
         }
 
         public static string DateStringFromNonce(string nonce) {
-            var startTime = TimeZone.CurrentTimeZone.ToLocalTime(new DateTime(2016, 1, 1));
+            var startTime =System.TimeZoneInfo.ConvertTime(new System.DateTime(2016, 1, 1), TimeZoneInfo.Local);
             var span = Convert.ToInt64(nonce, 16);
             var shifted = (span + 1) >> 22;
             var timespan = (shifted - 1);

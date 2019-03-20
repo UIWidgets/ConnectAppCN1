@@ -76,15 +76,15 @@ namespace ConnectApp.components.refresh {
         public DefaultRefreshChild(
             RefreshWidgetController controller,
             Widget icon,
-            bool showState = true,
-            bool showLastUpdate = true,
+            bool showState = false,
+            bool showLastUpdate = false,
             DefaultRefreshLocal local = null,
             bool up = true,
             Key key = null) : base(controller, key) {
             this.icon = icon;
             this.showState = showState;
             this.showLastUpdate = showLastUpdate;
-            this.local = local ?? DefaultRefreshLocal.zh();
+            this.local = local ?? DefaultRefreshLocal.zh("","","","","");
             this.up = up;
         }
 

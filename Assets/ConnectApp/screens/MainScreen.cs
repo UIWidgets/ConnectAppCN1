@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using ConnectApp.components;
 using ConnectApp.constants;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 
 namespace ConnectApp.screens {
     public class MainScreen : StatelessWidget {
@@ -49,7 +50,8 @@ namespace ConnectApp.screens {
                             24
                         ),
                     },
-                    CColors.White
+                    CColors.White,
+                    tapCallBack: (index) => { Debug.Log($"index == {index}"); }
                 ));
         }
     }
