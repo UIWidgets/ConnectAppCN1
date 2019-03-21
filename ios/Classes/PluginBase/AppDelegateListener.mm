@@ -7,6 +7,8 @@ DEFINE_NOTIFICATION(kUnityDidFailToRegisterForRemoteNotificationsWithError);
 DEFINE_NOTIFICATION(kUnityDidReceiveRemoteNotification);
 DEFINE_NOTIFICATION(kUnityDidReceiveLocalNotification);
 DEFINE_NOTIFICATION(kUnityOnOpenURL);
+DEFINE_NOTIFICATION(kUnityWillFinishLaunchingWithOptions);
+DEFINE_NOTIFICATION(kUnityHandleEventsForBackgroundURLSession);
 
 #undef DEFINE_NOTIFICATION
 
@@ -34,6 +36,9 @@ void UnityRegisterAppDelegateListener(id<AppDelegateListener> obj)
     REGISTER_SELECTOR(@selector(applicationWillChangeStatusBarFrame:), UIApplicationWillChangeStatusBarFrameNotification);
     REGISTER_SELECTOR(@selector(applicationWillChangeStatusBarOrientation:), UIApplicationWillChangeStatusBarOrientationNotification);
 #endif
+
+    REGISTER_SELECTOR(@selector(applicationWillFinishLaunchingWithOptions:), kUnityWillFinishLaunchingWithOptions);
+    REGISTER_SELECTOR(@selector(onHandleEventsForBackgroundURLSession:), kUnityHandleEventsForBackgroundURLSession);
 
     #undef REGISTER_SELECTOR
 }

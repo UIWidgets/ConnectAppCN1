@@ -32,6 +32,15 @@
 // notification user data is the NSDictionary containing all the params
 - (void)onOpenURL:(NSNotification*)notification;
 
+// notification will be posted from
+// - (BOOL)application:(UIApplication*)application willFinishLaunchingWithOptions:(NSDictionary*)launchOptions
+// notification user data is the NSDictionary containing launchOptions
+- (void)applicationWillFinishLaunchingWithOptions:(NSNotification*)notification;
+// notification will be posted from
+// - (void)application:(UIApplication*)application handleEventsForBackgroundURLSession:(nonnull NSString *)identifier completionHandler:(nonnull void (^)())completionHandler
+// notification user data is NSDictionary with one item where key is session identifier and value is completion handler
+- (void)onHandleEventsForBackgroundURLSession:(NSNotification*)notification;
+
 // these are just hooks to existing notifications
 - (void)applicationDidReceiveMemoryWarning:(NSNotification*)notification;
 - (void)applicationSignificantTimeChange:(NSNotification*)notification;
@@ -47,3 +56,5 @@ extern "C" __attribute__((visibility("default"))) NSString* const kUnityDidFailT
 extern "C" __attribute__((visibility("default"))) NSString* const kUnityDidReceiveRemoteNotification;
 extern "C" __attribute__((visibility("default"))) NSString* const kUnityDidReceiveLocalNotification;
 extern "C" __attribute__((visibility("default"))) NSString* const kUnityOnOpenURL;
+extern "C" __attribute__((visibility("default"))) NSString* const kUnityWillFinishLaunchingWithOptions;
+extern "C" __attribute__((visibility("default"))) NSString* const kUnityHandleEventsForBackgroundURLSession;
