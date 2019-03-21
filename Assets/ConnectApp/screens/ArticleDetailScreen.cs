@@ -70,6 +70,7 @@ namespace ConnectApp.screens
                     if (StoreProvider.store.state.articleState.articleDetailLoading)
                     {
                         return new SafeArea(
+                            top:false,
                             child:new Column(
                                 children: new List<Widget>
                                 {
@@ -458,6 +459,7 @@ namespace ConnectApp.screens
                     replyCallBack: () =>
                     {
                         ActionSheetUtils.showModalActionSheet(context, new CustomInput(
+                            message.author.fullName.isEmpty()?"":message.author.fullName,
                             doneCallBack: (text) => { 
                                 StoreProvider.store.Dispatch(new SendCommentAction()
                                 {
