@@ -166,7 +166,7 @@ namespace ConnectApp.constants {
         public static readonly TextStyle TextBody3 = new TextStyle(
             height: 1.25f,
             fontSize: 12,
-            fontFamily: "PingFangSC-Regular",
+            fontFamily: "PingFang-Regular",
             color: CColors.TextBody3
         );
     }
