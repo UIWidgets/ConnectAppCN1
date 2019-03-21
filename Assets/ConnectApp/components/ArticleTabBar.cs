@@ -10,7 +10,7 @@ namespace ConnectApp.components {
     public class ArticleTabBar : StatelessWidget {
         public ArticleTabBar(
             bool like,
-            GestureTapCallback addommentCallback = null,
+            GestureTapCallback addCommentCallback = null,
             GestureTapCallback commentCallback = null,
             GestureTapCallback favorCallback = null,
             GestureTapCallback bookmarkCallback = null,
@@ -18,14 +18,13 @@ namespace ConnectApp.components {
             Key key = null
         ) : base(key) {
             this.like = like;
-            this.addommentCallback = addommentCallback;
+            this.addCommentCallback = addCommentCallback;
             this.commentCallback = commentCallback;
             this.favorCallback = favorCallback;
             this.bookmarkCallback = bookmarkCallback;
             this.shareCallback = shareCallback;
         }
-
-        public readonly GestureTapCallback addommentCallback;
+        public readonly GestureTapCallback addCommentCallback;
         public readonly GestureTapCallback commentCallback;
         public readonly GestureTapCallback favorCallback;
         public readonly GestureTapCallback bookmarkCallback;
@@ -35,9 +34,9 @@ namespace ConnectApp.components {
         public override Widget build(BuildContext context) {
             return new Container(
                 height: 49,
-                padding: EdgeInsets.only(left: 16, right: 16),
+                padding: EdgeInsets.only(16, right:16),
                 decoration: new BoxDecoration(
-                    border: new Border(top: new BorderSide(CColors.Separator)),
+                    border: new Border(new BorderSide(CColors.Separator)),
                     color: CColors.White
                 ),
                 child: new Row(
@@ -45,14 +44,15 @@ namespace ConnectApp.components {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: new List<Widget> {
                         new GestureDetector(
-                            onTap: addommentCallback,
+                            onTap: addCommentCallback,
                             child: new Container(
-                                padding: EdgeInsets.only(left: 16),
+                                padding: EdgeInsets.only(16),
                                 height: 32,
                                 width: MediaQuery.of(context).size.width - 164,
                                 decoration: new BoxDecoration(
-                                    color: CColors.Separator2,
-                                    borderRadius: BorderRadius.all(16)),
+                                    CColors.Separator2,
+                                    borderRadius: BorderRadius.all(16)
+                                ),
                                 child: new Text(
                                     "说点想法...",
                                     style: new TextStyle(
@@ -82,7 +82,8 @@ namespace ConnectApp.components {
                             child: new Icon(Icons.share, null, 24, CColors.icon3)
                         )
                     }
-                ));
+                )
+            );
         }
     }
 }

@@ -29,10 +29,10 @@ namespace ConnectApp.screens {
 
     internal class _SearchScreenState : State<SearchScreen> {
         private readonly TextEditingController _controller = new TextEditingController(null);
-        private int pageNumber = 0;
-
+        private int pageNumber;
         public override void initState() {
             base.initState();
+            pageNumber = 0;
             StoreProvider.store.Dispatch(new GetSearchHistoryAction());
         }
 
@@ -104,13 +104,19 @@ namespace ConnectApp.screens {
                                                         pageNumber++;
                                                         return _onRefresh(pageNumber);
                                                     },
+                                                    headerBuilder: (cxt, controller) => new RefreshHeader(controller),
+                                                    footerBuilder: (cxt, controller) => new RefreshFooter(controller),
                                                     child: ListView.builder(
                                                         physics: new AlwaysScrollableScrollPhysics(),
                                                         itemCount: searchArticles.Count,
                                                         itemBuilder: (cxt, index) => {
                                                             var searchArticle = searchArticles[index];
-                                                            return new ArticleCard(
-                                                                searchArticle
+                                                            return new RelatedArticleCard(
+                                                                searchArticle,
+                                                                () => {
+                                                                    StoreProvider.store.Dispatch(new NavigatorToArticleDetailAction{detailId = searchArticle.id});
+                                                                    Navigator.pushNamed(context, "/article-detail");
+                                                                }
                                                             );
                                                         }
                                                     )
@@ -170,6 +176,7 @@ namespace ConnectApp.screens {
                             ),
                             cursorColor: CColors.PrimaryBlue,
                             textInputAction: TextInputAction.search,
+                            clearButtonMode: InputFieldClearButtonMode.editing,
                             onChanged: text => {
                                 if (text == null || text.Length <= 0) _clearSearchArticle();
                             },

@@ -34,36 +34,36 @@ namespace ConnectApp.screens {
 
     public class LoginSwitchScreen : StatelessWidget {
         public override Widget build(BuildContext context) {
-            return _content(context);
+            return new SafeArea(
+                child: _buildContent(context)
+            );
         }
 
-        private Widget _content(BuildContext context) {
+        private static Widget _buildContent(BuildContext context) {
             return new Container(
-                decoration: new BoxDecoration(
-                    CColors.background1
-                ),
+                color: CColors.White,
                 child: new Column(
                     children: new List<Widget> {
-                        _topView(context),
-                        _middleView(),
+                        _buildTopView(context),
+                        _buildMiddleView(),
                         new Flexible(child: new Container()),
-                        _bottomView(context)
+                        _buildBottomView(context)
                     }
                 )
             );
         }
 
-        private Widget _topView(BuildContext context) {
+        private static Widget _buildTopView(BuildContext context) {
             return new Container(
-                padding: EdgeInsets.only(20, 8),
+                padding: EdgeInsets.only(16, 8),
                 child: new Row(
                     children: new List<Widget> {
                         new CustomButton(
-                            onPressed: () => { Navigator.pop(context); },
+                            onPressed: () => Navigator.pop(context),
                             child: new Icon(
                                 Icons.close,
                                 size: 28,
-                                color: CColors.icon1
+                                color: CColors.icon3
                             )
                         )
                     }
@@ -71,13 +71,13 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _middleView() {
+        private static Widget _buildMiddleView() {
             return new Column(
                 children: new List<Widget> {
                     new Container(
                         margin: EdgeInsets.only(top: 100),
                         child: Image.asset(
-                            "logo-unity",
+                            "black-logo-unity",
                             height: 80,
                             width: 80,
                             fit: BoxFit.fill
@@ -87,25 +87,23 @@ namespace ConnectApp.screens {
                     new Text(
                         "欢迎来到 Unity Connect",
                         maxLines: 1,
-                        style: new TextStyle(
-                            fontSize: 24,
-                            color: CColors.text1
-                        )
+                        style: CTextStyle.H4
                     )
                 }
             );
         }
 
-        private Widget _bottomView(BuildContext context) {
+        private static Widget _buildBottomView(BuildContext context) {
             return new Container(
-                padding: EdgeInsets.symmetric(horizontal: 24),
+                padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
                     children: new List<Widget> {
                         new CustomButton(
+                            padding: EdgeInsets.zero,
                             child: new Container(
                                 height: 48,
                                 decoration: new BoxDecoration(
-                                    CColors.primary,
+                                    CColors.PrimaryBlue,
                                     borderRadius: BorderRadius.all(24)
                                 ),
                                 child: new Row(
@@ -114,7 +112,7 @@ namespace ConnectApp.screens {
                                         Image.asset(
                                             "icon-wechat",
                                             width: 24,
-                                            height: 20,
+                                            height: 24,
                                             fit: BoxFit.fill
                                         ),
                                         new Container(width: 8),
@@ -123,20 +121,23 @@ namespace ConnectApp.screens {
                                             maxLines: 1,
                                             style: new TextStyle(
                                                 fontSize: 16,
-                                                color: CColors.text1
+                                                fontFamily: "PingFang-Regular",
+                                                color: CColors.White
                                             )
                                         )
-                                    })
+                                    }
+                                )
                             )
                         ),
                         new Container(height: 16),
                         new CustomButton(
                             onPressed: () => Navigator.pushNamed(context, "/bind-unity"),
+                            padding: EdgeInsets.zero,
                             child: new Container(
                                 height: 48,
                                 decoration: new BoxDecoration(
-                                    CColors.background1,
-                                    border: Border.all(CColors.White),
+                                    CColors.White,
+                                    border: Border.all(CColors.PrimaryBlue),
                                     borderRadius: BorderRadius.all(24)
                                 ),
                                 child: new Row(
@@ -147,10 +148,12 @@ namespace ConnectApp.screens {
                                             maxLines: 1,
                                             style: new TextStyle(
                                                 fontSize: 16,
-                                                color: CColors.text1
+                                                fontFamily: "PingFang-Regular",
+                                                color: CColors.PrimaryBlue
                                             )
                                         )
-                                    })
+                                    }
+                                )
                             )
                         ),
                         new Container(height: 65)

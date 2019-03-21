@@ -28,5 +28,6 @@ namespace ConnectApp.models {
     [Serializable]
     public class FetchSearchResponse {
         public List<Article> projects;
+        public Dictionary<string, User> userMap;
     }
 }

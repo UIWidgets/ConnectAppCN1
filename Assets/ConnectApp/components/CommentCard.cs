@@ -94,7 +94,7 @@ namespace ConnectApp.components {
                                                     child: new Text(message.author.fullName, style: new TextStyle(
                                                         height: 1.57f,
                                                         fontSize: 14,
-                                                        fontFamily: "PingFangSC-Regular",
+                                                        fontFamily: "PingFang-Regular",
                                                         color: CColors.TextBody3))),
                                                 new GestureDetector(
                                                     onTap: moreCallBack,

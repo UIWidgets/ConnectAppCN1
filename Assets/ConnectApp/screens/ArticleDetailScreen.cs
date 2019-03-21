@@ -18,26 +18,20 @@ using Avatar = ConnectApp.components.Avatar;
 using Icons = ConnectApp.constants.Icons;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
-namespace ConnectApp.screens
-{
-    public class ArticleDetailScreen : StatefulWidget
-    {
+namespace ConnectApp.screens {
+    public class ArticleDetailScreen : StatefulWidget {
         public ArticleDetailScreen(
             Key key = null
-        ) : base(key)
-        {
+        ) : base(key) {
             
         }
         
-        public override State createState()
-        {
+        public override State createState() {
             return new _ArticleDetailScreenState();
         }
-        
     }
 
-    internal class _ArticleDetailScreenState : State<ArticleDetailScreen>
-    {
+    internal class _ArticleDetailScreenState : State<ArticleDetailScreen> {
 
         private Article _article = new Article();
         private User _user = new User();
@@ -49,16 +43,13 @@ namespace ConnectApp.screens
         private bool _hasMore = false;
 
         
-        public override void initState()
-        {
+        public override void initState() {
             base.initState();
-            
-            StoreProvider.store.Dispatch(new FetchArticleDetailAction()
+            StoreProvider.store.Dispatch(new FetchArticleDetailAction
                 {articleId = StoreProvider.store.state.articleState.detailId});
         }
 
-        public override Widget build(BuildContext context)
-        {
+        public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, Dictionary<string, object>>(
                 converter: (state, dispatcher) => new Dictionary<string, object> {
                     {"articleDetail", state.articleState.articleDetail},
@@ -67,15 +58,11 @@ namespace ConnectApp.screens
                     {"userDict",state.userState.userDict}
                 },
                 builder: (context1, viewModel) => {
-                    if (StoreProvider.store.state.articleState.articleDetailLoading)
-                    {
+                    if (StoreProvider.store.state.articleState.articleDetailLoading) {
                         return new SafeArea(
-                            child:new Column(
-                                children: new List<Widget>
-                                {
-                                    new Container(
-                                        child: _navigationBar(context)
-                                    ),
+                            child: new Column(
+                                children: new List<Widget> {
+                                    _navigationBar(context),
                                     new ArticleDetailLoading()
                                 }
                             )
@@ -86,15 +73,13 @@ namespace ConnectApp.screens
                     var userDict = (Dictionary<string, User>) viewModel["userDict"];
                     if (articleDetail == null) return new Container();
                     _article = articleDetail.projectData;
-                    if (_article.userId!=null&&userDict.TryGetValue(_article.userId,out _user))
-                    {
+                    if (_article.userId!=null&&userDict.TryGetValue(_article.userId,out _user)) {
                         _user = userDict[_article.userId];
                     }
                 
                     _channelId = articleDetail.channelId;
                     _relArticles = articleDetail.projects;
-                    if (channelMessageList.ContainsKey(articleDetail.channelId))
-                    {
+                    if (channelMessageList.ContainsKey(articleDetail.channelId)) {
                         _channelComments = channelMessageList[articleDetail.channelId];
                     }
                     _contentMap = articleDetail.contentMap;
@@ -104,72 +89,51 @@ namespace ConnectApp.screens
                     var originItems = _buildItems(context, articleDetail);
 
                     RefresherCallback footerCallback = null;
-                    if (_hasMore)
-                    {
+                    if (_hasMore) {
                         footerCallback = onFooterRefresh;
                     }
                     
                     var child = new Container(
                         color: CColors.background3,
-                        child: new Stack(
+                        child: new Column(
                             children: new List<Widget> {
-                                new Positioned(
-                                    top:0,
-                                    left:0,
-                                    right:0,
-                                    child:_navigationBar(context)
-                                ),
-                                new Container(
-                                    padding:EdgeInsets.only(top:88,bottom:45),
-                                    child:new Refresh(
-                                        onFooterRefresh:footerCallback,
-                                        child:ListView.builder(
+                                _navigationBar(context),
+                                new Expanded(
+                                    child: new Refresh(
+                                        onFooterRefresh: footerCallback,
+                                        footerBuilder: (cxt, controller) => new RefreshFooter(controller),
+                                        child: ListView.builder(
                                             physics: new AlwaysScrollableScrollPhysics(),
-                                            itemCount:originItems.Count,
-                                            itemBuilder: (cxt,index) =>
-                                            {
-                                                return originItems[index];
-                                            }
-                                            
+                                            itemCount: originItems.Count,
+                                            itemBuilder: (cxt, index) => originItems[index]  
                                         )  
                                     )
-                                ),
-                                
-                                                            
-                                new Positioned(
-                                    bottom: 0,
-                                    left: 0,
-                                    right: 0,
-                                    child: new ArticleTabBar(
-                                        articleDetail.like,
-                                        addommentCallback: () =>
-                                        {
-                                            ActionSheetUtils.showModalActionSheet(context, new CustomInput(
-                                                doneCallBack: (text) => { 
-                                                   StoreProvider.store.Dispatch(new SendCommentAction()
-                                                {
+                                ),                     
+                                new ArticleTabBar(
+                                    articleDetail.like,
+                                    () => {
+                                        ActionSheetUtils.showModalActionSheet(context, new CustomInput(
+                                            doneCallBack: text => { 
+                                                StoreProvider.store.Dispatch(new SendCommentAction{
                                                     channelId = articleDetail.channelId,
                                                     content = text,
                                                     nonce = Snowflake.CreateNonce()
-                                                }); }));
-
-                                        },
-                                        commentCallback: () =>
-                                        {
-                                            ActionSheetUtils.showModalActionSheet(context, new CustomInput());
-                                        },
-                                        favorCallback: () =>
-                                        {
-                                            if (!articleDetail.like)
-                                            {
-                                                StoreProvider.store.Dispatch(new LikeArticleAction()
-                                                {
-                                                    articleId = _article.id
                                                 });
-                                            }
-                                        },
-                                        shareCallback: () => { }
-                                    )
+                                            })
+                                        );
+
+                                    },
+                                    () => {
+                                        ActionSheetUtils.showModalActionSheet(context, new CustomInput());
+                                    },
+                                    () => {
+                                        if (!articleDetail.like) {
+                                            StoreProvider.store.Dispatch(new LikeArticleAction{
+                                                articleId = _article.id
+                                            });
+                                        }
+                                    },
+                                    shareCallback: () => { }
                                 )
                             }
                         )
@@ -182,8 +146,7 @@ namespace ConnectApp.screens
             );
         }
 
-        private List<Widget> _buildItems(BuildContext context,Project articleDetail)
-        {
+        private List<Widget> _buildItems(BuildContext context,Project articleDetail) {
             var originItems = new List<Widget>();
             originItems.Add(_contentHead(context));
             originItems.Add(_subTitle(context));
@@ -219,7 +182,7 @@ namespace ConnectApp.screens
                         alignment: Alignment.center,
                         child: new Text("说点想法",
                             style: new TextStyle(color: CColors.PrimaryBlue, fontSize: 14,
-                                fontFamily: "PingFangSC-Medium"))
+                                fontFamily: "PingFang-Medium"))
                     )
                 }, CColors.White, 52);
         }
@@ -258,11 +221,9 @@ namespace ConnectApp.screens
         }
         
         
-        private Widget _contentHead(BuildContext context)
-        {
-            
+        private Widget _contentHead(BuildContext context) {
             return new Container(
-                color:CColors.White,
+                color: CColors.White,
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -280,14 +241,12 @@ namespace ConnectApp.screens
                                     fontSize: 12,
                                     fontFamily: "PingFang-Regular",
                                     color: CColors.TextBody4
-                                    )
                                 )
+                            )
                         ),
                         new Container(
                             margin: EdgeInsets.only(top: 24, bottom: 24),
                             child: new Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: new List<Widget> {
                                     new Container(
                                         margin: EdgeInsets.only(right: 8),
@@ -297,15 +256,17 @@ namespace ConnectApp.screens
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: new List<Widget> {
-                                            new Container(height: 5),
                                             new Text(
                                                 _user==null?"昵称":_user.fullName,
-                                                style: CTextStyle.PRegular
+                                                style: new TextStyle(
+                                                    fontSize: 14,
+                                                    fontFamily: "PingFang-Medium",
+                                                    color: CColors.TextBody
+                                                )
                                             ),
                                             new Text(
-                                                DateConvert.DateStringFromNow(_article.createdTime),
+                                                _user == null ? "昵称" : _user.description,
                                                 style: new TextStyle(
-                                                    height: 1.67f,
                                                     fontSize: 12,
                                                     fontFamily: "PingFang-Regular",
                                                     color: CColors.TextBody3
@@ -314,28 +275,28 @@ namespace ConnectApp.screens
                                         }
                                     )
                                 }
-                            )),
+                            )
+                        )
                     }
                 )
             );
         }
 
 
-        private Widget _subTitle(BuildContext context)
-        {
-            
+        private Widget _subTitle(BuildContext context) {
             return new Container(
-                color:CColors.White,
-                child:new Container(
-                    margin:EdgeInsets.only(bottom:24,left:16,right:16),
-                    child:new Container(
-                    decoration:new BoxDecoration(
-                        color:CColors.Separator2,
-                        borderRadius:BorderRadius.all(4)
-                    ),
-                    padding:EdgeInsets.only(16,12,16,12), 
-                    child:new Text($"{_article.subTitle}",style:CTextStyle.PLargeGray)
-                )  ) 
+                color: CColors.White,
+                child: new Container(
+                    margin: EdgeInsets.only(bottom: 24, left: 16, right: 16),
+                    child: new Container(
+                        decoration:new BoxDecoration(
+                            CColors.Separator2,
+                            borderRadius: BorderRadius.all(4)
+                        ),
+                        padding: EdgeInsets.only(16,12,16,12), 
+                        child:new Text($"{_article.subTitle}",style:CTextStyle.PLargeGray)
+                    )
+                ) 
             );
         }
 
@@ -348,11 +309,10 @@ namespace ConnectApp.screens
             );
         }
         
-        private Widget _actionCards(BuildContext context,bool like)
-        {
+        private Widget _actionCards(BuildContext context, bool like) {
             return new Container(
-                color:CColors.White,
-                padding:EdgeInsets.only(bottom:40),
+                color: CColors.White,
+                padding: EdgeInsets.only(bottom:40),
                 child: new Row(
                     mainAxisAlignment:MainAxisAlignment.center,
                     crossAxisAlignment:CrossAxisAlignment.center,
