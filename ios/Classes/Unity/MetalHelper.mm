@@ -16,6 +16,7 @@
 extern "C" Class MTLTextureDescriptorClass;
 extern Class MTLHeapDescriptorClass;
 
+
 extern "C" void UnityAddNewMetalAPIImplIfNeeded(id<MTLDevice> device)
 {
     // we were adding [MTLDevice supportsTextureSampleCount:] and MTLTextureDescriptor.usage

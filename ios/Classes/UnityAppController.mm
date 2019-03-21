@@ -239,6 +239,7 @@ extern "C" void UnityRequestQuit()
 
 - (BOOL)application:(UIApplication*)application willFinishLaunchingWithOptions:(NSDictionary*)launchOptions
 {
+    AppController_SendNotificationWithArg(kUnityWillFinishLaunchingWithOptions, launchOptions);
     return YES;
 }
 
@@ -403,6 +404,12 @@ extern "C" void UnityRequestQuit()
 
     extern void SensorsCleanup();
     SensorsCleanup();
+}
+
+- (void)application:(UIApplication*)application handleEventsForBackgroundURLSession:(nonnull NSString *)identifier completionHandler:(nonnull void (^)())completionHandler
+{
+    NSDictionary* arg = @{identifier: completionHandler};
+    AppController_SendNotificationWithArg(kUnityHandleEventsForBackgroundURLSession, arg);
 }
 
 @end
