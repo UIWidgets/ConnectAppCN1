@@ -31,99 +31,116 @@ namespace ConnectApp.constants {
 
     public static class CTextStyle {
         public static readonly TextStyle Xtra = new TextStyle(
-            height: 1.17f,
+            height: 0.84f,
             fontSize: 48,
             fontFamily: "PingFang-Semibold",
             color: CColors.TextTitle
         );
 
         public static readonly TextStyle H1 = new TextStyle(
-            height: 1.2f,
+            height: 0.87f,
             fontSize: 40,
             fontFamily: "PingFang-Semibold",
             color: CColors.TextTitle
         );
 
         public static readonly TextStyle H2 = new TextStyle(
-            height: 1.25f,
+            height: 0.9f,
             fontSize: 32,
             fontFamily: "PingFang-Semibold",
             color: CColors.TextTitle
         );
 
         public static readonly TextStyle H2White = new TextStyle(
-            height: 1.25f,
+            height: 0.9f,
             fontSize: 32,
             fontFamily: "PingFang-Semibold",
             color: CColors.White
         );
 
         public static readonly TextStyle H3 = new TextStyle(
-            height: 1.29f,
             fontSize: 28,
             fontFamily: "PingFang-Semibold",
             color: CColors.TextTitle
         );
 
         public static readonly TextStyle H4 = new TextStyle(
-            height: 1.33f,
             fontSize: 24,
             fontFamily: "PingFang-Medium",
             color: CColors.TextTitle
         );
 
         public static readonly TextStyle H5 = new TextStyle(
-            height: 1.4f,
             fontSize: 20,
             fontFamily: "PingFang-Medium",
             color: CColors.TextTitle
         );
 
         public static readonly TextStyle H5White = new TextStyle(
-            height: 1.4f,
             fontSize: 20,
             fontFamily: "PingFang-Medium",
-            color: CColors.White
+            color: CColors.H5White
+        );
+        
+        public static readonly TextStyle PXLarge = new TextStyle(
+            height: 1.33f,
+            fontSize: 18,
+            fontFamily: "PingFang-Regular",
+            letterSpacing:0.6f,
+            color: CColors.TextBody
         );
 
-        public static readonly TextStyle PMedium = new TextStyle(
-            height: 1.5f,
+        public static readonly TextStyle PLarge = new TextStyle(
+            height: 1.09f,
+            fontSize: 16,
+            fontFamily: "PingFang-Regular",
+            color: CColors.TextBody
+        );
+        
+        public static readonly TextStyle PLargeMedium = new TextStyle(
+            height: 1.09f,
             fontSize: 16,
             fontFamily: "PingFang-Medium",
             color: CColors.TextTitle
         );
 
-        public static readonly TextStyle PLarge = new TextStyle(
-            height: 1.5f,
+        public static readonly TextStyle PLargeBlue = new TextStyle(
+            height: 1.09f,
             fontSize: 16,
             fontFamily: "PingFang-Regular",
-            color: CColors.TextBody
+            color: CColors.PrimaryBlue
         );
 
         public static readonly TextStyle PLargeGray = new TextStyle(
-            height: 1.5f,
+            height: 1.09f,
             fontSize: 16,
             fontFamily: "PingFang-Regular",
             color: CColors.TextBody4
         );
 
         public static readonly TextStyle PRegular = new TextStyle(
-            height: 1.57f,
+            height: 1.15f,
             fontSize: 14,
             fontFamily: "PingFang-Regular",
             color: CColors.TextBody
         );
+        public static readonly TextStyle PRegularTitle = new TextStyle(
+            height: 1.15f,
+            fontSize: 14,
+            fontFamily: "PingFang-Regular",
+            color: CColors.TextTitle
+        );
 
         public static readonly TextStyle Caption = new TextStyle(
-            height: 1.67f,
+            height: 1.25f,
             fontSize: 12,
             letterSpacing: 0.5f,
             fontFamily: "PingFang-Medium",
-            color: CColors.TextBody
+            color: CColors.TextTitle
         );
 
         public static readonly TextStyle CaptionWhite = new TextStyle(
-            height: 1.67f,
+            height: 1.25f,
             fontSize: 12,
             letterSpacing: 0.5f,
             fontFamily: "PingFang-Medium",
@@ -131,19 +148,18 @@ namespace ConnectApp.constants {
         );
 
         public static readonly TextStyle PSmall = new TextStyle(
-            height: 1.67f,
+            height: 1.25f,
             fontSize: 12,
             fontFamily: "PingFang-Regular",
-            color: CColors.TextBody
+            color: CColors.TextTitle
         );
 
         public static readonly TextStyle TextBody4 = new TextStyle(
-            height: 1.67f,
+            height: 1.25f,
             fontSize: 12,
             fontFamily: "PingFang-Regular",
             color: CColors.TextBody4
         );
-
         public static readonly TextStyle TextBody1 = new TextStyle(
             height: 1.7f,
             fontSize: 18,
@@ -152,6 +168,7 @@ namespace ConnectApp.constants {
         );
 
         public static readonly TextStyle TextBody3 = new TextStyle(
+            height: 1.25f,
             fontSize: 12,
             fontFamily: "PingFang-Regular",
             color: CColors.TextBody3
@@ -172,6 +189,8 @@ namespace ConnectApp.constants {
         public static readonly Color BgGrey = new Color(0xFFFAFAFA);
         public static readonly Color BrownGrey = new Color(0xFFB5B5B5);
 
+        public static readonly Color H5White = Color.fromRGBO(255,255,255,0.8f);
+        
         public static readonly Color Transparent = new Color(0x00000000);
         public static readonly Color White = new Color(0xFFFFFFFF);
         public static readonly Color Black = new Color(0xFF000000);
