@@ -56,7 +56,7 @@ namespace ConnectApp.components {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: new List<Widget> {
                                         new Container(
-                                            child: new Text(_model.title, style: CTextStyle.PMedium, maxLines: 2)
+                                            child: new Text(_model.title, style: CTextStyle.PLargeMedium, maxLines: 2)
                                         ),
 
                                         new Text(

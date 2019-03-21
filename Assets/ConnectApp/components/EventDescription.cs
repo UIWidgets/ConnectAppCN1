@@ -102,12 +102,7 @@ namespace ConnectApp.components {
                 margin: EdgeInsets.only(bottom: 24),
                 child: new Text(
                     text,
-                    style: new TextStyle(
-                        color: CColors.TextTitle,
-                        fontSize: 24,
-                        letterSpacing: 0.0f,
-                        height: 1.33f
-                    )
+                    style: CTextStyle.H4
                 )
             );
         }
@@ -133,7 +128,7 @@ namespace ConnectApp.components {
                 margin: EdgeInsets.only(bottom: 24),
                 child: new Text(
                     text,
-                    style: CTextStyle.TextBody1
+                    style: CTextStyle.PXLarge
                 )
             );
         }
@@ -220,11 +215,11 @@ namespace ConnectApp.components {
                 var spans = new List<TextSpan>() {
                     new TextSpan(
                         $"i+1",
-                        CTextStyle.TextBody1
+                        CTextStyle.PXLarge
                     ),
                     new TextSpan(
                         items[i],
-                        CTextStyle.TextBody1
+                        CTextStyle.PXLarge
                     ),
                 };
                 widgets.Add(
@@ -233,7 +228,7 @@ namespace ConnectApp.components {
                         margin: EdgeInsets.only(top: i == 0 ? 0 : 8),
                         child: new RichText(
                             text: new TextSpan(
-                                style: CTextStyle.TextBody1,
+                                style: CTextStyle.PXLarge,
                                 children: spans
                             )
                         )
@@ -253,11 +248,11 @@ namespace ConnectApp.components {
                 var spans = new List<TextSpan>() {
                     new TextSpan(
                         "\u25cf",
-                        CTextStyle.TextBody1
+                        CTextStyle.PXLarge
                     ),
                     new TextSpan(
                         items[i],
-                        CTextStyle.TextBody1
+                        CTextStyle.PXLarge
                     ),
                 };
                 widgets.Add(
@@ -265,7 +260,7 @@ namespace ConnectApp.components {
                         margin: EdgeInsets.only(top: i == 0 ? 0 : 8),
                         child: new RichText(
                             text: new TextSpan(
-                                style: CTextStyle.TextBody1,
+                                style: CTextStyle.PXLarge,
                                 children: spans
                             )
                         )
