@@ -70,7 +70,7 @@ namespace ConnectApp.components {
                                             margin: EdgeInsets.only(bottom: 8),
                                             child: new Text(
                                                 _model.title,
-                                                style: CTextStyle.PMedium,
+                                                style: CTextStyle.PLargeMedium,
                                                 maxLines: 2
                                             )
                                         ),

@@ -149,40 +149,9 @@ namespace ConnectApp.components {
                 padding: EdgeInsets.only(16, right: 16, bottom: 24),
                 child: new Text(
                     text,
-                    style: CTextStyle.TextBody1
+                    style: CTextStyle.PXLarge
                 )
             );
-//            inlineStyleRanges.ForEach(item => {
-//                var newText = text.Substring(item.offset, item.length);
-//                var style = item.style;
-//                var fontWeight = FontWeight.w400;
-//                if (style == "BOLD") {
-//                    fontWeight = FontWeight.w700;
-//                }
-//                var spans = new List<TextSpan> {
-//                    new TextSpan(
-//                        newText,
-//                        CTextStyle.TextBody1
-//                    ),
-//                    new TextSpan(
-//                        items[i],
-//                        CTextStyle.TextBody1
-//                    )
-//                };
-//                widgets.Add(
-//                    new Container(
-//                        padding:EdgeInsets.only(16, right: 16),
-//                        margin: EdgeInsets.only(top: i == 0 ? 0 : 8),
-//                        child: new RichText(
-//                            text: new TextSpan(
-//                                style: CTextStyle.TextBody1,
-//                                children: spans
-//                            )
-//                        )
-//                    )
-//                );
-//            });
-//            return new Container();
         }
 
         public static Widget _CodeBlock(BuildContext context, string text) {
@@ -312,11 +281,11 @@ namespace ConnectApp.components {
                 var spans = new List<TextSpan> {
                     new TextSpan(
                         $"{i+1}. ",
-                        CTextStyle.TextBody1
+                        CTextStyle.PXLarge
                     ),
                     new TextSpan(
                         items[i],
-                        CTextStyle.TextBody1
+                        CTextStyle.PXLarge
                     )
                 };
                 widgets.Add(
@@ -325,7 +294,7 @@ namespace ConnectApp.components {
                         margin: EdgeInsets.only(top: i == 0 ? 0 : 4),
                         child: new RichText(
                             text: new TextSpan(
-                                style: CTextStyle.TextBody1,
+                                style: CTextStyle.PXLarge,
                                 children: spans
                             )
                         )
@@ -358,11 +327,7 @@ namespace ConnectApp.components {
                     ),
                     new Text(
                         items[i],
-                        style: new TextStyle(
-                            fontSize: 18,
-                            fontFamily: "PingFang-Regular",
-                            color: CColors.TextBody
-                        )
+                        style: CTextStyle.PXLarge
                     )
                 };
                 widgets.Add(

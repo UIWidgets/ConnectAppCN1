@@ -41,7 +41,7 @@ ExportedObj/
 
 # Unity3D generated file on crash reports
 sysinfo.txt
-ProjectSettings/ProjectVersion.txt
+# ProjectSettings/ProjectVersion.txt
 
 # Builds
 *.apk
@@ -51,7 +51,11 @@ ProjectSettings/ProjectVersion.txt
 crashlytics-build.properties
 
 #Rider
-Assets/Plugins/Editor/*
+Assets/Plugins/Editor/JetBrains
+Assets/Plugins/Editor/JetBrains.meta
+
+#iOS
+XcodeCache/
 
 # NuGet Packages
 # *.nupkg

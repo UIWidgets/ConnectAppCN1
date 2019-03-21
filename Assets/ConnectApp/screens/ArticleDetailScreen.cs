@@ -60,6 +60,7 @@ namespace ConnectApp.screens {
                 builder: (context1, viewModel) => {
                     if (StoreProvider.store.state.articleState.articleDetailLoading) {
                         return new SafeArea(
+                            top: false,
                             child: new Column(
                                 children: new List<Widget> {
                                     _buildNavigationBar(context),
@@ -182,7 +183,7 @@ namespace ConnectApp.screens {
                         alignment: Alignment.center,
                         child: new Text("说点想法",
                             style: new TextStyle(color: CColors.PrimaryBlue, fontSize: 14,
-                                fontFamily: "PingFang-Medium"))
+                                fontFamily: "PingFangSC-Medium"))
                     )
                 }, CColors.White, 52);
         }
@@ -237,12 +238,14 @@ namespace ConnectApp.screens {
                                     fontSize: 12,
                                     fontFamily: "PingFang-Regular",
                                     color: CColors.TextBody4
+                                    )
                                 )
-                            )
                         ),
                         new Container(
                             margin: EdgeInsets.only(top: 24, bottom: 24),
                             child: new Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: new List<Widget> {
                                     new Container(
                                         margin: EdgeInsets.only(right: 8),
@@ -252,17 +255,15 @@ namespace ConnectApp.screens {
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: new List<Widget> {
+                                            new Container(height: 5),
                                             new Text(
                                                 _user==null?"昵称":_user.fullName,
-                                                style: new TextStyle(
-                                                    fontSize: 14,
-                                                    fontFamily: "PingFang-Medium",
-                                                    color: CColors.TextBody
-                                                )
+                                                style: CTextStyle.PRegular
                                             ),
                                             new Text(
-                                                _user == null ? "昵称" : _user.description,
+                                                DateConvert.DateStringFromNow(_article.createdTime),
                                                 style: new TextStyle(
+                                                    height: 1.67f,
                                                     fontSize: 12,
                                                     fontFamily: "PingFang-Regular",
                                                     color: CColors.TextBody3
@@ -271,8 +272,7 @@ namespace ConnectApp.screens {
                                         }
                                     )
                                 }
-                            )
-                        )
+                            )),
                     }
                 )
             );
@@ -399,6 +399,7 @@ namespace ConnectApp.screens {
                     }, 
                     replyCallBack: () => {
                         ActionSheetUtils.showModalActionSheet(context, new CustomInput(
+                            message.author.fullName.isEmpty()?"":message.author.fullName,
                             doneCallBack: (text) => { 
                                 StoreProvider.store.Dispatch(new SendCommentAction{
                                     channelId = _channelId,

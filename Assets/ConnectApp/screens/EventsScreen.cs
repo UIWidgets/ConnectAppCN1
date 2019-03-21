@@ -80,12 +80,8 @@ namespace ConnectApp.screens {
         }
 
         private Widget buildSelectItem(BuildContext context, string title, int index) {
-            var textColor = CColors.TextTitle;
-            var textFontFamily = "PingFang-Regular";
             Widget lineView = new Positioned(new Container());
             if (index == _selectedIndex) {
-                textColor = CColors.PrimaryBlue;
-                textFontFamily = "PingFang-Medium";
                 lineView = new Positioned(
                     bottom: 0,
                     left: 0,
@@ -124,12 +120,7 @@ namespace ConnectApp.screens {
                                 alignment: Alignment.center,
                                 child: new Text(
                                     title,
-                                    style: new TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w400,
-                                        fontFamily: textFontFamily,
-                                        color: textColor
-                                    )
+                                    style: index==_selectedIndex?CTextStyle.PLargeBlue:CTextStyle.PLargeMedium
                                 )
                             )
                         ),
