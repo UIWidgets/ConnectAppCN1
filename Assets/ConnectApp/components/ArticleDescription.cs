@@ -83,12 +83,7 @@ namespace ConnectApp.components
                 padding:EdgeInsets.only(top:16,left:16,right:16,bottom: 24),
                 child: new Text(
                     text,
-                    style: new TextStyle(
-                        color: CColors.TextTitle,
-                        fontSize: 24,
-                        letterSpacing: 0.0f,
-                        height: 1.33f
-                    )
+                    style: CTextStyle.H4
                 )
             );
         }
@@ -99,11 +94,7 @@ namespace ConnectApp.components
                 padding:EdgeInsets.only(top:16,left:16,right:16,bottom: 24),
                 child: new Text(
                     text,
-                    style: new TextStyle(
-                        color: CColors.TextTitle,
-                        fontSize: 20,
-                        height: 1.4f
-                    )
+                    style: CTextStyle.H5
                 )
             );
         }

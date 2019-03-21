@@ -276,12 +276,7 @@ namespace ConnectApp.screens
                             margin: EdgeInsets.only(top: 8),
                             child: new Text(
                                 $"阅读 { _article.viewCount } · {DateConvert.DateStringFromNow(_article.createdTime)}",
-                                style: new TextStyle(
-                                    height: 1.67f,
-                                    fontSize: 12,
-                                    fontFamily: "PingFang-Regular",
-                                    color: CColors.TextBody4
-                                    )
+                                style: CTextStyle.TextBody4
                                 )
                         ),
                         new Container(
@@ -305,12 +300,7 @@ namespace ConnectApp.screens
                                             ),
                                             new Text(
                                                 DateConvert.DateStringFromNow(_article.createdTime),
-                                                style: new TextStyle(
-                                                    height: 1.67f,
-                                                    fontSize: 12,
-                                                    fontFamily: "PingFang-Regular",
-                                                    color: CColors.TextBody3
-                                                )
+                                                style: CTextStyle.TextBody3
                                             )
                                         }
                                     )
@@ -335,7 +325,7 @@ namespace ConnectApp.screens
                         borderRadius:BorderRadius.all(4)
                     ),
                     padding:EdgeInsets.only(16,12,16,12), 
-                    child:new Text($"{_article.subTitle}",style:CTextStyle.PLargeGray)
+                    child:new Text($"{_article.subTitle}",style:CTextStyle.PLargeBody4)
                 )  ) 
             );
         }
@@ -507,11 +497,7 @@ namespace ConnectApp.screens
             return new Container(
                 height:52,
                 alignment:Alignment.center,
-                child:new Text("一 已经全部加载完毕 一",style:new TextStyle(height: 1.57f,
-                    fontSize: 14,
-                    fontFamily: "PingFang-Regular",
-                    color: CColors.TextBody4
-                ),textAlign:TextAlign.center));
+                child:new Text("一 已经全部加载完毕 一",style:CTextStyle.PRegularBody4,textAlign:TextAlign.center));
         }
 
     }
