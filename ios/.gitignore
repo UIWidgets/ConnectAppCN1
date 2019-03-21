@@ -6,6 +6,7 @@
 Classes/Native
 Data/
 Libraries/
+Frameworks/UnityAds.framework
 
 ## Build generated
 build/
