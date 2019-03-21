@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.api;
+using ConnectApp.components;
 using ConnectApp.models;
 using ConnectApp.redux.actions;
 using Newtonsoft.Json;
@@ -63,7 +65,7 @@ namespace ConnectApp.redux.reducers {
                         })
                         .Catch(error => {
                             Debug.Log(error);
-                            StoreProvider.store.Dispatch(new LoginByEmailFailedAction());
+                            StoreProvider.store.Dispatch(new LoginByEmailFailedAction {context = action.context});
                         });
                     break;
                 }
@@ -77,6 +79,11 @@ namespace ConnectApp.redux.reducers {
                 }
                 case LoginByEmailFailedAction action: {
                     state.loginState.loading = false;
+                    var customSnackBar = new CustomSnackBar(
+                        "邮箱或密码不正确，请稍后再试。",
+                        new TimeSpan(0,0,0,2)
+                    );
+                    customSnackBar.show(action.context);
                     break;
                 }
                 case FetchArticlesAction action: {
@@ -556,6 +563,9 @@ namespace ConnectApp.redux.reducers {
                     state.searchState.loading = true;
                     SearchApi.SearchArticle(action.keyword, action.pageNumber)
                         .Then(searchResponse => {
+                            StoreProvider.store.Dispatch(new UserMapAction {
+                                userMap = searchResponse.userMap
+                            });
                             StoreProvider.store.Dispatch(new SearchArticleSuccessAction {
                                 keyword = action.keyword,
                                 pageNumber = action.pageNumber,

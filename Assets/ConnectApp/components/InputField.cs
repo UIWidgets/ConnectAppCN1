@@ -1,13 +1,22 @@
 using System.Collections.Generic;
+using ConnectApp.constants;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Color = Unity.UIWidgets.ui.Color;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
+
+    public enum InputFieldClearButtonMode {
+        never,
+        editing,
+        always
+    }
+
     public class InputField : StatefulWidget {
         public InputField(
             Key key = null,
@@ -25,7 +34,9 @@ namespace ConnectApp.components {
             TextStyle labelStyle = null,
             Color cursorColor = null,
             TextInputAction textInputAction = TextInputAction.none,
+            TextInputType keyboardType = null,
             float height = 44.0f,
+            InputFieldClearButtonMode clearButtonMode = InputFieldClearButtonMode.never,
             ValueChanged<string> onChanged = null,
             ValueChanged<string> onSubmitted = null,
             EdgeInsets scrollPadding = null
@@ -44,8 +55,10 @@ namespace ConnectApp.components {
             this.labelText = labelText;
             this.labelStyle = labelStyle;
             this.height = height;
+            this.clearButtonMode = clearButtonMode;
             this.cursorColor = cursorColor;
             this.textInputAction = textInputAction;
+            this.keyboardType = keyboardType;
             this.onChanged = onChanged;
             this.onSubmitted = onSubmitted;
             this.scrollPadding = scrollPadding;
@@ -65,39 +78,40 @@ namespace ConnectApp.components {
         public readonly TextStyle labelStyle;
         public readonly Color cursorColor;
         public readonly TextInputAction textInputAction;
+        public readonly TextInputType keyboardType;
         public readonly float height;
+        public readonly InputFieldClearButtonMode clearButtonMode;
         public readonly ValueChanged<string> onChanged;
         public readonly ValueChanged<string> onSubmitted;
 
         public readonly EdgeInsets scrollPadding;
-//        public readonly TextInputAction textInputAction;
-//        public readonly TextInputType keyboardType;
 //        public readonly Brightness keyboardAppearance;
 
         public override State createState() {
-            return new _InputField();
+            return new _InputFieldState();
         }
     }
 
-    internal class _InputField : State<InputField> {
+    internal class _InputFieldState : State<InputField> {
         private TextEditingController _textEditingController;
         private FocusNode _focusNode;
-        private bool _isHintTextHidden = false;
+        private bool _isHintTextHidden;
 
         public override void initState() {
             base.initState();
-            _textEditingController = new TextEditingController("");
-            _focusNode = new FocusNode();
-            if (widget.controller != null) widget.controller.addListener(_controllerListener);
+            _textEditingController = widget.controller != null ? widget.controller : new TextEditingController("");
+            _focusNode = widget.focusNode != null ? widget.focusNode : new FocusNode();
+            _isHintTextHidden = false;
+            _textEditingController.addListener(_controllerListener);
         }
 
         public override void dispose() {
-            if (widget.controller != null) widget.controller.removeListener(_controllerListener);
+            _textEditingController.removeListener(_controllerListener);
             base.dispose();
         }
 
         private void _controllerListener() {
-            var isTextEmpty = widget.controller.text.Length > 0;
+            var isTextEmpty = _textEditingController.text.Length > 0;
             if (_isHintTextHidden != isTextEmpty)
                 setState(() => { _isHintTextHidden = isTextEmpty; });
         }
@@ -109,7 +123,7 @@ namespace ConnectApp.components {
                     _buildLabelText(),
                     new Stack(
                         children: new List<Widget> {
-                            _buildEditableText(), _buildHintText()
+                            _buildEditableText(context), _buildHintText()
                         }
                     )
                 }
@@ -150,7 +164,15 @@ namespace ConnectApp.components {
             );
         }
 
-        private Widget _buildEditableText() {
+        private Widget _buildEditableText(BuildContext context) {
+            Widget clearButton = new Container();
+            if (widget.clearButtonMode == InputFieldClearButtonMode.always) {
+                clearButton = _buildClearButton(context);
+            } else if (widget.clearButtonMode == InputFieldClearButtonMode.editing) {
+                if (_isHintTextHidden) {
+                    clearButton = _buildClearButton(context);
+                }
+            }
             return new GestureDetector(
                 onTap: () => {
                     var focusNode = widget.focusNode ?? _focusNode;
@@ -159,25 +181,56 @@ namespace ConnectApp.components {
                 child: new Container(
                     height: widget.height,
                     alignment: Alignment.center,
-                    child: new EditableText(
-                        maxLines: widget.maxLines,
-                        controller: widget.controller ?? _textEditingController,
-                        focusNode: widget.focusNode ?? _focusNode,
-                        autofocus: widget.autofocus,
-                        obscureText: widget.obscureText,
-                        style: widget.style,
-                        cursorColor: widget.cursorColor,
-                        autocorrect: widget.autocorrect,
-                        textInputAction: widget.textInputAction,
-                        textAlign: widget.textAlign,
-                        scrollPadding: widget.scrollPadding,
-                        onChanged: text => {
-                            var isTextEmpty = text.Length > 0;
-                            if (_isHintTextHidden != isTextEmpty)
-                                setState(() => { _isHintTextHidden = isTextEmpty; });
-                            widget.onChanged(text);
-                        },
-                        onSubmitted: widget.onSubmitted
+                    child: new Row(
+                        children: new List<Widget> {
+                            new Expanded(
+                                child: new EditableText(
+                                    maxLines: widget.maxLines,
+                                    controller: _textEditingController,
+                                    focusNode: _focusNode,
+                                    autofocus: widget.autofocus,
+                                    obscureText: widget.obscureText,
+                                    style: widget.style,
+                                    cursorColor: widget.cursorColor,
+                                    autocorrect: widget.autocorrect,
+                                    textInputAction: widget.textInputAction,
+                                    keyboardType: widget.keyboardType,
+                                    textAlign: widget.textAlign,
+                                    scrollPadding: widget.scrollPadding,
+                                    onChanged: text => {
+                                        var isTextEmpty = text.Length > 0;
+                                        if (_isHintTextHidden != isTextEmpty)
+                                            setState(() => { _isHintTextHidden = isTextEmpty; });
+                                        widget.onChanged(text);
+                                    },
+                                    onSubmitted: widget.onSubmitted
+                                )
+                            ),
+                            clearButton
+                        }
+                    )
+                )
+            );
+        }
+
+        private Widget _buildClearButton(BuildContext context) {
+            return new CustomButton(
+                onPressed: () => {
+                    _textEditingController.clear();
+                    widget.onChanged("");
+                    FocusScope.of(context).requestFocus(_focusNode);
+                },
+                child: new Container(
+                    width: 24,
+                    height: 24,
+                    decoration: new BoxDecoration(
+                        new Color(0xFFCCCCCC),
+                        borderRadius: BorderRadius.all(12)
+                    ),
+                    child: new Icon(
+                        Icons.close,
+                        size: 24,
+                        color: CColors.White
                     )
                 )
             );

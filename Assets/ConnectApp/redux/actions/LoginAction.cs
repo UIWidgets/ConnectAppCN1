@@ -20,5 +20,6 @@ namespace ConnectApp.redux.actions {
     }
 
     public class LoginByEmailFailedAction : BaseAction {
+        public BuildContext context;
     }
 }

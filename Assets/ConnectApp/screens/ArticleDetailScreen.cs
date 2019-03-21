@@ -143,7 +143,7 @@ namespace ConnectApp.screens
                                     right: 0,
                                     child: new ArticleTabBar(
                                         articleDetail.like,
-                                        addommentCallback: () =>
+                                        addCommentCallback: () =>
                                         {
                                             ActionSheetUtils.showModalActionSheet(context, new CustomInput(
                                                 doneCallBack: (text) => { 

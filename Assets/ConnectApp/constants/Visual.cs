@@ -160,8 +160,12 @@ namespace ConnectApp.constants {
             fontFamily: "PingFang-Regular",
             color: CColors.TextBody4
         );
-
-        
+        public static readonly TextStyle TextBody1 = new TextStyle(
+            height: 1.7f,
+            fontSize: 18,
+            fontFamily: "PingFang-Regular",
+            color: CColors.TextBody
+        );
 
         public static readonly TextStyle TextBody3 = new TextStyle(
             height: 1.25f,
@@ -215,8 +219,6 @@ namespace ConnectApp.constants {
         public static readonly Color text9 = new Color(0xFFB3B5B6);
         public static readonly Color text10 = new Color(0xFF00BCD4);
         public static readonly Color text11 = new Color(0xFF2B98F0);
-        public static readonly Color dividingLine1 = new Color(0xFF666666);
-        public static readonly Color dividingLine2 = new Color(0xFF404040);
         public static readonly Color redPoint = new Color(0xFFCC122B);
         public static readonly Color mask = new Color(0x66000000);
         public static readonly Color secondaryPink = new Color(0xFFF32194);

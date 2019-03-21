@@ -29,8 +29,8 @@ namespace ConnectApp.components {
         private readonly CustomSnackBar customSnackBar;
 
         private readonly Builder _builder;
-        private Alignment _initialAlignment = new Alignment(-1, 2);
-        private Alignment _endAlignment = new Alignment(-1, 1);
+        private readonly Alignment _initialAlignment = new Alignment(-1, 2);
+        private readonly Alignment _endAlignment = new Alignment(-1, 1);
         private Timer _timer;
 
         public bool opaque => false;
@@ -118,10 +118,11 @@ namespace ConnectApp.components {
 
     public class CustomSnackBar : StatefulWidget {
         public CustomSnackBar(
-            Key key = null,
-            string message = null,
-            TimeSpan duration = new TimeSpan()
+            string message,
+            TimeSpan duration,
+            Key key = null
         ) : base(key) {
+            D.assert(message != null);
             this.message = message;
             this.duration = duration;
         }
@@ -155,22 +156,28 @@ namespace ConnectApp.components {
                 width: mediaQuery.size.width,
                 child: new DecoratedBox(
                     decoration: new BoxDecoration(
-                        CColors.White
+                        CColors.White,
+                        border: new Border(
+                            new BorderSide(
+                                CColors.Separator
+                            )
+                        )
                     ),
                     child: new Padding(
                         padding: EdgeInsets.only(
-                            top: 15,
-                            bottom: 15 + mediaQuery.padding.bottom,
-                            left: 24,
-                            right: 24
+                            16,
+                            15,
+                            16,
+                            15 + mediaQuery.padding.bottom
                         ),
                         child: new Text(
                             widget.message,
                             textAlign: TextAlign.center,
                             maxLines: 3,
                             style: new TextStyle(
-                                color: new Color(0xfff0513c),
+                                color: CColors.Error,
                                 fontSize: 14,
+                                fontFamily: "PingFang-Regular",
                                 fontWeight: FontWeight.w400,
                                 decoration: TextDecoration.none
                             )
