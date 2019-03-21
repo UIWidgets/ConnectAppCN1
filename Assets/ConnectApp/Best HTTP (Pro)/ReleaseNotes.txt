@@ -1,0 +1,627 @@
+1.11.0 (2019.01.21)
+General
+-[New Feature] Implemented new buffer pool mechanism to reuse internal byte arrays. This is quite a large change that touches all part of the plugin, but reduces the plugin's memory garbage production very very much! (Thanks to Teemu @ Delta Cygni Labs for the base idea and code donation!)
+-[New Feature] All samples are available in a public git repo too (https://github.com/Benedicht/BestHTTP_Examples)
+-[New Feature] Added a new IIOService interface and the plugin now uses the file system through this abstraction. New IIOService implementations can be added and set to the HTTPManager.IOService field.
+-[New Feature] Initial SOCKS proxy with basic authentication support added.
+-[Improvement] All samples now placed inside a namespace
+-[Improvement] Removed Unity's WWWForm option from AddField and FormUsage.
+-[Improvement] Updated BouncyCastle to the latest version.
+-[Improvement] BouncyCastle namespaces are moved under the BestHTTP.SecureProtocol namespace, custom class (like ICertificateVerifyer) are remaining under the Org.BouncyCastle.Crypto.Tls namespace. I hope this will help in cases where other plugins are bundling BC too.
+-[BugFix] The request will fail if the proxy-authentication is failed
+-[Bugfix] Caching headers set multiple times on redirection
+Socket.IO
+-[Bugfix] The plugin will not try to emit an error when the error callback throws an exception.
+SignalRCore
+-[New Feature] Added new samples
+-[Improvement] New OnRedirect event handler
+-[Bugfix] Implemented proper redirect and authentication handling.
+-[Bugfix] Now it can handle relative redirect urls.
+
+1.10.10 (2018.11.04)
+General
+-[Improvement] New demo page added: https://besthttpdemosite.azurewebsites.net/
+-[Bugfix] One of HTTProxy's constructor didn't use a parameter to set the correct value
+-[Improvement] Improved connection handling and code quality for the UWP connection layer
+WebGL
+-[New Feature] Partial cookie support added (cookies are managed by the browser, but the plugin is able to read and write them)
+-[New Feature] Read and write cookie support added
+-[New Feature] HTTPRequest has a new WithCredentials property
+-[Improvement] More requests will be 'simple' to do not require a preflight request
+SignalRCore
+-[New Feature] Added client-sent ping messages
+-[Improvement] New example added
+WebSockets
+-[Improvement] Increased the limit of the per-message deflate extension's minDataLengthToCompress parameter.
+-[Improvement] [WebGL] Client-side generated status code of 1006 is treated as an error now to match non-webgl behavior.
+
+1.10.9 (2018.07.05)
+General
+-[Bugfix] Fixed a compile error under WebGL
+-[Improvement] HTTPRequest's GetEntityBody became public api
+-[Improvement] Added GetFormFields to HTTPRequest
+
+1.10.8 (2018.07.02)
+General
+-[Improvement] Greatly reduced the TCP packets that sent out for a HTTP request
+WebSocket
+-[Improvement] Frame downloading now isn't blocked while user code is executing on current completed frames
+SocketIO
+-[Bugfix] Implemented a new ToInt function instead of char.GetNumericValue as this later one throws an exception under WebGL using the new 4.x runtime
+SignalR Core
+-[Improvement] Fixed compile errors for WSA
+-[Improvement] Added HubOptions to be able to set more options
+-[Improvement] Now it's possible to skip the negotiation process and connect straigth with the (only) WebSocket protocol
+-[Bugfix] Authentication provider's PrepareRequest wasn't called on the negotiation request.
+
+1.10.7 (2018.06.05)
+General
+-[Improvement] Logger will log out time infromation too
+-[Improvement] HTTPRequest will send a Content-Length header with zero value when there's no data to send
+WebSocket
+-[Bugfix] Fixed a case where the connection reported closed unintentionally
+SignalR Core
+-[Improvement] Added PrepareUri function to the IAuthenticationProvider interface
+-[Improvement] Added negotiation request. Negotiation result now stored in the NegotiationResult property.
+-[Improvement] Added support for 'Close' server messages
+-[Improvement] More documentation and code comments
+-[Improvement] Code cleanup
+
+1.10.6 (2018.05.20)
+General
+-[Bugfix] Fixed a case where aborting a request throw and exception
+SocketIO
+-[Bugfix] Will not send a ping packet while waiting for a pong
+WebSocket
+-[Bugfix] OnError OnErrorDesc events not called when the websocket's State > Connecting
+SignalRCore
+-[Improvement] New BESTHTTP_DISABLE_SIGNALR_CORE symbol to disable SignalR Core
+-[Bugfix] The SignalR Core implementation has no dependency on SignalR classes now
+
+1.10.5 (2018.04.17)
+General
+-[Improvement] HTTPRequest will send Content-Length header with zero value if there's no data
+-[Improvement] Added timing info to logging
+WebSocket
+-[Improvement] Improved error handling
+SignalR Core
+-[Improvement] Added /negotiation request and NegotiationResult property to the HubConnection
+-[Improvement] More code comments and logging
+-[Improvement] Added support for Close server messages
+-[Bugfix] Removed compile warnings
+
+1.10.4 (2018.04.15)
+General
+-[Improvement] csproj files added to the package to genereate dlls
+-[Improvement] Improved compatibilty with other packages that are have theirs own Utility class in the root namespace.
+-[Improvement] Improved compatibility with the Experimental (.NET 4.6) runtime
+-[Improvement] Using the HTTPRequest's CustomTLSServerNameList property now it's possible to add custom SNIs
+-[Bugfix] Decompressor used during streaming will buffer up data if necessary to avoid a GZip exception.
+-[Bugfix] Removed unnecessary logging in the HTTPUpdateDelegator
+-[Bugfix] TLS SNIs will not be sent if the host is an IPv4 or IPv6 address
+-[Bugfix] Digest authentication failed with the proxy
+WebSocket
+-[Improvement] Now it's possible to close the websocket before it connects
+-[Improvement] New State property to access the websocket's state
+-[Bugfix] [WebGL] HTTPManager.Setup() isn't called when only the WebSocket protocol is used
+SocketIO
+-[Bugfix] proper pingTimeout implementation (thanks @carsanlop for the code!)
+SignalR
+-[Bugfix] It will not try to reconnect after leaving Unity's play mode.
+SignalR Core
+-[New Feature] New SignalR Core implementation for SignalRCore 1.0.0-alpha2
+
+1.10.3 (2017.11.11)
+General
+-[Improvement] Added OPTIONS verb
+-[Improvement] Better compatibility with Unity 2017.2
+-[Bugfix] Boundary generated for multipart/form-data will be a truely unique value that shouldn't be found in the payload
+WebSocket
+-[New Feature] Added new CloseAfterNoMesssage TimeSpan property to the WebSocket class. When StartPingThread is true, the plugin will check for messages and will close the connection and emit an OnError/OnErrorDesc event after the specified time. It's not available on WebGL platform!
+-[New Feature] Added Latency property. When StartPingThread is true, it will calculate the latency from the Ping-Pong message round-trip times. It's not available on WebGL platform!
+SignalR
+-[Bugfix] Group token not sent with polling requests
+
+1.10.2 (2017.07.29)
+General
+-[Bugfix] Fixed an exception when redirected
+
+1.10.1 (2017.07.26)
+General
+-[New Feature] Added BESTHTTP_DISABLE_GZIP to be able to disable gzip Accept-Encoding requests
+-[Improvement] Improved compatibility when run in an Editor window
+-[Improvement] DNS query is done async with timeout (Thanks goes to chriser on the forums for the code)
+-[Bugfix] The HTTPConnection object will not close the TCP stream when the "Connection: Close" header present and the http response handler's IsClosedManually set to true.
+-[Bugfix] Fixed a compilation issue in RawJsonForm.cs when both BESTHTTP_DISABLE_SOCKETIO and BESTHTTP_DISABLE_SIGNALR are defined
+-[Bugfix] When a request's DisableChace is set to true, it will not produce a warning if caching headers added manually
+-[Bugfix] When there's no connection the CookieJar will not override saved cookies with an empty one
+Websocket
+-[Bugfix] Fixed an issue where receive threads are not shut down resulting in an exception
+Socket.IO
+-[Improvement] Compatibility with Socket.IO 2.0.0
+Server-Sent Events
+-[Improvement] Added WithCredentials property to the EventSource class under WebGL
+-[Improvement] EventSource constructor will thrown a NotSupportedException under WebGL when the underlying browser isn't supports the EventSource protocol
+-[Bugfix] Subscibing to a named event (On(...)) isn't worked under WebGL
+
+1.10.0 (2017.05.05)
+General
+-Removed support for Windows Phone 8
+-[New Feature] HTTPManager and HTTPRequest has a new property 'TryToMinimizeTCPLatency' to turn on/off TCP NoDelay
+-[New Feature] A new Form type 'RawJson' to send the fields added with AddField jon encoded
+-[Improvement] Added DefaultCertificationValidator to the HTTPManger
+-[Improvement] Improved compatibility with Unity 2017.1
+-[Improvement] Now the plugin capable to download files larger than 2 GB (Thanks goes to Daniel @ present4D)
+-[Bugfix] Accessing streaming assets now possible under WebGL builds
+-[Bugfix] Fixed a sneaky bug where the HTTPUpdateDelegator unloaded in builds
+Socket.IO
+-[Improvement] Sockets now have an Id property generated the same as in the JS Socket.IO lib.
+
+1.9.17 (2017.01.29)
+General
+-[New Feature] GZip content encoding is now supported when UseStreaming is on. The plugin now will automatically decompress downloaded chunks.
+-[Improvement] Removed .Bind() calls from the TcpClient class to remove the need of the com.apple.security.network.server permission.
+-[Improvement] Added support for PATCH requests
+-[Improvement] Improved the Clear() function of the HTTPRequest to reset more properties
+-[Bugfix] Sending text fields will not include additional quotes around the charset value
+-[Bugfix][WebGL] Fixed multiple bugs where WebGL requests are failed early
+WebSocket
+-[New Feature] Send became non-blocking, buffered up data will be sent on a thread
+-[New Feature] WebSocket has a new property: BufferedAmount to get the length of the unsent, buffered up data in bytes
+-[Improvement] Improved compatibility with Citrix
+
+1.9.16 (2016.10.24)
+General
+-[Improvement] Using the HTTPRequest's CacheOnly property now it's possible to download a resource into the cache only. The response object's Data will not be populated in this case! (Thanks goes to Sakari for the complete patch!)
+-[Bugfix] Made a workaround for a mono bug where on macOS Uri created a file:// uri from a relative path instead throwing an exception.
+WebSocket
+-[Bugfix] The client sent wrong number of frames for a large frame
+-[Bugfix] Fixed a bug to be able to connect to  Asp .NET Core hosted WebSocket servers
+SignalR
+-[Bugfix] The plugin will wait a little now before a new reconnect attempt
+
+1.9.15 (2016.09.22)
+General
+-[Improvement] When ConnectTimeout of the HTTPManager or HTTPRequest is set to TimeSpan.Zero, no timeout logic is executed.
+-[Bugfix] Removed read&write timeouts as it caused issues in some cases
+-[Bugfix] Fixed a compile error when BESTHTTP_DISABLE_CACHING was defined
+
+1.9.14 (2016.09.13)
+General
+-[Improvement] Added Read and Write timeouts 
+-[Improvement] Added diagnostic logging. They will be logged when LogLevels.All is used
+-[Improvement] Removed a frightening warning about lock acquisition
+-[Improvement] Removed an additonal BinaryWriter instantiation when sending out a request
+-[Bugfix] Fixed a case where uris without a leading ‘/’ would fail
+-[Bugfix] [WebGL] Fixed url lowercase converting
+-[Bugfix] No exceptions should be thrown now when quitting
+-[Bugfix] Fixed a case where a cache entity deleted unintentionally on startup
+Server-Sent Event
+-[Bugfix] Content-Type header check was too strict
+
+1.9.13 (2016.07.20)
+General
+-[Improvement] Default Connection idle time lowered to 20 seconds
+-[Bugfix] Made workaround for mono bugs around Uri encodings
+-[Bugfix] Cached content wasn’t refreshed (thanks goes to Jeff Mrochuk)
+Server-Sent Events
+-[Bugfix] Fixed a case where it would produce an exception when no On function is used to subscribe to an event
+
+1.9.12 (2016.06.21)
+General
+-[Improvement] Reading a file with the file:// protocol will not result in an “Access Denied” exception on PS4 (Thanks goes to Dong-Geun Oh for reporting and sending a patch)
+-[Improvement] ThreadPools are used again instead of raw Threads
+-[Improvement] Content-Length header’s value will be used even with chunked encoding for download progress report
+-[Improvement] Improved thread locking
+-[Bugfix] Automatic retry will be done only for GET request on erro
+-[Bugfix] TCP connection will be closed when the request’s IsKeepAlive set to false
+-[Bugfix] [WebGL] OnBeforeHeaderSend will be called now properly
+-[Bugfix] [WebGL] Callbacks will be called now when an error occur in the XHR_Send function
+-[Bugfix] HTTPRequest.AddField with null encoding will work now
+-[Bugfix] Callback called with request’s State Processing on application quit
+WebSocket
+-[Improvement] Documentation and code changes to emphasize that WebSocket instance can’t be reused
+-[Improvement] Text frames will be decoded on the read thread to further minimize cpu burden on the main Unity thread
+SignalR
+-[Improvement] New BESTHTTP_SIGNALR_WITH_JSONDOTNET compile-time directive to use Newtonsoft’s JSon.NET. Using this the plugin will default to the JsonDotnetEncoder.
+SocketIO
+-[Bugfix] Fixed a case where calling Off on an event caused an exception when the server sent that event again
+
+1.9.11 (2016.04.04)
+General
+-[Bugfix][WebGL] Fixed a case where http requests truncated under Microsoft Edge
+-[Bugfix] The plugin will work again in editor windows
+-[Bugfix] Multiple fixes around request abortion
+Server-Sent Events
+-[Bugfix] [WebGL] Newly created event sources will not use the same id(1) over and over
+Socket.IO
+-[Improvement] Rewrote handshake processing to be able to skip the polling transport
+-[Improvement] Now it’s possible to inform the plugin what transport it should use to connect with through the SocketOptions’ ConnectWith property
+-[Improvement][PollingTransport] Will not force the server to send textual packets
+-[Improvement][PollingTransport] Greatly improved packet parsing speed
+-[Bugfix] The plugin will process messages sent with the handshake data
+
+1.9.10 (2016.03.14)
+General
+-[New Feature] Apple TvOS support added.
+-[New Feature] Keep-Alive header support added
+-[New Feature] New OnBeforeHeaderSend event added to the HTTPRequest class to be able to access and modify headers just before they are sent out.
+-[Improvement] Decreased memory allocations when no encoding is used in the response
+-[Improvement] Updated link.xml
+-[Improvement] The default value for UserAlternateSSL is changed to true
+-[Improvement] [WebGL] The WebGL connection will use the logger’s level
+-[Improvement] [WebGL] The plugin will handle correctly UTF16 strings (Thanks goes to Eugen and Zorrendor)
+-[Bugfix] [UWP] Because of a missing Flush() call, body-less requests are not sent out
+SignalR
+-[Improvement] Connection’s PingInterval is now set to public
+-[Bugfix] PrepareRequest doesn’t called for Ping requests
+WebSocket
+-[Bugfix] [WebGL] Fixed a bug where checking the websocket’s IsOpen status caused an error
+-[Bugfix] Fixed a case where assembled frames decoded with extensions twice
+
+1.9.9 (2016.02.16)
+General
+-[Bugfix] On redirection the plugin tried to load from the cache for the wrong uri
+-[Bugfix] On application exit HTTPUpdateDelegator will now shut down the update thread if it’s used
+-[Bugfix] Cookies will be sent for protocols other than http too
+-[Bugfix] Empty headers will no longer sent out
+-[Bugfix] Null values in headers will no longer cause an exception
+-[Improvement] Added some missing documentation.
+-[Improvement] Exception logging now will include inner exceptions too
+WebSockets
+-[New Feature] Support for extensions added
+-[New Feature] Per-Message Deflate compression extension added
+Socket.IO
+-[Improvement] Custom errors by middlewares are now supported
+-[Improvement] Socket.Options’ AdditionalQueryParams changed from Dictionary to ObservableDictionary to automatically delete the cached value when it’s changed
+-[Bugfix] The plugin will not decode the payload for Emit callbacks
+SignalR
+-[Improvement] AdditionalQueryParams changed from Dictionary to ObservableDictionary to automatically delete the cached value when it’s changed
+
+1.9.8 (2016.01.04)
+General
+-[Improvement] Download progress report will be more frequent now with Chunked encoding
+WebSockets
+-[Bugfix] Sending pings will not be capped on 100ms now
+-[Bugfix] [WebGL] Binary data sending and receiving will be handled correctly now
+
+1.9.7 (2015.12.13)
+General
+-[Bugfix] Improved compatibility with 5.3 coroutine changes
+-[Improvement] Example scripts are in a namespace too
+
+1.9.6 (2015.12.08)
+General
+-[Improvement] Changes made to greatly improve compatibility for Windows Store builds targeting IL2CPP scripting backend
+Socket.IO
+-[Improvement] The WebSocketTransport will send and Update packet to the server without any other payload to improve compatibility
+
+1.9.5 (2015.11.30)
+General
+-[Fix] The plugin will choose the Content-Length header when Content-Range present too
+-[Improvement] Improved threading of HTTPUpdateDelegator
+WebGL
+-[Fix] The plugin will not try to decode the content as chunked, as the browser done it already
+Socket.IO
+-[Fix] Fixed a rare bug where WebSocket transport tried to access a null object
+-[Improvement] An error event will be emitted on timeout too
+SignalR
+-[Improvement] Call functions now will return true if the plugin was able to send the message to the server
+
+1.9.4 (2015.10.16)
+General
+-[Bugfix] Fixed a possible connection error on editors running on non-windows
+-[Improvement] Added two more constructors to the Cookie class
+
+1.9.3 (2015.10.10)
+-WebGL support added! Check out the documentation about the limitations.
+General
+-[Improvement] Improved shutdown handling in the editor
+-[Improvement] Cache will work on redirect uris as expected
+-[Bugfix] Tcp channel disconnection is now detected much quicker
+SignalR
+-[Improvement] Added support for SignalR 2.0.x
+-[Improvement] Improved logging in some cases
+WebSocket
+-[Bugfix] The plugin will detect a lost connection sooner
+
+1.9.2 (2015.09.03)
+General
+-[Improvement] WP8 support is back!
+-[Improvement] Improved compatibility with Windows 10 Universal App build for Unity 5.2
+-[Improvement] Improved shutdown handling in the editor
+
+1.9.1 (2015.08.26)
+General
+-[Improvement] Improved error reporting on WSA platforms for TcpClient
+-[New feature] Initial and experimental file:// protocol support
+Socket.IO
+-[Bugfix] Emitting binary data wrongly converted
+SignalR
+-[Improvement] Improved logging
+ServerSentEvents
+-[Bugfix] Improved compatibility
+
+1.9.0 (2015.07.29)
+Windows Phone 8 silverlight based build support removed!
+General
+-[New Feature] Various features can be disabled now with the following defines:
+--+BESTHTTP_DISABLE_COOKIES
+--+BESTHTTP_DISABLE_CACHING
+--+BESTHTTP_DISABLE_SERVERSENT_EVENTS
+--+BESTHTTP_DISABLE_WEBSOCKET
+--+BESTHTTP_DISABLE_SIGNALR
+--+BESTHTTP_DISABLE_SOCKETIO
+--+BESTHTTP_DISABLE_ALTERNATE_SSL
+--+BESTHTTP_DISABLE_UNITY_FORM
+--+Check the manual on how you can set these in Unity: http://docs.unity3d.com/Manual/PlatformDependentCompilation.html
+-[Improvement] Removed DLL depenencies
+-[Improvement] Improved HTTPConnection teardown on quitting
+-[Improvement] Improved compatibility when used in an editor window
+-[Bugfix] Cookies are stored from redirections
+Socket.IO
+-[Bugfix] WebSocketTransport not switched to secure protocol when the Uri of the socket.io endpoint is HTTPS
+-[BugFix] Disconnect event not fired when the server initiated the disconnect (Thx go to Takayasu Oyama)
+SignalR
+-[Bugfix] WebSocketTransport not reconnected properly (Thx go to Jaakko Jumisko)
+
+1.8.2 (2015.06.26)
+General
+-[Improvement] HTTPResponse’s DataAsTexture2D will use the full constructor now
+-[Bugfix] CookieJar’s SetupFolder will check for save support now
+-[Bugfix] Cache service deleted all files on maitenance
+SignalR
+-[Improvement] Better compatibility with JSon .NET encoder
+Socket.IO
+-[Bugfix] Fixed a case where Disconnect event fired twice
+-[Bugfix] First argument on Ack callbacks are removed unintentionally
+-[Bugfix] Fixed a case where the ‘disconnect’ event fired twice
+Server-Sent Events
+-[Improvement] Message class qualified by its namespace everywhere to prevent compile errors
+
+1.8.1 (2015.05.26)
+General
+-[New Feature] Server-Sent Events protocol added!
+-[Improvement] Updated documentation
+-[Improvement] Changed ICertificateVerifyer interface to receive the target server’s uri for validation
+-[Bugfix] Fixed a case where HTTPConnections are stuck in the Initial state blocking requests in the queue
+Socket.IO
+-[Bugfix] Much simpler protocol upgrade/downgrade code to avoid a case when a poll request received by the server after a websocket upgrade
+SignalR
+-[Improvement] Can fall back to ServerSentEvents protocol
+
+1.8.0 (2015.05.19)
+General
+-[New Feature] SignalR protocol added!
+-[New Feature] Samsung Smart TV support added!
+-[Improvement] HTTPManager has a new UseAlternateSSLDefaultValue property to change the default UseAlternateSSL value
+-[Improvement] Custom Cookies added to the request now will overwrite cookies that are stored in the CookieJar, instead of merging and sending both
+-[Improvement] Custom Cookies can be added now to the CookieJar
+-[Bugfix] In some case, the HTTPManager created new connections that not used after but blocked new requests
+-[Bugfix] Fixes a case where a HTTRequest’s State set to Finished instead of Error
+-[Bugfix] Fixed a case where custom cookies are not sent
+-[Bugfix] Aborting a finished request will not create a stuck connection
+WebSocket
+-[Improvement] Reading speed of payload data from the wire greatly improved
+-[Improvement] New OnErrorDesc event added. This will receive a string errorDesc param. It has a higher chance that it’s stores a meaningfull error description then the previos OnError
+-[Bugfix] Fixed a case when the OnError didn’t called
+
+1.7.11 (2015.04.27)
+General
+-[Improvement] Greatly improved chache filename generation. New filenames are much-much shorter, therefore (very) long urls can be saved now too
+-[Bugfix] Removed unnecessary entry in the link.xml. With this change, full stripping is supported in IL2CPP builds with the .NET 2.0 Subset Api Compatibility Level (Thanks goes to Andrew Wu from Scientific Games for catching/reporting it!)
+-[Bugfix] Authentication headers are transformed to lowercase
+WebSocket
+-[Bugfix] Fixed a case where server sent messages get lost when received before the OnOpen event
+
+1.7.10(2015.04.17)
+General
+-[Improvement] The plugin will choose the best supported algorithm if multiple “Proxy-Authenticate” headers are present
+-[Improvement] Proxy authentication is now handled for explicit https too
+-[Improvement] Saved some cpu cycles and GC allocs while sending a request
+-[Improvement] New NonTransparentForHTTPS property in the HTTPProxy class to be able to automotacally switch proxy mode for secure protocols(https://, wss://)
+-[Improvement] More, and more accurate logging
+-[Improvement] Added some missing documentation to the HTTPProxy class
+-[Bugfix] Proxy authentication tried to send the wrong credentials
+-[Bugfix] Waiting for the request to finish with a StartCoroutine is exited sooner in some cases
+-[Bugfix] One of the HTTPProxy constructor doesn’t set the SendWholeUri to its default value
+-[Bugfix] AuthenticateAsClient called with the wrong host parameter when used with a proxy
+-[Bugfix] HTTPConnection class now will use the request DisableRetry property, and will not retry a post request by default
+-[Bugfix] Fixed a case where an Error state surfaced as Finished
+Socket.IO:
+-[Improvement] More improvements around transport fallback
+-[Improvement] Better error logging in WebSocketTransport
+WebSocket:
+-[Improvement] If global proxy is set (HTTPManager.Proxy) it will use it as a tunnel automatically
+-[Improvement] Better error logging
+
+1.7.9 (2015.04.01)
+[New Feature] OnBeforeRedirection callback added to HTTPRequest. It’s called before a new request is made to the new url. In this callback the redirection can be disabled, or the request can be changed.
+[Improvement] Updated BouncyCastle to the latest git version
+[Improvement] When UseAlternateSSL is true, the client will send the hostname with the TLS handshake request to greatly improve HTTPS compatibility
+[Improvement] More logging
+[Bugfix] Fixed a case, when Socket.IO does not fall back to polling when the WebSocket transport fails to connect
+[Bugfix] A possible NullRef exception when the request Timed Out
+
+1.7.8 (2015.03.25)
+[Bugfix] Fixed compile error in UploadStream.cs
+[Bugfix] Fixed compile errors on WP/WSA builds when used with JSON .NET For Unity (http://u3d.as/5q2)
+
+1.7.7 (2015.03.17)
+[New Feature] Socket.IO’s SocketOptions has two new property to control additional query parameters of the requests
+[Improvement] New UploadStream.cs in the Examples folder to help and demonstrate uploading streams
+[Bugfix] UploadStream upload not worked
+
+1.7.6 (2015.03.07)
+[New Feature] New CustomCertificateVerifyer property to the HTTPRequest class to be able to set custom validator for the AlternateSSL handler too
+[Improvement] Improved Unity5 compatibility
+
+1.7.5 (2015.03.02)
+[New Feature] New Priority property in the HTTPRequest class to be able prioritize queued requests
+[Improvement] Additional GC alloc improvements
+[Bugfix] Fixed a possible crash in the plugin under iOS
+
+1.7.4 (2015.02.25)
+[New Feature] New UploadStream property in the HTTPRequest class
+[New Feature] New OnUploadProgress callback in the HTTPRequest class
+[Improvement] Switched from System.Action usage to properly named delegates
+[Improvement] Removed some GC allocs
+[Bugfix] Fixed an example that tried to access an internal constant
+
+1.7.3 (2015.02.10)
+[Improvement] Timeout improvement
+[Improvement] Unity 5 compatibility fixes
+
+1.7.2 (2015.02.09)
+[Improvement] Custom cookies can be added to a HTTPRequest. More on this in the documentation
+[Improvement] Queued requests can be aborted too
+[Improvement] GetGeneralStatistics function added to the HTTPManager. This function will return a GeneralStatistics struct that contains infromations about connections, cache and cookies.
+[Improvement] HTTPRequest’s Callback can be set to a new value after the request’s State is changed
+[Improvement] New code samples with a demo-browser! Check it out live here: http://bit.ly/1AkM6gi
+-Texture Download Sample
+-Asset Bundle Download Sample
+-Large File Download Sample
+-WebSocket - Echo Sample
+-Socket.IO - Chat Sample
+-Socket.IO - WePlay Sample
+-Cache Maintenance Sample
+
+1.7.1 (2015.02.03)
+[Improvement] Greater compatibility with IL2CPP
+
+1.7.0 (2015.01.27)
+General:
+-[Improvement] Improved cache compatibility
+-[Improvement] Improved proxy compatibility
+-[Improvement] HTTPRequest’s Send function will return the request to be able to chain some functions
+-[Improvement] Logger Added to the HTTPManager. Initially the Socket.IO implementation will use it.
+-[Improvement] HTTPManager’s MaxConnectionIdleTime lowered to 30 secs
+-[Improvement] HTTPRange’s ToString is overridden for quicker debugging
+-[Improvement] HTTPRequest’s GetRange function will no longer throw a null exception when there is no “content-range” header. It will return with null.
+-[Improvement] Removed uncessary exception logging in Directory platformsupport code
+-[Improvement] Renamed Tree class to remove Unity warning
+-[Bugfix] Internal buffer size for streaming set to the wrong value
+WebSocket changes:
+-[Improvement] Added some missing documentation
+-[Improvement] Removed the need of a new thread to send automatic pings
+-[Improvement] New Send function to send a portion of a byte array
+Socket.IO
+-[New Feature] Initial Socket.IO release compatible with the latest official Socket.IO implementation
+
+1.6.4 (2015.01.13)
+[Bugfix] POSTs with no data now will set the correct Content-Length header
+[Bugfix] Parallel POSTs to the same uri will no longer block each other
+
+1.6.3 (2014.12.22)
+[Improvement] A global default proxy can be set through HTTPManager.Proxy instead of setting it per-request
+[Improvement] Added new callback-less constructor to the HTTPRequest (thx to eedok)
+[Improvement] Added some documentation
+[Bugfix] The proper “host:port” value will be set to the “Host” header (thx to Matthew Boehlig)
+[Bugfix] Removed accidentally added WP8.1 dependency
+
+1.6.2 (2014.11.19)
+[Improvement] Native HTTPS support in WP8 and WinRT builds
+[Improvement] Removed some compiler warnings in WP8/WinRT builds
+[Improvement] Improved proxy compatibility
+[Improvement] Non-transparent proxy connection response(status code, message and headers) can be accessed through the request’s ProxyResponse property
+[Improvements] Added “Known Bugs/Limitations” to the documentation
+[Bugfix] HTTPManager.MaxConnectionPerServer will be handled correctly with proxies
+[Bugfix] Idle free connection will be removed correctly
+
+1.6.1 (2014.11.09)
+[Bugfix] WebPlayer build failed to connect to the server
+[Bugfix] Two HTTPRequest states(Aborted and Error) unintentionally swapped, now they are back as supposed
+[Bugfix] Proxy header handling improvement
+[Improvement] More documentation
+
+1.6.0 (2014.11.01)
+[New Feature] Windows Store Apps support added
+[Bugfix] Minor bugfixes
+
+1.5.1 (2014.10.21)
+[Improvement] Added global ConnectTimeout and RequestTimeout properties to the HTTPManager
+[Improvement] Added documentation about the new features
+[Bugfix] multipart/form-data now sends the corrent line endings
+
+1.5.0 (2014.10.18)
+[Improvement] ConnectionTimeout added to the HTTPRequest class to maximize the wait time to connect to the server.
+[Improvement] TimeOut added to the HTTPRequest class to maximize the wait time to finish a request.
+[Improvement] Updated BouncyCastle.
+[Improvement] Rewrote the WP8 TcpClient implementation
+[Improvement] Custom certification validation can be added to a HTTPRequest on iOS, Android and Desktop builds by setting the CustomCertificationValidator event.
+[BugFix] Fixed handling of an empty form data.
+
+1.4.3 (2014.09.01)
+[Bug Fix] Various bug fixes around redirection
+
+1.4.2 (2014.09.01)
+[Bug Fix] Fixed a bug that intruduced in 1.4.0 that prevented a WebSocket connection to connect to the host in a WebPlayer build
+[Improvement] Host header can be set now without overridden by the plugin
+[Improvement] Improved thread safety. Now sending requests on multiple threads are safe too.
+
+1.4.0 (2014.08.19)
+[BugFix] Form sending doesn’t handled correctly in some cases
+[Improvement] Rewrote form sending. Now correctly supports Url-Encoded and Multipart forms
+[New Feature] Download aborting. An ongoing download can be aborted now through a HTTPRequest object’s Abort() function
+[New Feature] New HTTPRequestStates enum and State property in the HTTPRequest class to be able to check the current state of the request
+
+1.3.7 (2014.08.03)
+[BugFix] In some situations a WebSocket length read incorrectly
+[New Feature] HTTPRequest can be used with yield return
+[New Feature] Install script to circumvent manual folder moving
+[Improvement] Improved link.xml
+
+1.3.6 (2014.06.20)
+[Imp] Added some more inline ducumentation
+[Imp] Cookie parsing improvement if Path missing
+[Bugfix] Digest authentication missing "opaque="
+
+1.3.5 (2014.06.15)
+[Improvement] Unknown Content-Encoding will be treated as “identity”
+[Improvement] Better WebSocket error handling
+[Improvement] Actualized examples
+[Improvement] link.xml in the package in case of stripping error
+[BugFix] Fixed WebSocket big frame reading error
+
+1.3.x (2014.05.04)
+[New Feature] New OnProgress event in the HTTPRequest class to be able to track the download progress.
+
+1.3.1 (2014.04.02)
+[Improvement] Improved compatibility with Good ol' Sockets
+
+1.3.0 (2014.03.30)
+[New Feature] Transparent and Tunnel Proxy support with untested proxy authentication
+[New Feature] Cookie support! It will automatically handles all cookie sending and receiving, no additional code required!
+[Improvement] Handling a rare case when the server doesn’t sent Content-Length header in a regular non-chunked response
+[Improvement] Default User-Agent added
+[Bugfix] WP8 - fixed a case where reading back a response failed
+
+1.2.3 (2014.01.06)
+[Improvement] WebSocket - Improvements around sending large text messages
+
+1.2.2 (2014.01.05)
+[Improvement] WebSocket - Fragmented messages compatibility improvement
+[Improvement] WebSocket - New property in the WebSocketResponse class to control the maximum size of a fragment’s payload data (MaxFragmentSize).
+
+1.2.1: (pro only)
+[Improvement] Ability to handle DHE_RSA_WITH_AES_256 certificates if UseAlternateSSL is set to true on a HTTPRequest object.
+
+1.2.0 (2013.11.05)
+[New Feature] WebSockets
+
+1.1.5 (2013.10.02)
+[New Feature] Basic and Digest authentication support through a new Credentials property in the HTTPRequest class
+[Improvement] More then one redirection supported for a single request
+[Improvement] New MaxRedirects property in the HTTPRequest class
+[Improvement] New GetFirstHeaderValue(string headerName) function in the HTTPRequest  class
+[Improvement] New optimized parsers, for now only used for parsing the authentication header
+[Improvement] Some code cleanup
+[Bugfix] In some cases after sending the request and not receiving any data caused a new reconnect
+[Bugfix] Some caching proxies return with float values in Max-Age header
+
+1.1.4 (2013.09.15)
+[New Feature] Unity 3.5 support added.
+[New Feature] WebPlayer support added.
+[Improvement] POST request doesn't retry the request when downloading/parsing the response fails. If something goes bad, the request object's Exception property will hold the exception (as always).
+[Improvement] There is a new property called DisableRetry to disable resending the request if downloading/parsing the response fails. The default value is true if the request's MethodType is POST, otherwise false.
+[Improvement] There is new property called RawData to send data in a POST request without setting any fields. If RawData is set any field that added through AddField, AddBinaryData, SetFields to the request will be ignored.

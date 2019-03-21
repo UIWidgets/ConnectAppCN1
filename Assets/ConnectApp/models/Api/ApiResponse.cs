@@ -30,4 +30,9 @@ namespace ConnectApp.models {
         public List<Article> projects;
         public Dictionary<string, User> userMap;
     }
+    
+    [Serializable]
+    public class FetchSocketUrlResponse {
+        public string url;
+    }
 }
