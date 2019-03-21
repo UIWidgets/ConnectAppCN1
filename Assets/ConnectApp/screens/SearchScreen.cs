@@ -176,7 +176,7 @@ namespace ConnectApp.screens {
                             ),
                             cursorColor: CColors.PrimaryBlue,
                             textInputAction: TextInputAction.search,
-                            clearButtonMode: InputFieldClearButtonMode.editing,
+                            clearButtonMode: InputFieldClearButtonMode.whileEditing,
                             onChanged: text => {
                                 if (text == null || text.Length <= 0) _clearSearchArticle();
                             },

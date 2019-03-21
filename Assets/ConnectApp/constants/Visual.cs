@@ -27,6 +27,7 @@ namespace ConnectApp.constants {
         public static readonly IconData bookmark = new IconData(0xe866, "Material Icons");
         public static readonly IconData favorite = new IconData(0xe87d, "Material Icons");
         public static readonly IconData comment = new IconData(0xe0b9, "Material Icons");
+        public static readonly IconData play_arrow = new IconData(0xe037, "Material Icons");
     }
 
     public static class CTextStyle {
@@ -171,6 +172,7 @@ namespace ConnectApp.constants {
         public static readonly Color Separator2 = new Color(0xFFEEEEEE);
         public static readonly Color BgGrey = new Color(0xFFFAFAFA);
         public static readonly Color BrownGrey = new Color(0xFFB5B5B5);
+        public static readonly Color Disable = new Color(0xFFB2B2B2);
 
         public static readonly Color Transparent = new Color(0x00000000);
         public static readonly Color White = new Color(0xFFFFFFFF);

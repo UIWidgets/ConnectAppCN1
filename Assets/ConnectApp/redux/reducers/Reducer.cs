@@ -52,6 +52,10 @@ namespace ConnectApp.redux.reducers {
                     state.eventState.detailId = null;
                     break;
                 }
+                case NavigatorToLoginAction action: {
+                    state.loginState.fromPage = action.fromPage;
+                    break;
+                }
                 case LoginByEmailAction action: {
                     state.loginState.loading = true;
                     var email = state.loginState.email;
@@ -84,6 +88,12 @@ namespace ConnectApp.redux.reducers {
                         new TimeSpan(0,0,0,2)
                     );
                     customSnackBar.show(action.context);
+                    break;
+                }
+                case LoginOutAction action: {
+                    state.loginState.loginInfo = new LoginInfo();
+                    state.loginState.isLoggedIn = false;
+                    Navigator.pop(action.context);
                     break;
                 }
                 case FetchArticlesAction action: {

@@ -13,7 +13,8 @@ namespace ConnectApp.components {
 
     public enum InputFieldClearButtonMode {
         never,
-        editing,
+        hasText,
+        whileEditing,
         always
     }
 
@@ -96,17 +97,21 @@ namespace ConnectApp.components {
         private TextEditingController _textEditingController;
         private FocusNode _focusNode;
         private bool _isHintTextHidden;
+        private bool _isFocus;
 
         public override void initState() {
             base.initState();
             _textEditingController = widget.controller != null ? widget.controller : new TextEditingController("");
             _focusNode = widget.focusNode != null ? widget.focusNode : new FocusNode();
             _isHintTextHidden = false;
+            _isFocus = widget.autofocus;
             _textEditingController.addListener(_controllerListener);
+            _focusNode.addListener(_focusNodeListener);
         }
 
         public override void dispose() {
             _textEditingController.removeListener(_controllerListener);
+            _focusNode.removeListener(_focusNodeListener);
             base.dispose();
         }
 
@@ -114,6 +119,11 @@ namespace ConnectApp.components {
             var isTextEmpty = _textEditingController.text.Length > 0;
             if (_isHintTextHidden != isTextEmpty)
                 setState(() => { _isHintTextHidden = isTextEmpty; });
+        }
+        
+        private void _focusNodeListener() {
+            if (_isFocus != _focusNode.hasFocus)
+                setState(() => { _isFocus = _focusNode.hasFocus; });
         }
 
         public override Widget build(BuildContext context) {
@@ -168,8 +178,12 @@ namespace ConnectApp.components {
             Widget clearButton = new Container();
             if (widget.clearButtonMode == InputFieldClearButtonMode.always) {
                 clearButton = _buildClearButton(context);
-            } else if (widget.clearButtonMode == InputFieldClearButtonMode.editing) {
+            } else if (widget.clearButtonMode == InputFieldClearButtonMode.hasText) {
                 if (_isHintTextHidden) {
+                    clearButton = _buildClearButton(context);
+                }
+            } else if (widget.clearButtonMode == InputFieldClearButtonMode.whileEditing) {
+                if (_isHintTextHidden && _isFocus) {
                     clearButton = _buildClearButton(context);
                 }
             }
@@ -181,6 +195,7 @@ namespace ConnectApp.components {
                 child: new Container(
                     height: widget.height,
                     alignment: Alignment.center,
+                    color: CColors.White,
                     child: new Row(
                         children: new List<Widget> {
                             new Expanded(
@@ -221,15 +236,15 @@ namespace ConnectApp.components {
                     FocusScope.of(context).requestFocus(_focusNode);
                 },
                 child: new Container(
-                    width: 24,
-                    height: 24,
+                    width: 20,
+                    height: 20,
                     decoration: new BoxDecoration(
                         new Color(0xFFCCCCCC),
-                        borderRadius: BorderRadius.all(12)
+                        borderRadius: BorderRadius.all(10)
                     ),
                     child: new Icon(
                         Icons.close,
-                        size: 24,
+                        size: 20,
                         color: CColors.White
                     )
                 )
