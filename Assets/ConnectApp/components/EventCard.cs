@@ -28,23 +28,34 @@ namespace ConnectApp.components {
         public override Widget build(BuildContext context) {
             var time = Convert.ToDateTime(_model.createdTime);
             var card = new Container(
-                height: 108,
                 padding: EdgeInsets.all(16),
                 color: CColors.White,
                 child: new Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        //date
                         new Container(
                             width: 32,
                             margin: EdgeInsets.only(right: 10),
                             child: new Column(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: new List<Widget> {
-                                    new Text(time.Day.ToString(), style: new TextStyle(height: 1.33f,
-                                        fontSize: 24,
-                                        fontFamily: "DINPro-Bold",
-                                        color: CColors.secondaryPink)),
-                                    new Text($"{time.Month.ToString()}月", style: CTextStyle.PSmall)
+                                    new Text(
+                                        time.Day.ToString(),
+                                        style: new TextStyle(
+                                            height: 1.33f,
+                                            fontSize: 24,
+                                            fontFamily: "DINPro-Bold",
+                                            color: CColors.secondaryPink
+                                        )
+                                    ),
+                                    new Text(
+                                        $"{time.Month.ToString()}月",
+                                        style: new TextStyle(
+                                            fontSize: 12,
+                                            fontFamily: "PingFang-Medium",
+                                            color: CColors.TextBody
+                                        )
+                                    )
                                 }
                             )
                         ),
@@ -56,34 +67,42 @@ namespace ConnectApp.components {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: new List<Widget> {
                                         new Container(
-                                            child: new Text(_model.title, style: CTextStyle.PMedium, maxLines: 2)
+                                            margin: EdgeInsets.only(bottom: 8),
+                                            child: new Text(
+                                                _model.title,
+                                                style: CTextStyle.PMedium,
+                                                maxLines: 2
+                                            )
                                         ),
-
                                         new Text(
                                             _model.live
-                                                ? $"20:00 · {_model.participantsCount}人已预订"
-                                                : "20:00 · 旧金山Unity大厦",
-                                            style: CTextStyle.PSmall)
+                                                ? $"{time.Hour}:{time.Minute} · {_model.participantsCount}人已预订"
+                                                : $"{time.Hour}:{time.Minute} · 旧金山Unity大厦",
+                                            style: CTextStyle.TextBody3
+                                        )
                                     }
                                 )
                             )
                         ),
-                        new ClipRRect(
-                            borderRadius: BorderRadius.all(0),
-                            child: new Container(
-                                width: 114,
-                                height: 76,
-                                child: new Stack(
-                                    children: new List<Widget> {
-                                        new Container(
+                        new Container(
+                            width: 114,
+                            height: 76,
+                            child: new Stack(
+                                children: new List<Widget> {
+                                    new ClipRRect(
+                                        borderRadius: BorderRadius.all(4),
+                                        child: new Container(
                                             width: 114,
                                             height: 76,
                                             color: new Color(0xFFD8D8D8),
                                             child: Image.network(_model.background, fit: BoxFit.fill)
-                                        ),
-                                        new Positioned(
-                                            bottom: 0,
-                                            right: 0,
+                                        )
+                                    ),
+                                    new Positioned(
+                                        bottom: 0,
+                                        right: 0,
+                                        child: new ClipRRect(
+                                            borderRadius: BorderRadius.only(bottomRight: 4),
                                             child: new Container(
                                                 width: 41,
                                                 height: 24,
@@ -93,15 +112,15 @@ namespace ConnectApp.components {
                                                     _model.live ? "线上" : "线下",
                                                     style: new TextStyle(
                                                         fontSize: 12,
-                                                        fontFamily: "PingFang-Regular",
+                                                        fontFamily: "PingFang-Medium",
                                                         color: CColors.White
                                                     ),
                                                     textAlign: TextAlign.center
                                                 )
                                             )
                                         )
-                                    }
-                                )
+                                    )
+                                }
                             )
                         )
                     }

@@ -8,6 +8,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
+using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.screens {
     public class EventDetailScreen : StatefulWidget {
@@ -64,7 +65,7 @@ namespace ConnectApp.screens {
                 );
 
             return new Container(
-                color: CColors.Black,
+                color: new Color(0xFFD8D8D8),
                 child: new AspectRatio(
                     aspectRatio: 16.0f / 9.0f,
                     child: new Stack(
@@ -211,6 +212,10 @@ namespace ConnectApp.screens {
                 color: CColors.White,
                 height: 64,
                 padding: EdgeInsets.symmetric(horizontal: 16),
+                decoration: new BoxDecoration(
+                    CColors.White,
+                    border: new Border(new BorderSide(CColors.Separator))
+                ),
                 child: new CustomButton(
                     onPressed: () => {
                         if (isEnabled) return;
