@@ -59,13 +59,14 @@ namespace ConnectApp.screens {
                 },
                 builder: (context1, viewModel) => {
                     if (StoreProvider.store.state.articleState.articleDetailLoading) {
-                        return new SafeArea(
-                            top: false,
-                            child: new Column(
-                                children: new List<Widget> {
-                                    _buildNavigationBar(context),
-                                    new ArticleDetailLoading()
-                                }
+                        return new Container(color:CColors.White,
+                            child:new SafeArea(
+                                child: new Column(
+                                    children: new List<Widget> {
+                                        _buildNavigationBar(context),
+                                        new ArticleDetailLoading()
+                                    }
+                                )
                             )
                         ); 
                     }
@@ -139,10 +140,12 @@ namespace ConnectApp.screens {
                             }
                         )
                     );
-                    return new SafeArea(
-                        top: false,
-                        child: child
-                    );
+                    return new Container(
+                       color:CColors.White,
+                       child:new SafeArea(
+                            child: child
+                       )
+                    ); 
                 }
             );
         }
@@ -221,7 +224,7 @@ namespace ConnectApp.screens {
         private Widget _buildContentHead(BuildContext context) {
             return new Container(
                 color: CColors.White,
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.only(left:16,right:16,top:16),
                 child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
@@ -358,7 +361,7 @@ namespace ConnectApp.screens {
             }
             return new Container(
                 color: CColors.White,
-                padding: EdgeInsets.only(16, right: 16),
+                padding: EdgeInsets.only(16, right: 16,top:16),
                 child: new Text(
                     "评论",
                     style: CTextStyle.H5,
