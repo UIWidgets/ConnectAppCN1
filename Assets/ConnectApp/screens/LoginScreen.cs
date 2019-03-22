@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
+using ConnectApp.redux;
+using ConnectApp.redux.actions;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
@@ -45,7 +47,7 @@ namespace ConnectApp.screens {
                 child: new Column(
                     children: new List<Widget> {
                         _buildTopView(context),
-                        _buildMiddleView(),
+                        _buildMiddleView(context),
                         new Flexible(child: new Container()),
                         _buildBottomView(context)
                     }
@@ -55,7 +57,8 @@ namespace ConnectApp.screens {
 
         private static Widget _buildTopView(BuildContext context) {
             return new Container(
-                padding: EdgeInsets.only(16, 8),
+                height: 44,
+                padding: EdgeInsets.only(8, 8),
                 child: new Row(
                     children: new List<Widget> {
                         new CustomButton(
@@ -71,11 +74,13 @@ namespace ConnectApp.screens {
             );
         }
 
-        private static Widget _buildMiddleView() {
+        private static Widget _buildMiddleView(BuildContext context){
+            var mediaQuery = MediaQuery.of(context);
+            var height = mediaQuery.size.height - mediaQuery.padding.top -  - mediaQuery.padding.bottom;
             return new Column(
                 children: new List<Widget> {
                     new Container(
-                        margin: EdgeInsets.only(top: 100),
+                        margin: EdgeInsets.only(top: height * 0.25f - 44),
                         child: Image.asset(
                             "black-logo-unity",
                             height: 80,
@@ -99,6 +104,10 @@ namespace ConnectApp.screens {
                 child: new Column(
                     children: new List<Widget> {
                         new CustomButton(
+                            onPressed: () => {
+                                StoreProvider.store.Dispatch(new NavigatorToLoginAction{fromPage = FromPage.weChat});
+                                Navigator.pushNamed(context, "/bind-unity");
+                            },
                             padding: EdgeInsets.zero,
                             child: new Container(
                                 height: 48,
@@ -131,7 +140,10 @@ namespace ConnectApp.screens {
                         ),
                         new Container(height: 16),
                         new CustomButton(
-                            onPressed: () => Navigator.pushNamed(context, "/bind-unity"),
+                            onPressed: () => {
+                                StoreProvider.store.Dispatch(new NavigatorToLoginAction{fromPage = FromPage.login});
+                                Navigator.pushNamed(context, "/bind-unity");
+                            },
                             padding: EdgeInsets.zero,
                             child: new Container(
                                 height: 48,
@@ -156,7 +168,9 @@ namespace ConnectApp.screens {
                                 )
                             )
                         ),
-                        new Container(height: 65)
+                        new Container(
+                            height: 65 + MediaQuery.of(context).padding.bottom
+                        )
                     }
                 )
             );

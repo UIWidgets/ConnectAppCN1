@@ -9,9 +9,15 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 using Unity.UIWidgets.service;
+using Color = Unity.UIWidgets.ui.Color;
 using UnityEngine;
 
 namespace ConnectApp.screens {
+    
+    public enum FromPage {
+        weChat,
+        login
+    }
 
     public class BindUnityScreen : StatefulWidget {
         public BindUnityScreen(
@@ -72,26 +78,38 @@ namespace ConnectApp.screens {
         }
 
         private static Widget _buildTopView(BuildContext context) {
+            var fromPage = StoreProvider.store.state.loginState.fromPage;
             return new Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: new List<Widget> {
                     new Container(
                         height: 44,
-                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        padding: EdgeInsets.only(8, 8, 8),
                         child: new Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: new List<Widget> {
-                                new CustomButton(
-                                    onPressed: () => { Navigator.pop(context); },
-                                    child: new Text(
-                                        "跳过",
-                                        style: new TextStyle(
-                                            fontSize: 16,
-                                            fontFamily: "PingFang-Regular",
-                                            color: CColors.text3
+                                fromPage == FromPage.weChat 
+                                    ?
+                                    new CustomButton(
+                                        onPressed: () => { Navigator.pop(context); },
+                                        child: new Text(
+                                            "跳过",
+                                            style: new TextStyle(
+                                                fontSize: 16,
+                                                fontFamily: "PingFang-Regular",
+                                                color: CColors.text3
+                                            )
                                         )
-                                    )
-                                ),
+                                    ) 
+                                    : 
+                                    new CustomButton(
+                                        onPressed: () => { Navigator.pop(context); },
+                                        child: new Icon(
+                                            Icons.arrow_back,
+                                            size: 28,
+                                            color: new Color(0xFFC7CBCF)
+                                        )
+                                    ),
                                 new CustomButton(
                                     child: new Text(
                                         "创建 Unity ID",
@@ -105,11 +123,11 @@ namespace ConnectApp.screens {
                             }
                         )
                     ),
-                    new Container(height: 26),
+                    new Container(height: 16),
                     new Container(
                         padding: EdgeInsets.symmetric(horizontal: 16),
                         child: new Text(
-                            "绑定你的 Unity 账号",
+                            fromPage == FromPage.weChat ? "绑定你的Unity账号" : "登陆你的Unity账号",
                             style: CTextStyle.H2
                         )
                     )
@@ -160,6 +178,7 @@ namespace ConnectApp.screens {
                                                 color: CColors.TextBody
                                             ),
                                             cursorColor: CColors.PrimaryBlue,
+                                            clearButtonMode: InputFieldClearButtonMode.whileEditing,
                                             keyboardType: TextInputType.emailAddress,
                                             onChanged: text => {
                                                 StoreProvider.store.Dispatch(new LoginChangeEmailAction
@@ -212,7 +231,7 @@ namespace ConnectApp.screens {
                                                 color: CColors.TextBody
                                             ),
                                             cursorColor: CColors.PrimaryBlue,
-                                            clearButtonMode: InputFieldClearButtonMode.editing,
+                                            clearButtonMode: InputFieldClearButtonMode.whileEditing,
                                             onChanged: text => {
                                                 StoreProvider.store.Dispatch(new LoginChangePasswordAction
                                                     {changeText = text});
@@ -256,7 +275,10 @@ namespace ConnectApp.screens {
                                 if (loading)
                                     right = new Padding(
                                         padding: EdgeInsets.only(right: 24),
-                                        child: new CustomActivityIndicator(size: 20)
+                                        child: new CustomActivityIndicator(
+                                            animationImage: AnimationImage.white,
+                                            size: 20
+                                        )
                                     );
                                 return new CustomButton(
                                     onPressed: () => {
@@ -270,8 +292,8 @@ namespace ConnectApp.screens {
                                         height: 48,
                                         decoration: new BoxDecoration(
                                             btnEnable
-                                                ? loading ? CColors.primary2 : CColors.PrimaryBlue
-                                                : CColors.BrownGrey,
+                                                ? CColors.PrimaryBlue
+                                                : CColors.Disable,
                                             borderRadius: BorderRadius.all(24)
                                         ),
                                         child: new Stack(

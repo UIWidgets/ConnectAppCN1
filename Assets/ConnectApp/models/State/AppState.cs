@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.screens;
 using UnityEngine;
 
 namespace ConnectApp.models {
@@ -29,7 +30,8 @@ namespace ConnectApp.models {
                     password = "Welcome123",
                     loginInfo = new LoginInfo(),
                     isLoggedIn = false,
-                    loading = false
+                    loading = false,
+                    fromPage = FromPage.login
                 },
                 articleState = new ArticleState {
                     articleList = new List<string>(),

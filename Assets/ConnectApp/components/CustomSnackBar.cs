@@ -11,6 +11,7 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Icons = ConnectApp.constants.Icons;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
@@ -31,7 +32,7 @@ namespace ConnectApp.components {
         private readonly Builder _builder;
         private readonly Alignment _initialAlignment = new Alignment(-1, 2);
         private readonly Alignment _endAlignment = new Alignment(-1, 1);
-        private Timer _timer;
+        public Timer _timer;
 
         public bool opaque => false;
 
@@ -104,6 +105,7 @@ namespace ConnectApp.components {
             D.assert(_controller != null,
                 "runtimeType.didPop called before calling install() or after calling dispose().");
 
+            _cancelTimer();
             _controller.reverse();
             return base.didPop(result);
         }
@@ -111,6 +113,12 @@ namespace ConnectApp.components {
         private void _configureTimer() {
             if (_timer != null) return;
             _timer = Window.instance.run(customSnackBar.duration, () => { navigator.pop(); });
+        }
+        
+        private void _cancelTimer() {
+            if (_timer != null) {
+                _timer.cancel();
+            }
         }
 
         public static string debugLabel => "runtimeType";
@@ -143,6 +151,22 @@ namespace ConnectApp.components {
             );
             return Navigator.push(context, _snackBarRoute);
         }
+        
+        public void dismiss() {
+            if (_snackBarRoute == null) {
+                return;
+            }
+
+            if (_snackBarRoute.isCurrent) {
+                _snackBarRoute.navigator.pop();
+            } else if (_snackBarRoute.isActive) {
+                _snackBarRoute.navigator.removeRoute(_snackBarRoute);
+            }
+            if (_snackBarRoute._timer != null) {
+                _snackBarRoute._timer.cancel();
+                _snackBarRoute._timer = null;
+            }
+        }
 
         public override State createState() {
             return new _CustomSnackBarState();
@@ -166,21 +190,36 @@ namespace ConnectApp.components {
                     child: new Padding(
                         padding: EdgeInsets.only(
                             16,
-                            15,
-                            16,
-                            15 + mediaQuery.padding.bottom
+                            13.5f,
+                            8,
+                            13.5f + mediaQuery.padding.bottom
                         ),
-                        child: new Text(
-                            widget.message,
-                            textAlign: TextAlign.center,
-                            maxLines: 3,
-                            style: new TextStyle(
-                                color: CColors.Error,
-                                fontSize: 14,
-                                fontFamily: "PingFang-Regular",
-                                fontWeight: FontWeight.w400,
-                                decoration: TextDecoration.none
-                            )
+                        child: new Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: new List<Widget> {
+                                new Expanded(
+                                    child: new Text(
+                                        widget.message,
+                                        maxLines: 3,
+                                        style: new TextStyle(
+                                            color: CColors.Error,
+                                            fontSize: 14,
+                                            fontFamily: "PingFang-Regular",
+                                            fontWeight: FontWeight.w400,
+                                            decoration: TextDecoration.none
+                                        )
+                                    )
+                                ),
+                                new CustomButton(
+                                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    onPressed: widget.dismiss,
+                                    child: new Icon(
+                                        Icons.close,
+                                        size: 24,
+                                        color: new Color(0xFFC7CBCF)
+                                    )
+                                )
+                            }
                         )
                     )
                 )

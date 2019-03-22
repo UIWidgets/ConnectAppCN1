@@ -31,7 +31,7 @@ namespace ConnectApp.screens {
                                     child: new Container(
                                         padding: EdgeInsets.only(bottom: 49),
                                         child: new ListView(
-                                            children: _buildItems(context, isLoggedIn)
+                                            children: _buildItems(context)
                                         )
                                     )
                                 )
@@ -105,21 +105,24 @@ namespace ConnectApp.screens {
             );
         }
 
-        private static List<Widget> _buildItems(BuildContext context, bool isLoginIn) {
+        private static List<Widget> _buildItems(BuildContext context) {
             List<PersonalCardItem> personalCardItems = new List<PersonalCardItem> {
-                new PersonalCardItem(Icons.book, "我的收藏", () => {
-                    if (isLoginIn) {
-                    }
-                    else {
-                        Navigator.pushNamed(context, "/login");
-                    }
-                }),
+//                new PersonalCardItem(Icons.book, "我的收藏", () => {
+//                    var isLoginIn = StoreProvider.store.state.loginState.isLoggedIn;
+//                    if (isLoginIn) {
+//                    }
+//                    else {
+//                        Navigator.pushNamed(context, "/login");
+//                    }
+//                }),
                 new PersonalCardItem(Icons.ievent, "我的活动", () => {
+                    var isLoginIn = StoreProvider.store.state.loginState.isLoggedIn;
                     var routeName = isLoginIn ? "/my-event" : "/login";
                     Navigator.pushNamed(context, routeName);
                 }),
                 new PersonalCardItem(Icons.eye, "浏览历史", () => Navigator.pushNamed(context, "/history")),
                 new PersonalCardItem(Icons.settings, "设置", () => {
+                    var isLoginIn = StoreProvider.store.state.loginState.isLoggedIn;
                     var routeName = isLoginIn ? "/setting" : "/login";
                     Navigator.pushNamed(context, routeName);
                 })
