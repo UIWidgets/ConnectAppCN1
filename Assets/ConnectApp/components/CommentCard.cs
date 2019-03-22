@@ -54,19 +54,9 @@ namespace ConnectApp.components {
                                     $":{message.content}", style: CTextStyle.PLarge
                                 )
                             },
-                            style: new TextStyle(
-                                height: 1.5f,
-                                fontSize: 16,
-                                fontFamily: "PingFang-Regular",
-                                color: CColors.PrimaryBlue
-                            )
+                            style: CTextStyle.PLargeBlue
                         )
-                    }, style: new TextStyle(
-                        height: 1.5f,
-                        fontSize: 16,
-                        fontFamily: "PingFang-Regular",
-                        color: CColors.TextBody4
-                    ))));
+                    }, style: CTextStyle.PLargeBody4)));
             }
 
 
@@ -91,11 +81,7 @@ namespace ConnectApp.components {
                                         new Row(
                                             children: new List<Widget> {
                                                 new Expanded(
-                                                    child: new Text(message.author.fullName, style: new TextStyle(
-                                                        height: 1.57f,
-                                                        fontSize: 14,
-                                                        fontFamily: "PingFang-Regular",
-                                                        color: CColors.TextBody3))),
+                                                    child: new Text(message.author.fullName, style: CTextStyle.PRegularBody3)),
                                                 new GestureDetector(
                                                     onTap: moreCallBack,
                                                     child: new Icon(Icons.ellipsis, size: 20, color: CColors.BrownGrey)
@@ -116,7 +102,7 @@ namespace ConnectApp.components {
                                                                 child: new Text($"点赞 {message.reactions.Count}",
                                                                     style: isPraised
                                                                         ? new TextStyle(
-                                                                            height: 1.67f,
+                                                                            height: 1.25f,
                                                                             fontSize: 12,
                                                                             fontFamily: "PingFang-Regular",
                                                                             color: CColors.PrimaryBlue

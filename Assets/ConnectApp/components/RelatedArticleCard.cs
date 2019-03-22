@@ -56,12 +56,7 @@ namespace ConnectApp.components {
                                       ),
                                       new Text(
                                           $"{ user.fullName } · { DateConvert.DateStringFromNow(article.updatedTime)} · 阅读 {article.viewCount }",
-                                          style:new TextStyle(
-                                              height: 1.67f,
-                                              fontSize: 12,
-                                              fontFamily: "PingFang-Regular",
-                                              color: CColors.TextBody3    
-                                          ),
+                                          style:CTextStyle.TextBody3,
                                           textAlign:TextAlign.left
                                       )
                                   }

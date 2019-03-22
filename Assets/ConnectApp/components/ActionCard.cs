@@ -46,12 +46,7 @@ namespace ConnectApp.components {
                         new Container(
                             margin: EdgeInsets.only(right: 10),
                             child: new Icon(iconData, color: iconColor)),
-                        new Text(title, style: new TextStyle(
-//                            height: 1.5f,
-                                fontSize: 16,
-                                fontFamily: "PingFang-Regular",
-                                color: textColor
-                            )
+                        new Text(title, style: CTextStyle.PLarge
                         )
                     }
                 )

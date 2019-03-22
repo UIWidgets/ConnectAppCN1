@@ -112,7 +112,7 @@ namespace ConnectApp.constants {
             color: CColors.PrimaryBlue
         );
 
-        public static readonly TextStyle PLargeGray = new TextStyle(
+        public static readonly TextStyle PLargeBody4 = new TextStyle(
             height: 1.09f,
             fontSize: 16,
             fontFamily: "PingFang-Regular",
@@ -130,6 +130,18 @@ namespace ConnectApp.constants {
             fontSize: 14,
             fontFamily: "PingFang-Regular",
             color: CColors.TextTitle
+        );
+        public static readonly TextStyle PRegularBody3 = new TextStyle(
+            height: 1.15f,
+            fontSize: 14,
+            fontFamily: "PingFang-Regular",
+            color: CColors.TextBody3
+        );
+        public static readonly TextStyle PRegularBody4 = new TextStyle(
+            height: 1.15f,
+            fontSize: 14,
+            fontFamily: "PingFang-Regular",
+            color: CColors.TextBody4
         );
 
         public static readonly TextStyle Caption = new TextStyle(
@@ -160,12 +172,6 @@ namespace ConnectApp.constants {
             fontSize: 12,
             fontFamily: "PingFang-Regular",
             color: CColors.TextBody4
-        );
-        public static readonly TextStyle TextBody1 = new TextStyle(
-            height: 1.7f,
-            fontSize: 18,
-            fontFamily: "PingFang-Regular",
-            color: CColors.TextBody
         );
 
         public static readonly TextStyle TextBody3 = new TextStyle(

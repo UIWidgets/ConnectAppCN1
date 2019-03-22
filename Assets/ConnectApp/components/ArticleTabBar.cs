@@ -53,14 +53,10 @@ namespace ConnectApp.components {
                                     CColors.Separator2,
                                     borderRadius: BorderRadius.all(16)
                                 ),
+                                alignment:Alignment.centerLeft,
                                 child: new Text(
                                     "说点想法...",
-                                    style: new TextStyle(
-                                        height: 1.57f,
-                                        fontSize: 14,
-                                        fontFamily: "PingFang-Regular",
-                                        color: CColors.TextBody4
-                                    )
+                                    style: CTextStyle.PRegularBody3
                                 )
                             )
                         ),

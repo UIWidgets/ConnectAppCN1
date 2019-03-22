@@ -233,12 +233,7 @@ namespace ConnectApp.screens {
                             margin: EdgeInsets.only(top: 8),
                             child: new Text(
                                 $"阅读 { _article.viewCount } · {DateConvert.DateStringFromNow(_article.createdTime)}",
-                                style: new TextStyle(
-                                    height: 1.67f,
-                                    fontSize: 12,
-                                    fontFamily: "PingFang-Regular",
-                                    color: CColors.TextBody4
-                                    )
+                                style: CTextStyle.TextBody4
                                 )
                         ),
                         new Container(
@@ -262,12 +257,7 @@ namespace ConnectApp.screens {
                                             ),
                                             new Text(
                                                 DateConvert.DateStringFromNow(_article.createdTime),
-                                                style: new TextStyle(
-                                                    height: 1.67f,
-                                                    fontSize: 12,
-                                                    fontFamily: "PingFang-Regular",
-                                                    color: CColors.TextBody3
-                                                )
+                                                style: CTextStyle.TextBody3
                                             )
                                         }
                                     )
@@ -278,23 +268,25 @@ namespace ConnectApp.screens {
             );
         }
 
-
-        private Widget _subTitle(BuildContext context) {
+        private Widget _subTitle(BuildContext context)
+        {
+            
             return new Container(
-                color: CColors.White,
-                child: new Container(
-                    margin: EdgeInsets.only(bottom: 24, left: 16, right: 16),
-                    child: new Container(
-                        decoration:new BoxDecoration(
-                            CColors.Separator2,
-                            borderRadius: BorderRadius.all(4)
-                        ),
-                        padding: EdgeInsets.only(16,12,16,12), 
-                        child: new Text($"{_article.subTitle}",style:CTextStyle.PLargeGray)
-                    )
-                ) 
+                color:CColors.White,
+                child:new Container(
+                    margin:EdgeInsets.only(bottom:24,left:16,right:16),
+                    child:new Container(
+                    decoration:new BoxDecoration(
+                        color:CColors.Separator2,
+                        borderRadius:BorderRadius.all(4)
+                    ),
+                    padding:EdgeInsets.only(16,12,16,12), 
+                    child:new Text($"{_article.subTitle}",style:CTextStyle.PLargeBody4)
+                )  ) 
             );
         }
+
+
         
         private Widget _actionCards(BuildContext context, bool like) {
             return new Container(
@@ -433,18 +425,11 @@ namespace ConnectApp.screens {
             if (_channelComments.Count==0) {
                 return new Container();
             }
+
             return new Container(
                 height: 52,
                 alignment: Alignment.center,
-                child: new Text(
-                    "一 已经全部加载完毕 一",
-                    style: new TextStyle(
-                        height: 1.57f,
-                        fontSize: 14,
-                        fontFamily: "PingFang-Regular",
-                        color: CColors.TextBody4
-                    ),
-                    textAlign:TextAlign.center
+                child: new Text("一 已经全部加载完毕 一", style: CTextStyle.PRegularBody4, textAlign: TextAlign.center
                 )
             );
         }
