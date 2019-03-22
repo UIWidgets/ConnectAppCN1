@@ -91,7 +91,6 @@ namespace ConnectApp.components {
 
         private Widget _buildContentDetail() {
             return new Container(
-                padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,

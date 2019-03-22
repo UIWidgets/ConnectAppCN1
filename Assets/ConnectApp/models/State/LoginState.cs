@@ -1,4 +1,5 @@
 using System;
+using ConnectApp.screens;
 
 namespace ConnectApp.models {
     [Serializable]
@@ -8,5 +9,6 @@ namespace ConnectApp.models {
         public string password;
         public bool loading;
         public bool isLoggedIn;
+        public FromPage fromPage;
     }
 }
