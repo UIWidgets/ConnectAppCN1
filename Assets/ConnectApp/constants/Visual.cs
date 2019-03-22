@@ -87,8 +87,16 @@ namespace ConnectApp.constants {
             height: 1.33f,
             fontSize: 18,
             fontFamily: "PingFang-Regular",
-            letterSpacing:0.6f,
+            letterSpacing: 0.6f,
             color: CColors.TextBody
+        );
+        
+        public static readonly TextStyle PXLargeBlue = new TextStyle(
+            height: 1.33f,
+            fontSize: 18,
+            fontFamily: "PingFang-Regular",
+            letterSpacing: 0.6f,
+            color: CColors.PrimaryBlue
         );
 
         public static readonly TextStyle PLarge = new TextStyle(
@@ -118,6 +126,20 @@ namespace ConnectApp.constants {
             fontFamily: "PingFang-Regular",
             color: CColors.TextBody4
         );
+        
+        public static readonly TextStyle PLargeDisabled = new TextStyle(
+            height: 1.09f,
+            fontSize: 16,
+            fontFamily: "PingFang-Regular",
+            color: CColors.text2
+        );
+        
+        public static readonly TextStyle PMediumBody3 = new TextStyle(
+            height: 1.15f,
+            fontSize: 14,
+            fontFamily: "PingFang-Medium",
+            color: CColors.TextBody3
+        );
 
         public static readonly TextStyle PRegular = new TextStyle(
             height: 1.15f,
@@ -142,6 +164,13 @@ namespace ConnectApp.constants {
             fontSize: 14,
             fontFamily: "PingFang-Regular",
             color: CColors.TextBody4
+        );
+        
+        public static readonly TextStyle PRegularBlue= new TextStyle(
+            height: 1.15f,
+            fontSize: 14,
+            fontFamily: "PingFang-Regular",
+            color: CColors.PrimaryBlue
         );
 
         public static readonly TextStyle Caption = new TextStyle(

@@ -195,7 +195,7 @@ namespace ConnectApp.components {
                 child: new Container(
                     height: widget.height,
                     alignment: Alignment.center,
-                    color: CColors.White,
+                    color: CColors.Transparent,
                     child: new Row(
                         children: new List<Widget> {
                             new Expanded(

@@ -41,15 +41,19 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            return new SafeArea(
-                child: new Container(
-                    color: CColors.White,
-                    child: new Column(
-                        children: new List<Widget> {
-                            _buildNavigationBar(context),
-                            _buildSelectView(),
-                            _buildContentView()
-                        }
+            return new Container(
+                color: CColors.White,
+                child: new SafeArea(
+                    child: new Container(
+                        color: CColors.White,
+                        child: new Column(
+                            children: new List<Widget>
+                            {
+                                _buildNavigationBar(context),
+                                _buildSelectView(),
+                                _buildContentView()
+                            }
+                        )
                     )
                 )
             );
