@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ConnectApp.components;
 using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.screens;
@@ -8,6 +9,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+using UnityEngine.Video;
 
 namespace ConnectApp.canvas {
     public sealed class ConnectAppCanvas : UIWidgetsPanel {
@@ -22,6 +24,9 @@ namespace ConnectApp.canvas {
             FontManager.instance.addFont(mediumFont);
             var semiboldFont = Resources.Load<Font>("PingFang-Semibold");
             FontManager.instance.addFont(semiboldFont);
+
+            var videoPlayer = GetComponent<VideoPlayer>();
+            VideoPlayerManager.instance.player = videoPlayer;
         }
 
         protected override Widget createWidget() {

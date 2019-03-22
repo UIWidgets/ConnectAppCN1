@@ -83,7 +83,7 @@ namespace ConnectApp.components {
         private Widget _bottomTabBar() {
             return new Container(
                 decoration: new BoxDecoration(
-                    border: Border.all(CColors.Separator),
+                    border: new Border(top:new BorderSide(CColors.Separator)),
                     color: widget.tabbarBackgroudColor
                 ),
                 height: KTabBarHeight,
