@@ -23,7 +23,7 @@ namespace ConnectApp.redux.actions {
         public BuildContext context;
     }
     
-    public class LoginOutAction : BaseAction {
+    public class LogoutAction : BaseAction {
         public BuildContext context;
     }
 }

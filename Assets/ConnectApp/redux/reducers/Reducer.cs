@@ -90,7 +90,7 @@ namespace ConnectApp.redux.reducers {
                     customSnackBar.show(action.context);
                     break;
                 }
-                case LoginOutAction action: {
+                case LogoutAction action: {
                     state.loginState.loginInfo = new LoginInfo();
                     state.loginState.isLoggedIn = false;
                     Navigator.pop(action.context);
