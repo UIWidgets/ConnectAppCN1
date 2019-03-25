@@ -85,7 +85,7 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.loading = false;
                     var customSnackBar = new CustomSnackBar(
                         "邮箱或密码不正确，请稍后再试。",
-                        new TimeSpan(0,0,0,2)
+                        new TimeSpan(0, 0, 0, 2)
                     );
                     customSnackBar.show(action.context);
                     break;
@@ -108,7 +108,7 @@ namespace ConnectApp.redux.reducers {
                             });
                             StoreProvider.store.Dispatch(new UserMapAction
                                 {userMap = articlesResponse.userMap});
-                            StoreProvider.store.Dispatch(new TeamMapAction{teamMap = articlesResponse.teamMap});
+                            StoreProvider.store.Dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
                             StoreProvider.store.Dispatch(new FetchArticleSuccessAction
                                 {ArticleDict = articleDict, ArticleList = articleList});
                         })
@@ -590,7 +590,7 @@ namespace ConnectApp.redux.reducers {
                             StoreProvider.store.Dispatch(new UserMapAction {
                                 userMap = searchResponse.userMap
                             });
-                            StoreProvider.store.Dispatch(new TeamMapAction{teamMap = searchResponse.teamMap});
+                            StoreProvider.store.Dispatch(new TeamMapAction {teamMap = searchResponse.teamMap});
                             StoreProvider.store.Dispatch(new SearchArticleSuccessAction {
                                 keyword = action.keyword,
                                 pageNumber = action.pageNumber,

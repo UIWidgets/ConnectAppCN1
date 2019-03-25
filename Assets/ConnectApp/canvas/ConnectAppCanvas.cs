@@ -19,7 +19,7 @@ namespace ConnectApp.canvas {
             FontManager.instance.addFont(Resources.Load<Font>("Material Icons"));
             FontManager.instance.addFont(Resources.Load<Font>("Roboto-Regular"));
             FontManager.instance.addFont(Resources.Load<Font>("Roboto-Medium"));
-            FontManager.instance.addFont(Resources.Load<Font>("Roboto-Bold")); 
+            FontManager.instance.addFont(Resources.Load<Font>("Roboto-Bold"));
             FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Regular"));
             FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Medium"));
             FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Semibold"));

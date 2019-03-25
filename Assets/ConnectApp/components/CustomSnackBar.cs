@@ -114,11 +114,9 @@ namespace ConnectApp.components {
             if (_timer != null) return;
             _timer = Window.instance.run(customSnackBar.duration, () => { navigator.pop(); });
         }
-        
+
         private void _cancelTimer() {
-            if (_timer != null) {
-                _timer.cancel();
-            }
+            if (_timer != null) _timer.cancel();
         }
 
         public static string debugLabel => "runtimeType";
@@ -151,17 +149,13 @@ namespace ConnectApp.components {
             );
             return Navigator.push(context, _snackBarRoute);
         }
-        
-        public void dismiss() {
-            if (_snackBarRoute == null) {
-                return;
-            }
 
-            if (_snackBarRoute.isCurrent) {
+        public void dismiss() {
+            if (_snackBarRoute == null) return;
+
+            if (_snackBarRoute.isCurrent)
                 _snackBarRoute.navigator.pop();
-            } else if (_snackBarRoute.isActive) {
-                _snackBarRoute.navigator.removeRoute(_snackBarRoute);
-            }
+            else if (_snackBarRoute.isActive) _snackBarRoute.navigator.removeRoute(_snackBarRoute);
             if (_snackBarRoute._timer != null) {
                 _snackBarRoute._timer.cancel();
                 _snackBarRoute._timer = null;

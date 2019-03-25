@@ -32,7 +32,7 @@ namespace ConnectApp.models {
         public Dictionary<string, User> userMap;
         public Dictionary<string, Team> teamMap;
     }
-    
+
     [Serializable]
     public class FetchSocketUrlResponse {
         public string url;

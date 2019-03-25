@@ -1,23 +1,19 @@
 using System;
-using System.Net.Http;
-using RSG;
-using BestHTTP;
 using BestHTTP.WebSocket;
 using BestHTTP.WebSocket.Frames;
 using ConnectApp.api;
-using Unity.UIWidgets.async;
-using Unity.UIWidgets.ui;
+using RSG;
 using UnityEngine;
 
 namespace ConnectApp.utils {
-    delegate string GetCurrentChannelId();
-    delegate string GetLoginSession();
-    
+    internal delegate string GetCurrentChannelId();
+
+    internal delegate string GetLoginSession();
+
     public class GatewaySocket {
-        
         private static WebSocket _webSocket;
-        
-        Promise Connect(
+
+        private Promise Connect(
             string url,
             GetCurrentChannelId getCurrentChannelId,
             GetLoginSession getLoginSession,
@@ -32,21 +28,20 @@ namespace ConnectApp.utils {
                 });
             return null;
         }
-        
+
         private void OnWebSocketOpen(WebSocket webSocket) {
             Debug.Log("WebSocket Open!");
         }
-        
+
         private void OnMessageReceived(WebSocket webSocket, string message) {
             Debug.Log("Text Message received from server: " + message);
         }
-        
+
         private void OnIncompleteFrame(WebSocket webSocket, WebSocketFrameReader frame) {
             Debug.Log("Frame received from server: " + frame);
         }
-        
-        
-        
+
+
 //        void Add(object frame /*String|List<int>|Frame*/) {
 //            if (frame is WebSocketFrameReader) {
 //                var frameBytes = frame;
@@ -58,13 +53,12 @@ namespace ConnectApp.utils {
 //                this._socket.add(frame);
 //            }
 //        }
-        
-        void _Info(string msg) {
+
+        private void _Info(string msg) {
             Debug.Log($"[INFO] GatewaySocket: {msg}");
         }
     }
 
-    
 
 //        WebSocket _socket;
 //        GetCurrentChannelId _getCurrentChannelId;
@@ -76,7 +70,7 @@ namespace ConnectApp.utils {
 //
 //        _GatewaySocket() {
 //            _Ping();
-        }
+}
 
 //        void _Ping() {
 //            this._pingTimer = Window.instance.run(TimeSpan.FromSeconds(15),() => {

@@ -7,7 +7,6 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
     public delegate void InputDone(string text);
@@ -21,15 +20,16 @@ namespace ConnectApp.components {
             this.replyUserName = replyUserName;
             this.doneCallBack = doneCallBack;
         }
-        
+
         public readonly string replyUserName;
         public readonly InputDone doneCallBack;
 
-        public override State createState() => new _CustomInputState();
+        public override State createState() {
+            return new _CustomInputState();
+        }
     }
 
     public class _CustomInputState : State<CustomInput> {
-
         private bool _isPublish;
         private string inputText;
         private readonly TextEditingController _controller = new TextEditingController(null);
@@ -41,16 +41,16 @@ namespace ConnectApp.components {
 
         public override Widget build(BuildContext context) {
             var reply = new Container();
-            if (!widget.replyUserName.isEmpty()) {
+            if (!widget.replyUserName.isEmpty())
                 reply = new Container(
                     height: 40,
                     width: MediaQuery.of(context).size.width,
                     padding: EdgeInsets.only(16, right: 16),
-                    alignment: Alignment.centerLeft, 
+                    alignment: Alignment.centerLeft,
                     decoration: new BoxDecoration(
                         CColors.White,
-                        border:new Border(
-                            bottom:new BorderSide(CColors.Separator)
+                        border: new Border(
+                            bottom: new BorderSide(CColors.Separator)
                         )
                     ),
                     child: new RichText(
@@ -66,7 +66,6 @@ namespace ConnectApp.components {
                         )
                     )
                 );
-            }
             return new Container(
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -75,13 +74,13 @@ namespace ConnectApp.components {
                             color: Color.fromRGBO(0, 0, 0, 0.4f),
                             child: new Container(
                                 color: Colors.white,
-                                child:new Column(
-                                    children:new List<Widget> {    
+                                child: new Column(
+                                    children: new List<Widget> {
                                         reply,
                                         new Row(
                                             children: new List<Widget> {
                                                 new Expanded(
-                                                    child: new Container( 
+                                                    child: new Container(
                                                         margin: EdgeInsets.only(10, 6.5f, 8, 6.5f),
                                                         decoration: new BoxDecoration(
                                                             CColors.Separator2,
@@ -107,7 +106,7 @@ namespace ConnectApp.components {
                                                                 },
                                                                 onSubmitted: text => { widget.doneCallBack(text); }
                                                             )
-                                                        ) 
+                                                        )
                                                     )
                                                 ),
                                                 new CustomButton(
@@ -116,8 +115,10 @@ namespace ConnectApp.components {
                                                         widget.doneCallBack(inputText);
                                                     },
                                                     child: new Text(
-                                                        "发布", 
-                                                        style: _isPublish ? CTextStyle.PLargeBlue : CTextStyle.PLargeDisabled
+                                                        "发布",
+                                                        style: _isPublish
+                                                            ? CTextStyle.PLargeBlue
+                                                            : CTextStyle.PLargeDisabled
                                                     )
                                                 ),
                                                 new Container(width: 8)
@@ -125,7 +126,7 @@ namespace ConnectApp.components {
                                         )
                                     }
                                 ),
-                                margin:EdgeInsets.only(bottom:250)
+                                margin: EdgeInsets.only(bottom: 250)
                             )
                         )
                     }

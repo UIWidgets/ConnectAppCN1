@@ -7,13 +7,13 @@ using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.widgets;
 using Unity.UIWidgets.service;
-using Color = Unity.UIWidgets.ui.Color;
+using Unity.UIWidgets.widgets;
 using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
+using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
-    
     public enum FromPage {
         weChat,
         login
@@ -25,7 +25,9 @@ namespace ConnectApp.screens {
         ) : base(key) {
         }
 
-        public override State createState() => new _BindUnityScreenState();
+        public override State createState() {
+            return new _BindUnityScreenState();
+        }
     }
 
     public class _BindUnityScreenState : State<BindUnityScreen> {
@@ -52,7 +54,7 @@ namespace ConnectApp.screens {
             if (_isEmailFocus == false) setState(() => { _isEmailFocus = true; });
             if (_isPasswordFocus) setState(() => { _isPasswordFocus = false; });
         }
-        
+
         private void _passwordFocusNodeListener() {
             if (_isPasswordFocus == false) setState(() => { _isPasswordFocus = true; });
             if (_isEmailFocus) setState(() => { _isEmailFocus = false; });
@@ -91,9 +93,8 @@ namespace ConnectApp.screens {
                         child: new Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: new List<Widget> {
-                                fromPage == FromPage.weChat 
-                                    ?
-                                    new CustomButton(
+                                fromPage == FromPage.weChat
+                                    ? new CustomButton(
                                         onPressed: () => { Navigator.pop(context); },
                                         child: new Text(
                                             "跳过",
@@ -103,9 +104,8 @@ namespace ConnectApp.screens {
                                                 color: CColors.text3
                                             )
                                         )
-                                    ) 
-                                    : 
-                                    new CustomButton(
+                                    )
+                                    : new CustomButton(
                                         onPressed: () => { Navigator.pop(context); },
                                         child: new Icon(
                                             Icons.arrow_back,

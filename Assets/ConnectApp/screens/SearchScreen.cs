@@ -30,6 +30,7 @@ namespace ConnectApp.screens {
     internal class _SearchScreenState : State<SearchScreen> {
         private readonly TextEditingController _controller = new TextEditingController(null);
         private int pageNumber;
+
         public override void initState() {
             base.initState();
             pageNumber = 0;
@@ -114,7 +115,9 @@ namespace ConnectApp.screens {
                                                             return new RelatedArticleCard(
                                                                 searchArticle,
                                                                 () => {
-                                                                    StoreProvider.store.Dispatch(new NavigatorToArticleDetailAction{detailId = searchArticle.id});
+                                                                    StoreProvider.store.Dispatch(
+                                                                        new NavigatorToArticleDetailAction
+                                                                            {detailId = searchArticle.id});
                                                                     Navigator.pushNamed(context, "/article-detail");
                                                                 }
                                                             );

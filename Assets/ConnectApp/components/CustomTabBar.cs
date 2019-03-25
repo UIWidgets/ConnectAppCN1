@@ -11,8 +11,8 @@ using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.components {
-
     public delegate void SelectTabCallBack(int index);
+
     public class CustomTabBar : StatefulWidget {
         public CustomTabBar(
             List<Widget> controllers,
@@ -83,7 +83,7 @@ namespace ConnectApp.components {
         private Widget _bottomTabBar() {
             return new Container(
                 decoration: new BoxDecoration(
-                    border: new Border(top:new BorderSide(CColors.Separator)),
+                    border: new Border(top: new BorderSide(CColors.Separator)),
                     color: widget.tabbarBackgroudColor
                 ),
                 height: KTabBarHeight,
@@ -111,16 +111,14 @@ namespace ConnectApp.components {
                                                 return;
                                             }
                                         }
-                                        if (widget.tapCallBack != null) {
-                                            widget.tapCallBack(item.index);
-                                        }
+
+                                        if (widget.tapCallBack != null) widget.tapCallBack(item.index);
                                         setState(() => {
                                             _selectedIndex = item.index;
-                                            _pageController.animateToPage(item.index, new TimeSpan(0, 0, 0, 0,1),
+                                            _pageController.animateToPage(item.index, new TimeSpan(0, 0, 0, 0, 1),
                                                 Curves.ease);
-                                        }); 
+                                        });
                                     }
-                                    
                                 },
                                 child: new Container(
                                     decoration: new BoxDecoration(

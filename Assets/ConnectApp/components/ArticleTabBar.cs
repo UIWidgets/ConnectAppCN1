@@ -24,6 +24,7 @@ namespace ConnectApp.components {
             this.bookmarkCallback = bookmarkCallback;
             this.shareCallback = shareCallback;
         }
+
         public readonly GestureTapCallback addCommentCallback;
         public readonly GestureTapCallback commentCallback;
         public readonly GestureTapCallback favorCallback;
@@ -34,7 +35,7 @@ namespace ConnectApp.components {
         public override Widget build(BuildContext context) {
             return new Container(
                 height: 49,
-                padding: EdgeInsets.only(16, right:16),
+                padding: EdgeInsets.only(16, right: 16),
                 decoration: new BoxDecoration(
                     border: new Border(new BorderSide(CColors.Separator)),
                     color: CColors.White
@@ -53,7 +54,7 @@ namespace ConnectApp.components {
                                     CColors.Separator2,
                                     borderRadius: BorderRadius.all(16)
                                 ),
-                                alignment:Alignment.centerLeft,
+                                alignment: Alignment.centerLeft,
                                 child: new Text(
                                     "说点想法...",
                                     style: CTextStyle.PRegularBody3

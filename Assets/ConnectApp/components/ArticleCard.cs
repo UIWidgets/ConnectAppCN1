@@ -32,16 +32,14 @@ namespace ConnectApp.components {
             var username = "";
             if (article.ownerType == "user") {
                 var userDict = StoreProvider.store.state.userState.userDict;
-                if (userDict.ContainsKey(article.userId)) {
-                    username = userDict[article.userId].fullName;
-                }
+                if (userDict.ContainsKey(article.userId)) username = userDict[article.userId].fullName;
             }
+
             if (article.ownerType == "team") {
                 var teamDict = StoreProvider.store.state.teamState.teamDict;
-                if (teamDict.ContainsKey(article.teamId)) {
-                    username = teamDict[article.teamId].name;
-                }
+                if (teamDict.ContainsKey(article.teamId)) username = teamDict[article.teamId].name;
             }
+
             var card = new Container(
                 color: CColors.White,
                 child: new Padding(

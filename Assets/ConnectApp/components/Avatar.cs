@@ -11,7 +11,6 @@ using Image = Unity.UIWidgets.widgets.Image;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
-
     public enum OwnerType {
         user,
         team
@@ -35,9 +34,7 @@ namespace ConnectApp.components {
         private readonly OwnerType type;
 
         public override Widget build(BuildContext context) {
-            if (type == OwnerType.team) {
-                return _buildTeamAvatar();
-            }
+            if (type == OwnerType.team) return _buildTeamAvatar();
 
             return new StoreConnector<AppState, User>(
                 converter: (state, dispatch) => state.userState.userDict.ContainsKey(id)
@@ -72,9 +69,7 @@ namespace ConnectApp.components {
                     var avatarUrl = viewModel.avatar ?? "";
                     var name = viewModel.name;
                     var result = _extractName(name) ?? "";
-                    if (avatarUrl.Length <= 0) {
-                        return new _Placeholder(result, size);
-                    }
+                    if (avatarUrl.Length <= 0) return new _Placeholder(result, size);
                     return new Container(
                         width: size,
                         height: size,

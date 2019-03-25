@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using ConnectApp.constants;
-using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using ConnectApp.utils;

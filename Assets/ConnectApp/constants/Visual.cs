@@ -82,7 +82,7 @@ namespace ConnectApp.constants {
             fontFamily: "Roboto-Medium",
             color: CColors.H5White
         );
-        
+
         public static readonly TextStyle PXLarge = new TextStyle(
             height: 1.33f,
             fontSize: 18,
@@ -90,7 +90,7 @@ namespace ConnectApp.constants {
             letterSpacing: 0.6f,
             color: CColors.TextBody
         );
-        
+
         public static readonly TextStyle PXLargeBlue = new TextStyle(
             height: 1.33f,
             fontSize: 18,
@@ -105,7 +105,7 @@ namespace ConnectApp.constants {
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody
         );
-        
+
         public static readonly TextStyle PLargeMedium = new TextStyle(
             height: 1.09f,
             fontSize: 16,
@@ -126,14 +126,14 @@ namespace ConnectApp.constants {
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody4
         );
-        
+
         public static readonly TextStyle PLargeDisabled = new TextStyle(
             height: 1.09f,
             fontSize: 16,
             fontFamily: "Roboto-Regular",
             color: CColors.text2
         );
-        
+
         public static readonly TextStyle PMediumBody3 = new TextStyle(
             height: 1.15f,
             fontSize: 14,
@@ -147,26 +147,29 @@ namespace ConnectApp.constants {
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody
         );
+
         public static readonly TextStyle PRegularTitle = new TextStyle(
             height: 1.15f,
             fontSize: 14,
             fontFamily: "Roboto-Regular",
             color: CColors.TextTitle
         );
+
         public static readonly TextStyle PRegularBody3 = new TextStyle(
             height: 1.15f,
             fontSize: 14,
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody3
         );
+
         public static readonly TextStyle PRegularBody4 = new TextStyle(
             height: 1.15f,
             fontSize: 14,
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody4
         );
-        
-        public static readonly TextStyle PRegularBlue= new TextStyle(
+
+        public static readonly TextStyle PRegularBlue = new TextStyle(
             height: 1.15f,
             fontSize: 14,
             fontFamily: "Roboto-Regular",
@@ -233,8 +236,8 @@ namespace ConnectApp.constants {
         public static readonly Color BrownGrey = new Color(0xFFB5B5B5);
         public static readonly Color Disable = new Color(0xFFB2B2B2);
 
-        public static readonly Color H5White = Color.fromRGBO(255,255,255,0.8f);
-        
+        public static readonly Color H5White = Color.fromRGBO(255, 255, 255, 0.8f);
+
         public static readonly Color Transparent = new Color(0x00000000);
         public static readonly Color White = new Color(0xFFFFFFFF);
         public static readonly Color Black = new Color(0xFF000000);
