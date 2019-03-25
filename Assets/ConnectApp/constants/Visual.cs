@@ -32,40 +32,42 @@ namespace ConnectApp.constants {
 
     public static class CTextStyle {
         public static readonly TextStyle Xtra = new TextStyle(
-            height: 0.84f,
+            height: 1.03f,
             fontSize: 48,
             fontFamily: "Roboto-Bold",
             color: CColors.TextTitle
         );
 
         public static readonly TextStyle H1 = new TextStyle(
-            height: 0.87f,
+            height: 1.06f,
             fontSize: 40,
             fontFamily: "Roboto-Bold",
             color: CColors.TextTitle
         );
 
         public static readonly TextStyle H2 = new TextStyle(
-            height: 0.9f,
+            height: 1.11f,
             fontSize: 32,
             fontFamily: "Roboto-Bold",
             color: CColors.TextTitle
         );
 
         public static readonly TextStyle H2White = new TextStyle(
-            height: 0.9f,
+            height: 1.11f,
             fontSize: 32,
             fontFamily: "Roboto-Bold",
             color: CColors.White
         );
 
         public static readonly TextStyle H3 = new TextStyle(
+            height:1.16f,
             fontSize: 28,
             fontFamily: "Roboto-Bold",
             color: CColors.TextTitle
         );
 
         public static readonly TextStyle H4 = new TextStyle(
+            height: 1.18f,
             fontSize: 24,
             fontFamily: "Roboto-Medium",
             color: CColors.TextTitle
@@ -78,13 +80,14 @@ namespace ConnectApp.constants {
         );
 
         public static readonly TextStyle H5White = new TextStyle(
+            height:1.27f,
             fontSize: 20,
             fontFamily: "Roboto-Medium",
             color: CColors.H5White
         );
 
         public static readonly TextStyle PXLarge = new TextStyle(
-            height: 1.33f,
+            height: 1.68f,
             fontSize: 18,
             fontFamily: "Roboto-Regular",
             letterSpacing: 0.6f,
@@ -92,7 +95,7 @@ namespace ConnectApp.constants {
         );
 
         public static readonly TextStyle PXLargeBlue = new TextStyle(
-            height: 1.33f,
+            height: 1.68f,
             fontSize: 18,
             fontFamily: "Roboto-Regular",
             letterSpacing: 0.6f,
@@ -100,84 +103,84 @@ namespace ConnectApp.constants {
         );
 
         public static readonly TextStyle PLarge = new TextStyle(
-            height: 1.09f,
+            height: 1.33f,
             fontSize: 16,
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody
         );
 
         public static readonly TextStyle PLargeMedium = new TextStyle(
-            height: 1.09f,
+            height: 1.33f,
             fontSize: 16,
             fontFamily: "Roboto-Medium",
             color: CColors.TextTitle
         );
 
         public static readonly TextStyle PLargeBlue = new TextStyle(
-            height: 1.09f,
+            height: 1.33f,
             fontSize: 16,
             fontFamily: "Roboto-Regular",
             color: CColors.PrimaryBlue
         );
 
         public static readonly TextStyle PLargeBody4 = new TextStyle(
-            height: 1.09f,
+            height: 1.33f,
             fontSize: 16,
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody4
         );
 
         public static readonly TextStyle PLargeDisabled = new TextStyle(
-            height: 1.09f,
+            height: 1.33f,
             fontSize: 16,
             fontFamily: "Roboto-Regular",
             color: CColors.text2
         );
 
         public static readonly TextStyle PMediumBody3 = new TextStyle(
-            height: 1.15f,
+            height: 1.46f,
             fontSize: 14,
             fontFamily: "Roboto-Medium",
             color: CColors.TextBody3
         );
 
         public static readonly TextStyle PRegular = new TextStyle(
-            height: 1.15f,
+            height: 1.46f,
             fontSize: 14,
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody
         );
 
         public static readonly TextStyle PRegularTitle = new TextStyle(
-            height: 1.15f,
+            height: 1.46f,
             fontSize: 14,
             fontFamily: "Roboto-Regular",
             color: CColors.TextTitle
         );
 
         public static readonly TextStyle PRegularBody3 = new TextStyle(
-            height: 1.15f,
+            height: 1.46f,
             fontSize: 14,
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody3
         );
 
         public static readonly TextStyle PRegularBody4 = new TextStyle(
-            height: 1.15f,
+            height: 1.46f,
             fontSize: 14,
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody4
         );
 
         public static readonly TextStyle PRegularBlue = new TextStyle(
-            height: 1.15f,
+            height: 1.46f,
             fontSize: 14,
             fontFamily: "Roboto-Regular",
             color: CColors.PrimaryBlue
         );
 
         public static readonly TextStyle Caption = new TextStyle(
-            height: 1.25f,
+            height: 1.53f,
             fontSize: 12,
             letterSpacing: 0.5f,
             fontFamily: "Roboto-Medium",
@@ -185,7 +188,7 @@ namespace ConnectApp.constants {
         );
 
         public static readonly TextStyle CaptionWhite = new TextStyle(
-            height: 1.25f,
+            height: 1.53f,
             fontSize: 12,
             letterSpacing: 0.5f,
             fontFamily: "Roboto-Medium",
@@ -193,28 +196,28 @@ namespace ConnectApp.constants {
         );
 
         public static readonly TextStyle PSmall = new TextStyle(
-            height: 1.25f,
+            height: 1.53f,
             fontSize: 12,
             fontFamily: "Roboto-Regular",
             color: CColors.TextTitle
         );
 
         public static readonly TextStyle TextBody4 = new TextStyle(
-            height: 1.25f,
+            height: 1.53f,
             fontSize: 12,
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody4
         );
 
         public static readonly TextStyle TextBody1 = new TextStyle(
-            height: 1.7f,
+            height: 1.68f,
             fontSize: 18,
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody
         );
 
         public static readonly TextStyle TextBody3 = new TextStyle(
-            height: 1.25f,
+            height: 1.53f,
             fontSize: 12,
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody3
