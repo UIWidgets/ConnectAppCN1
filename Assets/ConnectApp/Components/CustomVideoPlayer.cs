@@ -8,7 +8,7 @@ using Texture = Unity.UIWidgets.widgets.Texture;
 
 namespace ConnectApp.components
 {
-    public class CustomVideoPlayer : StatelessWidget
+    public class CustomVideoPlayer : StatefulWidget
     {
         public CustomVideoPlayer(
             string url,
@@ -20,41 +20,80 @@ namespace ConnectApp.components
 
         public readonly string url;
 
+        public override State createState()
+        {
+            return new _CustomVideoPlayerState();
+        }
+    }
+
+    public class _CustomVideoPlayerState : State<CustomVideoPlayer>
+    {
+        private VideoPlayer _player = null;
+        private RenderTexture _texture = null;
+        private bool isPaused = false;
+        public override void initState()
+        {
+            base.initState();
+            
+            _texture = Resources.Load<RenderTexture>("ConnectAppRT");
+
+            _player = _videoPlayer(widget.url);
+
+            isPaused = false;
+        }
+
+        public override void dispose()
+        {
+            base.dispose();
+            _player.Stop();
+        }
 
         public override Widget build(BuildContext context)
         {
-            var texture = Resources.Load<RenderTexture>("ConnectAppRT");
-            var player = VideoPlayerManager.instance.player;
-            player.url = url;
-            player.targetTexture = texture;
-            player.isLooping = true;
-            player.aspectRatio = VideoAspectRatio.FitOutside;
-            player.sendFrameReadyEvents = true;
-            player.frameReady += (_, __) => Texture.textureFrameAvailable();
-            player.Prepare();
-
             return new Container(
                 child: new Stack(children: new List<Widget>
                 {
-                    new Texture(texture: texture),
+                    new Texture(texture: _texture),
                     new Positioned(
-                        left: 16,
-                        bottom: 16,
-                        child: new GestureDetector(
+                        top:0,
+                        right:0,
+                        left:0,
+                        bottom:0,
+                        child: isPaused? new GestureDetector(
                             onTap: () =>
                             {
-                                if (player.isPlaying)
-                                {
-                                    player.Pause();
-                                }
-                                else
-                                {
-                                    player.Prepare();
-                                }
+                                _player.Play();
+                                setState(() => { isPaused = false; });
                             },
-                            child:new Icon(Icons.eye, null, 24,CColors.Red))) 
+                            child:new Icon(Icons.play_arrow, null, 64, CColors.White)
+
+                        ):new GestureDetector(
+                            onTap: () =>
+                            {
+                                _player.Pause();
+                                setState(() => { isPaused = true; });
+                            },
+                            child: new Container(
+                                color:CColors.Transparent)
+                        )
+                    )
                 })
             );
         }
+
+        private VideoPlayer _videoPlayer(string url)
+        {
+            var player = VideoPlayerManager.instance.player;
+            player.url = url;
+            player.targetTexture = _texture;
+            player.isLooping = false;
+            player.aspectRatio = VideoAspectRatio.FitOutside;
+            player.sendFrameReadyEvents = true;
+            player.frameReady += (_, __) => Texture.textureFrameAvailable();
+            
+            player.Prepare();
+            return player;
+        }
+
     }
 }
