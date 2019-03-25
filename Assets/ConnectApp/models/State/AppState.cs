@@ -13,6 +13,7 @@ namespace ConnectApp.models {
         public SearchState searchState { get; set; }
         public NotificationState notificationState { get; set; }
         public UserState userState { get; set; }
+        public TeamState teamState { get; set; }
         public MineState mineState { get; set; }
         public MessageState messageState { get; set; }
 
@@ -63,6 +64,9 @@ namespace ConnectApp.models {
                 },
                 userState = new UserState {
                     userDict = new Dictionary<string, User>()
+                },
+                teamState = new TeamState {
+                    teamDict = new Dictionary<string, Team>()
                 },
                 mineState = new MineState {
                     futureEventsList = new List<IEvent>(),

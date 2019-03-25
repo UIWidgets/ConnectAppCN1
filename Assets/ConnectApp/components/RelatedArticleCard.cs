@@ -27,9 +27,18 @@ namespace ConnectApp.components {
         private readonly GestureTapCallback onTap;
         
         public override Widget build(BuildContext context) {
-            var user = new User();
-            if (StoreProvider.store.state.userState.userDict.ContainsKey(article.userId)) {
-                user = StoreProvider.store.state.userState.userDict[article.userId];
+            var username = "";
+            if (article.ownerType == "user") {
+                var userDict = StoreProvider.store.state.userState.userDict;
+                if (userDict.ContainsKey(article.userId)) {
+                    username = userDict[article.userId].fullName;
+                }
+            }
+            if (article.ownerType == "team") {
+                var teamDict = StoreProvider.store.state.teamState.teamDict;
+                if (teamDict.ContainsKey(article.teamId)) {
+                    username = teamDict[article.teamId].name;
+                }
             }
             var child = new Container(
                 color: CColors.White,
@@ -55,7 +64,7 @@ namespace ConnectApp.components {
                                           textAlign:TextAlign.left
                                       ),
                                       new Text(
-                                          $"{ user.fullName } · { DateConvert.DateStringFromNow(article.updatedTime)} · 阅读 {article.viewCount }",
+                                          $"{username} · { DateConvert.DateStringFromNow(article.updatedTime)} · 阅读 {article.viewCount }",
                                           style:CTextStyle.TextBody3,
                                           textAlign:TextAlign.left
                                       )

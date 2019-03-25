@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using ConnectApp.constants;
+using ConnectApp.redux;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -102,13 +102,17 @@ namespace ConnectApp.components {
                         fit: StackFit.expand,
                         children: new List<Widget> {
                             new GestureDetector(
-                                onTap: () =>
-                                {
-                                    if (_selectedIndex != item.index)
-                                    {
-                                        if (widget.tapCallBack != null)
-                                        {
-                                            widget.tapCallBack(_selectedIndex);
+                                onTap: () => {
+                                    if (_selectedIndex != item.index) {
+                                        if (item.index == 2) {
+                                            var isLoggedIn = StoreProvider.store.state.loginState.isLoggedIn;
+                                            if (!isLoggedIn) {
+                                                Navigator.pushNamed(context, "/login");
+                                                return;
+                                            }
+                                        }
+                                        if (widget.tapCallBack != null) {
+                                            widget.tapCallBack(item.index);
                                         }
                                         setState(() => {
                                             _selectedIndex = item.index;
@@ -139,7 +143,7 @@ namespace ConnectApp.components {
                                                         color: _selectedIndex == item.index
                                                             ? item.activeColor
                                                             : item.inActiveColor))
-                                            ),
+                                            )
                                         }
                                     )
                                 )

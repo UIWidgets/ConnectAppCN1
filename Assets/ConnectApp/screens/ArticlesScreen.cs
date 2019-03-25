@@ -125,6 +125,7 @@ namespace ConnectApp.screens {
                         articleDict.Add(item.id, item);
                     });
                     StoreProvider.store.Dispatch(new UserMapAction{userMap = articlesResponse.userMap});
+                    StoreProvider.store.Dispatch(new TeamMapAction{teamMap = articlesResponse.teamMap});
                     StoreProvider.store.Dispatch(new FetchArticleSuccessAction
                         {ArticleDict = articleDict, ArticleList = articleList});
                 })
@@ -145,6 +146,7 @@ namespace ConnectApp.screens {
                             }
                         });
                         StoreProvider.store.Dispatch(new UserMapAction{userMap = articlesResponse.userMap});
+                        StoreProvider.store.Dispatch(new TeamMapAction{teamMap = articlesResponse.teamMap});
                         StoreProvider.store.Dispatch(new FetchArticleSuccessAction
                             {ArticleDict = articleDict, ArticleList = articleList});
                     }
@@ -156,19 +158,13 @@ namespace ConnectApp.screens {
             var list = new List<Widget>();
             items.ForEach(id => {
                 var article = StoreProvider.store.state.articleState.articleDict[id];
-                var user = new User();
-                if (StoreProvider.store.state.userState.userDict.ContainsKey(article.userId)) {
-                    user = StoreProvider.store.state.userState.userDict[article.userId];
-                }
                 list.Add(new ArticleCard(
                     article,
-                    user,
                     () => {
                         StoreProvider.store.Dispatch(new NavigatorToArticleDetailAction{detailId = id});
                         Navigator.pushNamed(context, "/article-detail");
                     },
-                    moreCallBack: () =>
-                    {
+                    () => {
                         ActionSheetUtils.showModalActionSheet(context, new ActionSheet(
                             items: new List<ActionSheetItem> {
                                 new ActionSheetItem("举报", ActionType.destructive, () => { }),

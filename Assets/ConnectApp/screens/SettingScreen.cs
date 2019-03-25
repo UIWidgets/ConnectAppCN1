@@ -14,11 +14,16 @@ namespace ConnectApp.screens {
     public class SettingScreen : StatelessWidget {
         public override Widget build(BuildContext context) {
             return new Container(
-                child: new Column(
-                    children: new List<Widget> {
-                        _buildNavigationBar(context),
-                        _buildContent(context)
-                    }
+                color: CColors.White,
+                child: new SafeArea(
+                    child: new Container(
+                        child: new Column(
+                            children: new List<Widget> {
+                                _buildNavigationBar(context),
+                                _buildContent(context)
+                            }
+                        )
+                    )
                 )
             );
         }

@@ -6,8 +6,7 @@ using UnityEngine;
 
 namespace ConnectApp.screens {
     public class MainScreen : StatelessWidget {
-        public override Widget build(BuildContext context)
-        {
+        public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
                 child: new SafeArea(
@@ -23,40 +22,29 @@ namespace ConnectApp.screens {
                             new CustomTabBarItem(
                                 0,
                                 Icons.Description,
-                                "文章",
-                                CColors.PrimaryBlue,
-                                CColors.BrownGrey,
-                                24
+                                "文章"
                             ),
                             new CustomTabBarItem(
                                 1,
                                 Icons.ievent,
-                                "活动",
-                                CColors.PrimaryBlue,
-                                CColors.BrownGrey,
-                                24
+                                "活动"
                             ),
                             new CustomTabBarItem(
                                 2,
                                 Icons.Notification,
-                                "通知",
-                                CColors.PrimaryBlue,
-                                CColors.BrownGrey,
-                                24
+                                "通知"
                             ),
                             new CustomTabBarItem(
                                 3,
                                 Icons.Mood,
-                                "我的",
-                                CColors.PrimaryBlue,
-                                CColors.BrownGrey,
-                                24
+                                "我的"
                             ),
                         },
                         CColors.White,
-                        tapCallBack: (index) => { Debug.Log($"index == {index}"); }
-                    ))
-                );
+                        index => { Debug.Log($"index == {index}"); }
+                    )
+                )
+            );
         }
     }
 }

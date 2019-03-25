@@ -35,6 +35,7 @@ namespace ConnectApp.screens {
 
         private Article _article = new Article();
         private User _user = new User();
+        private Team _team = new Team();
         private string _channelId = "";
         private List<string> _channelComments = new List<string>();
         private List<Article> _relArticles = new List<Article>();
@@ -53,14 +54,16 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, Dictionary<string, object>>(
                 converter: (state, dispatcher) => new Dictionary<string, object> {
                     {"articleDetail", state.articleState.articleDetail},
-                    {"channelMessageDict",state.messageState.channelMessageDict},
-                    {"channelMessageList",state.messageState.channelMessageList},
-                    {"userDict",state.userState.userDict}
+                    {"channelMessageDict", state.messageState.channelMessageDict},
+                    {"channelMessageList", state.messageState.channelMessageList},
+                    {"userDict", state.userState.userDict},
+                    {"teamDict", state.teamState.teamDict}
                 },
                 builder: (context1, viewModel) => {
                     if (StoreProvider.store.state.articleState.articleDetailLoading) {
-                        return new Container(color:CColors.White,
-                            child:new SafeArea(
+                        return new Container(
+                            color: CColors.White,
+                            child: new SafeArea(
                                 child: new Column(
                                     children: new List<Widget> {
                                         _buildNavigationBar(context),
@@ -71,14 +74,21 @@ namespace ConnectApp.screens {
                         ); 
                     }
                     var articleDetail = (Project) viewModel["articleDetail"];
-                    var channelMessageList = (Dictionary<string, List<string>>) viewModel["channelMessageList"];
-                    var userDict = (Dictionary<string, User>) viewModel["userDict"];
                     if (articleDetail == null) return new Container();
+                    var channelMessageList = (Dictionary<string, List<string>>) viewModel["channelMessageList"];
                     _article = articleDetail.projectData;
-                    if (_article.userId!=null&&userDict.TryGetValue(_article.userId,out _user)) {
-                        _user = userDict[_article.userId];
+                    if (_article.ownerType == "user") {
+                        var userDict = (Dictionary<string, User>) viewModel["userDict"];
+                        if (_article.userId!=null && userDict.TryGetValue(_article.userId,out _user)) {
+                            _user = userDict[_article.userId];
+                        }
                     }
-                
+                    if (_article.ownerType == "team") {
+                        var teamDict = (Dictionary<string, Team>) viewModel["teamDict"];
+                        if (_article.teamId!=null && teamDict.TryGetValue(_article.teamId, out _team)) {
+                            _team = teamDict[_article.teamId];
+                        }
+                    }
                     _channelId = articleDetail.channelId;
                     _relArticles = articleDetail.projects;
                     if (channelMessageList.ContainsKey(articleDetail.channelId)) {
@@ -141,8 +151,8 @@ namespace ConnectApp.screens {
                         )
                     );
                     return new Container(
-                       color:CColors.White,
-                       child:new SafeArea(
+                       color: CColors.White,
+                       child: new SafeArea(
                             child: child
                        )
                     ); 
@@ -156,7 +166,7 @@ namespace ConnectApp.screens {
             originItems.Add(_subTitle(context));
             originItems.AddRange(ArticleDescription.map(context,_article.body,_contentMap));
             originItems.Add(_actionCards(context,articleDetail.like));
-            originItems.Add(_relatedArticles(context));
+            originItems.Add(_buildRelatedArticles());
             originItems.Add(_comments(context));
             originItems.AddRange(_buildComments(context));
             if (!articleDetail.comments.hasMore)
@@ -222,6 +232,12 @@ namespace ConnectApp.screens {
         
         
         private Widget _buildContentHead(BuildContext context) {
+            var avatar = new Avatar(
+                _article.ownerType == "user" ? _user.id : _team.id,
+                32,
+                _article.ownerType == "user" ? OwnerType.user : OwnerType.team
+            );
+            var text = _article.ownerType == "user" ? _user.fullName : _team.name;
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(left:16,right:16,top:16),
@@ -237,17 +253,15 @@ namespace ConnectApp.screens {
                             child: new Text(
                                 $"阅读 { _article.viewCount } · {DateConvert.DateStringFromNow(_article.createdTime)}",
                                 style: CTextStyle.TextBody4
-                                )
+                            )
                         ),
                         new Container(
                             margin: EdgeInsets.only(top: 24, bottom: 24),
                             child: new Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: new List<Widget> {
                                     new Container(
                                         margin: EdgeInsets.only(right: 8),
-                                        child: new Avatar(_user==null?"1234":_user.id,null,32)
+                                        child: avatar
                                     ),
                                     new Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
@@ -255,7 +269,7 @@ namespace ConnectApp.screens {
                                         children: new List<Widget> {
                                             new Container(height: 5),
                                             new Text(
-                                                _user==null?"昵称":_user.fullName,
+                                                text,
                                                 style: CTextStyle.PRegular
                                             ),
                                             new Text(
@@ -265,7 +279,8 @@ namespace ConnectApp.screens {
                                         }
                                     )
                                 }
-                            )),
+                            )
+                        )
                     }
                 )
             );
@@ -317,32 +332,9 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _relatedArticles(BuildContext context) {
-            return new Container(
-                color: CColors.White,
-                margin: EdgeInsets.only(bottom:16),
-                child: new Column(
-                    children: new List<Widget> {
-                    new Container(
-                        height:1,
-                        color:CColors.Separator2,
-                        margin:EdgeInsets.only(bottom:24)
-                    ),
-                    new Container(
-                        child: new Column(
-                            children: _buildArticles()
-                        )
-                    )
-                }) 
-
-            );
-        }
-
-        private List<Widget> _buildArticles() {
+        private Widget _buildRelatedArticles() {
+            if (_relArticles.Count == 0) return new Container();
             var widgets = new List<Widget>();
-            if (_relArticles.Count==0) {
-                return widgets;
-            }
             _relArticles.ForEach(article => {
                 widgets.Add(new RelatedArticleCard(
                     article,
@@ -352,16 +344,33 @@ namespace ConnectApp.screens {
                     }
                 )); 
             });
-            return widgets;
+            return new Container(
+                color: CColors.White,
+                margin: EdgeInsets.only(bottom:16),
+                child: new Column(
+                    children: new List<Widget> {
+                    new Container(
+                        height: 1,
+                        color:CColors.Separator2,
+                        margin:EdgeInsets.only(16, right: 16, bottom: 24)
+                    ),
+                    new Container(
+                        child: new Column(
+                            children: widgets
+                        )
+                    )
+                }) 
+
+            );
         }
 
         private Widget _comments(BuildContext context) {
-            if (_channelComments.Count==0) {
+            if (_channelComments.Count == 0) {
                 return new Container();
             }
             return new Container(
                 color: CColors.White,
-                padding: EdgeInsets.only(16, right: 16,top:16),
+                padding: EdgeInsets.only(16, 16, 16),
                 child: new Text(
                     "评论",
                     style: CTextStyle.H5,
@@ -377,8 +386,7 @@ namespace ConnectApp.screens {
             var comments = new List<Widget>();
             var channelMessageDict = StoreProvider.store.state.messageState.channelMessageDict;
             var messageDict = channelMessageDict[_channelId];
-            _channelComments.ForEach((commentId) =>
-            {
+            _channelComments.ForEach(commentId => {
                 var message = messageDict[commentId];
                 bool isPraised = _isPraised(message);
                 var card = new CommentCard(
