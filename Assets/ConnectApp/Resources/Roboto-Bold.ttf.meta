@@ -1,0 +1,24 @@
+fileFormatVersion: 2
+guid: 8ac11c479b8e141ae9a6e4b937678e8e
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Roboto-Bold
+  fontNames:
+  - Roboto-Bold
+  - PingFangSC-Semibold
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 370017d476abd48e48d578bd14bee80e, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

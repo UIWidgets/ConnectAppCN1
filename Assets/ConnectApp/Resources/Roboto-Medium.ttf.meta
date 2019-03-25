@@ -1,0 +1,24 @@
+fileFormatVersion: 2
+guid: 5ab83d612515147abb004c90c9747843
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Roboto-Medium
+  fontNames:
+  - Roboto-Medium
+  - PingFangSC-Medium
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: a9a496698af674103a546c4920cfdf92, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

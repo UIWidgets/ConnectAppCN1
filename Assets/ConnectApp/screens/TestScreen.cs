@@ -5,7 +5,9 @@ using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using ConnectApp.utils;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
     public class TestScreen : StatelessWidget {
@@ -17,24 +19,87 @@ namespace ConnectApp.screens {
                         CColors.background1,
                         border: Border.all(CColors.Red)
                     ),
-                    child: renderTestView(context)
+                    child: renderTestText()
                 )
+            );
+        }
+
+        private static Widget renderTestText() {
+            return new ListView(
+                children: new List<Widget> {
+                    new Container(height: 10),
+                    new Container(
+                        color: CColors.White,
+                        child: new Text(
+                            "Regular: 盘点CES 2019的Unity汽车行业解决方案及案例",
+                            style: new TextStyle(
+                                height: 1.33f,
+                                fontSize: 24,
+                                fontFamily: "Roboto-Regular",
+                                color: CColors.TextTitle
+                            )
+                        )
+                    ),
+                    new Container(height: 10),
+                    new Container(
+                        color: CColors.White,
+                        child: new Text(
+                            "Medium: 盘点CES 2019的Unity汽车行业解决方案及案例",
+                            style: new TextStyle(
+                                height: 1.33f,
+                                fontSize: 24,
+                                fontFamily: "Roboto-Medium",
+                                color: CColors.TextTitle
+                            )
+                        )
+                    ),
+                    new Container(height: 10),
+                    new Container(
+                        color: CColors.White,
+                        child: new Text(
+                            "Bold: 盘点CES 2019的Unity汽车行业解决方案及案例",
+                            style: new TextStyle(
+                                height: 1.33f,
+                                fontSize: 24,
+                                fontFamily: "Roboto-Bold",
+                                color: CColors.TextTitle
+                            )
+                        )
+                    ),
+                    new Container(height: 10),
+                    new Container(
+                        color: CColors.White,
+                        child: new Text(
+                            "w400: 盘点CES 2019的Unity汽车行业解决方案及案例",
+                            style: new TextStyle(
+                                height: 1.33f,
+                                fontSize: 24,
+                                fontWeight: FontWeight.w400,
+                                color: CColors.TextTitle
+                            )
+                        )
+                    ),
+                    new Container(height: 10),
+                    new Container(
+                        color: CColors.White,
+                        child: new Text(
+                            "w700: 盘点CES 2019的Unity汽车行业解决方案及案例",
+                            style: new TextStyle(
+                                height: 1.33f,
+                                fontSize: 24,
+                                fontWeight: FontWeight.w700,
+                                color: CColors.TextTitle
+                            )
+                        )
+                    ),
+                    new Container(height: 10)
+                }
             );
         }
 
         private static Widget renderTestView(BuildContext context) {
             return new ListView(
                 children: new List<Widget> {
-                    new Container(
-                        color: CColors.White,
-                        child: new StoreConnector<AppState, string>(
-                            converter: (state, dispatch) => $"Count: {state.Count}",
-                            builder: (context1, countText) => new Text(
-                                countText,
-                                style: CTextStyle.H4
-                            )
-                        )
-                    ),
                     new Container(height: 10),
                     new GestureDetector(
                         onTap: () => { StoreProvider.store.Dispatch(new LoginByEmailAction {context = context}); },

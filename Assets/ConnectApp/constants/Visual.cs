@@ -33,84 +33,84 @@ namespace ConnectApp.constants {
         public static readonly TextStyle Xtra = new TextStyle(
             height: 1.17f,
             fontSize: 48,
-            fontFamily: "PingFang-Semibold",
+            fontFamily: "Roboto-Bold",
             color: CColors.TextTitle
         );
 
         public static readonly TextStyle H1 = new TextStyle(
             height: 1.2f,
             fontSize: 40,
-            fontFamily: "PingFang-Semibold",
+            fontFamily: "Roboto-Bold",
             color: CColors.TextTitle
         );
 
         public static readonly TextStyle H2 = new TextStyle(
             height: 1.25f,
             fontSize: 32,
-            fontFamily: "PingFang-Semibold",
+            fontFamily: "Roboto-Bold",
             color: CColors.TextTitle
         );
 
         public static readonly TextStyle H2White = new TextStyle(
             height: 1.25f,
             fontSize: 32,
-            fontFamily: "PingFang-Semibold",
+            fontFamily: "Roboto-Bold",
             color: CColors.White
         );
 
         public static readonly TextStyle H3 = new TextStyle(
             height: 1.29f,
             fontSize: 28,
-            fontFamily: "PingFang-Semibold",
+            fontFamily: "Roboto-Bold",
             color: CColors.TextTitle
         );
 
         public static readonly TextStyle H4 = new TextStyle(
             height: 1.33f,
             fontSize: 24,
-            fontFamily: "PingFang-Medium",
+            fontFamily: "Roboto-Medium",
             color: CColors.TextTitle
         );
 
         public static readonly TextStyle H5 = new TextStyle(
             height: 1.4f,
             fontSize: 20,
-            fontFamily: "PingFang-Medium",
+            fontFamily: "Roboto-Medium",
             color: CColors.TextTitle
         );
 
         public static readonly TextStyle H5White = new TextStyle(
             height: 1.4f,
             fontSize: 20,
-            fontFamily: "PingFang-Medium",
+            fontFamily: "Roboto-Medium",
             color: CColors.White
         );
 
         public static readonly TextStyle PMedium = new TextStyle(
             height: 1.5f,
             fontSize: 16,
-            fontFamily: "PingFang-Medium",
+            fontFamily: "Roboto-Medium",
             color: CColors.TextTitle
         );
 
         public static readonly TextStyle PLarge = new TextStyle(
             height: 1.5f,
             fontSize: 16,
-            fontFamily: "PingFang-Regular",
+            fontFamily: "Roboto-Regular",
             color: CColors.TextBody
         );
 
         public static readonly TextStyle PLargeGray = new TextStyle(
             height: 1.5f,
             fontSize: 16,
-            fontFamily: "PingFang-Regular",
+            fontFamily: "Roboto-Regular",
             color: CColors.TextBody4
         );
 
         public static readonly TextStyle PRegular = new TextStyle(
             height: 1.57f,
             fontSize: 14,
-            fontFamily: "PingFang-Regular",
+            fontFamily: "Roboto-Regular",
             color: CColors.TextBody
         );
 
@@ -118,7 +118,7 @@ namespace ConnectApp.constants {
             height: 1.67f,
             fontSize: 12,
             letterSpacing: 0.5f,
-            fontFamily: "PingFang-Medium",
+            fontFamily: "Roboto-Medium",
             color: CColors.TextBody
         );
 
@@ -126,34 +126,34 @@ namespace ConnectApp.constants {
             height: 1.67f,
             fontSize: 12,
             letterSpacing: 0.5f,
-            fontFamily: "PingFang-Medium",
+            fontFamily: "Roboto-Medium",
             color: CColors.White
         );
 
         public static readonly TextStyle PSmall = new TextStyle(
             height: 1.67f,
             fontSize: 12,
-            fontFamily: "PingFang-Regular",
+            fontFamily: "Roboto-Regular",
             color: CColors.TextBody
         );
 
         public static readonly TextStyle TextBody4 = new TextStyle(
             height: 1.67f,
             fontSize: 12,
-            fontFamily: "PingFang-Regular",
+            fontFamily: "Roboto-Regular",
             color: CColors.TextBody4
         );
 
         public static readonly TextStyle TextBody1 = new TextStyle(
             height: 1.7f,
             fontSize: 18,
-            fontFamily: "PingFang-Regular",
+            fontFamily: "Roboto-Regular",
             color: CColors.TextBody
         );
 
         public static readonly TextStyle TextBody3 = new TextStyle(
             fontSize: 12,
-            fontFamily: "PingFang-Regular",
+            fontFamily: "Roboto-Regular",
             color: CColors.TextBody3
         );
     }
