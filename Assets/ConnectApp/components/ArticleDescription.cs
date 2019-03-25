@@ -5,9 +5,8 @@ using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using Color = Unity.UIWidgets.ui.Color;
 using Image = Unity.UIWidgets.widgets.Image;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
@@ -15,7 +14,7 @@ namespace ConnectApp.components {
     public static class ArticleDescription {
         public static List<Widget> map(BuildContext context, string cont, Dictionary<string, ContentMap> contentMap) {
             if (cont == null) return new List<Widget>();
-            
+
             var content = JsonConvert.DeserializeObject<EventContent>(cont);
             var widgets = new List<Widget>();
 
@@ -40,7 +39,7 @@ namespace ConnectApp.components {
                         widgets.Add(_CodeBlock(context, text));
                         break;
                     case "unstyled":
-                        if (text != null) 
+                        if (text != null || text.Length > 0)
                             widgets.Add(
                                 _Unstyled(
                                     text,
@@ -76,20 +75,21 @@ namespace ConnectApp.components {
                             var data = dataMap.data;
                             if (contentMap.ContainsKey(data.contentId)) {
                                 var map = contentMap[data.contentId];
-                                var url = map.originalImage == null
-                                    ? map.thumbnail == null ? "" : map.thumbnail.url
-                                    : map.originalImage.url;
-                                widgets.Add(_Atomic(dataMap.type, data.title, url));
+                                var originalImage = map.originalImage == null
+                                    ? map.thumbnail
+                                    : map.originalImage;
+                                widgets.Add(_Atomic(dataMap.type, data.title, originalImage));
                             }
                         }
                     }
                         break;
                 }
             }
+
             return widgets;
         }
 
-        public static Widget _H1(string text) {
+        private static Widget _H1(string text) {
             if (text == null) return new Container();
             return new Container(
                 color: CColors.White,
@@ -101,7 +101,7 @@ namespace ConnectApp.components {
             );
         }
 
-        public static Widget _H2(string text) {
+        private static Widget _H2(string text) {
             if (text == null) return new Container();
             return new Container(
                 color: CColors.White,
@@ -113,7 +113,7 @@ namespace ConnectApp.components {
             );
         }
 
-        public static Widget _Unstyled(
+        private static Widget _Unstyled(
             string text,
             Dictionary<string, _EventContentEntity> entityMap,
             List<_EntityRange> entityRanges
@@ -125,18 +125,31 @@ namespace ConnectApp.components {
                 if (entityMap.ContainsKey(key)) {
                     var data = entityMap[key];
                     if (data.type == "LINK") {
+                        var offset = entityRange.offset;
+                        var length = entityRange.length;
+                        var leftText = text.Substring(0, offset);
+                        var currentText = text.Substring(offset, length);
+                        var rightText = text.Substring(length + offset, text.Length - length - offset);
+                        // Debug.Log($"点击链接{data.data.url}");
                         return new Container(
                             color: CColors.White,
                             padding: EdgeInsets.only(16, right: 16, bottom: 24),
-                            child: new GestureDetector(
-                                onTap: () => Debug.Log($"点击链接{data.data.url}"),
-                                child: new Text(
-                                    text,
-                                    style: new TextStyle(
-                                        fontSize: 18,
-                                        fontFamily: "PingFang-Regular",
-                                        color: CColors.PrimaryBlue
-                                    )
+                            child: new RichText(
+                                text: new TextSpan(
+                                    children: new List<TextSpan> {
+                                        new TextSpan(
+                                            leftText,
+                                            CTextStyle.PXLarge
+                                        ),
+                                        new TextSpan(
+                                            currentText,
+                                            CTextStyle.PXLargeBlue
+                                        ),
+                                        new TextSpan(
+                                            rightText,
+                                            CTextStyle.PXLarge
+                                        )
+                                    }
                                 )
                             )
                         );
@@ -154,10 +167,10 @@ namespace ConnectApp.components {
             );
         }
 
-        public static Widget _CodeBlock(BuildContext context, string text) {
+        private static Widget _CodeBlock(BuildContext context, string text) {
             if (text == null) return new Container();
             return new Container(
-                color: Color.fromRGBO(110,198,255,0.12f),
+                color: Color.fromRGBO(110, 198, 255, 0.12f),
                 width: MediaQuery.of(context).size.width,
                 margin: EdgeInsets.only(bottom: 24),
                 child: new Container(
@@ -171,7 +184,7 @@ namespace ConnectApp.components {
         }
 
 
-        public static Widget _QuoteBlock(string text) {
+        private static Widget _QuoteBlock(string text) {
             return new Container(
                 color: CColors.White,
                 decoration: new BoxDecoration(
@@ -197,13 +210,13 @@ namespace ConnectApp.components {
             );
         }
 
-        public static Widget _Atomic(string type, string title, string url) {
+        private static Widget _Atomic(string type, string title, _OriginalImage originalImage) {
             if (type == "ATTACHMENT") return new Container();
 
             var playButton = Positioned.fill(
                 new Container()
             );
-            if (type == "VIDEO") {
+            if (type == "VIDEO")
                 playButton = Positioned.fill(
                     new Center(
                         child: new CustomButton(
@@ -223,13 +236,15 @@ namespace ConnectApp.components {
                         )
                     )
                 );
-            }
             var nodes = new List<Widget> {
                 new Stack(
                     children: new List<Widget> {
-                        new Container(
-                            color: new Color(0xFFD8D8D8),
-                            child: Image.network(url)
+                        new AspectRatio(
+                            aspectRatio: originalImage.width / originalImage.height,
+                            child: new Container(
+                                color: new Color(0xFFD8D8D8),
+                                child: Image.network(originalImage.url ?? "")
+                            )
                         ),
                         playButton
                     }
@@ -265,7 +280,7 @@ namespace ConnectApp.components {
                 padding: EdgeInsets.only(bottom: 32),
                 alignment: Alignment.center,
                 child: new Container(
-                    padding:EdgeInsets.only(16, right: 16),
+                    padding: EdgeInsets.only(16, right: 16),
                     child: new Column(
                         children: nodes
                     )
@@ -274,13 +289,13 @@ namespace ConnectApp.components {
         }
 
 
-        public static Widget _OrderedList(List<string> items) {
+        private static Widget _OrderedList(List<string> items) {
             var widgets = new List<Widget>();
 
             for (var i = 0; i < items.Count; i++) {
                 var spans = new List<TextSpan> {
                     new TextSpan(
-                        $"{i+1}. ",
+                        $"{i + 1}. ",
                         CTextStyle.PXLarge
                     ),
                     new TextSpan(
@@ -290,7 +305,7 @@ namespace ConnectApp.components {
                 };
                 widgets.Add(
                     new Container(
-                        padding:EdgeInsets.only(16, right: 16),
+                        padding: EdgeInsets.only(16, right: 16),
                         margin: EdgeInsets.only(top: i == 0 ? 0 : 4),
                         child: new RichText(
                             text: new TextSpan(
@@ -301,6 +316,7 @@ namespace ConnectApp.components {
                     )
                 );
             }
+
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(bottom: 24),
@@ -311,7 +327,7 @@ namespace ConnectApp.components {
             );
         }
 
-        public static Widget _UnorderedList(List<string> items) {
+        private static Widget _UnorderedList(List<string> items) {
             var widgets = new List<Widget>();
 
             for (var i = 0; i < items.Count; i++) {
@@ -332,7 +348,7 @@ namespace ConnectApp.components {
                 };
                 widgets.Add(
                     new Container(
-                        padding:EdgeInsets.only(16, right: 16),
+                        padding: EdgeInsets.only(16, right: 16),
                         margin: EdgeInsets.only(top: i == 0 ? 0 : 4),
                         child: new Row(
                             children: spans
@@ -340,6 +356,7 @@ namespace ConnectApp.components {
                     )
                 );
             }
+
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(bottom: 24),

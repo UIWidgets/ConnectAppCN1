@@ -1,5 +1,4 @@
-//using Unity.UIWidgets.ui;
-
+using ConnectApp.constants;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
@@ -9,15 +8,15 @@ namespace ConnectApp.components {
             int index,
             IconData icon,
             string title,
-            Color activeColor,
-            Color inActiveColor,
+            Color activeColor = null,
+            Color inActiveColor = null,
             int size = 24
         ) {
             this.index = index;
             this.icon = icon;
             this.title = title;
-            this.activeColor = activeColor;
-            this.inActiveColor = inActiveColor;
+            this.activeColor = activeColor ?? CColors.PrimaryBlue;
+            this.inActiveColor = inActiveColor ?? CColors.BrownGrey;
             this.size = size;
         }
 

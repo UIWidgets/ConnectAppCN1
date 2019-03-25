@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.redux;
 using ConnectApp.utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -14,7 +15,6 @@ namespace ConnectApp.components {
     public class ArticleCard : StatelessWidget {
         public ArticleCard(
             Article article,
-            User user = null,
             GestureTapCallback onTap = null,
             GestureTapCallback moreCallBack = null,
             Key key = null
@@ -22,16 +22,24 @@ namespace ConnectApp.components {
             this.article = article;
             this.onTap = onTap;
             this.moreCallBack = moreCallBack;
-            this.user = user;
         }
 
         private readonly Article article;
-        private readonly User user;
         private readonly GestureTapCallback onTap;
-        public readonly GestureTapCallback moreCallBack;
+        private readonly GestureTapCallback moreCallBack;
 
         public override Widget build(BuildContext context) {
-            var username = user != null ? user.fullName : "";
+            var username = "";
+            if (article.ownerType == "user") {
+                var userDict = StoreProvider.store.state.userState.userDict;
+                if (userDict.ContainsKey(article.userId)) username = userDict[article.userId].fullName;
+            }
+
+            if (article.ownerType == "team") {
+                var teamDict = StoreProvider.store.state.teamState.teamDict;
+                if (teamDict.ContainsKey(article.teamId)) username = teamDict[article.teamId].name;
+            }
+
             var card = new Container(
                 color: CColors.White,
                 child: new Padding(
@@ -82,7 +90,7 @@ namespace ConnectApp.components {
                                         children: new List<Widget> {
                                             new Expanded(
                                                 child: new Text(
-                                                    $" {username} · {DateConvert.DateStringFromNow(article.publishedTime)} · 阅读 {article.viewCount}",
+                                                    $"{username} · {DateConvert.DateStringFromNow(article.publishedTime)} · 阅读 {article.viewCount}",
                                                     style: CTextStyle.TextBody3
                                                 )
                                             ),

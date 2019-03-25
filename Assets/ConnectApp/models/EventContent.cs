@@ -51,12 +51,14 @@ namespace ConnectApp.models {
 
     [Serializable]
     public class ContentMap {
-        public _originalImage originalImage;
-        public _originalImage thumbnail;
+        public _OriginalImage originalImage;
+        public _OriginalImage thumbnail;
     }
 
     [Serializable]
-    public class _originalImage {
+    public class _OriginalImage {
         public string url;
+        public int width;
+        public int height;
     }
 }

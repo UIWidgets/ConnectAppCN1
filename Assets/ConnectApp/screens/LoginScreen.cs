@@ -36,8 +36,11 @@ namespace ConnectApp.screens {
 
     public class LoginSwitchScreen : StatelessWidget {
         public override Widget build(BuildContext context) {
-            return new SafeArea(
-                child: _buildContent(context)
+            return new Container(
+                color: CColors.White,
+                child: new SafeArea(
+                    child: _buildContent(context)
+                )
             );
         }
 
@@ -74,9 +77,9 @@ namespace ConnectApp.screens {
             );
         }
 
-        private static Widget _buildMiddleView(BuildContext context){
+        private static Widget _buildMiddleView(BuildContext context) {
             var mediaQuery = MediaQuery.of(context);
-            var height = mediaQuery.size.height - mediaQuery.padding.top -  - mediaQuery.padding.bottom;
+            var height = mediaQuery.size.height - mediaQuery.padding.top - -mediaQuery.padding.bottom;
             return new Column(
                 children: new List<Widget> {
                     new Container(
@@ -105,7 +108,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new CustomButton(
                             onPressed: () => {
-                                StoreProvider.store.Dispatch(new NavigatorToLoginAction{fromPage = FromPage.weChat});
+                                StoreProvider.store.Dispatch(new NavigatorToLoginAction {fromPage = FromPage.weChat});
                                 Navigator.pushNamed(context, "/bind-unity");
                             },
                             padding: EdgeInsets.zero,
@@ -141,7 +144,7 @@ namespace ConnectApp.screens {
                         new Container(height: 16),
                         new CustomButton(
                             onPressed: () => {
-                                StoreProvider.store.Dispatch(new NavigatorToLoginAction{fromPage = FromPage.login});
+                                StoreProvider.store.Dispatch(new NavigatorToLoginAction {fromPage = FromPage.login});
                                 Navigator.pushNamed(context, "/bind-unity");
                             },
                             padding: EdgeInsets.zero,

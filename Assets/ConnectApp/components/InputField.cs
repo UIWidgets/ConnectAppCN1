@@ -6,11 +6,9 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Color = Unity.UIWidgets.ui.Color;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
-
     public enum InputFieldClearButtonMode {
         never,
         hasText,
@@ -120,7 +118,7 @@ namespace ConnectApp.components {
             if (_isHintTextHidden != isTextEmpty)
                 setState(() => { _isHintTextHidden = isTextEmpty; });
         }
-        
+
         private void _focusNodeListener() {
             if (_isFocus != _focusNode.hasFocus)
                 setState(() => { _isFocus = _focusNode.hasFocus; });
@@ -178,15 +176,14 @@ namespace ConnectApp.components {
             Widget clearButton = new Container();
             if (widget.clearButtonMode == InputFieldClearButtonMode.always) {
                 clearButton = _buildClearButton(context);
-            } else if (widget.clearButtonMode == InputFieldClearButtonMode.hasText) {
-                if (_isHintTextHidden) {
-                    clearButton = _buildClearButton(context);
-                }
-            } else if (widget.clearButtonMode == InputFieldClearButtonMode.whileEditing) {
-                if (_isHintTextHidden && _isFocus) {
-                    clearButton = _buildClearButton(context);
-                }
             }
+            else if (widget.clearButtonMode == InputFieldClearButtonMode.hasText) {
+                if (_isHintTextHidden) clearButton = _buildClearButton(context);
+            }
+            else if (widget.clearButtonMode == InputFieldClearButtonMode.whileEditing) {
+                if (_isHintTextHidden && _isFocus) clearButton = _buildClearButton(context);
+            }
+
             return new GestureDetector(
                 onTap: () => {
                     var focusNode = widget.focusNode ?? _focusNode;
@@ -195,7 +192,7 @@ namespace ConnectApp.components {
                 child: new Container(
                     height: widget.height,
                     alignment: Alignment.center,
-                    color: CColors.White,
+                    color: CColors.Transparent,
                     child: new Row(
                         children: new List<Widget> {
                             new Expanded(

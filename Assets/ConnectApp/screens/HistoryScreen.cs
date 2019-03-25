@@ -38,15 +38,18 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            return new SafeArea(
-                child: new Container(
-                    color: CColors.White,
-                    child: new Column(
-                        children: new List<Widget> {
-                            _buildNavigationBar(context),
-                            _buildSelectView(),
-                            _buildContentView()
-                        }
+            return new Container(
+                color: CColors.White,
+                child: new SafeArea(
+                    child: new Container(
+                        color: CColors.White,
+                        child: new Column(
+                            children: new List<Widget> {
+                                _buildNavigationBar(context),
+                                _buildSelectView(),
+                                _buildContentView()
+                            }
+                        )
                     )
                 )
             );
@@ -133,7 +136,7 @@ namespace ConnectApp.screens {
                                     Key.key(model.id),
                                     new ArticleCard(
                                         model,
-                                        onTap: () => {
+                                        () => {
                                             StoreProvider.store.Dispatch(new NavigatorToArticleDetailAction
                                                 {detailId = model.id});
                                             Navigator.pushNamed(_context, "/article-detail");

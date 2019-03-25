@@ -84,7 +84,7 @@ namespace ConnectApp.components.refresh {
             this.icon = icon;
             this.showState = showState;
             this.showLastUpdate = showLastUpdate;
-            this.local = local ?? DefaultRefreshLocal.zh("","","","","");
+            this.local = local ?? DefaultRefreshLocal.zh("", "", "", "", "");
             this.up = up;
         }
 

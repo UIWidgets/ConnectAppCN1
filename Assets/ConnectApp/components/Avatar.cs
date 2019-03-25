@@ -11,24 +11,34 @@ using Image = Unity.UIWidgets.widgets.Image;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
+    public enum OwnerType {
+        user,
+        team
+    }
+
     public class Avatar : StatelessWidget {
         public Avatar(
-            string userId,
-            Key key = null,
-            float size = 36
+            string id,
+            float size = 36,
+            OwnerType type = OwnerType.user,
+            Key key = null
         ) : base(key) {
-            D.assert(userId != null);
-            this.userId = userId;
+            D.assert(id != null);
+            this.id = id;
             this.size = size;
+            this.type = type;
         }
 
-        public readonly string userId;
-        public readonly float size;
+        private readonly string id;
+        private readonly float size;
+        private readonly OwnerType type;
 
         public override Widget build(BuildContext context) {
+            if (type == OwnerType.team) return _buildTeamAvatar();
+
             return new StoreConnector<AppState, User>(
-                converter: (state, dispatch) => state.userState.userDict.ContainsKey(userId)
-                    ? state.userState.userDict[userId]
+                converter: (state, dispatch) => state.userState.userDict.ContainsKey(id)
+                    ? state.userState.userDict[id]
                     : new User(),
                 builder: (_context, viewModel) => {
                     var avatarUrl = viewModel.avatar ?? "";
@@ -45,6 +55,25 @@ namespace ConnectApp.components {
                                 height: size,
                                 child: Image.network(avatarUrl)
                             )
+                    );
+                }
+            );
+        }
+
+        private Widget _buildTeamAvatar() {
+            return new StoreConnector<AppState, Team>(
+                converter: (state, dispatch) => state.teamState.teamDict.ContainsKey(id)
+                    ? state.teamState.teamDict[id]
+                    : new Team(),
+                builder: (_context, viewModel) => {
+                    var avatarUrl = viewModel.avatar ?? "";
+                    var name = viewModel.name;
+                    var result = _extractName(name) ?? "";
+                    if (avatarUrl.Length <= 0) return new _Placeholder(result, size);
+                    return new Container(
+                        width: size,
+                        height: size,
+                        child: Image.network(avatarUrl)
                     );
                 }
             );

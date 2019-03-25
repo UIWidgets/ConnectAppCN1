@@ -40,7 +40,9 @@ namespace ConnectApp.components {
                                 mainAxisSize: MainAxisSize.min,
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: new List<Widget> {
-                                    widget != null ? widget : new CustomActivityIndicator(animationImage: AnimationImage.white),
+                                    widget != null
+                                        ? widget
+                                        : new CustomActivityIndicator(animationImage: AnimationImage.white),
                                     _buildMessage(message)
                                 }
                             )

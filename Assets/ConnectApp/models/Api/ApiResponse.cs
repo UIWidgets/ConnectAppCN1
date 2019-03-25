@@ -6,6 +6,7 @@ namespace ConnectApp.models {
     public class FetchArticlesResponse {
         public List<Article> items;
         public Dictionary<string, User> userMap;
+        public Dictionary<string, Team> teamMap;
     }
 
     [Serializable]
@@ -29,5 +30,11 @@ namespace ConnectApp.models {
     public class FetchSearchResponse {
         public List<Article> projects;
         public Dictionary<string, User> userMap;
+        public Dictionary<string, Team> teamMap;
+    }
+
+    [Serializable]
+    public class FetchSocketUrlResponse {
+        public string url;
     }
 }

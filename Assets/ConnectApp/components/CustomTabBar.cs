@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using ConnectApp.constants;
+using ConnectApp.redux;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -11,8 +11,8 @@ using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.components {
-
     public delegate void SelectTabCallBack(int index);
+
     public class CustomTabBar : StatefulWidget {
         public CustomTabBar(
             List<Widget> controllers,
@@ -83,7 +83,7 @@ namespace ConnectApp.components {
         private Widget _bottomTabBar() {
             return new Container(
                 decoration: new BoxDecoration(
-                    border: new Border(top:new BorderSide(CColors.Separator)),
+                    border: new Border(top: new BorderSide(CColors.Separator)),
                     color: widget.tabbarBackgroudColor
                 ),
                 height: KTabBarHeight,
@@ -102,21 +102,23 @@ namespace ConnectApp.components {
                         fit: StackFit.expand,
                         children: new List<Widget> {
                             new GestureDetector(
-                                onTap: () =>
-                                {
-                                    if (_selectedIndex != item.index)
-                                    {
-                                        if (widget.tapCallBack != null)
-                                        {
-                                            widget.tapCallBack(_selectedIndex);
+                                onTap: () => {
+                                    if (_selectedIndex != item.index) {
+                                        if (item.index == 2) {
+                                            var isLoggedIn = StoreProvider.store.state.loginState.isLoggedIn;
+                                            if (!isLoggedIn) {
+                                                Navigator.pushNamed(context, "/login");
+                                                return;
+                                            }
                                         }
+
+                                        if (widget.tapCallBack != null) widget.tapCallBack(item.index);
                                         setState(() => {
                                             _selectedIndex = item.index;
-                                            _pageController.animateToPage(item.index, new TimeSpan(0, 0, 0, 0,1),
+                                            _pageController.animateToPage(item.index, new TimeSpan(0, 0, 0, 0, 1),
                                                 Curves.ease);
-                                        }); 
+                                        });
                                     }
-                                    
                                 },
                                 child: new Container(
                                     decoration: new BoxDecoration(
@@ -139,7 +141,7 @@ namespace ConnectApp.components {
                                                         color: _selectedIndex == item.index
                                                             ? item.activeColor
                                                             : item.inActiveColor))
-                                            ),
+                                            )
                                         }
                                     )
                                 )
