@@ -118,7 +118,7 @@ namespace ConnectApp.components {
                                     title,
                                     style: new TextStyle(
                                         fontSize: 16,
-                                        fontFamily: "PingFang-Regular",
+                                        fontFamily: "Roboto-Regular",
                                         color: textColor
                                     )
                                 )

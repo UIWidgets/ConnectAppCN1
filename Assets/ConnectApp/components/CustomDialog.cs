@@ -7,7 +7,6 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using DialogUtils = Unity.UIWidgets.material.DialogUtils;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
     public class CustomDialog : StatelessWidget {
@@ -58,13 +57,7 @@ namespace ConnectApp.components {
                 margin: EdgeInsets.only(top: 8, left: 8, right: 8),
                 child: new Text(
                     message,
-                    style: new TextStyle(
-                        color: CColors.White,
-                        fontSize: 14,
-                        fontFamily: "PingFang-Regular",
-                        decoration: TextDecoration.none,
-                        fontWeight: FontWeight.w400
-                    ),
+                    style: CTextStyle.PRegularWhite,
                     textAlign: TextAlign.center
                 )
             );

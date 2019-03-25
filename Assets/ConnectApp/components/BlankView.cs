@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.constants;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
@@ -14,7 +13,7 @@ namespace ConnectApp.components {
             this.title = title;
         }
 
-        public readonly string title;
+        private readonly string title;
 
         public override Widget build(BuildContext context) {
             var width = MediaQuery.of(context).size.width;
@@ -27,11 +26,7 @@ namespace ConnectApp.components {
                     children: new List<Widget> {
                         new Text(
                             title ?? "",
-                            style: new TextStyle(
-                                color: CColors.TextBody,
-                                fontFamily: "PingFang-Regular",
-                                fontSize: 20
-                            )
+                            style: CTextStyle.PLargeBody
                         )
                     }
                 )

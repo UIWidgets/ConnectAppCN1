@@ -490,7 +490,7 @@ namespace ConnectApp.screens {
                         ),
                         child: new Text(
                             "P-Large: 设置粒子系统的方法是把任何附加了该组件的游戏对象的任何子Transform都视为作力场对象。然后我们可以从父对象动态添加或移除Transform，来创建或销毁力场。",
-                            style: CTextStyle.PLarge
+                            style: CTextStyle.PLargeBody
                         )
                     ),
                     new Container(height: 10),
@@ -502,7 +502,7 @@ namespace ConnectApp.screens {
                         child: new Text(
                             "P-Regular: 设置粒子系统的方法是把任何附加了该组件的游戏对象的任何子Transform都视为作力场对象。然后我们可以从父对象动态添加或移除Transform，来创建或销毁力场。 然后我们可以从父对象动态添加或移除Transform，来创建或销毁力场。",
                             softWrap: true,
-                            style: CTextStyle.PRegular
+                            style: CTextStyle.PRegularBody
                         )
                     ),
                     new Container(height: 10),

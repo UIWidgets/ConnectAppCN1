@@ -3,12 +3,13 @@ using ConnectApp.constants;
 using ConnectApp.models;
 using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 using Image = Unity.UIWidgets.widgets.Image;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
     public static class ArticleDescription {
@@ -130,7 +131,10 @@ namespace ConnectApp.components {
                         var leftText = text.Substring(0, offset);
                         var currentText = text.Substring(offset, length);
                         var rightText = text.Substring(length + offset, text.Length - length - offset);
-                        // Debug.Log($"点击链接{data.data.url}");
+                        var recognizer = new TapGestureRecognizer();
+                        recognizer.onTap = () => {
+                            Debug.Log($"点击链接{data.data.url}");
+                        };
                         return new Container(
                             color: CColors.White,
                             padding: EdgeInsets.only(16, right: 16, bottom: 24),
@@ -143,7 +147,8 @@ namespace ConnectApp.components {
                                         ),
                                         new TextSpan(
                                             currentText,
-                                            CTextStyle.PXLargeBlue
+                                            CTextStyle.PXLargeBlue,
+                                            recognizer: recognizer
                                         ),
                                         new TextSpan(
                                             rightText,
@@ -177,7 +182,7 @@ namespace ConnectApp.components {
                     padding: EdgeInsets.all(16),
                     child: new Text(
                         text,
-                        style: CTextStyle.PRegular
+                        style: CTextStyle.PRegularBody
                     )
                 )
             );
@@ -200,11 +205,7 @@ namespace ConnectApp.components {
                     margin: EdgeInsets.only(16),
                     child: new Text(
                         text,
-                        style: new TextStyle(
-                            fontSize: 18,
-                            fontFamily: "PingFang-Regular",
-                            color: CColors.TextBody4
-                        )
+                        style: CTextStyle.PXLargeBody4
                     )
                 )
             );
@@ -264,11 +265,7 @@ namespace ConnectApp.components {
                         margin: EdgeInsets.only(4, 8, 4, 4),
                         child: new Text(
                             title,
-                            style: new TextStyle(
-                                color: CColors.TextBody4,
-                                fontFamily: "PingFang-Regular",
-                                fontSize: 14
-                            )
+                            style: CTextStyle.PRegularBody4
                         )
                     )
                 );

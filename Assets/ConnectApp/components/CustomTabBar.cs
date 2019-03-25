@@ -42,30 +42,29 @@ namespace ConnectApp.components {
         private int _selectedIndex = 0;
 
         private const int KTabBarHeight = 49;
-        private Widget _body;
 
         public override void initState() {
             base.initState();
-            _pageController = new PageController(initialPage: _selectedIndex);
+            _pageController = new PageController(_selectedIndex);
         }
 
         public override Widget build(BuildContext context) {
             return new Container(
                 child: new Stack(
                     children: new List<Widget> {
-                        _contentView(context),
+                        _buildContentView(context),
                         new Positioned(
                             bottom: 0,
                             left: 0,
                             right: 0,
-                            child: _bottomTabBar()
+                            child: _buildBottomTabBar()
                         )
                     }
                 )
             );
         }
 
-        private Widget _contentView(BuildContext context) {
+        private Widget _buildContentView(BuildContext context) {
             return new Container(
                 child: new Container(
                     height: Screen.safeArea.height,
@@ -80,10 +79,10 @@ namespace ConnectApp.components {
             );
         }
 
-        private Widget _bottomTabBar() {
+        private Widget _buildBottomTabBar() {
             return new Container(
                 decoration: new BoxDecoration(
-                    border: new Border(top: new BorderSide(CColors.Separator)),
+                    border: new Border(new BorderSide(CColors.Separator)),
                     color: widget.tabbarBackgroudColor
                 ),
                 height: KTabBarHeight,
@@ -129,15 +128,14 @@ namespace ConnectApp.components {
                                         children: new List<Widget> {
                                             new Padding(
                                                 padding: EdgeInsets.only(top: 5),
-                                                child: new Icon(item.icon, null, item.size,
-                                                    _selectedIndex == item.index
+                                                child: new Icon(item.icon, size: item.size, color: _selectedIndex == item.index
                                                         ? item.activeColor
                                                         : item.inActiveColor)
                                             ),
                                             new Padding(
-                                                padding: EdgeInsets.only(top: 5),
+                                                padding: EdgeInsets.only(top: 2.5f),
                                                 child: new Text(item.title,
-                                                    style: new TextStyle(fontSize: 9,
+                                                    style: new TextStyle(fontSize: 10,
                                                         color: _selectedIndex == item.index
                                                             ? item.activeColor
                                                             : item.inActiveColor))

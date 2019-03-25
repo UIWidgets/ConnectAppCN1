@@ -8,7 +8,6 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
     public class SettingScreen : StatelessWidget {
@@ -121,11 +120,7 @@ namespace ConnectApp.screens {
                         children: new List<Widget> {
                             new Text(
                                 "退出登录",
-                                style: new TextStyle(
-                                    fontSize: 16,
-                                    fontFamily: "PingFang-Regular",
-                                    color: CColors.Error
-                                )
+                                style: CTextStyle.PLargeError
                             )
                         }
                     )
@@ -147,7 +142,7 @@ namespace ConnectApp.screens {
                         children: new List<Widget> {
                             new Text(
                                 title,
-                                style: CTextStyle.PLarge
+                                style: CTextStyle.PLargeBody
                             ),
                             new Flexible(child: new Container()),
                             new Icon(

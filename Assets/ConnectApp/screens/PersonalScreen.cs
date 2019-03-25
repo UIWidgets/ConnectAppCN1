@@ -67,11 +67,7 @@ namespace ConnectApp.screens {
                                     ),
                                     child: new Text(
                                         "登录/注册",
-                                        style: new TextStyle(
-                                            fontSize: 16,
-                                            fontFamily: "PingFang-Medium",
-                                            color: CColors.PrimaryBlue
-                                        )
+                                        style: CTextStyle.PLargeMediumBlue
                                     )
                                 )
                             )

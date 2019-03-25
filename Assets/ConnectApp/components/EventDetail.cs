@@ -18,7 +18,7 @@ namespace ConnectApp.components {
             this.eventObj = eventObj;
         }
 
-        public readonly IEvent eventObj;
+        private readonly IEvent eventObj;
 
         public override Widget build(BuildContext context) {
             return new Container(child: _buildContent());
@@ -41,6 +41,7 @@ namespace ConnectApp.components {
             var user = eventObj.user ?? new User();
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
+                margin: EdgeInsets.only(top: 16),
                 child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
@@ -56,7 +57,7 @@ namespace ConnectApp.components {
                                         margin: EdgeInsets.only(right: 8),
                                         child: new Avatar(
                                             user.id ?? "",
-                                            size: 32
+                                            32
                                         )
                                     ),
                                     new Column(
@@ -65,19 +66,11 @@ namespace ConnectApp.components {
                                         children: new List<Widget> {
                                             new Text(
                                                 user.fullName ?? "",
-                                                style: new TextStyle(
-                                                    fontSize: 14,
-                                                    fontFamily: "PingFang-Medium",
-                                                    color: CColors.TextBody
-                                                )
+                                                style: CTextStyle.PMediumBody
                                             ),
                                             new Text(
                                                 $"{DateConvert.DateStringFromNow(eventObj.createdTime)}发布",
-                                                style: new TextStyle(
-                                                    fontSize: 12,
-                                                    fontFamily: "PingFang-Regular",
-                                                    color: CColors.TextBody3
-                                                )
+                                                style: CTextStyle.PSmallBody3
                                             )
                                         }
                                     )
@@ -91,6 +84,7 @@ namespace ConnectApp.components {
 
         private Widget _buildContentDetail() {
             return new Container(
+                margin: EdgeInsets.only(top: 44),
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,7 +109,7 @@ namespace ConnectApp.components {
                             "讲师",
                             style: new TextStyle(
                                 color: Color.black,
-                                fontFamily: "PingFang-Medium",
+                                fontFamily: "Roboto-Medium",
                                 fontSize: 20
                             )
                         )
@@ -147,27 +141,37 @@ namespace ConnectApp.components {
                         new Container(
                             child: new Avatar(
                                 host.id,
-                                size: 80
+                                80
                             )
                         ),
                         new Container(
                             margin: EdgeInsets.only(top: 12),
                             padding: EdgeInsets.symmetric(horizontal: 16),
-                            child: new Text(host.fullName, style: new TextStyle(color: Color.white, fontSize: 16))
+                            child: new Text(
+                                host.fullName, 
+                                style: new TextStyle(color: Color.white, fontSize: 16)
+                            )
                         ),
                         new Container(
                             margin: EdgeInsets.only(top: 4),
                             padding: EdgeInsets.symmetric(horizontal: 16),
-                            child: new Text(host.title, maxLines: 1, overflow: TextOverflow.ellipsis,
+                            child: new Text(
+                                host.title,
+                                maxLines: 1, 
+                                overflow: TextOverflow.ellipsis,
                                 style: new TextStyle(color: new Color(0xFF959595), fontSize: 16)
                             )
                         ),
                         new Container(
                             margin: EdgeInsets.only(top: 12),
                             padding: EdgeInsets.symmetric(horizontal: 14),
-                            child: new Text(host.description, textAlign: TextAlign.center, maxLines: 2,
+                            child: new Text(
+                                host.description,
+                                textAlign: TextAlign.center,
+                                maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
-                                style: new TextStyle(color: new Color(0xFFD8D8D8), fontSize: 16))
+                                style: new TextStyle(color: new Color(0xFFD8D8D8), fontSize: 16)
+                            )
                         )
                     }
                 )
