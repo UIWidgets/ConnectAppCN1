@@ -12,7 +12,6 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using Icons = ConnectApp.constants.Icons;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
     internal class _SnackBarRoute : OverlayRoute {
@@ -195,13 +194,7 @@ namespace ConnectApp.components {
                                     child: new Text(
                                         widget.message,
                                         maxLines: 3,
-                                        style: new TextStyle(
-                                            color: CColors.Error,
-                                            fontSize: 14,
-                                            fontFamily: "PingFang-Regular",
-                                            fontWeight: FontWeight.w400,
-                                            decoration: TextDecoration.none
-                                        )
+                                        style: CTextStyle.PRegularError
                                     )
                                 ),
                                 new CustomButton(

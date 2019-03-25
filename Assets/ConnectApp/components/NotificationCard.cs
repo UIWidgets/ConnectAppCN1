@@ -18,7 +18,7 @@ namespace ConnectApp.components {
             this.notification = notification;
         }
 
-        public readonly Notification notification;
+        private readonly Notification notification;
 
         public override Widget build(BuildContext context) {
             if (notification == null) return new Container();
@@ -71,11 +71,7 @@ namespace ConnectApp.components {
             if (type == "project_liked")
                 subTitle = new TextSpan(
                     $"点赞了你的{data.projectTitle}文章",
-                    new TextStyle(
-                        fontSize: 16,
-                        fontFamily: "PingFang-Regular",
-                        color: CColors.TextBody2
-                    )
+                    CTextStyle.PLargeBody2
                 );
 
             return new Container(
@@ -84,11 +80,7 @@ namespace ConnectApp.components {
                         children: new List<TextSpan> {
                             new TextSpan(
                                 data.fullname,
-                                new TextStyle(
-                                    fontSize: 16,
-                                    fontFamily: "PingFang-Medium",
-                                    color: CColors.TextTitle
-                                )
+                                CTextStyle.PLargeMedium
                             ),
                             subTitle
                         }
@@ -102,7 +94,7 @@ namespace ConnectApp.components {
             return new Container(
                 child: new Text(
                     DateConvert.DateStringFromNow(createdTime),
-                    style: CTextStyle.TextBody4
+                    style: CTextStyle.PSmallBody4
                 )
             );
         }

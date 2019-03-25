@@ -22,10 +22,10 @@ namespace ConnectApp.components {
             this.onTap = onTap;
         }
 
-        public readonly IconData iconData;
-        public readonly string title;
-        public readonly bool done;
-        public readonly GestureTapCallback onTap;
+        private readonly IconData iconData;
+        private readonly string title;
+        private readonly bool done;
+        private readonly GestureTapCallback onTap;
 
         public override Widget build(BuildContext context) {
             var iconColor = done ? CColors.PrimaryBlue : new Color(0xFFC7CBCF);
@@ -45,7 +45,9 @@ namespace ConnectApp.components {
                         new Container(
                             margin: EdgeInsets.only(right: 10),
                             child: new Icon(iconData, color: iconColor)),
-                        new Text(title, style: CTextStyle.PLarge
+                        new Text(
+                            title, 
+                            style: CTextStyle.PLargeBody
                         )
                     }
                 )

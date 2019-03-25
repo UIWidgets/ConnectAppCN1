@@ -160,7 +160,6 @@ namespace ConnectApp.redux.reducers {
                         .Catch(error => {
                             state.articleState.articleDetailLoading = false;
                             Debug.Log(error);
-                            Debug.Log(error);
                         });
                     break;
                 }

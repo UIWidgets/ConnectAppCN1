@@ -26,18 +26,18 @@ namespace ConnectApp.components {
             this.replyCallBack = replyCallBack;
         }
 
-        public readonly Message message;
-        public readonly bool isPraised;
-        public readonly GestureTapCallback moreCallBack;
-        public readonly GestureTapCallback praiseCallBack;
-        public readonly GestureTapCallback replyCallBack;
+        private readonly Message message;
+        private readonly bool isPraised;
+        private readonly GestureTapCallback moreCallBack;
+        private readonly GestureTapCallback praiseCallBack;
+        private readonly GestureTapCallback replyCallBack;
 
 
         public override Widget build(BuildContext context) {
             Widget _content = null;
             if (message.parentMessageId == null) {
                 _content = new Container(
-                    child: new Text(message.content, style: CTextStyle.PLarge),
+                    child: new Text(message.content, style: CTextStyle.PLargeBody),
                     alignment: Alignment.centerLeft
                 );
             }
@@ -51,7 +51,8 @@ namespace ConnectApp.components {
                             $"{parentMessage.author.fullName}",
                             children: new List<TextSpan> {
                                 new TextSpan(
-                                    $": {message.content}", CTextStyle.PLarge
+                                    $": {message.content}", 
+                                    CTextStyle.PLargeBody
                                 )
                             },
                             style: CTextStyle.PLargeBlue
@@ -93,7 +94,7 @@ namespace ConnectApp.components {
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: new List<Widget> {
                                                 new Text($"{DateConvert.DateStringFromNonce(message.nonce)}",
-                                                    style: CTextStyle.TextBody4),
+                                                    style: CTextStyle.PSmallBody4),
                                                 new Container(
                                                     child: new Row(
                                                         children: new List<Widget> {

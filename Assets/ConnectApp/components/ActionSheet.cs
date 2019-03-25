@@ -72,13 +72,7 @@ namespace ConnectApp.components {
                         height: 54,
                         child: new Text(
                             title,
-                            style: new TextStyle(
-                                color: CColors.TextBody4,
-                                fontSize: 14,
-                                fontFamily: "PingFang-Regular",
-                                decoration: TextDecoration.none,
-                                fontWeight: FontWeight.w400
-                            )
+                            style: CTextStyle.PRegularBody4
                         )
                     ),
                     new CustomDivider(
@@ -116,9 +110,7 @@ namespace ConnectApp.components {
                                     style: new TextStyle(
                                         color: titleColor,
                                         fontSize: 16,
-                                        fontFamily: "PingFang-Regular",
-                                        decoration: TextDecoration.none,
-                                        fontWeight: FontWeight.w400
+                                        fontFamily: "Roboto-Regular"
                                     )
                                 )
                             )

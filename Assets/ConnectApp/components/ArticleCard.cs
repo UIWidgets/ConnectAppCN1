@@ -64,7 +64,7 @@ namespace ConnectApp.components {
                                             new Expanded(
                                                 child: new Text(
                                                     article.bodyPlain,
-                                                    style: CTextStyle.PRegular,
+                                                    style: CTextStyle.PRegularBody,
                                                     maxLines: 3,
                                                     overflow: TextOverflow.ellipsis
                                                 )
@@ -91,7 +91,7 @@ namespace ConnectApp.components {
                                             new Expanded(
                                                 child: new Text(
                                                     $"{username} · {DateConvert.DateStringFromNow(article.publishedTime)} · 阅读 {article.viewCount}",
-                                                    style: CTextStyle.TextBody3
+                                                    style: CTextStyle.PSmallBody3
                                                 )
                                             ),
                                             new CustomButton(

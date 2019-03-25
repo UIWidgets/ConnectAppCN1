@@ -45,16 +45,12 @@ namespace ConnectApp.components {
                                             height: 1.33f,
                                             fontSize: 24,
                                             fontFamily: "DINPro-Bold",
-                                            color: CColors.secondaryPink
+                                            color: CColors.SecondaryPink
                                         )
                                     ),
                                     new Text(
                                         $"{time.Month.ToString()}月",
-                                        style: new TextStyle(
-                                            fontSize: 12,
-                                            fontFamily: "PingFang-Medium",
-                                            color: CColors.TextBody
-                                        )
+                                        style: CTextStyle.CaptionBody
                                     )
                                 }
                             )
@@ -78,7 +74,7 @@ namespace ConnectApp.components {
                                             _model.live
                                                 ? $"{time.Hour}:{time.Minute} · {_model.participantsCount}人已预订"
                                                 : $"{time.Hour}:{time.Minute} · 旧金山Unity大厦",
-                                            style: CTextStyle.TextBody3
+                                            style: CTextStyle.PSmallBody3
                                         )
                                     }
                                 )
@@ -106,15 +102,11 @@ namespace ConnectApp.components {
                                             child: new Container(
                                                 width: 41,
                                                 height: 24,
-                                                color: _model.live ? CColors.PrimaryBlue : CColors.secondaryPink,
+                                                color: _model.live ? CColors.PrimaryBlue : CColors.SecondaryPink,
                                                 alignment: Alignment.center,
                                                 child: new Text(
                                                     _model.live ? "线上" : "线下",
-                                                    style: new TextStyle(
-                                                        fontSize: 12,
-                                                        fontFamily: "PingFang-Medium",
-                                                        color: CColors.White
-                                                    ),
+                                                    style: CTextStyle.CaptionWhite,
                                                     textAlign: TextAlign.center
                                                 )
                                             )
