@@ -50,7 +50,7 @@ namespace ConnectApp.components {
                                     ),
                                     new Text(
                                         $"{time.Month.ToString()}月",
-                                        style: CTextStyle.PSmallMediumBody
+                                        style: CTextStyle.CaptionBody
                                     )
                                 }
                             )
@@ -106,7 +106,7 @@ namespace ConnectApp.components {
                                                 alignment: Alignment.center,
                                                 child: new Text(
                                                     _model.live ? "线上" : "线下",
-                                                    style: CTextStyle.PSmallMediumWhite,
+                                                    style: CTextStyle.CaptionWhite,
                                                     textAlign: TextAlign.center
                                                 )
                                             )

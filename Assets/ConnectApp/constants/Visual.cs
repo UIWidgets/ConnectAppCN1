@@ -267,7 +267,7 @@ namespace ConnectApp.constants {
             color: CColors.PrimaryBlue
         );
 
-        public static readonly TextStyle PSmallMedium = new TextStyle(
+        public static readonly TextStyle Caption = new TextStyle(
             height: 1.25f,
             fontSize: 12,
             letterSpacing: 0.5f,
@@ -275,7 +275,7 @@ namespace ConnectApp.constants {
             color: CColors.TextTitle
         );
 
-        public static readonly TextStyle PSmallMediumWhite = new TextStyle(
+        public static readonly TextStyle CaptionWhite = new TextStyle(
             height: 1.25f,
             fontSize: 12,
             letterSpacing: 0.5f,
@@ -283,7 +283,7 @@ namespace ConnectApp.constants {
             color: CColors.White
         );
         
-        public static readonly TextStyle PSmallMediumBody = new TextStyle(
+        public static readonly TextStyle CaptionBody = new TextStyle(
             height: 1.25f,
             fontSize: 12,
             letterSpacing: 0.5f,

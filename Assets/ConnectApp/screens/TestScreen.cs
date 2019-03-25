@@ -479,7 +479,7 @@ namespace ConnectApp.screens {
                         padding: EdgeInsets.only(top: 40),
                         child: new Text(
                             "段落",
-                            style: CTextStyle.PSmallMedium
+                            style: CTextStyle.Caption
                         )
                     ),
                     new Container(height: 10),
@@ -524,7 +524,7 @@ namespace ConnectApp.screens {
                         ),
                         child: new Text(
                             "P-Caption: 即将开始",
-                            style: CTextStyle.PSmallMedium
+                            style: CTextStyle.Caption
                         )
                     )
                 }
