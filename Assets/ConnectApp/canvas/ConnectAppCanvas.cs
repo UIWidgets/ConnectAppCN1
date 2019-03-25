@@ -25,8 +25,10 @@ namespace ConnectApp.canvas {
             var semiboldFont = Resources.Load<Font>("PingFang-Semibold");
             FontManager.instance.addFont(semiboldFont);
 
-            var videoPlayer = GetComponent<VideoPlayer>();
-            VideoPlayerManager.instance.player = videoPlayer;
+            VideoPlayerManager.instance.player = GetComponent<VideoPlayer>();
+
+
+
         }
 
         protected override Widget createWidget() {
