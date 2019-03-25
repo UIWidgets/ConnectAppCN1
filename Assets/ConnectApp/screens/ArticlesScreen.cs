@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ConnectApp.api;
+using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.components.refresh;
 using ConnectApp.constants;
@@ -64,7 +65,7 @@ namespace ConnectApp.screens {
                 )),
                 new List<Widget> {
                     new CustomButton(
-                        onPressed: () => Navigator.pushNamed(context, "/search"),
+                        onPressed: () => Router.navigator.pushNamed("/search"),
                         child: new Icon(
                             Icons.search,
                             size: 28,
@@ -161,7 +162,7 @@ namespace ConnectApp.screens {
                     article,
                     () => {
                         StoreProvider.store.Dispatch(new NavigatorToArticleDetailAction {detailId = id});
-                        Navigator.pushNamed(context, "/article-detail");
+                        Router.navigator.pushNamed("/article-detail");
                     },
                     () => {
                         ActionSheetUtils.showModalActionSheet(context, new ActionSheet(

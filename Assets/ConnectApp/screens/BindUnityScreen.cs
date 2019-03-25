@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
@@ -95,7 +96,9 @@ namespace ConnectApp.screens {
                             children: new List<Widget> {
                                 fromPage == FromPage.weChat
                                     ? new CustomButton(
-                                        onPressed: () => { Navigator.pop(context); },
+                                        onPressed: () => {
+                                            Router.navigator.pop();
+                                        },
                                         child: new Text(
                                             "跳过",
                                             style: new TextStyle(
@@ -106,7 +109,7 @@ namespace ConnectApp.screens {
                                         )
                                     )
                                     : new CustomButton(
-                                        onPressed: () => { Navigator.pop(context); },
+                                        onPressed: () => { LoginScreen.navigator.pop(); },
                                         child: new Icon(
                                             Icons.arrow_back,
                                             size: 28,
@@ -273,7 +276,6 @@ namespace ConnectApp.screens {
                                 var email = viewModel["email"] as string;
                                 var password = viewModel["password"] as string;
                                 var btnEnable = email.Length > 0 && password.Length > 0;
-                                Debug.Log($"{email}, {password}, {btnEnable}");
                                 Widget right = new Container();
                                 if (loading)
                                     right = new Padding(

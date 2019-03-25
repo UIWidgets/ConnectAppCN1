@@ -65,7 +65,7 @@ namespace ConnectApp.screens {
                 child: new Row(
                     children: new List<Widget> {
                         new CustomButton(
-                            onPressed: () => Navigator.pop(context),
+                            onPressed: () => Router.navigator.pop(),
                             child: new Icon(
                                 Icons.close,
                                 size: 28,
@@ -109,7 +109,7 @@ namespace ConnectApp.screens {
                         new CustomButton(
                             onPressed: () => {
                                 StoreProvider.store.Dispatch(new NavigatorToLoginAction {fromPage = FromPage.weChat});
-                                Navigator.pushNamed(context, "/bind-unity");
+                                LoginScreen.navigator.pushNamed("/bind-unity");
                             },
                             padding: EdgeInsets.zero,
                             child: new Container(
@@ -145,7 +145,7 @@ namespace ConnectApp.screens {
                         new CustomButton(
                             onPressed: () => {
                                 StoreProvider.store.Dispatch(new NavigatorToLoginAction {fromPage = FromPage.login});
-                                Navigator.pushNamed(context, "/bind-unity");
+                                LoginScreen.navigator.pushNamed("/bind-unity");
                             },
                             padding: EdgeInsets.zero,
                             child: new Container(

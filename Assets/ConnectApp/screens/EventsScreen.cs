@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.api;
+using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.components.refresh;
 using ConnectApp.constants;
@@ -173,7 +174,7 @@ namespace ConnectApp.screens {
                                             eventId = model.id,
                                             eventType = model.live ? EventType.onLine : EventType.offline
                                         });
-                                        Navigator.pushNamed(context, "/event-detail");
+                                        Router.navigator.pushNamed("/event-detail");
                                     }, new ObjectKey(model.id)));
                             });
                         else
@@ -223,7 +224,7 @@ namespace ConnectApp.screens {
                                             eventId = model.id,
                                             eventType = model.live ? EventType.onLine : EventType.offline
                                         });
-                                        Navigator.pushNamed(context, "/event-detail");
+                                        Router.navigator.pushNamed("/event-detail");
                                     }));
                             });
                         else

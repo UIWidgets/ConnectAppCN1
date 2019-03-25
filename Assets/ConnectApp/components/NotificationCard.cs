@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.constants;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
@@ -27,7 +28,7 @@ namespace ConnectApp.components {
             return new GestureDetector(
                 onTap: () => {
                     StoreProvider.store.Dispatch(new NavigatorToEventDetailAction {eventId = data.projectId});
-                    Navigator.pushNamed(context, "/detail");
+                    Router.navigator.pushNamed("/detail");
                 },
                 child: new Container(
                     color: CColors.Transparent,
