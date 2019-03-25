@@ -90,8 +90,9 @@ namespace ConnectApp.screens {
                                     child: new StoreConnector<AppState, NotificationState>(
                                         converter: (state, dispatch) => state.notificationState,
                                         builder: (_context, viewModel) => {
-                                            if (viewModel.loading) return new Container();
+                                            if (viewModel.loading) return new GlobalLoading();
                                             var notifications = viewModel.notifications;
+                                            if (notifications.Count <= 0) return new BlankView("暂无通知消息");
                                             var isLoadMore = notifications.Count == viewModel.total;
                                             RefresherCallback onFooterRefresh = null;
                                             if (!isLoadMore)
@@ -106,6 +107,8 @@ namespace ConnectApp.screens {
                                                     return _onRefresh(pageNumber);
                                                 },
                                                 onFooterRefresh: onFooterRefresh,
+                                                headerBuilder: (cxt, controller) => new RefreshHeader(controller),
+                                                footerBuilder: (cxt, controller) => new RefreshFooter(controller),
                                                 child: ListView.builder(
                                                     physics: new AlwaysScrollableScrollPhysics(),
                                                     itemCount: notifications.Count,

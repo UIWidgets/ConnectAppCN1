@@ -41,15 +41,19 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            return new SafeArea(
-                child: new Container(
-                    color: CColors.White,
-                    child: new Column(
-                        children: new List<Widget> {
-                            _buildNavigationBar(context),
-                            _buildSelectView(),
-                            _buildContentView()
-                        }
+            return new Container(
+                color: CColors.White,
+                child: new SafeArea(
+                    child: new Container(
+                        color: CColors.White,
+                        child: new Column(
+                            children: new List<Widget>
+                            {
+                                _buildNavigationBar(context),
+                                _buildSelectView(),
+                                _buildContentView()
+                            }
+                        )
                     )
                 )
             );
@@ -128,6 +132,22 @@ namespace ConnectApp.screens {
                     converter: (state, dispatch) => state.mineState,
                     builder: (_context, viewModel) => {
                         var data = index == 0 ? viewModel.futureEventsList : viewModel.pastEventsList;
+                        if (index == 0) {
+                            if (viewModel.futureListLoading) {
+                                return new GlobalLoading();
+                            }
+                            if (data.Count <= 0) {
+                                return new BlankView("暂无我的即将开始活动");
+                            }
+                        }
+                        if (index == 1) {
+                            if (viewModel.pastListLoading) {
+                                return new GlobalLoading();
+                            }
+                            if (data.Count <= 0) {
+                                return new BlankView("暂无我的往期活动");
+                            }
+                        }
                         return ListView.builder(
                             physics: new AlwaysScrollableScrollPhysics(),
                             itemCount: data.Count,

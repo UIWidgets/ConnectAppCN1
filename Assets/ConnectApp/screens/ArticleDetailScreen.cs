@@ -35,6 +35,7 @@ namespace ConnectApp.screens {
 
         private Article _article = new Article();
         private User _user = new User();
+        private Team _team = new Team();
         private string _channelId = "";
         private List<string> _channelComments = new List<string>();
         private List<Article> _relArticles = new List<Article>();
@@ -53,30 +54,41 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, Dictionary<string, object>>(
                 converter: (state, dispatcher) => new Dictionary<string, object> {
                     {"articleDetail", state.articleState.articleDetail},
-                    {"channelMessageDict",state.messageState.channelMessageDict},
-                    {"channelMessageList",state.messageState.channelMessageList},
-                    {"userDict",state.userState.userDict}
+                    {"channelMessageDict", state.messageState.channelMessageDict},
+                    {"channelMessageList", state.messageState.channelMessageList},
+                    {"userDict", state.userState.userDict},
+                    {"teamDict", state.teamState.teamDict}
                 },
                 builder: (context1, viewModel) => {
                     if (StoreProvider.store.state.articleState.articleDetailLoading) {
-                        return new SafeArea(
-                            child: new Column(
-                                children: new List<Widget> {
-                                    _navigationBar(context),
-                                    new ArticleDetailLoading()
-                                }
+                        return new Container(
+                            color: CColors.White,
+                            child: new SafeArea(
+                                child: new Column(
+                                    children: new List<Widget> {
+                                        _buildNavigationBar(context),
+                                        new ArticleDetailLoading()
+                                    }
+                                )
                             )
                         ); 
                     }
                     var articleDetail = (Project) viewModel["articleDetail"];
-                    var channelMessageList = (Dictionary<string, List<string>>) viewModel["channelMessageList"];
-                    var userDict = (Dictionary<string, User>) viewModel["userDict"];
                     if (articleDetail == null) return new Container();
+                    var channelMessageList = (Dictionary<string, List<string>>) viewModel["channelMessageList"];
                     _article = articleDetail.projectData;
-                    if (_article.userId!=null&&userDict.TryGetValue(_article.userId,out _user)) {
-                        _user = userDict[_article.userId];
+                    if (_article.ownerType == "user") {
+                        var userDict = (Dictionary<string, User>) viewModel["userDict"];
+                        if (_article.userId!=null && userDict.TryGetValue(_article.userId,out _user)) {
+                            _user = userDict[_article.userId];
+                        }
                     }
-                
+                    if (_article.ownerType == "team") {
+                        var teamDict = (Dictionary<string, Team>) viewModel["teamDict"];
+                        if (_article.teamId!=null && teamDict.TryGetValue(_article.teamId, out _team)) {
+                            _team = teamDict[_article.teamId];
+                        }
+                    }
                     _channelId = articleDetail.channelId;
                     _relArticles = articleDetail.projects;
                     if (channelMessageList.ContainsKey(articleDetail.channelId)) {
@@ -97,7 +109,7 @@ namespace ConnectApp.screens {
                         color: CColors.background3,
                         child: new Column(
                             children: new List<Widget> {
-                                _navigationBar(context),
+                                _buildNavigationBar(context),
                                 new Expanded(
                                     child: new Refresh(
                                         onFooterRefresh: footerCallback,
@@ -138,22 +150,24 @@ namespace ConnectApp.screens {
                             }
                         )
                     );
-                    return new SafeArea(
-                        top: false,
-                        child: child
-                    );
+                    return new Container(
+                       color: CColors.White,
+                       child: new SafeArea(
+                            child: child
+                       )
+                    ); 
                 }
             );
         }
 
         private List<Widget> _buildItems(BuildContext context,Project articleDetail) {
             var originItems = new List<Widget>();
-            originItems.Add(_contentHead(context));
+            originItems.Add(_buildContentHead(context));
             originItems.Add(_subTitle(context));
             originItems.AddRange(ArticleDescription.map(context,_article.body,_contentMap));
             originItems.Add(_actionCards(context,articleDetail.like));
-            originItems.Add(_relatedArticles(context));
-            originItems.Add( _comments(context));
+            originItems.Add(_buildRelatedArticles());
+            originItems.Add(_comments(context));
             originItems.AddRange(_buildComments(context));
             if (!articleDetail.comments.hasMore)
             {
@@ -162,7 +176,7 @@ namespace ConnectApp.screens {
             return originItems;
         }
 
-        private Widget _navigationBar(BuildContext context) {
+        private static Widget _buildNavigationBar(BuildContext context) {
             return new CustomNavigationBar(
                 new GestureDetector(
                     onTap: () => {
@@ -182,15 +196,14 @@ namespace ConnectApp.screens {
                         alignment: Alignment.center,
                         child: new Text("说点想法",
                             style: new TextStyle(color: CColors.PrimaryBlue, fontSize: 14,
-                                fontFamily: "PingFang-Medium"))
+                                fontFamily: "PingFangSC-Medium"))
                     )
                 }, CColors.White, 52);
         }
         
         private IPromise onFooterRefresh() {
             return ArticleApi.FetchArticleComments(_channelId, _lastCommentId)
-                .Then((responseComments) =>
-                {
+                .Then(responseComments => {
                     StoreProvider.store.state.articleState.articleDetail.comments = responseComments;
                     _lastCommentId = responseComments.currOldestMessageId;
                     _hasMore = responseComments.hasMore;
@@ -198,20 +211,17 @@ namespace ConnectApp.screens {
                     var channelMessageDict = new Dictionary<string,Dictionary<string, Message>>();
                     var itemIds = new List<string>();
                     var messageItem = new Dictionary<string,Message>();
-                    responseComments.items.ForEach((message) =>
-                    {
+                    responseComments.items.ForEach(message => {
                         itemIds.Add(message.id);
                         messageItem[message.id] = message;
                     });
-                    responseComments.parents.ForEach((message) =>
-                    {
+                    responseComments.parents.ForEach(message => {
                         messageItem[message.id] = message;
                     });
                     channelMessageList.Add(_channelId,itemIds);
                     channelMessageDict.Add(_channelId,messageItem);
                             
-                    StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction()
-                    {
+                    StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction{
                         channelMessageDict = channelMessageDict,
                         channelMessageList = channelMessageList,
                         isRefreshList = false
@@ -221,10 +231,16 @@ namespace ConnectApp.screens {
         }
         
         
-        private Widget _contentHead(BuildContext context) {
+        private Widget _buildContentHead(BuildContext context) {
+            var avatar = new Avatar(
+                _article.ownerType == "user" ? _user.id : _team.id,
+                32,
+                _article.ownerType == "user" ? OwnerType.user : OwnerType.team
+            );
+            var text = _article.ownerType == "user" ? _user.fullName : _team.name;
             return new Container(
                 color: CColors.White,
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                padding: EdgeInsets.only(left:16,right:16,top:16),
                 child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
@@ -236,12 +252,7 @@ namespace ConnectApp.screens {
                             margin: EdgeInsets.only(top: 8),
                             child: new Text(
                                 $"阅读 { _article.viewCount } · {DateConvert.DateStringFromNow(_article.createdTime)}",
-                                style: new TextStyle(
-                                    height: 1.67f,
-                                    fontSize: 12,
-                                    fontFamily: "PingFang-Regular",
-                                    color: CColors.TextBody4
-                                )
+                                style: CTextStyle.TextBody4
                             )
                         ),
                         new Container(
@@ -250,27 +261,20 @@ namespace ConnectApp.screens {
                                 children: new List<Widget> {
                                     new Container(
                                         margin: EdgeInsets.only(right: 8),
-                                        child: new Avatar(_user==null?"1234":_user.id,null,32)
+                                        child: avatar
                                     ),
                                     new Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: new List<Widget> {
+                                            new Container(height: 5),
                                             new Text(
-                                                _user==null?"昵称":_user.fullName,
-                                                style: new TextStyle(
-                                                    fontSize: 14,
-                                                    fontFamily: "PingFang-Medium",
-                                                    color: CColors.TextBody
-                                                )
+                                                text,
+                                                style: CTextStyle.PRegular
                                             ),
                                             new Text(
-                                                _user == null ? "昵称" : _user.description,
-                                                style: new TextStyle(
-                                                    fontSize: 12,
-                                                    fontFamily: "PingFang-Regular",
-                                                    color: CColors.TextBody3
-                                                )
+                                                DateConvert.DateStringFromNow(_article.createdTime),
+                                                style: CTextStyle.TextBody3
                                             )
                                         }
                                     )
@@ -282,32 +286,25 @@ namespace ConnectApp.screens {
             );
         }
 
-
-        private Widget _subTitle(BuildContext context) {
-            return new Container(
-                color: CColors.White,
-                child: new Container(
-                    margin: EdgeInsets.only(bottom: 24, left: 16, right: 16),
-                    child: new Container(
-                        decoration:new BoxDecoration(
-                            CColors.Separator2,
-                            borderRadius: BorderRadius.all(4)
-                        ),
-                        padding: EdgeInsets.only(16,12,16,12), 
-                        child:new Text($"{_article.subTitle}",style:CTextStyle.PLargeGray)
-                    )
-                ) 
-            );
-        }
-
-
-        private Widget _contentDetail(BuildContext context)
+        private Widget _subTitle(BuildContext context)
         {
+            
             return new Container(
-                color: CColors.White,
-                child: new EventDescription(content: _article.body, contentMap: _contentMap)
+                color:CColors.White,
+                child:new Container(
+                    margin:EdgeInsets.only(bottom:24,left:16,right:16),
+                    child:new Container(
+                    decoration:new BoxDecoration(
+                        color:CColors.Separator2,
+                        borderRadius:BorderRadius.all(4)
+                    ),
+                    padding:EdgeInsets.only(16,12,16,12), 
+                    child:new Text($"{_article.subTitle}",style:CTextStyle.PLargeBody4)
+                )  ) 
             );
         }
+
+
         
         private Widget _actionCards(BuildContext context, bool like) {
             return new Container(
@@ -317,40 +314,49 @@ namespace ConnectApp.screens {
                     mainAxisAlignment:MainAxisAlignment.center,
                     crossAxisAlignment:CrossAxisAlignment.center,
                     children:new List<Widget>{
-                        new ActionCard(Icons.favorite,like?"已赞":"点赞",like,onTap: () =>
-                        {
-                            if (!like)
-                            {
-                                StoreProvider.store.Dispatch(new LikeArticleAction()
-                                {
+                        new ActionCard(Icons.favorite,like?"已赞":"点赞", like, () => {
+                            if (!like) {
+                                StoreProvider.store.Dispatch(new LikeArticleAction{
                                     articleId = _article.id
                                 });
                             }
 
                         }),
                         new Container(width:16),
-                        new ActionCard(Icons.share,"分享",false,onTap: () =>
-                        {
+                        new ActionCard(Icons.share,"分享",false, () => {
                             
-                        }),
+                        })
                     }
                 ) 
 
             );
         }
 
-        private Widget _relatedArticles(BuildContext context)
-        {
+        private Widget _buildRelatedArticles() {
+            if (_relArticles.Count == 0) return new Container();
+            var widgets = new List<Widget>();
+            _relArticles.ForEach(article => {
+                widgets.Add(new RelatedArticleCard(
+                    article,
+                    () => {
+                        StoreProvider.store.Dispatch(new NavigatorToArticleDetailAction{detailId = article.id});
+                        Navigator.pushNamed(context, "/article-detail");
+                    }
+                )); 
+            });
             return new Container(
-                color:CColors.White,
-                padding:EdgeInsets.only(left:16,right:16),
-                margin:EdgeInsets.only(bottom:16),
-                child: new Column(children:new List<Widget>
-                {
-                    new Container(height:1,color:CColors.Separator2,margin:EdgeInsets.only(bottom:24)),
+                color: CColors.White,
+                margin: EdgeInsets.only(bottom:16),
+                child: new Column(
+                    children: new List<Widget> {
+                    new Container(
+                        height: 1,
+                        color:CColors.Separator2,
+                        margin:EdgeInsets.only(16, right: 16, bottom: 24)
+                    ),
                     new Container(
                         child: new Column(
-                            children: _buildArticles()
+                            children: widgets
                         )
                     )
                 }) 
@@ -358,56 +364,35 @@ namespace ConnectApp.screens {
             );
         }
 
-        List<Widget> _buildArticles()
-        {
-            
-            var widgets = new List<Widget>();
-            if (_relArticles.Count==0)
-            {
-                return widgets;
-            }
-            _relArticles.ForEach((article) =>
-            {
-                widgets.Add(new RelatedArticleCard(article,onTap: () =>
-                {
-                    
-                })); 
-            });
-            return widgets;
-        }
-
-        private Widget _comments(BuildContext context)
-        {
-            if (_channelComments.Count==0)
-            {
+        private Widget _comments(BuildContext context) {
+            if (_channelComments.Count == 0) {
                 return new Container();
             }
             return new Container(
-                color:CColors.White,
-                padding:EdgeInsets.only(left:16,right:16),
-                child: new Text("评论",style:CTextStyle.H5,textAlign:TextAlign.left)
-
+                color: CColors.White,
+                padding: EdgeInsets.only(16, 16, 16),
+                child: new Text(
+                    "评论",
+                    style: CTextStyle.H5,
+                    textAlign:TextAlign.left
+                )
             );
         }
 
-        private List<Widget> _buildComments(BuildContext context)
-        {
-            if (_channelComments.isEmpty())
-            {
+        private List<Widget> _buildComments(BuildContext context){
+            if (_channelComments.isEmpty()) {
                 return new List<Widget>();
             }
             var comments = new List<Widget>();
             var channelMessageDict = StoreProvider.store.state.messageState.channelMessageDict;
             var messageDict = channelMessageDict[_channelId];
-            _channelComments.ForEach((commentId) =>
-            {
+            _channelComments.ForEach(commentId => {
                 var message = messageDict[commentId];
                 bool isPraised = _isPraised(message);
                 var card = new CommentCard(
                     message,
                     isPraised,
-                    moreCallBack: () =>
-                    {
+                    () => {
                         ActionSheetUtils.showModalActionSheet(context, new ActionSheet(
                             items: new List<ActionSheetItem> {
                                 new ActionSheetItem("举报", ActionType.destructive, () => { }),
@@ -415,12 +400,11 @@ namespace ConnectApp.screens {
                             }
                         ));
                     }, 
-                    replyCallBack: () =>
-                    {
+                    replyCallBack: () => {
                         ActionSheetUtils.showModalActionSheet(context, new CustomInput(
+                            message.author.fullName.isEmpty()?"":message.author.fullName,
                             doneCallBack: (text) => { 
-                                StoreProvider.store.Dispatch(new SendCommentAction()
-                                {
+                                StoreProvider.store.Dispatch(new SendCommentAction{
                                     channelId = _channelId,
                                     content = text,
                                     nonce = Snowflake.CreateNonce(),
@@ -428,53 +412,38 @@ namespace ConnectApp.screens {
                                 }); }));
                     },
                     praiseCallBack: () => {
-                        if (isPraised)
-                        {
+                        if (isPraised) {
                             StoreProvider.store.Dispatch(new RemoveLikeCommentAction(){messageId = commentId});
-                        }
-                        else
-                        {
+                        } else {
                             StoreProvider.store.Dispatch(new LikeCommentAction(){messageId = commentId});
                         }
-
-
                     });
                 comments.Add(card); 
             });
             return comments;
         }
 
-        private bool _isPraised(Message message)
-        {
-            foreach (var reaction in message.reactions)
-            {
-                if (reaction.user.id == StoreProvider.store.state.loginState.loginInfo.userId)
-                {
+        private static bool _isPraised(Message message) {
+            foreach (var reaction in message.reactions) {
+                if (reaction.user.id == StoreProvider.store.state.loginState.loginInfo.userId) {
                     return true;
                 }
             }
             return false;
         }
 
-        private Widget _buildEnd(BuildContext context)
-        {
-            if (_channelComments.Count==0)
-            {
+        private Widget _buildEnd(BuildContext context)  {
+            if (_channelComments.Count==0) {
                 return new Container();
             }
+
             return new Container(
-                height:52,
-                alignment:Alignment.center,
-                child:new Text("一 已经全部加载完毕 一",style:new TextStyle(height: 1.57f,
-                    fontSize: 14,
-                    fontFamily: "PingFang-Regular",
-                    color: CColors.TextBody4
-                ),textAlign:TextAlign.center));
+                height: 52,
+                alignment: Alignment.center,
+                child: new Text("一 已经全部加载完毕 一", style: CTextStyle.PRegularBody4, textAlign: TextAlign.center
+                )
+            );
         }
 
     }
-
-    
-
-
 }

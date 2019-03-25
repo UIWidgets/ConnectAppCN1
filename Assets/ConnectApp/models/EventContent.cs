@@ -13,6 +13,7 @@ namespace ConnectApp.models {
         public string key;
         public string text;
         public string type;
+        public List<_InlineStyleRange> inlineStyleRanges;
         public List<_EntityRange> entityRanges;
     }
 
@@ -28,6 +29,7 @@ namespace ConnectApp.models {
         public string uploadId;
         public string contentId;
         public string title;
+        public string url;
     }
 
     [Serializable]
@@ -37,16 +39,26 @@ namespace ConnectApp.models {
         public int offset;
     }
 
+    [Serializable]
+    public class _InlineStyleRange {
+        public int key;
+        public int offset;
+        public int length;
+        public string style;
+    }
 
     /* contentMap 解析 */
 
     [Serializable]
     public class ContentMap {
-        public _originalImage originalImage;
+        public _OriginalImage originalImage;
+        public _OriginalImage thumbnail;
     }
 
     [Serializable]
-    public class _originalImage {
+    public class _OriginalImage {
         public string url;
+        public int width;
+        public int height;
     }
 }

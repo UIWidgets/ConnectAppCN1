@@ -51,39 +51,25 @@ namespace ConnectApp.components {
                             $"{parentMessage.author.fullName}",
                             children: new List<TextSpan> {
                                 new TextSpan(
-                                    $":{message.content}", style: CTextStyle.PLarge
+                                    $": {message.content}", CTextStyle.PLarge
                                 )
                             },
-                            style: new TextStyle(
-                                height: 1.5f,
-                                fontSize: 16,
-                                fontFamily: "PingFang-Regular",
-                                color: CColors.PrimaryBlue
-                            )
+                            style: CTextStyle.PLargeBlue
                         )
-                    }, style: new TextStyle(
-                        height: 1.5f,
-                        fontSize: 16,
-                        fontFamily: "PingFang-Regular",
-                        color: CColors.TextBody4
-                    ))));
+                    }, style: CTextStyle.PLargeBody4)));
             }
 
 
             return new Container(
-                color:CColors.White,
-                padding: EdgeInsets.only(top: 8,left:16,right:16),
+                color: CColors.White,
+                padding: EdgeInsets.only(16, 16, 16),
                 child: new Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
                         new Container(
-                            margin: EdgeInsets.only(right: 8, top: 2),
-                            child: new ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: new Avatar(message.author.id, null, 24)
-                            )
+                            margin: EdgeInsets.only(right: 8),
+                            child: new Avatar(message.author.id, 24)
                         ),
-
                         new Expanded(
                             child: new Container(
                                 child: new Column(
@@ -91,18 +77,17 @@ namespace ConnectApp.components {
                                         new Row(
                                             children: new List<Widget> {
                                                 new Expanded(
-                                                    child: new Text(message.author.fullName, style: new TextStyle(
-                                                        height: 1.57f,
-                                                        fontSize: 14,
-                                                        fontFamily: "PingFang-Regular",
-                                                        color: CColors.TextBody3))),
+                                                    child: new Text(message.author.fullName, style: CTextStyle.PMediumBody3)),
                                                 new GestureDetector(
                                                     onTap: moreCallBack,
                                                     child: new Icon(Icons.ellipsis, size: 20, color: CColors.BrownGrey)
                                                 )
                                             }
                                         ),
-                                        _content,
+                                        new Container(
+                                            margin: EdgeInsets.only(top: 3, bottom: 5),
+                                            child: _content
+                                        ),
                                         new Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: new List<Widget> {
@@ -115,26 +100,24 @@ namespace ConnectApp.components {
                                                                 onTap: praiseCallBack,
                                                                 child: new Text($"点赞 {message.reactions.Count}",
                                                                     style: isPraised
-                                                                        ? new TextStyle(
-                                                                            height: 1.67f,
-                                                                            fontSize: 12,
-                                                                            fontFamily: "PingFang-Regular",
-                                                                            color: CColors.PrimaryBlue
-                                                                        )
-                                                                        : CTextStyle.TextBody4)),
+                                                                        ? CTextStyle.PRegularBlue
+                                                                        : CTextStyle.PRegularBody4)),
                                                             new Container(width: 10),
                                                             new GestureDetector(
                                                                 onTap: replyCallBack,
                                                                 child: new Text($"回复 {message.replyMessageIds.Count}",
-                                                                    style: CTextStyle.TextBody4)
-                                                            ),
+                                                                    style: CTextStyle.PRegularBody4)
+                                                            )
                                                         }
                                                     )
                                                 )
                                             }
                                         ),
-                                        new Container(margin: EdgeInsets.only(top: 12), height: 1,
-                                            color: CColors.Separator2)
+                                        new Container(
+                                            margin: EdgeInsets.only(top: 12),
+                                            height: 1,
+                                            color: CColors.Separator2
+                                        )
                                     }
                                 )
                             )

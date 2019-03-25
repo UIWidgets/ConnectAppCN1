@@ -52,6 +52,10 @@ namespace ConnectApp.redux.reducers {
                     state.eventState.detailId = null;
                     break;
                 }
+                case NavigatorToLoginAction action: {
+                    state.loginState.fromPage = action.fromPage;
+                    break;
+                }
                 case LoginByEmailAction action: {
                     state.loginState.loading = true;
                     var email = state.loginState.email;
@@ -86,6 +90,12 @@ namespace ConnectApp.redux.reducers {
                     customSnackBar.show(action.context);
                     break;
                 }
+                case LogoutAction action: {
+                    state.loginState.loginInfo = new LoginInfo();
+                    state.loginState.isLoggedIn = false;
+                    Navigator.pop(action.context);
+                    break;
+                }
                 case FetchArticlesAction action: {
                     state.articleState.articlesLoading = true;
                     ArticleApi.FetchArticles(action.pageNumber)
@@ -98,6 +108,7 @@ namespace ConnectApp.redux.reducers {
                             });
                             StoreProvider.store.Dispatch(new UserMapAction
                                 {userMap = articlesResponse.userMap});
+                            StoreProvider.store.Dispatch(new TeamMapAction{teamMap = articlesResponse.teamMap});
                             StoreProvider.store.Dispatch(new FetchArticleSuccessAction
                                 {ArticleDict = articleDict, ArticleList = articleList});
                         })
@@ -114,6 +125,7 @@ namespace ConnectApp.redux.reducers {
                     state.articleState.articleDetailLoading = true;
                     ArticleApi.FetchArticleDetail(action.articleId)
                         .Then(articleDetailResponse => {
+                            var userMap = articleDetailResponse.project.userMap;
                             if (articleDetailResponse.project.comments.items.Count > 0) {
                                 var channelId = articleDetailResponse.project.comments.items.first().channelId;
                                 var channelMessageList = new Dictionary<string, List<string>>();
@@ -123,6 +135,7 @@ namespace ConnectApp.redux.reducers {
                                 articleDetailResponse.project.comments.items.ForEach(message => {
                                     itemIds.Add(message.id);
                                     messageItem[message.id] = message;
+                                    userMap.Add(message.author.id, message.author);
                                 });
                                 channelMessageList.Add(channelId, itemIds);
                                 channelMessageDict.Add(channelId, messageItem);
@@ -135,7 +148,10 @@ namespace ConnectApp.redux.reducers {
                             }
 
                             StoreProvider.store.Dispatch(new UserMapAction {
-                                userMap = articleDetailResponse.project.userMap
+                                userMap = userMap
+                            });
+                            StoreProvider.store.Dispatch(new TeamMapAction {
+                                teamMap = articleDetailResponse.project.teamMap
                             });
                             StoreProvider.store.Dispatch(new FetchArticleDetailSuccessAction {
                                 articleDetail = articleDetailResponse.project
@@ -559,6 +575,14 @@ namespace ConnectApp.redux.reducers {
                             state.userState.userDict.Add(keyValuePair.Key, keyValuePair.Value);
                     break;
                 }
+                case TeamMapAction action: {
+                    foreach (var keyValuePair in action.teamMap)
+                        if (state.teamState.teamDict.ContainsKey(keyValuePair.Key))
+                            state.teamState.teamDict[keyValuePair.Key] = keyValuePair.Value;
+                        else
+                            state.teamState.teamDict.Add(keyValuePair.Key, keyValuePair.Value);
+                    break;
+                }
                 case SearchArticleAction action: {
                     state.searchState.loading = true;
                     SearchApi.SearchArticle(action.keyword, action.pageNumber)
@@ -566,6 +590,7 @@ namespace ConnectApp.redux.reducers {
                             StoreProvider.store.Dispatch(new UserMapAction {
                                 userMap = searchResponse.userMap
                             });
+                            StoreProvider.store.Dispatch(new TeamMapAction{teamMap = searchResponse.teamMap});
                             StoreProvider.store.Dispatch(new SearchArticleSuccessAction {
                                 keyword = action.keyword,
                                 pageNumber = action.pageNumber,

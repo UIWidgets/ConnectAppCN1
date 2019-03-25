@@ -1,25 +1,26 @@
 using System.Collections.Generic;
-using System.Linq;
 using ConnectApp.constants;
 using ConnectApp.models;
 using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 using Image = Unity.UIWidgets.widgets.Image;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
-namespace ConnectApp.components
-{
-    public class ArticleDescription
-    {
-        public static List<Widget> map(BuildContext context,string cont,Dictionary<string, ContentMap> contentMap) {
-            var articleDes = new ArticleDescription();
+namespace ConnectApp.components {
+    public static class ArticleDescription {
+        public static List<Widget> map(BuildContext context, string cont, Dictionary<string, ContentMap> contentMap) {
+            if (cont == null) return new List<Widget>();
+            
             var content = JsonConvert.DeserializeObject<EventContent>(cont);
             var widgets = new List<Widget>();
-            
+
+            var _isFirstUnorderedListItem = false;
+            var _isFirstOrderedListItem = false;
             var blocks = content.blocks;
             for (var i = 0; i < blocks.Count; i++) {
                 var block = blocks[i];
@@ -27,109 +28,153 @@ namespace ConnectApp.components
                 var text = block.text;
                 switch (type) {
                     case "header-one":
-                        widgets.Add(articleDes._H1(context,text));
+                        widgets.Add(_H1(text));
                         break;
                     case "header-two":
-                        widgets.Add(articleDes._H2(context,text));
+                        widgets.Add(_H2(text));
                         break;
                     case "blockquote":
-                        widgets.Add(articleDes._QuoteBlock(context,text));
+                        widgets.Add(_QuoteBlock(text));
                         break;
                     case "code-block":
-                        widgets.Add(articleDes._CodeBlock(context,text));
+                        widgets.Add(_CodeBlock(context, text));
                         break;
                     case "unstyled":
-                        if (text != null) widgets.Add(articleDes._Unstyled(context,text));
+                        if (text != null || text.Length > 0) 
+                            widgets.Add(
+                                _Unstyled(
+                                    text,
+                                    content.entityMap,
+                                    block.entityRanges
+                                )
+                            );
                         break;
                     case "unordered-list-item": {
-                        string[] items = {block.text};
-                        while (i + 1 < blocks.Count &&
-                               blocks[i + 1].type == "unordered-list-item") {
-                            items.Append(blocks[i + 1].text);
-                            i++;
-                        }
+                        if (_isFirstUnorderedListItem) break;
+                        var items = new List<string>();
+                        var unorderedItem = blocks.FindAll(item => item.type == "unordered-list-item");
+                        unorderedItem.ForEach(item => items.Add(item.text));
 
-                        widgets.Add(articleDes._UnorderedList(context,items));
+                        widgets.Add(_UnorderedList(items));
+                        _isFirstUnorderedListItem = true;
                     }
                         break;
                     case "ordered-list-item": {
-                        string[] items = {block.text};
-                        while (i + 1 < blocks.Count &&
-                               blocks[i + 1].type == "ordered-list-item") {
-                            items.Append(blocks[i + 1].text);
-                            i++;
-                        }
+                        if (_isFirstOrderedListItem) break;
+                        var items = new List<string>();
+                        var orderedItem = blocks.FindAll(item => item.type == "ordered-list-item");
+                        orderedItem.ForEach(item => items.Add(item.text));
 
-                        widgets.Add(articleDes._OrderedList(context,items));
+                        widgets.Add(_OrderedList(items));
+                        _isFirstOrderedListItem = true;
                     }
                         break;
                     case "atomic": {
                         var key = block.entityRanges.first().key.ToString();
-                        var data = content.entityMap[key].data;
-                        var map = contentMap[data.contentId];
-                        widgets.Add(articleDes._Atomic(context,block.type, data.title, map.originalImage==null?"":map.originalImage.url));
+                        if (content.entityMap.ContainsKey(key)) {
+                            var dataMap = content.entityMap[key];
+                            var data = dataMap.data;
+                            if (contentMap.ContainsKey(data.contentId)) {
+                                var map = contentMap[data.contentId];
+                                var originalImage = map.originalImage == null
+                                    ? map.thumbnail
+                                    : map.originalImage;
+                                widgets.Add(_Atomic(dataMap.type, data.title, originalImage));
+                            }
+                        }
                     }
                         break;
                 }
             }
-
-            //*/
             return widgets;
         }
 
-        private Widget _H1(BuildContext context,string text) {
+        private static Widget _H1(string text) {
+            if (text == null) return new Container();
             return new Container(
-                color:CColors.White,
-                padding:EdgeInsets.only(top:16,left:16,right:16,bottom: 24),
+                color: CColors.White,
+                padding: EdgeInsets.only(16, 16, 16, 24),
                 child: new Text(
                     text,
-                    style: new TextStyle(
-                        color: CColors.TextTitle,
-                        fontSize: 24,
-                        letterSpacing: 0.0f,
-                        height: 1.33f
-                    )
+                    style: CTextStyle.H4
                 )
             );
         }
 
-        private Widget _H2(BuildContext context,string text) {
+        private static Widget _H2(string text) {
+            if (text == null) return new Container();
             return new Container(
-                color:CColors.White,
-                padding:EdgeInsets.only(top:16,left:16,right:16,bottom: 24),
+                color: CColors.White,
+                padding: EdgeInsets.only(16, 16, 16, 24),
                 child: new Text(
                     text,
-                    style: new TextStyle(
-                        color: CColors.TextTitle,
-                        fontSize: 20,
-                        height: 1.4f
-                    )
+                    style: CTextStyle.H5
                 )
             );
         }
 
-        private Widget _Unstyled(BuildContext context,string text) {
+        private static Widget _Unstyled(
+            string text,
+            Dictionary<string, _EventContentEntity> entityMap,
+            List<_EntityRange> entityRanges
+        ) {
+            if (text == null) return new Container();
+            if (entityRanges != null && entityRanges.Count > 0) {
+                var entityRange = entityRanges.first();
+                var key = entityRange.key.ToString();
+                if (entityMap.ContainsKey(key)) {
+                    var data = entityMap[key];
+                    if (data.type == "LINK") {
+                        var offset = entityRange.offset;
+                        var length = entityRange.length;
+                        var leftText = text.Substring(0, offset);
+                        var currentText = text.Substring(offset, length);
+                        var rightText = text.Substring(length + offset, text.Length - length - offset);
+                        // Debug.Log($"点击链接{data.data.url}");
+                        return new Container(
+                            color: CColors.White,
+                            padding: EdgeInsets.only(16, right: 16, bottom: 24),
+                            child: new RichText(
+                                text: new TextSpan(
+                                    children: new List<TextSpan> {
+                                        new TextSpan(
+                                            leftText,
+                                            CTextStyle.PXLarge
+                                        ),
+                                        new TextSpan(
+                                            currentText,
+                                            CTextStyle.PXLargeBlue
+                                        ),
+                                        new TextSpan(
+                                            rightText,
+                                            CTextStyle.PXLarge
+                                        )
+                                    }
+                                )
+                            )
+                        );
+                    }
+                }
+            }
+
             return new Container(
-                color:CColors.White,
-                padding:EdgeInsets.only(left:16,right:16,bottom: 24),
+                color: CColors.White,
+                padding: EdgeInsets.only(16, right: 16, bottom: 24),
                 child: new Text(
                     text,
-                    style: CTextStyle.TextBody1
+                    style: CTextStyle.PXLarge
                 )
             );
         }
 
-        private Widget _CodeBlock(BuildContext context, string text) {
+        private static Widget _CodeBlock(BuildContext context, string text) {
+            if (text == null) return new Container();
             return new Container(
-                color:CColors.White,
-                decoration: new BoxDecoration(
-                    color:Color.fromRGBO(110,198,255,0.12f)
-                ),
-                width:MediaQuery.of(context).size.width,
-                padding: EdgeInsets.only(
-                    bottom: 24,left:16,right:16
-                ),
+                color: Color.fromRGBO(110,198,255,0.12f),
+                width: MediaQuery.of(context).size.width,
+                margin: EdgeInsets.only(bottom: 24),
                 child: new Container(
+                    padding: EdgeInsets.all(16),
                     child: new Text(
                         text,
                         style: CTextStyle.PRegular
@@ -139,39 +184,80 @@ namespace ConnectApp.components
         }
 
 
-        private Widget _QuoteBlock(BuildContext context,string text) {
+        private static Widget _QuoteBlock(string text) {
             return new Container(
-                color:CColors.White,
-                margin: EdgeInsets.only( left: 24),
+                color: CColors.White,
                 decoration: new BoxDecoration(
                     border: new Border(
                         left: new BorderSide(
-                            Color.fromRGBO(60,131,212,0.3f),
-                            16
+                            CColors.Separator,
+                            8
                         )
                     )
                 ),
-                padding:EdgeInsets.only(left:4,right:16,bottom: 24),
+                margin: EdgeInsets.only(16, right: 16, bottom: 24),
                 child: new Container(
+                    margin: EdgeInsets.only(16),
                     child: new Text(
                         text,
-                        style: CTextStyle.TextBody4
+                        style: new TextStyle(
+                            fontSize: 18,
+                            fontFamily: "PingFang-Regular",
+                            color: CColors.TextBody4
+                        )
                     )
                 )
             );
         }
 
-        private Widget _Atomic(BuildContext context,string type, string title, string url) {
-            var nodes = new List<Widget>() {
-                Image.network(url)
+        private static Widget _Atomic(string type, string title, _OriginalImage originalImage) {
+            if (type == "ATTACHMENT") return new Container();
+
+            var playButton = Positioned.fill(
+                new Container()
+            );
+            if (type == "VIDEO") {
+                playButton = Positioned.fill(
+                    new Center(
+                        child: new CustomButton(
+                            child: new Container(
+                                width: 80,
+                                height: 80,
+                                decoration: new BoxDecoration(
+                                    CColors.White,
+                                    borderRadius: BorderRadius.all(40)
+                                ),
+                                child: new Icon(
+                                    Icons.play_arrow,
+                                    size: 64,
+                                    color: CColors.icon3
+                                )
+                            )
+                        )
+                    )
+                );
+            }
+            var nodes = new List<Widget> {
+                new Stack(
+                    children: new List<Widget> {
+                        new AspectRatio(
+                            aspectRatio: originalImage.width / originalImage.height,
+                            child: new Container(
+                                color: new Color(0xFFD8D8D8),
+                                child: Image.network(originalImage.url ?? "")
+                            )
+                        ),
+                        playButton
+                    }
+                )
             };
             if (title != null) {
                 var imageTitle = new Container(
                     decoration: new BoxDecoration(
                         border: new Border(
                             bottom: new BorderSide(
-                                width: 1,
-                                color: CColors.TextBody
+                                CColors.Separator,
+                                2
                             )
                         )
                     ),
@@ -180,8 +266,9 @@ namespace ConnectApp.components
                         child: new Text(
                             title,
                             style: new TextStyle(
-                                color: CColors.TextBody,
-                                fontSize: 12
+                                color: CColors.TextBody4,
+                                fontFamily: "PingFang-Regular",
+                                fontSize: 14
                             )
                         )
                     )
@@ -189,78 +276,94 @@ namespace ConnectApp.components
                 nodes.Add(imageTitle);
             }
 
-            return new Container(color:CColors.White,
+            return new Container(
+                color: CColors.White,
                 padding: EdgeInsets.only(bottom: 32),
-                child: new Container(padding:EdgeInsets.only(left:16,right:16),
-                    child:new Column(children: nodes))
+                alignment: Alignment.center,
+                child: new Container(
+                    padding:EdgeInsets.only(16, right: 16),
+                    child: new Column(
+                        children: nodes
+                    )
+                )
             );
         }
 
 
-        private Widget _OrderedList(BuildContext context,string[] items) {
+        private static Widget _OrderedList(List<string> items) {
             var widgets = new List<Widget>();
 
-            for (var i = 0; i < items.Length; i++) {
-                var spans = new List<TextSpan>() {
+            for (var i = 0; i < items.Count; i++) {
+                var spans = new List<TextSpan> {
                     new TextSpan(
-                        $"i+1",
-                        CTextStyle.TextBody1
+                        $"{i+1}. ",
+                        CTextStyle.PXLarge
                     ),
                     new TextSpan(
                         items[i],
-                        CTextStyle.TextBody1
-                    ),
+                        CTextStyle.PXLarge
+                    )
                 };
                 widgets.Add(
                     new Container(
-                        padding:EdgeInsets.only(left:16,right:16),
-                        margin: EdgeInsets.only(top: i == 0 ? 0 : 8),
+                        padding:EdgeInsets.only(16, right: 16),
+                        margin: EdgeInsets.only(top: i == 0 ? 0 : 4),
                         child: new RichText(
                             text: new TextSpan(
-                                style: CTextStyle.TextBody1,
+                                style: CTextStyle.PXLarge,
                                 children: spans
                             )
                         )
                     )
                 );
             }
-
-
             return new Container(
-                color:CColors.White,padding: EdgeInsets.only(bottom: 24, left: 16),
-                child: new Column(crossAxisAlignment: CrossAxisAlignment.start, children: widgets));
+                color: CColors.White,
+                padding: EdgeInsets.only(bottom: 24),
+                child: new Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: widgets
+                )
+            );
         }
 
-        private Widget _UnorderedList(BuildContext context,string[] items) {
+        private static Widget _UnorderedList(List<string> items) {
             var widgets = new List<Widget>();
 
-            for (var i = 0; i < items.Length; i++) {
-                var spans = new List<TextSpan>() {
-                    new TextSpan(
-                        "\u25cf",
-                        CTextStyle.TextBody1
+            for (var i = 0; i < items.Count; i++) {
+                var spans = new List<Widget> {
+                    new Container(
+                        width: 8,
+                        height: 8,
+                        margin: EdgeInsets.only(right: 8),
+                        decoration: new BoxDecoration(
+                            CColors.Black,
+                            borderRadius: BorderRadius.all(4)
+                        )
                     ),
-                    new TextSpan(
+                    new Text(
                         items[i],
-                        CTextStyle.TextBody1
-                    ),
+                        style: CTextStyle.PXLarge
+                    )
                 };
                 widgets.Add(
-                    new Container(padding:EdgeInsets.only(left:16,right:16),margin: EdgeInsets.only(top: i == 0 ? 0 : 8),
-                        child: new RichText(
-                            text: new TextSpan(
-                                style: CTextStyle.TextBody1,
-                                children: spans
-                            )
+                    new Container(
+                        padding:EdgeInsets.only(16, right: 16),
+                        margin: EdgeInsets.only(top: i == 0 ? 0 : 4),
+                        child: new Row(
+                            children: spans
                         )
                     )
                 );
             }
-
-
             return new Container(
-                color:CColors.White,padding: EdgeInsets.only(bottom: 24, left: 16),
-                child: new Column(crossAxisAlignment: CrossAxisAlignment.start, children: widgets));
+                color: CColors.White,
+                padding: EdgeInsets.only(bottom: 24),
+                child: new Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: widgets
+                )
+            );
         }
     }
 }

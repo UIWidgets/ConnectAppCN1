@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using ConnectApp.components;
 using ConnectApp.constants;
+using ConnectApp.redux;
+using ConnectApp.redux.actions;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -12,11 +14,16 @@ namespace ConnectApp.screens {
     public class SettingScreen : StatelessWidget {
         public override Widget build(BuildContext context) {
             return new Container(
-                child: new Column(
-                    children: new List<Widget> {
-                        _buildNavigationBar(context),
-                        _buildContent(context)
-                    }
+                color: CColors.White,
+                child: new SafeArea(
+                    child: new Container(
+                        child: new Column(
+                            children: new List<Widget> {
+                                _buildNavigationBar(context),
+                                _buildContent(context)
+                            }
+                        )
+                    )
                 )
             );
         }
@@ -97,7 +104,9 @@ namespace ConnectApp.screens {
                     ActionSheetUtils.showModalActionSheet(context, new ActionSheet(
                         title: "确定退出当前账号吗？",
                         items: new List<ActionSheetItem> {
-                            new ActionSheetItem("退出", ActionType.destructive, () => { }),
+                            new ActionSheetItem("退出", ActionType.destructive, () => {
+                                StoreProvider.store.Dispatch(new LogoutAction{context = context});
+                            }),
                             new ActionSheetItem("取消", ActionType.cancel, () => { })
                         }
                     ));
