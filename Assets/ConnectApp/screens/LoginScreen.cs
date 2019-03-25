@@ -131,11 +131,7 @@ namespace ConnectApp.screens {
                                         new Text(
                                             "使用微信账号登陆",
                                             maxLines: 1,
-                                            style: new TextStyle(
-                                                fontSize: 16,
-                                                fontFamily: "PingFang-Regular",
-                                                color: CColors.White
-                                            )
+                                            style: CTextStyle.PLargeWhite
                                         )
                                     }
                                 )
@@ -161,11 +157,7 @@ namespace ConnectApp.screens {
                                         new Text(
                                             "使用 Unity ID 登录",
                                             maxLines: 1,
-                                            style: new TextStyle(
-                                                fontSize: 16,
-                                                fontFamily: "PingFang-Regular",
-                                                color: CColors.PrimaryBlue
-                                            )
+                                            style: CTextStyle.PLargeBlue
                                         )
                                     }
                                 )

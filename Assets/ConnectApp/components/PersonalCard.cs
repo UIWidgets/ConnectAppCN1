@@ -5,7 +5,6 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
     public class PersonalCard : StatelessWidget {
@@ -43,12 +42,7 @@ namespace ConnectApp.components {
                                         ),
                                         new Text(
                                             personalItem.title,
-                                            style: new TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w400,
-                                                fontFamily: "PingFang-Regular",
-                                                color: CColors.TextBody
-                                            )
+                                            style: CTextStyle.PLargeBody
                                         )
                                     }
                                 )

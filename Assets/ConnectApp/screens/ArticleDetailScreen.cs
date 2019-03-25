@@ -15,7 +15,6 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Avatar = ConnectApp.components.Avatar;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
     public class ArticleDetailScreen : StatefulWidget {
@@ -180,9 +179,10 @@ namespace ConnectApp.screens {
                             border: Border.all(CColors.PrimaryBlue)
                         ),
                         alignment: Alignment.center,
-                        child: new Text("说点想法",
-                            style: new TextStyle(color: CColors.PrimaryBlue, fontSize: 14,
-                                fontFamily: "PingFangSC-Medium"))
+                        child: new Text(
+                            "说点想法",
+                            style: CTextStyle.PMediumBlue
+                        )
                     )
                 }, CColors.White, 52);
         }
@@ -236,7 +236,7 @@ namespace ConnectApp.screens {
                             margin: EdgeInsets.only(top: 8),
                             child: new Text(
                                 $"阅读 {_article.viewCount} · {DateConvert.DateStringFromNow(_article.createdTime)}",
-                                style: CTextStyle.TextBody4
+                                style: CTextStyle.PSmallBody4
                             )
                         ),
                         new Container(
@@ -254,11 +254,11 @@ namespace ConnectApp.screens {
                                             new Container(height: 5),
                                             new Text(
                                                 text,
-                                                style: CTextStyle.PRegular
+                                                style: CTextStyle.PRegularBody
                                             ),
                                             new Text(
                                                 DateConvert.DateStringFromNow(_article.createdTime),
-                                                style: CTextStyle.TextBody3
+                                                style: CTextStyle.PSmallBody3
                                             )
                                         }
                                     )
