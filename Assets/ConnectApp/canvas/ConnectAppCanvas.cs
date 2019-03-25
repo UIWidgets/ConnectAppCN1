@@ -15,16 +15,14 @@ namespace ConnectApp.canvas {
     public sealed class ConnectAppCanvas : UIWidgetsPanel {
         protected override void OnEnable() {
             base.OnEnable();
-            Application.targetFrameRate = 300;
-            var iconFont = Resources.Load<Font>("MaterialIcons");
-            FontManager.instance.addFont(iconFont);
-            var regularFont = Resources.Load<Font>("PingFang-Regular");
-            FontManager.instance.addFont(regularFont);
-            var mediumFont = Resources.Load<Font>("PingFang-Medium");
-            FontManager.instance.addFont(mediumFont);
-            var semiboldFont = Resources.Load<Font>("PingFang-Semibold");
-            FontManager.instance.addFont(semiboldFont);
-
+            Application.targetFrameRate = 60;
+            FontManager.instance.addFont(Resources.Load<Font>("Material Icons"));
+            FontManager.instance.addFont(Resources.Load<Font>("Roboto-Regular"));
+            FontManager.instance.addFont(Resources.Load<Font>("Roboto-Medium"));
+            FontManager.instance.addFont(Resources.Load<Font>("Roboto-Bold"));
+            FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Regular"));
+            FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Medium"));
+            FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Semibold"));
             var videoPlayer = GetComponent<VideoPlayer>();
             VideoPlayerManager.instance.player = videoPlayer;
         }

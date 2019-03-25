@@ -12,11 +12,9 @@ using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using EventType = ConnectApp.models.EventType;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
     public class EventsScreen : StatefulWidget {
@@ -81,7 +79,7 @@ namespace ConnectApp.screens {
 
         private Widget buildSelectItem(BuildContext context, string title, int index) {
             Widget lineView = new Positioned(new Container());
-            if (index == _selectedIndex) {
+            if (index == _selectedIndex)
                 lineView = new Positioned(
                     bottom: 0,
                     left: 0,
@@ -99,7 +97,6 @@ namespace ConnectApp.screens {
                         }
                     )
                 );
-            }
 
             return new Container(
                 child: new Stack(
@@ -120,7 +117,7 @@ namespace ConnectApp.screens {
                                 alignment: Alignment.center,
                                 child: new Text(
                                     title,
-                                    style: index==_selectedIndex?CTextStyle.PLargeBlue:CTextStyle.PLargeMedium
+                                    style: index == _selectedIndex ? CTextStyle.PLargeBlue : CTextStyle.PLargeMedium
                                 )
                             )
                         ),
@@ -177,7 +174,7 @@ namespace ConnectApp.screens {
                                             eventType = model.live ? EventType.onLine : EventType.offline
                                         });
                                         Navigator.pushNamed(context, "/event-detail");
-                                    },new ObjectKey(model.id)));
+                                    }, new ObjectKey(model.id)));
                             });
                         else
                             cardList.Add(new Container());
@@ -188,8 +185,8 @@ namespace ConnectApp.screens {
                             footerBuilder: (cxt, controller) => new RefreshFooter(controller),
                             child: ListView.builder(
                                 physics: new AlwaysScrollableScrollPhysics(),
-                                itemCount:cardList.Count,
-                                itemBuilder:(cxt,index) => cardList[index]
+                                itemCount: cardList.Count,
+                                itemBuilder: (cxt, index) => cardList[index]
                             )
                         );
                     }

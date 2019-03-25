@@ -77,7 +77,8 @@ namespace ConnectApp.components {
                                         new Row(
                                             children: new List<Widget> {
                                                 new Expanded(
-                                                    child: new Text(message.author.fullName, style: CTextStyle.PMediumBody3)),
+                                                    child: new Text(message.author.fullName,
+                                                        style: CTextStyle.PMediumBody3)),
                                                 new GestureDetector(
                                                     onTap: moreCallBack,
                                                     child: new Icon(Icons.ellipsis, size: 20, color: CColors.BrownGrey)

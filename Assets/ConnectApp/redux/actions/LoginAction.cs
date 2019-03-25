@@ -22,7 +22,7 @@ namespace ConnectApp.redux.actions {
     public class LoginByEmailFailedAction : BaseAction {
         public BuildContext context;
     }
-    
+
     public class LogoutAction : BaseAction {
         public BuildContext context;
     }

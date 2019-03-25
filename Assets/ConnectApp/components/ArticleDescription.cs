@@ -5,9 +5,8 @@ using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using Color = Unity.UIWidgets.ui.Color;
 using Image = Unity.UIWidgets.widgets.Image;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
@@ -15,7 +14,7 @@ namespace ConnectApp.components {
     public static class ArticleDescription {
         public static List<Widget> map(BuildContext context, string cont, Dictionary<string, ContentMap> contentMap) {
             if (cont == null) return new List<Widget>();
-            
+
             var content = JsonConvert.DeserializeObject<EventContent>(cont);
             var widgets = new List<Widget>();
 
@@ -40,7 +39,7 @@ namespace ConnectApp.components {
                         widgets.Add(_CodeBlock(context, text));
                         break;
                     case "unstyled":
-                        if (text != null || text.Length > 0) 
+                        if (text != null || text.Length > 0)
                             widgets.Add(
                                 _Unstyled(
                                     text,
@@ -86,6 +85,7 @@ namespace ConnectApp.components {
                         break;
                 }
             }
+
             return widgets;
         }
 
@@ -170,7 +170,7 @@ namespace ConnectApp.components {
         private static Widget _CodeBlock(BuildContext context, string text) {
             if (text == null) return new Container();
             return new Container(
-                color: Color.fromRGBO(110,198,255,0.12f),
+                color: Color.fromRGBO(110, 198, 255, 0.12f),
                 width: MediaQuery.of(context).size.width,
                 margin: EdgeInsets.only(bottom: 24),
                 child: new Container(
@@ -216,7 +216,7 @@ namespace ConnectApp.components {
             var playButton = Positioned.fill(
                 new Container()
             );
-            if (type == "VIDEO") {
+            if (type == "VIDEO")
                 playButton = Positioned.fill(
                     new Center(
                         child: new CustomButton(
@@ -236,7 +236,6 @@ namespace ConnectApp.components {
                         )
                     )
                 );
-            }
             var nodes = new List<Widget> {
                 new Stack(
                     children: new List<Widget> {
@@ -281,7 +280,7 @@ namespace ConnectApp.components {
                 padding: EdgeInsets.only(bottom: 32),
                 alignment: Alignment.center,
                 child: new Container(
-                    padding:EdgeInsets.only(16, right: 16),
+                    padding: EdgeInsets.only(16, right: 16),
                     child: new Column(
                         children: nodes
                     )
@@ -296,7 +295,7 @@ namespace ConnectApp.components {
             for (var i = 0; i < items.Count; i++) {
                 var spans = new List<TextSpan> {
                     new TextSpan(
-                        $"{i+1}. ",
+                        $"{i + 1}. ",
                         CTextStyle.PXLarge
                     ),
                     new TextSpan(
@@ -306,7 +305,7 @@ namespace ConnectApp.components {
                 };
                 widgets.Add(
                     new Container(
-                        padding:EdgeInsets.only(16, right: 16),
+                        padding: EdgeInsets.only(16, right: 16),
                         margin: EdgeInsets.only(top: i == 0 ? 0 : 4),
                         child: new RichText(
                             text: new TextSpan(
@@ -317,6 +316,7 @@ namespace ConnectApp.components {
                     )
                 );
             }
+
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(bottom: 24),
@@ -348,7 +348,7 @@ namespace ConnectApp.components {
                 };
                 widgets.Add(
                     new Container(
-                        padding:EdgeInsets.only(16, right: 16),
+                        padding: EdgeInsets.only(16, right: 16),
                         margin: EdgeInsets.only(top: i == 0 ? 0 : 4),
                         child: new Row(
                             children: spans
@@ -356,6 +356,7 @@ namespace ConnectApp.components {
                     )
                 );
             }
+
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(bottom: 24),

@@ -1,0 +1,68 @@
+#if !BESTHTTP_DISABLE_ALTERNATE_SSL && (!UNITY_WEBGL || UNITY_EDITOR)
+#pragma warning disable
+using System;
+
+using BestHTTP.SecureProtocol.Org.BouncyCastle.Math.EC;
+
+namespace BestHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters
+{
+    /// <summary>Private parameters for an SM2 key exchange.</summary>
+    /// <remarks>The ephemeralPrivateKey is used to calculate the random point used in the algorithm.</remarks>
+    public class SM2KeyExchangePrivateParameters
+        : ICipherParameters
+    {
+        private readonly bool mInitiator;
+        private readonly ECPrivateKeyParameters mStaticPrivateKey;
+        private readonly ECPoint mStaticPublicPoint;
+        private readonly ECPrivateKeyParameters mEphemeralPrivateKey;
+        private readonly ECPoint mEphemeralPublicPoint;
+
+        public SM2KeyExchangePrivateParameters(
+            bool initiator,
+            ECPrivateKeyParameters staticPrivateKey,
+            ECPrivateKeyParameters ephemeralPrivateKey)
+        {
+            if (staticPrivateKey == null)
+                throw new ArgumentNullException("staticPrivateKey");
+            if (ephemeralPrivateKey == null)
+                throw new ArgumentNullException("ephemeralPrivateKey");
+
+            ECDomainParameters parameters = staticPrivateKey.Parameters;
+            if (!parameters.Equals(ephemeralPrivateKey.Parameters))
+                throw new ArgumentException("Static and ephemeral private keys have different domain parameters");
+
+            this.mInitiator = initiator;
+            this.mStaticPrivateKey = staticPrivateKey;
+            this.mStaticPublicPoint = parameters.G.Multiply(staticPrivateKey.D).Normalize();
+            this.mEphemeralPrivateKey = ephemeralPrivateKey;
+            this.mEphemeralPublicPoint = parameters.G.Multiply(ephemeralPrivateKey.D).Normalize();
+        }
+
+        public virtual bool IsInitiator
+        {
+            get { return mInitiator; }
+        }
+
+        public virtual ECPrivateKeyParameters StaticPrivateKey
+        {
+            get { return mStaticPrivateKey; }
+        }
+
+        public virtual ECPoint StaticPublicPoint
+        {
+            get { return mStaticPublicPoint; }
+        }
+
+        public virtual ECPrivateKeyParameters EphemeralPrivateKey
+        {
+            get { return mEphemeralPrivateKey; }
+        }
+
+        public virtual ECPoint EphemeralPublicPoint
+        {
+            get { return mEphemeralPublicPoint; }
+        }
+    }
+}
+#pragma warning restore
+#endif

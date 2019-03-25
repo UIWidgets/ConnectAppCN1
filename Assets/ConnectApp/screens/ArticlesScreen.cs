@@ -69,7 +69,7 @@ namespace ConnectApp.screens {
                             Icons.search,
                             size: 28,
                             color: Color.fromRGBO(181, 181, 181, 1))
-                     )
+                    )
                 },
                 CColors.White,
                 _offsetY);
@@ -80,21 +80,20 @@ namespace ConnectApp.screens {
                 onNotification: _onNotification,
                 child: new Container(
                     margin: EdgeInsets.only(bottom: 49),
-                    child: new StoreConnector<AppState, Dictionary<string,object>>(
-                        converter: (state, dispatch) => new Dictionary<string, object>{
-                            {"articlesLoading",state.articleState.articlesLoading},
-                            {"articleList",state.articleState.articleList}
+                    child: new StoreConnector<AppState, Dictionary<string, object>>(
+                        converter: (state, dispatch) => new Dictionary<string, object> {
+                            {"articlesLoading", state.articleState.articlesLoading},
+                            {"articleList", state.articleState.articleList}
                         },
                         builder: (context1, viewModel) => {
-                            var articlesLoading = (bool)viewModel["articlesLoading"];
-                            if (articlesLoading) {
+                            var articlesLoading = (bool) viewModel["articlesLoading"];
+                            if (articlesLoading)
                                 return ListView.builder(
                                     itemCount: 4,
                                     itemBuilder: (cxt, index) => new ArticleLoading()
                                 );
-                            }
-                            
-                            var articleList = (List<string>)viewModel["articleList"];
+
+                            var articleList = (List<string>) viewModel["articleList"];
                             var buildItems = _buildArticleCards(context, articleList);
                             var refreshPage = new Refresh(
                                 onHeaderRefresh: onHeaderRefresh,
@@ -124,8 +123,8 @@ namespace ConnectApp.screens {
                         articleList.Add(item.id);
                         articleDict.Add(item.id, item);
                     });
-                    StoreProvider.store.Dispatch(new UserMapAction{userMap = articlesResponse.userMap});
-                    StoreProvider.store.Dispatch(new TeamMapAction{teamMap = articlesResponse.teamMap});
+                    StoreProvider.store.Dispatch(new UserMapAction {userMap = articlesResponse.userMap});
+                    StoreProvider.store.Dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
                     StoreProvider.store.Dispatch(new FetchArticleSuccessAction
                         {ArticleDict = articleDict, ArticleList = articleList});
                 })
@@ -145,8 +144,8 @@ namespace ConnectApp.screens {
                                 articleDict.Add(item.id, item);
                             }
                         });
-                        StoreProvider.store.Dispatch(new UserMapAction{userMap = articlesResponse.userMap});
-                        StoreProvider.store.Dispatch(new TeamMapAction{teamMap = articlesResponse.teamMap});
+                        StoreProvider.store.Dispatch(new UserMapAction {userMap = articlesResponse.userMap});
+                        StoreProvider.store.Dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
                         StoreProvider.store.Dispatch(new FetchArticleSuccessAction
                             {ArticleDict = articleDict, ArticleList = articleList});
                     }
@@ -161,7 +160,7 @@ namespace ConnectApp.screens {
                 list.Add(new ArticleCard(
                     article,
                     () => {
-                        StoreProvider.store.Dispatch(new NavigatorToArticleDetailAction{detailId = id});
+                        StoreProvider.store.Dispatch(new NavigatorToArticleDetailAction {detailId = id});
                         Navigator.pushNamed(context, "/article-detail");
                     },
                     () => {
