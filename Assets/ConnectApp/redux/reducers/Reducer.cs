@@ -77,6 +77,7 @@ namespace ConnectApp.redux.reducers {
                                 loginInfo = loginInfo,
                                 context = action.context
                             });
+                            StoreProvider.store.Dispatch(new CleanEmailAndPasswordAction());
                         })
                         .Catch(error => {
                             Debug.Log(error);
@@ -104,6 +105,11 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.loginInfo = new LoginInfo();
                     state.loginState.isLoggedIn = false;
                     Router.navigator.pop();
+                    break;
+                }
+                case CleanEmailAndPasswordAction action: {
+                    state.loginState.email = "";
+                    state.loginState.password = "";
                     break;
                 }
                 case FetchArticlesAction action: {
