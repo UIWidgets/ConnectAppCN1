@@ -116,22 +116,58 @@ namespace ConnectApp.screens {
                                 new ArticleTabBar(
                                     articleDetail.like,
                                     () => {
-                                        ActionSheetUtils.showModalActionSheet(context, new CustomInput(
-                                            doneCallBack: text => {
-                                                StoreProvider.store.Dispatch(new SendCommentAction {
-                                                    channelId = articleDetail.channelId,
-                                                    content = text,
-                                                    nonce = Snowflake.CreateNonce()
-                                                });
-                                            })
-                                        );
+                                        if (!StoreProvider.store.state.loginState.isLoggedIn)
+                                        {
+                                            Navigator.pushNamed(context, "/login");
+                                        }
+                                        else
+                                        {
+                                            ActionSheetUtils.showModalActionSheet(context, new CustomInput(
+                                                doneCallBack: text => {
+                                                    StoreProvider.store.Dispatch(new SendCommentAction {
+                                                        channelId = articleDetail.channelId,
+                                                        content = text,
+                                                        nonce = Snowflake.CreateNonce()
+                                                    });
+                                                })
+                                            );
+                                        }
+                                        
                                     },
-                                    () => { ActionSheetUtils.showModalActionSheet(context, new CustomInput()); },
+                                    () =>
+                                    {
+                                        if (!StoreProvider.store.state.loginState.isLoggedIn)
+                                        {
+                                            Navigator.pushNamed(context, "/login");
+                                        }
+                                        else
+                                        {
+                                            ActionSheetUtils.showModalActionSheet(context, new CustomInput(
+                                                doneCallBack: text => {
+                                                    StoreProvider.store.Dispatch(new SendCommentAction {
+                                                        channelId = articleDetail.channelId,
+                                                        content = text,
+                                                        nonce = Snowflake.CreateNonce()
+                                                    });
+                                                })
+                                            );
+
+                                        }
+
+                                    },
                                     () => {
-                                        if (!articleDetail.like)
-                                            StoreProvider.store.Dispatch(new LikeArticleAction {
-                                                articleId = _article.id
-                                            });
+                                        if (!StoreProvider.store.state.loginState.isLoggedIn)
+                                        {
+                                            Navigator.pushNamed(context, "/login"); 
+                                        }
+                                        else
+                                        {
+                                            if (!articleDetail.like)
+                                                StoreProvider.store.Dispatch(new LikeArticleAction {
+                                                    articleId = _article.id
+                                                });
+                                        }
+                                        
                                     },
                                     shareCallback: () => { }
                                 )
@@ -296,13 +332,24 @@ namespace ConnectApp.screens {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: new List<Widget> {
                         new ActionCard(Icons.favorite, like ? "已赞" : "点赞", like, () => {
-                            if (!like)
-                                StoreProvider.store.Dispatch(new LikeArticleAction {
-                                    articleId = _article.id
-                                });
+                            if (!StoreProvider.store.state.loginState.isLoggedIn)
+                            {
+                                Navigator.pushNamed(context, "/login");                            }
+                            else
+                            {
+                                if (!like)
+                                    StoreProvider.store.Dispatch(new LikeArticleAction {
+                                        articleId = _article.id
+                                    });
+                            }
+
                         }),
                         new Container(width: 16),
-                        new ActionCard(Icons.share, "分享", false, () => { })
+                        new ActionCard(Icons.share, "分享", false, () =>
+                        {
+                            
+                            
+                        })
                     }
                 )
             );
