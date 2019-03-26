@@ -14,7 +14,7 @@ namespace ConnectApp.constants {
         public static readonly IconData more_vert = new IconData(0xe5d4, "Material Icons");
         public static readonly IconData close = new IconData(0xe5cd, "Material Icons");
         public static readonly IconData chevron_right = new IconData(0xe5cc, "Material Icons");
-        public static readonly IconData arrow_back = new IconData(0xe5c4, "Material Icons");
+        public static readonly IconData arrow_back = new IconData(0xe5e0, "Material Icons");
         public static readonly IconData share = new IconData(0xe80d, "Material Icons");
         public static readonly IconData settings = new IconData(0xe8b8, "Material Icons");
         public static readonly IconData ellipsis = new IconData(0xe5d3, "Material Icons");
