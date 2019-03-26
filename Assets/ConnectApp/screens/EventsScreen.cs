@@ -47,7 +47,7 @@ namespace ConnectApp.screens {
         }
 
 
-        private bool _onNotification(ScrollNotification notification, BuildContext context) {
+        private bool _onNotification(ScrollNotification notification) {
             var pixels = notification.metrics.pixels;
             if (pixels >= 0) {
                 if (pixels <= headerHeight) setState(() => { _offsetY = pixels / 2; });
@@ -71,14 +71,14 @@ namespace ConnectApp.screens {
                             CColors.White,
                             _offsetY
                         ),
-                        buildSelectView(context),
-                        buildContentView(context)
+                        _buildSelectView(context),
+                        _buildContentView(context)
                     }
                 )
             );
         }
 
-        private Widget buildSelectItem(BuildContext context, string title, int index) {
+        private Widget _buildSelectItem(string title, int index) {
             Widget lineView = new Positioned(new Container());
             if (index == _selectedIndex)
                 lineView = new Positioned(
@@ -128,7 +128,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget buildSelectView(BuildContext context) {
+        private Widget _buildSelectView(BuildContext context) {
             return new Container(
                 child: new Container(
                     decoration: new BoxDecoration(
@@ -138,7 +138,8 @@ namespace ConnectApp.screens {
                     child: new Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: new List<Widget> {
-                            buildSelectItem(context, "即将开始", 0), buildSelectItem(context, "往期活动", 1)
+                            _buildSelectItem("即将开始", 0), 
+                            _buildSelectItem("往期活动", 1)
                         }
                     )
                 )
@@ -244,7 +245,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget buildContentView(BuildContext context) {
+        private Widget _buildContentView(BuildContext context) {
             return new Flexible(
                 child: new Container(
                     padding: EdgeInsets.only(bottom: 49),

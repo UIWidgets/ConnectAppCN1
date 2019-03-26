@@ -60,7 +60,7 @@ namespace ConnectApp.screens {
                 new Text("文章", style: new TextStyle(
                     height: 1.25f,
                     fontSize: 32 / headerHeight * (headerHeight - _offsetY),
-                    fontFamily: "PingFang-Semibold",
+                    fontFamily: "Roboto-Bold",
                     color: CColors.TextTitle
                 )),
                 new List<Widget> {

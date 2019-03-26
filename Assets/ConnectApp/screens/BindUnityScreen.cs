@@ -12,7 +12,6 @@ using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
     public enum FromPage {
@@ -101,11 +100,7 @@ namespace ConnectApp.screens {
                                         },
                                         child: new Text(
                                             "跳过",
-                                            style: new TextStyle(
-                                                fontSize: 16,
-                                                fontFamily: "PingFang-Regular",
-                                                color: CColors.text3
-                                            )
+                                            style: CTextStyle.PLargeBody4
                                         )
                                     )
                                     : new CustomButton(
@@ -119,11 +114,7 @@ namespace ConnectApp.screens {
                                 new CustomButton(
                                     child: new Text(
                                         "创建 Unity ID",
-                                        style: new TextStyle(
-                                            fontSize: 16,
-                                            fontFamily: "PingFang-Medium",
-                                            color: CColors.PrimaryBlue
-                                        )
+                                        style: CTextStyle.PLargeMediumBlue
                                     )
                                 )
                             }
@@ -151,11 +142,7 @@ namespace ConnectApp.screens {
                         new Container(
                             child: new Text(
                                 "邮箱",
-                                style: new TextStyle(
-                                    fontSize: 14,
-                                    fontFamily: "PingFang-Medium",
-                                    color: CColors.text3
-                                )
+                                style: CTextStyle.PMediumBody4
                             )
                         ),
                         new Container(
@@ -178,11 +165,7 @@ namespace ConnectApp.screens {
                                             focusNode: _emailFocusNode,
                                             maxLines: 1,
                                             autofocus: true,
-                                            style: new TextStyle(
-                                                fontSize: 16,
-                                                fontFamily: "PingFang-Regular",
-                                                color: CColors.TextBody
-                                            ),
+                                            style: CTextStyle.PLargeBody,
                                             cursorColor: CColors.PrimaryBlue,
                                             clearButtonMode: InputFieldClearButtonMode.whileEditing,
                                             keyboardType: TextInputType.emailAddress,
@@ -203,11 +186,7 @@ namespace ConnectApp.screens {
                         new Container(
                             child: new Text(
                                 "密码",
-                                style: new TextStyle(
-                                    fontSize: 14,
-                                    fontFamily: "PingFang-Medium",
-                                    color: CColors.text3
-                                )
+                                style: CTextStyle.PMediumBody4
                             )
                         ),
                         new Container(
@@ -231,11 +210,7 @@ namespace ConnectApp.screens {
                                             maxLines: 1,
                                             autofocus: false,
                                             obscureText: true,
-                                            style: new TextStyle(
-                                                fontSize: 16,
-                                                fontFamily: "PingFang-Regular",
-                                                color: CColors.TextBody
-                                            ),
+                                            style: CTextStyle.PLargeBody,
                                             cursorColor: CColors.PrimaryBlue,
                                             clearButtonMode: InputFieldClearButtonMode.whileEditing,
                                             onChanged: text => {
@@ -308,11 +283,7 @@ namespace ConnectApp.screens {
                                                     child: new Text(
                                                         "确定",
                                                         maxLines: 1,
-                                                        style: new TextStyle(
-                                                            fontSize: 16,
-                                                            fontFamily: "PingFang-Regular",
-                                                            color: CColors.White
-                                                        )
+                                                        style: CTextStyle.PLargeWhite
                                                     )
                                                 ),
                                                 new Align(
@@ -329,11 +300,7 @@ namespace ConnectApp.screens {
                         new CustomButton(
                             child: new Text(
                                 "忘记密码",
-                                style: new TextStyle(
-                                    fontSize: 14,
-                                    fontFamily: "PingFang-Regular",
-                                    color: CColors.TextBody3
-                                )
+                                style: CTextStyle.PRegularBody3
                             )
                         )
                     }

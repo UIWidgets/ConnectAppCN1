@@ -91,7 +91,7 @@ namespace ConnectApp.components {
                                                             child: new InputField(
                                                                 height: 36,
                                                                 controller: _controller,
-                                                                style: CTextStyle.PLarge,
+                                                                style: CTextStyle.PLargeBody,
                                                                 maxLines: 2,
                                                                 autofocus: true,
                                                                 hintText: "友好的评论是交流的起点…",

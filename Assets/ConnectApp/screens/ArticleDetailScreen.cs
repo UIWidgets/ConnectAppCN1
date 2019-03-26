@@ -16,7 +16,6 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Avatar = ConnectApp.components.Avatar;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
     public class ArticleDetailScreen : StatefulWidget {
@@ -118,22 +117,58 @@ namespace ConnectApp.screens {
                                 new ArticleTabBar(
                                     articleDetail.like,
                                     () => {
-                                        ActionSheetUtils.showModalActionSheet(context, new CustomInput(
-                                            doneCallBack: text => {
-                                                StoreProvider.store.Dispatch(new SendCommentAction {
-                                                    channelId = articleDetail.channelId,
-                                                    content = text,
-                                                    nonce = Snowflake.CreateNonce()
-                                                });
-                                            })
-                                        );
+                                        if (!StoreProvider.store.state.loginState.isLoggedIn)
+                                        {
+                                            Navigator.pushNamed(context, "/login");
+                                        }
+                                        else
+                                        {
+                                            ActionSheetUtils.showModalActionSheet(context, new CustomInput(
+                                                doneCallBack: text => {
+                                                    StoreProvider.store.Dispatch(new SendCommentAction {
+                                                        channelId = articleDetail.channelId,
+                                                        content = text,
+                                                        nonce = Snowflake.CreateNonce()
+                                                    });
+                                                })
+                                            );
+                                        }
+                                        
                                     },
-                                    () => { ActionSheetUtils.showModalActionSheet(context, new CustomInput()); },
+                                    () =>
+                                    {
+                                        if (!StoreProvider.store.state.loginState.isLoggedIn)
+                                        {
+                                            Navigator.pushNamed(context, "/login");
+                                        }
+                                        else
+                                        {
+                                            ActionSheetUtils.showModalActionSheet(context, new CustomInput(
+                                                doneCallBack: text => {
+                                                    StoreProvider.store.Dispatch(new SendCommentAction {
+                                                        channelId = articleDetail.channelId,
+                                                        content = text,
+                                                        nonce = Snowflake.CreateNonce()
+                                                    });
+                                                })
+                                            );
+
+                                        }
+
+                                    },
                                     () => {
-                                        if (!articleDetail.like)
-                                            StoreProvider.store.Dispatch(new LikeArticleAction {
-                                                articleId = _article.id
-                                            });
+                                        if (!StoreProvider.store.state.loginState.isLoggedIn)
+                                        {
+                                            Navigator.pushNamed(context, "/login"); 
+                                        }
+                                        else
+                                        {
+                                            if (!articleDetail.like)
+                                                StoreProvider.store.Dispatch(new LikeArticleAction {
+                                                    articleId = _article.id
+                                                });
+                                        }
+                                        
                                     },
                                     shareCallback: () => { }
                                 )
@@ -181,9 +216,10 @@ namespace ConnectApp.screens {
                             border: Border.all(CColors.PrimaryBlue)
                         ),
                         alignment: Alignment.center,
-                        child: new Text("说点想法",
-                            style: new TextStyle(color: CColors.PrimaryBlue, fontSize: 14,
-                                fontFamily: "PingFangSC-Medium"))
+                        child: new Text(
+                            "说点想法",
+                            style: CTextStyle.PMediumBlue
+                        )
                     )
                 }, CColors.White, 52);
         }
@@ -237,7 +273,7 @@ namespace ConnectApp.screens {
                             margin: EdgeInsets.only(top: 8),
                             child: new Text(
                                 $"阅读 {_article.viewCount} · {DateConvert.DateStringFromNow(_article.createdTime)}",
-                                style: CTextStyle.TextBody4
+                                style: CTextStyle.PSmallBody4
                             )
                         ),
                         new Container(
@@ -255,11 +291,11 @@ namespace ConnectApp.screens {
                                             new Container(height: 5),
                                             new Text(
                                                 text,
-                                                style: CTextStyle.PRegular
+                                                style: CTextStyle.PRegularBody
                                             ),
                                             new Text(
                                                 DateConvert.DateStringFromNow(_article.createdTime),
-                                                style: CTextStyle.TextBody3
+                                                style: CTextStyle.PSmallBody3
                                             )
                                         }
                                     )
@@ -297,13 +333,24 @@ namespace ConnectApp.screens {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: new List<Widget> {
                         new ActionCard(Icons.favorite, like ? "已赞" : "点赞", like, () => {
-                            if (!like)
-                                StoreProvider.store.Dispatch(new LikeArticleAction {
-                                    articleId = _article.id
-                                });
+                            if (!StoreProvider.store.state.loginState.isLoggedIn)
+                            {
+                                Navigator.pushNamed(context, "/login");                            }
+                            else
+                            {
+                                if (!like)
+                                    StoreProvider.store.Dispatch(new LikeArticleAction {
+                                        articleId = _article.id
+                                    });
+                            }
+
                         }),
                         new Container(width: 16),
-                        new ActionCard(Icons.share, "分享", false, () => { })
+                        new ActionCard(Icons.share, "分享", false, () =>
+                        {
+                            
+                            
+                        })
                     }
                 )
             );

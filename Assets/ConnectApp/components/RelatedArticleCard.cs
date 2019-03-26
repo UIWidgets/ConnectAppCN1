@@ -10,7 +10,6 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using Image = Unity.UIWidgets.widgets.Image;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
     public class RelatedArticleCard : StatelessWidget {
@@ -51,19 +50,14 @@ namespace ConnectApp.components {
                                     children: new List<Widget> {
                                         new Text(
                                             article.title,
-                                            style: new TextStyle(
-                                                height: 1.5f,
-                                                fontSize: 16,
-                                                fontFamily: "PingFang-Regular",
-                                                color: CColors.TextTitle
-                                            ),
+                                            style: CTextStyle.PLargeTitle,
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
                                             textAlign: TextAlign.left
                                         ),
                                         new Text(
                                             $"{username} · {DateConvert.DateStringFromNow(article.updatedTime)} · 阅读 {article.viewCount}",
-                                            style: CTextStyle.TextBody3,
+                                            style: CTextStyle.PSmallBody3,
                                             textAlign: TextAlign.left
                                         )
                                     }

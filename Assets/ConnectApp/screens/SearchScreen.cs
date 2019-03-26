@@ -157,27 +157,15 @@ namespace ConnectApp.screens {
                             onPressed: () => { Router.navigator.pop(); },
                             child: new Text(
                                 "取消",
-                                style: new TextStyle(
-                                    color: CColors.PrimaryBlue,
-                                    fontFamily: "PingFang-Regular",
-                                    fontSize: 16
-                                )
+                                style: CTextStyle.PLargeBlue
                             )
                         ),
                         new InputField(
                             controller: _controller,
-                            style: new TextStyle(
-                                fontSize: 32,
-                                fontFamily: "PingFang-Semibold",
-                                color: CColors.TextTitle
-                            ),
+                            style: CTextStyle.H2,
                             autofocus: true,
                             hintText: "搜索",
-                            hintStyle: new TextStyle(
-                                fontSize: 32,
-                                fontFamily: "PingFang-Semibold",
-                                color: CColors.TextBody4
-                            ),
+                            hintStyle: CTextStyle.H2Body4,
                             cursorColor: CColors.PrimaryBlue,
                             textInputAction: TextInputAction.search,
                             clearButtonMode: InputFieldClearButtonMode.whileEditing,
@@ -208,11 +196,7 @@ namespace ConnectApp.screens {
                         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                         child: new Text(
                             item,
-                            style: new TextStyle(
-                                fontSize: 16,
-                                color: CColors.TextBody,
-                                fontFamily: "PingFang-Regular"
-                            )
+                            style: CTextStyle.PLargeBody
                         )
                     )
                 );
@@ -228,11 +212,7 @@ namespace ConnectApp.screens {
                             margin: EdgeInsets.only(bottom: 16),
                             child: new Text(
                                 "热门搜索",
-                                style: new TextStyle(
-                                    fontSize: 18,
-                                    fontFamily: "PingFang-Regular",
-                                    color: CColors.TextBody4
-                                )
+                                style: CTextStyle.PXLargeBody4
                             )
                         ),
                         new Wrap(
@@ -257,22 +237,14 @@ namespace ConnectApp.screens {
                         children: new List<Widget> {
                             new Text(
                                 "搜索历史",
-                                style: new TextStyle(
-                                    fontSize: 18,
-                                    fontFamily: "PingFang-Regular",
-                                    color: CColors.TextBody4
-                                )
+                                style: CTextStyle.PXLargeBody4
                             ),
                             new CustomButton(
                                 padding: EdgeInsets.only(8, 8, 0, 8),
                                 onPressed: _deleteAllSearchHistory,
                                 child: new Text(
                                     "清空",
-                                    style: new TextStyle(
-                                        fontSize: 14,
-                                        fontFamily: "PingFang-Regular",
-                                        color: CColors.TextBody4
-                                    )
+                                    style: CTextStyle.PRegularBody4
                                 )
                             )
                         }
@@ -290,11 +262,7 @@ namespace ConnectApp.screens {
                             children: new List<Widget> {
                                 new Text(
                                     item,
-                                    style: new TextStyle(
-                                        fontSize: 16,
-                                        fontFamily: "PingFang-Regular",
-                                        color: CColors.TextBody
-                                    )
+                                    style: CTextStyle.PLargeBody
                                 ),
                                 new CustomButton(
                                     padding: EdgeInsets.only(8, 8, 0, 8),

@@ -26,7 +26,6 @@ namespace ConnectApp.screens {
     }
 
     internal class _EventDetailScreenState : State<EventDetailScreen> {
-        private string _eventId;
 
         public override void initState() {
             base.initState();
@@ -93,14 +92,14 @@ namespace ConnectApp.screens {
                                                     child: new Icon(
                                                         Icons.arrow_back,
                                                         size: 28,
-                                                        color: CColors.icon1
+                                                        color: CColors.White
                                                     )
                                                 ),
                                                 new CustomButton(
                                                     child: new Icon(
                                                         Icons.share,
                                                         size: 28,
-                                                        color: CColors.icon1
+                                                        color: CColors.White
                                                     ),
                                                     onPressed: () => {
                                                         ShareUtils.showShareView(context, new ShareView());
@@ -238,11 +237,7 @@ namespace ConnectApp.screens {
                             children: new List<Widget> {
                                 new Text(
                                     buttonText,
-                                    style: new TextStyle(
-                                        color: CColors.White,
-                                        fontSize: 16,
-                                        fontFamily: "PingFang-Medium"
-                                    )
+                                    style: CTextStyle.PLargeMediumWhite
                                 )
                             }
                         )
