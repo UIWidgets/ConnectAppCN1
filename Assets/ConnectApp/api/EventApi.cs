@@ -7,19 +7,20 @@ using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.ui;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace ConnectApp.api {
     public static class EventApi {
-        public static IPromise<List<IEvent>> FetchEvents(int pageNumber, string tab) {
+        public static IPromise<FetchEventsResponse> FetchEvents(int pageNumber, string tab) {
             // We return a promise instantly and start the coroutine to do the real work
-            var promise = new Promise<List<IEvent>>();
+            var promise = new Promise<FetchEventsResponse>();
             Window.instance.startCoroutine(_FetchEvents(promise, pageNumber, tab));
             return promise;
         }
 
-        private static IEnumerator _FetchEvents(Promise<List<IEvent>> promise, int pageNumber, string tab) {
-            var request = UnityWebRequest.Get(IApi.apiAddress + $"/api/live/events?tab={tab}&page={pageNumber}");
+        private static IEnumerator _FetchEvents(Promise<FetchEventsResponse> promise, int pageNumber, string tab) {
+            var request = UnityWebRequest.Get(IApi.apiAddress + $"/api/events?tab={tab}&page={pageNumber}");
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
 #pragma warning disable 618
             yield return request.Send();
@@ -36,7 +37,7 @@ namespace ConnectApp.api {
             else {
                 // Format output and resolve promise
                 var json = request.downloadHandler.text;
-                var events = JsonConvert.DeserializeObject<List<IEvent>>(json);
+                var events = JsonConvert.DeserializeObject<FetchEventsResponse>(json);
                 if (events != null)
                     promise.Resolve(events);
                 else

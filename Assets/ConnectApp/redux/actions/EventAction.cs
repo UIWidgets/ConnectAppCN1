@@ -11,6 +11,7 @@ namespace ConnectApp.redux.actions {
         public List<IEvent> events;
         public int pageNumber = 0;
         public string tab;
+        public int total = 0;
     }
 
     public class FetchEventDetailAction : RequestAction {

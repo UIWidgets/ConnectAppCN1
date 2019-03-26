@@ -36,7 +36,7 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            if (StoreProvider.store.state.eventState.events.Count == 0) {
+            if (StoreProvider.store.state.eventState.ongoingEvents.Count == 0) {
                 StoreProvider.store.Dispatch(new FetchEventsAction {pageNumber = 1, tab = "ongoing"});
                 StoreProvider.store.Dispatch(new FetchEventsAction {pageNumber = 1, tab = "completed"});
             }
@@ -145,49 +145,50 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _ongoingEventList(BuildContext context) {
+        private Widget _buildOngoingEventList(BuildContext context) {
             return new Container(
                 child: new StoreConnector<AppState, Dictionary<string, object>>(
                     converter: (state, dispatch) => new Dictionary<string, object> {
                         {"loading", state.eventState.eventsLoading},
-                        {"events", state.eventState.events},
-                        {"eventDict", state.eventState.eventDict}
+                        {"ongoingEvents", state.eventState.ongoingEvents},
+                        {"ongoingEventDict", state.eventState.ongoingEventDict},
+                        {"ongoingEventTotal", state.eventState.ongoingEventTotal}
                     },
                     builder: (context1, viewModel) => {
                         var loading = (bool) viewModel["loading"];
-                        var events = viewModel["events"] as List<string>;
-                        var eventDict = viewModel["eventDict"] as Dictionary<string, IEvent>;
-                        var cardList = new List<Widget>();
-                        var eventObjs = new List<IEvent>();
                         if (loading) return new GlobalLoading();
-                        if (events != null && events.Count > 0)
-                            events.ForEach(eventId => {
-                                if (eventDict != null && eventDict.ContainsKey(eventId))
-                                    eventObjs.Add(eventDict[eventId]);
-                            });
-                        if (!loading)
-                            eventObjs.ForEach(model => {
-                                cardList.Add(new EventCard(
-                                    model,
-                                    () => {
-                                        StoreProvider.store.Dispatch(new NavigatorToEventDetailAction {
-                                            eventId = model.id,
-                                            eventType = model.live ? EventType.onLine : EventType.offline
-                                        });
-                                        Navigator.pushNamed(context, "/event-detail");
-                                    }, new ObjectKey(model.id)));
-                            });
-                        else
-                            cardList.Add(new Container());
+                        
+                        var ongoingEvents = viewModel["ongoingEvents"] as List<string>;
+                        var ongoingEventDict = viewModel["ongoingEventDict"] as Dictionary<string, IEvent>;
+                        var ongoingEventTotal = (int) viewModel["ongoingEventTotal"];
+
+                        RefresherCallback onFooterCallback = null;
+                        if (ongoingEvents.Count < ongoingEventTotal) {
+                            onFooterCallback = onFooterRefresh;
+                        }
                         return new Refresh(
                             onHeaderRefresh: onHeaderRefresh,
-                            onFooterRefresh: onFooterRefresh,
+                            onFooterRefresh: onFooterCallback,
                             headerBuilder: (cxt, controller) => new RefreshHeader(controller),
                             footerBuilder: (cxt, controller) => new RefreshFooter(controller),
                             child: ListView.builder(
                                 physics: new AlwaysScrollableScrollPhysics(),
-                                itemCount: cardList.Count,
-                                itemBuilder: (cxt, index) => cardList[index]
+                                itemCount: ongoingEvents.Count,
+                                itemBuilder: (cxt, index) => {
+                                    var eventId = ongoingEvents[index];
+                                    var model = ongoingEventDict[eventId];
+                                    return new EventCard(
+                                        model,
+                                        () => {
+                                            StoreProvider.store.Dispatch(new NavigatorToEventDetailAction {
+                                                eventId = model.id,
+                                                eventType = model.mode == "online" ? EventType.onLine : EventType.offline
+                                            });
+                                            Navigator.pushNamed(context, "/event-detail");
+                                        },
+                                        new ObjectKey(model.id)
+                                    );
+                                }
                             )
                         );
                     }
@@ -195,48 +196,50 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _completedEventList(BuildContext context) {
+        private Widget _buildCompletedEventList(BuildContext context) {
             return new Container(
                 child: new StoreConnector<AppState, Dictionary<string, object>>(
                     converter: (state, dispatch) => new Dictionary<string, object> {
                         {"loading", state.eventState.eventsLoading},
                         {"completedEvents", state.eventState.completedEvents},
-                        {"completedEventDict", state.eventState.completedEventDict}
+                        {"completedEventDict", state.eventState.completedEventDict},
+                        {"completedEventTotal", state.eventState.completedEventTotal}
                     },
                     builder: (context1, viewModel) => {
                         var loading = (bool) viewModel["loading"];
-                        var events = viewModel["completedEvents"] as List<string>;
-                        var eventDict = viewModel["completedEventDict"] as Dictionary<string, IEvent>;
-                        var cardList = new List<Widget>();
-                        var eventObjs = new List<IEvent>();
                         if (loading) return new GlobalLoading();
-                        if (events != null && events.Count > 0)
-                            events.ForEach(eventId => {
-                                if (eventDict != null && eventDict.ContainsKey(eventId))
-                                    eventObjs.Add(eventDict[eventId]);
-                            });
-                        if (!loading)
-                            eventObjs.ForEach(model => {
-                                cardList.Add(new EventCard(
-                                    model,
-                                    () => {
-                                        StoreProvider.store.Dispatch(new NavigatorToEventDetailAction {
-                                            eventId = model.id,
-                                            eventType = model.live ? EventType.onLine : EventType.offline
-                                        });
-                                        Navigator.pushNamed(context, "/event-detail");
-                                    }));
-                            });
-                        else
-                            cardList.Add(new Container());
+                        
+                        var completedEvents = viewModel["completedEvents"] as List<string>;
+                        var completedEventDict = viewModel["completedEventDict"] as Dictionary<string, IEvent>;
+                        var completedEventTotal = (int) viewModel["completedEventTotal"];
+
+                        RefresherCallback onFooterCallback = null;
+                        if (completedEvents.Count < completedEventTotal) {
+                            onFooterCallback = onFooterRefresh;
+                        }
+                        
                         return new Refresh(
                             onHeaderRefresh: onHeaderRefresh,
-                            onFooterRefresh: onFooterRefresh,
+                            onFooterRefresh: onFooterCallback,
                             headerBuilder: (cxt, controller) => new RefreshHeader(controller),
                             footerBuilder: (cxt, controller) => new RefreshFooter(controller),
-                            child: new ListView(
+                            child: ListView.builder(
                                 physics: new AlwaysScrollableScrollPhysics(),
-                                children: cardList
+                                itemCount: completedEvents.Count,
+                                itemBuilder: (cxt, index) => {
+                                    var eventId = completedEvents[index];
+                                    var model = completedEventDict[eventId];
+                                    return new EventCard(
+                                        model,
+                                        () => {
+                                            StoreProvider.store.Dispatch(new NavigatorToEventDetailAction {
+                                                eventId = model.id,
+                                                eventType = model.mode == "online" ? EventType.onLine: EventType.offline
+                                            });
+                                            Navigator.pushNamed(context, "/event-detail");
+                                        }
+                                    );
+                                }
                             )
                         );
                     }
@@ -253,7 +256,8 @@ namespace ConnectApp.screens {
                         controller: _pageController,
                         onPageChanged: index => { setState(() => { _selectedIndex = index; }); },
                         children: new List<Widget> {
-                            _ongoingEventList(context), _completedEventList(context)
+                            _buildOngoingEventList(context),
+                            _buildCompletedEventList(context)
                         }
                     )
                 )
@@ -268,9 +272,9 @@ namespace ConnectApp.screens {
 
             var tab = _selectedIndex == 0 ? "ongoing" : "completed";
             return EventApi.FetchEvents(_selectedIndex == 0 ? pageNumber : completedPageNumber, tab)
-                .Then(events => {
+                .Then(eventsResponse => {
                     StoreProvider.store.Dispatch(new FetchEventsSuccessAction
-                        {events = events, tab = tab, pageNumber = 1});
+                        {events = eventsResponse.events.items, tab = tab, pageNumber = 1, total = eventsResponse.events.total});
                 })
                 .Catch(error => { Debug.Log(error); });
         }
@@ -282,8 +286,8 @@ namespace ConnectApp.screens {
                 completedPageNumber++;
             var tab = _selectedIndex == 0 ? "ongoing" : "completed";
             return EventApi.FetchEvents(_selectedIndex == 0 ? pageNumber : completedPageNumber, tab)
-                .Then(events => {
-                    StoreProvider.store.Dispatch(new FetchEventsSuccessAction {events = events, tab = tab});
+                .Then(eventsResponse => {
+                    StoreProvider.store.Dispatch(new FetchEventsSuccessAction {events = eventsResponse.events.items, tab = tab, total = eventsResponse.events.total});
                 })
                 .Catch(error => { Debug.Log(error); });
         }

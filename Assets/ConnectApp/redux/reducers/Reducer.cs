@@ -99,7 +99,7 @@ namespace ConnectApp.redux.reducers {
                 case FetchArticlesAction action: {
                     state.articleState.articlesLoading = true;
                     ArticleApi.FetchArticles(action.pageNumber)
-                        .Then((articlesResponse) => {
+                        .Then(articlesResponse => {
                             var articleList = new List<string>();
                             var articleDict = new Dictionary<string, Article>();
                             articlesResponse.items.ForEach(item => {
@@ -110,7 +110,7 @@ namespace ConnectApp.redux.reducers {
                                 {userMap = articlesResponse.userMap});
                             StoreProvider.store.Dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
                             StoreProvider.store.Dispatch(new FetchArticleSuccessAction
-                                {ArticleDict = articleDict, ArticleList = articleList});
+                                {ArticleDict = articleDict, ArticleList = articleList, total = articlesResponse.total});
                         })
                         .Catch(error => { Debug.Log(error); });
                     break;
@@ -118,6 +118,7 @@ namespace ConnectApp.redux.reducers {
                 case FetchArticleSuccessAction action: {
                     state.articleState.articleList = action.ArticleList;
                     state.articleState.articleDict = action.ArticleDict;
+                    state.articleState.articleTotal = action.total;
                     state.articleState.articlesLoading = false;
                     break;
                 }
@@ -350,9 +351,10 @@ namespace ConnectApp.redux.reducers {
                 case FetchEventsAction action: {
                     state.eventState.eventsLoading = true;
                     EventApi.FetchEvents(action.pageNumber, action.tab)
-                        .Then(events => {
+                        .Then(eventsResponse => {
+                            StoreProvider.store.Dispatch(new UserMapAction {userMap = eventsResponse.userMap});
                             StoreProvider.store.Dispatch(new FetchEventsSuccessAction
-                                {events = events, tab = action.tab});
+                                {events = eventsResponse.events.items, tab = action.tab, total = eventsResponse.events.total});
                         })
                         .Catch(error => {
                             state.eventState.eventsLoading = false;
@@ -362,24 +364,25 @@ namespace ConnectApp.redux.reducers {
                 }
                 case FetchEventsSuccessAction action: {
                     state.eventState.eventsLoading = false;
+                    if (action.tab == "ongoing")
+                        state.eventState.ongoingEventTotal = action.total;
+                    else
+                        state.eventState.completedEventTotal = action.total;
+                    
                     if (action.pageNumber == 1) {
                         if (action.tab == "ongoing")
-                            state.eventState.events.Clear();
+                            state.eventState.ongoingEvents.Clear();
                         else
                             state.eventState.completedEvents.Clear();
                     }
 
                     action.events.ForEach(eventObj => {
-                        var userMap = new Dictionary<string, User> {
-                            {eventObj.user.id, eventObj.user}
-                        };
-                        StoreProvider.store.Dispatch(new UserMapAction {userMap = userMap});
                         if (action.tab == "ongoing") {
-                            state.eventState.events.Add(eventObj.id);
-                            if (state.eventState.eventDict.ContainsKey(eventObj.id))
-                                state.eventState.eventDict[eventObj.id] = eventObj;
+                            state.eventState.ongoingEvents.Add(eventObj.id);
+                            if (state.eventState.ongoingEventDict.ContainsKey(eventObj.id))
+                                state.eventState.ongoingEventDict[eventObj.id] = eventObj;
                             else
-                                state.eventState.eventDict.Add(eventObj.id, eventObj);
+                                state.eventState.ongoingEventDict.Add(eventObj.id, eventObj);
                         }
                         else {
                             state.eventState.completedEvents.Add(eventObj.id);
@@ -410,7 +413,7 @@ namespace ConnectApp.redux.reducers {
                     };
                     action.eventObj.hosts.ForEach(host => userMap.Add(host.id, host));
                     StoreProvider.store.Dispatch(new UserMapAction {userMap = userMap});
-                    state.eventState.eventDict[action.eventObj.id] = action.eventObj;
+                    state.eventState.ongoingEventDict[action.eventObj.id] = action.eventObj;
                     state.eventState.detailId = action.eventObj.id;
                     StoreProvider.store.Dispatch(new SaveEventHistoryAction {eventObj = action.eventObj});
                     break;
@@ -467,9 +470,9 @@ namespace ConnectApp.redux.reducers {
                 }
                 case JoinEventSuccessAction action: {
                     state.eventState.joinEventLoading = false;
-                    var eventObj = state.eventState.eventDict[action.eventId];
+                    var eventObj = state.eventState.ongoingEventDict[action.eventId];
                     eventObj.userIsCheckedIn = true;
-                    state.eventState.eventDict[action.eventId] = eventObj;
+                    state.eventState.ongoingEventDict[action.eventId] = eventObj;
                     break;
                 }
                 case FetchNotificationsAction action: {

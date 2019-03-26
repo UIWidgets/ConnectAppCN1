@@ -8,6 +8,8 @@ namespace ConnectApp.models {
         public bool articleDetailLoading { get; set; }
 
         public List<string> articleList { get; set; }
+        
+        public int articleTotal { get; set; }
 
         public string detailId { get; set; }
 

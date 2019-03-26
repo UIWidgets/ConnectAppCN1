@@ -30,12 +30,12 @@ namespace ConnectApp.screens {
 
     public class _ArticleScreenState : State<ArticleScreen> {
         private const float headerHeight = 140;
-        private float _offsetY = 0;
+        private float _offsetY;
         private int pageNumber = 1;
 
         public override void initState() {
             base.initState();
-
+            _offsetY = 0;
             if (StoreProvider.store.state.articleState.articleList.Count == 0)
                 StoreProvider.store.Dispatch(new FetchArticlesAction {pageNumber = pageNumber});
         }
@@ -84,7 +84,9 @@ namespace ConnectApp.screens {
                     child: new StoreConnector<AppState, Dictionary<string, object>>(
                         converter: (state, dispatch) => new Dictionary<string, object> {
                             {"articlesLoading", state.articleState.articlesLoading},
-                            {"articleList", state.articleState.articleList}
+                            {"articleList", state.articleState.articleList},
+                            {"articleDict", state.articleState.articleDict},
+                            {"articleTotal", state.articleState.articleTotal}
                         },
                         builder: (context1, viewModel) => {
                             var articlesLoading = (bool) viewModel["articlesLoading"];
@@ -95,16 +97,41 @@ namespace ConnectApp.screens {
                                 );
 
                             var articleList = (List<string>) viewModel["articleList"];
-                            var buildItems = _buildArticleCards(context, articleList);
+                            var articleDict = (Dictionary<string, Article>) viewModel["articleDict"];
+                            var articleTotal = (int) viewModel["articleTotal"];
+                            RefresherCallback onFooterCallback= null;
+                            if (articleList.Count < articleTotal) {
+                                onFooterCallback = onFooterRefresh;
+                            }
                             var refreshPage = new Refresh(
                                 onHeaderRefresh: onHeaderRefresh,
-                                onFooterRefresh: onFooterRefresh,
+                                onFooterRefresh: onFooterCallback,
                                 headerBuilder: (cxt, controller) => new RefreshHeader(controller),
                                 footerBuilder: (cxt, controller) => new RefreshFooter(controller),
                                 child: ListView.builder(
                                     physics: new AlwaysScrollableScrollPhysics(),
-                                    itemCount: buildItems.Count,
-                                    itemBuilder: (cxt, index) => buildItems[index]
+                                    itemCount: articleList.Count,
+                                    itemBuilder: (cxt, index) => {
+                                        var articleId = articleList[index];
+                                        var article = articleDict[articleId];
+                                        return new ArticleCard(
+                                            article,
+                                            () => {
+                                                StoreProvider.store.Dispatch(new NavigatorToArticleDetailAction
+                                                    {detailId = articleId});
+                                                Navigator.pushNamed(context, "/article-detail");
+                                            },
+                                            () => {
+                                                ActionSheetUtils.showModalActionSheet(context, new ActionSheet(
+                                                    items: new List<ActionSheetItem> {
+                                                        new ActionSheetItem("举报", ActionType.destructive, () => { }),
+                                                        new ActionSheetItem("取消", ActionType.cancel)
+                                                    }
+                                                ));
+                                            },
+                                            new ObjectKey(article.id)
+                                        );
+                                    }
                                 )
                             );
                             return refreshPage;
@@ -127,9 +154,9 @@ namespace ConnectApp.screens {
                     StoreProvider.store.Dispatch(new UserMapAction {userMap = articlesResponse.userMap});
                     StoreProvider.store.Dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
                     StoreProvider.store.Dispatch(new FetchArticleSuccessAction
-                        {ArticleDict = articleDict, ArticleList = articleList});
+                        {ArticleDict = articleDict, ArticleList = articleList, total = articlesResponse.total});
                 })
-                .Catch(error => { Debug.Log(error); });
+                .Catch(error => { Debug.Log($"{error}"); });
         }
 
         private IPromise onFooterRefresh() {
@@ -148,36 +175,11 @@ namespace ConnectApp.screens {
                         StoreProvider.store.Dispatch(new UserMapAction {userMap = articlesResponse.userMap});
                         StoreProvider.store.Dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
                         StoreProvider.store.Dispatch(new FetchArticleSuccessAction
-                            {ArticleDict = articleDict, ArticleList = articleList});
+                            {ArticleDict = articleDict, ArticleList = articleList, total = articlesResponse.total});
                     }
                 })
-                .Catch(error => { Debug.Log(error); });
+                .Catch(error => { Debug.Log($"{error}"); });
         }
-
-        private static List<Widget> _buildArticleCards(BuildContext context, List<string> items) {
-            var list = new List<Widget>();
-            items.ForEach(id => {
-                var article = StoreProvider.store.state.articleState.articleDict[id];
-                list.Add(new ArticleCard(
-                    article,
-                    () => {
-                        StoreProvider.store.Dispatch(new NavigatorToArticleDetailAction {detailId = id});
-                        Navigator.pushNamed(context, "/article-detail");
-                    },
-                    () => {
-                        ActionSheetUtils.showModalActionSheet(context, new ActionSheet(
-                            items: new List<ActionSheetItem> {
-                                new ActionSheetItem("举报", ActionType.destructive, () => { }),
-                                new ActionSheetItem("取消", ActionType.cancel)
-                            }
-                        ));
-                    },
-                    new ObjectKey(article.id)
-                ));
-            });
-            return list;
-        }
-
 
         private bool _onNotification(ScrollNotification notification) {
             var pixels = notification.metrics.pixels;

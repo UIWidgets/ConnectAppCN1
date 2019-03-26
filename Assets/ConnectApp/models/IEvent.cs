@@ -6,18 +6,29 @@ namespace ConnectApp.models {
     public class IEvent {
         public string id;
         public User user;
+        public string userId;
         public string title;
+        public string avatar;
         public string background;
+        public string mode;
+        public TimeMap begin;
+        public string address;
         public int participantsCount;
         public int onlineMemberCount;
         public int recordWatchCount;
         public DateTime createdTime;
         public string shortDescription;
-        public bool live;
         public bool userIsCheckedIn;
         public string channelId;
         public List<User> hosts;
         public string content;
         public Dictionary<string, ContentMap> contentMap;
     }
+    
+    [Serializable]
+    public class TimeMap {
+        public DateTime startTime;
+        public DateTime endTime;
+    }
+    
 }

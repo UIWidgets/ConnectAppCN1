@@ -122,7 +122,7 @@ namespace ConnectApp.components {
                     )
                 ),
                 child: new Text(
-                    title,
+                    title.ToUpper(),
                     style: new TextStyle(
                         color: CColors.White,
                         fontSize: size * 0.45f

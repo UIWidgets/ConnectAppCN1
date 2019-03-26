@@ -11,7 +11,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 namespace ConnectApp.api {
-    public class ArticleApi {
+    public static class ArticleApi {
         // Article Api
         public static Promise<FetchArticlesResponse> FetchArticles(int pageNumber) {
             // We return a promise instantly and start the coroutine to do the real work
