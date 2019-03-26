@@ -68,9 +68,6 @@ namespace ConnectApp.screens {
                         physics: new AlwaysScrollableScrollPhysics(),
                         children: new List<Widget> {
                             _buildGapView(),
-                            _buildCellView("修改手机", () => { }),
-                            _buildCellView("修改密码", () => { }),
-                            _buildGapView(),
                             _buildCellView("评分", () => { }),
                             _buildCellView("意见反馈", () => { }),
                             _buildCellView("关于我们", () => { }),
