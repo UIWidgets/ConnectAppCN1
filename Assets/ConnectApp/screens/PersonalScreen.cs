@@ -85,10 +85,7 @@ namespace ConnectApp.screens {
                     child: new Text(loginInfo.userFullName, style: CTextStyle.H2)
                 ),
                 new List<Widget> {
-                    new ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: new Avatar(loginInfo.userId,40)
-                    )
+                    new Avatar(loginInfo.userId,40)
                 },
                 CColors.White,
                 0

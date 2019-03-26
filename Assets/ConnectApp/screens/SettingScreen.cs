@@ -105,7 +105,9 @@ namespace ConnectApp.screens {
                         title: "确定退出当前账号吗？",
                         items: new List<ActionSheetItem> {
                             new ActionSheetItem("退出", ActionType.destructive,
-                                () => { StoreProvider.store.Dispatch(new LogoutAction {context = context}); }),
+                                () => {
+                                    StoreProvider.store.Dispatch(new LogoutAction {context = context});
+                                }),
                             new ActionSheetItem("取消", ActionType.cancel, () => { })
                         }
                     ));
