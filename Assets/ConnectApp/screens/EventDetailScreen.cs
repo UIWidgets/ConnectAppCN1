@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
@@ -87,7 +88,7 @@ namespace ConnectApp.screens {
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: new List<Widget> {
                                                 new CustomButton(
-                                                    onPressed: () => Navigator.pop(context),
+                                                    onPressed: () => Router.navigator.pop(),
                                                     child: new Icon(
                                                         Icons.arrow_back,
                                                         size: 28,
@@ -224,7 +225,7 @@ namespace ConnectApp.screens {
                         if (isLoggedIn)
                             StoreProvider.store.Dispatch(new JoinEventAction {eventId = eventObj.id});
                         else
-                            Navigator.pushNamed(context, "/login");
+                            Router.navigator.pushNamed("/login");
                     },
                     child: new Container(
                         decoration: new BoxDecoration(

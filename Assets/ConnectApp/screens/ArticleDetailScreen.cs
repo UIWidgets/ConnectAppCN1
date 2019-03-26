@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.api;
+using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.components.refresh;
 using ConnectApp.constants;
@@ -202,7 +203,7 @@ namespace ConnectApp.screens {
             return new CustomNavigationBar(
                 new GestureDetector(
                     onTap: () => {
-                        Navigator.pop(context);
+                        Router.navigator.pop();
                         StoreProvider.store.Dispatch(new ClearEventDetailAction());
                     },
                     child: new Icon(Icons.arrow_back, size: 28, color: CColors.icon3)
@@ -371,7 +372,7 @@ namespace ConnectApp.screens {
                     article,
                     () => {
                         StoreProvider.store.Dispatch(new NavigatorToArticleDetailAction {detailId = article.id});
-                        Navigator.pushNamed(context, "/article-detail");
+                        Router.navigator.pushNamed("/article-detail");
                     }
                 ));
             });

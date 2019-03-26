@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.api;
+using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.models;
 using ConnectApp.redux.actions;
+using ConnectApp.screens;
 using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
@@ -77,8 +79,7 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.loading = false;
                     state.loginState.loginInfo = action.loginInfo;
                     state.loginState.isLoggedIn = true;
-                    Navigator.pop(action.context);
-                    Navigator.pop(action.context);
+                    Router.navigator.pop();
                     break;
                 }
                 case LoginByEmailFailedAction action: {
@@ -93,7 +94,7 @@ namespace ConnectApp.redux.reducers {
                 case LogoutAction action: {
                     state.loginState.loginInfo = new LoginInfo();
                     state.loginState.isLoggedIn = false;
-                    Navigator.pop(action.context);
+                    Router.navigator.pop();
                     break;
                 }
                 case FetchArticlesAction action: {

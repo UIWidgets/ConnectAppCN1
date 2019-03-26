@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.api;
+using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.components.refresh;
 using ConnectApp.constants;
@@ -118,7 +119,7 @@ namespace ConnectApp.screens {
                                                                     StoreProvider.store.Dispatch(
                                                                         new NavigatorToArticleDetailAction
                                                                             {detailId = searchArticle.id});
-                                                                    Navigator.pushNamed(context, "/article-detail");
+                                                                    Router.navigator.pushNamed("/article-detail");
                                                                 }
                                                             );
                                                         }
@@ -153,7 +154,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new CustomButton(
                             padding: EdgeInsets.only(8, 8, 0, 8),
-                            onPressed: () => { Navigator.pop(context); },
+                            onPressed: () => { Router.navigator.pop(); },
                             child: new Text(
                                 "取消",
                                 style: CTextStyle.PLargeBlue

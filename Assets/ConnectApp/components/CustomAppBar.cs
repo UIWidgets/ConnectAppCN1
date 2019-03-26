@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.constants;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -35,7 +36,7 @@ namespace ConnectApp.components {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: new List<Widget> {
                         leading ?? new CustomButton(
-                            onPressed: () => Navigator.pop(context),
+                            onPressed: () => Router.navigator.pop(context),
                             child: new Icon(
                                 Icons.arrow_back,
                                 size: 28,
