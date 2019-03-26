@@ -268,7 +268,7 @@ namespace ConnectApp.screens {
                     var showChatWindow = (bool) viewModel["showChatWindow"];
                     var openChatWindow = (bool) viewModel["openChatWindow"];
                     var loading = (bool) viewModel["loading"];
-                    if (loading && eventObj == null)
+                    if (loading || eventObj == null)
                         return new Container(
                             color: CColors.White,
                             child: new CustomActivityIndicator()
@@ -276,7 +276,7 @@ namespace ConnectApp.screens {
                     var bottomWidget = eventType == EventType.offline
                         ? _buildOfflineRegisterNow(context, eventObj, isLoggedIn)
                         : !showChatWindow
-                            ? _buildChatWindow()
+                            ? new Container()
                             : _buildJoinBar(eventObj);
 
                     return new Container(
@@ -285,7 +285,7 @@ namespace ConnectApp.screens {
                             children: new List<Widget> {
                                 new Column(
                                     children: new List<Widget> {
-                                        eventObj==null?new Container(): _buildHeaderView(context, eventObj, eventType),
+                                        _buildHeaderView(context, eventObj, eventType),
                                         new EventDetail(eventObj: eventObj)
                                     }
                                 ),
