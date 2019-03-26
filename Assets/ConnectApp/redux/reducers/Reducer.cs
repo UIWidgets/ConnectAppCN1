@@ -64,6 +64,15 @@ namespace ConnectApp.redux.reducers {
                     var password = state.loginState.password;
                     LoginApi.LoginByEmail(email, password)
                         .Then(loginInfo => {
+                            var user = new User();
+                            user.id = state.loginState.loginInfo.userId;
+                            user.fullName = state.loginState.loginInfo.userFullName;
+                            var dict = new Dictionary<string,User>
+                            {
+                                {user.id,user}
+                            };
+                            StoreProvider.store.Dispatch(new UserMapAction
+                                {userMap = dict});
                             StoreProvider.store.Dispatch(new LoginByEmailSuccessAction {
                                 loginInfo = loginInfo,
                                 context = action.context
@@ -409,9 +418,26 @@ namespace ConnectApp.redux.reducers {
                     var userMap = new Dictionary<string, User> {
                         {action.eventObj.user.id, action.eventObj.user}
                     };
-                    action.eventObj.hosts.ForEach(host => userMap.Add(host.id, host));
+                    action.eventObj.hosts.ForEach(host =>
+                    {
+                        if (userMap.ContainsKey(host.id))
+                        {
+                            userMap[host.id] = host;
+                        }
+                        else
+                        {
+                            userMap.Add(host.id, host);
+                        }
+                    });
                     StoreProvider.store.Dispatch(new UserMapAction {userMap = userMap});
-                    state.eventState.eventDict[action.eventObj.id] = action.eventObj;
+                    if (state.eventState.eventDict.ContainsKey(action.eventObj.id))
+                    {
+                        state.eventState.eventDict[action.eventObj.id] = action.eventObj;
+                    }
+                    else
+                    {
+                        state.eventState.eventDict.Add(action.eventObj.id,action.eventObj);
+                    }
                     state.eventState.detailId = action.eventObj.id;
                     StoreProvider.store.Dispatch(new SaveEventHistoryAction {eventObj = action.eventObj});
                     break;

@@ -65,15 +65,18 @@ namespace ConnectApp.screens {
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        new CustomButton(
-                            padding: EdgeInsets.only(16, 10, 16),
-                            onPressed: () => Router.navigator.pop(),
-                            child: new Icon(
-                                Icons.arrow_back,
-                                size: 28,
-                                color: CColors.icon2
+                        new Container(height:44,
+                            child:new CustomButton(
+                                padding: EdgeInsets.only(16),
+                                onPressed: () => Router.navigator.pop(),
+                                child: new Icon(
+                                    Icons.arrow_back,
+                                    size: 24,
+                                    color: CColors.icon3
+                                )
                             )
                         ),
+                        
                         new Container(
                             margin: EdgeInsets.only(16, bottom: 12),
                             child: new Text(

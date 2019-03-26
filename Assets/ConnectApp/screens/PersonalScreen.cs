@@ -87,14 +87,7 @@ namespace ConnectApp.screens {
                 new List<Widget> {
                     new ClipRRect(
                         borderRadius: BorderRadius.circular(20),
-                        child: new Container(
-                            color: CColors.White,
-                            width: 40,
-                            height: 40,
-                            child: Image.asset(
-                                "mario", fit: BoxFit.cover
-                            )
-                        )
+                        child: new Avatar(loginInfo.userId,40)
                     )
                 },
                 CColors.White,
