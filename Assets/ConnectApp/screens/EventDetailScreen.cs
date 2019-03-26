@@ -103,7 +103,7 @@ namespace ConnectApp.screens {
                                                         color: CColors.White
                                                     ),
                                                     onPressed: () => {
-                                                        ShareUtils.showShareView(context, new ShareView());
+                                                        ShareUtils.showShareView(new ShareView());
                                                     }
                                                 )
                                             }

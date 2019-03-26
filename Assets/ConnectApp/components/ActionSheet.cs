@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.constants;
 using RSG;
 using Unity.UIWidgets.animation;
@@ -98,7 +99,7 @@ namespace ConnectApp.components {
                     children: new List<Widget> {
                         new GestureDetector(
                             onTap: () => {
-                                Navigator.pop(context);
+                                Router.navigator.pop();
                                 item.onTap();
                             },
                             child: new Container(
@@ -139,10 +140,9 @@ namespace ConnectApp.components {
 
     public static class ActionSheetUtils {
         public static IPromise<object> showModalActionSheet(
-            BuildContext context,
             Widget child
         ) {
-            return Navigator.of(context, true).push(
+            return Router.navigator.push(
                 new _ModalPopupRoute(
                     cxt => child,
                     "Dismiss"
@@ -151,7 +151,7 @@ namespace ConnectApp.components {
         }
 
         private static bool _hiddenModalPopup(BuildContext context) {
-            return Navigator.pop(context);
+            return Router.navigator.pop();
         }
     }
 
