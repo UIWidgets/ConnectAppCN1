@@ -93,8 +93,8 @@ namespace ConnectApp.screens {
                     _contentMap = articleDetail.contentMap;
                     _lastCommentId = articleDetail.comments.currOldestMessageId;
                     _hasMore = articleDetail.comments.hasMore;
-
-                    var originItems = _buildItems(context, articleDetail);
+                    
+                    var originItems=articleDetail==null?new List<Widget>(): _buildItems(context, articleDetail);
 
                     RefresherCallback footerCallback = null;
                     if (_hasMore) footerCallback = onFooterRefresh;
@@ -412,9 +412,18 @@ namespace ConnectApp.screens {
             if (_channelComments.isEmpty()) return new List<Widget>();
             var comments = new List<Widget>();
             var channelMessageDict = StoreProvider.store.state.messageState.channelMessageDict;
+            if (!channelMessageDict.ContainsKey(_channelId))
+            {
+                return comments;
+            }
             var messageDict = channelMessageDict[_channelId];
-            _channelComments.ForEach(commentId => {
-                var message = messageDict[commentId];
+            foreach (var commentId in _channelComments)
+            {
+                if (!messageDict.ContainsKey(commentId))
+                {
+                    break;
+                }
+             var message = messageDict[commentId];
                 bool isPraised = _isPraised(message);
                 var card = new CommentCard(
                     message,
@@ -458,8 +467,8 @@ namespace ConnectApp.screens {
                                 StoreProvider.store.Dispatch(new LikeCommentAction() {messageId = commentId});
                         }
                     });
-                comments.Add(card);
-            });
+                comments.Add(card);   
+            }
             return comments;
         }
 

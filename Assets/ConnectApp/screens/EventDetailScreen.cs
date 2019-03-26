@@ -212,7 +212,6 @@ namespace ConnectApp.screens {
             }
 
             return new Container(
-                color: CColors.White,
                 height: 64,
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 decoration: new BoxDecoration(

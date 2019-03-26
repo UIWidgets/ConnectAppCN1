@@ -130,6 +130,7 @@ namespace ConnectApp.screens {
 
                                         return new ListView(
                                             children: new List<Widget> {
+                                                viewModel.searchHistoryList==null?new Container() : 
                                                 _buildSearchHistory(viewModel.searchHistoryList),
                                                 _buildHotSearch()
                                             }
