@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.api;
+using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.models;
 using ConnectApp.redux.actions;
+using ConnectApp.screens;
 using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
@@ -62,6 +64,15 @@ namespace ConnectApp.redux.reducers {
                     var password = state.loginState.password;
                     LoginApi.LoginByEmail(email, password)
                         .Then(loginInfo => {
+                            var user = new User();
+                            user.id = state.loginState.loginInfo.userId;
+                            user.fullName = state.loginState.loginInfo.userFullName;
+                            var dict = new Dictionary<string,User>
+                            {
+                                {user.id,user}
+                            };
+                            StoreProvider.store.Dispatch(new UserMapAction
+                                {userMap = dict});
                             StoreProvider.store.Dispatch(new LoginByEmailSuccessAction {
                                 loginInfo = loginInfo,
                                 context = action.context
@@ -77,8 +88,7 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.loading = false;
                     state.loginState.loginInfo = action.loginInfo;
                     state.loginState.isLoggedIn = true;
-                    Navigator.pop(action.context);
-                    Navigator.pop(action.context);
+                    Router.navigator.pop();
                     break;
                 }
                 case LoginByEmailFailedAction action: {
@@ -93,7 +103,7 @@ namespace ConnectApp.redux.reducers {
                 case LogoutAction action: {
                     state.loginState.loginInfo = new LoginInfo();
                     state.loginState.isLoggedIn = false;
-                    Navigator.pop(action.context);
+                    Router.navigator.pop();
                     break;
                 }
                 case FetchArticlesAction action: {
@@ -411,9 +421,17 @@ namespace ConnectApp.redux.reducers {
                     var userMap = new Dictionary<string, User> {
                         {action.eventObj.user.id, action.eventObj.user}
                     };
-                    action.eventObj.hosts.ForEach(host => userMap.Add(host.id, host));
+                    action.eventObj.hosts.ForEach(host => {
+                        if (userMap.ContainsKey(host.id))
+                            userMap[host.id] = host;
+                        else
+                            userMap.Add(host.id, host);
+                    });
                     StoreProvider.store.Dispatch(new UserMapAction {userMap = userMap});
-                    state.eventState.ongoingEventDict[action.eventObj.id] = action.eventObj;
+                    if (state.eventState.ongoingEventDict.ContainsKey(action.eventObj.id))
+                        state.eventState.ongoingEventDict[action.eventObj.id] = action.eventObj;
+                    else
+                        state.eventState.ongoingEventDict.Add(action.eventObj.id,action.eventObj);
                     state.eventState.detailId = action.eventObj.id;
                     StoreProvider.store.Dispatch(new SaveEventHistoryAction {eventObj = action.eventObj});
                     break;

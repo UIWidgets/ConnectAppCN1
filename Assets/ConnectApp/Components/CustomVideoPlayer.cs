@@ -54,11 +54,7 @@ namespace ConnectApp.components
                 child: new Stack(children: new List<Widget>
                 {
                     new Texture(texture: _texture),
-                    new Positioned(
-                        top:0,
-                        right:0,
-                        left:0,
-                        bottom:0,
+                    Positioned.fill(
                         child: isPaused? new GestureDetector(
                             onTap: () =>
                             {

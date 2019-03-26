@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.api;
+using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.components.refresh;
 using ConnectApp.constants;
@@ -32,10 +33,11 @@ namespace ConnectApp.screens {
         private int _selectedIndex;
         private int pageNumber = 1;
         private int completedPageNumber = 1;
-        private float _offsetY = 0;
+        private float _offsetY;
 
         public override void initState() {
             base.initState();
+            _offsetY = 0;
             if (StoreProvider.store.state.eventState.ongoingEvents.Count == 0) {
                 StoreProvider.store.Dispatch(new FetchEventsAction {pageNumber = 1, tab = "ongoing"});
                 StoreProvider.store.Dispatch(new FetchEventsAction {pageNumber = 1, tab = "completed"});
@@ -184,7 +186,7 @@ namespace ConnectApp.screens {
                                                 eventId = model.id,
                                                 eventType = model.mode == "online" ? EventType.onLine : EventType.offline
                                             });
-                                            Navigator.pushNamed(context, "/event-detail");
+                                            Router.navigator.pushNamed("/event-detail");
                                         },
                                         new ObjectKey(model.id)
                                     );
@@ -236,7 +238,7 @@ namespace ConnectApp.screens {
                                                 eventId = model.id,
                                                 eventType = model.mode == "online" ? EventType.onLine: EventType.offline
                                             });
-                                            Navigator.pushNamed(context, "/event-detail");
+                                            Router.navigator.pushNamed("/event-detail");
                                         }
                                     );
                                 }

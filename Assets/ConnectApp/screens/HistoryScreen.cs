@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
@@ -64,15 +65,18 @@ namespace ConnectApp.screens {
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        new CustomButton(
-                            padding: EdgeInsets.only(16, 10, 16),
-                            onPressed: () => Navigator.pop(context),
-                            child: new Icon(
-                                Icons.arrow_back,
-                                size: 28,
-                                color: CColors.icon2
+                        new Container(height:44,
+                            child:new CustomButton(
+                                padding: EdgeInsets.only(16),
+                                onPressed: () => Router.navigator.pop(),
+                                child: new Icon(
+                                    Icons.arrow_back,
+                                    size: 24,
+                                    color: CColors.icon3
+                                )
                             )
                         ),
+                        
                         new Container(
                             margin: EdgeInsets.only(16, bottom: 12),
                             child: new Text(
@@ -139,7 +143,7 @@ namespace ConnectApp.screens {
                                         () => {
                                             StoreProvider.store.Dispatch(new NavigatorToArticleDetailAction
                                                 {detailId = model.id});
-                                            Navigator.pushNamed(_context, "/article-detail");
+                                            Router.navigator.pushNamed("/article-detail");
                                         }
                                     ),
                                     new Container(
@@ -184,7 +188,7 @@ namespace ConnectApp.screens {
                                         () => {
                                             StoreProvider.store.Dispatch(new NavigatorToEventDetailAction
                                                 {eventId = model.id});
-                                            Navigator.pushNamed(_context, "/event-detail");
+                                            Router.navigator.pushNamed("/event-detail");
                                         }
                                     ),
                                     new Container(

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
@@ -69,11 +70,11 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new CustomButton(
                             padding: EdgeInsets.only(16, 10, 16),
-                            onPressed: () => Navigator.pop(context),
+                            onPressed: () => Router.navigator.pop(),
                             child: new Icon(
                                 Icons.arrow_back,
-                                size: 28,
-                                color: CColors.icon2
+                                size: 24,
+                                color: CColors.icon3
                             )
                         ),
                         new Container(
@@ -151,7 +152,7 @@ namespace ConnectApp.screens {
                                     () => {
                                         StoreProvider.store.Dispatch(new NavigatorToEventDetailAction
                                             {eventId = model.id});
-                                        Navigator.pushNamed(_context, "/event-detail");
+                                        Router.navigator.pushNamed("/event-detail");
                                     }
                                 );
                             }

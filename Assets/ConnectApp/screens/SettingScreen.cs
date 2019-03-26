@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.redux;
@@ -29,24 +30,27 @@ namespace ConnectApp.screens {
 
         private static Widget _buildNavigationBar(BuildContext context) {
             return new Container(
-                color: CColors.White,
+                decoration:new BoxDecoration(color:CColors.White,border:new Border(bottom:new BorderSide(CColors.Separator2))),
                 width: MediaQuery.of(context).size.width,
                 height: 140,
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        new CustomButton(
-                            padding: EdgeInsets.only(16, 10, 16),
-                            onPressed: () => Navigator.pop(context),
-                            child: new Icon(
-                                Icons.arrow_back,
-                                size: 28,
-                                color: CColors.icon2
+                        new Container(height:44,
+                            child:new CustomButton(
+                                padding: EdgeInsets.only(16),
+                                onPressed: () => Router.navigator.pop(),
+                                child: new Icon(
+                                    Icons.arrow_back,
+                                    size: 24,
+                                    color: CColors.icon3
+                                )
                             )
                         ),
+                        
                         new Container(
-                            margin: EdgeInsets.only(16, bottom: 12),
+                            padding: EdgeInsets.only(16, bottom: 12),
                             child: new Text(
                                 "设置",
                                 style: CTextStyle.H2
@@ -66,9 +70,6 @@ namespace ConnectApp.screens {
                     child: new ListView(
                         physics: new AlwaysScrollableScrollPhysics(),
                         children: new List<Widget> {
-                            _buildGapView(),
-                            _buildCellView("修改手机", () => { }),
-                            _buildCellView("修改密码", () => { }),
                             _buildGapView(),
                             _buildCellView("评分", () => { }),
                             _buildCellView("意见反馈", () => { }),

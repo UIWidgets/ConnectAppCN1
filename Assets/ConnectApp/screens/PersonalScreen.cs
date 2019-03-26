@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
@@ -58,7 +59,7 @@ namespace ConnectApp.screens {
                             margin: EdgeInsets.only(top: 16),
                             child: new CustomButton(
                                 padding: EdgeInsets.zero,
-                                onPressed: () => { Navigator.pushNamed(context, "/login"); },
+                                onPressed: () => { Router.navigator.pushNamed("/login"); },
                                 child: new Container(
                                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                                     decoration: new BoxDecoration(
@@ -86,14 +87,7 @@ namespace ConnectApp.screens {
                 new List<Widget> {
                     new ClipRRect(
                         borderRadius: BorderRadius.circular(20),
-                        child: new Container(
-                            color: CColors.White,
-                            width: 40,
-                            height: 40,
-                            child: Image.asset(
-                                "mario", fit: BoxFit.cover
-                            )
-                        )
+                        child: new Avatar(loginInfo.userId,40)
                     )
                 },
                 CColors.White,
@@ -114,13 +108,13 @@ namespace ConnectApp.screens {
                 new PersonalCardItem(Icons.ievent, "我的活动", () => {
                     var isLoginIn = StoreProvider.store.state.loginState.isLoggedIn;
                     var routeName = isLoginIn ? "/my-event" : "/login";
-                    Navigator.pushNamed(context, routeName);
+                    Router.navigator.pushNamed(routeName);
                 }),
-                new PersonalCardItem(Icons.eye, "浏览历史", () => Navigator.pushNamed(context, "/history")),
+                new PersonalCardItem(Icons.eye, "浏览历史", () => Router.navigator.pushNamed("/history")),
                 new PersonalCardItem(Icons.settings, "设置", () => {
                     var isLoginIn = StoreProvider.store.state.loginState.isLoggedIn;
                     var routeName = isLoginIn ? "/setting" : "/login";
-                    Navigator.pushNamed(context, routeName);
+                    Router.navigator.pushNamed(routeName);
                 })
             };
             List<Widget> widgets = new List<Widget>();

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.constants;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -70,7 +71,7 @@ namespace ConnectApp.components {
             );
 
             return new GestureDetector(
-                onTap: () => Navigator.pushNamed(context, "/detail"),
+                onTap: () => Router.navigator.pushNamed("/detail"),
                 child: card
             );
         }

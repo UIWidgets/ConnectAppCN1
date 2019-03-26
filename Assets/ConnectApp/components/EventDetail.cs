@@ -21,20 +21,21 @@ namespace ConnectApp.components {
         private readonly IEvent eventObj;
 
         public override Widget build(BuildContext context) {
-            return new Container(child: _buildContent());
+            return new Container(child: _buildContent(context));
         }
 
-        private Widget _buildContent() {
+        private Widget _buildContent(BuildContext context) {
+            var items = new List<Widget>();
+            items.Add(_buildContentHead());
+            items.AddRange(ArticleDescription.map(context,eventObj.content, eventObj.contentMap));
+            items.Add(_buildContentLecturerList());
             return new Flexible(
                 child: new Container(
                     margin: EdgeInsets.only(bottom: 64),
-                    child: new ListView(
+                    child: ListView.builder(
                         physics: new AlwaysScrollableScrollPhysics(),
-                        children: new List<Widget> {
-                            _buildContentHead(),
-                            _buildContentDetail(),
-                            _buildContentLecturerList()
-                        }
+                        itemCount: items.Count,
+                        itemBuilder: (cxt, index) => items[index]
                     )
                 )
             );
@@ -44,7 +45,7 @@ namespace ConnectApp.components {
             var user = eventObj.user ?? new User();
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
-                margin: EdgeInsets.only(top: 16),
+                margin: EdgeInsets.only(top: 16,bottom:44),
                 child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {

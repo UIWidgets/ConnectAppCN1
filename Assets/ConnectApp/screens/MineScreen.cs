@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
 using Unity.UIWidgets.animation;
@@ -48,7 +49,7 @@ namespace ConnectApp.screens {
                                     size: 28,
                                     color: CColors.icon2
                                 ),
-                                onPressed: () => Navigator.pushNamed(context, "/setting")
+                                onPressed: () => Router.navigator.pushNamed("/setting")
                             )
                         }
                     ),
