@@ -177,7 +177,6 @@ namespace ConnectApp.components {
             return new Container(
                 color: Color.fromRGBO(110, 198, 255, 0.12f),
                 width: MediaQuery.of(context).size.width,
-                margin: EdgeInsets.only(bottom: 24),
                 child: new Container(
                     padding: EdgeInsets.all(16),
                     child: new Text(
@@ -192,17 +191,18 @@ namespace ConnectApp.components {
         private static Widget _QuoteBlock(string text) {
             return new Container(
                 color: CColors.White,
-                decoration: new BoxDecoration(
-                    border: new Border(
-                        left: new BorderSide(
-                            CColors.Separator,
-                            8
-                        )
-                    )
-                ),
-                margin: EdgeInsets.only(16, right: 16, bottom: 24),
+                padding: EdgeInsets.only(16, right: 16, bottom: 24),
                 child: new Container(
-                    margin: EdgeInsets.only(16),
+                    decoration: new BoxDecoration(
+                        color:CColors.White,
+                        border: new Border(
+                            left: new BorderSide(
+                                CColors.Separator,
+                                8
+                            )
+                        )
+                    ),
+                    padding: EdgeInsets.only(16),
                     child: new Text(
                         text,
                         style: CTextStyle.PXLargeBody4
@@ -240,12 +240,8 @@ namespace ConnectApp.components {
             var nodes = new List<Widget> {
                 new Stack(
                     children: new List<Widget> {
-                        new AspectRatio(
-                            aspectRatio: originalImage.width / originalImage.height,
-                            child: new Container(
-                                color: new Color(0xFFD8D8D8),
-                                child: Image.network(originalImage.url ?? "")
-                            )
+                        new Container(
+                            child: Image.network(originalImage.url ?? "")
                         ),
                         playButton
                     }
