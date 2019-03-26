@@ -43,7 +43,7 @@ namespace ConnectApp.components {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: new List<Widget> {
                     new Container(
-                        decoration: new BoxDecoration(CColors.background1),
+                        color:CColors.White,
                         width: mediaQueryData.size.width,
                         height: 185,
                         child: new Column(
@@ -52,7 +52,7 @@ namespace ConnectApp.components {
                             children: new List<Widget> {
                                 new Padding(
                                     padding: EdgeInsets.only(top: 16, left: 16),
-                                    child: new Text("分享至", style: new TextStyle(fontSize: 17, color: Colors.white))
+                                    child: new Text("分享至", style: CTextStyle.TextBody1)
                                 ),
                                 new Container(
                                     padding: EdgeInsets.only(top: 16),
@@ -70,16 +70,9 @@ namespace ConnectApp.components {
                                     onTap: () => { Navigator.pop(context); },
                                     child: new Container(
                                         height: 49,
-                                        padding: EdgeInsets.only(16),
-                                        margin: EdgeInsets.only(top: 16),
                                         color: CColors.Transparent,
-                                        child: new Flex(
-                                            Axis.horizontal,
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: new List<Widget> {
-                                                new Text("取消", style: new TextStyle(fontSize: 17, color: Colors.white))
-                                            }
-                                        )
+                                        alignment:Alignment.center,
+                                        child: new Text("取消", style: CTextStyle.TextBody1)
                                     )
                                 )
                             }
@@ -95,7 +88,7 @@ namespace ConnectApp.components {
                 child: new Container(
                     padding: EdgeInsets.symmetric(horizontal: 16),
                     decoration: new BoxDecoration(
-                        CColors.background1
+                        CColors.White
                     ),
                     child: new Column(children: new List<Widget> {
                         new Container(
@@ -111,13 +104,7 @@ namespace ConnectApp.components {
                             height: 20,
                             child: new Text(
                                 title,
-                                style: new TextStyle(
-                                    fontSize: 12,
-                                    color: CColors.text2,
-                                    decoration: TextDecoration.none,
-                                    fontWeight: FontWeight.w400
-                                )
-                            )
+                                style: CTextStyle.PSmallBody3)
                         ),
                     })
                 )

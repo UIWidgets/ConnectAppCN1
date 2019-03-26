@@ -206,7 +206,7 @@ namespace ConnectApp.screens {
                         Router.navigator.pop();
                         StoreProvider.store.Dispatch(new ClearEventDetailAction());
                     },
-                    child: new Icon(Icons.arrow_back, size: 28, color: CColors.icon3)
+                    child: new Icon(Icons.arrow_back, size: 24, color: CColors.icon3)
                 ), new List<Widget> {
                     new CustomButton(
                         padding: EdgeInsets.zero,

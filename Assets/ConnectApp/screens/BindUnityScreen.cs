@@ -107,8 +107,8 @@ namespace ConnectApp.screens {
                                         onPressed: () => { LoginScreen.navigator.pop(); },
                                         child: new Icon(
                                             Icons.arrow_back,
-                                            size: 28,
-                                            color: new Color(0xFFC7CBCF)
+                                            size: 24,
+                                            color: CColors.icon3
                                         )
                                     ),
                                 new CustomButton(

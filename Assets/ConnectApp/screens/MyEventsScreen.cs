@@ -73,8 +73,8 @@ namespace ConnectApp.screens {
                             onPressed: () => Router.navigator.pop(),
                             child: new Icon(
                                 Icons.arrow_back,
-                                size: 28,
-                                color: CColors.icon2
+                                size: 24,
+                                color: CColors.icon3
                             )
                         ),
                         new Container(

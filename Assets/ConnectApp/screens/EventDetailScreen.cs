@@ -77,6 +77,7 @@ namespace ConnectApp.screens {
                                 eventObj.background,
                                 fit: BoxFit.cover
                             ),
+                            Positioned.fill(child:new Container(color:Color.fromRGBO(0,0,0,0.3f))),
                             new Flex(
                                 Axis.vertical,
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
