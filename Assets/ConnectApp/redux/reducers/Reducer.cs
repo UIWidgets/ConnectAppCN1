@@ -64,20 +64,10 @@ namespace ConnectApp.redux.reducers {
                     var password = state.loginState.password;
                     LoginApi.LoginByEmail(email, password)
                         .Then(loginInfo => {
-                            var user = new User();
-                            user.id = state.loginState.loginInfo.userId;
-                            user.fullName = state.loginState.loginInfo.userFullName;
-                            var dict = new Dictionary<string,User>
-                            {
-                                {user.id,user}
-                            };
-                            StoreProvider.store.Dispatch(new UserMapAction
-                                {userMap = dict});
                             StoreProvider.store.Dispatch(new LoginByEmailSuccessAction {
                                 loginInfo = loginInfo,
                                 context = action.context
                             });
-                            StoreProvider.store.Dispatch(new CleanEmailAndPasswordAction());
                         })
                         .Catch(error => {
                             Debug.Log(error);
@@ -88,8 +78,17 @@ namespace ConnectApp.redux.reducers {
                 case LoginByEmailSuccessAction action: {
                     state.loginState.loading = false;
                     state.loginState.loginInfo = action.loginInfo;
+                    var user = new User {
+                        id = state.loginState.loginInfo.userId, 
+                        fullName = state.loginState.loginInfo.userFullName
+                    };
+                    var dict = new Dictionary<string,User> {
+                        {user.id,user}
+                    };
+                    StoreProvider.store.Dispatch(new UserMapAction {userMap = dict});
                     state.loginState.isLoggedIn = true;
                     Router.navigator.pop();
+                    StoreProvider.store.Dispatch(new CleanEmailAndPasswordAction());
                     break;
                 }
                 case LoginByEmailFailedAction action: {
