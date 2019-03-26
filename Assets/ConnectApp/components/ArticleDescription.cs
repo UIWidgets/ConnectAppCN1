@@ -79,7 +79,7 @@ namespace ConnectApp.components {
                                 var originalImage = map.originalImage == null
                                     ? map.thumbnail
                                     : map.originalImage;
-                                widgets.Add(_Atomic(dataMap.type, data.title, originalImage));
+                                widgets.Add(_Atomic(context,dataMap.type, data.title, originalImage));
                             }
                         }
                     }
@@ -211,7 +211,7 @@ namespace ConnectApp.components {
             );
         }
 
-        private static Widget _Atomic(string type, string title, _OriginalImage originalImage) {
+        private static Widget _Atomic(BuildContext context,string type, string title, _OriginalImage originalImage) {
             if (type == "ATTACHMENT") return new Container();
 
             var playButton = Positioned.fill(
@@ -241,7 +241,10 @@ namespace ConnectApp.components {
                 new Stack(
                     children: new List<Widget> {
                         new Container(
-                            child: Image.network(originalImage.url ?? "")
+                            color:CColors.Separator,
+                            width:MediaQuery.of(context).size.width-32,
+                            height:(MediaQuery.of(context).size.width-32)*originalImage.height / originalImage.width,
+                            child: Image.network(originalImage.url ?? "",fit:BoxFit.cover)
                         ),
                         playButton
                     }
