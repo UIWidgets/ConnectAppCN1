@@ -120,11 +120,11 @@ namespace ConnectApp.screens {
                                     () => {
                                         if (!StoreProvider.store.state.loginState.isLoggedIn)
                                         {
-                                            Navigator.pushNamed(context, "/login");
+                                            Router.navigator.pushNamed("/login");
                                         }
                                         else
                                         {
-                                            ActionSheetUtils.showModalActionSheet(context, new CustomInput(
+                                            ActionSheetUtils.showModalActionSheet(new CustomInput(
                                                 doneCallBack: text => {
                                                     StoreProvider.store.Dispatch(new SendCommentAction {
                                                         channelId = articleDetail.channelId,
@@ -140,11 +140,11 @@ namespace ConnectApp.screens {
                                     {
                                         if (!StoreProvider.store.state.loginState.isLoggedIn)
                                         {
-                                            Navigator.pushNamed(context, "/login");
+                                            Router.navigator.pushNamed("/login");
                                         }
                                         else
                                         {
-                                            ActionSheetUtils.showModalActionSheet(context, new CustomInput(
+                                            ActionSheetUtils.showModalActionSheet(new CustomInput(
                                                 doneCallBack: text => {
                                                     StoreProvider.store.Dispatch(new SendCommentAction {
                                                         channelId = articleDetail.channelId,
@@ -160,7 +160,7 @@ namespace ConnectApp.screens {
                                     () => {
                                         if (!StoreProvider.store.state.loginState.isLoggedIn)
                                         {
-                                            Navigator.pushNamed(context, "/login"); 
+                                            Router.navigator.pushNamed("/login"); 
                                         }
                                         else
                                         {
@@ -171,7 +171,9 @@ namespace ConnectApp.screens {
                                         }
                                         
                                     },
-                                    shareCallback: () => { }
+                                    shareCallback: () => {
+                                        ShareUtils.showShareView(new ShareView());
+                                    }
                                 )
                             }
                         )
@@ -343,7 +345,7 @@ namespace ConnectApp.screens {
                         new ActionCard(Icons.favorite, like ? "已赞" : "点赞", like, () => {
                             if (!StoreProvider.store.state.loginState.isLoggedIn)
                             {
-                                Navigator.pushNamed(context, "/login");                            }
+                                Router.navigator.pushNamed("/login");                            }
                             else
                             {
                                 if (!like)
@@ -356,8 +358,7 @@ namespace ConnectApp.screens {
                         new Container(width: 16),
                         new ActionCard(Icons.share, "分享", false, () =>
                         {
-                            
-                            
+                            ShareUtils.showShareView(new ShareView());
                         })
                     }
                 )
@@ -429,7 +430,7 @@ namespace ConnectApp.screens {
                     message,
                     isPraised,
                     () => {
-                        ActionSheetUtils.showModalActionSheet(context, new ActionSheet(
+                        ActionSheetUtils.showModalActionSheet(new ActionSheet(
                             items: new List<ActionSheetItem> {
                                 new ActionSheetItem("举报", ActionType.destructive, () => { }),
                                 new ActionSheetItem("取消", ActionType.cancel)
@@ -439,10 +440,10 @@ namespace ConnectApp.screens {
                     replyCallBack: () => {
                         if (!StoreProvider.store.state.loginState.isLoggedIn)
                         {
-                            Navigator.pushNamed(context, "/login");                            }
+                            Router.navigator.pushNamed("/login");                            }
                         else
                         {
-                            ActionSheetUtils.showModalActionSheet(context, new CustomInput(
+                            ActionSheetUtils.showModalActionSheet(new CustomInput(
                                 message.author.fullName.isEmpty() ? "" : message.author.fullName,
                                 doneCallBack: (text) => {
                                     StoreProvider.store.Dispatch(new SendCommentAction {
@@ -458,7 +459,7 @@ namespace ConnectApp.screens {
                     praiseCallBack: () => {
                         if (!StoreProvider.store.state.loginState.isLoggedIn)
                         {
-                            Navigator.pushNamed(context, "/login");                            }
+                            Router.navigator.pushNamed("/login");                            }
                         else
                         {
                             if (isPraised)
