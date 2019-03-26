@@ -285,7 +285,7 @@ namespace ConnectApp.screens {
                             children: new List<Widget> {
                                 new Column(
                                     children: new List<Widget> {
-                                        _buildHeaderView(context, eventObj, eventType),
+                                        eventObj==null?new Container(): _buildHeaderView(context, eventObj, eventType),
                                         new EventDetail(eventObj: eventObj)
                                     }
                                 ),
