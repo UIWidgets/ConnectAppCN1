@@ -71,6 +71,7 @@ namespace ConnectApp.screens {
                             size: 28,
                             color: Color.fromRGBO(181, 181, 181, 1))
                     )
+                    
                 },
                 CColors.White,
                 _offsetY);

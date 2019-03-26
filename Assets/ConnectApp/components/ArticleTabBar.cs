@@ -57,7 +57,11 @@ namespace ConnectApp.components {
                                 alignment: Alignment.centerLeft,
                                 child: new Text(
                                     "说点想法...",
-                                    style: CTextStyle.PRegularBody3
+                                    style: new TextStyle(
+                                        fontSize: 14,
+                                        fontFamily: "Roboto-Regular",
+                                        color: CColors.TextBody3
+                                    )
                                 )
                             )
                         ),
