@@ -127,16 +127,26 @@ namespace ConnectApp.redux.reducers {
                         .Then(articleDetailResponse => {
                             var userMap = articleDetailResponse.project.userMap;
                             if (articleDetailResponse.project.comments.items.Count > 0) {
-                                var channelId = articleDetailResponse.project.comments.items.first().channelId;
+                                var channelId = articleDetailResponse.project.channelId;
                                 var channelMessageList = new Dictionary<string, List<string>>();
                                 var channelMessageDict = new Dictionary<string, Dictionary<string, Message>>();
                                 var itemIds = new List<string>();
                                 var messageItem = new Dictionary<string, Message>();
-                                articleDetailResponse.project.comments.items.ForEach(message => {
+                                var messages = articleDetailResponse.project.comments.items;
+                                foreach (var message in messages)
+                                {
                                     itemIds.Add(message.id);
                                     messageItem[message.id] = message;
-                                    userMap.Add(message.author.id, message.author);
-                                });
+                                    if (userMap.ContainsKey(message.author.id))
+                                    {
+                                        userMap[message.author.id] = message.author;
+                                    }
+                                    else
+                                    {
+                                        userMap.Add(message.author.id, message.author); 
+  
+                                    }
+                                }
                                 channelMessageList.Add(channelId, itemIds);
                                 channelMessageDict.Add(channelId, messageItem);
 
