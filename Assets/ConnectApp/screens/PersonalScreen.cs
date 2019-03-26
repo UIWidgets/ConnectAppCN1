@@ -99,7 +99,7 @@ namespace ConnectApp.screens {
 //                    if (isLoginIn) {
 //                    }
 //                    else {
-//                        Navigator.pushNamed(context, "/login");
+//                        Router.navigator.pushNamed("/login");
 //                    }
 //                }),
                 new PersonalCardItem(Icons.ievent, "我的活动", () => {
