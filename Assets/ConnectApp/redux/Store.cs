@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using RSG;
 
 namespace ConnectApp.redux {
     public delegate object Dispatcher(object action);
@@ -23,8 +24,8 @@ namespace ConnectApp.redux {
             _state = initialState;
         }
 
-        public object Dispatch(object action) {
-            return _dispatcher(action);
+        public IPromise Dispatch(object action) {
+            return Promise.Delayed(new TimeSpan(0, 0, 0)).Then(() => { _dispatcher(action); });
         }
 
         public State state => _state;
