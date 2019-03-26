@@ -15,6 +15,7 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Avatar = ConnectApp.components.Avatar;
+using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
     public class ArticleDetailScreen : StatefulWidget {
@@ -206,18 +207,25 @@ namespace ConnectApp.screens {
                     },
                     child: new Icon(Icons.arrow_back, size: 28, color: CColors.icon3)
                 ), new List<Widget> {
-                    new Container(
-                        padding: EdgeInsets.all(1),
-                        width: 88,
-                        height: 28,
-                        decoration: new BoxDecoration(
-                            borderRadius: BorderRadius.all(14),
-                            border: Border.all(CColors.PrimaryBlue)
-                        ),
-                        alignment: Alignment.center,
-                        child: new Text(
-                            "说点想法",
-                            style: CTextStyle.PMediumBlue
+                    new CustomButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () => {  },
+                        child: new Container(
+                            width:88,
+                            height:28,
+                            alignment:Alignment.center,
+                            decoration: new BoxDecoration(
+                                border: Border.all(CColors.PrimaryBlue),
+                                borderRadius: BorderRadius.all(14)
+                            ),
+                            child: new Text(
+                                "说点想法",
+                                style: new TextStyle(
+                                    fontSize: 14,
+                                    fontFamily: "Roboto-Medium",
+                                    color: CColors.PrimaryBlue
+                                )
+                            )
                         )
                     )
                 }, CColors.White, 52);
@@ -419,22 +427,35 @@ namespace ConnectApp.screens {
                         ));
                     },
                     replyCallBack: () => {
-                        ActionSheetUtils.showModalActionSheet(context, new CustomInput(
-                            message.author.fullName.isEmpty() ? "" : message.author.fullName,
-                            doneCallBack: (text) => {
-                                StoreProvider.store.Dispatch(new SendCommentAction {
-                                    channelId = _channelId,
-                                    content = text,
-                                    nonce = Snowflake.CreateNonce(),
-                                    parentMessageId = commentId
-                                });
-                            }));
+                        if (!StoreProvider.store.state.loginState.isLoggedIn)
+                        {
+                            Navigator.pushNamed(context, "/login");                            }
+                        else
+                        {
+                            ActionSheetUtils.showModalActionSheet(context, new CustomInput(
+                                message.author.fullName.isEmpty() ? "" : message.author.fullName,
+                                doneCallBack: (text) => {
+                                    StoreProvider.store.Dispatch(new SendCommentAction {
+                                        channelId = _channelId,
+                                        content = text,
+                                        nonce = Snowflake.CreateNonce(),
+                                        parentMessageId = commentId
+                                    });
+                                }));
+                        }
+                        
                     },
                     praiseCallBack: () => {
-                        if (isPraised)
-                            StoreProvider.store.Dispatch(new RemoveLikeCommentAction() {messageId = commentId});
+                        if (!StoreProvider.store.state.loginState.isLoggedIn)
+                        {
+                            Navigator.pushNamed(context, "/login");                            }
                         else
-                            StoreProvider.store.Dispatch(new LikeCommentAction() {messageId = commentId});
+                        {
+                            if (isPraised)
+                                StoreProvider.store.Dispatch(new RemoveLikeCommentAction() {messageId = commentId});
+                            else
+                                StoreProvider.store.Dispatch(new LikeCommentAction() {messageId = commentId});
+                        }
                     });
                 comments.Add(card);
             });

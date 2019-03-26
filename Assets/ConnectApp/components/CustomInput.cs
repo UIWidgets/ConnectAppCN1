@@ -92,7 +92,7 @@ namespace ConnectApp.components {
                                                                 height: 36,
                                                                 controller: _controller,
                                                                 style: CTextStyle.PLargeBody,
-                                                                maxLines: 2,
+                                                                maxLines: 1,
                                                                 autofocus: true,
                                                                 hintText: "友好的评论是交流的起点…",
                                                                 hintStyle: CTextStyle.PLargeBody4,
