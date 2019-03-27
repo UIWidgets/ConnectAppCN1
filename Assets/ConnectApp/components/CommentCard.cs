@@ -35,29 +35,33 @@ namespace ConnectApp.components {
 
         public override Widget build(BuildContext context) {
             Widget _content = null;
+            var messageDict = StoreProvider.store.state.messageState.channelMessageDict[message.channelId];
             if (message.parentMessageId == null) {
                 _content = new Container(
                     child: new Text(message.content, style: CTextStyle.PLargeBody),
                     alignment: Alignment.centerLeft
                 );
             }
-            else {
-                var parentMessage =
-                    StoreProvider.store.state.messageState.channelMessageDict[message.channelId][
-                        message.parentMessageId];
-                _content = new Container(alignment: Alignment.centerLeft, child: new RichText(text: new TextSpan("回复@",
-                    children: new List<TextSpan> {
-                        new TextSpan(
-                            $"{parentMessage.author.fullName}",
-                            children: new List<TextSpan> {
-                                new TextSpan(
-                                    $": {message.content}", 
-                                    CTextStyle.PLargeBody
-                                )
-                            },
-                            style: CTextStyle.PLargeBlue
-                        )
-                    }, style: CTextStyle.PLargeBody4)));
+            else
+            {
+                if (messageDict.ContainsKey(message.parentMessageId))
+                {
+                    var parentMessage = messageDict[message.parentMessageId];
+                    _content = new Container(alignment: Alignment.centerLeft, child: new RichText(text: new TextSpan("回复@",
+                        children: new List<TextSpan> {
+                            new TextSpan(
+                                $"{parentMessage.author.fullName}",
+                                children: new List<TextSpan> {
+                                    new TextSpan(
+                                        $": {message.content}", 
+                                        CTextStyle.PLargeBody
+                                    )
+                                },
+                                style: CTextStyle.PLargeBlue
+                            )
+                        }, style: CTextStyle.PLargeBody4)));
+                }  
+
             }
 
 

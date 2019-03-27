@@ -60,7 +60,7 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, Dictionary<string, object>>(
                 converter: (state, dispatcher) => new Dictionary<string, object> {
-                    {"articleDetail", state.articleState.articleDetail},
+                    {"articleDict", state.articleState.articleDict},
                     {"channelMessageDict", state.messageState.channelMessageDict},
                     {"channelMessageList", state.messageState.channelMessageList},
                     {"userDict", state.userState.userDict},
@@ -79,10 +79,14 @@ namespace ConnectApp.screens {
                                 )
                             )
                         );
-                    var articleDetail = (Project) viewModel["articleDetail"];
-                    if (articleDetail == null) return new Container();
+                    var articleDict = (Dictionary<string,Article>) viewModel["articleDict"];
+                    articleDict.TryGetValue(widget.articleId, out _article);
+                    if (_article==null || _article.channelId==null)
+                    {
+                     return new Container();
+                    }
                     var channelMessageList = (Dictionary<string, List<string>>) viewModel["channelMessageList"];
-                    _article = articleDetail.projectData;
+                    
                     if (_article.ownerType == "user") {
                         var userDict = (Dictionary<string, User>) viewModel["userDict"];
                         if (_article.userId != null && userDict.TryGetValue(_article.userId, out _user))
@@ -95,15 +99,15 @@ namespace ConnectApp.screens {
                             _team = teamDict[_article.teamId];
                     }
 
-                    _channelId = articleDetail.channelId;
-                    _relArticles = articleDetail.projects;
-                    if (channelMessageList.ContainsKey(articleDetail.channelId))
-                        _channelComments = channelMessageList[articleDetail.channelId];
-                    _contentMap = articleDetail.contentMap;
-                    _lastCommentId = articleDetail.comments.currOldestMessageId;
-                    _hasMore = articleDetail.comments.hasMore;
+                    _channelId = _article.channelId;
+                    _relArticles = _article.projects;
+                    if (channelMessageList.ContainsKey(_article.channelId))
+                        _channelComments = channelMessageList[_article.channelId];
+                    _contentMap = _article.contentMap;
+                    _lastCommentId = _article.currOldestMessageId??"";
+                    _hasMore = _article.hasMore;
                     
-                    var originItems=articleDetail==null?new List<Widget>(): _buildItems(context, articleDetail);
+                    var originItems=_article==null?new List<Widget>(): _buildItems(context);
 
                     RefresherCallback footerCallback = null;
                     if (_hasMore) footerCallback = onFooterRefresh;
@@ -125,7 +129,7 @@ namespace ConnectApp.screens {
                                     )
                                 ),
                                 new ArticleTabBar(
-                                    articleDetail.like,
+                                    _article.like,
                                     () => {
                                         if (!StoreProvider.store.state.loginState.isLoggedIn)
                                         {
@@ -136,7 +140,7 @@ namespace ConnectApp.screens {
                                             ActionSheetUtils.showModalActionSheet(new CustomInput(
                                                 doneCallBack: text => {
                                                     StoreProvider.store.Dispatch(new SendCommentAction {
-                                                        channelId = articleDetail.channelId,
+                                                        channelId = _article.channelId,
                                                         content = text,
                                                         nonce = Snowflake.CreateNonce()
                                                     });
@@ -156,7 +160,7 @@ namespace ConnectApp.screens {
                                             ActionSheetUtils.showModalActionSheet(new CustomInput(
                                                 doneCallBack: text => {
                                                     StoreProvider.store.Dispatch(new SendCommentAction {
-                                                        channelId = articleDetail.channelId,
+                                                        channelId = _article.channelId,
                                                         content = text,
                                                         nonce = Snowflake.CreateNonce()
                                                     });
@@ -173,7 +177,7 @@ namespace ConnectApp.screens {
                                         }
                                         else
                                         {
-                                            if (!articleDetail.like)
+                                            if (!_article.like)
                                                 StoreProvider.store.Dispatch(new LikeArticleAction {
                                                     articleId = _article.id
                                                 });
@@ -197,16 +201,16 @@ namespace ConnectApp.screens {
             );
         }
 
-        private List<Widget> _buildItems(BuildContext context, Project articleDetail) {
+        private List<Widget> _buildItems(BuildContext context) {
             var originItems = new List<Widget>();
             originItems.Add(_buildContentHead(context));
             originItems.Add(_subTitle(context));
             originItems.AddRange(ArticleDescription.map(context, _article.body, _contentMap));
-            originItems.Add(_actionCards(context, articleDetail.like));
+            originItems.Add(_actionCards(context, _article.like));
             originItems.Add(_buildRelatedArticles());
             originItems.Add(_comments(context));
             originItems.AddRange(_buildComments(context));
-            if (!articleDetail.comments.hasMore) originItems.Add(_buildEnd(context));
+            if (!_article.hasMore) originItems.Add(_buildEnd(context));
             return originItems;
         }
 
@@ -255,7 +259,6 @@ namespace ConnectApp.screens {
         private IPromise onFooterRefresh() {
             return ArticleApi.FetchArticleComments(_channelId, _lastCommentId)
                 .Then(responseComments => {
-                    StoreProvider.store.state.articleState.articleDetail.comments = responseComments;
                     _lastCommentId = responseComments.currOldestMessageId;
                     _hasMore = responseComments.hasMore;
                     var channelMessageList = new Dictionary<string, List<string>>();
@@ -273,7 +276,10 @@ namespace ConnectApp.screens {
                     StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction {
                         channelMessageDict = channelMessageDict,
                         channelMessageList = channelMessageList,
-                        isRefreshList = false
+                        isRefreshList = false,
+                        channelId = _article.channelId,
+                        hasMore = _hasMore,
+                        currOldestMessageId = _lastCommentId
                     });
                 })
                 .Catch(error => { Debug.Log(error); });
@@ -442,7 +448,7 @@ namespace ConnectApp.screens {
                 {
                     break;
                 }
-             var message = messageDict[commentId];
+                var message = messageDict[commentId];
                 bool isPraised = _isPraised(message);
                 var card = new CommentCard(
                     message,

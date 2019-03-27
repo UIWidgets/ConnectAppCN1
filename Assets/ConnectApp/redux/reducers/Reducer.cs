@@ -170,9 +170,25 @@ namespace ConnectApp.redux.reducers {
                 }
                 case FetchArticleDetailSuccessAction action: {
                     state.articleState.articleDetailLoading = false;
-                    state.articleState.articleDetail = action.articleDetail;
+                    var article = action.articleDetail.projectData;
+                    article.like = action.articleDetail.like;
+                    article.edit = action.articleDetail.edit;
+                    article.projects = action.articleDetail.projects;
+                    article.channelId = action.articleDetail.channelId;
+                    article.contentMap = action.articleDetail.contentMap;
+                    article.hasMore = action.articleDetail.comments.hasMore;
+                    article.currOldestMessageId = action.articleDetail.comments.currOldestMessageId;
+                    var dict = state.articleState.articleDict;
+                    if (dict.ContainsKey(article.id))
+                    {
+                        state.articleState.articleDict[article.id] = article;
+                    }else
+                    {
+                        state.articleState.articleDict.Add(article.id,article);
+                    }
+
                     StoreProvider.store.Dispatch(new SaveArticleHistoryAction {
-                        article = action.articleDetail.projectData
+                        article = article
                     });
                     break;
                 }
@@ -223,13 +239,17 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case LikeArticleSuccessAction action: {
-                    state.articleState.articleDetail.like = true;
+                    if (state.articleState.articleDict.ContainsKey(action.articleId))
+                    {
+                        state.articleState.articleDict[action.articleId].like = true;
+                    }
+                    
                     break;
                 }
                 case FetchArticleCommentsAction action: {
                     ArticleApi.FetchArticleComments(action.channelId, action.currOldestMessageId)
                         .Then((responseComments) => {
-                            state.articleState.articleDetail.comments = responseComments;
+//                            state.articleState.articleDetail.comments = responseComments;
 
                             var channelMessageList = new Dictionary<string, List<string>>();
                             var channelMessageDict = new Dictionary<string, Dictionary<string, Message>>();
@@ -253,6 +273,20 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case FetchArticleCommentsSuccessAction action: {
+                    if (action.channelId.isNotEmpty())
+                    {
+                        foreach (var dict in state.articleState.articleDict)
+                        {
+                            if (dict.Value.channelId== action.channelId)
+                            {
+                                dict.Value.hasMore = action.hasMore;
+                                dict.Value.currOldestMessageId = action.currOldestMessageId;
+                            }
+                        }
+                    }
+                    
+                    
+                    
                     foreach (var keyValuePair in action.channelMessageList)
                         if (state.messageState.channelMessageList.ContainsKey(keyValuePair.Key)) {
                             var oldList = state.messageState.channelMessageList[keyValuePair.Key];
