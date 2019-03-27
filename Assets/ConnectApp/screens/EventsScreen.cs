@@ -171,11 +171,10 @@ namespace ConnectApp.screens {
                                 cardList.Add(new EventCard(
                                     model,
                                     () => {
-                                        StoreProvider.store.Dispatch(new NavigatorToEventDetailAction {
-                                            eventId = model.id,
-                                            eventType = model.live ? EventType.onLine : EventType.offline
+                                        StoreProvider.store.Dispatch(new MainNavigatorPushToEventDetailAction {
+                                            EventId = model.id,
+                                            EventType = model.live ? EventType.onLine : EventType.offline
                                         });
-                                        Router.navigator.pushNamed("/event-detail");
                                     }, new ObjectKey(model.id)));
                             });
                         else
@@ -221,11 +220,10 @@ namespace ConnectApp.screens {
                                 cardList.Add(new EventCard(
                                     model,
                                     () => {
-                                        StoreProvider.store.Dispatch(new NavigatorToEventDetailAction {
-                                            eventId = model.id,
-                                            eventType = model.live ? EventType.onLine : EventType.offline
+                                        StoreProvider.store.Dispatch(new MainNavigatorPushToEventDetailAction {
+                                            EventId = model.id,
+                                            EventType = model.live ? EventType.onLine : EventType.offline
                                         });
-                                        Router.navigator.pushNamed("/event-detail");
                                     }));
                             });
                         else
