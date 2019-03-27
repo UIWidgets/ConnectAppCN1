@@ -31,10 +31,12 @@ namespace ConnectApp.screens {
     internal class _SearchScreenState : State<SearchScreen> {
         private readonly TextEditingController _controller = new TextEditingController(null);
         private int pageNumber;
+        private FocusNode _focusNode;
 
         public override void initState() {
             base.initState();
             pageNumber = 0;
+            _focusNode = new FocusNode();
             StoreProvider.store.Dispatch(new GetSearchHistoryAction());
         }
 
@@ -45,6 +47,7 @@ namespace ConnectApp.screens {
 
         private void _searchArticle(string text) {
             if (text.isEmpty()) return;
+            _focusNode.unfocus();
             _saveSearchHistory(text);
             _controller.text = text;
             StoreProvider.store.Dispatch(new SearchArticleAction {keyword = text});
@@ -167,6 +170,7 @@ namespace ConnectApp.screens {
                             controller: _controller,
                             style: CTextStyle.H2,
                             autofocus: true,
+                            focusNode:_focusNode,
                             hintText: "搜索",
                             hintStyle: CTextStyle.H2Body4,
                             cursorColor: CColors.PrimaryBlue,
