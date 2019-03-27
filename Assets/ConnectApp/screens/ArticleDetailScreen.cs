@@ -21,9 +21,14 @@ using TextStyle = Unity.UIWidgets.painting.TextStyle;
 namespace ConnectApp.screens {
     public class ArticleDetailScreen : StatefulWidget {
         public ArticleDetailScreen(
-            Key key = null
+            Key key = null,
+            string articleId = null
         ) : base(key) {
+            D.assert(articleId != null);
+            this.articleId = articleId;
         }
+
+        public readonly string articleId;
 
         public override State createState() {
             return new _ArticleDetailScreenState();
@@ -45,7 +50,11 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             StoreProvider.store.Dispatch(new FetchArticleDetailAction
-                {articleId = StoreProvider.store.state.articleState.detailId});
+                {articleId = widget.articleId});
+        }
+
+        void ToLogin() {
+            StoreProvider.store.Dispatch(new MainNavigatorPushToAction {RouteName = MainNavigatorRoutes.Login});
         }
 
         public override Widget build(BuildContext context) {
@@ -120,7 +129,7 @@ namespace ConnectApp.screens {
                                     () => {
                                         if (!StoreProvider.store.state.loginState.isLoggedIn)
                                         {
-                                            Router.navigator.pushNamed("/login");
+                                            ToLogin();
                                         }
                                         else
                                         {
@@ -140,7 +149,7 @@ namespace ConnectApp.screens {
                                     {
                                         if (!StoreProvider.store.state.loginState.isLoggedIn)
                                         {
-                                            Router.navigator.pushNamed("/login");
+                                            ToLogin();
                                         }
                                         else
                                         {
@@ -160,7 +169,7 @@ namespace ConnectApp.screens {
                                     () => {
                                         if (!StoreProvider.store.state.loginState.isLoggedIn)
                                         {
-                                            Router.navigator.pushNamed("/login"); 
+                                            ToLogin(); 
                                         }
                                         else
                                         {
@@ -213,8 +222,7 @@ namespace ConnectApp.screens {
                 child: new CustomNavigationBar(
                     new GestureDetector(
                         onTap: () => {
-                            Router.navigator.pop();
-                            StoreProvider.store.Dispatch(new ClearEventDetailAction());
+                            StoreProvider.store.Dispatch(new MainNavigatorPopAction());
                         },
                         child: new Icon(Icons.arrow_back, size: 24, color: CColors.icon3)
                     ), new List<Widget> {
@@ -355,7 +363,8 @@ namespace ConnectApp.screens {
                         new ActionCard(Icons.favorite, like ? "已赞" : "点赞", like, () => {
                             if (!StoreProvider.store.state.loginState.isLoggedIn)
                             {
-                                Router.navigator.pushNamed("/login");                            }
+                                ToLogin();                            
+                            }
                             else
                             {
                                 if (!like)
@@ -382,8 +391,7 @@ namespace ConnectApp.screens {
                 widgets.Add(new RelatedArticleCard(
                     article,
                     () => {
-                        StoreProvider.store.Dispatch(new NavigatorToArticleDetailAction {detailId = article.id});
-                        Router.navigator.pushNamed("/article-detail");
+                        StoreProvider.store.Dispatch(new MainNavigatorPushToArticleDetailAction {ArticleId = article.id});
                     }
                 ));
             });
@@ -450,7 +458,7 @@ namespace ConnectApp.screens {
                     replyCallBack: () => {
                         if (!StoreProvider.store.state.loginState.isLoggedIn)
                         {
-                            Router.navigator.pushNamed("/login");                            }
+                            ToLogin();                            }
                         else
                         {
                             ActionSheetUtils.showModalActionSheet(new CustomInput(
@@ -469,7 +477,8 @@ namespace ConnectApp.screens {
                     praiseCallBack: () => {
                         if (!StoreProvider.store.state.loginState.isLoggedIn)
                         {
-                            Router.navigator.pushNamed("/login");                            }
+                            ToLogin();
+                        }
                         else
                         {
                             if (isPraised)

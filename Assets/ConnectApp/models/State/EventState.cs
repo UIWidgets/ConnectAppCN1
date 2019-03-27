@@ -19,8 +19,6 @@ namespace ConnectApp.models {
         public List<IEvent> eventHistory { get; set; }
         public bool eventDetailLoading { get; set; }
         public bool joinEventLoading { get; set; }
-        public string detailId { get; set; }
-        public EventType eventType { get; set; }
         public bool showChatWindow { get; set; }
         public bool openChatWindow { get; set; }
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ConnectApp.canvas;
 using ConnectApp.constants;
 using ConnectApp.redux;
+using ConnectApp.redux.actions;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -107,7 +108,7 @@ namespace ConnectApp.components {
                                         if (item.index == 2) {
                                             var isLoggedIn = StoreProvider.store.state.loginState.isLoggedIn;
                                             if (!isLoggedIn) {
-                                                Router.navigator.pushNamed("/login");
+                                                StoreProvider.store.Dispatch(new MainNavigatorPushToAction {RouteName = MainNavigatorRoutes.Login});
                                                 return;
                                             }
                                         }

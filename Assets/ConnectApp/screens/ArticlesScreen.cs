@@ -65,7 +65,7 @@ namespace ConnectApp.screens {
                 )),
                 new List<Widget> {
                     new CustomButton(
-                        onPressed: () => Router.navigator.pushNamed("/search"),
+                        onPressed: () => StoreProvider.store.Dispatch(new MainNavigatorPushToAction {RouteName = MainNavigatorRoutes.Search}),
                         child: new Icon(
                             Icons.search,
                             size: 28,
@@ -118,9 +118,7 @@ namespace ConnectApp.screens {
                                         return new ArticleCard(
                                             article,
                                             () => {
-                                                StoreProvider.store.Dispatch(new NavigatorToArticleDetailAction
-                                                    {detailId = articleId});
-                                                Navigator.pushNamed(context, "/article-detail");
+                                                StoreProvider.store.Dispatch(new MainNavigatorPushToArticleDetailAction {ArticleId = articleId});
                                             },
                                             () => {
                                                 ActionSheetUtils.showModalActionSheet(new ActionSheet(

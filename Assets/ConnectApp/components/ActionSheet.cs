@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.canvas;
 using ConnectApp.constants;
+using ConnectApp.redux;
+using ConnectApp.redux.actions;
 using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
@@ -99,7 +101,7 @@ namespace ConnectApp.components {
                     children: new List<Widget> {
                         new GestureDetector(
                             onTap: () => {
-                                Router.navigator.pop();
+                                StoreProvider.store.Dispatch(new MainNavigatorPopAction());
                                 item.onTap();
                             },
                             child: new Container(

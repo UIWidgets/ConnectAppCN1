@@ -19,10 +19,18 @@ using TextStyle = Unity.UIWidgets.painting.TextStyle;
 namespace ConnectApp.screens {
     public class EventDetailScreen : StatefulWidget {
         public EventDetailScreen(
-            Key key = null
+            Key key = null,
+            string eventId = null,
+            EventType eventType = EventType.offline
         ) : base(key) {
+            D.assert(eventId != null);
+            this.eventId = eventId;
+            this.eventType = eventType;
         }
 
+        public readonly string eventId;
+        public readonly EventType eventType;
+        
         public override State createState() {
             return new _EventDetailScreenState();
         }
@@ -36,7 +44,7 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             StoreProvider.store.Dispatch(new FetchEventDetailAction
-                {eventId = StoreProvider.store.state.eventState.detailId});
+                {eventId = widget.eventId});
             // new CurvedAnimation();
             _controller = new AnimationController(
                 duration: new TimeSpan(0,0,0,0,300),
@@ -45,7 +53,6 @@ namespace ConnectApp.screens {
         }
 
         public override void dispose() {
-            StoreProvider.store.Dispatch(new ClearEventDetailAction());
             _controller.dispose();
             base.dispose();
         }
@@ -131,7 +138,7 @@ namespace ConnectApp.screens {
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: new List<Widget> {
                                                 new CustomButton(
-                                                    onPressed: () => Router.navigator.pop(),
+                                                    onPressed: () => StoreProvider.store.Dispatch(new MainNavigatorPopAction()),
                                                     child: new Icon(
                                                         Icons.arrow_back,
                                                         size: 28,
@@ -259,7 +266,7 @@ namespace ConnectApp.screens {
                         if (isLoggedIn)
                             StoreProvider.store.Dispatch(new JoinEventAction {eventId = eventObj.id});
                         else
-                            Router.navigator.pushNamed("/login");
+                            StoreProvider.store.Dispatch(new MainNavigatorPushToAction {RouteName = MainNavigatorRoutes.Login});
                     },
                     child: new Container(
                         decoration: new BoxDecoration(
@@ -285,8 +292,6 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, Dictionary<string, object>>(
                 converter: (state, dispatcher) => new Dictionary<string, object> {
                     {"isLoggedIn", state.loginState.isLoggedIn},
-                    {"eventType", state.eventState.eventType},
-                    {"detailId", state.eventState.detailId},
                     {"loading", state.eventState.eventDetailLoading},
                     {"ongoingEventDict", state.eventState.ongoingEventDict},
                     {"showChatWindow", state.eventState.showChatWindow},
@@ -295,11 +300,11 @@ namespace ConnectApp.screens {
                 builder: (_context, viewModel) => {
                     _setAnimationPosition(context);
                     var isLoggedIn = (bool) viewModel["isLoggedIn"];
-                    var eventType = (EventType) viewModel["eventType"];
-                    var detailId = (string) viewModel["detailId"];
+                    var eventType = widget.eventType;
+                    var eventId = widget.eventId;
                     var ongoingEventDict = (Dictionary<string, IEvent>) viewModel["ongoingEventDict"];
                     IEvent eventObj = null;
-                    if (ongoingEventDict.ContainsKey(detailId)) eventObj = ongoingEventDict[detailId];
+                    if (ongoingEventDict.ContainsKey(eventId)) eventObj = ongoingEventDict[eventId];
                     var showChatWindow = (bool) viewModel["showChatWindow"];
                     var openChatWindow = (bool) viewModel["openChatWindow"];
                     var loading = (bool) viewModel["loading"];

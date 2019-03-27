@@ -4,6 +4,7 @@ using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
+using ConnectApp.redux.actions;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
@@ -59,7 +60,8 @@ namespace ConnectApp.screens {
                             margin: EdgeInsets.only(top: 16),
                             child: new CustomButton(
                                 padding: EdgeInsets.zero,
-                                onPressed: () => { Router.navigator.pushNamed("/login"); },
+                                onPressed: () => { StoreProvider.store.Dispatch(new MainNavigatorPushToAction{RouteName = MainNavigatorRoutes.Login})
+                                    ; },
                                 child: new Container(
                                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                                     decoration: new BoxDecoration(
@@ -99,19 +101,19 @@ namespace ConnectApp.screens {
 //                    if (isLoginIn) {
 //                    }
 //                    else {
-//                        Router.navigator.pushNamed("/login");
+//                        StoreProvider.store.Dispatch(new MainNavigatorPushToAction{RouteName = MainNavigatorRoutes.Login});
 //                    }
 //                }),
                 new PersonalCardItem(Icons.ievent, "我的活动", () => {
                     var isLoginIn = StoreProvider.store.state.loginState.isLoggedIn;
-                    var routeName = isLoginIn ? "/my-event" : "/login";
-                    Router.navigator.pushNamed(routeName);
+                    var routeName = isLoginIn ? MainNavigatorRoutes.MyEvent : MainNavigatorRoutes.Login;
+                    StoreProvider.store.Dispatch(new MainNavigatorPushToAction {RouteName = routeName});
                 }),
-                new PersonalCardItem(Icons.eye, "浏览历史", () => Router.navigator.pushNamed("/history")),
+                new PersonalCardItem(Icons.eye, "浏览历史", () => StoreProvider.store.Dispatch(new MainNavigatorPushToAction {RouteName = MainNavigatorRoutes.History})),
                 new PersonalCardItem(Icons.settings, "设置", () => {
                     var isLoginIn = StoreProvider.store.state.loginState.isLoggedIn;
-                    var routeName = isLoginIn ? "/setting" : "/login";
-                    Router.navigator.pushNamed(routeName);
+                    var routeName = isLoginIn ? MainNavigatorRoutes.Setting : MainNavigatorRoutes.Login;
+                    StoreProvider.store.Dispatch(new MainNavigatorPushToAction {RouteName = routeName});
                 })
             };
             List<Widget> widgets = new List<Widget>();

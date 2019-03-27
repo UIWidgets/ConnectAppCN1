@@ -72,7 +72,7 @@ namespace ConnectApp.screens {
                         new Container(
                             child:new CustomButton(
                                 padding: EdgeInsets.only(16, 10, 16),
-                                onPressed: () => Router.navigator.pop(),
+                                onPressed: () => StoreProvider.store.Dispatch(new MainNavigatorPopAction()),
                                 child: new Icon(
                                     Icons.arrow_back,
                                     size: 24,
@@ -163,9 +163,10 @@ namespace ConnectApp.screens {
                                 return new EventCard(
                                     model,
                                     () => {
-                                        StoreProvider.store.Dispatch(new NavigatorToEventDetailAction
-                                            {eventId = model.id});
-                                        Router.navigator.pushNamed("/event-detail");
+                                        StoreProvider.store.Dispatch(new MainNavigatorPushToEventDetailAction {
+                                            EventId = model.id,
+                                            EventType = model.mode == "online" ? EventType.onLine : EventType.offline
+                                        });
                                     }
                                 );
                             }

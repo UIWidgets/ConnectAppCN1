@@ -182,11 +182,10 @@ namespace ConnectApp.screens {
                                     return new EventCard(
                                         model,
                                         () => {
-                                            StoreProvider.store.Dispatch(new NavigatorToEventDetailAction {
-                                                eventId = model.id,
-                                                eventType = model.mode == "online" ? EventType.onLine : EventType.offline
+                                            StoreProvider.store.Dispatch(new MainNavigatorPushToEventDetailAction {
+                                                EventId = model.id,
+                                                EventType = model.mode == "online" ? EventType.onLine : EventType.offline
                                             });
-                                            Router.navigator.pushNamed("/event-detail");
                                         },
                                         new ObjectKey(model.id)
                                     );
@@ -234,11 +233,10 @@ namespace ConnectApp.screens {
                                     return new EventCard(
                                         model,
                                         () => {
-                                            StoreProvider.store.Dispatch(new NavigatorToEventDetailAction {
-                                                eventId = model.id,
-                                                eventType = model.mode == "online" ? EventType.onLine: EventType.offline
+                                            StoreProvider.store.Dispatch(new MainNavigatorPushToEventDetailAction {
+                                                EventId = model.id,
+                                                EventType = model.mode == "online" ? EventType.onLine : EventType.offline
                                             });
-                                            Router.navigator.pushNamed("/event-detail");
                                         }
                                     );
                                 }

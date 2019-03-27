@@ -70,7 +70,7 @@ namespace ConnectApp.screens {
                         new Container(height:44,
                             child:new CustomButton(
                                 padding: EdgeInsets.only(16),
-                                onPressed: () => Router.navigator.pop(),
+                                onPressed: () => StoreProvider.store.Dispatch(new MainNavigatorPopAction()),
                                 child: new Icon(
                                     Icons.arrow_back,
                                     size: 24,
@@ -151,9 +151,9 @@ namespace ConnectApp.screens {
                                     new ArticleCard(
                                         model,
                                         () => {
-                                            StoreProvider.store.Dispatch(new NavigatorToArticleDetailAction
-                                                {detailId = model.id});
-                                            Router.navigator.pushNamed("/article-detail");
+                                            StoreProvider.store.Dispatch(new MainNavigatorPushToArticleDetailAction {
+                                                ArticleId = model.id
+                                            });
                                         }
                                     ),
                                     new Container(
@@ -196,9 +196,10 @@ namespace ConnectApp.screens {
                                     new EventCard(
                                         model,
                                         () => {
-                                            StoreProvider.store.Dispatch(new NavigatorToEventDetailAction
-                                                {eventId = model.id});
-                                            Router.navigator.pushNamed("/event-detail");
+                                            StoreProvider.store.Dispatch(new MainNavigatorPushToEventDetailAction {
+                                                EventId = model.id,
+                                                EventType = model.mode == "online" ? EventType.onLine : EventType.offline
+                                            });
                                         }
                                     ),
                                     new Container(

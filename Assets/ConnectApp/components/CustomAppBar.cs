@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using ConnectApp.canvas;
 using ConnectApp.constants;
+using ConnectApp.redux;
+using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -36,7 +38,7 @@ namespace ConnectApp.components {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: new List<Widget> {
                         leading ?? new CustomButton(
-                            onPressed: () => Router.navigator.pop(context),
+                            onPressed: () => StoreProvider.store.Dispatch(new MainNavigatorPopAction()),
                             child: new Icon(
                                 Icons.arrow_back,
                                 size: 24,

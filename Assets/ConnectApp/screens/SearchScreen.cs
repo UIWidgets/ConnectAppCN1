@@ -117,9 +117,8 @@ namespace ConnectApp.screens {
                                                                 searchArticle,
                                                                 () => {
                                                                     StoreProvider.store.Dispatch(
-                                                                        new NavigatorToArticleDetailAction
-                                                                            {detailId = searchArticle.id});
-                                                                    Router.navigator.pushNamed("/article-detail");
+                                                                        new MainNavigatorPushToArticleDetailAction
+                                                                            {ArticleId = searchArticle.id});
                                                                 }
                                                             );
                                                         }
@@ -154,7 +153,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new CustomButton(
                             padding: EdgeInsets.only(8, 8, 0, 8),
-                            onPressed: () => { Router.navigator.pop(); },
+                            onPressed: () => { StoreProvider.store.Dispatch(new MainNavigatorPopAction()); },
                             child: new Text(
                                 "取消",
                                 style: CTextStyle.PLargeBlue

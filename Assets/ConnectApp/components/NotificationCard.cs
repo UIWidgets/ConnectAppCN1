@@ -27,8 +27,7 @@ namespace ConnectApp.components {
             var data = notification.data;
             return new GestureDetector(
                 onTap: () => {
-                    StoreProvider.store.Dispatch(new NavigatorToEventDetailAction {eventId = data.projectId});
-                    Router.navigator.pushNamed("/detail");
+                    StoreProvider.store.Dispatch(new MainNavigatorPushToArticleDetailAction {ArticleId = data.projectId});
                 },
                 child: new Container(
                     color: CColors.Transparent,
