@@ -16,13 +16,13 @@ namespace ConnectApp.canvas {
         protected override void OnEnable() {
             base.OnEnable();
             Application.targetFrameRate = 60;
-            FontManager.instance.addFont(Resources.Load<Font>("Material Icons"));
-            FontManager.instance.addFont(Resources.Load<Font>("Roboto-Regular"));
-            FontManager.instance.addFont(Resources.Load<Font>("Roboto-Medium"));
-            FontManager.instance.addFont(Resources.Load<Font>("Roboto-Bold"));
-            FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Regular"));
-            FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Medium"));
-            FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Semibold"));
+            FontManager.instance.addFont(Resources.Load<Font>("Material Icons"), familyName:"Material Icons");
+            FontManager.instance.addFont(Resources.Load<Font>("Roboto-Regular"), familyName:"Roboto-Regular");
+            FontManager.instance.addFont(Resources.Load<Font>("Roboto-Medium"), familyName:"Roboto-Medium");
+            FontManager.instance.addFont(Resources.Load<Font>("Roboto-Bold"), familyName:"Roboto-Bold");
+            FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Regular"), familyName:"PingFangSC-Regular");
+            FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Medium"), familyName:"PingFangSC-Medium");
+            FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Semibold"), familyName:"PingFangSC-Semibold");
 //            var videoPlayer = GetComponent<VideoPlayer>();
 //            VideoPlayerManager.instance.player = videoPlayer;
         }
