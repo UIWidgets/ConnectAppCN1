@@ -81,67 +81,83 @@ namespace ConnectApp.screens {
                 .Catch(error => { Debug.Log($"{error}"); });
         }
 
-        public override Widget build(BuildContext context) {
-            return new SafeArea(
-                child: new Container(
-                    color: CColors.White,
-                    child: new Column(
-                        children: new List<Widget> {
-                            _buildSearchBar(context),
-                            new Flexible(
-                                child: new StoreConnector<AppState, SearchState>(
-                                    converter: (state, dispatch) => state.searchState,
-                                    builder: (_context, viewModel) => {
-                                        if (viewModel.loading) return new GlobalLoading();
+        public override Widget build(BuildContext context)
+        {
+            return new Container(
+                color: CColors.White,
+                child: new SafeArea(
+                    child: new Container(
+                        color: CColors.White,
+                        child: new Column(
+                            children: new List<Widget>
+                            {
+                                _buildSearchBar(context),
+                                new Flexible(
+                                    child: new StoreConnector<AppState, SearchState>(
+                                        converter: (state, dispatch) => state.searchState,
+                                        builder: (_context, viewModel) =>
+                                        {
+                                            if (viewModel.loading) return new GlobalLoading();
 
-                                        if (viewModel.keyword.Length > 0) {
-                                            var searchArticles = viewModel.searchArticles;
-                                            if (searchArticles.Count > 0)
-                                                return new Refresh(
-                                                    onHeaderRefresh: () => {
-                                                        pageNumber = 0;
-                                                        return _onRefresh(pageNumber);
-                                                    },
-                                                    onFooterRefresh: () => {
-                                                        pageNumber++;
-                                                        return _onRefresh(pageNumber);
-                                                    },
-                                                    headerBuilder: (cxt, controller) => new RefreshHeader(controller),
-                                                    footerBuilder: (cxt, controller) => new RefreshFooter(controller),
-                                                    child: ListView.builder(
-                                                        physics: new AlwaysScrollableScrollPhysics(),
-                                                        itemCount: searchArticles.Count,
-                                                        itemBuilder: (cxt, index) => {
-                                                            var searchArticle = searchArticles[index];
-                                                            return new RelatedArticleCard(
-                                                                searchArticle,
-                                                                () => {
-                                                                    StoreProvider.store.Dispatch(
-                                                                        new NavigatorToArticleDetailAction
-                                                                            {detailId = searchArticle.id});
-                                                                    Router.navigator.pushNamed("/article-detail");
-                                                                }
-                                                            );
-                                                        }
-                                                    )
-                                                );
-                                            return new BlankView("暂无搜索结果");
-                                        }
-
-                                        return new ListView(
-                                            children: new List<Widget> {
-                                                viewModel.searchHistoryList==null?new Container() : 
-                                                _buildSearchHistory(viewModel.searchHistoryList),
-                                                _buildHotSearch()
+                                            if (viewModel.keyword.Length > 0)
+                                            {
+                                                var searchArticles = viewModel.searchArticles;
+                                                if (searchArticles.Count > 0)
+                                                    return new Refresh(
+                                                        onHeaderRefresh: () =>
+                                                        {
+                                                            pageNumber = 0;
+                                                            return _onRefresh(pageNumber);
+                                                        },
+                                                        onFooterRefresh: () =>
+                                                        {
+                                                            pageNumber++;
+                                                            return _onRefresh(pageNumber);
+                                                        },
+                                                        headerBuilder: (cxt, controller) =>
+                                                            new RefreshHeader(controller),
+                                                        footerBuilder: (cxt, controller) =>
+                                                            new RefreshFooter(controller),
+                                                        child: ListView.builder(
+                                                            physics: new AlwaysScrollableScrollPhysics(),
+                                                            itemCount: searchArticles.Count,
+                                                            itemBuilder: (cxt, index) =>
+                                                            {
+                                                                var searchArticle = searchArticles[index];
+                                                                return new RelatedArticleCard(
+                                                                    searchArticle,
+                                                                    () =>
+                                                                    {
+                                                                        StoreProvider.store.Dispatch(
+                                                                            new NavigatorToArticleDetailAction
+                                                                                {detailId = searchArticle.id});
+                                                                        Router.navigator.pushNamed("/article-detail");
+                                                                    }
+                                                                );
+                                                            }
+                                                        )
+                                                    );
+                                                return new BlankView("暂无搜索结果");
                                             }
-                                        );
-                                    }
+
+                                            return new ListView(
+                                                children: new List<Widget>
+                                                {
+                                                    viewModel.searchHistoryList == null
+                                                        ? new Container()
+                                                        : _buildSearchHistory(viewModel.searchHistoryList),
+                                                    _buildHotSearch()
+                                                }
+                                            );
+                                        }
+                                    )
                                 )
-                            )
-                        }
+                            }
+                        )
                     )
                 )
             );
+
         }
 
         private Widget _buildSearchBar(BuildContext context) {
