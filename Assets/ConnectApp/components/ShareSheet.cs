@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using ConnectApp.canvas;
 using ConnectApp.constants;
+using ConnectApp.redux;
+using ConnectApp.redux.actions;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -67,7 +69,7 @@ namespace ConnectApp.components {
                                     )
                                 ),
                                 new GestureDetector(
-                                    onTap: () => { Router.navigator.pop(); },
+                                    onTap: () => { StoreProvider.store.Dispatch(new MainNavigatorPopAction()); },
                                     child: new Container(
                                         height: 49,
                                         color: CColors.Transparent,

@@ -40,7 +40,7 @@ namespace ConnectApp.screens {
                         new Container(height:44,
                             child:new CustomButton(
                                 padding: EdgeInsets.only(16),
-                                onPressed: () => Router.navigator.pop(),
+                                onPressed: () => StoreProvider.store.Dispatch(new MainNavigatorPopAction()),
                                 child: new Icon(
                                     Icons.arrow_back,
                                     size: 24,
@@ -76,12 +76,12 @@ namespace ConnectApp.screens {
                             _buildCellView("关于我们", () => { }),
                             _buildGapView(),
                             _buildCellView("清理缓存", () => {
-                                CustomDialogUtils.showCustomDialog(
-                                    context,
-                                    child: new CustomDialog(
-                                        message: "正在清理缓存"
-                                    )
-                                );
+//                                CustomDialogUtils.showCustomDialog(
+//                                    context,
+//                                    child: new CustomDialog(
+//                                        message: "正在清理缓存"
+//                                    )
+//                                );
                             }),
                             _buildGapView(),
                             _buildLogoutBtn(context)

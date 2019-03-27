@@ -41,23 +41,6 @@ namespace ConnectApp.redux.reducers {
                     state.eventState.openChatWindow = action.status;
                     break;
                 }
-                case NavigatorToEventDetailAction action: {
-                    state.eventState.detailId = action.eventId;
-                    state.eventState.eventType = action.eventType;
-                    break;
-                }
-                case NavigatorToArticleDetailAction action: {
-                    state.articleState.detailId = action.detailId;
-                    break;
-                }
-                case ClearEventDetailAction action: {
-                    state.eventState.detailId = null;
-                    break;
-                }
-                case NavigatorToLoginAction action: {
-                    state.loginState.fromPage = action.fromPage;
-                    break;
-                }
                 case LoginByEmailAction action: {
                     state.loginState.loading = true;
                     var email = state.loginState.email;
@@ -79,16 +62,15 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.loading = false;
                     state.loginState.loginInfo = action.loginInfo;
                     var user = new User {
-                        id = state.loginState.loginInfo.userId, 
+                        id = state.loginState.loginInfo.userId,
                         fullName = state.loginState.loginInfo.userFullName
                     };
-                    var dict = new Dictionary<string,User> {
-                        {user.id,user}
+                    var dict = new Dictionary<string, User> {
+                        {user.id, user}
                     };
                     StoreProvider.store.Dispatch(new UserMapAction {userMap = dict});
                     state.loginState.isLoggedIn = true;
-                    Router.navigator.pop();
-                    StoreProvider.store.Dispatch(new CleanEmailAndPasswordAction());
+                    StoreProvider.store.Dispatch(new MainNavigatorPopAction()).Then(() => StoreProvider.store.Dispatch(new CleanEmailAndPasswordAction()));
                     break;
                 }
                 case LoginByEmailFailedAction action: {
@@ -103,7 +85,7 @@ namespace ConnectApp.redux.reducers {
                 case LogoutAction action: {
                     state.loginState.loginInfo = new LoginInfo();
                     state.loginState.isLoggedIn = false;
-                    Router.navigator.pop();
+                    StoreProvider.store.Dispatch(new MainNavigatorPopAction());
                     break;
                 }
                 case CleanEmailAndPasswordAction action: {
@@ -148,20 +130,18 @@ namespace ConnectApp.redux.reducers {
                                 var itemIds = new List<string>();
                                 var messageItem = new Dictionary<string, Message>();
                                 var messages = articleDetailResponse.project.comments.items;
-                                foreach (var message in messages)
-                                {
+                                foreach (var message in messages) {
                                     itemIds.Add(message.id);
                                     messageItem[message.id] = message;
-                                    if (userMap.ContainsKey(message.author.id))
-                                    {
+                                    if (userMap.ContainsKey(message.author.id)) {
                                         userMap[message.author.id] = message.author;
                                     }
-                                    else
-                                    {
-                                        userMap.Add(message.author.id, message.author); 
-  
+                                    else {
+                                        userMap.Add(message.author.id, message.author);
+
                                     }
                                 }
+
                                 channelMessageList.Add(channelId, itemIds);
                                 channelMessageDict.Add(channelId, messageItem);
 
@@ -423,27 +403,21 @@ namespace ConnectApp.redux.reducers {
                     var userMap = new Dictionary<string, User> {
                         {action.eventObj.user.id, action.eventObj.user}
                     };
-                    action.eventObj.hosts.ForEach(host =>
-                    {
-                        if (userMap.ContainsKey(host.id))
-                        {
+                    action.eventObj.hosts.ForEach(host => {
+                        if (userMap.ContainsKey(host.id)) {
                             userMap[host.id] = host;
                         }
-                        else
-                        {
+                        else {
                             userMap.Add(host.id, host);
                         }
                     });
                     StoreProvider.store.Dispatch(new UserMapAction {userMap = userMap});
-                    if (state.eventState.eventDict.ContainsKey(action.eventObj.id))
-                    {
+                    if (state.eventState.eventDict.ContainsKey(action.eventObj.id)) {
                         state.eventState.eventDict[action.eventObj.id] = action.eventObj;
                     }
-                    else
-                    {
-                        state.eventState.eventDict.Add(action.eventObj.id,action.eventObj);
+                    else {
+                        state.eventState.eventDict.Add(action.eventObj.id, action.eventObj);
                     }
-                    state.eventState.detailId = action.eventObj.id;
                     StoreProvider.store.Dispatch(new SaveEventHistoryAction {eventObj = action.eventObj});
                     break;
                 }
@@ -702,8 +676,65 @@ namespace ConnectApp.redux.reducers {
                     PlayerPrefs.DeleteKey(_searchHistoryKey);
                     break;
                 }
+                case MainNavigatorPushToArticleDetailAction action: {
+                    if (action.ArticleId != null) {
+                        Router.navigator.push(new PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) => new ArticleDetailScreen(articleId: action.ArticleId),
+                            transitionsBuilder: (context1, animation, secondaryAnimation, child) => new PushPageTransition(
+                                routeAnimation: animation,
+                                child: child
+                            ))
+                        );
+                    }
+                    break;
+                }
+                case MainNavigatorPushToEventDetailAction action: {
+                    if (action.EventId != null) {
+                        Router.navigator.push(new PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) => new EventDetailScreen(eventId: action.EventId, eventType: action.EventType), 
+                            transitionsBuilder: (context1, animation, secondaryAnimation, child) => new PushPageTransition(
+                                routeAnimation: animation,
+                                child: child
+                            ))
+                        );
+                    }
+                    break;
+                }
+                case MainNavigatorPushToAction action: {
+                    Router.navigator.pushNamed(action.RouteName);
+                    break;
+                }
+                case MainNavigatorPopAction action: {
+                    for (var i = 0; i < action.Index; i++) {
+                        if (Router.navigator.canPop()) {
+                            Router.navigator.pop();
+                        }
+                    }
+                    break;
+                }
+                case LoginNavigatorPushToBindUintyAction action: {
+                    LoginScreen.navigator.push(new PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) => new BindUnityScreen(fromPage: action.FromPage), 
+                        transitionsBuilder: (context1, animation, secondaryAnimation, child) => new PushPageTransition(
+                            routeAnimation: animation,
+                            child: child
+                        ))
+                    );
+                    break;
+                }
+                case LoginNavigatorPushToAction action: {
+                    LoginScreen.navigator.pushNamed(action.RouteName);
+                    break;
+                }
+                case LoginNavigatorPopAction action: {
+                    for (var i = 0; i < action.Index; i++) {
+                        if (LoginScreen.navigator.canPop()) {
+                            LoginScreen.navigator.pop();
+                        }
+                    }
+                    break;
+                }
             }
-
             return state;
         }
     }

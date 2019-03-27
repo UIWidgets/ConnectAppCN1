@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.canvas;
 using ConnectApp.components;
@@ -15,15 +16,20 @@ using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.screens {
     public enum FromPage {
-        weChat,
-        login
+        wechat,
+        login,
+        setting
     }
 
     public class BindUnityScreen : StatefulWidget {
         public BindUnityScreen(
-            Key key = null
+            Key key = null,
+            FromPage fromPage = FromPage.setting
         ) : base(key) {
+            this.fromPage = fromPage;
         }
+        
+        public readonly FromPage fromPage;
 
         public override State createState() {
             return new _BindUnityScreenState();
@@ -82,8 +88,50 @@ namespace ConnectApp.screens {
             );
         }
 
-        private static Widget _buildTopView(BuildContext context) {
-            var fromPage = StoreProvider.store.state.loginState.fromPage;
+        private Widget _buildTopView(BuildContext context) {
+            Widget leftWidget;
+            switch (widget.fromPage) {
+                case FromPage.login: {
+                    leftWidget = new CustomButton(
+                        onPressed: () => {
+                            StoreProvider.store.Dispatch(new LoginNavigatorPopAction()).Then(() => StoreProvider.store.Dispatch(new CleanEmailAndPasswordAction()));
+                        },
+                        child: new Icon(
+                            Icons.arrow_back,
+                            size: 24,
+                            color: CColors.icon3
+                        )
+                    );
+                    break;
+                }
+                case FromPage.wechat: {
+                    leftWidget = new CustomButton(
+                        onPressed: () => {
+                            StoreProvider.store.Dispatch(new MainNavigatorPopAction()).Then(() => StoreProvider.store.Dispatch(new CleanEmailAndPasswordAction()));
+                        },
+                        child: new Text(
+                            "跳过",
+                            style: CTextStyle.PLargeBody4
+                        )
+                    );
+                    break;
+                }
+                case FromPage.setting: {
+                    leftWidget = new CustomButton(
+                        onPressed: () => {
+                            StoreProvider.store.Dispatch(new MainNavigatorPopAction()).Then(() => StoreProvider.store.Dispatch(new CleanEmailAndPasswordAction()));
+                        },
+                        child: new Icon(
+                            Icons.arrow_back,
+                            size: 24,
+                            color: CColors.icon3
+                        )
+                    );
+                    break;
+                }
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
             return new Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: new List<Widget> {
@@ -93,28 +141,7 @@ namespace ConnectApp.screens {
                         child: new Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: new List<Widget> {
-                                fromPage == FromPage.weChat
-                                    ? new CustomButton(
-                                        onPressed: () => {
-                                            Router.navigator.pop();
-                                            StoreProvider.store.Dispatch(new CleanEmailAndPasswordAction());
-                                        },
-                                        child: new Text(
-                                            "跳过",
-                                            style: CTextStyle.PLargeBody4
-                                        )
-                                    )
-                                    : new CustomButton(
-                                        onPressed: () => {
-                                            LoginScreen.navigator.pop();
-                                            StoreProvider.store.Dispatch(new CleanEmailAndPasswordAction());
-                                        },
-                                        child: new Icon(
-                                            Icons.arrow_back,
-                                            size: 24,
-                                            color: CColors.icon3
-                                        )
-                                    ),
+                                leftWidget,
                                 new CustomButton(
                                     child: new Text(
                                         "创建 Unity ID",
@@ -128,7 +155,7 @@ namespace ConnectApp.screens {
                     new Container(
                         padding: EdgeInsets.symmetric(horizontal: 16),
                         child: new Text(
-                            fromPage == FromPage.weChat ? "绑定你的Unity账号" : "登陆你的Unity账号",
+                            widget.fromPage == FromPage.login ? "登陆你的Unity账号" : "绑定你的Unity账号",
                             style: CTextStyle.H2
                         )
                     )
@@ -206,9 +233,17 @@ namespace ConnectApp.screens {
                                 )
                             ),
                             alignment: Alignment.center,
-                            child: new StoreConnector<AppState, bool>(
-                                converter: (state, dispatch) => state.loginState.loading,
-                                builder: (context1, loading) => {
+                            child: new StoreConnector<AppState, Dictionary<string, object>>(
+                                converter: (state, dispatch) => new Dictionary<string, object> {
+                                    {"loading", state.loginState.loading},
+                                    {"email", state.loginState.email},
+                                    {"password", state.loginState.password}
+                                },
+                                builder: (context1, viewModel) => {
+                                    var loading = (bool) viewModel["loading"];
+                                    var email = viewModel["email"] as string;
+                                    var password = viewModel["password"] as string;
+                                    var btnEnable = email.Length > 0 && password.Length > 0;
                                     return new IgnorePointer(
                                         ignoring: loading,
                                         child: new InputField(
@@ -224,6 +259,7 @@ namespace ConnectApp.screens {
                                                     {changeText = text});
                                             },
                                             onSubmitted: text => {
+                                                if (!btnEnable || loading) return;
                                                 _emailFocusNode.unfocus();
                                                 _passwordFocusNode.unfocus();
                                                 StoreProvider.store.Dispatch(new LoginByEmailAction

@@ -49,26 +49,37 @@ namespace ConnectApp.canvas {
         }
     }
 
+    internal static class MainNavigatorRoutes {
+        public const string Root = "/";
+        public const string Search = "/search";
+        public const string EventDetail = "/event-detail";
+        public const string ArticleDetail = "/article-detail";
+        public const string Setting = "/setting";
+        public const string MyEvent = "/my-event";
+        public const string History = "/history";
+        public const string Login = "/login";
+        public const string BindUnity = "/bind-unity";
+    }
+    
     internal class Router : StatelessWidget {
         private static readonly GlobalKey globalKey = GlobalKey.key(debugLabel: "main-router");
         public static NavigatorState navigator => globalKey.currentState as NavigatorState;
 
         private static Dictionary<string, WidgetBuilder> mainRoutes => new Dictionary<string, WidgetBuilder> {
-            {"/", context => new MainScreen()},
-//            {"/", context => new TestScreen()},
-            {"/search", context => new SearchScreen()},
-            {"/event-detail", context => new EventDetailScreen()},
-            {"/article-detail", context => new ArticleDetailScreen()},
-            {"/mine", context => new MineScreen()},
-            {"/setting", context => new SettingScreen()},
-            {"/my-event", context => new MyEventsScreen()},
-            {"/history", context => new HistoryScreen()},
-            {"/login", context => new LoginScreen()},
-            {"/bind-unity", context => new BindUnityScreen()}
+            {MainNavigatorRoutes.Root, context => new MainScreen()},
+//            {MainNavigatorRoutes.Root, context => new TestScreen()},
+            {MainNavigatorRoutes.Search, context => new SearchScreen()},
+            {MainNavigatorRoutes.EventDetail, context => new EventDetailScreen()},
+            {MainNavigatorRoutes.ArticleDetail, context => new ArticleDetailScreen()},
+            {MainNavigatorRoutes.Setting, context => new SettingScreen()},
+            {MainNavigatorRoutes.MyEvent, context => new MyEventsScreen()},
+            {MainNavigatorRoutes.History, context => new HistoryScreen()},
+            {MainNavigatorRoutes.Login, context => new LoginScreen()},
+            {MainNavigatorRoutes.BindUnity, context => new BindUnityScreen()}
         };
 
         private static Dictionary<string, WidgetBuilder> fullScreenRoutes => new Dictionary<string, WidgetBuilder> {
-            {"/login", context => new LoginScreen()}
+            {MainNavigatorRoutes.Login, context => new LoginScreen()}
         };
 
         public override Widget build(BuildContext context) {

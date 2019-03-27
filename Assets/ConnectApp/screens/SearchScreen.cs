@@ -81,57 +81,46 @@ namespace ConnectApp.screens {
                 .Catch(error => { Debug.Log($"{error}"); });
         }
 
-        public override Widget build(BuildContext context)
-        {
+        public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
                 child: new SafeArea(
                     child: new Container(
                         color: CColors.White,
                         child: new Column(
-                            children: new List<Widget>
-                            {
+                            children: new List<Widget> {
                                 _buildSearchBar(context),
                                 new Flexible(
                                     child: new StoreConnector<AppState, SearchState>(
                                         converter: (state, dispatch) => state.searchState,
-                                        builder: (_context, viewModel) =>
-                                        {
+                                        builder: (_context, viewModel) => {
                                             if (viewModel.loading) return new GlobalLoading();
-
-                                            if (viewModel.keyword.Length > 0)
-                                            {
+    
+                                            if (viewModel.keyword.Length > 0) {
                                                 var searchArticles = viewModel.searchArticles;
                                                 if (searchArticles.Count > 0)
                                                     return new Refresh(
-                                                        onHeaderRefresh: () =>
-                                                        {
+                                                        onHeaderRefresh: () => {
                                                             pageNumber = 0;
                                                             return _onRefresh(pageNumber);
                                                         },
-                                                        onFooterRefresh: () =>
-                                                        {
+                                                        onFooterRefresh: () => {
                                                             pageNumber++;
                                                             return _onRefresh(pageNumber);
                                                         },
-                                                        headerBuilder: (cxt, controller) =>
-                                                            new RefreshHeader(controller),
-                                                        footerBuilder: (cxt, controller) =>
-                                                            new RefreshFooter(controller),
+                                                        headerBuilder: (cxt, controller) => new RefreshHeader(controller),
+                                                        footerBuilder: (cxt, controller) => new RefreshFooter(controller),
                                                         child: ListView.builder(
                                                             physics: new AlwaysScrollableScrollPhysics(),
                                                             itemCount: searchArticles.Count,
-                                                            itemBuilder: (cxt, index) =>
-                                                            {
+                                                            itemBuilder: (cxt, index) => {
                                                                 var searchArticle = searchArticles[index];
                                                                 return new RelatedArticleCard(
                                                                     searchArticle,
-                                                                    () =>
-                                                                    {
+                                                                    () => {
                                                                         StoreProvider.store.Dispatch(
-                                                                            new NavigatorToArticleDetailAction
-                                                                                {detailId = searchArticle.id});
-                                                                        Router.navigator.pushNamed("/article-detail");
+                                                                            new MainNavigatorPushToArticleDetailAction
+                                                                                {ArticleId = searchArticle.id});
                                                                     }
                                                                 );
                                                             }
@@ -139,13 +128,11 @@ namespace ConnectApp.screens {
                                                     );
                                                 return new BlankView("暂无搜索结果");
                                             }
-
+    
                                             return new ListView(
-                                                children: new List<Widget>
-                                                {
-                                                    viewModel.searchHistoryList == null
-                                                        ? new Container()
-                                                        : _buildSearchHistory(viewModel.searchHistoryList),
+                                                children: new List<Widget> {
+                                                    viewModel.searchHistoryList==null?new Container() : 
+                                                    _buildSearchHistory(viewModel.searchHistoryList),
                                                     _buildHotSearch()
                                                 }
                                             );
@@ -157,7 +144,6 @@ namespace ConnectApp.screens {
                     )
                 )
             );
-
         }
 
         private Widget _buildSearchBar(BuildContext context) {
@@ -171,7 +157,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new CustomButton(
                             padding: EdgeInsets.only(8, 8, 0, 8),
-                            onPressed: () => { Router.navigator.pop(); },
+                            onPressed: () => { StoreProvider.store.Dispatch(new MainNavigatorPopAction()); },
                             child: new Text(
                                 "取消",
                                 style: CTextStyle.PLargeBlue
