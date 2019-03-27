@@ -23,8 +23,8 @@ namespace ConnectApp.canvas {
             FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Regular"));
             FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Medium"));
             FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Semibold"));
-            var videoPlayer = GetComponent<VideoPlayer>();
-            VideoPlayerManager.instance.player = videoPlayer;
+//            var videoPlayer = GetComponent<VideoPlayer>();
+//            VideoPlayerManager.instance.player = videoPlayer;
         }
 
         protected override Widget createWidget() {

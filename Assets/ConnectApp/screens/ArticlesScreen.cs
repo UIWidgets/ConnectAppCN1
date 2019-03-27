@@ -123,7 +123,7 @@ namespace ConnectApp.screens {
                                                 Navigator.pushNamed(context, "/article-detail");
                                             },
                                             () => {
-                                                ActionSheetUtils.showModalActionSheet(context, new ActionSheet(
+                                                ActionSheetUtils.showModalActionSheet(new ActionSheet(
                                                     items: new List<ActionSheetItem> {
                                                         new ActionSheetItem("举报", ActionType.destructive, () => { }),
                                                         new ActionSheetItem("取消", ActionType.cancel)

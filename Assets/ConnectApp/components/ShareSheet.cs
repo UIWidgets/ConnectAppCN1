@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.constants;
 using RSG;
 using Unity.UIWidgets.foundation;
@@ -20,10 +21,9 @@ namespace ConnectApp.components {
 
     public static class ShareUtils {
         public static IPromise<object> showShareView(
-            BuildContext context,
             Widget child
         ) {
-            return ActionSheetUtils.showModalActionSheet(context, child);
+            return ActionSheetUtils.showModalActionSheet(child);
         }
     }
 
@@ -67,7 +67,7 @@ namespace ConnectApp.components {
                                     )
                                 ),
                                 new GestureDetector(
-                                    onTap: () => { Navigator.pop(context); },
+                                    onTap: () => { Router.navigator.pop(); },
                                     child: new Container(
                                         height: 49,
                                         color: CColors.Transparent,

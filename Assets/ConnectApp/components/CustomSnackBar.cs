@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.constants;
 using RSG;
 using Unity.UIWidgets.animation;
@@ -146,7 +147,7 @@ namespace ConnectApp.components {
                 this,
                 new RouteSettings("/snackBarRoute")
             );
-            return Navigator.push(context, _snackBarRoute);
+            return Router.navigator.push(_snackBarRoute);
         }
 
         public void dismiss() {

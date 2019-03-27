@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.constants;
 using RSG;
 using Unity.UIWidgets.foundation;
@@ -24,7 +25,7 @@ namespace ConnectApp.components {
 
         public override Widget build(BuildContext context) {
             return new GestureDetector(
-                onTap: () => { Navigator.pop(context); },
+                onTap: () => { Router.navigator.pop(); },
                 child: new Container(
                     color: Color.fromRGBO(0, 0, 0, 0.1f),
                     child: new Center(
@@ -78,7 +79,7 @@ namespace ConnectApp.components {
         }
 
         public static bool hiddenCustomDialog(BuildContext context) {
-            return Navigator.pop(context);
+            return Router.navigator.pop();
         }
     }
 }

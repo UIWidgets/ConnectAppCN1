@@ -93,8 +93,8 @@ namespace ConnectApp.screens {
                     _contentMap = articleDetail.contentMap;
                     _lastCommentId = articleDetail.comments.currOldestMessageId;
                     _hasMore = articleDetail.comments.hasMore;
-
-                    var originItems = _buildItems(context, articleDetail);
+                    
+                    var originItems=articleDetail==null?new List<Widget>(): _buildItems(context, articleDetail);
 
                     RefresherCallback footerCallback = null;
                     if (_hasMore) footerCallback = onFooterRefresh;
@@ -120,11 +120,11 @@ namespace ConnectApp.screens {
                                     () => {
                                         if (!StoreProvider.store.state.loginState.isLoggedIn)
                                         {
-                                            Navigator.pushNamed(context, "/login");
+                                            Router.navigator.pushNamed("/login");
                                         }
                                         else
                                         {
-                                            ActionSheetUtils.showModalActionSheet(context, new CustomInput(
+                                            ActionSheetUtils.showModalActionSheet(new CustomInput(
                                                 doneCallBack: text => {
                                                     StoreProvider.store.Dispatch(new SendCommentAction {
                                                         channelId = articleDetail.channelId,
@@ -140,11 +140,11 @@ namespace ConnectApp.screens {
                                     {
                                         if (!StoreProvider.store.state.loginState.isLoggedIn)
                                         {
-                                            Navigator.pushNamed(context, "/login");
+                                            Router.navigator.pushNamed("/login");
                                         }
                                         else
                                         {
-                                            ActionSheetUtils.showModalActionSheet(context, new CustomInput(
+                                            ActionSheetUtils.showModalActionSheet(new CustomInput(
                                                 doneCallBack: text => {
                                                     StoreProvider.store.Dispatch(new SendCommentAction {
                                                         channelId = articleDetail.channelId,
@@ -160,7 +160,7 @@ namespace ConnectApp.screens {
                                     () => {
                                         if (!StoreProvider.store.state.loginState.isLoggedIn)
                                         {
-                                            Navigator.pushNamed(context, "/login"); 
+                                            Router.navigator.pushNamed("/login"); 
                                         }
                                         else
                                         {
@@ -171,7 +171,9 @@ namespace ConnectApp.screens {
                                         }
                                         
                                     },
-                                    shareCallback: () => { }
+                                    shareCallback: () => {
+                                        ShareUtils.showShareView(new ShareView());
+                                    }
                                 )
                             }
                         )
@@ -200,36 +202,46 @@ namespace ConnectApp.screens {
         }
 
         private static Widget _buildNavigationBar(BuildContext context) {
-            return new CustomNavigationBar(
-                new GestureDetector(
-                    onTap: () => {
-                        Router.navigator.pop();
-                        StoreProvider.store.Dispatch(new ClearEventDetailAction());
-                    },
-                    child: new Icon(Icons.arrow_back, size: 24, color: CColors.icon3)
-                ), new List<Widget> {
-                    new CustomButton(
-                        padding: EdgeInsets.zero,
-                        onPressed: () => {  },
-                        child: new Container(
-                            width:88,
-                            height:28,
-                            alignment:Alignment.center,
-                            decoration: new BoxDecoration(
-                                border: Border.all(CColors.PrimaryBlue),
-                                borderRadius: BorderRadius.all(14)
-                            ),
-                            child: new Text(
-                                "说点想法",
-                                style: new TextStyle(
-                                    fontSize: 14,
-                                    fontFamily: "Roboto-Medium",
-                                    color: CColors.PrimaryBlue
+            return new Container(
+                decoration: new BoxDecoration(
+                    border: new Border(
+                        bottom: new BorderSide(
+                            CColors.Separator2
+                        )
+                    )
+                ),
+                child: new CustomNavigationBar(
+                    new GestureDetector(
+                        onTap: () => {
+                            Router.navigator.pop();
+                            StoreProvider.store.Dispatch(new ClearEventDetailAction());
+                        },
+                        child: new Icon(Icons.arrow_back, size: 24, color: CColors.icon3)
+                    ), new List<Widget> {
+                        new CustomButton(
+                            padding: EdgeInsets.zero,
+                            onPressed: () => {  },
+                            child: new Container(
+                                width:88,
+                                height:28,
+                                alignment:Alignment.center,
+                                decoration: new BoxDecoration(
+                                    border: Border.all(CColors.PrimaryBlue),
+                                    borderRadius: BorderRadius.all(14)
+                                ),
+                                child: new Text(
+                                    "说点想法",
+                                    style: new TextStyle(
+                                        fontSize: 14,
+                                        fontFamily: "Roboto-Medium",
+                                        color: CColors.PrimaryBlue
+                                    )
                                 )
                             )
                         )
-                    )
-                }, CColors.White, 52);
+                    }, CColors.White, 52
+                )
+            );
         }
 
         private IPromise onFooterRefresh() {
@@ -343,7 +355,7 @@ namespace ConnectApp.screens {
                         new ActionCard(Icons.favorite, like ? "已赞" : "点赞", like, () => {
                             if (!StoreProvider.store.state.loginState.isLoggedIn)
                             {
-                                Navigator.pushNamed(context, "/login");                            }
+                                Router.navigator.pushNamed("/login");                            }
                             else
                             {
                                 if (!like)
@@ -356,8 +368,7 @@ namespace ConnectApp.screens {
                         new Container(width: 16),
                         new ActionCard(Icons.share, "分享", false, () =>
                         {
-                            
-                            
+                            ShareUtils.showShareView(new ShareView());
                         })
                     }
                 )
@@ -412,15 +423,24 @@ namespace ConnectApp.screens {
             if (_channelComments.isEmpty()) return new List<Widget>();
             var comments = new List<Widget>();
             var channelMessageDict = StoreProvider.store.state.messageState.channelMessageDict;
+            if (!channelMessageDict.ContainsKey(_channelId))
+            {
+                return comments;
+            }
             var messageDict = channelMessageDict[_channelId];
-            _channelComments.ForEach(commentId => {
-                var message = messageDict[commentId];
+            foreach (var commentId in _channelComments)
+            {
+                if (!messageDict.ContainsKey(commentId))
+                {
+                    break;
+                }
+             var message = messageDict[commentId];
                 bool isPraised = _isPraised(message);
                 var card = new CommentCard(
                     message,
                     isPraised,
                     () => {
-                        ActionSheetUtils.showModalActionSheet(context, new ActionSheet(
+                        ActionSheetUtils.showModalActionSheet(new ActionSheet(
                             items: new List<ActionSheetItem> {
                                 new ActionSheetItem("举报", ActionType.destructive, () => { }),
                                 new ActionSheetItem("取消", ActionType.cancel)
@@ -430,10 +450,10 @@ namespace ConnectApp.screens {
                     replyCallBack: () => {
                         if (!StoreProvider.store.state.loginState.isLoggedIn)
                         {
-                            Navigator.pushNamed(context, "/login");                            }
+                            Router.navigator.pushNamed("/login");                            }
                         else
                         {
-                            ActionSheetUtils.showModalActionSheet(context, new CustomInput(
+                            ActionSheetUtils.showModalActionSheet(new CustomInput(
                                 message.author.fullName.isEmpty() ? "" : message.author.fullName,
                                 doneCallBack: (text) => {
                                     StoreProvider.store.Dispatch(new SendCommentAction {
@@ -449,7 +469,7 @@ namespace ConnectApp.screens {
                     praiseCallBack: () => {
                         if (!StoreProvider.store.state.loginState.isLoggedIn)
                         {
-                            Navigator.pushNamed(context, "/login");                            }
+                            Router.navigator.pushNamed("/login");                            }
                         else
                         {
                             if (isPraised)
@@ -458,8 +478,8 @@ namespace ConnectApp.screens {
                                 StoreProvider.store.Dispatch(new LikeCommentAction() {messageId = commentId});
                         }
                     });
-                comments.Add(card);
-            });
+                comments.Add(card);   
+            }
             return comments;
         }
 

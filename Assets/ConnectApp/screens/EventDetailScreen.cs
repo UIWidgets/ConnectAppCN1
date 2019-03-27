@@ -145,7 +145,7 @@ namespace ConnectApp.screens {
                                                         color: CColors.White
                                                     ),
                                                     onPressed: () => {
-                                                        ShareUtils.showShareView(context, new ShareView());
+                                                        ShareUtils.showShareView(new ShareView());
                                                     }
                                                 )
                                             }
@@ -246,7 +246,6 @@ namespace ConnectApp.screens {
             }
 
             return new Container(
-                color: CColors.White,
                 height: 64,
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 decoration: new BoxDecoration(
@@ -304,7 +303,7 @@ namespace ConnectApp.screens {
                     var showChatWindow = (bool) viewModel["showChatWindow"];
                     var openChatWindow = (bool) viewModel["openChatWindow"];
                     var loading = (bool) viewModel["loading"];
-                    if (loading && eventObj == null)
+                    if (loading || eventObj == null)
                         return new Container(
                             color: CColors.White,
                             child: new CustomActivityIndicator()

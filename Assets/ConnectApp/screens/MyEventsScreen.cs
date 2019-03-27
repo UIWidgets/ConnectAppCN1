@@ -10,6 +10,7 @@ using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -24,7 +25,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    internal class _MyEventsScreenState : State<EventsScreen> {
+    internal class _MyEventsScreenState : State<MyEventsScreen> {
         private PageController _pageController;
         private int _selectedIndex;
 
@@ -61,21 +62,24 @@ namespace ConnectApp.screens {
 
         private static Widget _buildNavigationBar(BuildContext context) {
             return new Container(
-                color: CColors.White,
+                decoration: new BoxDecoration(CColors.White),
                 width: MediaQuery.of(context).size.width,
                 height: 140,
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        new CustomButton(
-                            padding: EdgeInsets.only(16, 10, 16),
-                            onPressed: () => Router.navigator.pop(),
-                            child: new Icon(
-                                Icons.arrow_back,
-                                size: 24,
-                                color: CColors.icon3
-                            )
+                        new Container(
+                            child:new CustomButton(
+                                padding: EdgeInsets.only(16, 10, 16),
+                                onPressed: () => Router.navigator.pop(),
+                                child: new Icon(
+                                    Icons.arrow_back,
+                                    size: 24,
+                                    color: CColors.icon3
+                                )
+                            ),
+                            height:44
                         ),
                         new Container(
                             margin: EdgeInsets.only(16, bottom: 12),
@@ -90,20 +94,29 @@ namespace ConnectApp.screens {
         }
 
         private Widget _buildSelectView() {
-            return new CustomSegmentedControl(
-                new List<string> {"即将开始", "往期活动"},
-                index => {
-                    if (_selectedIndex != index) {
-                        if (index == 1) _fetchMyPastEvents();
-                        setState(() => _selectedIndex = index);
-                        _pageController.animateToPage(
-                            index,
-                            new TimeSpan(0, 0, 0, 0, 250),
-                            Curves.ease
-                        );
-                    }
-                },
-                _selectedIndex
+            return new Container(
+                decoration: new BoxDecoration(
+                    border: new Border(
+                        bottom: new BorderSide(
+                            CColors.Separator2
+                        )
+                    )
+                ),
+                child: new CustomSegmentedControl(
+                    new List<string> {"即将开始", "往期活动"},
+                    index => {
+                        if (_selectedIndex != index) {
+                            if (index == 1) _fetchMyPastEvents();
+                            setState(() => _selectedIndex = index);
+                            _pageController.animateToPage(
+                                index,
+                                new TimeSpan(0, 0, 0, 0, 250),
+                                Curves.ease
+                            );
+                        }
+                    },
+                    _selectedIndex
+                )
             );
         }
 

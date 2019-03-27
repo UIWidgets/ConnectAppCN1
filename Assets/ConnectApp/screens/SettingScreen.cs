@@ -101,11 +101,13 @@ namespace ConnectApp.screens {
             return new CustomButton(
                 padding: EdgeInsets.zero,
                 onPressed: () => {
-                    ActionSheetUtils.showModalActionSheet(context, new ActionSheet(
+                    ActionSheetUtils.showModalActionSheet(new ActionSheet(
                         title: "确定退出当前账号吗？",
                         items: new List<ActionSheetItem> {
                             new ActionSheetItem("退出", ActionType.destructive,
-                                () => { StoreProvider.store.Dispatch(new LogoutAction {context = context}); }),
+                                () => {
+                                    StoreProvider.store.Dispatch(new LogoutAction {context = context});
+                                }),
                             new ActionSheetItem("取消", ActionType.cancel, () => { })
                         }
                     ));

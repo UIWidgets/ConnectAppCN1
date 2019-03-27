@@ -124,6 +124,7 @@ namespace ConnectApp.components {
                 child: new Text(
                     title.ToUpper(),
                     style: new TextStyle(
+                        height: 0.9f,
                         color: CColors.White,
                         fontFamily: "Roboto-Medium",
                         fontSize: size * 0.45f

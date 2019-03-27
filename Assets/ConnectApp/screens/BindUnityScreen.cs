@@ -97,6 +97,7 @@ namespace ConnectApp.screens {
                                     ? new CustomButton(
                                         onPressed: () => {
                                             Router.navigator.pop();
+                                            StoreProvider.store.Dispatch(new CleanEmailAndPasswordAction());
                                         },
                                         child: new Text(
                                             "跳过",
@@ -104,7 +105,10 @@ namespace ConnectApp.screens {
                                         )
                                     )
                                     : new CustomButton(
-                                        onPressed: () => { LoginScreen.navigator.pop(); },
+                                        onPressed: () => {
+                                            LoginScreen.navigator.pop();
+                                            StoreProvider.store.Dispatch(new CleanEmailAndPasswordAction());
+                                        },
                                         child: new Icon(
                                             Icons.arrow_back,
                                             size: 24,
@@ -146,6 +150,7 @@ namespace ConnectApp.screens {
                             )
                         ),
                         new Container(
+                            height: 46,
                             decoration: new BoxDecoration(
                                 CColors.Transparent,
                                 border: new Border(
@@ -190,6 +195,7 @@ namespace ConnectApp.screens {
                             )
                         ),
                         new Container(
+                            height: 46,
                             decoration: new BoxDecoration(
                                 CColors.Transparent,
                                 border: new Border(
