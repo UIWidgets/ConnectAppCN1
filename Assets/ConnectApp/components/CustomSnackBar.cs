@@ -154,7 +154,7 @@ namespace ConnectApp.components {
             if (_snackBarRoute == null) return;
 
             if (_snackBarRoute.isCurrent)
-                _snackBarRoute.navigator.pop();
+                Router.navigator.pop();
             else if (_snackBarRoute.isActive) _snackBarRoute.navigator.removeRoute(_snackBarRoute);
             if (_snackBarRoute._timer != null) {
                 _snackBarRoute._timer.cancel();

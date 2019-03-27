@@ -9,13 +9,19 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
+
+    internal static class LoginNavigatorRoutes {
+        public const string Root = "/";
+        public const string BindUnity = "/bind-unity";
+    }
+
     public class LoginScreen : StatelessWidget {
         private static readonly GlobalKey globalKey = GlobalKey.key(debugLabel: "login-router");
         public static NavigatorState navigator => globalKey.currentState as NavigatorState;
 
         private static Dictionary<string, WidgetBuilder> loginRoutes => new Dictionary<string, WidgetBuilder> {
-            {"/", context => new LoginSwitchScreen()},
-            {"/bind-unity", context => new BindUnityScreen()}
+            {LoginNavigatorRoutes.Root, context => new LoginSwitchScreen()},
+            {LoginNavigatorRoutes.BindUnity, context => new BindUnityScreen()}
         };
 
         public override Widget build(BuildContext context) {
@@ -65,7 +71,7 @@ namespace ConnectApp.screens {
                 child: new Row(
                     children: new List<Widget> {
                         new CustomButton(
-                            onPressed: () => Router.navigator.pop(),
+                            onPressed: () => StoreProvider.store.Dispatch(new MainNavigatorPopAction()),
                             child: new Icon(
                                 Icons.close,
                                 size: 28,
@@ -108,8 +114,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new CustomButton(
                             onPressed: () => {
-                                StoreProvider.store.Dispatch(new NavigatorToLoginAction {fromPage = FromPage.weChat});
-                                LoginScreen.navigator.pushNamed("/bind-unity");
+                                StoreProvider.store.Dispatch(new LoginNavigatorPushToBindUintyAction {FromPage = FromPage.wechat});
                             },
                             padding: EdgeInsets.zero,
                             child: new Container(
@@ -140,8 +145,7 @@ namespace ConnectApp.screens {
                         new Container(height: 16),
                         new CustomButton(
                             onPressed: () => {
-                                StoreProvider.store.Dispatch(new NavigatorToLoginAction {fromPage = FromPage.login});
-                                LoginScreen.navigator.pushNamed("/bind-unity");
+                                StoreProvider.store.Dispatch(new LoginNavigatorPushToBindUintyAction {FromPage = FromPage.login});
                             },
                             padding: EdgeInsets.zero,
                             child: new Container(

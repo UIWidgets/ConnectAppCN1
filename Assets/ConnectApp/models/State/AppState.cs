@@ -31,8 +31,7 @@ namespace ConnectApp.models {
                     password = "",
                     loginInfo = new LoginInfo(),
                     isLoggedIn = false,
-                    loading = false,
-                    fromPage = FromPage.login
+                    loading = false
                 },
                 articleState = new ArticleState {
                     articleList = new List<string>(),
@@ -49,8 +48,6 @@ namespace ConnectApp.models {
                     completedEvents = new List<string>(),
                     completedEventDict = new Dictionary<string, IEvent>(),
                     eventsLoading = false,
-                    detailId = null,
-                    eventType = EventType.offline,
                     eventHistory = new List<IEvent>()
                 },
                 searchState = new SearchState {

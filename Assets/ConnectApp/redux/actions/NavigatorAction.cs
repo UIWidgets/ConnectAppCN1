@@ -1,17 +1,48 @@
+using System.Collections.Generic;
 using ConnectApp.models;
 using ConnectApp.screens;
 
 namespace ConnectApp.redux.actions {
-    public class NavigatorToEventDetailAction : BaseAction {
-        public string eventId;
-        public EventType eventType;
-    }
 
-    public class NavigatorToArticleDetailAction : BaseAction {
-        public string detailId;
+    public class MainNavigatorPushToAction : BaseAction {
+        public string RouteName;
     }
-
-    public class NavigatorToLoginAction : BaseAction {
-        public FromPage fromPage;
+    
+    public class MainNavigatorPushToEventDetailAction : BaseAction {
+        public string EventId;
+        public EventType EventType;
     }
+    
+    public class MainNavigatorPushToArticleDetailAction : BaseAction {
+        public string ArticleId;
+    }
+    
+    public class LoginNavigatorPushToBindUintyAction : BaseAction {
+        public FromPage FromPage;
+    }
+    
+    public class LoginNavigatorPushToAction : BaseAction {
+        public string RouteName;
+    }
+    
+    public class MainNavigatorPopAction : BaseAction {
+        public int Index = 1;
+    }
+    
+    public class LoginNavigatorPopAction : BaseAction {
+        public int Index = 1;
+    }
+    
+//    public class NavigatorToEventDetailAction : BaseAction {
+//        public string eventId;
+//        public EventType eventType;
+//    }
+//
+//    public class NavigatorToArticleDetailAction : BaseAction {
+//        public string detailId;
+//    }
+//
+//    public class NavigatorToLoginAction : BaseAction {
+//        public FromPage fromPage;
+//    }
 }
