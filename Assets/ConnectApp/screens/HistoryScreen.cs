@@ -58,7 +58,9 @@ namespace ConnectApp.screens {
 
         private static Widget _buildNavigationBar(BuildContext context) {
             return new Container(
-                color: CColors.White,
+                decoration: new BoxDecoration(
+                    CColors.White
+                ),
                 width: MediaQuery.of(context).size.width,
                 height: 140,
                 child: new Column(
@@ -76,7 +78,6 @@ namespace ConnectApp.screens {
                                 )
                             )
                         ),
-                        
                         new Container(
                             margin: EdgeInsets.only(16, bottom: 12),
                             child: new Text(
@@ -90,19 +91,28 @@ namespace ConnectApp.screens {
         }
 
         private Widget _buildSelectView() {
-            return new CustomSegmentedControl(
-                new List<string> {"文章", "活动"},
-                index => {
-                    if (_selectedIndex != index) {
-                        setState(() => _selectedIndex = index);
-                        _pageController.animateToPage(
-                            index,
-                            new TimeSpan(0, 0, 0, 0, 250),
-                            Curves.ease
-                        );
-                    }
-                },
-                _selectedIndex
+            return new Container(
+                decoration: new BoxDecoration(
+                    border: new Border(
+                        bottom: new BorderSide(
+                            CColors.Separator2
+                        )
+                    )
+                ),
+                child: new CustomSegmentedControl(
+                    new List<string> {"文章", "活动"},
+                    index => {
+                        if (_selectedIndex != index) {
+                            setState(() => _selectedIndex = index);
+                            _pageController.animateToPage(
+                                index,
+                                new TimeSpan(0, 0, 0, 0, 250),
+                                Curves.ease
+                            );
+                        }
+                    },
+                    _selectedIndex
+                )
             );
         }
 

@@ -202,36 +202,46 @@ namespace ConnectApp.screens {
         }
 
         private static Widget _buildNavigationBar(BuildContext context) {
-            return new CustomNavigationBar(
-                new GestureDetector(
-                    onTap: () => {
-                        Router.navigator.pop();
-                        StoreProvider.store.Dispatch(new ClearEventDetailAction());
-                    },
-                    child: new Icon(Icons.arrow_back, size: 24, color: CColors.icon3)
-                ), new List<Widget> {
-                    new CustomButton(
-                        padding: EdgeInsets.zero,
-                        onPressed: () => {  },
-                        child: new Container(
-                            width:88,
-                            height:28,
-                            alignment:Alignment.center,
-                            decoration: new BoxDecoration(
-                                border: Border.all(CColors.PrimaryBlue),
-                                borderRadius: BorderRadius.all(14)
-                            ),
-                            child: new Text(
-                                "说点想法",
-                                style: new TextStyle(
-                                    fontSize: 14,
-                                    fontFamily: "Roboto-Medium",
-                                    color: CColors.PrimaryBlue
+            return new Container(
+                decoration: new BoxDecoration(
+                    border: new Border(
+                        bottom: new BorderSide(
+                            CColors.Separator2
+                        )
+                    )
+                ),
+                child: new CustomNavigationBar(
+                    new GestureDetector(
+                        onTap: () => {
+                            Router.navigator.pop();
+                            StoreProvider.store.Dispatch(new ClearEventDetailAction());
+                        },
+                        child: new Icon(Icons.arrow_back, size: 24, color: CColors.icon3)
+                    ), new List<Widget> {
+                        new CustomButton(
+                            padding: EdgeInsets.zero,
+                            onPressed: () => {  },
+                            child: new Container(
+                                width:88,
+                                height:28,
+                                alignment:Alignment.center,
+                                decoration: new BoxDecoration(
+                                    border: Border.all(CColors.PrimaryBlue),
+                                    borderRadius: BorderRadius.all(14)
+                                ),
+                                child: new Text(
+                                    "说点想法",
+                                    style: new TextStyle(
+                                        fontSize: 14,
+                                        fontFamily: "Roboto-Medium",
+                                        color: CColors.PrimaryBlue
+                                    )
                                 )
                             )
                         )
-                    )
-                }, CColors.White, 52);
+                    }, CColors.White, 52
+                )
+            );
         }
 
         private IPromise onFooterRefresh() {
