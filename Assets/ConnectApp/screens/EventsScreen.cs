@@ -166,10 +166,16 @@ namespace ConnectApp.screens {
 
                         RefresherCallback onFooterCallback = null;
                         if (ongoingEvents.Count < ongoingEventTotal) {
-                            onFooterCallback = onFooterRefresh;
+                            onFooterCallback = () => {
+                                pageNumber ++;
+                                return _onRefresh(pageNumber, "ongoing");
+                            };
                         }
                         return new Refresh(
-                            onHeaderRefresh: onHeaderRefresh,
+                            onHeaderRefresh: () => {
+                                pageNumber = 1;
+                                return _onRefresh(pageNumber, "ongoing");
+                            },
                             onFooterRefresh: onFooterCallback,
                             headerBuilder: (cxt, controller) => new RefreshHeader(controller),
                             footerBuilder: (cxt, controller) => new RefreshFooter(controller),
@@ -216,11 +222,17 @@ namespace ConnectApp.screens {
 
                         RefresherCallback onFooterCallback = null;
                         if (completedEvents.Count < completedEventTotal) {
-                            onFooterCallback = onFooterRefresh;
+                            onFooterCallback = () => {
+                                completedPageNumber ++;
+                                return _onRefresh(completedPageNumber, "completed");
+                            };
                         }
                         
                         return new Refresh(
-                            onHeaderRefresh: onHeaderRefresh,
+                            onHeaderRefresh: () => {
+                                completedPageNumber = 1;
+                                return _onRefresh(completedPageNumber, "completed");
+                            },
                             onFooterRefresh: onFooterCallback,
                             headerBuilder: (cxt, controller) => new RefreshHeader(controller),
                             footerBuilder: (cxt, controller) => new RefreshFooter(controller),
@@ -264,32 +276,13 @@ namespace ConnectApp.screens {
             );
         }
 
-        private IPromise onHeaderRefresh() {
-            if (_selectedIndex == 0)
-                pageNumber = 1;
-            else
-                completedPageNumber = 1;
-
-            var tab = _selectedIndex == 0 ? "ongoing" : "completed";
-            return EventApi.FetchEvents(_selectedIndex == 0 ? pageNumber : completedPageNumber, tab)
+        private IPromise _onRefresh(int pageIndex, string tab) {
+            return EventApi.FetchEvents(pageIndex, tab)
                 .Then(eventsResponse => {
                     StoreProvider.store.Dispatch(new FetchEventsSuccessAction
-                        {events = eventsResponse.events.items, tab = tab, pageNumber = 1, total = eventsResponse.events.total});
+                        {events = eventsResponse.events.items, tab = tab, pageNumber = pageIndex, total = eventsResponse.events.total});
                 })
-                .Catch(error => { Debug.Log(error); });
-        }
-
-        private IPromise onFooterRefresh() {
-            if (_selectedIndex == 0)
-                pageNumber++;
-            else
-                completedPageNumber++;
-            var tab = _selectedIndex == 0 ? "ongoing" : "completed";
-            return EventApi.FetchEvents(_selectedIndex == 0 ? pageNumber : completedPageNumber, tab)
-                .Then(eventsResponse => {
-                    StoreProvider.store.Dispatch(new FetchEventsSuccessAction {events = eventsResponse.events.items, tab = tab, total = eventsResponse.events.total});
-                })
-                .Catch(error => { Debug.Log(error); });
+                .Catch(error => { Debug.Log($"{error}"); });
         }
 
         public override void dispose() {

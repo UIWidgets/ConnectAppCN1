@@ -153,7 +153,7 @@ namespace ConnectApp.screens {
                     StoreProvider.store.Dispatch(new UserMapAction {userMap = articlesResponse.userMap});
                     StoreProvider.store.Dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
                     StoreProvider.store.Dispatch(new FetchArticleSuccessAction
-                        {ArticleDict = articleDict, ArticleList = articleList, total = articlesResponse.total});
+                        {articleDict = articleDict, articleList = articleList, total = articlesResponse.total});
                 })
                 .Catch(error => { Debug.Log($"{error}"); });
         }
@@ -174,7 +174,7 @@ namespace ConnectApp.screens {
                         StoreProvider.store.Dispatch(new UserMapAction {userMap = articlesResponse.userMap});
                         StoreProvider.store.Dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
                         StoreProvider.store.Dispatch(new FetchArticleSuccessAction
-                            {ArticleDict = articleDict, ArticleList = articleList, total = articlesResponse.total});
+                            {articleDict = articleDict, articleList = articleList, total = articlesResponse.total});
                     }
                 })
                 .Catch(error => { Debug.Log($"{error}"); });

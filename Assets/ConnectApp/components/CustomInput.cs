@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.constants;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.service;
@@ -73,7 +72,7 @@ namespace ConnectApp.components {
                         new Container(
                             color: Color.fromRGBO(0, 0, 0, 0.4f),
                             child: new Container(
-                                color: Colors.white,
+                                color: CColors.White,
                                 child: new Column(
                                     children: new List<Widget> {
                                         reply,

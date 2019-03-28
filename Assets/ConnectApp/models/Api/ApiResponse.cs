@@ -19,6 +19,7 @@ namespace ConnectApp.models {
     public class FetchEventsResponse {
         public FetchEventListResponse events;
         public Dictionary<string, User> userMap;
+        public Dictionary<string, Place> placeMap;
     }
     
     [Serializable]

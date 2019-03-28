@@ -6,14 +6,15 @@ using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
+using ConnectApp.utils;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Image = Unity.UIWidgets.widgets.Image;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
@@ -40,6 +41,8 @@ namespace ConnectApp.screens {
         
         private AnimationController _controller;
         private Animation<Offset> _position;
+        private readonly TextEditingController _textController = new TextEditingController("");
+        private readonly FocusNode _focusNode = new FocusNode();
 
         public override void initState() {
             base.initState();
@@ -67,7 +70,7 @@ namespace ConnectApp.screens {
             }
             var screenHeight = MediaQuery.of(context).size.height;
             var screenWidth = MediaQuery.of(context).size.width;
-            var ratio = 1.0f - 44.0f / (screenHeight - (screenWidth * 9 / 16 + 20.0f));
+            var ratio = 1.0f - 64.0f / (screenHeight - screenWidth * 9.0f / 16.0f);
 
             _position = new OffsetTween(
                 new Offset(0, ratio),
@@ -77,97 +80,115 @@ namespace ConnectApp.screens {
                 Curves.easeInOut
             ));
         }
-
-        private static Widget _buildHeaderView(BuildContext context, IEvent eventObj, EventType eventType) {
-            var bottomWidget = new Container();
-            if (eventType == EventType.onLine)
-                bottomWidget = new Container(
-                    height: 40,
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: new Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: new List<Widget> {
+        
+        private static Widget _buildHeadTop(bool isShowShare) {
+            Widget shareWidget = new Container();
+            if (isShowShare) {
+                shareWidget = new CustomButton(
+                    child: new Icon(
+                        Icons.share,
+                        size: 28,
+                        color: CColors.White
+                    ),
+                    onPressed: () => ShareUtils.showShareView(new ShareView())
+                );
+            }
+            return new Container(
+                height: 44,
+                padding: EdgeInsets.symmetric(horizontal: 8),
+                decoration: new BoxDecoration(
+                    gradient: new LinearGradient(
+                        colors: new List<Color> {
+                            new Color(0x80000000),
+                            new Color(0x0)
+                        },
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter
+                    )
+                ),
+                child: new Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: new List<Widget> {
+                        new CustomButton(
+                            onPressed: () => StoreProvider.store.Dispatch(new MainNavigatorPopAction()),
+                            child: new Icon(
+                                Icons.arrow_back,
+                                size: 28,
+                                color: CColors.White
+                            )
+                        ),
+                        shareWidget
+                    }
+                )
+            );
+        }
+        
+        private static Widget _buildEventHeader(IEvent eventObj, EventType eventType, EventStatus eventStatus, bool isLoggedIn) {
+            return new Stack(
+                children: new List<Widget> {
+                    new EventHeader(eventObj, eventType, eventStatus, isLoggedIn),
+                    new Positioned(
+                        left: 0,
+                        top: 0,
+                        right: 0,
+                        child: _buildHeadTop(eventType == EventType.onLine)
+                    )
+                }
+            );
+        }
+        
+        private Widget _buildEventDetail(IEvent eventObj, EventType eventType, EventStatus eventStatus, bool isLoggedIn) {
+            if (eventStatus != EventStatus.future && eventType == EventType.onLine && isLoggedIn) {
+                return new Expanded(
+                    child: new Stack(
+                        fit: StackFit.expand,
+                        children: new List<Widget>{
                             new Container(
-                                height: 24,
-                                width: 54,
-                                decoration: new BoxDecoration(
-                                    CColors.Black,
-                                    borderRadius: BorderRadius.all(4)
-                                ),
-                                alignment: Alignment.center,
-                                child: new Text(
-                                    "未开始",
-                                    style: CTextStyle.CaptionWhite
+                                margin: EdgeInsets.only(bottom: 64),
+                                color: CColors.White,
+                                child: new EventDetail(eventObj)
+                            ),
+                            Positioned.fill(
+                                new Container(
+                                    child: new SlideTransition(
+                                        position: _position,
+                                        child: _buildChatWindow(eventType, isLoggedIn)
+                                    )
                                 )
                             )
                         }
                     )
                 );
-
-            return new Container(
-                color: new Color(0xFFD8D8D8),
-                child: new AspectRatio(
-                    aspectRatio: 16.0f / 9.0f,
-                    child: new Stack(
-                        fit: StackFit.expand,
-                        children: new List<Widget> {
-                            Image.network(
-                                eventObj.background,
-                                fit: BoxFit.cover
-                            ),
-                            Positioned.fill(child:new Container(color:Color.fromRGBO(0,0,0,0.3f))),
-                            new Flex(
-                                Axis.vertical,
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: new List<Widget> {
-                                    new Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 8),
-                                        height: 44,
-                                        decoration: new BoxDecoration(
-                                            gradient: new LinearGradient(
-                                                colors: new List<Color> {
-                                                    new Color(0x80000000),
-                                                    new Color(0x0)
-                                                },
-                                                begin: Alignment.topCenter,
-                                                end: Alignment.bottomCenter
-                                            )
-                                        ),
-                                        child: new Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: new List<Widget> {
-                                                new CustomButton(
-                                                    onPressed: () => StoreProvider.store.Dispatch(new MainNavigatorPopAction()),
-                                                    child: new Icon(
-                                                        Icons.arrow_back,
-                                                        size: 28,
-                                                        color: CColors.White
-                                                    )
-                                                ),
-                                                new CustomButton(
-                                                    child: new Icon(
-                                                        Icons.share,
-                                                        size: 28,
-                                                        color: CColors.White
-                                                    ),
-                                                    onPressed: () => {
-                                                        ShareUtils.showShareView(new ShareView());
-                                                    }
-                                                )
-                                            }
-                                        )
-                                    ),
-                                    bottomWidget
-                                }
-                            )
-                        }
-                    )
-                )
+            }
+            return new Expanded(
+                child: new EventDetail(eventObj)
             );
         }
-
-        private static Widget _buildJoinBar(IEvent eventObj) {
+        
+        private static Widget _buildEventBottom(IEvent eventObj, EventType eventType, EventStatus eventStatus, bool isLoggedIn) {
+            if (eventType == EventType.offline) {
+                return _buildOfflineRegisterNow(eventObj, isLoggedIn);
+            }
+            if (eventStatus != EventStatus.future && eventType == EventType.onLine && isLoggedIn) {
+                return new Container();
+            }
+            
+            var onlineCount = eventObj.onlineMemberCount;
+            var recordWatchCount = eventObj.recordWatchCount;
+            var title = "";
+            var subTitle = "";
+            if (eventStatus == EventStatus.live) {
+                title = "正在直播";
+                subTitle = $"{onlineCount}人正在观看";
+            }
+            if (eventStatus == EventStatus.past) {
+                title = "回放";
+                subTitle = $"{recordWatchCount}次观看";
+            }
+            if (eventStatus == EventStatus.future || eventStatus == EventStatus.countDown) {
+                title = "距离开始还有";
+                subTitle = "10天10小时";
+            }
             return new Container(
                 height: 64,
                 padding: EdgeInsets.symmetric(horizontal: 16),
@@ -183,13 +204,13 @@ namespace ConnectApp.screens {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: new List<Widget> {
                                 new Text(
-                                    "正在直播",
-                                    style: CTextStyle.CaptionBody
+                                    title,
+                                    style: CTextStyle.PSmallBody4
                                 ),
                                 new Container(height: 2),
                                 new Text(
-                                    $"{eventObj.participantsCount}位观众",
-                                    style: CTextStyle.PLargeMedium
+                                    subTitle,
+                                    style: CTextStyle.H5Body
                                 )
                             }
                         ),
@@ -197,7 +218,7 @@ namespace ConnectApp.screens {
                             onPressed: () => StoreProvider.store.Dispatch(new ChatWindowShowAction {show = true}),
                             child: new Container(
                                 width: 96,
-                                height: 44,
+                                height: 40,
                                 decoration: new BoxDecoration(
                                     CColors.PrimaryBlue,
                                     borderRadius: BorderRadius.all(4)
@@ -219,32 +240,166 @@ namespace ConnectApp.screens {
             );
         }
 
-        private static Widget _buildChatWindow() {
+        private Widget _buildChatWindow(EventType eventType, bool isLoggedIn) {
             return new StoreConnector<AppState, bool>(
-                converter: (state, dispatcher) => state.eventState.openChatWindow,
-                builder: (context, openChatWindow) => {
-                    return new GestureDetector(
-                        onTap: () =>
-                            StoreProvider.store.Dispatch(new ChatWindowStatusAction {status = !openChatWindow}),
-                        child: new Container(
-                            height: openChatWindow ? 457 : 64,
-                            decoration: new BoxDecoration(
-                                CColors.Red
-                            ),
-                            child: new Text(
-                                "chatWindow",
-                                style: new TextStyle(
-                                    fontSize: 16,
-                                    color: CColors.text1
-                                )
-                            )
+                converter: (state, dispatcher) => state.eventState.showChatWindow,
+                builder: (context, showChatWindow) => {
+                    return new Container(
+                        child: new Column(
+                            children: new List<Widget> {
+                                _buildChatBar(showChatWindow),
+                                _buildChatList(),
+                                new CustomDivider(
+                                    height: 1,
+                                    color: CColors.Separator
+                                ),
+                                _buildTextField()
+                            }
                         )
                     );
                 }
             );
         }
 
-        private static Widget _buildOfflineRegisterNow(BuildContext context, IEvent eventObj, bool isLoggedIn) {
+        private Widget _buildChatBar(bool showChatWindow) {
+            IconData iconData;
+            Widget bottomWidget;
+            if (showChatWindow) {
+                iconData = Icons.expand_more;
+                bottomWidget = new Container();
+            } else {
+                iconData = Icons.expand_less;
+                bottomWidget = new Text(
+                    "轻点展开聊天",
+                    style: CTextStyle.PSmallBody4
+                );
+            }
+            return new GestureDetector(
+                onTap: () => {
+                    _focusNode.unfocus();
+                    if (!showChatWindow) {
+                        _controller.forward();
+                    } else {
+                        _controller.reverse();
+                    }
+                    StoreProvider.store.Dispatch(new ChatWindowShowAction {show = !showChatWindow});
+                },
+                child: new Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    color: CColors.White,
+                    height: showChatWindow ? 44 : 64,
+                    child: new Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: new List<Widget>{
+                            new Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: new List<Widget> {
+                                    new Row(
+                                        children: new List<Widget> {
+                                            new Container(
+                                                margin: EdgeInsets.only(right: 6),
+                                                width: 6,
+                                                height: 6,
+                                                decoration: new BoxDecoration(
+                                                    CColors.SecondaryPink,
+                                                    borderRadius: BorderRadius.circular(3)
+                                                )
+                                            ),
+                                            new Text(
+                                                "直播聊天",
+                                                style: new TextStyle(
+                                                    height: 1.09f,
+                                                    fontSize: 16,
+                                                    fontFamily: "Roboto-Medium",
+                                                    color: CColors.TextBody
+                                                )
+                                            )
+                                        }
+                                    ),
+                                    bottomWidget
+                                }
+                            ),
+                            new Icon(
+                                iconData,
+                                color: CColors.text3,
+                                size: 28
+                            )
+                        }
+                    )
+                )
+            );
+        }
+
+        private Widget _buildChatList() {
+            return new Flexible(
+                child: new GestureDetector(
+                    onTap: () => _focusNode.unfocus(),
+                    child: new Container(
+                        color: CColors.White,
+                        child: new StoreConnector<AppState, MessageState>(
+                            converter: (state, dispatcher) => state.messageState,
+                            builder: (_context, model) => {
+                                return ListView.builder(
+                                    padding: EdgeInsets.only(16, right: 16, bottom: 10),
+                                    physics: new AlwaysScrollableScrollPhysics(),
+                                    itemBuilder: (cxt, index) => new Container(
+                                        height: 100,
+                                        color: index / 2 == 0 ? CColors.Red : CColors.Black
+                                    ), 
+                                    itemCount: 10
+                                );
+                            }
+                        )
+                    )
+                )
+            );
+        }
+
+        private Widget _buildTextField() {
+            var sendMessageLoading = false;
+            return new Container(
+                color: CColors.White,
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                height: 40,
+                child: new Row(
+                    children: new List<Widget>{
+                        new Expanded(
+                            child: new InputField(
+                                // key: _textFieldKey,
+                                controller: _textController,
+                                focusNode: _focusNode,
+                                height: 40,
+                                style: new TextStyle(
+                                    color: sendMessageLoading
+                                        ? CColors.TextBody3
+                                        : CColors.TextBody,
+                                    fontFamily: "Roboto-Regular",
+                                    fontSize: 16
+                                ),
+                                hintText: "说点想法…",
+                                hintStyle: CTextStyle.PLargeBody4,
+                                keyboardType: TextInputType.multiline,
+                                maxLines: 1,
+                                cursorColor: CColors.PrimaryBlue,
+                                textInputAction: TextInputAction.send,
+                                onChanged: text => { },
+                                onSubmitted: text => { }
+                            )
+                        ),
+                        sendMessageLoading
+                            ? new Container(
+                                width: 32,
+                                height: 32,
+                                child: new CustomActivityIndicator()
+                            )
+                            : new Container()
+                    }
+                )
+            );
+        }
+
+        private static Widget _buildOfflineRegisterNow(IEvent eventObj, bool isLoggedIn) {
             var buttonText = "立即报名";
             var isEnabled = false;
             if (eventObj.userIsCheckedIn && isLoggedIn) {
@@ -293,9 +448,7 @@ namespace ConnectApp.screens {
                 converter: (state, dispatcher) => new Dictionary<string, object> {
                     {"isLoggedIn", state.loginState.isLoggedIn},
                     {"loading", state.eventState.eventDetailLoading},
-                    {"ongoingEventDict", state.eventState.ongoingEventDict},
-                    {"showChatWindow", state.eventState.showChatWindow},
-                    {"openChatWindow", state.eventState.openChatWindow}
+                    {"ongoingEventDict", state.eventState.ongoingEventDict}
                 },
                 builder: (_context, viewModel) => {
                     _setAnimationPosition(context);
@@ -303,36 +456,23 @@ namespace ConnectApp.screens {
                     var eventType = widget.eventType;
                     var eventId = widget.eventId;
                     var ongoingEventDict = (Dictionary<string, IEvent>) viewModel["ongoingEventDict"];
-                    IEvent eventObj = null;
+                    var eventObj = new IEvent();
                     if (ongoingEventDict.ContainsKey(eventId)) eventObj = ongoingEventDict[eventId];
-                    var showChatWindow = (bool) viewModel["showChatWindow"];
-                    var openChatWindow = (bool) viewModel["openChatWindow"];
                     var loading = (bool) viewModel["loading"];
                     if (loading || eventObj == null)
-                        return new Container(
-                            color: CColors.White,
-                            child: new CustomActivityIndicator()
-                        );
-                    var bottomWidget = eventType == EventType.offline
-                        ? _buildOfflineRegisterNow(context, eventObj, isLoggedIn)
-                        : showChatWindow
-                            ? _buildChatWindow()
-                            : _buildJoinBar(eventObj);
+                        return new EventDetailLoading();
+                    var eventStatus = DateConvert.GetEventStatus(eventObj.begin);
 
                     return new Container(
                         color: CColors.White,
                         child: new SafeArea(
                             child: new Container(
                                 color: CColors.White,
-                                child: new Stack(
+                                child: new Column(
                                     children: new List<Widget> {
-                                        new Column(
-                                            children: new List<Widget> {
-                                                _buildHeaderView(context, eventObj, eventType),
-                                                new EventDetail(eventObj: eventObj)
-                                            }
-                                        ),
-                                        bottomWidget
+                                        _buildEventHeader(eventObj, eventType, eventStatus, isLoggedIn),
+                                        _buildEventDetail(eventObj, eventType, eventStatus, isLoggedIn),
+                                        _buildEventBottom(eventObj, eventType, eventStatus, isLoggedIn)
                                     }
                                 )
                             )

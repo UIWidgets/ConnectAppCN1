@@ -10,7 +10,9 @@ namespace ConnectApp.models {
         public User author;
         public string content;
         public string nonce;
+        public bool mentionEveryone;
         public List<string> replyMessageIds;
         public List<Reaction> reactions;
+        public List<User> mentions;
     }
 }
