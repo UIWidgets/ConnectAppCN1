@@ -129,7 +129,6 @@ namespace ConnectApp.screens {
 
                                         return new ListView(
                                             children: new List<Widget> {
-                                                viewModel.searchHistoryList==null?new Container() : 
                                                 _buildSearchHistory(viewModel.searchHistoryList),
                                                 _buildHotSearch()
                                             }
@@ -226,7 +225,7 @@ namespace ConnectApp.screens {
         }
 
         private Widget _buildSearchHistory(List<string> searchHistoryList) {
-            if (searchHistoryList.Count <= 0) return new Container();
+            if (searchHistoryList == null || searchHistoryList.Count <= 0) return new Container();
 
             var widgets = new List<Widget>();
             widgets.Add(

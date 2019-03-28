@@ -12,7 +12,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 namespace ConnectApp.api {
-    public class ReportApi {
+    public static class ReportApi {
         public static Promise ReportItem(string itemId, string itemType, string reportContext) {
             // We return a promise instantly and start the coroutine to do the real work
             var promise = new Promise();

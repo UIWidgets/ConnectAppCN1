@@ -165,7 +165,7 @@ namespace ConnectApp.screens {
                                     () => {
                                         StoreProvider.store.Dispatch(new MainNavigatorPushToEventDetailAction {
                                             EventId = model.id,
-                                            EventType = model.live ? EventType.onLine : EventType.offline
+                                            EventType = model.mode == "online" ? EventType.onLine : EventType.offline
                                         });
                                     }
                                 );

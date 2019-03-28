@@ -27,12 +27,16 @@ namespace ConnectApp.components {
         private Widget _buildContent(BuildContext context) {
             var items = new List<Widget>();
             items.Add(_buildContentHead());
-            items.AddRange(ArticleDescription.map(context,eventObj.content, contentMap: eventObj.contentMap));
+            items.AddRange(ArticleDescription.map(context,eventObj.content, eventObj.contentMap));
+            items.Add(_buildContentLecturerList());
             return new Flexible(
-                child: ListView.builder(
-                    physics: new AlwaysScrollableScrollPhysics(),
-                    itemCount: items.Count,
-                    itemBuilder: (cxt, index) => items[index]
+                child: new Container(
+                    margin: EdgeInsets.only(bottom: 64),
+                    child: ListView.builder(
+                        physics: new AlwaysScrollableScrollPhysics(),
+                        itemCount: items.Count,
+                        itemBuilder: (cxt, index) => items[index]
+                    )
                 )
             );
         }
@@ -99,78 +103,78 @@ namespace ConnectApp.components {
             var hosts = eventObj.hosts;
             if (hosts == null || hosts.Count == 0) return new Container();
             var hostItems = new List<Widget>();
+            hostItems.Add(new Container(
+                margin: EdgeInsets.symmetric(horizontal: 16, vertical: 40),
+                height: 1,
+                color: CColors.Separator2
+            ));
+            hostItems.Add(new Padding(
+                padding: EdgeInsets.fromLTRB(16, 0, 16, 24),
+                child: new Text(
+                    "讲师",
+                    style: CTextStyle.H4
+                )
+            ));
             hosts.ForEach(host => { hostItems.Add(_buildLecture(host)); });
             return new Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: new List<Widget> {
-                    new Padding(
-                        padding: EdgeInsets.fromLTRB(16, 0, 0, 16),
-                        child: new Text(
-                            "讲师",
-                            style: new TextStyle(
-                                color: Color.black,
-                                fontFamily: "Roboto-Medium",
-                                fontSize: 20
-                            )
-                        )
-                    ),
-                    new Container(
-                        height: 238,
-                        margin: EdgeInsets.only(bottom: 64),
-                        padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
-                        child: new ListView(
-                            physics: new AlwaysScrollableScrollPhysics(),
-                            scrollDirection: Axis.horizontal,
-                            children: hostItems
-                        )
-                    )
-                }
+                children: hostItems
             );
         }
 
         private static Widget _buildLecture(User host) {
             return new Container(
-                width: 212,
-                padding: EdgeInsets.only(top: 24),
-                margin: EdgeInsets.only(right: 16),
-                decoration: new BoxDecoration(
-                    Color.fromARGB(255, 76, 76, 76)
-                ),
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                margin: EdgeInsets.only(bottom: 24),
+                color: CColors.White,
                 child: new Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        new Container(
-                            child: new Avatar(
-                                host.id,
-                                80
-                            )
+                        new Row(
+                            children: new List<Widget> {
+                                new Container(
+                                    margin: EdgeInsets.only(right: 8),
+                                    child: new Avatar(
+                                        host.id,
+                                        48
+                                    )
+                                ),
+                                new Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: new List<Widget> {
+                                        new Container(
+                                            child: new Text(
+                                                host.fullName, 
+                                                style: new TextStyle(
+                                                    color: CColors.TextBody,
+                                                    fontFamily: "Roboto-Medium",
+                                                    fontSize: 16
+                                                )
+                                            )
+                                        ),
+                                        new Container(
+                                            child: new Text(
+                                                host.title ?? "title",
+                                                maxLines: 1, 
+                                                overflow: TextOverflow.ellipsis,
+                                                style: CTextStyle.PRegularBody3
+                                            )
+                                        )
+                                    }
+                                )
+                            }
                         ),
                         new Container(
-                            margin: EdgeInsets.only(top: 12),
-                            padding: EdgeInsets.symmetric(horizontal: 16),
-                            child: new Text(
-                                host.fullName, 
-                                style: new TextStyle(color: Color.white, fontSize: 16)
-                            )
-                        ),
-                        new Container(
-                            margin: EdgeInsets.only(top: 4),
-                            padding: EdgeInsets.symmetric(horizontal: 16),
-                            child: new Text(
-                                host.title,
-                                maxLines: 1, 
-                                overflow: TextOverflow.ellipsis,
-                                style: new TextStyle(color: new Color(0xFF959595), fontSize: 16)
-                            )
-                        ),
-                        new Container(
-                            margin: EdgeInsets.only(top: 12),
-                            padding: EdgeInsets.symmetric(horizontal: 14),
+                            margin: EdgeInsets.only(top: 8),
                             child: new Text(
                                 host.description,
                                 textAlign: TextAlign.center,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: new TextStyle(color: new Color(0xFFD8D8D8), fontSize: 16)
+                                style: new TextStyle(
+                                    color: CColors.TextBody3,
+                                    fontFamily: "Roboto-Regular",
+                                    fontSize: 16
+                                )
                             )
                         )
                     }

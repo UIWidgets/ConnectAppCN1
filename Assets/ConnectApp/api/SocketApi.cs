@@ -9,7 +9,7 @@ using Unity.UIWidgets.ui;
 using UnityEngine.Networking;
 
 namespace ConnectApp.api {
-    public class SocketApi {
+    public static class SocketApi {
         public static Promise<string> FetchSocketUrl() {
             // We return a promise instantly and start the coroutine to do the real work
             var promise = new Promise<string>();

@@ -11,7 +11,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 namespace ConnectApp.api {
-    public class MessageApi {
+    public static class MessageApi {
         public static Promise FetchMessages(string channelId, string currOldestMessageId) {
             // We return a promise instantly and start the coroutine to do the real work
             var promise = new Promise();

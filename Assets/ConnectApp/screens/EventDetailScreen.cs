@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.canvas;
 using ConnectApp.components;
@@ -5,9 +6,11 @@ using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using Image = Unity.UIWidgets.widgets.Image;
@@ -33,13 +36,48 @@ namespace ConnectApp.screens {
         }
     }
 
-    internal class _EventDetailScreenState : State<EventDetailScreen> {
+    internal class _EventDetailScreenState : State<EventDetailScreen>, TickerProvider {
+        
+        private AnimationController _controller;
+        private Animation<Offset> _position;
 
         public override void initState() {
             base.initState();
             StoreProvider.store.Dispatch(new FetchEventDetailAction
                 {eventId = widget.eventId});
+            // new CurvedAnimation();
+            _controller = new AnimationController(
+                duration: new TimeSpan(0,0,0,0,300),
+                vsync: this
+            );
         }
+
+        public override void dispose() {
+            _controller.dispose();
+            base.dispose();
+        }
+        
+        public Ticker createTicker(TickerCallback onTick) {
+            return new Ticker(onTick, $"created by {this}");
+        }
+        
+        private void _setAnimationPosition(BuildContext context) {
+            if (_position != null) {
+                return;
+            }
+            var screenHeight = MediaQuery.of(context).size.height;
+            var screenWidth = MediaQuery.of(context).size.width;
+            var ratio = 1.0f - 44.0f / (screenHeight - (screenWidth * 9 / 16 + 20.0f));
+
+            _position = new OffsetTween(
+                new Offset(0, ratio),
+                new Offset(0, 0)
+            ).animate(new CurvedAnimation(
+                _controller,
+                Curves.easeInOut
+            ));
+        }
+
         private static Widget _buildHeaderView(BuildContext context, IEvent eventObj, EventType eventType) {
             var bottomWidget = new Container();
             if (eventType == EventType.onLine)
@@ -50,18 +88,16 @@ namespace ConnectApp.screens {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: new List<Widget> {
                             new Container(
-                                height: 20,
-                                width: 48,
+                                height: 24,
+                                width: 54,
                                 decoration: new BoxDecoration(
-                                    CColors.text4
+                                    CColors.Black,
+                                    borderRadius: BorderRadius.all(4)
                                 ),
                                 alignment: Alignment.center,
                                 child: new Text(
                                     "未开始",
-                                    style: new TextStyle(
-                                        fontSize: 12,
-                                        color: CColors.text1
-                                    )
+                                    style: CTextStyle.CaptionWhite
                                 )
                             )
                         }
@@ -85,8 +121,19 @@ namespace ConnectApp.screens {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: new List<Widget> {
-                                    new Padding(
-                                        padding: EdgeInsets.symmetric(horizontal: 4),
+                                    new Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 8),
+                                        height: 44,
+                                        decoration: new BoxDecoration(
+                                            gradient: new LinearGradient(
+                                                colors: new List<Color> {
+                                                    new Color(0x80000000),
+                                                    new Color(0x0)
+                                                },
+                                                begin: Alignment.topCenter,
+                                                end: Alignment.bottomCenter
+                                            )
+                                        ),
                                         child: new Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: new List<Widget> {
@@ -122,42 +169,38 @@ namespace ConnectApp.screens {
 
         private static Widget _buildJoinBar(IEvent eventObj) {
             return new Container(
-                color: CColors.background1,
                 height: 64,
                 padding: EdgeInsets.symmetric(horizontal: 16),
+                decoration: new BoxDecoration(
+                    CColors.White,
+                    border: new Border(new BorderSide(CColors.Separator))
+                ),
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: new List<Widget> {
                         new Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: new List<Widget> {
-                                new Container(height: 14),
                                 new Text(
                                     "正在直播",
-                                    style: new TextStyle(
-                                        fontSize: 12,
-                                        color: CColors.text2
-                                    )
+                                    style: CTextStyle.CaptionBody
                                 ),
                                 new Container(height: 2),
                                 new Text(
                                     $"{eventObj.participantsCount}位观众",
-                                    style: new TextStyle(
-                                        fontSize: 16,
-                                        color: CColors.text1
-                                    )
+                                    style: CTextStyle.PLargeMedium
                                 )
                             }
                         ),
                         new CustomButton(
                             onPressed: () => StoreProvider.store.Dispatch(new ChatWindowShowAction {show = true}),
                             child: new Container(
-                                width: 100,
+                                width: 96,
                                 height: 44,
                                 decoration: new BoxDecoration(
-                                    CColors.primary
+                                    CColors.PrimaryBlue,
+                                    borderRadius: BorderRadius.all(4)
                                 ),
                                 alignment: Alignment.center,
                                 child: new Row(
@@ -165,13 +208,10 @@ namespace ConnectApp.screens {
                                     children: new List<Widget> {
                                         new Text(
                                             "立即加入",
-                                            maxLines: 1,
-                                            style: new TextStyle(
-                                                fontSize: 16,
-                                                color: CColors.text1
-                                            )
+                                            style: CTextStyle.PLargeMediumWhite
                                         )
-                                    })
+                                    }
+                                )
                             )
                         )
                     }
@@ -188,7 +228,6 @@ namespace ConnectApp.screens {
                             StoreProvider.store.Dispatch(new ChatWindowStatusAction {status = !openChatWindow}),
                         child: new Container(
                             height: openChatWindow ? 457 : 64,
-                            width: 375,
                             decoration: new BoxDecoration(
                                 CColors.Red
                             ),
@@ -254,17 +293,18 @@ namespace ConnectApp.screens {
                 converter: (state, dispatcher) => new Dictionary<string, object> {
                     {"isLoggedIn", state.loginState.isLoggedIn},
                     {"loading", state.eventState.eventDetailLoading},
-                    {"eventDict", state.eventState.eventDict},
+                    {"ongoingEventDict", state.eventState.ongoingEventDict},
                     {"showChatWindow", state.eventState.showChatWindow},
                     {"openChatWindow", state.eventState.openChatWindow}
                 },
                 builder: (_context, viewModel) => {
+                    _setAnimationPosition(context);
                     var isLoggedIn = (bool) viewModel["isLoggedIn"];
                     var eventType = widget.eventType;
                     var eventId = widget.eventId;
-                    var eventDict = (Dictionary<string, IEvent>) viewModel["eventDict"];
+                    var ongoingEventDict = (Dictionary<string, IEvent>) viewModel["ongoingEventDict"];
                     IEvent eventObj = null;
-                    if (eventDict.ContainsKey(eventId)) eventObj = eventDict[eventId];
+                    if (ongoingEventDict.ContainsKey(eventId)) eventObj = ongoingEventDict[eventId];
                     var showChatWindow = (bool) viewModel["showChatWindow"];
                     var openChatWindow = (bool) viewModel["openChatWindow"];
                     var loading = (bool) viewModel["loading"];
@@ -275,22 +315,27 @@ namespace ConnectApp.screens {
                         );
                     var bottomWidget = eventType == EventType.offline
                         ? _buildOfflineRegisterNow(context, eventObj, isLoggedIn)
-                        : !showChatWindow
-                            ? new Container()
+                        : showChatWindow
+                            ? _buildChatWindow()
                             : _buildJoinBar(eventObj);
 
                     return new Container(
                         color: CColors.White,
-                        child: new Stack(
-                            children: new List<Widget> {
-                                new Column(
+                        child: new SafeArea(
+                            child: new Container(
+                                color: CColors.White,
+                                child: new Stack(
                                     children: new List<Widget> {
-                                        _buildHeaderView(context, eventObj, eventType),
-                                        new EventDetail(eventObj: eventObj)
+                                        new Column(
+                                            children: new List<Widget> {
+                                                _buildHeaderView(context, eventObj, eventType),
+                                                new EventDetail(eventObj: eventObj)
+                                            }
+                                        ),
+                                        bottomWidget
                                     }
-                                ),
-                                bottomWidget
-                            }
+                                )
+                            )
                         )
                     );
                 }

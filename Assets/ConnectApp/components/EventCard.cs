@@ -44,7 +44,7 @@ namespace ConnectApp.components {
                                         style: new TextStyle(
                                             height: 1.33f,
                                             fontSize: 24,
-                                            fontFamily: "DINPro-Bold",
+                                            fontFamily: "Roboto-Bold",
                                             color: CColors.SecondaryPink
                                         )
                                     ),
@@ -71,9 +71,9 @@ namespace ConnectApp.components {
                                             )
                                         ),
                                         new Text(
-                                            _model.live
+                                            _model.mode == "online"
                                                 ? $"{time.Hour}:{time.Minute} · {_model.participantsCount}人已预订"
-                                                : $"{time.Hour}:{time.Minute} · 旧金山Unity大厦",
+                                                : $"{time.Hour}:{time.Minute} · {_model.address}",
                                             style: CTextStyle.PSmallBody3
                                         )
                                     }
@@ -91,7 +91,7 @@ namespace ConnectApp.components {
                                             width: 114,
                                             height: 76,
                                             color: new Color(0xFFD8D8D8),
-                                            child: Image.network(_model.background, fit: BoxFit.fill)
+                                            child: Image.network(_model.avatar, fit: BoxFit.fill)
                                         )
                                     ),
                                     new Positioned(
@@ -102,10 +102,10 @@ namespace ConnectApp.components {
                                             child: new Container(
                                                 width: 41,
                                                 height: 24,
-                                                color: _model.live ? CColors.PrimaryBlue : CColors.SecondaryPink,
+                                                color: _model.mode == "online" ? CColors.PrimaryBlue : CColors.SecondaryPink,
                                                 alignment: Alignment.center,
                                                 child: new Text(
-                                                    _model.live ? "线上" : "线下",
+                                                    _model.mode == "online" ? "线上" : "线下",
                                                     style: CTextStyle.CaptionWhite,
                                                     textAlign: TextAlign.center
                                                 )
