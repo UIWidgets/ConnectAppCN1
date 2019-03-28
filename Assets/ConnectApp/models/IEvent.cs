@@ -27,8 +27,8 @@ namespace ConnectApp.models {
     
     [Serializable]
     public class TimeMap {
-        public DateTime startTime;
-        public DateTime endTime;
+        public string startTime;
+        public string endTime;
     }
     
 }

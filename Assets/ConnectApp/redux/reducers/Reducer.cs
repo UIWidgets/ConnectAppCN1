@@ -62,8 +62,9 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.loading = false;
                     state.loginState.loginInfo = action.loginInfo;
                     var user = new User {
-                        id = state.loginState.loginInfo.userId,
-                        fullName = state.loginState.loginInfo.userFullName
+                        id = state.loginState.loginInfo.userId, 
+                        fullName = state.loginState.loginInfo.userFullName,
+                        avatar = state.loginState.loginInfo.userAvatar
                     };
                     var dict = new Dictionary<string, User> {
                         {user.id, user}
@@ -107,14 +108,14 @@ namespace ConnectApp.redux.reducers {
                                 {userMap = articlesResponse.userMap});
                             StoreProvider.store.Dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
                             StoreProvider.store.Dispatch(new FetchArticleSuccessAction
-                                {ArticleDict = articleDict, ArticleList = articleList, total = articlesResponse.total});
+                                {articleDict = articleDict, articleList = articleList, total = articlesResponse.total});
                         })
                         .Catch(error => { Debug.Log(error); });
                     break;
                 }
                 case FetchArticleSuccessAction action: {
-                    state.articleState.articleList = action.ArticleList;
-                    state.articleState.articleDict = action.ArticleDict;
+                    state.articleState.articleList = action.articleList;
+                    state.articleState.articleDict = action.articleDict;
                     state.articleState.articleTotal = action.total;
                     state.articleState.articlesLoading = false;
                     break;
@@ -136,10 +137,8 @@ namespace ConnectApp.redux.reducers {
                                     messageItem[message.id] = message;
                                     if (userMap.ContainsKey(message.author.id)) {
                                         userMap[message.author.id] = message.author;
-                                    }
-                                    else {
+                                    } else {
                                         userMap.Add(message.author.id, message.author);
-
                                     }
                                 }
 
@@ -335,7 +334,7 @@ namespace ConnectApp.redux.reducers {
                     else {
                         state.messageState.channelMessageDict.Add(
                             action.message.channelId,
-                            new Dictionary<string, Message>() {
+                            new Dictionary<string, Message> {
                                 {action.message.id, action.message}
                             }
                         );
@@ -348,8 +347,10 @@ namespace ConnectApp.redux.reducers {
                     EventApi.FetchEvents(action.pageNumber, action.tab)
                         .Then(eventsResponse => {
                             StoreProvider.store.Dispatch(new UserMapAction {userMap = eventsResponse.userMap});
+                            StoreProvider.store.Dispatch(new PlaceMapAction {placeMap = eventsResponse.placeMap});
                             StoreProvider.store.Dispatch(new FetchEventsSuccessAction
-                                {events = eventsResponse.events.items, tab = action.tab, total = eventsResponse.events.total});
+                                {events = eventsResponse.events.items, total = eventsResponse.events.total, tab = action.tab, pageNumber = action.pageNumber}
+                            );
                         })
                         .Catch(error => {
                             state.eventState.eventsLoading = false;
@@ -495,6 +496,21 @@ namespace ConnectApp.redux.reducers {
                 case FetchNotificationsSuccessAction action: {
                     state.notificationState.loading = false;
                     state.notificationState.total = action.notificationResponse.total;
+                    var oldResults = action.notificationResponse.results;
+                    if (oldResults != null && oldResults.Count > 0) {
+                        oldResults.ForEach(item => {
+                            var data = item.data;
+                            var user = new User {
+                                id = data.userId,
+                                fullName = data.fullname
+                            };
+                            StoreProvider.store.Dispatch(new UserMapAction {
+                                userMap = new Dictionary<string, User> {
+                                    {data.userId, user}
+                                }
+                            });
+                        });
+                    }
                     if (action.pageNumber == 1) {
                         state.notificationState.notifications = action.notificationResponse.results;
                     }
@@ -595,6 +611,14 @@ namespace ConnectApp.redux.reducers {
                             state.teamState.teamDict[keyValuePair.Key] = keyValuePair.Value;
                         else
                             state.teamState.teamDict.Add(keyValuePair.Key, keyValuePair.Value);
+                    break;
+                }
+                case PlaceMapAction action: {
+                    foreach (var keyValuePair in action.placeMap)
+                        if (state.placeState.placeDict.ContainsKey(keyValuePair.Key))
+                            state.placeState.placeDict[keyValuePair.Key] = keyValuePair.Value;
+                        else
+                            state.placeState.placeDict.Add(keyValuePair.Key, keyValuePair.Value);
                     break;
                 }
                 case SearchArticleAction action: {

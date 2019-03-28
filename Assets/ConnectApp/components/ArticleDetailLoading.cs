@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Unity.UIWidgets.material;
+using ConnectApp.constants;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -8,9 +8,9 @@ namespace ConnectApp.components {
     public class ArticleDetailLoading : StatelessWidget {
         public override Widget build(BuildContext context) {
             return new Container(
-                color: Colors.white,
+                color: CColors.White,
                 height: MediaQuery.of(context).size.height,
-                padding: EdgeInsets.only(left: 16, right: 16, top: 16),
+                padding: EdgeInsets.only(16, right: 16, top: 16),
                 child: new Column(
                     children: new List<Widget> {
                         new Container(

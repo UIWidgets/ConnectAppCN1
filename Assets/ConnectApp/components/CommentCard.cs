@@ -35,9 +35,13 @@ namespace ConnectApp.components {
 
         public override Widget build(BuildContext context) {
             Widget _content = null;
+            var content = MessageUtil.AnalyzeMessage(message.content, message.mentions, message.mentionEveryone);
             if (message.parentMessageId == null) {
                 _content = new Container(
-                    child: new Text(message.content, style: CTextStyle.PLargeBody),
+                    child: new Text(
+                        content,
+                        style: CTextStyle.PLargeBody
+                    ),
                     alignment: Alignment.centerLeft
                 );
             }
@@ -45,21 +49,28 @@ namespace ConnectApp.components {
                 var parentMessage =
                     StoreProvider.store.state.messageState.channelMessageDict[message.channelId][
                         message.parentMessageId];
-                _content = new Container(alignment: Alignment.centerLeft, child: new RichText(text: new TextSpan("回复@",
-                    children: new List<TextSpan> {
-                        new TextSpan(
-                            $"{parentMessage.author.fullName}",
+                _content = new Container(
+                    alignment: Alignment.centerLeft,
+                    child: new RichText(
+                        text: new TextSpan(
+                            "回复@",
                             children: new List<TextSpan> {
                                 new TextSpan(
-                                    $": {message.content}", 
-                                    CTextStyle.PLargeBody
+                                    $"{parentMessage.author.fullName}",
+                                    children: new List<TextSpan> {
+                                        new TextSpan(
+                                            $": {content}", 
+                                            CTextStyle.PLargeBody
+                                        )
+                                    },
+                                    style: CTextStyle.PLargeBlue
                                 )
                             },
-                            style: CTextStyle.PLargeBlue
+                            style: CTextStyle.PLargeBody4
                         )
-                    }, style: CTextStyle.PLargeBody4)));
+                    )
+                );
             }
-
 
             return new Container(
                 color: CColors.White,

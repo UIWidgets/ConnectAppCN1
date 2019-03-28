@@ -1,17 +1,13 @@
 using System.Collections.Generic;
-using ConnectApp.canvas;
 using ConnectApp.constants;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
-using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
     public enum ShareType {
@@ -45,19 +41,27 @@ namespace ConnectApp.components {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: new List<Widget> {
                     new Container(
-                        color:CColors.White,
+                        color: CColors.White,
                         width: mediaQueryData.size.width,
-                        height: 185,
+                        height: 211,
                         child: new Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: new List<Widget> {
-                                new Padding(
+                                new Container(
+                                    height: 54,
                                     padding: EdgeInsets.only(top: 16, left: 16),
-                                    child: new Text("分享至", style: CTextStyle.TextBody1)
+                                    child: new Text("分享至", style: CTextStyle.PRegularBody4)
                                 ),
                                 new Container(
+                                    height: 108,
                                     padding: EdgeInsets.only(top: 16),
+                                    decoration: new BoxDecoration(
+                                        border: new Border(
+                                            new BorderSide(CColors.Separator2),
+                                            bottom: new BorderSide(CColors.Separator2)
+                                        )
+                                    ),
                                     child: new Row(
                                         mainAxisAlignment: MainAxisAlignment.start,
                                         children: new List<Widget> {
@@ -74,11 +78,14 @@ namespace ConnectApp.components {
                                         height: 49,
                                         color: CColors.Transparent,
                                         alignment:Alignment.center,
-                                        child: new Text("取消", style: CTextStyle.TextBody1)
+                                        child: new Text("取消", style: CTextStyle.PLargeBody)
                                     )
                                 )
                             }
                         )
+                    ),
+                    new Container(
+                        height: mediaQueryData.padding.bottom
                     )
                 }
             );
@@ -106,8 +113,9 @@ namespace ConnectApp.components {
                             height: 20,
                             child: new Text(
                                 title,
-                                style: CTextStyle.PSmallBody3)
-                        ),
+                                style: CTextStyle.PSmallBody4
+                            )
+                        )
                     })
                 )
             );
