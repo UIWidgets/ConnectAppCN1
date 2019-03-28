@@ -38,13 +38,16 @@ namespace ConnectApp.models {
                     articleDict = new Dictionary<string, Article>(),
                     articlesLoading = false,
                     articleDetailLoading = false,
+                    articleTotal = 0,
                     articleHistory = new List<Article>()
                 },
                 eventState = new EventState {
-                    events = new List<string>(),
-                    eventDict = new Dictionary<string, IEvent>(),
+                    ongoingEvents = new List<string>(),
+                    ongoingEventDict = new Dictionary<string, IEvent>(),
+                    ongoingEventTotal = 0,
                     completedEvents = new List<string>(),
                     completedEventDict = new Dictionary<string, IEvent>(),
+                    completedEventTotal = 0,
                     eventsLoading = false,
                     eventHistory = new List<IEvent>()
                 },

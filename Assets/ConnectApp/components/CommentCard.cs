@@ -60,7 +60,14 @@ namespace ConnectApp.components {
                                 style: CTextStyle.PLargeBlue
                             )
                         }, style: CTextStyle.PLargeBody4)));
-                }  
+                }
+                else
+                {
+                    _content = new Container(
+                        child: new Text(message.content, style: CTextStyle.PLargeBody),
+                        alignment: Alignment.centerLeft
+                    );
+                }
 
             }
 

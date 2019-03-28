@@ -31,12 +31,10 @@ namespace ConnectApp.screens {
     internal class _SearchScreenState : State<SearchScreen> {
         private readonly TextEditingController _controller = new TextEditingController(null);
         private int pageNumber;
-        private FocusNode _focusNode;
 
         public override void initState() {
             base.initState();
             pageNumber = 0;
-            _focusNode = new FocusNode();
             StoreProvider.store.Dispatch(new GetSearchHistoryAction());
         }
 
@@ -47,7 +45,6 @@ namespace ConnectApp.screens {
 
         private void _searchArticle(string text) {
             if (text.isEmpty()) return;
-            _focusNode.unfocus();
             _saveSearchHistory(text);
             _controller.text = text;
             StoreProvider.store.Dispatch(new SearchArticleAction {keyword = text});
@@ -85,65 +82,61 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            return new Container(
-                color: CColors.White,
-                child: new SafeArea(
-                    child: new Container(
-                        color: CColors.White,
-                        child: new Column(
-                            children: new List<Widget> {
-                                _buildSearchBar(context),
-                                new Flexible(
-                                    child: new StoreConnector<AppState, SearchState>(
-                                        converter: (state, dispatch) => state.searchState,
-                                        builder: (_context, viewModel) => {
-                                            if (viewModel.loading) return new GlobalLoading();
-    
-                                            if (viewModel.keyword.Length > 0) {
-                                                var searchArticles = viewModel.searchArticles;
-                                                if (searchArticles.Count > 0)
-                                                    return new Refresh(
-                                                        onHeaderRefresh: () => {
-                                                            pageNumber = 0;
-                                                            return _onRefresh(pageNumber);
-                                                        },
-                                                        onFooterRefresh: () => {
-                                                            pageNumber++;
-                                                            return _onRefresh(pageNumber);
-                                                        },
-                                                        headerBuilder: (cxt, controller) => new RefreshHeader(controller),
-                                                        footerBuilder: (cxt, controller) => new RefreshFooter(controller),
-                                                        child: ListView.builder(
-                                                            physics: new AlwaysScrollableScrollPhysics(),
-                                                            itemCount: searchArticles.Count,
-                                                            itemBuilder: (cxt, index) => {
-                                                                var searchArticle = searchArticles[index];
-                                                                return new RelatedArticleCard(
-                                                                    searchArticle,
-                                                                    () => {
-                                                                        StoreProvider.store.Dispatch(
-                                                                            new MainNavigatorPushToArticleDetailAction
-                                                                                {ArticleId = searchArticle.id});
-                                                                    }
-                                                                );
-                                                            }
-                                                        )
-                                                    );
-                                                return new BlankView("暂无搜索结果");
-                                            }
-    
-                                            return new ListView(
-                                                children: new List<Widget> {
-                                                    viewModel.searchHistoryList==null?new Container() : 
-                                                    _buildSearchHistory(viewModel.searchHistoryList),
-                                                    _buildHotSearch()
-                                                }
-                                            );
+            return new SafeArea(
+                child: new Container(
+                    color: CColors.White,
+                    child: new Column(
+                        children: new List<Widget> {
+                            _buildSearchBar(context),
+                            new Flexible(
+                                child: new StoreConnector<AppState, SearchState>(
+                                    converter: (state, dispatch) => state.searchState,
+                                    builder: (_context, viewModel) => {
+                                        if (viewModel.loading) return new GlobalLoading();
+
+                                        if (viewModel.keyword.Length > 0) {
+                                            var searchArticles = viewModel.searchArticles;
+                                            if (searchArticles.Count > 0)
+                                                return new Refresh(
+                                                    onHeaderRefresh: () => {
+                                                        pageNumber = 0;
+                                                        return _onRefresh(pageNumber);
+                                                    },
+                                                    onFooterRefresh: () => {
+                                                        pageNumber++;
+                                                        return _onRefresh(pageNumber);
+                                                    },
+                                                    headerBuilder: (cxt, controller) => new RefreshHeader(controller),
+                                                    footerBuilder: (cxt, controller) => new RefreshFooter(controller),
+                                                    child: ListView.builder(
+                                                        physics: new AlwaysScrollableScrollPhysics(),
+                                                        itemCount: searchArticles.Count,
+                                                        itemBuilder: (cxt, index) => {
+                                                            var searchArticle = searchArticles[index];
+                                                            return new RelatedArticleCard(
+                                                                searchArticle,
+                                                                () => {
+                                                                    StoreProvider.store.Dispatch(
+                                                                        new MainNavigatorPushToArticleDetailAction
+                                                                            {ArticleId = searchArticle.id});
+                                                                }
+                                                            );
+                                                        }
+                                                    )
+                                                );
+                                            return new BlankView("暂无搜索结果");
                                         }
-                                    )
+
+                                        return new ListView(
+                                            children: new List<Widget> {
+                                                _buildSearchHistory(viewModel.searchHistoryList),
+                                                _buildHotSearch()
+                                            }
+                                        );
+                                    }
                                 )
-                            }
-                        )
+                            )
+                        }
                     )
                 )
             );
@@ -170,7 +163,6 @@ namespace ConnectApp.screens {
                             controller: _controller,
                             style: CTextStyle.H2,
                             autofocus: true,
-                            focusNode:_focusNode,
                             hintText: "搜索",
                             hintStyle: CTextStyle.H2Body4,
                             cursorColor: CColors.PrimaryBlue,
@@ -233,7 +225,7 @@ namespace ConnectApp.screens {
         }
 
         private Widget _buildSearchHistory(List<string> searchHistoryList) {
-            if (searchHistoryList.Count <= 0) return new Container();
+            if (searchHistoryList == null || searchHistoryList.Count <= 0) return new Container();
 
             var widgets = new List<Widget>();
             widgets.Add(

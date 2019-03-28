@@ -7,11 +7,24 @@ namespace ConnectApp.models {
         public List<Article> items;
         public Dictionary<string, User> userMap;
         public Dictionary<string, Team> teamMap;
+        public int total;
     }
 
     [Serializable]
     public class FetchArticleDetailResponse {
         public Project project;
+    }
+    
+    [Serializable]
+    public class FetchEventsResponse {
+        public FetchEventListResponse events;
+        public Dictionary<string, User> userMap;
+    }
+    
+    [Serializable]
+    public class FetchEventListResponse {
+        public List<IEvent> items;
+        public int total;
     }
 
     [Serializable]

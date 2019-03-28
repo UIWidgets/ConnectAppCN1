@@ -9,6 +9,7 @@ namespace ConnectApp.redux.actions {
     public class FetchArticleSuccessAction : BaseAction {
         public List<string> ArticleList;
         public Dictionary<string, Article> ArticleDict;
+        public int total;
     }
 
     public class FetchArticleDetailAction : RequestAction {
