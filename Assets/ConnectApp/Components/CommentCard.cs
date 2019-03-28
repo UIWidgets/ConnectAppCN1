@@ -71,7 +71,7 @@ namespace ConnectApp.components {
                 else
                 {
                     _content = new Container(
-                        child: new Text(content, style: CTextStyle.PLargeBody),
+                        child: new Text(message.content, style: CTextStyle.PLargeBody),
                         alignment: Alignment.centerLeft
                     );
                 }

@@ -74,13 +74,17 @@ namespace ConnectApp.components {
                         if (content.entityMap.ContainsKey(key)) {
                             var dataMap = content.entityMap[key];
                             var data = dataMap.data;
-                            if (contentMap.ContainsKey(data.contentId)) {
-                                var map = contentMap[data.contentId];
-                                var originalImage = map.originalImage == null
-                                    ? map.thumbnail
-                                    : map.originalImage;
-                                widgets.Add(_Atomic(context,dataMap.type, data.title, originalImage));
+                            if (data.contentId.isNotEmpty())
+                            {
+                                if (contentMap.ContainsKey(data.contentId)) {
+                                    var map = contentMap[data.contentId];
+                                    var originalImage = map.originalImage == null
+                                        ? map.thumbnail
+                                        : map.originalImage;
+                                    widgets.Add(_Atomic(context,dataMap.type, data.title, originalImage));
+                                }
                             }
+                            
                         }
                     }
                         break;

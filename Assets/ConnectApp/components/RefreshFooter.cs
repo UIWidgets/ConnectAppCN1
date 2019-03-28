@@ -47,7 +47,7 @@ namespace ConnectApp.components {
             return new Container(
                 child: new CustomActivityIndicator(
                     animating: animatingType,
-                    size: 32
+                    size: 24
                 )
             );
         }
