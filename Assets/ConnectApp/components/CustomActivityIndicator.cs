@@ -23,7 +23,7 @@ namespace ConnectApp.components {
             Key key = null,
             AnimatingType animating = AnimatingType.repeat,
             AnimationImage animationImage = AnimationImage.black,
-            float size = 36
+            float size = 24
         ) : base(key) {
             this.animating = animating;
             this.animationImage = animationImage;

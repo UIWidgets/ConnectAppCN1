@@ -311,7 +311,7 @@ namespace ConnectApp.screens {
                     if (loading || eventObj == null)
                         return new Container(
                             color: CColors.White,
-                            child: new CustomActivityIndicator(size:20)
+                            child: new CustomActivityIndicator(size:24)
                         );
                     var bottomWidget = eventType == EventType.offline
                         ? _buildOfflineRegisterNow(context, eventObj, isLoggedIn)
