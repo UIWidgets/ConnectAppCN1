@@ -27,6 +27,9 @@ namespace ConnectApp.constants {
         public static readonly IconData favorite = new IconData(0xe87d, "Material Icons");
         public static readonly IconData comment = new IconData(0xe0b9, "Material Icons");
         public static readonly IconData play_arrow = new IconData(0xe037, "Material Icons");
+        public static readonly IconData replay = new IconData(0xe042, "Material Icons");
+        public static readonly IconData expand_less = new IconData(0xe5ce, "Material Icons");
+        public static readonly IconData expand_more = new IconData(0xe5cf, "Material Icons");
     }
 
     public static class CTextStyle {
@@ -90,6 +93,13 @@ namespace ConnectApp.constants {
             fontSize: 20,
             fontFamily: "Roboto-Medium",
             color: CColors.H5White
+        );
+        
+        public static readonly TextStyle H5Body = new TextStyle(
+            height: 1.27f,
+            fontSize: 20,
+            fontFamily: "Roboto-Medium",
+            color: CColors.TextBody
         );
 
         public static readonly TextStyle PXLarge = new TextStyle(
@@ -300,13 +310,6 @@ namespace ConnectApp.constants {
             fontFamily: "Roboto-Regular",
             color: CColors.TextTitle
         );
-        
-        public static readonly TextStyle TextBody4 = new TextStyle(
-            height: 1.53f,
-            fontSize: 12,
-            fontFamily: "Roboto-Regular",
-            color: CColors.TextBody4
-        );
 
         public static readonly TextStyle TextBody1 = new TextStyle(
             height: 1.68f,
@@ -373,15 +376,5 @@ namespace ConnectApp.constants {
         public static readonly Color text1 = new Color(0xFFFFFFFF);
         public static readonly Color text2 = new Color(0xFFD8D8D8);
         public static readonly Color text3 = new Color(0xFF959595);
-        public static readonly Color text4 = new Color(0xFF002835);
-        public static readonly Color text5 = new Color(0xFF9E9E9E);
-        public static readonly Color text6 = new Color(0xFF002835);
-        public static readonly Color text7 = new Color(0xFF5A5A5B);
-        public static readonly Color text8 = new Color(0xFF239988);
-        public static readonly Color text9 = new Color(0xFFB3B5B6);
-        public static readonly Color text10 = new Color(0xFF00BCD4);
-        public static readonly Color text11 = new Color(0xFF2B98F0);
-        public static readonly Color redPoint = new Color(0xFFCC122B);
-        public static readonly Color mask = new Color(0x66000000);
     }
 }

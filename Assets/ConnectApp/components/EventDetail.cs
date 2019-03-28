@@ -12,8 +12,8 @@ using TextStyle = Unity.UIWidgets.painting.TextStyle;
 namespace ConnectApp.components {
     public class EventDetail : StatelessWidget {
         public EventDetail(
-            Key key = null,
-            IEvent eventObj = null
+            IEvent eventObj = null,
+            Key key = null
         ) : base(key) {
             this.eventObj = eventObj;
         }
@@ -29,14 +29,11 @@ namespace ConnectApp.components {
             items.Add(_buildContentHead());
             items.AddRange(ArticleDescription.map(context,eventObj.content, eventObj.contentMap));
             items.Add(_buildContentLecturerList());
-            return new Flexible(
-                child: new Container(
-                    margin: EdgeInsets.only(bottom: 64),
-                    child: ListView.builder(
-                        physics: new AlwaysScrollableScrollPhysics(),
-                        itemCount: items.Count,
-                        itemBuilder: (cxt, index) => items[index]
-                    )
+            return new Container(
+                child: ListView.builder(
+                    physics: new AlwaysScrollableScrollPhysics(),
+                    itemCount: items.Count,
+                    itemBuilder: (cxt, index) => items[index]
                 )
             );
         }
@@ -45,13 +42,13 @@ namespace ConnectApp.components {
             var user = eventObj.user ?? new User();
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
-                margin: EdgeInsets.only(top: 16,bottom:44),
+                margin: EdgeInsets.only(top: 16, bottom: 20),
                 child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
                         new Text(
                             eventObj.title ?? "",
-                            style: CTextStyle.H3
+                            style: CTextStyle.H4
                         ),
                         new Container(
                             margin: EdgeInsets.only(top: 20),
@@ -169,7 +166,6 @@ namespace ConnectApp.components {
                             margin: EdgeInsets.only(top: 8),
                             child: new Text(
                                 host.description,
-                                textAlign: TextAlign.center,
                                 style: new TextStyle(
                                     color: CColors.TextBody3,
                                     fontFamily: "Roboto-Regular",

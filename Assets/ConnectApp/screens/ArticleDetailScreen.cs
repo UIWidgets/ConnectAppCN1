@@ -53,7 +53,7 @@ namespace ConnectApp.screens {
                 {articleId = widget.articleId});
         }
 
-        void ToLogin() {
+        private static void _toLogin() {
             StoreProvider.store.Dispatch(new MainNavigatorPushToAction {RouteName = MainNavigatorRoutes.Login});
         }
 
@@ -73,7 +73,7 @@ namespace ConnectApp.screens {
                             child: new SafeArea(
                                 child: new Column(
                                     children: new List<Widget> {
-                                        _buildNavigationBar(context),
+                                        _buildNavigationBar(),
                                         new ArticleDetailLoading()
                                     }
                                 )
@@ -116,7 +116,7 @@ namespace ConnectApp.screens {
                         color: CColors.background3,
                         child: new Column(
                             children: new List<Widget> {
-                                _buildNavigationBar(context),
+                                _buildNavigationBar(),
                                 new Expanded(
                                     child: new Refresh(
                                         onFooterRefresh: footerCallback,
@@ -131,12 +131,9 @@ namespace ConnectApp.screens {
                                 new ArticleTabBar(
                                     _article.like,
                                     () => {
-                                        if (!StoreProvider.store.state.loginState.isLoggedIn)
-                                        {
-                                            ToLogin();
-                                        }
-                                        else
-                                        {
+                                        if (!StoreProvider.store.state.loginState.isLoggedIn) {
+                                            _toLogin();
+                                        } else {
                                             ActionSheetUtils.showModalActionSheet(new CustomInput(
                                                 doneCallBack: text => {
                                                     StoreProvider.store.Dispatch(new SendCommentAction {
@@ -149,14 +146,10 @@ namespace ConnectApp.screens {
                                         }
                                         
                                     },
-                                    () =>
-                                    {
-                                        if (!StoreProvider.store.state.loginState.isLoggedIn)
-                                        {
-                                            ToLogin();
-                                        }
-                                        else
-                                        {
+                                    () => {
+                                        if (!StoreProvider.store.state.loginState.isLoggedIn) {
+                                            _toLogin();
+                                        } else {
                                             ActionSheetUtils.showModalActionSheet(new CustomInput(
                                                 doneCallBack: text => {
                                                     StoreProvider.store.Dispatch(new SendCommentAction {
@@ -171,12 +164,9 @@ namespace ConnectApp.screens {
 
                                     },
                                     () => {
-                                        if (!StoreProvider.store.state.loginState.isLoggedIn)
-                                        {
-                                            ToLogin(); 
-                                        }
-                                        else
-                                        {
+                                        if (!StoreProvider.store.state.loginState.isLoggedIn) {
+                                            _toLogin(); 
+                                        } else {
                                             if (!_article.like)
                                                 StoreProvider.store.Dispatch(new LikeArticleAction {
                                                     articleId = _article.id
@@ -204,9 +194,9 @@ namespace ConnectApp.screens {
         private List<Widget> _buildItems(BuildContext context) {
             var originItems = new List<Widget>();
             originItems.Add(_buildContentHead(context));
-            originItems.Add(_subTitle(context));
+            originItems.Add(_buildSubTitle());
             originItems.AddRange(ArticleDescription.map(context, _article.body, _contentMap));
-            originItems.Add(_actionCards(context, _article.like));
+            originItems.Add(_buildActionCards(context, _article.like));
             originItems.Add(_buildRelatedArticles());
             originItems.Add(_comments(context));
             originItems.AddRange(_buildComments(context));
@@ -214,7 +204,7 @@ namespace ConnectApp.screens {
             return originItems;
         }
 
-        private static Widget _buildNavigationBar(BuildContext context) {
+        private static Widget _buildNavigationBar() {
             return new Container(
                 decoration: new BoxDecoration(
                     border: new Border(
@@ -293,9 +283,17 @@ namespace ConnectApp.screens {
                 _article.ownerType == "user" ? OwnerType.user : OwnerType.team
             );
             var text = _article.ownerType == "user" ? _user.fullName : _team.name;
+            var description = _article.ownerType == "user" ? _user.title : "";
+            Widget descriptionWidget = new Container();
+            if (description.isNotEmpty()) {
+                descriptionWidget = new Text(
+                    description,
+                    style: CTextStyle.PSmallBody3
+                );
+            }
             return new Container(
                 color: CColors.White,
-                padding: EdgeInsets.only(left: 16, right: 16, top: 16),
+                padding: EdgeInsets.only(16, right: 16, top: 16),
                 child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
@@ -322,15 +320,11 @@ namespace ConnectApp.screens {
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: new List<Widget> {
-                                            new Container(height: 5),
                                             new Text(
                                                 text,
                                                 style: CTextStyle.PRegularBody
                                             ),
-                                            new Text(
-                                                DateConvert.DateStringFromNow(_article.createdTime),
-                                                style: CTextStyle.PSmallBody3
-                                            )
+                                            descriptionWidget
                                         }
                                     )
                                 }
@@ -341,14 +335,14 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _subTitle(BuildContext context) {
+        private Widget _buildSubTitle() {
             return new Container(
                 color: CColors.White,
                 child: new Container(
                     margin: EdgeInsets.only(bottom: 24, left: 16, right: 16),
                     child: new Container(
                         decoration: new BoxDecoration(
-                            color: CColors.Separator2,
+                            CColors.Separator2,
                             borderRadius: BorderRadius.all(4)
                         ),
                         padding: EdgeInsets.only(16, 12, 16, 12),
@@ -358,7 +352,7 @@ namespace ConnectApp.screens {
         }
 
 
-        private Widget _actionCards(BuildContext context, bool like) {
+        private Widget _buildActionCards(BuildContext context, bool like) {
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(bottom: 40),
@@ -367,12 +361,9 @@ namespace ConnectApp.screens {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: new List<Widget> {
                         new ActionCard(Icons.favorite, like ? "已赞" : "点赞", like, () => {
-                            if (!StoreProvider.store.state.loginState.isLoggedIn)
-                            {
-                                ToLogin();                            
-                            }
-                            else
-                            {
+                            if (!StoreProvider.store.state.loginState.isLoggedIn) {
+                                _toLogin();                            
+                            } else {
                                 if (!like)
                                     StoreProvider.store.Dispatch(new LikeArticleAction {
                                         articleId = _article.id
@@ -381,8 +372,7 @@ namespace ConnectApp.screens {
 
                         }),
                         new Container(width: 16),
-                        new ActionCard(Icons.share, "分享", false, () =>
-                        {
+                        new ActionCard(Icons.share, "分享", false, () => {
                             ShareUtils.showShareView(new ShareView());
                         })
                     }
@@ -462,35 +452,31 @@ namespace ConnectApp.screens {
                         ));
                     },
                     replyCallBack: () => {
-                        if (!StoreProvider.store.state.loginState.isLoggedIn)
-                        {
-                            ToLogin();                            }
-                        else
-                        {
+                        if (!StoreProvider.store.state.loginState.isLoggedIn) {
+                            _toLogin();                            
+                        } else {
                             ActionSheetUtils.showModalActionSheet(new CustomInput(
                                 message.author.fullName.isEmpty() ? "" : message.author.fullName,
-                                doneCallBack: (text) => {
+                                text => {
                                     StoreProvider.store.Dispatch(new SendCommentAction {
                                         channelId = _channelId,
                                         content = text,
                                         nonce = Snowflake.CreateNonce(),
                                         parentMessageId = commentId
                                     });
-                                }));
+                                })
+                            );
                         }
                         
                     },
                     praiseCallBack: () => {
-                        if (!StoreProvider.store.state.loginState.isLoggedIn)
-                        {
-                            ToLogin();
-                        }
-                        else
-                        {
+                        if (!StoreProvider.store.state.loginState.isLoggedIn) {
+                            _toLogin();
+                        } else {
                             if (isPraised)
-                                StoreProvider.store.Dispatch(new RemoveLikeCommentAction() {messageId = commentId});
+                                StoreProvider.store.Dispatch(new RemoveLikeCommentAction {messageId = commentId});
                             else
-                                StoreProvider.store.Dispatch(new LikeCommentAction() {messageId = commentId});
+                                StoreProvider.store.Dispatch(new LikeCommentAction {messageId = commentId});
                         }
                     });
                 comments.Add(card);   

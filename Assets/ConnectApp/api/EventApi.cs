@@ -1,13 +1,11 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
 using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.ui;
-using UnityEngine;
 using UnityEngine.Networking;
 
 namespace ConnectApp.api {
@@ -36,10 +34,10 @@ namespace ConnectApp.api {
             }
             else {
                 // Format output and resolve promise
-                var json = request.downloadHandler.text;
-                var events = JsonConvert.DeserializeObject<FetchEventsResponse>(json);
-                if (events != null)
-                    promise.Resolve(events);
+                var responseText = request.downloadHandler.text;
+                var eventsResponse = JsonConvert.DeserializeObject<FetchEventsResponse>(responseText);
+                if (eventsResponse != null)
+                    promise.Resolve(eventsResponse);
                 else
                     promise.Reject(new Exception("No user under this username found!"));
             }

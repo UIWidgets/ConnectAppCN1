@@ -23,6 +23,8 @@ namespace ConnectApp.components {
 
         public override Widget build(BuildContext context) {
             if (notification == null) return new Container();
+            var type = notification.type;
+            if (type != "project_liked" && type != "project_message_commented") return new Container();
 
             var data = notification.data;
             return new GestureDetector(
@@ -36,9 +38,9 @@ namespace ConnectApp.components {
                         children: new List<Widget> {
                             new Container(
                                 padding: EdgeInsets.only(16, 16, 16),
-                                child: new ClipRRect(
-                                    borderRadius: BorderRadius.circular(24),
-                                    child: Image.asset("pikachu", width: 48, height: 48)
+                                child: new Avatar(
+                                    data.userId,
+                                    48
                                 )
                             ),
                             new Expanded(
@@ -70,7 +72,12 @@ namespace ConnectApp.components {
             var subTitle = new TextSpan();
             if (type == "project_liked")
                 subTitle = new TextSpan(
-                    $"点赞了你的{data.projectTitle}文章",
+                    $" 点赞了你的{data.projectTitle}文章",
+                    CTextStyle.PLargeBody2
+                );
+            if (type == "project_message_commented")
+                subTitle = new TextSpan(
+                    $" 评价了你的{data.projectTitle}文章",
                     CTextStyle.PLargeBody2
                 );
 
