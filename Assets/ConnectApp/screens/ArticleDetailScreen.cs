@@ -251,23 +251,11 @@ namespace ConnectApp.screens {
                 .Then(responseComments => {
                     _lastCommentId = responseComments.currOldestMessageId;
                     _hasMore = responseComments.hasMore;
-                    var channelMessageList = new Dictionary<string, List<string>>();
-                    var channelMessageDict = new Dictionary<string, Dictionary<string, Message>>();
-                    var itemIds = new List<string>();
-                    var messageItem = new Dictionary<string, Message>();
-                    responseComments.items.ForEach(message => {
-                        itemIds.Add(message.id);
-                        messageItem[message.id] = message;
-                    });
-                    responseComments.parents.ForEach(message => { messageItem[message.id] = message; });
-                    channelMessageList.Add(_channelId, itemIds);
-                    channelMessageDict.Add(_channelId, messageItem);
 
                     StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction {
-                        channelMessageDict = channelMessageDict,
-                        channelMessageList = channelMessageList,
-                        isRefreshList = false,
-                        channelId = _article.channelId,
+                        channelId = _channelId,
+                        commentsResponse = responseComments,
+                        isRefreshList = false,                
                         hasMore = _hasMore,
                         currOldestMessageId = _lastCommentId
                     });

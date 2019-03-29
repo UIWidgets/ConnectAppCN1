@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.redux;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -18,7 +19,7 @@ namespace ConnectApp.components {
             GestureTapCallback onTap = null,
             Key key = null
         ) : base(key) {
-            _model = model;
+            this._model = model;
             this.onTap = onTap;
         }
 
@@ -26,7 +27,19 @@ namespace ConnectApp.components {
         private readonly GestureTapCallback onTap;
 
         public override Widget build(BuildContext context) {
+            if (_model == null) return new Container();
+            
             var time = Convert.ToDateTime(_model.createdTime);
+            var placeId = _model.placeId;
+            var address = "";
+            if (placeId.isNotEmpty()) {
+                var placeDict = StoreProvider.store.state.placeState.placeDict;
+                if (placeDict.ContainsKey(placeId)) {
+                    var place = placeDict[placeId];
+                    address = place.name;
+                }
+            }
+            var imageUrl = _model.avatar != null ? _model.avatar : _model.background;
             var card = new Container(
                 padding: EdgeInsets.all(16),
                 color: CColors.White,
@@ -73,7 +86,7 @@ namespace ConnectApp.components {
                                         new Text(
                                             _model.mode == "online"
                                                 ? $"{time.Hour}:{time.Minute} · {_model.participantsCount}人已预订"
-                                                : $"{time.Hour}:{time.Minute} · {_model.address}",
+                                                : $"{time.Hour}:{time.Minute} · {address}",
                                             style: CTextStyle.PSmallBody3
                                         )
                                     }
@@ -91,7 +104,7 @@ namespace ConnectApp.components {
                                             width: 114,
                                             height: 76,
                                             color: new Color(0xFFD8D8D8),
-                                            child: Image.network(_model.avatar, fit: BoxFit.fill)
+                                            child: Image.network(imageUrl, fit: BoxFit.fill)
                                         )
                                     ),
                                     new Positioned(

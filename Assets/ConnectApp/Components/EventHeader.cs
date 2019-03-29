@@ -58,6 +58,8 @@ namespace ConnectApp.components {
         }
 
         public override Widget build(BuildContext context) {
+            if (widget.eventObj == null) return new Container();
+            
             var isLoggedIn = widget.isLoggedIn;
             if (widget.eventType == EventType.offline) {
                 return _buildOfflineHeaderView();
@@ -82,7 +84,7 @@ namespace ConnectApp.components {
         
         private Widget _buildHeadImage(Widget child) {
             var eventObj = widget.eventObj;
-            var imageUrl = eventObj.background;
+            var imageUrl = eventObj.background != null ? eventObj.background : "";
             return new Container(
                 color: new Color(0xFFD8D8D8),
                 child: new AspectRatio(
