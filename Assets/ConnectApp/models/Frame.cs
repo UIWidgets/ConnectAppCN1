@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using NUnit.Framework;
 
 namespace ConnectApp.models {
     public class OpCode {
@@ -79,7 +78,7 @@ namespace ConnectApp.models {
         public string type;
         public static DispatchFrame fromJson(Dictionary<string, object> json) {
             var frame = fromJson(json);
-            
+            return null;
         }
     }
     
