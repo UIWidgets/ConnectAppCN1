@@ -40,8 +40,6 @@ namespace ConnectApp.models {
                     articlesLoading = false,
                     articleDetailLoading = false,
                     articleTotal = 0,
-                    detailId = null,
-                    articleDetail = null,
                     articleHistory = new List<Article>()
                 },
                 eventState = new EventState {

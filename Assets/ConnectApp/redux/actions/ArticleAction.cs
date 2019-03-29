@@ -42,6 +42,8 @@ namespace ConnectApp.redux.actions {
     public class FetchArticleCommentsSuccessAction : BaseAction {
         public string channelId;
         public FetchCommentsResponse commentsResponse;
+        public string currOldestMessageId;
+        public bool hasMore;
         public bool isRefreshList;
     }
 

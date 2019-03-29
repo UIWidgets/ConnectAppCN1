@@ -299,7 +299,7 @@ namespace ConnectApp.screens {
                                         padding: EdgeInsets.only(right: 24),
                                         child: new CustomActivityIndicator(
                                             animationImage: AnimationImage.white,
-                                            size: 20
+                                            size: 24
                                         )
                                     );
                                 return new CustomButton(

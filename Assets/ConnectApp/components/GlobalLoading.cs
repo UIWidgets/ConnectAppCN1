@@ -13,7 +13,7 @@ namespace ConnectApp.components {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: new List<Widget> {
                             new CustomActivityIndicator(
-                                size: 32
+                                size: 24
                             )
                         }
                     )
