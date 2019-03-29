@@ -6,6 +6,7 @@ using ConnectApp.utils;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
@@ -18,8 +19,32 @@ namespace ConnectApp.screens {
                         CColors.background1,
                         border: Border.all(CColors.Red)
                     ),
-                    child: renderTestText()
+                    child: renderWebSocket()
                 )
+            );
+        }
+        
+        private static Widget renderWebSocket() {
+            return new ListView(
+                children: new List<Widget> {
+                    new GestureDetector(
+                        onTap: () => {
+                            GatewaySocket.Connect(
+                                $"{IApi.apiAddress}/api/socketgw",
+                                () => "",
+                                () => "",
+                                true
+                            );
+                        },
+                        child: new Container(
+                            color: CColors.White,
+                            child: new Text(
+                                "ConnectWebSocket",
+                                style: CTextStyle.H4
+                            )
+                        )
+                    )
+                }
             );
         }
 
