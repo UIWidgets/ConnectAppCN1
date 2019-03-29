@@ -124,36 +124,16 @@ namespace ConnectApp.redux.reducers {
                     state.articleState.articleDetailLoading = true;
                     ArticleApi.FetchArticleDetail(action.articleId)
                         .Then(articleDetailResponse => {
-                            var userMap = articleDetailResponse.project.userMap;
                             if (articleDetailResponse.project.comments.items.Count > 0) {
-                                var channelId = articleDetailResponse.project.channelId;
-                                var channelMessageList = new Dictionary<string, List<string>>();
-                                var channelMessageDict = new Dictionary<string, Dictionary<string, Message>>();
-                                var itemIds = new List<string>();
-                                var messageItem = new Dictionary<string, Message>();
-                                var messages = articleDetailResponse.project.comments.items;
-                                foreach (var message in messages) {
-                                    itemIds.Add(message.id);
-                                    messageItem[message.id] = message;
-                                    if (userMap.ContainsKey(message.author.id)) {
-                                        userMap[message.author.id] = message.author;
-                                    } else {
-                                        userMap.Add(message.author.id, message.author);
-                                    }
-                                }
-
-                                channelMessageList.Add(channelId, itemIds);
-                                channelMessageDict.Add(channelId, messageItem);
-
                                 StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction {
-                                    channelMessageDict = channelMessageDict,
-                                    channelMessageList = channelMessageList,
+                                    channelId = articleDetailResponse.project.channelId,
+                                    commentsResponse = articleDetailResponse.project.comments,
                                     isRefreshList = true
                                 });
                             }
 
                             StoreProvider.store.Dispatch(new UserMapAction {
-                                userMap = userMap
+                                userMap = articleDetailResponse.project.userMap
                             });
                             StoreProvider.store.Dispatch(new TeamMapAction {
                                 teamMap = articleDetailResponse.project.teamMap
@@ -228,24 +208,12 @@ namespace ConnectApp.redux.reducers {
                 }
                 case FetchArticleCommentsAction action: {
                     ArticleApi.FetchArticleComments(action.channelId, action.currOldestMessageId)
-                        .Then((responseComments) => {
+                        .Then(responseComments => {
                             state.articleState.articleDetail.comments = responseComments;
 
-                            var channelMessageList = new Dictionary<string, List<string>>();
-                            var channelMessageDict = new Dictionary<string, Dictionary<string, Message>>();
-                            var itemIds = new List<string>();
-                            var messageItem = new Dictionary<string, Message>();
-                            responseComments.items.ForEach(message => {
-                                itemIds.Add(message.id);
-                                messageItem[message.id] = message;
-                            });
-                            responseComments.parents.ForEach((message) => { messageItem[message.id] = message; });
-                            channelMessageList.Add(action.channelId, itemIds);
-                            channelMessageDict.Add(action.channelId, messageItem);
-
                             StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction {
-                                channelMessageDict = channelMessageDict,
-                                channelMessageList = channelMessageList,
+                                channelId = action.channelId,
+                                commentsResponse = responseComments,
                                 isRefreshList = false
                             });
                         })
@@ -253,7 +221,29 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case FetchArticleCommentsSuccessAction action: {
-                    foreach (var keyValuePair in action.channelMessageList)
+                    var channelMessageList = new Dictionary<string, List<string>>();
+                    var channelMessageDict = new Dictionary<string, Dictionary<string, Message>>();
+                    var itemIds = new List<string>();
+                    var messageItem = new Dictionary<string, Message>();
+                    
+                    var userMap = new Dictionary<string, User>();
+                    action.commentsResponse.items.ForEach(message => {
+                        itemIds.Add(message.id);
+                        messageItem[message.id] = message;
+                        if (userMap.ContainsKey(message.author.id)) {
+                            userMap[message.author.id] = message.author;
+                        } else {
+                            userMap.Add(message.author.id, message.author);
+                        }
+                    });
+                    // action.commentsResponse.parents.ForEach(message => { messageItem[message.id] = message; });
+                    channelMessageList.Add(action.channelId, itemIds);
+                    channelMessageDict.Add(action.channelId, messageItem);
+                    StoreProvider.store.Dispatch(new UserMapAction {
+                        userMap = userMap
+                    });
+                    
+                    foreach (var keyValuePair in channelMessageList)
                         if (state.messageState.channelMessageList.ContainsKey(keyValuePair.Key)) {
                             var oldList = state.messageState.channelMessageList[keyValuePair.Key];
                             if (action.isRefreshList) oldList.Clear();
@@ -264,7 +254,7 @@ namespace ConnectApp.redux.reducers {
                             state.messageState.channelMessageList.Add(keyValuePair.Key, keyValuePair.Value);
                         }
 
-                    foreach (var keyValuePair in action.channelMessageDict)
+                    foreach (var keyValuePair in channelMessageDict)
                         if (state.messageState.channelMessageDict.ContainsKey(keyValuePair.Key)) {
                             var oldDict = state.messageState.channelMessageDict[keyValuePair.Key];
                             var newDict = keyValuePair.Value;

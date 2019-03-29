@@ -240,7 +240,17 @@ namespace ConnectApp.screens {
                             ),
                             new CustomButton(
                                 padding: EdgeInsets.only(8, 8, 0, 8),
-                                onPressed: _deleteAllSearchHistory,
+                                onPressed: () => {
+                                    ActionSheetUtils.showModalActionSheet(
+                                        new ActionSheet(
+                                            title: "确定清除搜索历史记录？",
+                                            items: new List<ActionSheetItem> {
+                                                new ActionSheetItem("确定", ActionType.destructive, _deleteAllSearchHistory),
+                                                new ActionSheetItem("取消", ActionType.cancel)
+                                            }
+                                        )
+                                    );
+                                },
                                 child: new Text(
                                     "清空",
                                     style: CTextStyle.PRegularBody4

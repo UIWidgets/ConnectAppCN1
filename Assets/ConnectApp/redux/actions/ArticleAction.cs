@@ -40,8 +40,8 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchArticleCommentsSuccessAction : BaseAction {
-        public Dictionary<string, List<string>> channelMessageList;
-        public Dictionary<string, Dictionary<string, Message>> channelMessageDict;
+        public string channelId;
+        public FetchCommentsResponse commentsResponse;
         public bool isRefreshList;
     }
 
