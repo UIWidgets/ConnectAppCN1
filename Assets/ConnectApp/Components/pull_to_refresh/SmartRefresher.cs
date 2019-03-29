@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
@@ -304,7 +305,11 @@ namespace ConnectApp.components.pull_to_refresh
 
         public override Widget build(BuildContext context)
         {
-            var slivers = widget.child.buildSlivers(context);
+            var type = typeof(ScrollView);
+            var method = type.GetMethod("buildSlivers", BindingFlags.NonPublic | BindingFlags.Instance);
+            var objs = new object[1];
+            objs[0] = context;
+            var slivers = (List<Widget>)method.Invoke(widget.child,objs);
             slivers.Add(new SliverToBoxAdapter(
                 child: widget.footerBuilder != null && widget.enablePullUp
                     ? _buildWrapperByConfig(widget.footerConfig, false)
