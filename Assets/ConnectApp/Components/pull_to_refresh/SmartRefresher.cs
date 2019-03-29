@@ -20,7 +20,7 @@ namespace ConnectApp.components.pull_to_refresh
     {
 
         public SmartRefresher(
-            BoxScrollView child,
+            ScrollView child,
             IndicatorBuilder headerBuilder = null,
             IndicatorBuilder footerBuilder = null,
             Config headerConfig = null,
@@ -46,7 +46,7 @@ namespace ConnectApp.components.pull_to_refresh
             this.onOffsetChange = onOffsetChange;
             this.controller = controller??new RefreshController();
         }
-        public readonly BoxScrollView child;
+        public readonly ScrollView child;
 
         public readonly IndicatorBuilder headerBuilder;
         public readonly IndicatorBuilder footerBuilder;
@@ -304,7 +304,7 @@ namespace ConnectApp.components.pull_to_refresh
 
         public override Widget build(BuildContext context)
         {
-            var slivers = widget.child.(context);
+            var slivers = widget.child.buildSlivers(context);
             slivers.Add(new SliverToBoxAdapter(
                 child: widget.footerBuilder != null && widget.enablePullUp
                     ? _buildWrapperByConfig(widget.footerConfig, false)
