@@ -3,6 +3,7 @@ using System.Linq;
 using ConnectApp.api;
 using ConnectApp.canvas;
 using ConnectApp.components;
+using ConnectApp.components.pull_to_refresh;
 using ConnectApp.components.refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
@@ -14,6 +15,7 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
+using RefreshController = ConnectApp.components.pull_to_refresh.RefreshController;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
@@ -33,9 +35,11 @@ namespace ConnectApp.screens {
         private const float headerHeight = 140;
         private float _offsetY;
         private int pageNumber = 1;
-
+        RefreshController _refreshController;
+        
         public override void initState() {
             base.initState();
+            _refreshController = new RefreshController();
             _offsetY = 0;
             if (StoreProvider.store.state.articleState.articleList.Count == 0)
                 StoreProvider.store.Dispatch(new FetchArticlesAction {pageNumber = pageNumber});
@@ -91,25 +95,24 @@ namespace ConnectApp.screens {
                         },
                         builder: (context1, viewModel) => {
                             var articlesLoading = (bool) viewModel["articlesLoading"];
-                            if (articlesLoading)
+                            var articleList = (List<string>) viewModel["articleList"];
+                            var articleDict = (Dictionary<string, Article>) viewModel["articleDict"];
+                            var articleTotal = (int) viewModel["articleTotal"];
+                            if (articlesLoading&&articleList.isEmpty())
                                 return ListView.builder(
                                     itemCount: 4,
                                     itemBuilder: (cxt, index) => new ArticleLoading()
                                 );
-
-                            var articleList = (List<string>) viewModel["articleList"];
-                            var articleDict = (Dictionary<string, Article>) viewModel["articleDict"];
-                            var articleTotal = (int) viewModel["articleTotal"];
-                            RefresherCallback onFooterCallback= null;
-                            if (articleList.Count < articleTotal) {
-                                onFooterCallback = onFooterRefresh;
-                            }
-                            var refreshPage = new Refresh(
-                                onHeaderRefresh: onHeaderRefresh,
-                                onFooterRefresh: onFooterCallback,
-                                headerBuilder: (cxt, controller) => new RefreshHeader(controller),
-                                footerBuilder: (cxt, controller) => new RefreshFooter(controller),
-                                child: ListView.builder(
+                            var smartRefreshPage = new SmartRefresher(
+                                controller: _refreshController,
+                                enablePullDown: true,
+                                enablePullUp: articleList.Count < articleTotal,
+                                headerBuilder: (cxt,mode) =>
+                                    new SmartRefreshHeader(mode), 
+                                footerBuilder: (cxt,mode) =>
+                                    new SmartRefreshHeader(mode),
+                                onRefresh: onRefresh,
+                                child:ListView.builder(
                                     physics: new AlwaysScrollableScrollPhysics(),
                                     itemCount: articleList.Count,
                                     itemBuilder: (cxt, index) => {
@@ -132,52 +135,68 @@ namespace ConnectApp.screens {
                                         );
                                     }
                                 )
-                            );
-                            return refreshPage;
+                                );
+                            return smartRefreshPage;
                         }
                     )
                 )
             );
         }
 
-        private IPromise onHeaderRefresh() {
-            pageNumber = 1;
-            return ArticleApi.FetchArticles(pageNumber)
-                .Then(articlesResponse => {
-                    var articleList = new List<string>();
-                    var articleDict = new Dictionary<string, Article>();
-                    articlesResponse.items.ForEach(item => {
-                        articleList.Add(item.id);
-                        articleDict.Add(item.id, item);
-                    });
-                    StoreProvider.store.Dispatch(new UserMapAction {userMap = articlesResponse.userMap});
-                    StoreProvider.store.Dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
-                    StoreProvider.store.Dispatch(new FetchArticleSuccessAction
-                        {articleDict = articleDict, articleList = articleList, total = articlesResponse.total});
-                })
-                .Catch(error => { Debug.Log($"{error}"); });
-        }
-
-        private IPromise onFooterRefresh() {
-            pageNumber++;
-            return ArticleApi.FetchArticles(pageNumber)
-                .Then(articlesResponse => {
-                    if (articlesResponse.items.Count != 0) {
-                        var articleList = StoreProvider.store.state.articleState.articleList;
-                        var articleDict = StoreProvider.store.state.articleState.articleDict;
+        private void onRefresh(bool up)
+        {
+            if (up)
+            {
+                pageNumber = 1;
+                StoreProvider.store.Dispatch(new FetchArticlesAction() {pageNumber = pageNumber});
+                
+                ArticleApi.FetchArticles(pageNumber)
+                    .Then(articlesResponse => {
+                        var newArticleList = new List<string>();
+                        var newArticleDict = new Dictionary<string, Article>();
                         articlesResponse.items.ForEach(item => {
-                            if (!articleDict.Keys.Contains(item.id)) {
-                                articleList.Add(item.id);
-                                articleDict.Add(item.id, item);
-                            }
+                            newArticleList.Add(item.id);
+                            newArticleDict.Add(item.id, item);
                         });
                         StoreProvider.store.Dispatch(new UserMapAction {userMap = articlesResponse.userMap});
                         StoreProvider.store.Dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
                         StoreProvider.store.Dispatch(new FetchArticleSuccessAction
-                            {articleDict = articleDict, articleList = articleList, total = articlesResponse.total});
-                    }
-                })
-                .Catch(error => { Debug.Log($"{error}"); });
+                            {articleDict = newArticleDict, articleList = newArticleList, total = articlesResponse.total});
+                        _refreshController.sendBack(true, RefreshStatus.completed);
+                    })
+                    .Catch(error =>
+                    {
+                        _refreshController.sendBack(true, RefreshStatus.failed);
+
+                    });
+            }
+            else
+            {
+                pageNumber++;
+                ArticleApi.FetchArticles(pageNumber)
+                    .Then(articlesResponse => {
+                        if (articlesResponse.items.Count != 0) {
+                            var newArticleList = StoreProvider.store.state.articleState.articleList;
+                            var newArticleDict = StoreProvider.store.state.articleState.articleDict;
+                            articlesResponse.items.ForEach(item => {
+                                if (!newArticleDict.Keys.Contains(item.id)) {
+                                    newArticleList.Add(item.id);
+                                    newArticleDict.Add(item.id, item);
+                                }
+                            });
+                            StoreProvider.store.Dispatch(new UserMapAction {userMap = articlesResponse.userMap});
+                            StoreProvider.store.Dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
+                            StoreProvider.store.Dispatch(new FetchArticleSuccessAction
+                                {articleDict = newArticleDict, articleList = newArticleList, total = articlesResponse.total});
+                            _refreshController.sendBack(false, RefreshStatus.idle);
+
+                        }
+                    })
+                    .Catch(error =>
+                    { 
+                        _refreshController.sendBack(true, RefreshStatus.failed);
+                    });
+            }
         }
 
         private bool _onNotification(ScrollNotification notification) {
