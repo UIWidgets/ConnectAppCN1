@@ -102,7 +102,8 @@ namespace ConnectApp.components {
                         new GestureDetector(
                             onTap: () => {
                                 StoreProvider.store.Dispatch(new MainNavigatorPopAction());
-                                item.onTap();
+                                if (item.onTap != null)
+                                    item.onTap();
                             },
                             child: new Container(
                                 alignment: Alignment.center,
