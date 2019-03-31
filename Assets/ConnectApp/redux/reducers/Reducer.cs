@@ -387,20 +387,25 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     action.events.ForEach(eventObj => {
-                        if (action.tab == "ongoing") {
-                            state.eventState.ongoingEvents.Add(eventObj.id);
-                            if (state.eventState.ongoingEventDict.ContainsKey(eventObj.id))
-                                state.eventState.ongoingEventDict[eventObj.id] = eventObj;
-                            else
-                                state.eventState.ongoingEventDict.Add(eventObj.id, eventObj);
+                        if (action.tab == "ongoing")
+                        {
+                            if (!state.eventState.ongoingEvents.Contains(eventObj.id))
+                            {
+                                state.eventState.ongoingEvents.Add(eventObj.id);
+                            }
                         }
-                        else {
-                            state.eventState.completedEvents.Add(eventObj.id);
-                            if (state.eventState.completedEventDict.ContainsKey(eventObj.id))
-                                state.eventState.completedEventDict[eventObj.id] = eventObj;
-                            else
-                                state.eventState.completedEventDict.Add(eventObj.id, eventObj);
+                        else
+                        {
+                            if (!state.eventState.completedEvents.Contains(eventObj.id))
+                            {
+                                state.eventState.completedEvents.Add(eventObj.id);
+                            }
                         }
+
+                        if (state.eventState.eventsDict.ContainsKey(eventObj.id))
+                            state.eventState.eventsDict[eventObj.id] = eventObj;
+                        else
+                            state.eventState.eventsDict.Add(eventObj.id, eventObj);
                     });
                     break;
                 }
@@ -428,10 +433,10 @@ namespace ConnectApp.redux.reducers {
                             userMap.Add(host.id, host);
                     });
                     StoreProvider.store.Dispatch(new UserMapAction {userMap = userMap});
-                    if (state.eventState.ongoingEventDict.ContainsKey(action.eventObj.id))
-                        state.eventState.ongoingEventDict[action.eventObj.id] = action.eventObj;
+                    if (state.eventState.eventsDict.ContainsKey(action.eventObj.id))
+                        state.eventState.eventsDict[action.eventObj.id] = action.eventObj;
                     else
-                        state.eventState.ongoingEventDict.Add(action.eventObj.id, action.eventObj);
+                        state.eventState.eventsDict.Add(action.eventObj.id, action.eventObj);
                     StoreProvider.store.Dispatch(new SaveEventHistoryAction {eventObj = action.eventObj});
                     break;
                 }
@@ -487,9 +492,9 @@ namespace ConnectApp.redux.reducers {
                 }
                 case JoinEventSuccessAction action: {
                     state.eventState.joinEventLoading = false;
-                    var eventObj = state.eventState.ongoingEventDict[action.eventId];
+                    var eventObj = state.eventState.eventsDict[action.eventId];
                     eventObj.userIsCheckedIn = true;
-                    state.eventState.ongoingEventDict[action.eventId] = eventObj;
+                    state.eventState.eventsDict[action.eventId] = eventObj;
                     break;
                 }
                 case FetchNotificationsAction action: {

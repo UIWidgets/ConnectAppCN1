@@ -135,7 +135,7 @@ namespace ConnectApp.screens {
                                         );
                                     }
                                 )
-                                );
+                            );
                             return smartRefreshPage;
                         }
                     )
