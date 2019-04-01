@@ -2,13 +2,12 @@ using System.Collections.Generic;
 using ConnectApp.api;
 using ConnectApp.canvas;
 using ConnectApp.components;
-using ConnectApp.components.refresh;
+using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using ConnectApp.utils;
-using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -16,6 +15,7 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Avatar = ConnectApp.components.Avatar;
+using RefreshController = ConnectApp.components.pull_to_refresh.RefreshController;
 using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
@@ -45,10 +45,12 @@ namespace ConnectApp.screens {
         private Dictionary<string, ContentMap> _contentMap = new Dictionary<string, ContentMap>();
         private string _lastCommentId = "";
         private bool _hasMore = false;
+        private RefreshController _refreshController;
 
 
         public override void initState() {
             base.initState();
+            _refreshController = new RefreshController();
             StoreProvider.store.Dispatch(new FetchArticleDetailAction
                 {articleId = widget.articleId});
         }
@@ -109,18 +111,19 @@ namespace ConnectApp.screens {
                     
                     var originItems=_article==null?new List<Widget>(): _buildItems(context);
 
-                    RefresherCallback footerCallback = null;
-                    if (_hasMore) footerCallback = onFooterRefresh;
-
                     var child = new Container(
                         color: CColors.background3,
                         child: new Column(
                             children: new List<Widget> {
                                 _buildNavigationBar(),
                                 new Expanded(
-                                    child: new Refresh(
-                                        onFooterRefresh: footerCallback,
-                                        footerBuilder: (cxt, controller) => new RefreshFooter(controller),
+                                    child: new SmartRefresher(
+                                        controller: _refreshController,
+                                        enablePullDown: false,
+                                        enablePullUp: _hasMore,
+                                        footerBuilder: (cxt,mode) =>
+                                            new SmartRefreshHeader(mode),
+                                        onRefresh: onRefresh,
                                         child: ListView.builder(
                                             physics: new AlwaysScrollableScrollPhysics(),
                                             itemCount: originItems.Count,
@@ -245,24 +248,27 @@ namespace ConnectApp.screens {
                 )
             );
         }
-
-        private IPromise onFooterRefresh() {
-            return ArticleApi.FetchArticleComments(_channelId, _lastCommentId)
-                .Then(responseComments => {
-                    _lastCommentId = responseComments.currOldestMessageId;
-                    _hasMore = responseComments.hasMore;
-
-                    StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction {
-                        channelId = _channelId,
-                        commentsResponse = responseComments,
-                        isRefreshList = false,                
-                        hasMore = _hasMore,
-                        currOldestMessageId = _lastCommentId
-                    });
-                })
-                .Catch(error => { Debug.Log(error); });
+        
+        private void onRefresh(bool up)
+        {
+            if (!up)
+            {
+                ArticleApi.FetchArticleComments(_channelId, _lastCommentId)
+                                .Then(responseComments => {
+                                    _lastCommentId = responseComments.currOldestMessageId;
+                                    _hasMore = responseComments.hasMore;
+                
+                                    StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction {
+                                        channelId = _channelId,
+                                        commentsResponse = responseComments,
+                                        isRefreshList = false,                
+                                        hasMore = _hasMore,
+                                        currOldestMessageId = _lastCommentId
+                                    });
+                                })
+                                .Catch(error => { Debug.Log(error); });
+            }
         }
-
 
         private Widget _buildContentHead(BuildContext context) {
             var avatar = new Avatar(

@@ -448,14 +448,14 @@ namespace ConnectApp.screens {
                 converter: (state, dispatcher) => new Dictionary<string, object> {
                     {"isLoggedIn", state.loginState.isLoggedIn},
                     {"loading", state.eventState.eventDetailLoading},
-                    {"ongoingEventDict", state.eventState.ongoingEventDict}
+                    {"eventsDict", state.eventState.eventsDict}
                 },
                 builder: (_context, viewModel) => {
                     _setAnimationPosition(context);
                     var isLoggedIn = (bool) viewModel["isLoggedIn"];
                     var eventType = widget.eventType;
                     var eventId = widget.eventId;
-                    var ongoingEventDict = (Dictionary<string, IEvent>) viewModel["ongoingEventDict"];
+                    var ongoingEventDict = (Dictionary<string, IEvent>) viewModel["eventsDict"];
                     var eventObj = new IEvent();
                     if (ongoingEventDict.ContainsKey(eventId)) eventObj = ongoingEventDict[eventId];
                     var loading = (bool) viewModel["loading"];
