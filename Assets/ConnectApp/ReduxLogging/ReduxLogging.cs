@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using UnityEngine;
 
 namespace ConnectApp.redux_logging {
-    public class ReduxLogging {
+    public static class ReduxLogging {
         public static Middleware<State> Create<State>() {
             return (store) => (next) => (action) => {
                 var previousState = store.state;

@@ -213,7 +213,8 @@ namespace ConnectApp.components {
                                         var isTextEmpty = text.Length > 0;
                                         if (_isHintTextHidden != isTextEmpty)
                                             setState(() => { _isHintTextHidden = isTextEmpty; });
-                                        widget.onChanged(text);
+                                        if (widget.onChanged != null)
+                                            widget.onChanged(text);
                                     },
                                     onSubmitted: widget.onSubmitted
                                 )

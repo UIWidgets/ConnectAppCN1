@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.redux;
+using ConnectApp.redux.actions;
 using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -136,7 +138,9 @@ namespace ConnectApp.components {
                         var currentText = text.Substring(offset, length);
                         var rightText = text.Substring(length + offset, text.Length - length - offset);
                         var recognizer = new TapGestureRecognizer();
-                        recognizer.onTap = () => {
+                        recognizer.onTap = () =>
+                        {
+                            StoreProvider.store.Dispatch(new OpenUrlAction(){url = data.data.url});
                             Debug.Log($"点击链接{data.data.url}");
                         };
                         return new Container(
@@ -335,15 +339,17 @@ namespace ConnectApp.components {
                     new Container(
                         width: 8,
                         height: 8,
-                        margin: EdgeInsets.only(right: 8),
+                        margin: EdgeInsets.only(top: 12, right: 8),
                         decoration: new BoxDecoration(
                             CColors.Black,
                             borderRadius: BorderRadius.all(4)
                         )
                     ),
-                    new Text(
-                        items[i],
-                        style: CTextStyle.PXLarge
+                    new Expanded(
+                        child: new Text(
+                            items[i],
+                            style: CTextStyle.PXLarge
+                        )
                     )
                 };
                 widgets.Add(
@@ -351,6 +357,7 @@ namespace ConnectApp.components {
                         padding: EdgeInsets.only(16, right: 16),
                         margin: EdgeInsets.only(top: i == 0 ? 0 : 4),
                         child: new Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: spans
                         )
                     )

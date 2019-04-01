@@ -16,6 +16,8 @@ namespace ConnectApp.redux.reducers {
         private const string _searchHistoryKey = "searchHistoryKey";
         private const string _articleHistoryKey = "articleHistoryKey";
         private const string _eventHistoryKey = "eventHistoryKey";
+        
+        private static List<string> _nonce = new List<string>();
 
         public static AppState Reduce(AppState state, object bAction) {
             switch (bAction) {
@@ -98,24 +100,34 @@ namespace ConnectApp.redux.reducers {
                     state.articleState.articlesLoading = true;
                     ArticleApi.FetchArticles(action.pageNumber)
                         .Then(articlesResponse => {
-                            var articleList = new List<string>();
-                            var articleDict = new Dictionary<string, Article>();
-                            articlesResponse.items.ForEach(item => {
-                                articleList.Add(item.id);
-                                articleDict.Add(item.id, item);
-                            });
                             StoreProvider.store.Dispatch(new UserMapAction
                                 {userMap = articlesResponse.userMap});
                             StoreProvider.store.Dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
                             StoreProvider.store.Dispatch(new FetchArticleSuccessAction
-                                {articleDict = articleDict, articleList = articleList, total = articlesResponse.total});
+                                {pageNumber = action.pageNumber,articleList = articlesResponse.items, total = articlesResponse.total});
                         })
-                        .Catch(error => { Debug.Log(error); });
+                        .Catch(error => {
+                            state.articleState.articlesLoading = false;
+                            Debug.Log(error);
+                        });
                     break;
                 }
                 case FetchArticleSuccessAction action: {
-                    state.articleState.articleList = action.articleList;
-                    state.articleState.articleDict = action.articleDict;
+                    if (action.pageNumber==1)
+                    {
+                        state.articleState.articleList.Clear();
+                    }
+                    var articleList = state.articleState.articleList;
+                    foreach (var article in action.articleList)
+                    {
+                        articleList.Add(article.id);
+                        if (!state.articleState.articleDict.ContainsKey(article.id))
+                        {
+                            state.articleState.articleDict.Add(article.id,article);
+                        }
+                    }
+
+                    state.articleState.pageNumber = action.pageNumber;
                     state.articleState.articleTotal = action.total;
                     state.articleState.articlesLoading = false;
                     break;
@@ -360,6 +372,7 @@ namespace ConnectApp.redux.reducers {
                     state.eventState.eventsLoading = true;
                     EventApi.FetchEvents(action.pageNumber, action.tab)
                         .Then(eventsResponse => {
+                            
                             StoreProvider.store.Dispatch(new UserMapAction {userMap = eventsResponse.userMap});
                             StoreProvider.store.Dispatch(new PlaceMapAction {placeMap = eventsResponse.placeMap});
                             StoreProvider.store.Dispatch(new FetchEventsSuccessAction
@@ -375,9 +388,15 @@ namespace ConnectApp.redux.reducers {
                 case FetchEventsSuccessAction action: {
                     state.eventState.eventsLoading = false;
                     if (action.tab == "ongoing")
+                    {
+                        state.eventState.pageNumber = action.pageNumber;
                         state.eventState.ongoingEventTotal = action.total;
-                    else
+                    }else
+                    {
+                        state.eventState.completedPageNumber = action.pageNumber;
                         state.eventState.completedEventTotal = action.total;
+                    }
+                        
                     
                     if (action.pageNumber == 1) {
                         if (action.tab == "ongoing")
@@ -413,6 +432,10 @@ namespace ConnectApp.redux.reducers {
                     state.eventState.eventDetailLoading = true;
                     EventApi.FetchEventDetail(action.eventId)
                         .Then(eventObj => {
+                            var isLoggedIn = StoreProvider.store.state.loginState.isLoggedIn;
+                            if (isLoggedIn) {
+                                StoreProvider.store.Dispatch(new FetchMessagesAction {channelId = eventObj.channelId, isFirstLoad = true});
+                            }
                             StoreProvider.store.Dispatch(new FetchEventDetailSuccessAction {eventObj = eventObj});
                         })
                         .Catch(error => {
@@ -423,6 +446,7 @@ namespace ConnectApp.redux.reducers {
                 }
                 case FetchEventDetailSuccessAction action: {
                     state.eventState.eventDetailLoading = false;
+                    state.eventState.channelId = action.eventObj.channelId;
                     var userMap = new Dictionary<string, User> {
                         {action.eventObj.user.id, action.eventObj.user}
                     };
@@ -599,21 +623,130 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case FetchMessagesAction action: {
+                    StoreProvider.store.state.messageState.messageLoading = true;
                     MessageApi.FetchMessages(action.channelId, action.currOldestMessageId)
-                        .Then(() => { StoreProvider.store.Dispatch(new FetchMessagesSuccessAction()); })
-                        .Catch(error => { Debug.Log(error); });
+                        .Then(messagesResponse => {
+                            StoreProvider.store.Dispatch(new FetchMessagesSuccessAction {
+                                isFirstLoad = action.isFirstLoad,
+                                channelId = action.channelId,
+                                messages = messagesResponse.items,
+                                hasMore = messagesResponse.hasMore,
+                                currOldestMessageId = messagesResponse.currOldestMessageId
+                            });
+                        })
+                        .Catch(error => {
+                            StoreProvider.store.state.messageState.messageLoading = false;
+                            Debug.Log(error);
+                        });
                     break;
                 }
                 case FetchMessagesSuccessAction action: {
+                    StoreProvider.store.state.messageState.messageLoading = false;
+                    if (action.messages != null && action.messages.Count > 0) {
+                        var channelMessageList = state.messageState.channelMessageList;
+                        var channelMessageDict = state.messageState.channelMessageDict;
+                        var messageIds = new List<string>();
+                        if (channelMessageList.ContainsKey(action.channelId) && !action.isFirstLoad) {
+                            messageIds = channelMessageList[action.channelId];
+                        }
+                        var messageDict = new Dictionary<string, Message>();
+                        if (channelMessageDict.ContainsKey(action.channelId) && !action.isFirstLoad) {
+                            messageDict = channelMessageDict[action.channelId];
+                        }
+                    
+                        var userMap = new Dictionary<string, User>();
+                        action.messages.ForEach(message => {
+                            if (message.deletedTime == null && message.type == "normal") {
+                                if (messageIds.Contains(message.id)) {
+                                    messageIds.Remove(message.id);
+                                }
+                                messageIds.Add(message.id);
+                                
+                                if (messageDict.ContainsKey(message.id))
+                                    messageDict[message.id] = message;
+                                else
+                                    messageDict.Add(message.id, message);
+                            }
+                            if (userMap.ContainsKey(message.author.id)) {
+                                userMap[message.author.id] = message.author;
+                            } else {
+                                userMap.Add(message.author.id, message.author);
+                            }
+                        });
+                        
+                        if (channelMessageList.ContainsKey(action.channelId)) {
+                            channelMessageList[action.channelId] = messageIds;
+                        } else {
+                            channelMessageList.Add(action.channelId, messageIds);
+                        }
+                        if (channelMessageDict.ContainsKey(action.channelId)) {
+                            channelMessageDict[action.channelId] = messageDict;
+                        } else {
+                            channelMessageDict.Add(action.channelId, messageDict);
+                        }
+                        StoreProvider.store.Dispatch(new UserMapAction {
+                            userMap = userMap
+                        });
+                        state.messageState.channelMessageList = channelMessageList;
+                        state.messageState.channelMessageDict = channelMessageDict;
+                        state.messageState.hasMore = action.hasMore;
+                        state.messageState.currOldestMessageId = action.currOldestMessageId;
+                    }
                     break;
                 }
                 case SendMessageAction action: {
+                    StoreProvider.store.state.messageState.sendMessageLoading = true;
                     MessageApi.SendMessage(action.channelId, action.content, action.nonce, action.parentMessageId)
-                        .Then(() => { StoreProvider.store.Dispatch(new SendMessageSuccessAction()); })
-                        .Catch(error => { Debug.Log(error); });
+                        .Then(sendMessageResponse => {
+                            StoreProvider.store.Dispatch(new SendMessageSuccessAction {
+                                channelId = action.channelId,
+                                content = action.content,
+                                nonce = action.nonce
+                            });
+                        })
+                        .Catch(error => {
+                            StoreProvider.store.state.messageState.sendMessageLoading = false;
+                            Debug.Log(error);
+                        });
                     break;
                 }
                 case SendMessageSuccessAction action: {
+                    var channelMessageList = state.messageState.channelMessageList;
+                    var channelMessageDict = state.messageState.channelMessageDict;
+                    var messageIds = new List<string>();
+                    if (channelMessageList.ContainsKey(action.channelId)) {
+                        messageIds = channelMessageList[action.channelId];
+                    }
+                    var messageDict = new Dictionary<string, Message>();
+                    if (channelMessageDict.ContainsKey(action.channelId)) {
+                        messageDict = channelMessageDict[action.channelId];
+                    }
+                    
+                    messageIds.Insert(0, action.nonce);
+                    if (channelMessageList.ContainsKey(action.channelId)) {
+                        channelMessageList[action.channelId] = messageIds;
+                    } else {
+                        channelMessageList.Add(action.channelId, messageIds);
+                    }
+                    
+                    var previewMsg = new Message{
+                        id = action.nonce,
+                        content = action.content,
+                        author = new User {
+                            id = StoreProvider.store.state.loginState.loginInfo.userId,
+                            fullName = StoreProvider.store.state.loginState.loginInfo.userFullName
+                        }
+                    };
+                    _nonce.Add(action.nonce);
+                    if (messageDict.ContainsKey(action.nonce)) {
+                        messageDict[action.nonce] = previewMsg;
+                    } else {
+                        messageDict.Add(action.nonce, previewMsg);
+                    }
+                    state.messageState.channelMessageList = channelMessageList;
+                    state.messageState.channelMessageDict = channelMessageDict;
+                    StoreProvider.store.state.messageState.sendMessageLoading = false;
+                    
                     break;
                 }
                 case UserMapAction action: {
@@ -774,6 +907,11 @@ namespace ConnectApp.redux.reducers {
                             LoginScreen.navigator.pop();
                         }
                     }
+                    break;
+                }
+                case OpenUrlAction action:
+                {
+                    Application.OpenURL(action.url);
                     break;
                 }
             }

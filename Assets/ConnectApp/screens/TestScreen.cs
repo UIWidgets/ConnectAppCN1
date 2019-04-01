@@ -30,7 +30,7 @@ namespace ConnectApp.screens {
                     new GestureDetector(
                         onTap: () => {
                             GatewaySocket.Connect(
-                                $"{IApi.apiAddress}/api/socketgw",
+                                $"{Config.apiAddress}/api/socketgw",
                                 () => "",
                                 () => "",
                                 true

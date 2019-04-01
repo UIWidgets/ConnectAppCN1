@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.api;
 using ConnectApp.canvas;
 using ConnectApp.components;
+using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
@@ -43,12 +45,12 @@ namespace ConnectApp.screens {
         private Animation<Offset> _position;
         private readonly TextEditingController _textController = new TextEditingController("");
         private readonly FocusNode _focusNode = new FocusNode();
+        private readonly RefreshController _refreshController = new RefreshController();
 
         public override void initState() {
             base.initState();
             StoreProvider.store.Dispatch(new FetchEventDetailAction
                 {eventId = widget.eventId});
-            // new CurvedAnimation();
             _controller = new AnimationController(
                 duration: new TimeSpan(0,0,0,0,300),
                 vsync: this
@@ -56,6 +58,8 @@ namespace ConnectApp.screens {
         }
 
         public override void dispose() {
+            StoreProvider.store.Dispatch(new ChatWindowShowAction {show = false});
+            _textController.dispose();
             _controller.dispose();
             base.dispose();
         }
@@ -80,7 +84,38 @@ namespace ConnectApp.screens {
                 Curves.easeInOut
             ));
         }
+
+        private void _onRefresh(bool up) {
+            if (up) {
+                var channelId = StoreProvider.store.state.eventState.channelId;
+                var currOldestMessageId = StoreProvider.store.state.messageState.currOldestMessageId;
+                MessageApi.FetchMessages(channelId, currOldestMessageId)
+                    .Then(messagesResponse => {
+                        StoreProvider.store.Dispatch(new FetchMessagesSuccessAction {
+                            isFirstLoad = false,
+                            channelId = channelId,
+                            messages = messagesResponse.items,
+                            hasMore = messagesResponse.hasMore,
+                            currOldestMessageId = messagesResponse.currOldestMessageId
+                        });
+                        _refreshController.sendBack(true, RefreshStatus.completed);
+                    })
+                    .Catch(error => {
+                        _refreshController.sendBack(true, RefreshStatus.failed);
+                    });
+            }
+        }
         
+        private void _handleSubmitted(string text) {
+            var store = StoreProvider.store;
+            store.Dispatch(new SendMessageAction {
+                channelId = store.state.eventState.channelId,
+                content = text,
+                nonce = Snowflake.CreateNonce()
+            });
+            _refreshController.scrollTo(0);
+        }
+
         private static Widget _buildHeadTop(bool isShowShare) {
             Widget shareWidget = new Container();
             if (isShowShare) {
@@ -152,7 +187,7 @@ namespace ConnectApp.screens {
                                 new Container(
                                     child: new SlideTransition(
                                         position: _position,
-                                        child: _buildChatWindow(eventType, isLoggedIn)
+                                        child: _buildChatWindow()
                                     )
                                 )
                             )
@@ -165,7 +200,7 @@ namespace ConnectApp.screens {
             );
         }
         
-        private static Widget _buildEventBottom(IEvent eventObj, EventType eventType, EventStatus eventStatus, bool isLoggedIn) {
+        private Widget _buildEventBottom(IEvent eventObj, EventType eventType, EventStatus eventStatus, bool isLoggedIn) {
             if (eventType == EventType.offline) {
                 return _buildOfflineRegisterNow(eventObj, isLoggedIn);
             }
@@ -175,6 +210,7 @@ namespace ConnectApp.screens {
             
             var onlineCount = eventObj.onlineMemberCount;
             var recordWatchCount = eventObj.recordWatchCount;
+            var userIsCheckedIn = eventObj.userIsCheckedIn;
             var title = "";
             var subTitle = "";
             if (eventStatus == EventStatus.live) {
@@ -186,8 +222,12 @@ namespace ConnectApp.screens {
                 subTitle = $"{recordWatchCount}次观看";
             }
             if (eventStatus == EventStatus.future || eventStatus == EventStatus.countDown) {
+                var begin = eventObj.begin != null ? eventObj.begin : new TimeMap();
+                var startTime = begin.startTime;
+                if (startTime.isNotEmpty()) {
+                    subTitle = DateConvert.GetFutureTimeFromNow(startTime);
+                }
                 title = "距离开始还有";
-                subTitle = "10天10小时";
             }
             return new Container(
                 height: 64,
@@ -214,50 +254,76 @@ namespace ConnectApp.screens {
                                 )
                             }
                         ),
-                        new CustomButton(
-                            onPressed: () => StoreProvider.store.Dispatch(new ChatWindowShowAction {show = true}),
-                            child: new Container(
-                                width: 96,
-                                height: 40,
-                                decoration: new BoxDecoration(
-                                    CColors.PrimaryBlue,
-                                    borderRadius: BorderRadius.all(4)
-                                ),
-                                alignment: Alignment.center,
-                                child: new Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: new List<Widget> {
-                                        new Text(
-                                            "立即加入",
-                                            style: CTextStyle.PLargeMediumWhite
+                        new StoreConnector<AppState, bool>(
+                            converter: (state, dispatcher) => state.eventState.joinEventLoading,
+                            builder: (_context, joinEventLoading) => {
+                                var backgroundColor = CColors.PrimaryBlue;
+                                var joinInText = "立即加入";
+                                var textStyle = CTextStyle.PLargeMediumWhite;
+                                if (userIsCheckedIn && isLoggedIn) {
+                                    backgroundColor = CColors.Disable;
+                                    joinInText = "已加入";
+                                    textStyle = CTextStyle.PLargeMediumWhite;
+                                }
+                                Widget child = new Text(
+                                    joinInText,
+                                    style: textStyle
+                                );
+                                if (joinEventLoading) {
+                                    child = new CustomActivityIndicator(
+                                        animationImage: AnimationImage.white
+                                    );
+                                }
+                                return new CustomButton(
+                                    onPressed: () => {
+                                        if (joinEventLoading) return;
+                                        if (!StoreProvider.store.state.loginState.isLoggedIn) {
+                                            StoreProvider.store.Dispatch(new MainNavigatorPushToAction {RouteName = MainNavigatorRoutes.Login});
+                                        } else {
+                                            if (!userIsCheckedIn) {
+                                                StoreProvider.store.Dispatch(new JoinEventAction {eventId = widget.eventId});
+                                            }
+                                        }
+                                    },
+                                    child: new Container(
+                                        width: 96,
+                                        height: 40,
+                                        decoration: new BoxDecoration(
+                                            backgroundColor,
+                                            borderRadius: BorderRadius.all(4)
+                                        ),
+                                        alignment: Alignment.center,
+                                        child: new Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: new List<Widget> {
+                                                child
+                                            }
                                         )
-                                    }
-                                )
-                            )
+                                    )
+                                );
+                            }
                         )
                     }
                 )
             );
         }
 
-        private Widget _buildChatWindow(EventType eventType, bool isLoggedIn) {
+        private Widget _buildChatWindow() {
             return new StoreConnector<AppState, bool>(
                 converter: (state, dispatcher) => state.eventState.showChatWindow,
-                builder: (context, showChatWindow) => {
-                    return new Container(
-                        child: new Column(
-                            children: new List<Widget> {
-                                _buildChatBar(showChatWindow),
-                                _buildChatList(),
-                                new CustomDivider(
-                                    height: 1,
-                                    color: CColors.Separator
-                                ),
-                                _buildTextField()
-                            }
-                        )
-                    );
-                }
+                builder: (context, showChatWindow) => new Container(
+                    child: new Column(
+                        children: new List<Widget> {
+                            _buildChatBar(showChatWindow),
+                            _buildChatList(),
+                            new CustomDivider(
+                                height: 1,
+                                color: CColors.Separator
+                            ),
+                            _buildTextField()
+                        }
+                    )
+                )
             );
         }
 
@@ -337,17 +403,47 @@ namespace ConnectApp.screens {
                     onTap: () => _focusNode.unfocus(),
                     child: new Container(
                         color: CColors.White,
-                        child: new StoreConnector<AppState, MessageState>(
-                            converter: (state, dispatcher) => state.messageState,
+                        child: new StoreConnector<AppState, Dictionary<string, object>>(
+                            converter: (state, dispatcher) => {
+                                var channelId = state.eventState.channelId;
+                                
+                                var channelMessageList = state.messageState.channelMessageList;
+                                var messageList = new List<string>();
+                                if (channelMessageList.ContainsKey(channelId))
+                                    messageList = channelMessageList[channelId];
+                                return new Dictionary<string, object> {
+                                    {"messageLoading", state.messageState.messageLoading},
+                                    {"channelId", channelId},
+                                    {"messageList", messageList},
+                                    {"hasMore", state.messageState.hasMore}
+                                };
+                            },
                             builder: (_context, model) => {
-                                return ListView.builder(
-                                    padding: EdgeInsets.only(16, right: 16, bottom: 10),
-                                    physics: new AlwaysScrollableScrollPhysics(),
-                                    itemBuilder: (cxt, index) => new Container(
-                                        height: 100,
-                                        color: index / 2 == 0 ? CColors.Red : CColors.Black
-                                    ), 
-                                    itemCount: 10
+                                var messageLoading = (bool) model["messageLoading"];
+                                if (messageLoading) return new GlobalLoading();
+                                
+                                var channelId = (string) model["channelId"];
+                                var messageList = (List<string>) model["messageList"];
+                                var hasMore = (bool) model["hasMore"];
+                                
+                                if (messageList.Count <= 0) return new BlankView("暂无聊天内容");
+                                
+                                return new SmartRefresher(
+                                    controller: _refreshController,
+                                    enablePullDown: hasMore,
+                                    enablePullUp: false,
+                                    headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
+                                    onRefresh: _onRefresh,
+                                    child: ListView.builder(
+                                        padding: EdgeInsets.only(16, right: 16, bottom: 10),
+                                        physics: new AlwaysScrollableScrollPhysics(),
+                                        itemCount: messageList.Count,
+                                        itemBuilder: (cxt, index) => new ChatMessage(
+                                            channelId,
+                                            messageList[messageList.Count - index - 1],
+                                            new ObjectKey(messageList[messageList.Count - index - 1])
+                                        )
+                                    )
                                 );
                             }
                         )
@@ -383,8 +479,7 @@ namespace ConnectApp.screens {
                                 maxLines: 1,
                                 cursorColor: CColors.PrimaryBlue,
                                 textInputAction: TextInputAction.send,
-                                onChanged: text => { },
-                                onSubmitted: text => { }
+                                onSubmitted: _handleSubmitted
                             )
                         ),
                         sendMessageLoading
@@ -401,9 +496,11 @@ namespace ConnectApp.screens {
 
         private static Widget _buildOfflineRegisterNow(IEvent eventObj, bool isLoggedIn) {
             var buttonText = "立即报名";
+            var backgroundColor = CColors.PrimaryBlue;
             var isEnabled = false;
             if (eventObj.userIsCheckedIn && isLoggedIn) {
                 buttonText = "已报名";
+                backgroundColor = CColors.Disable;
                 isEnabled = true;
             }
 
@@ -423,9 +520,10 @@ namespace ConnectApp.screens {
                         else
                             StoreProvider.store.Dispatch(new MainNavigatorPushToAction {RouteName = MainNavigatorRoutes.Login});
                     },
+                    padding: EdgeInsets.zero,
                     child: new Container(
                         decoration: new BoxDecoration(
-                            CColors.PrimaryBlue,
+                            backgroundColor,
                             borderRadius: BorderRadius.all(4)
                         ),
                         child: new Row(

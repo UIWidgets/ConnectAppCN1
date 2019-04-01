@@ -24,7 +24,7 @@ namespace ConnectApp.api {
                 password = password
             };
             var body = JsonConvert.SerializeObject(para);
-            var request = new UnityWebRequest(IApi.apiAddress + "/auth/live/login", "POST");
+            var request = new UnityWebRequest(Config.apiAddress + "/auth/live/login", "POST");
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();
