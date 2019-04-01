@@ -34,6 +34,6 @@ namespace ConnectApp.redux.actions {
     }
     
     public class OpenUrlAction : BaseAction {
-        public string url;
+        public string url = "";
     }
 }
