@@ -365,8 +365,7 @@ namespace ConnectApp.components.pull_to_refresh
     }
 
 
-    public class RefreshController
-    {
+    public class RefreshController {
         public ValueNotifier<int> _headerMode = new ValueNotifier<int>(0);
         public ValueNotifier<int> _footerMode = new ValueNotifier<int>(0);
         public  ScrollController scrollController;
@@ -381,7 +380,7 @@ namespace ConnectApp.components.pull_to_refresh
                 }
             }
         }
-        void scrollTo(float offset) {
+        public void scrollTo(float offset) {
             scrollController.jumpTo(offset);
         }
 
@@ -392,7 +391,7 @@ namespace ConnectApp.components.pull_to_refresh
                 _footerMode.value = mode;
             }
         }
-        bool isRefresh(bool up) {
+        public bool isRefresh(bool up) {
             if (up) {
                 return _headerMode.value == RefreshStatus.refreshing;
             } else {
@@ -400,19 +399,12 @@ namespace ConnectApp.components.pull_to_refresh
             }
         }
 
-        public int headerMode
-        {
+        public int headerMode {
             get { return _headerMode.value; }
         }
         
-        public int footerMode
-        {
+        public int footerMode {
             get { return _footerMode.value; }
         }
-
-
     }
-    
-
-
 }

@@ -14,5 +14,7 @@ namespace ConnectApp.models {
         public List<string> replyMessageIds;
         public List<Reaction> reactions;
         public List<User> mentions;
+        public string deletedTime;
+        public string type;
     }
 }

@@ -49,7 +49,8 @@ namespace ConnectApp.models {
                     completedEvents = new List<string>(),
                     completedEventTotal = 0,
                     eventsLoading = false,
-                    eventHistory = new List<IEvent>()
+                    eventHistory = new List<IEvent>(),
+                    channelId = ""
                 },
                 searchState = new SearchState {
                     loading = false,

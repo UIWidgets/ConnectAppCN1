@@ -20,5 +20,6 @@ namespace ConnectApp.models {
         public bool joinEventLoading { get; set; }
         public bool showChatWindow { get; set; }
         public bool openChatWindow { get; set; }
+        public string channelId { get; set; }
     }
 }

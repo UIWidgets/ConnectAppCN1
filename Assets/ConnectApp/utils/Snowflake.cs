@@ -1,7 +1,7 @@
 using System;
 
 namespace ConnectApp.utils {
-    public class Snowflake {
+    public static class Snowflake {
         public static string CreateNonce() {
             var startTime = TimeZoneInfo.ConvertTime(new DateTime(2016, 1, 1), TimeZoneInfo.Local);
             var sinceEpoch = (long) (DateTime.Now - startTime).TotalMilliseconds + 1;
