@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.api;
-using ConnectApp.canvas;
 using ConnectApp.components;
-using ConnectApp.components.refresh;
+using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
@@ -34,17 +33,22 @@ namespace ConnectApp.screens {
         private int pageNumber = 1;
         private int completedPageNumber = 1;
         private float _offsetY;
+        RefreshController _ongoingRefreshController;
+        RefreshController _completedRereshController;
+
 
         public override void initState() {
             base.initState();
             _offsetY = 0;
+            
+            _ongoingRefreshController = new RefreshController();
+            _completedRereshController = new RefreshController();
+            _pageController = new PageController();
+            _selectedIndex = 0;
             if (StoreProvider.store.state.eventState.ongoingEvents.Count == 0) {
                 StoreProvider.store.Dispatch(new FetchEventsAction {pageNumber = 1, tab = "ongoing"});
                 StoreProvider.store.Dispatch(new FetchEventsAction {pageNumber = 1, tab = "completed"});
             }
-
-            _pageController = new PageController();
-            _selectedIndex = 0;
         }
 
 
@@ -153,7 +157,7 @@ namespace ConnectApp.screens {
                     converter: (state, dispatch) => new Dictionary<string, object> {
                         {"loading", state.eventState.eventsLoading},
                         {"ongoingEvents", state.eventState.ongoingEvents},
-                        {"ongoingEventDict", state.eventState.ongoingEventDict},
+                        {"eventsDict", state.eventState.eventsDict},
                         {"ongoingEventTotal", state.eventState.ongoingEventTotal}
                     },
                     builder: (context1, viewModel) => {
@@ -161,43 +165,38 @@ namespace ConnectApp.screens {
                         if (loading) return new GlobalLoading();
                         
                         var ongoingEvents = viewModel["ongoingEvents"] as List<string>;
-                        var ongoingEventDict = viewModel["ongoingEventDict"] as Dictionary<string, IEvent>;
+                        var ongoingEventDict = viewModel["eventsDict"] as Dictionary<string, IEvent>;
                         var ongoingEventTotal = (int) viewModel["ongoingEventTotal"];
 
-                        RefresherCallback onFooterCallback = null;
-                        if (ongoingEvents.Count < ongoingEventTotal) {
-                            onFooterCallback = () => {
-                                pageNumber ++;
-                                return _onRefresh(pageNumber, "ongoing");
-                            };
-                        }
-                        return new Refresh(
-                            onHeaderRefresh: () => {
-                                pageNumber = 1;
-                                return _onRefresh(pageNumber, "ongoing");
-                            },
-                            onFooterRefresh: onFooterCallback,
-                            headerBuilder: (cxt, controller) => new RefreshHeader(controller),
-                            footerBuilder: (cxt, controller) => new RefreshFooter(controller),
-                            child: ListView.builder(
-                                physics: new AlwaysScrollableScrollPhysics(),
-                                itemCount: ongoingEvents.Count,
-                                itemBuilder: (cxt, index) => {
-                                    var eventId = ongoingEvents[index];
-                                    var model = ongoingEventDict[eventId];
-                                    return new EventCard(
-                                        model,
-                                        () => {
-                                            StoreProvider.store.Dispatch(new MainNavigatorPushToEventDetailAction {
-                                                EventId = model.id,
-                                                EventType = model.mode == "online" ? EventType.onLine : EventType.offline
-                                            });
-                                        },
-                                        new ObjectKey(model.id)
-                                    );
-                                }
-                            )
-                        );
+                        return new SmartRefresher(
+                                controller: _ongoingRefreshController,
+                                enablePullDown: true,
+                                enablePullUp: ongoingEvents.Count < ongoingEventTotal,
+                                headerBuilder: (cxt,mode) =>
+                                    new SmartRefreshHeader(mode), 
+                                footerBuilder: (cxt,mode) =>
+                                    new SmartRefreshHeader(mode),
+                                onRefresh: ongoingRefresh,
+                                child: ListView.builder(
+                                    physics: new AlwaysScrollableScrollPhysics(),
+                                    itemCount: ongoingEvents.Count,
+                                    itemBuilder: (cxt, index) => {
+                                        var eventId = ongoingEvents[index];
+                                        var model = ongoingEventDict[eventId];
+                                        return new EventCard(
+                                            model,
+                                            () => {
+                                                StoreProvider.store.Dispatch(new MainNavigatorPushToEventDetailAction {
+                                                    EventId = model.id,
+                                                    EventType = model.mode == "online" ? EventType.onLine : EventType.offline
+                                                });
+                                            },
+                                            new ObjectKey(model.id)
+                                        );
+                                    }
+                                )
+                            );
+                        
                     }
                 )
             );
@@ -209,7 +208,7 @@ namespace ConnectApp.screens {
                     converter: (state, dispatch) => new Dictionary<string, object> {
                         {"loading", state.eventState.eventsLoading},
                         {"completedEvents", state.eventState.completedEvents},
-                        {"completedEventDict", state.eventState.completedEventDict},
+                        {"eventsDict", state.eventState.eventsDict},
                         {"completedEventTotal", state.eventState.completedEventTotal}
                     },
                     builder: (context1, viewModel) => {
@@ -217,31 +216,23 @@ namespace ConnectApp.screens {
                         if (loading) return new GlobalLoading();
                         
                         var completedEvents = viewModel["completedEvents"] as List<string>;
-                        var completedEventDict = viewModel["completedEventDict"] as Dictionary<string, IEvent>;
+                        var eventsDict = viewModel["eventsDict"] as Dictionary<string, IEvent>;
                         var completedEventTotal = (int) viewModel["completedEventTotal"];
-
-                        RefresherCallback onFooterCallback = null;
-                        if (completedEvents.Count < completedEventTotal) {
-                            onFooterCallback = () => {
-                                completedPageNumber ++;
-                                return _onRefresh(completedPageNumber, "completed");
-                            };
-                        }
-                        
-                        return new Refresh(
-                            onHeaderRefresh: () => {
-                                completedPageNumber = 1;
-                                return _onRefresh(completedPageNumber, "completed");
-                            },
-                            onFooterRefresh: onFooterCallback,
-                            headerBuilder: (cxt, controller) => new RefreshHeader(controller),
-                            footerBuilder: (cxt, controller) => new RefreshFooter(controller),
+                        return new SmartRefresher(
+                            controller: _completedRereshController,
+                            enablePullDown: true,
+                            enablePullUp: completedEvents.Count < completedEventTotal,
+                            headerBuilder: (cxt,mode) =>
+                                new SmartRefreshHeader(mode), 
+                            footerBuilder: (cxt,mode) =>
+                                new SmartRefreshHeader(mode),
+                            onRefresh: completedRefresh,
                             child: ListView.builder(
                                 physics: new AlwaysScrollableScrollPhysics(),
                                 itemCount: completedEvents.Count,
                                 itemBuilder: (cxt, index) => {
                                     var eventId = completedEvents[index];
-                                    var model = completedEventDict[eventId];
+                                    var model = eventsDict[eventId];
                                     return new EventCard(
                                         model,
                                         () => {
@@ -249,7 +240,8 @@ namespace ConnectApp.screens {
                                                 EventId = model.id,
                                                 EventType = model.mode == "online" ? EventType.onLine : EventType.offline
                                             });
-                                        }
+                                        },
+                                        new ObjectKey(model.id)
                                     );
                                 }
                             )
@@ -275,15 +267,83 @@ namespace ConnectApp.screens {
                 )
             );
         }
+        
+        private void ongoingRefresh(bool up)
+        {
+            string tab = "ongoing";
+            if (up)
+            {
+                pageNumber = 1;
+                EventApi.FetchEvents(pageNumber, tab)
+                    .Then(eventsResponse => {
+                        StoreProvider.store.Dispatch(new FetchEventsSuccessAction
+                            {events = eventsResponse.events.items, tab = tab, pageNumber = pageNumber, total = eventsResponse.events.total});
+                        _ongoingRefreshController.sendBack(true, RefreshStatus.completed);
+                    })
+                    .Catch(error =>
+                    {
+                        Debug.Log($"{error}"); 
+                        _ongoingRefreshController.sendBack(true, RefreshStatus.failed);
+                    });
+            }
+            else
+            {
+                pageNumber++;
+                EventApi.FetchEvents(pageNumber, tab)
+                    .Then(eventsResponse => {
+                        StoreProvider.store.Dispatch(new FetchEventsSuccessAction
+                            {events = eventsResponse.events.items, tab = tab, pageNumber = pageNumber, total = eventsResponse.events.total});
+                        _ongoingRefreshController.sendBack(false, RefreshStatus.idle);
+                    })
+                    .Catch(error =>
+                    {
+                        Debug.Log($"{error}");
+                        _ongoingRefreshController.sendBack(false, RefreshStatus.failed);
 
-        private IPromise _onRefresh(int pageIndex, string tab) {
-            return EventApi.FetchEvents(pageIndex, tab)
-                .Then(eventsResponse => {
-                    StoreProvider.store.Dispatch(new FetchEventsSuccessAction
-                        {events = eventsResponse.events.items, tab = tab, pageNumber = pageIndex, total = eventsResponse.events.total});
-                })
-                .Catch(error => { Debug.Log($"{error}"); });
+                    });
+            }
         }
+        private void completedRefresh(bool up)
+        {
+            string tab = "completed";
+            if (up)
+            {
+                completedPageNumber = 1;
+                EventApi.FetchEvents(pageNumber, tab)
+                    .Then(eventsResponse => {
+                        StoreProvider.store.Dispatch(new UserMapAction {userMap = eventsResponse.userMap});
+                        StoreProvider.store.Dispatch(new PlaceMapAction {placeMap = eventsResponse.placeMap});
+                        StoreProvider.store.Dispatch(new FetchEventsSuccessAction
+                            {events = eventsResponse.events.items, tab = tab, pageNumber = completedPageNumber, total = eventsResponse.events.total});
+                        _completedRereshController.sendBack(true, RefreshStatus.completed);
+                    })
+                    .Catch(error =>
+                    {
+                        Debug.Log($"{error}"); 
+                        _completedRereshController.sendBack(true, RefreshStatus.failed);
+                    });
+            }
+            else
+            {
+                completedPageNumber++;
+                EventApi.FetchEvents(completedPageNumber, tab)
+                    .Then(eventsResponse => {
+                        StoreProvider.store.Dispatch(new UserMapAction {userMap = eventsResponse.userMap});
+                        StoreProvider.store.Dispatch(new PlaceMapAction {placeMap = eventsResponse.placeMap});
+                        StoreProvider.store.Dispatch(new FetchEventsSuccessAction
+                            {events = eventsResponse.events.items, tab = tab, pageNumber = completedPageNumber, total = eventsResponse.events.total});
+                        _completedRereshController.sendBack(false, RefreshStatus.idle);
+                    })
+                    .Catch(error =>
+                    {
+                        Debug.Log($"{error}");
+                        _completedRereshController.sendBack(false, RefreshStatus.failed);
+                    });
+            }
+        }
+        
+
+        
 
         public override void dispose() {
             base.dispose();
