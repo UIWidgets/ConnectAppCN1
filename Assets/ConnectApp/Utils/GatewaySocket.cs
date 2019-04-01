@@ -6,14 +6,14 @@ using RSG;
 using UnityEngine;
 
 namespace ConnectApp.utils {
-    internal delegate string GetCurrentChannelId();
+    public delegate string GetCurrentChannelId();
 
-    internal delegate string GetLoginSession();
+    public delegate string GetLoginSession();
 
     public class GatewaySocket {
         private static WebSocket _webSocket;
 
-        private Promise Connect(
+        public static void Connect(
             string url,
             GetCurrentChannelId getCurrentChannelId,
             GetLoginSession getLoginSession,
@@ -25,22 +25,21 @@ namespace ConnectApp.utils {
                     _webSocket.OnOpen += OnWebSocketOpen;
                     _webSocket.OnMessage += OnMessageReceived;
                     _webSocket.OnIncompleteFrame += OnIncompleteFrame;
+                    _webSocket.Open();
                 });
-            return null;
         }
 
-        private void OnWebSocketOpen(WebSocket webSocket) {
+        private static void OnWebSocketOpen(WebSocket webSocket) {
             Debug.Log("WebSocket Open!");
         }
 
-        private void OnMessageReceived(WebSocket webSocket, string message) {
+        private static void OnMessageReceived(WebSocket webSocket, string message) {
             Debug.Log("Text Message received from server: " + message);
         }
 
-        private void OnIncompleteFrame(WebSocket webSocket, WebSocketFrameReader frame) {
+        private static void OnIncompleteFrame(WebSocket webSocket, WebSocketFrameReader frame) {
             Debug.Log("Frame received from server: " + frame);
         }
-
 
 //        void Add(object frame /*String|List<int>|Frame*/) {
 //            if (frame is WebSocketFrameReader) {
