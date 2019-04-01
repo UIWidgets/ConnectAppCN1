@@ -1,54 +1,11 @@
 using System.Collections.Generic;
-using ConnectApp.components;
-using ConnectApp.models;
-using ConnectApp.redux;
 using ConnectApp.screens;
 using Unity.UIWidgets.animation;
-using Unity.UIWidgets.engine;
+using Unity.UIWidgets.widgets;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
-using Unity.UIWidgets.widgets;
-using UnityEngine;
-using UnityEngine.Video;
 
 namespace ConnectApp.canvas {
-    public sealed class ConnectAppCanvas : UIWidgetsPanel {
-        protected override void OnEnable() {
-            base.OnEnable();
-            Application.targetFrameRate = 60;
-            FontManager.instance.addFont(Resources.Load<Font>("Material Icons"), familyName:"Material Icons");
-            FontManager.instance.addFont(Resources.Load<Font>("Roboto-Regular"), familyName:"Roboto-Regular");
-            FontManager.instance.addFont(Resources.Load<Font>("Roboto-Medium"), familyName:"Roboto-Medium");
-            FontManager.instance.addFont(Resources.Load<Font>("Roboto-Bold"), familyName:"Roboto-Bold");
-            FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Regular"), familyName:"PingFangSC-Regular");
-            FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Medium"), familyName:"PingFangSC-Medium");
-            FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Semibold"), familyName:"PingFangSC-Semibold");
-//            var videoPlayer = GetComponent<VideoPlayer>();
-//            VideoPlayerManager.instance.player = videoPlayer;
-        }
-
-        protected override Widget createWidget() {
-            return new StoreProvider<AppState>(
-                StoreProvider.store,
-                new WidgetsApp(
-                    home: new Router(),
-                    pageRouteBuilder: pageRouteBuilder
-                )
-            );
-        }
-
-        private PageRouteFactory pageRouteBuilder {
-            get {
-                return (RouteSettings settings, WidgetBuilder builder) =>
-                    new PageRouteBuilder(
-                        settings,
-                        pageBuilder: (BuildContext context, Animation<float> animation,
-                            Animation<float> secondaryAnimation) => builder(context)
-                    );
-            }
-        }
-    }
-
     internal static class MainNavigatorRoutes {
         public const string Root = "/";
         public const string Search = "/search";
@@ -60,7 +17,6 @@ namespace ConnectApp.canvas {
         public const string Login = "/login";
         public const string BindUnity = "/bind-unity";
     }
-    
     internal class Router : StatelessWidget {
         private static readonly GlobalKey globalKey = GlobalKey.key(debugLabel: "main-router");
         public static NavigatorState navigator => globalKey.currentState as NavigatorState;
@@ -105,8 +61,8 @@ namespace ConnectApp.canvas {
             );
         }
     }
-
-    internal class PushPageTransition : StatelessWidget {
+    
+        internal class PushPageTransition : StatelessWidget {
         internal PushPageTransition(
             Key key = null,
             Animation<float> routeAnimation = null, // The route's linear 0.0 - 1.0 animation.
@@ -132,7 +88,6 @@ namespace ConnectApp.canvas {
             );
         }
     }
-
 
     internal class ModalPageTransition : StatelessWidget {
         internal ModalPageTransition(
