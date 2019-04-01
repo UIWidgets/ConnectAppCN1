@@ -22,8 +22,8 @@ namespace ConnectApp.canvas {
         public static NavigatorState navigator => globalKey.currentState as NavigatorState;
 
         private static Dictionary<string, WidgetBuilder> mainRoutes => new Dictionary<string, WidgetBuilder> {
-//            {MainNavigatorRoutes.Root, context => new MainScreen()},
-            {MainNavigatorRoutes.Root, context => new TestScreen()},
+            {MainNavigatorRoutes.Root, context => new MainScreen()},
+//            {MainNavigatorRoutes.Root, context => new TestScreen()},
             {MainNavigatorRoutes.Search, context => new SearchScreen()},
             {MainNavigatorRoutes.EventDetail, context => new EventDetailScreen()},
             {MainNavigatorRoutes.ArticleDetail, context => new ArticleDetailScreen()},
