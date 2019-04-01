@@ -98,24 +98,31 @@ namespace ConnectApp.redux.reducers {
                     state.articleState.articlesLoading = true;
                     ArticleApi.FetchArticles(action.pageNumber)
                         .Then(articlesResponse => {
-                            var articleList = new List<string>();
-                            var articleDict = new Dictionary<string, Article>();
-                            articlesResponse.items.ForEach(item => {
-                                articleList.Add(item.id);
-                                articleDict.Add(item.id, item);
-                            });
                             StoreProvider.store.Dispatch(new UserMapAction
                                 {userMap = articlesResponse.userMap});
                             StoreProvider.store.Dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
                             StoreProvider.store.Dispatch(new FetchArticleSuccessAction
-                                {articleDict = articleDict, articleList = articleList, total = articlesResponse.total});
+                                {pageNumber = action.pageNumber,articleList = articlesResponse.items, total = articlesResponse.total});
                         })
                         .Catch(error => { Debug.Log(error); });
                     break;
                 }
                 case FetchArticleSuccessAction action: {
-                    state.articleState.articleList = action.articleList;
-                    state.articleState.articleDict = action.articleDict;
+                    if (action.pageNumber==1)
+                    {
+                        state.articleState.articleList.Clear();
+                    }
+                    var articleList = state.articleState.articleList;
+                    foreach (var article in action.articleList)
+                    {
+                        articleList.Add(article.id);
+                        if (!state.articleState.articleDict.ContainsKey(article.id))
+                        {
+                            state.articleState.articleDict.Add(article.id,article);
+                        }
+                    }
+
+                    state.articleState.pageNumber = action.pageNumber;
                     state.articleState.articleTotal = action.total;
                     state.articleState.articlesLoading = false;
                     break;
@@ -360,6 +367,7 @@ namespace ConnectApp.redux.reducers {
                     state.eventState.eventsLoading = true;
                     EventApi.FetchEvents(action.pageNumber, action.tab)
                         .Then(eventsResponse => {
+                            
                             StoreProvider.store.Dispatch(new UserMapAction {userMap = eventsResponse.userMap});
                             StoreProvider.store.Dispatch(new PlaceMapAction {placeMap = eventsResponse.placeMap});
                             StoreProvider.store.Dispatch(new FetchEventsSuccessAction
@@ -375,9 +383,15 @@ namespace ConnectApp.redux.reducers {
                 case FetchEventsSuccessAction action: {
                     state.eventState.eventsLoading = false;
                     if (action.tab == "ongoing")
+                    {
+                        state.eventState.pageNumber = action.pageNumber;
                         state.eventState.ongoingEventTotal = action.total;
-                    else
+                    }else
+                    {
+                        state.eventState.completedPageNumber = action.pageNumber;
                         state.eventState.completedEventTotal = action.total;
+                    }
+                        
                     
                     if (action.pageNumber == 1) {
                         if (action.tab == "ongoing")

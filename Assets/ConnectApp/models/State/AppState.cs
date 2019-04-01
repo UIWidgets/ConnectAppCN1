@@ -40,6 +40,7 @@ namespace ConnectApp.models {
                     articlesLoading = false,
                     articleDetailLoading = false,
                     articleTotal = 0,
+                    pageNumber = 1,
                     articleHistory = new List<Article>()
                 },
                 eventState = new EventState {
@@ -48,6 +49,8 @@ namespace ConnectApp.models {
                     ongoingEventTotal = 0,
                     completedEvents = new List<string>(),
                     completedEventTotal = 0,
+                    pageNumber = 1,
+                    completedPageNumber = 1,
                     eventsLoading = false,
                     eventHistory = new List<IEvent>()
                 },
