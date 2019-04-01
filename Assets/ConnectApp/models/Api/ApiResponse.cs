@@ -45,6 +45,8 @@ namespace ConnectApp.models {
         public List<Article> projects;
         public Dictionary<string, User> userMap;
         public Dictionary<string, Team> teamMap;
+        public int currentPage;
+        public List<int> pages;
     }
 
     [Serializable]

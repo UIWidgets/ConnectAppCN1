@@ -9,7 +9,6 @@ using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 using Image = Unity.UIWidgets.widgets.Image;
 
@@ -137,11 +136,10 @@ namespace ConnectApp.components {
                         var leftText = text.Substring(0, offset);
                         var currentText = text.Substring(offset, length);
                         var rightText = text.Substring(length + offset, text.Length - length - offset);
-                        var recognizer = new TapGestureRecognizer();
-                        recognizer.onTap = () =>
-                        {
-                            StoreProvider.store.Dispatch(new OpenUrlAction(){url = data.data.url});
-                            Debug.Log($"点击链接{data.data.url}");
+                        var recognizer = new TapGestureRecognizer {
+                            onTap = () => {
+                                StoreProvider.store.Dispatch(new OpenUrlAction{url = data.data.url});
+                            }
                         };
                         return new Container(
                             color: CColors.White,
