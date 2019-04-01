@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
+using ConnectApp.plugins;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets.painting;
@@ -114,7 +115,8 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new CustomButton(
                             onPressed: () => {
-                                StoreProvider.store.Dispatch(new LoginNavigatorPushToBindUintyAction {FromPage = FromPage.wechat});
+                                WechatPlugin.instance.login(System.Guid.NewGuid().ToString());
+//                                StoreProvider.store.Dispatch(new LoginNavigatorPushToBindUintyAction {FromPage = FromPage.wechat});
                             },
                             padding: EdgeInsets.zero,
                             child: new Container(
@@ -144,7 +146,8 @@ namespace ConnectApp.screens {
                         ),
                         new Container(height: 16),
                         new CustomButton(
-                            onPressed: () => {
+                            onPressed: () =>
+                            {
                                 StoreProvider.store.Dispatch(new LoginNavigatorPushToBindUintyAction {FromPage = FromPage.login});
                             },
                             padding: EdgeInsets.zero,

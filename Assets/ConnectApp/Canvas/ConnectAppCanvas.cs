@@ -1,11 +1,12 @@
+using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.plugins;
 using ConnectApp.redux;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
-using UnityEngine.Video;
 
 namespace ConnectApp.canvas {
     public sealed class ConnectAppCanvas : UIWidgetsPanel {
@@ -22,6 +23,8 @@ namespace ConnectApp.canvas {
                 familyName: "PingFangSC-Semibold");
 //            var videoPlayer = GetComponent<VideoPlayer>();
 //            VideoPlayerManager.instance.player = videoPlayer;
+            WechatPlugin.instance.init(Config.wechatAppId);
+
         }
 
         protected override Widget createWidget() {
