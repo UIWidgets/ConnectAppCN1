@@ -28,8 +28,8 @@ namespace ConnectApp.models {
             return new AppState {
                 Count = PlayerPrefs.GetInt("count", 0),
                 loginState = new LoginState {
-                    email = "unityconnect@163.com",
-                    password = "Unity@3d",
+                    email = "",
+                    password = "",
                     loginInfo = new LoginInfo(),
                     isLoggedIn = false,
                     loading = false
