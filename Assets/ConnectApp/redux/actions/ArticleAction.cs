@@ -7,8 +7,8 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchArticleSuccessAction : BaseAction {
-        public List<string> articleList;
-        public Dictionary<string, Article> articleDict;
+        public int pageNumber = 0;
+        public List<Article> articleList;
         public int total;
     }
 

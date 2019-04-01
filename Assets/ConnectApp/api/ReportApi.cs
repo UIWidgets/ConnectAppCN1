@@ -27,7 +27,7 @@ namespace ConnectApp.api {
                 reasons = new List<string> {"other:" + reportContext}
             };
             var body = JsonConvert.SerializeObject(para);
-            var request = new UnityWebRequest(IApi.apiAddress + "/api/report", "POST");
+            var request = new UnityWebRequest(Config.apiAddress + "/api/report", "POST");
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();

@@ -19,7 +19,7 @@ namespace ConnectApp.api {
         }
 
         private static IEnumerator _FetchMyFutureEvents(Promise<List<IEvent>> promise, int pageNumber) {
-            var request = UnityWebRequest.Get(IApi.apiAddress + $"/api/live/my/events/future?page={pageNumber}");
+            var request = UnityWebRequest.Get(Config.apiAddress + $"/api/live/my/events/future?page={pageNumber}");
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
 #pragma warning disable 618
             yield return request.Send();
@@ -52,7 +52,7 @@ namespace ConnectApp.api {
         }
 
         private static IEnumerator _FetchMyPastEvents(Promise<List<IEvent>> promise, int pageNumber) {
-            var request = UnityWebRequest.Get(IApi.apiAddress + $"/api/live/my/events/past?page={pageNumber}");
+            var request = UnityWebRequest.Get(Config.apiAddress + $"/api/live/my/events/past?page={pageNumber}");
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
 #pragma warning disable 618
             yield return request.Send();

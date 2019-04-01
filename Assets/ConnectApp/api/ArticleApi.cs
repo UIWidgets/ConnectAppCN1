@@ -22,7 +22,7 @@ namespace ConnectApp.api {
 
         private static IEnumerator _FetchArticles(Promise<FetchArticlesResponse> promise, int pageNumber) {
             var request =
-                UnityWebRequest.Get(IApi.apiAddress + "/api/p?projectType=article&t=projects&page=" + pageNumber);
+                UnityWebRequest.Get(Config.apiAddress + "/api/p?projectType=article&t=projects&page=" + pageNumber);
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
 #pragma warning disable 618
             yield return request.Send();
@@ -55,7 +55,7 @@ namespace ConnectApp.api {
         }
 
         private static IEnumerator _FetchArticleDetail(Promise<FetchArticleDetailResponse> promise, string articleId) {
-            var request = UnityWebRequest.Get(IApi.apiAddress + "/api/p/" + articleId);
+            var request = UnityWebRequest.Get(Config.apiAddress + "/api/p/" + articleId);
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
 #pragma warning disable 618
             yield return request.Send();
@@ -90,7 +90,7 @@ namespace ConnectApp.api {
         private static IEnumerator
             _FetchArticleComments(Promise<FetchCommentsResponse> promise, string channelId,
                 string currOldestMessageId) {
-            var url = IApi.apiAddress + "/api/channels/" + channelId + "/messages?limit=5";
+            var url = Config.apiAddress + "/api/channels/" + channelId + "/messages?limit=5";
             if (currOldestMessageId.Length > 0) url += "&before=" + currOldestMessageId;
             var request = UnityWebRequest.Get(url);
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
@@ -129,7 +129,7 @@ namespace ConnectApp.api {
                 itemId = articleId
             };
             var body = JsonConvert.SerializeObject(para);
-            var request = new UnityWebRequest(IApi.apiAddress + "/api/like", "POST");
+            var request = new UnityWebRequest(Config.apiAddress + "/api/like", "POST");
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();
@@ -169,7 +169,7 @@ namespace ConnectApp.api {
                 reactionType = "like"
             };
             var body = JsonConvert.SerializeObject(para);
-            var request = new UnityWebRequest(IApi.apiAddress + "/api/messages/" + commentId + "/addReaction", "POST");
+            var request = new UnityWebRequest(Config.apiAddress + "/api/messages/" + commentId + "/addReaction", "POST");
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();
@@ -210,7 +210,7 @@ namespace ConnectApp.api {
             };
             var body = JsonConvert.SerializeObject(para);
             var request =
-                new UnityWebRequest(IApi.apiAddress + "/api/messages/" + commentId + "/removeReaction", "POST");
+                new UnityWebRequest(Config.apiAddress + "/api/messages/" + commentId + "/removeReaction", "POST");
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();
@@ -256,7 +256,7 @@ namespace ConnectApp.api {
                 nonce = nonce
             };
             var body = JsonConvert.SerializeObject(para);
-            var request = new UnityWebRequest(IApi.apiAddress + "/api/channels/" + channelId + "/messages", "POST");
+            var request = new UnityWebRequest(Config.apiAddress + "/api/channels/" + channelId + "/messages", "POST");
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();

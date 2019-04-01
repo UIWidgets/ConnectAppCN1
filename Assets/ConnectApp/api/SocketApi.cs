@@ -19,7 +19,7 @@ namespace ConnectApp.api {
 
         private static IEnumerator
             _FetchSocketUrl(Promise<string> promise) {
-            var request = UnityWebRequest.Get(IApi.apiAddress + "/api/socketgw");
+            var request = UnityWebRequest.Get(Config.apiAddress + "/api/socketgw");
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
 #pragma warning disable 618
             yield return request.Send();
