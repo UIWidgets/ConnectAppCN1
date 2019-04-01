@@ -18,7 +18,7 @@ namespace ConnectApp.api {
         }
 
         private static IEnumerator _FetchEvents(Promise<FetchEventsResponse> promise, int pageNumber, string tab) {
-            var request = UnityWebRequest.Get(IApi.apiAddress + $"/api/events?tab={tab}&page={pageNumber}");
+            var request = UnityWebRequest.Get(Config.apiAddress + $"/api/events?tab={tab}&page={pageNumber}");
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
 #pragma warning disable 618
             yield return request.Send();
@@ -51,7 +51,7 @@ namespace ConnectApp.api {
         }
 
         private static IEnumerator _FetchEventDetail(Promise<IEvent> promise, string eventId) {
-            var request = UnityWebRequest.Get(IApi.apiAddress + "/api/live/events/" + eventId);
+            var request = UnityWebRequest.Get(Config.apiAddress + "/api/live/events/" + eventId);
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
 #pragma warning disable 618
             yield return request.Send();
@@ -83,7 +83,7 @@ namespace ConnectApp.api {
         }
 
         private static IEnumerator _JoinEvent(Promise<string> promise, string eventId) {
-            var request = new UnityWebRequest(IApi.apiAddress + $"/api/live/events/{eventId}/join", "POST");
+            var request = new UnityWebRequest(Config.apiAddress + $"/api/live/events/{eventId}/join", "POST");
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
 #pragma warning disable 618

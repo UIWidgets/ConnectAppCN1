@@ -35,12 +35,13 @@ namespace ConnectApp.screens {
         private const float headerHeight = 140;
         private float _offsetY;
         private int pageNumber = 1;
-        RefreshController _refreshController;
+        private RefreshController _refreshController;
         
         public override void initState() {
             base.initState();
             _refreshController = new RefreshController();
             _offsetY = 0;
+            pageNumber = StoreProvider.store.state.articleState.pageNumber;
             if (StoreProvider.store.state.articleState.articleList.Count == 0)
                 StoreProvider.store.Dispatch(new FetchArticlesAction {pageNumber = pageNumber});
         }
@@ -152,16 +153,10 @@ namespace ConnectApp.screens {
                 
                 ArticleApi.FetchArticles(pageNumber)
                     .Then(articlesResponse => {
-                        var newArticleList = new List<string>();
-                        var newArticleDict = new Dictionary<string, Article>();
-                        articlesResponse.items.ForEach(item => {
-                            newArticleList.Add(item.id);
-                            newArticleDict.Add(item.id, item);
-                        });
                         StoreProvider.store.Dispatch(new UserMapAction {userMap = articlesResponse.userMap});
                         StoreProvider.store.Dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
                         StoreProvider.store.Dispatch(new FetchArticleSuccessAction
-                            {articleDict = newArticleDict, articleList = newArticleList, total = articlesResponse.total});
+                            {pageNumber = pageNumber, articleList = articlesResponse.items, total = articlesResponse.total});
                         _refreshController.sendBack(true, RefreshStatus.completed);
                     })
                     .Catch(error =>
@@ -176,18 +171,10 @@ namespace ConnectApp.screens {
                 ArticleApi.FetchArticles(pageNumber)
                     .Then(articlesResponse => {
                         if (articlesResponse.items.Count != 0) {
-                            var newArticleList = StoreProvider.store.state.articleState.articleList;
-                            var newArticleDict = StoreProvider.store.state.articleState.articleDict;
-                            articlesResponse.items.ForEach(item => {
-                                if (!newArticleDict.Keys.Contains(item.id)) {
-                                    newArticleList.Add(item.id);
-                                    newArticleDict.Add(item.id, item);
-                                }
-                            });
                             StoreProvider.store.Dispatch(new UserMapAction {userMap = articlesResponse.userMap});
                             StoreProvider.store.Dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
                             StoreProvider.store.Dispatch(new FetchArticleSuccessAction
-                                {articleDict = newArticleDict, articleList = newArticleList, total = articlesResponse.total});
+                                {pageNumber = pageNumber, articleList = articlesResponse.items, total = articlesResponse.total});
                             _refreshController.sendBack(false, RefreshStatus.idle);
 
                         }
@@ -210,5 +197,6 @@ namespace ConnectApp.screens {
 
             return true;
         }
+
     }
 }

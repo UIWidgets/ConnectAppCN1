@@ -19,7 +19,7 @@ namespace ConnectApp.api {
 
         private static IEnumerator
             _SearchArticle(Promise<FetchSearchResponse> promise, string keyword, int pageNumber) {
-            var request = UnityWebRequest.Get(IApi.apiAddress +
+            var request = UnityWebRequest.Get(Config.apiAddress +
                                               $"/api/search?t=project&projectType=article&k=[%22q:{keyword}%22]&searchAllLoadMore=false&page={pageNumber}");
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
 #pragma warning disable 618

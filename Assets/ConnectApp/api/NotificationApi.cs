@@ -18,7 +18,7 @@ namespace ConnectApp.api {
         }
 
         private static IEnumerator _FetchNotifications(Promise<FetchNotificationResponse> promise, int pageNumber) {
-            var request = UnityWebRequest.Get(IApi.apiAddress + "/api/notifications?page=" + pageNumber);
+            var request = UnityWebRequest.Get(Config.apiAddress + "/api/notifications?page=" + pageNumber);
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
 #pragma warning disable 618
             yield return request.Send();

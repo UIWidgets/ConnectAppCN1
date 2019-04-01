@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.redux;
+using ConnectApp.redux.actions;
 using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -136,7 +138,9 @@ namespace ConnectApp.components {
                         var currentText = text.Substring(offset, length);
                         var rightText = text.Substring(length + offset, text.Length - length - offset);
                         var recognizer = new TapGestureRecognizer();
-                        recognizer.onTap = () => {
+                        recognizer.onTap = () =>
+                        {
+                            StoreProvider.store.Dispatch(new OpenUrlAction(){url = data.data.url});
                             Debug.Log($"点击链接{data.data.url}");
                         };
                         return new Container(

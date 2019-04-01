@@ -45,6 +45,8 @@ namespace ConnectApp.screens {
             _completedRereshController = new RefreshController();
             _pageController = new PageController();
             _selectedIndex = 0;
+            pageNumber = StoreProvider.store.state.eventState.pageNumber;
+            completedPageNumber = StoreProvider.store.state.eventState.completedPageNumber;
             if (StoreProvider.store.state.eventState.ongoingEvents.Count == 0) {
                 StoreProvider.store.Dispatch(new FetchEventsAction {pageNumber = 1, tab = "ongoing"});
                 StoreProvider.store.Dispatch(new FetchEventsAction {pageNumber = 1, tab = "completed"});

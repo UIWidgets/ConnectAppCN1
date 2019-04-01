@@ -22,7 +22,7 @@ namespace ConnectApp.api {
 
         private static IEnumerator
             _FetchMessages(Promise<FetchCommentsResponse> promise, string channelId, string currOldestMessageId) {
-            var url = IApi.apiAddress + "/api/channels/" + channelId + "/messages";
+            var url = Config.apiAddress + "/api/channels/" + channelId + "/messages";
             if (currOldestMessageId.isNotEmpty()) url += "?before=" + currOldestMessageId;
             var request = UnityWebRequest.Get(url);
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
@@ -64,7 +64,7 @@ namespace ConnectApp.api {
                 nonce = nonce
             };
             var body = JsonConvert.SerializeObject(para);
-            var request = new UnityWebRequest(IApi.apiAddress + "/api/channels/" + channelId + "/messages", "POST");
+            var request = new UnityWebRequest(Config.apiAddress + "/api/channels/" + channelId + "/messages", "POST");
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();
