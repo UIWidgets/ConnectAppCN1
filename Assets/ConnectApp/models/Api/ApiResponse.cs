@@ -60,4 +60,11 @@ namespace ConnectApp.models {
         public bool hasMore;
         public bool hasMoreNew;
     }
+
+    [Serializable]
+    public class FetchSendMessageResponse {
+        public string channelId;
+        public string content;
+        public string nonce;
+    }
 }

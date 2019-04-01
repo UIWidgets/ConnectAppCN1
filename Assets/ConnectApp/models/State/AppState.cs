@@ -52,7 +52,8 @@ namespace ConnectApp.models {
                     pageNumber = 1,
                     completedPageNumber = 1,
                     eventsLoading = false,
-                    eventHistory = new List<IEvent>()
+                    eventHistory = new List<IEvent>(),
+                    channelId = ""
                 },
                 searchState = new SearchState {
                     loading = false,
