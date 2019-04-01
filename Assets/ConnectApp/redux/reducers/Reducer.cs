@@ -790,6 +790,11 @@ namespace ConnectApp.redux.reducers {
                     }
                     break;
                 }
+                case OpenUrlAction action:
+                {
+                    Application.OpenURL(action.url);
+                    break;
+                }
             }
             return state;
         }

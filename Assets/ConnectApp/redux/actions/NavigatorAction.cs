@@ -32,4 +32,8 @@ namespace ConnectApp.redux.actions {
     public class LoginNavigatorPopAction : BaseAction {
         public int Index = 1;
     }
+    
+    public class OpenUrlAction : BaseAction {
+        public string url;
+    }
 }
