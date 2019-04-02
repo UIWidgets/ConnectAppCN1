@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using ConnectApp.constants;
 using ConnectApp.models;
@@ -55,6 +56,39 @@ namespace ConnectApp.api {
                 var loginInfo = JsonConvert.DeserializeObject<LoginInfo>(json);
                 if (loginInfo != null)
                     promise.Resolve(loginInfo);
+                else
+                    promise.Reject(new Exception("No user under this username found!"));
+            }
+        }
+
+        public static IPromise<string> FetchCreateUnityIdUrl() {
+            // We return a promise instantly and start the coroutine to do the real work
+            var promise = new Promise<string>();
+            Window.instance.startCoroutine(_FetchCreateUnityIdUrl(promise));
+            return promise;
+        }
+
+        private static IEnumerator _FetchCreateUnityIdUrl(Promise<string> promise) {
+            var request =
+                UnityWebRequest.Get(Config.apiAddress + "/api/authUrl?redirect_to=%2F&locale=zh_CN&is_reg=true");
+            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
+#pragma warning disable 618
+            yield return request.Send();
+#pragma warning restore 618
+            if (request.isNetworkError) {
+                // something went wrong
+                promise.Reject(new Exception(request.error));
+            }
+            else if (request.responseCode != 200) {
+                // or the response is not OK
+                promise.Reject(new Exception(request.downloadHandler.text));
+            }
+            else {
+                // Format output and resolve promise
+                var responseText = request.downloadHandler.text;
+                var urlDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseText);
+                if (urlDictionary != null)
+                    promise.Resolve(urlDictionary["url"]);
                 else
                     promise.Reject(new Exception("No user under this username found!"));
             }

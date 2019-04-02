@@ -108,7 +108,8 @@ namespace ConnectApp.components {
                                         if (item.index == 2) {
                                             var isLoggedIn = StoreProvider.store.state.loginState.isLoggedIn;
                                             if (!isLoggedIn) {
-                                                StoreProvider.store.Dispatch(new MainNavigatorPushToAction {RouteName = MainNavigatorRoutes.Login});
+                                                StoreProvider.store.Dispatch(new MainNavigatorPushToAction
+                                                    {routeName = MainNavigatorRoutes.Login});
                                                 return;
                                             }
                                         }
@@ -130,7 +131,8 @@ namespace ConnectApp.components {
                                         children: new List<Widget> {
                                             new Padding(
                                                 padding: EdgeInsets.only(top: 5),
-                                                child: new Icon(item.icon, size: item.size, color: _selectedIndex == item.index
+                                                child: new Icon(item.icon, size: item.size,
+                                                    color: _selectedIndex == item.index
                                                         ? item.activeColor
                                                         : item.inActiveColor)
                                             ),

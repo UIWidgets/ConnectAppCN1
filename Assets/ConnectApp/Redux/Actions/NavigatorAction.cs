@@ -1,38 +1,41 @@
-using System.Collections.Generic;
 using ConnectApp.models;
 using ConnectApp.screens;
+using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.redux.actions {
-
     public class MainNavigatorPushToAction : BaseAction {
-        public string RouteName;
+        public string routeName;
     }
     
+    public class MainNavigatorPushToRouteAction : BaseAction {
+        public Route route;
+    }
+
     public class MainNavigatorPushToEventDetailAction : BaseAction {
-        public string EventId;
-        public EventType EventType;
+        public string eventId;
+        public EventType eventType;
     }
-    
+
     public class MainNavigatorPushToArticleDetailAction : BaseAction {
-        public string ArticleId;
+        public string articleId;
     }
-    
-    public class LoginNavigatorPushToBindUintyAction : BaseAction {
-        public FromPage FromPage;
+
+    public class LoginNavigatorPushToBindUnityAction : BaseAction {
+        public FromPage fromPage;
     }
-    
+
     public class LoginNavigatorPushToAction : BaseAction {
-        public string RouteName;
+        public string routeName;
     }
-    
+
     public class MainNavigatorPopAction : BaseAction {
-        public int Index = 1;
+        public int index = 1;
     }
-    
+
     public class LoginNavigatorPopAction : BaseAction {
-        public int Index = 1;
+        public int index = 1;
     }
-    
+
     public class OpenUrlAction : BaseAction {
         public string url = "";
     }

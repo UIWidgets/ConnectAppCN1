@@ -6,7 +6,6 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
     public enum InputFieldClearButtonMode {

@@ -1,13 +1,13 @@
+using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.constants {
     public static class Icons {
         public static readonly IconData Description = new IconData(0xe873, "Material Icons");
         public static readonly IconData Notification = new IconData(0xe7f4, "Material Icons");
         public static readonly IconData Mood = new IconData(0xe7f2, "Material Icons");
-        
+
         public static readonly IconData account_circle = new IconData(0xe853, "Material Icons");
         public static readonly IconData search = new IconData(0xe8b6, "Material Icons");
         public static readonly IconData keyboard_arrow_down = new IconData(0xe313, "Material Icons");
@@ -67,9 +67,9 @@ namespace ConnectApp.constants {
             fontFamily: "Roboto-Bold",
             color: CColors.TextBody4
         );
-        
+
         public static readonly TextStyle H3 = new TextStyle(
-            height:1.16f,
+            height: 1.16f,
             fontSize: 28,
             fontFamily: "Roboto-Bold",
             color: CColors.TextTitle
@@ -89,12 +89,12 @@ namespace ConnectApp.constants {
         );
 
         public static readonly TextStyle H5White = new TextStyle(
-            height:1.27f,
+            height: 1.27f,
             fontSize: 20,
             fontFamily: "Roboto-Medium",
             color: CColors.H5White
         );
-        
+
         public static readonly TextStyle H5Body = new TextStyle(
             height: 1.27f,
             fontSize: 20,
@@ -109,7 +109,7 @@ namespace ConnectApp.constants {
             letterSpacing: 0.6f,
             color: CColors.TextBody
         );
-        
+
         public static readonly TextStyle PXLargeBody4 = new TextStyle(
             height: 1.68f,
             fontSize: 18,
@@ -132,7 +132,7 @@ namespace ConnectApp.constants {
             fontFamily: "Roboto-Regular",
             color: CColors.TextTitle
         );
-        
+
         public static readonly TextStyle PLargeMedium = new TextStyle(
             height: 1.33f,
             fontSize: 16,
@@ -146,35 +146,35 @@ namespace ConnectApp.constants {
             fontFamily: "Roboto-Regular",
             color: CColors.PrimaryBlue
         );
-        
+
         public static readonly TextStyle PLargeMediumBlue = new TextStyle(
             height: 1.09f,
             fontSize: 16,
             fontFamily: "Roboto-Medium",
             color: CColors.PrimaryBlue
         );
-        
+
         public static readonly TextStyle PLargeWhite = new TextStyle(
             height: 1.09f,
             fontSize: 16,
             fontFamily: "Roboto-Regular",
             color: CColors.White
         );
-        
+
         public static readonly TextStyle PLargeMediumWhite = new TextStyle(
             height: 1.09f,
             fontSize: 16,
             fontFamily: "Roboto-Medium",
             color: CColors.White
         );
-        
+
         public static readonly TextStyle PLargeError = new TextStyle(
             height: 1.09f,
             fontSize: 16,
             fontFamily: "Roboto-Regular",
             color: CColors.Error
         );
-        
+
         public static readonly TextStyle PLargeBody = new TextStyle(
             height: 1.09f,
             fontSize: 16,
@@ -188,7 +188,7 @@ namespace ConnectApp.constants {
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody2
         );
-        
+
         public static readonly TextStyle PLargeBody4 = new TextStyle(
             height: 1.33f,
             fontSize: 16,
@@ -202,7 +202,7 @@ namespace ConnectApp.constants {
             fontFamily: "Roboto-Regular",
             color: CColors.text2
         );
-        
+
         public static readonly TextStyle PMediumBlue = new TextStyle(
             height: 1.46f,
             fontSize: 14,
@@ -216,28 +216,28 @@ namespace ConnectApp.constants {
             fontFamily: "Roboto-Medium",
             color: CColors.TextBody
         );
-        
+
         public static readonly TextStyle PMediumBody3 = new TextStyle(
             height: 1.46f,
             fontSize: 14,
             fontFamily: "Roboto-Medium",
             color: CColors.TextBody3
         );
-        
+
         public static readonly TextStyle PMediumBody4 = new TextStyle(
             height: 1.46f,
             fontSize: 14,
             fontFamily: "Roboto-Medium",
             color: CColors.TextBody4
         );
-        
+
         public static readonly TextStyle PRegularWhite = new TextStyle(
             height: 1.46f,
             fontSize: 14,
             fontFamily: "Roboto-Regular",
             color: CColors.White
         );
-        
+
         public static readonly TextStyle PRegularError = new TextStyle(
             height: 1.46f,
             fontSize: 14,
@@ -295,7 +295,7 @@ namespace ConnectApp.constants {
             fontFamily: "Roboto-Medium",
             color: CColors.White
         );
-        
+
         public static readonly TextStyle CaptionBody = new TextStyle(
             height: 1.53f,
             fontSize: 12,
@@ -310,7 +310,7 @@ namespace ConnectApp.constants {
             fontFamily: "Roboto-Regular",
             color: CColors.TextTitle
         );
-        
+
         public static readonly TextStyle PSmallBody = new TextStyle(
             height: 1.53f,
             fontSize: 12,
@@ -324,7 +324,7 @@ namespace ConnectApp.constants {
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody3
         );
-        
+
         public static readonly TextStyle PSmallBody4 = new TextStyle(
             height: 1.53f,
             fontSize: 12,

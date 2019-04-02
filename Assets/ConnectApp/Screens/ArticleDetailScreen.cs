@@ -15,8 +15,6 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Avatar = ConnectApp.components.Avatar;
-using RefreshController = ConnectApp.components.pull_to_refresh.RefreshController;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
     public class ArticleDetailScreen : StatefulWidget {
@@ -56,7 +54,7 @@ namespace ConnectApp.screens {
         }
 
         private static void _toLogin() {
-            StoreProvider.store.Dispatch(new MainNavigatorPushToAction {RouteName = MainNavigatorRoutes.Login});
+            StoreProvider.store.Dispatch(new MainNavigatorPushToAction {routeName = MainNavigatorRoutes.Login});
         }
 
         public override Widget build(BuildContext context) {
@@ -81,14 +79,11 @@ namespace ConnectApp.screens {
                                 )
                             )
                         );
-                    var articleDict = (Dictionary<string,Article>) viewModel["articleDict"];
+                    var articleDict = (Dictionary<string, Article>) viewModel["articleDict"];
                     articleDict.TryGetValue(widget.articleId, out _article);
-                    if (_article==null || _article.channelId==null)
-                    {
-                     return new Container();
-                    }
+                    if (_article == null || _article.channelId == null) return new Container();
                     var channelMessageList = (Dictionary<string, List<string>>) viewModel["channelMessageList"];
-                    
+
                     if (_article.ownerType == "user") {
                         var userDict = (Dictionary<string, User>) viewModel["userDict"];
                         if (_article.userId != null && userDict.TryGetValue(_article.userId, out _user))
@@ -106,10 +101,10 @@ namespace ConnectApp.screens {
                     if (channelMessageList.ContainsKey(_article.channelId))
                         _channelComments = channelMessageList[_article.channelId];
                     _contentMap = _article.contentMap;
-                    _lastCommentId = _article.currOldestMessageId??"";
+                    _lastCommentId = _article.currOldestMessageId ?? "";
                     _hasMore = _article.hasMore;
-                    
-                    var originItems=_article==null?new List<Widget>(): _buildItems(context);
+
+                    var originItems = _article == null ? new List<Widget>() : _buildItems(context);
 
                     var child = new Container(
                         color: CColors.background3,
@@ -121,7 +116,7 @@ namespace ConnectApp.screens {
                                         controller: _refreshController,
                                         enablePullDown: false,
                                         enablePullUp: _hasMore,
-                                        footerBuilder: (cxt,mode) =>
+                                        footerBuilder: (cxt, mode) =>
                                             new SmartRefreshHeader(mode),
                                         onRefresh: onRefresh,
                                         child: ListView.builder(
@@ -134,9 +129,9 @@ namespace ConnectApp.screens {
                                 new ArticleTabBar(
                                     _article.like,
                                     () => {
-                                        if (!StoreProvider.store.state.loginState.isLoggedIn) {
+                                        if (!StoreProvider.store.state.loginState.isLoggedIn)
                                             _toLogin();
-                                        } else {
+                                        else
                                             ActionSheetUtils.showModalActionSheet(new CustomInput(
                                                 doneCallBack: text => {
                                                     StoreProvider.store.Dispatch(new SendCommentAction {
@@ -146,13 +141,11 @@ namespace ConnectApp.screens {
                                                     });
                                                 })
                                             );
-                                        }
-                                        
                                     },
                                     () => {
-                                        if (!StoreProvider.store.state.loginState.isLoggedIn) {
+                                        if (!StoreProvider.store.state.loginState.isLoggedIn)
                                             _toLogin();
-                                        } else {
+                                        else
                                             ActionSheetUtils.showModalActionSheet(new CustomInput(
                                                 doneCallBack: text => {
                                                     StoreProvider.store.Dispatch(new SendCommentAction {
@@ -162,24 +155,19 @@ namespace ConnectApp.screens {
                                                     });
                                                 })
                                             );
-
-                                        }
-
                                     },
                                     () => {
                                         if (!StoreProvider.store.state.loginState.isLoggedIn) {
-                                            _toLogin(); 
-                                        } else {
+                                            _toLogin();
+                                        }
+                                        else {
                                             if (!_article.like)
                                                 StoreProvider.store.Dispatch(new LikeArticleAction {
                                                     articleId = _article.id
                                                 });
                                         }
-                                        
                                     },
-                                    shareCallback: () => {
-                                        ShareUtils.showShareView(new ShareView());
-                                    }
+                                    shareCallback: () => { ShareUtils.showShareView(new ShareView()); }
                                 )
                             }
                         )
@@ -218,18 +206,16 @@ namespace ConnectApp.screens {
                 ),
                 child: new CustomNavigationBar(
                     new GestureDetector(
-                        onTap: () => {
-                            StoreProvider.store.Dispatch(new MainNavigatorPopAction());
-                        },
+                        onTap: () => { StoreProvider.store.Dispatch(new MainNavigatorPopAction()); },
                         child: new Icon(Icons.arrow_back, size: 24, color: CColors.icon3)
                     ), new List<Widget> {
                         new CustomButton(
                             padding: EdgeInsets.zero,
-                            onPressed: () => {  },
+                            onPressed: () => { },
                             child: new Container(
-                                width:88,
-                                height:28,
-                                alignment:Alignment.center,
+                                width: 88,
+                                height: 28,
+                                alignment: Alignment.center,
                                 decoration: new BoxDecoration(
                                     border: Border.all(CColors.PrimaryBlue),
                                     borderRadius: BorderRadius.all(14)
@@ -248,26 +234,23 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
-        private void onRefresh(bool up)
-        {
+
+        private void onRefresh(bool up) {
             if (!up)
-            {
                 ArticleApi.FetchArticleComments(_channelId, _lastCommentId)
-                                .Then(responseComments => {
-                                    _lastCommentId = responseComments.currOldestMessageId;
-                                    _hasMore = responseComments.hasMore;
-                
-                                    StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction {
-                                        channelId = _channelId,
-                                        commentsResponse = responseComments,
-                                        isRefreshList = false,                
-                                        hasMore = _hasMore,
-                                        currOldestMessageId = _lastCommentId
-                                    });
-                                })
-                                .Catch(error => { Debug.Log(error); });
-            }
+                    .Then(responseComments => {
+                        _lastCommentId = responseComments.currOldestMessageId;
+                        _hasMore = responseComments.hasMore;
+
+                        StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction {
+                            channelId = _channelId,
+                            commentsResponse = responseComments,
+                            isRefreshList = false,
+                            hasMore = _hasMore,
+                            currOldestMessageId = _lastCommentId
+                        });
+                    })
+                    .Catch(error => { Debug.Log(error); });
         }
 
         private Widget _buildContentHead(BuildContext context) {
@@ -279,12 +262,11 @@ namespace ConnectApp.screens {
             var text = _article.ownerType == "user" ? _user.fullName : _team.name;
             var description = _article.ownerType == "user" ? _user.title : "";
             Widget descriptionWidget = new Container();
-            if (description.isNotEmpty()) {
+            if (description.isNotEmpty())
                 descriptionWidget = new Text(
                     description,
                     style: CTextStyle.PSmallBody3
                 );
-            }
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(16, right: 16, top: 16),
@@ -356,19 +338,17 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new ActionCard(Icons.favorite, like ? "已赞" : "点赞", like, () => {
                             if (!StoreProvider.store.state.loginState.isLoggedIn) {
-                                _toLogin();                            
-                            } else {
+                                _toLogin();
+                            }
+                            else {
                                 if (!like)
                                     StoreProvider.store.Dispatch(new LikeArticleAction {
                                         articleId = _article.id
                                     });
                             }
-
                         }),
                         new Container(width: 16),
-                        new ActionCard(Icons.share, "分享", false, () => {
-                            ShareUtils.showShareView(new ShareView());
-                        })
+                        new ActionCard(Icons.share, "分享", false, () => { ShareUtils.showShareView(new ShareView()); })
                     }
                 )
             );
@@ -381,7 +361,8 @@ namespace ConnectApp.screens {
                 widgets.Add(new RelatedArticleCard(
                     article,
                     () => {
-                        StoreProvider.store.Dispatch(new MainNavigatorPushToArticleDetailAction {ArticleId = article.id});
+                        StoreProvider.store.Dispatch(
+                            new MainNavigatorPushToArticleDetailAction {articleId = article.id});
                     }
                 ));
             });
@@ -421,17 +402,10 @@ namespace ConnectApp.screens {
             if (_channelComments.isEmpty()) return new List<Widget>();
             var comments = new List<Widget>();
             var channelMessageDict = StoreProvider.store.state.messageState.channelMessageDict;
-            if (!channelMessageDict.ContainsKey(_channelId))
-            {
-                return comments;
-            }
+            if (!channelMessageDict.ContainsKey(_channelId)) return comments;
             var messageDict = channelMessageDict[_channelId];
-            foreach (var commentId in _channelComments)
-            {
-                if (!messageDict.ContainsKey(commentId))
-                {
-                    break;
-                }
+            foreach (var commentId in _channelComments) {
+                if (!messageDict.ContainsKey(commentId)) break;
                 var message = messageDict[commentId];
                 bool isPraised = _isPraised(message);
                 var card = new CommentCard(
@@ -446,9 +420,9 @@ namespace ConnectApp.screens {
                         ));
                     },
                     replyCallBack: () => {
-                        if (!StoreProvider.store.state.loginState.isLoggedIn) {
-                            _toLogin();                            
-                        } else {
+                        if (!StoreProvider.store.state.loginState.isLoggedIn)
+                            _toLogin();
+                        else
                             ActionSheetUtils.showModalActionSheet(new CustomInput(
                                 message.author.fullName.isEmpty() ? "" : message.author.fullName,
                                 text => {
@@ -460,21 +434,21 @@ namespace ConnectApp.screens {
                                     });
                                 })
                             );
-                        }
-                        
                     },
                     praiseCallBack: () => {
                         if (!StoreProvider.store.state.loginState.isLoggedIn) {
                             _toLogin();
-                        } else {
+                        }
+                        else {
                             if (isPraised)
                                 StoreProvider.store.Dispatch(new RemoveLikeCommentAction {messageId = commentId});
                             else
                                 StoreProvider.store.Dispatch(new LikeCommentAction {messageId = commentId});
                         }
                     });
-                comments.Add(card);   
+                comments.Add(card);
             }
+
             return comments;
         }
 

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using ConnectApp.models;
 
 namespace ConnectApp.redux.actions {
@@ -10,7 +9,7 @@ namespace ConnectApp.redux.actions {
     public class SearchArticleSuccessAction : BaseAction {
         public string keyword;
         public int pageNumber = 0;
-        public List<Article> searchResponse;
+        public FetchSearchResponse searchResponse;
     }
 
     public class ClearSearchArticleAction : BaseAction {

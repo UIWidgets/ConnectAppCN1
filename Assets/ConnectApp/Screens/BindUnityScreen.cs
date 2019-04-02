@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
@@ -11,8 +10,6 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.screens {
     public enum FromPage {
@@ -28,7 +25,7 @@ namespace ConnectApp.screens {
         ) : base(key) {
             this.fromPage = fromPage;
         }
-        
+
         public readonly FromPage fromPage;
 
         public override State createState() {
@@ -94,7 +91,8 @@ namespace ConnectApp.screens {
                 case FromPage.login: {
                     leftWidget = new CustomButton(
                         onPressed: () => {
-                            StoreProvider.store.Dispatch(new LoginNavigatorPopAction()).Then(() => StoreProvider.store.Dispatch(new CleanEmailAndPasswordAction()));
+                            StoreProvider.store.Dispatch(new LoginNavigatorPopAction()).Then(() =>
+                                StoreProvider.store.Dispatch(new CleanEmailAndPasswordAction()));
                         },
                         child: new Icon(
                             Icons.arrow_back,
@@ -107,7 +105,8 @@ namespace ConnectApp.screens {
                 case FromPage.wechat: {
                     leftWidget = new CustomButton(
                         onPressed: () => {
-                            StoreProvider.store.Dispatch(new MainNavigatorPopAction()).Then(() => StoreProvider.store.Dispatch(new CleanEmailAndPasswordAction()));
+                            StoreProvider.store.Dispatch(new MainNavigatorPopAction()).Then(() =>
+                                StoreProvider.store.Dispatch(new CleanEmailAndPasswordAction()));
                         },
                         child: new Text(
                             "跳过",
@@ -119,7 +118,8 @@ namespace ConnectApp.screens {
                 case FromPage.setting: {
                     leftWidget = new CustomButton(
                         onPressed: () => {
-                            StoreProvider.store.Dispatch(new MainNavigatorPopAction()).Then(() => StoreProvider.store.Dispatch(new CleanEmailAndPasswordAction()));
+                            StoreProvider.store.Dispatch(new MainNavigatorPopAction()).Then(() =>
+                                StoreProvider.store.Dispatch(new CleanEmailAndPasswordAction()));
                         },
                         child: new Icon(
                             Icons.arrow_back,
@@ -132,6 +132,7 @@ namespace ConnectApp.screens {
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
             return new Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: new List<Widget> {
@@ -143,6 +144,7 @@ namespace ConnectApp.screens {
                             children: new List<Widget> {
                                 leftWidget,
                                 new CustomButton(
+                                    onPressed: () => StoreProvider.store.Dispatch(new CreateUnityIdUrlAction()),
                                     child: new Text(
                                         "创建 Unity ID",
                                         style: CTextStyle.PLargeMediumBlue
@@ -298,8 +300,7 @@ namespace ConnectApp.screens {
                                     right = new Padding(
                                         padding: EdgeInsets.only(right: 24),
                                         child: new CustomActivityIndicator(
-                                            animationImage: AnimationImage.white,
-                                            size: 24
+                                            animationImage: AnimationImage.white
                                         )
                                     );
                                 return new CustomButton(
@@ -340,6 +341,8 @@ namespace ConnectApp.screens {
                         ),
                         new Container(height: 8),
                         new CustomButton(
+                            onPressed: () => StoreProvider.store.Dispatch(new OpenUrlAction
+                                {url = $"{Config.idBaseUrl}/password/new"}),
                             child: new Text(
                                 "忘记密码",
                                 style: CTextStyle.PRegularBody3

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
@@ -67,8 +66,8 @@ namespace ConnectApp.screens {
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        new Container(height:44,
-                            child:new CustomButton(
+                        new Container(height: 44,
+                            child: new CustomButton(
                                 padding: EdgeInsets.only(16),
                                 onPressed: () => StoreProvider.store.Dispatch(new MainNavigatorPopAction()),
                                 child: new Icon(
@@ -152,7 +151,7 @@ namespace ConnectApp.screens {
                                         model,
                                         () => {
                                             StoreProvider.store.Dispatch(new MainNavigatorPushToArticleDetailAction {
-                                                ArticleId = model.id
+                                                articleId = model.id
                                             });
                                         }
                                     ),
@@ -197,8 +196,10 @@ namespace ConnectApp.screens {
                                         model,
                                         () => {
                                             StoreProvider.store.Dispatch(new MainNavigatorPushToEventDetailAction {
-                                                EventId = model.id,
-                                                EventType = model.mode == "online" ? EventType.onLine : EventType.offline
+                                                eventId = model.id,
+                                                eventType = model.mode == "online"
+                                                    ? EventType.onLine
+                                                    : EventType.offline
                                             });
                                         }
                                     ),

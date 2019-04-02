@@ -1,17 +1,14 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.canvas;
 using ConnectApp.constants;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
-using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
     public enum ActionType {
@@ -47,8 +44,8 @@ namespace ConnectApp.components {
             this.items = items;
         }
 
-        public readonly string title;
-        public readonly List<ActionSheetItem> items;
+        private readonly string title;
+        private readonly List<ActionSheetItem> items;
 
         public override Widget build(BuildContext context) {
             return new Container(
@@ -142,19 +139,18 @@ namespace ConnectApp.components {
     }
 
     public static class ActionSheetUtils {
-        public static IPromise<object> showModalActionSheet(
+        public static void showModalActionSheet(
             Widget child
         ) {
-            return Router.navigator.push(
-                new _ModalPopupRoute(
-                    cxt => child,
-                    "Dismiss"
-                )
+            var route = new _ModalPopupRoute(
+                cxt => child,
+                "Dismiss"
             );
+            StoreProvider.store.Dispatch(new MainNavigatorPushToRouteAction{route = route});
         }
 
-        private static bool _hiddenModalPopup(BuildContext context) {
-            return Router.navigator.pop();
+        private static void _hiddenModalPopup() {
+            StoreProvider.store.Dispatch(new MainNavigatorPopAction());
         }
     }
 

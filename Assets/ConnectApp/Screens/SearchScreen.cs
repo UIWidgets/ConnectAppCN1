@@ -1,13 +1,11 @@
 using System.Collections.Generic;
 using ConnectApp.api;
-using ConnectApp.canvas;
 using ConnectApp.components;
-using ConnectApp.components.refresh;
+using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
-using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -30,11 +28,13 @@ namespace ConnectApp.screens {
 
     internal class _SearchScreenState : State<SearchScreen> {
         private readonly TextEditingController _controller = new TextEditingController(null);
-        private int pageNumber;
+        private int _pageNumber;
+        private RefreshController _refreshController;
 
         public override void initState() {
             base.initState();
-            pageNumber = 0;
+            _pageNumber = 0;
+            _refreshController = new RefreshController();
             StoreProvider.store.Dispatch(new GetSearchHistoryAction());
         }
 
@@ -68,17 +68,25 @@ namespace ConnectApp.screens {
             StoreProvider.store.Dispatch(new DeleteAllSearchHistoryAction());
         }
 
-        private static IPromise _onRefresh(int pageIndex) {
+        private void _onRefresh(bool up) {
+            if (up)
+                _pageNumber = 0;
+            else
+                _pageNumber++;
             var keyword = StoreProvider.store.state.searchState.keyword;
-            return SearchApi.SearchArticle(keyword, pageIndex)
+            SearchApi.SearchArticle(keyword, _pageNumber)
                 .Then(searchResponse => {
                     StoreProvider.store.Dispatch(new SearchArticleSuccessAction {
                         keyword = keyword,
-                        pageNumber = pageIndex,
-                        searchResponse = searchResponse.projects
+                        pageNumber = _pageNumber,
+                        searchResponse = searchResponse
                     });
+                    _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle);
                 })
-                .Catch(error => { Debug.Log($"{error}"); });
+                .Catch(error => {
+                    _refreshController.sendBack(up, RefreshStatus.failed);
+                    Debug.Log($"{error}");
+                });
         }
 
         public override Widget build(BuildContext context) {
@@ -96,18 +104,16 @@ namespace ConnectApp.screens {
 
                                         if (viewModel.keyword.Length > 0) {
                                             var searchArticles = viewModel.searchArticles;
-                                            if (searchArticles.Count > 0)
-                                                return new Refresh(
-                                                    onHeaderRefresh: () => {
-                                                        pageNumber = 0;
-                                                        return _onRefresh(pageNumber);
-                                                    },
-                                                    onFooterRefresh: () => {
-                                                        pageNumber++;
-                                                        return _onRefresh(pageNumber);
-                                                    },
-                                                    headerBuilder: (cxt, controller) => new RefreshHeader(controller),
-                                                    footerBuilder: (cxt, controller) => new RefreshFooter(controller),
+                                            if (searchArticles.Count > 0) {
+                                                var currentPage = viewModel.currentPage;
+                                                var pages = viewModel.pages;
+                                                return new SmartRefresher(
+                                                    controller: _refreshController,
+                                                    enablePullDown: true,
+                                                    enablePullUp: currentPage >= pages.Count - 1,
+                                                    headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
+                                                    footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
+                                                    onRefresh: _onRefresh,
                                                     child: ListView.builder(
                                                         physics: new AlwaysScrollableScrollPhysics(),
                                                         itemCount: searchArticles.Count,
@@ -118,12 +124,14 @@ namespace ConnectApp.screens {
                                                                 () => {
                                                                     StoreProvider.store.Dispatch(
                                                                         new MainNavigatorPushToArticleDetailAction
-                                                                            {ArticleId = searchArticle.id});
+                                                                            {articleId = searchArticle.id});
                                                                 }
                                                             );
                                                         }
                                                     )
                                                 );
+                                            }
+
                                             return new BlankView("暂无搜索结果");
                                         }
 
@@ -245,7 +253,8 @@ namespace ConnectApp.screens {
                                         new ActionSheet(
                                             title: "确定清除搜索历史记录？",
                                             items: new List<ActionSheetItem> {
-                                                new ActionSheetItem("确定", ActionType.destructive, _deleteAllSearchHistory),
+                                                new ActionSheetItem("确定", ActionType.destructive,
+                                                    _deleteAllSearchHistory),
                                                 new ActionSheetItem("取消", ActionType.cancel)
                                             }
                                         )

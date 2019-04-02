@@ -10,7 +10,6 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
-
     internal static class LoginNavigatorRoutes {
         public const string Root = "/";
         public const string BindUnity = "/bind-unity";
@@ -116,7 +115,6 @@ namespace ConnectApp.screens {
                         new CustomButton(
                             onPressed: () => {
                                 WechatPlugin.instance.login(System.Guid.NewGuid().ToString());
-//                                StoreProvider.store.Dispatch(new LoginNavigatorPushToBindUintyAction {FromPage = FromPage.wechat});
                             },
                             padding: EdgeInsets.zero,
                             child: new Container(
@@ -146,9 +144,9 @@ namespace ConnectApp.screens {
                         ),
                         new Container(height: 16),
                         new CustomButton(
-                            onPressed: () =>
-                            {
-                                StoreProvider.store.Dispatch(new LoginNavigatorPushToBindUintyAction {FromPage = FromPage.login});
+                            onPressed: () => {
+                                StoreProvider.store.Dispatch(new LoginNavigatorPushToBindUnityAction
+                                    {fromPage = FromPage.login});
                             },
                             padding: EdgeInsets.zero,
                             child: new Container(

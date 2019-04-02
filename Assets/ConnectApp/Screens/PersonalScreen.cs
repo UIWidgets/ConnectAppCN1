@@ -60,8 +60,11 @@ namespace ConnectApp.screens {
                             margin: EdgeInsets.only(top: 16),
                             child: new CustomButton(
                                 padding: EdgeInsets.zero,
-                                onPressed: () => { StoreProvider.store.Dispatch(new MainNavigatorPushToAction{RouteName = MainNavigatorRoutes.Login})
-                                    ; },
+                                onPressed: () => {
+                                    StoreProvider.store.Dispatch(new MainNavigatorPushToAction
+                                            {routeName = MainNavigatorRoutes.Login})
+                                        ;
+                                },
                                 child: new Container(
                                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                                     decoration: new BoxDecoration(
@@ -87,7 +90,7 @@ namespace ConnectApp.screens {
                     child: new Text(loginInfo.userFullName, style: CTextStyle.H2)
                 ),
                 new List<Widget> {
-                    new Avatar(loginInfo.userId,40)
+                    new Avatar(loginInfo.userId, 40)
                 },
                 CColors.White,
                 0
@@ -101,19 +104,21 @@ namespace ConnectApp.screens {
 //                    if (isLoginIn) {
 //                    }
 //                    else {
-//                        StoreProvider.store.Dispatch(new MainNavigatorPushToAction{RouteName = MainNavigatorRoutes.Login});
+//                        StoreProvider.store.Dispatch(new MainNavigatorPushToAction{routeName = MainNavigatorRoutes.Login});
 //                    }
 //                }),
                 new PersonalCardItem(Icons.ievent, "我的活动", () => {
                     var isLoginIn = StoreProvider.store.state.loginState.isLoggedIn;
                     var routeName = isLoginIn ? MainNavigatorRoutes.MyEvent : MainNavigatorRoutes.Login;
-                    StoreProvider.store.Dispatch(new MainNavigatorPushToAction {RouteName = routeName});
+                    StoreProvider.store.Dispatch(new MainNavigatorPushToAction {routeName = routeName});
                 }),
-                new PersonalCardItem(Icons.eye, "浏览历史", () => StoreProvider.store.Dispatch(new MainNavigatorPushToAction {RouteName = MainNavigatorRoutes.History})),
+                new PersonalCardItem(Icons.eye, "浏览历史",
+                    () => StoreProvider.store.Dispatch(new MainNavigatorPushToAction
+                        {routeName = MainNavigatorRoutes.History})),
                 new PersonalCardItem(Icons.settings, "设置", () => {
                     var isLoginIn = StoreProvider.store.state.loginState.isLoggedIn;
                     var routeName = isLoginIn ? MainNavigatorRoutes.Setting : MainNavigatorRoutes.Login;
-                    StoreProvider.store.Dispatch(new MainNavigatorPushToAction {RouteName = routeName});
+                    StoreProvider.store.Dispatch(new MainNavigatorPushToAction {routeName = routeName});
                 })
             };
             List<Widget> widgets = new List<Widget>();

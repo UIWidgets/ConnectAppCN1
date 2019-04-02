@@ -25,11 +25,10 @@ namespace ConnectApp.models {
         public string content;
         public Dictionary<string, ContentMap> contentMap;
     }
-    
+
     [Serializable]
     public class TimeMap {
         public string startTime;
         public string endTime;
     }
-    
 }

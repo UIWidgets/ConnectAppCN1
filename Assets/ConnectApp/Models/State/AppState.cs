@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.screens;
 using UnityEngine;
 
 namespace ConnectApp.models {
@@ -17,6 +16,7 @@ namespace ConnectApp.models {
         public PlaceState placeState { get; set; }
         public MineState mineState { get; set; }
         public MessageState messageState { get; set; }
+        public SettingState settingState { get; set; }
 
         public static AppState initialState() {
 //            var xx = PlayerPrefs.GetString();
@@ -58,7 +58,9 @@ namespace ConnectApp.models {
                 searchState = new SearchState {
                     loading = false,
                     keyword = "",
-                    searchArticles = new List<Article>()
+                    searchArticles = new List<Article>(),
+                    currentPage = 0,
+                    pages = new List<int>()
                 },
                 notificationState = new NotificationState {
                     loading = false,
@@ -82,6 +84,10 @@ namespace ConnectApp.models {
                 messageState = new MessageState {
                     channelMessageDict = new Dictionary<string, Dictionary<string, Message>>(),
                     channelMessageList = new Dictionary<string, List<string>>()
+                },
+                settingState = new SettingState {
+                    reviewLoading = false,
+                    reviewUrl = ""
                 }
             };
         }

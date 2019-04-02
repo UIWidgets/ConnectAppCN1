@@ -8,9 +8,8 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using Color = Unity.UIWidgets.ui.Color;
 using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.components {
@@ -77,16 +76,13 @@ namespace ConnectApp.components {
                             var dataMap = content.entityMap[key];
                             var data = dataMap.data;
                             if (data.contentId.isNotEmpty())
-                            {
                                 if (contentMap.ContainsKey(data.contentId)) {
                                     var map = contentMap[data.contentId];
                                     var originalImage = map.originalImage == null
                                         ? map.thumbnail
                                         : map.originalImage;
-                                    widgets.Add(_Atomic(context,dataMap.type, data.title, originalImage));
+                                    widgets.Add(_Atomic(context, dataMap.type, data.title, originalImage));
                                 }
-                            }
-                            
                         }
                     }
                         break;
@@ -137,11 +133,8 @@ namespace ConnectApp.components {
                         var leftText = text.Substring(0, offset);
                         var currentText = text.Substring(offset, length);
                         var rightText = text.Substring(length + offset, text.Length - length - offset);
-                        var recognizer = new TapGestureRecognizer();
-                        recognizer.onTap = () =>
-                        {
-                            StoreProvider.store.Dispatch(new OpenUrlAction(){url = data.data.url});
-                            Debug.Log($"点击链接{data.data.url}");
+                        var recognizer = new TapGestureRecognizer {
+                            onTap = () => { StoreProvider.store.Dispatch(new OpenUrlAction {url = data.data.url}); }
                         };
                         return new Container(
                             color: CColors.White,
@@ -202,7 +195,7 @@ namespace ConnectApp.components {
                 padding: EdgeInsets.only(16, right: 16, bottom: 24),
                 child: new Container(
                     decoration: new BoxDecoration(
-                        color:CColors.White,
+                        color: CColors.White,
                         border: new Border(
                             left: new BorderSide(
                                 CColors.Separator,
@@ -219,7 +212,7 @@ namespace ConnectApp.components {
             );
         }
 
-        private static Widget _Atomic(BuildContext context,string type, string title, _OriginalImage originalImage) {
+        private static Widget _Atomic(BuildContext context, string type, string title, _OriginalImage originalImage) {
             if (type == "ATTACHMENT") return new Container();
 
             var playButton = Positioned.fill(
@@ -249,10 +242,11 @@ namespace ConnectApp.components {
                 new Stack(
                     children: new List<Widget> {
                         new Container(
-                            color:CColors.Separator,
-                            width:MediaQuery.of(context).size.width-32,
-                            height:(MediaQuery.of(context).size.width-32)*originalImage.height / originalImage.width,
-                            child: Image.network(originalImage.url ?? "",fit:BoxFit.cover)
+                            color: CColors.Separator,
+                            width: MediaQuery.of(context).size.width - 32,
+                            height: (MediaQuery.of(context).size.width - 32) * originalImage.height /
+                                    originalImage.width,
+                            child: Image.network(originalImage.url ?? "", fit: BoxFit.cover)
                         ),
                         playButton
                     }

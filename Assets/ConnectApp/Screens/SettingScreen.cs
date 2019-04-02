@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
+using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets.gestures;
@@ -11,7 +11,21 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
-    public class SettingScreen : StatelessWidget {
+    public class SettingScreen : StatefulWidget {
+        public override State createState() {
+            return new _SettingScreenState();
+        }
+    }
+
+    internal class _SettingScreenState : State<SettingScreen> {
+        public override void initState() {
+            base.initState();
+            StoreProvider.store.Dispatch(new SettingReviewUrlAction {
+                platform = Config.platform,
+                store = Config.store
+            });
+        }
+
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
@@ -30,15 +44,18 @@ namespace ConnectApp.screens {
 
         private static Widget _buildNavigationBar(BuildContext context) {
             return new Container(
-                decoration:new BoxDecoration(color:CColors.White,border:new Border(bottom:new BorderSide(CColors.Separator2))),
+                decoration: new BoxDecoration(
+                    CColors.White,
+                    border: new Border(bottom: new BorderSide(CColors.Separator2))
+                ),
                 width: MediaQuery.of(context).size.width,
                 height: 140,
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        new Container(height:44,
-                            child:new CustomButton(
+                        new Container(height: 44,
+                            child: new CustomButton(
                                 padding: EdgeInsets.only(16),
                                 onPressed: () => StoreProvider.store.Dispatch(new MainNavigatorPopAction()),
                                 child: new Icon(
@@ -48,7 +65,7 @@ namespace ConnectApp.screens {
                                 )
                             )
                         ),
-                        
+
                         new Container(
                             padding: EdgeInsets.only(16, bottom: 12),
                             child: new Text(
@@ -71,17 +88,19 @@ namespace ConnectApp.screens {
                         physics: new AlwaysScrollableScrollPhysics(),
                         children: new List<Widget> {
                             _buildGapView(),
-                            _buildCellView("评分", () => { }),
+                            new StoreConnector<AppState, string>(
+                                converter: (state, dispatch) => state.settingState.reviewUrl,
+                                builder: (cxt, reviewUrl) => {
+                                    if (reviewUrl.Length <= 0) return new Container();
+                                    return _buildCellView("评分",
+                                        () => StoreProvider.store.Dispatch(new OpenUrlAction {url = reviewUrl}));
+                                }
+                            ),
                             _buildCellView("意见反馈", () => { }),
                             _buildCellView("关于我们", () => { }),
                             _buildGapView(),
                             _buildCellView("清理缓存", () => {
-//                                CustomDialogUtils.showCustomDialog(
-//                                    context,
-//                                    child: new CustomDialog(
-//                                        message: "正在清理缓存"
-//                                    )
-//                                );
+                                StoreProvider.store.Dispatch(new SettingClearCacheAction());
                             }),
                             _buildGapView(),
                             _buildLogoutBtn(context)
@@ -105,10 +124,8 @@ namespace ConnectApp.screens {
                         title: "确定退出当前账号吗？",
                         items: new List<ActionSheetItem> {
                             new ActionSheetItem("退出", ActionType.destructive,
-                                () => {
-                                    StoreProvider.store.Dispatch(new LogoutAction {context = context});
-                                }),
-                            new ActionSheetItem("取消", ActionType.cancel, () => { })
+                                () => { StoreProvider.store.Dispatch(new LogoutAction {context = context}); }),
+                            new ActionSheetItem("取消", ActionType.cancel)
                         }
                     ));
                 },

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using ConnectApp.canvas;
 using ConnectApp.constants;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;

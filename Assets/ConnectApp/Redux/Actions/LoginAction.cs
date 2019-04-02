@@ -26,7 +26,10 @@ namespace ConnectApp.redux.actions {
     public class LogoutAction : BaseAction {
         public BuildContext context;
     }
-    
+
     public class CleanEmailAndPasswordAction : BaseAction {
+    }
+
+    public class CreateUnityIdUrlAction : RequestAction {
     }
 }

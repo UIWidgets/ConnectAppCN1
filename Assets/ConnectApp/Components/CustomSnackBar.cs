@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.canvas;
 using ConnectApp.constants;
-using RSG;
+using ConnectApp.redux;
+using ConnectApp.redux.actions;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
@@ -140,21 +140,21 @@ namespace ConnectApp.components {
 
         private _SnackBarRoute _snackBarRoute;
 
-        public IPromise<object> show(BuildContext context) {
+        public void show(BuildContext context) {
             D.assert(this != null);
             _snackBarRoute = new _SnackBarRoute(
                 Theme.of(context),
                 this,
                 new RouteSettings("/snackBarRoute")
             );
-            return Router.navigator.push(_snackBarRoute);
+            StoreProvider.store.Dispatch(new MainNavigatorPushToRouteAction{route = _snackBarRoute});
         }
 
         public void dismiss() {
             if (_snackBarRoute == null) return;
 
             if (_snackBarRoute.isCurrent)
-                Router.navigator.pop();
+                StoreProvider.store.Dispatch(new MainNavigatorPopAction());
             else if (_snackBarRoute.isActive) _snackBarRoute.navigator.removeRoute(_snackBarRoute);
             if (_snackBarRoute._timer != null) {
                 _snackBarRoute._timer.cancel();

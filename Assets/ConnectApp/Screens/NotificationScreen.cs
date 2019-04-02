@@ -1,12 +1,11 @@
 using System.Collections.Generic;
 using ConnectApp.api;
 using ConnectApp.components;
-using ConnectApp.components.refresh;
+using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
-using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
@@ -26,11 +25,14 @@ namespace ConnectApp.screens {
 
     public class _NotificationScreenState : State<NotificationScreen> {
         private const float headerHeight = 140;
-        private float _offsetY = 0;
-        private int pageNumber = 1;
+        private float _offsetY;
+        private int _pageNumber = 1;
+        private RefreshController _refreshController;
 
         public override void initState() {
             base.initState();
+            _offsetY = 0;
+            _refreshController = new RefreshController();
             var results = StoreProvider.store.state.notificationState.notifications;
             if (results == null || results.Count == 0)
                 StoreProvider.store.Dispatch(new FetchNotificationsAction {pageNumber = 1});
@@ -48,15 +50,23 @@ namespace ConnectApp.screens {
             return true;
         }
 
-        private static IPromise _onRefresh(int pageIndex) {
-            return NotificationApi.FetchNotifications(pageIndex)
+        private void _onRefresh(bool up) {
+            if (up)
+                _pageNumber = 1;
+            else
+                _pageNumber++;
+            NotificationApi.FetchNotifications(_pageNumber)
                 .Then(notificationResponse => {
                     StoreProvider.store.Dispatch(new FetchNotificationsSuccessAction {
                         notificationResponse = notificationResponse,
-                        pageNumber = pageIndex
+                        pageNumber = _pageNumber
                     });
+                    _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle);
                 })
-                .Catch(error => { Debug.Log($"{error}"); });
+                .Catch(error => {
+                    _refreshController.sendBack(up, RefreshStatus.failed);
+                    Debug.Log($"{error}");
+                });
         }
 
         public override Widget build(BuildContext context) {
@@ -94,21 +104,14 @@ namespace ConnectApp.screens {
                                             var notifications = viewModel.notifications;
                                             if (notifications.Count <= 0) return new BlankView("暂无通知消息");
                                             var isLoadMore = notifications.Count == viewModel.total;
-                                            RefresherCallback onFooterRefresh = null;
-                                            if (!isLoadMore)
-                                                onFooterRefresh = () => {
-                                                    pageNumber++;
-                                                    return _onRefresh(pageNumber);
-                                                };
 
-                                            return new Refresh(
-                                                onHeaderRefresh: () => {
-                                                    pageNumber = 1;
-                                                    return _onRefresh(pageNumber);
-                                                },
-                                                onFooterRefresh: onFooterRefresh,
-                                                headerBuilder: (cxt, controller) => new RefreshHeader(controller),
-                                                footerBuilder: (cxt, controller) => new RefreshFooter(controller),
+                                            return new SmartRefresher(
+                                                controller: _refreshController,
+                                                enablePullDown: true,
+                                                enablePullUp: !isLoadMore,
+                                                headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
+                                                footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
+                                                onRefresh: _onRefresh,
                                                 child: ListView.builder(
                                                     physics: new AlwaysScrollableScrollPhysics(),
                                                     itemCount: notifications.Count,
