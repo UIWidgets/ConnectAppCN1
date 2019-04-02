@@ -284,7 +284,7 @@ extern "C" void UnityRequestQuit()
 
     [self createUI];
     [self preStartUnity];
-    [WXApi registerApp:@"wx0ab79f0c7db7ca52"];
+    
     // if you wont use keyboard you may comment it out at save some memory
     [KeyboardDelegate Initialize];
 #if !PLATFORM_TVOS && DISABLE_TOUCH_DELAYS
@@ -293,7 +293,6 @@ extern "C" void UnityRequestQuit()
         g.delaysTouchesBegan = false;
     }
 #endif
-    
     return YES;
 }
 
