@@ -5,7 +5,6 @@ using Unity.UIWidgets.engine;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
-using UnityEngine.Video;
 
 namespace ConnectApp.canvas {
     public sealed class ConnectAppCanvas : UIWidgetsPanel {

@@ -6,7 +6,6 @@ using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
-using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
@@ -52,11 +51,10 @@ namespace ConnectApp.screens {
         }
 
         private void _onRefresh(bool up) {
-            if (up) {
+            if (up)
                 _pageNumber = 1;
-            } else {
+            else
                 _pageNumber++;
-            }
             NotificationApi.FetchNotifications(_pageNumber)
                 .Then(notificationResponse => {
                     StoreProvider.store.Dispatch(new FetchNotificationsSuccessAction {

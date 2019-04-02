@@ -5,22 +5,18 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
-namespace ConnectApp.components.pull_to_refresh
-{
-    public enum IconPosition
-    {
-        left, 
-        right, 
-        top, 
+namespace ConnectApp.components.pull_to_refresh {
+    public enum IconPosition {
+        left,
+        right,
+        top,
         bottom
     }
 
-    public class ClassicIndicator : Indicator
-    {
+    public class ClassicIndicator : Indicator {
         public ClassicIndicator(
-            int mode, 
+            int mode,
             string releaseText = null,
             string idleText = null,
             string refreshingText = null,
@@ -38,19 +34,18 @@ namespace ConnectApp.components.pull_to_refresh
             IconPosition iconPos = IconPosition.left,
             TextStyle textStyle = null,
             Key key = null
-        ) : base(mode, key)
-        {
-            this.releaseText = releaseText??"";
-            this.idleText = idleText??"";
-            this.refreshingText = refreshingText??"";
-            this.completeText = completeText??"";
-            this.failedText = failedText??"";
-            this.noDataText = noDataText??"";
-            this.releaseIcon = releaseIcon??new Icon(Icons.settings);
-            this.idleIcon = idleIcon??new Icon(Icons.close);
-            this.noMoreIcon = noMoreIcon??new Icon(Icons.ellipsis);
-            this.refreshingIcon = refreshingIcon??new CustomActivityIndicator();
-            this.completeIcon = completeIcon??new Icon(Icons.favorite);
+        ) : base(mode, key) {
+            this.releaseText = releaseText ?? "";
+            this.idleText = idleText ?? "";
+            this.refreshingText = refreshingText ?? "";
+            this.completeText = completeText ?? "";
+            this.failedText = failedText ?? "";
+            this.noDataText = noDataText ?? "";
+            this.releaseIcon = releaseIcon ?? new Icon(Icons.settings);
+            this.idleIcon = idleIcon ?? new Icon(Icons.close);
+            this.noMoreIcon = noMoreIcon ?? new Icon(Icons.ellipsis);
+            this.refreshingIcon = refreshingIcon ?? new CustomActivityIndicator();
+            this.completeIcon = completeIcon ?? new Icon(Icons.favorite);
             this.failedIcon = failedIcon;
             this.height = height;
             this.spacing = spacing;
@@ -75,22 +70,19 @@ namespace ConnectApp.components.pull_to_refresh
         public readonly float spacing;
         public readonly IconPosition iconPos;
         public readonly TextStyle textStyle;
-        
 
-        public override State createState()
-        {
+
+        public override State createState() {
             return new _ClassicIndicatorState();
         }
     }
 
 
-    internal class _ClassicIndicatorState : State<ClassicIndicator>
-    {
-        public override Widget build(BuildContext context)
-        {
+    internal class _ClassicIndicatorState : State<ClassicIndicator> {
+        public override Widget build(BuildContext context) {
             Widget textWidget = _buildText();
             Widget iconWidget = _buildIcon();
-            var children = new List<Widget>{
+            var children = new List<Widget> {
                 iconWidget,
                 new Container(
                     width: widget.spacing,
@@ -106,8 +98,7 @@ namespace ConnectApp.components.pull_to_refresh
                 children: children
             );
             if (widget.iconPos == IconPosition.top ||
-                                                widget.iconPos == IconPosition.bottom)
-            {
+                widget.iconPos == IconPosition.bottom)
                 container = new Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     verticalDirection: widget.iconPos == IconPosition.top
@@ -115,8 +106,7 @@ namespace ConnectApp.components.pull_to_refresh
                         : VerticalDirection.up,
                     children: children
                 );
-            }
-            
+
             return new Container(
                 alignment: Alignment.center,
                 height: widget.height,
@@ -125,9 +115,9 @@ namespace ConnectApp.components.pull_to_refresh
                 )
             );
         }
-        
-        
-        Widget _buildText() {
+
+
+        private Widget _buildText() {
             return new Text(
                 widget.mode == RefreshStatus.canRefresh
                     ? widget.releaseText
@@ -142,7 +132,8 @@ namespace ConnectApp.components.pull_to_refresh
                                     : widget.idleText,
                 style: widget.textStyle);
         }
-        Widget _buildIcon() {
+
+        private Widget _buildIcon() {
             Widget icon = widget.mode == RefreshStatus.canRefresh
                 ? widget.releaseIcon
                 : widget.mode == RefreshStatus.noMore
@@ -160,6 +151,5 @@ namespace ConnectApp.components.pull_to_refresh
                                 );
             return icon;
         }
-        
     }
 }

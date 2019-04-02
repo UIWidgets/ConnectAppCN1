@@ -1,16 +1,13 @@
 using System.Collections.Generic;
 using ConnectApp.constants;
-using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
     public class EventCountDown : StatelessWidget {
-        
         public EventCountDown(
             int animation,
             Key key = null
@@ -21,23 +18,18 @@ namespace ConnectApp.components {
         private readonly int animation;
 
         public override Widget build(BuildContext context) {
-
             // int seconds = animation.value;
             int seconds = animation;
             int minutes = seconds / 60;
 
             int minutesOne = 0;
-            if (minutes >= 10) {
-                minutesOne = minutes / 10;
-            }
+            if (minutes >= 10) minutesOne = minutes / 10;
 
             int minutesTwo = minutes - minutesOne * 10;
 
             int lastSeconds = seconds - minutes * 60;
             int lastSecondsOne = 0;
-            if (lastSeconds >= 10) {
-                lastSecondsOne = lastSeconds / 10;
-            }
+            if (lastSeconds >= 10) lastSecondsOne = lastSeconds / 10;
 
             int lastSecondsTwo = lastSeconds - lastSecondsOne * 10;
 
@@ -53,7 +45,7 @@ namespace ConnectApp.components {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: new List<Widget> {
                                     new Row(
-                                        children: new List <Widget> {
+                                        children: new List<Widget> {
                                             new Container(
                                                 margin: EdgeInsets.only(right: 4),
                                                 child: _buildCountView($"{minutesOne}")
@@ -86,7 +78,7 @@ namespace ConnectApp.components {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: new List<Widget> {
                                     new Row(
-                                        children: new List<Widget>{
+                                        children: new List<Widget> {
                                             new Container(
                                                 margin: EdgeInsets.only(right: 4),
                                                 child: _buildCountView($"{lastSecondsOne}")
@@ -120,7 +112,7 @@ namespace ConnectApp.components {
                 ),
                 child: new Stack(
                     fit: StackFit.expand,
-                    children: new List<Widget>{
+                    children: new List<Widget> {
                         new Container(
                             width: 40,
                             height: 60,
@@ -148,6 +140,5 @@ namespace ConnectApp.components {
                 )
             );
         }
-
     }
 }

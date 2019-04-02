@@ -49,14 +49,16 @@ namespace ConnectApp.api {
             }
         }
 
-        public static Promise<FetchSendMessageResponse> SendMessage(string channelId, string content, string nonce, string parentMessageId = "") {
+        public static Promise<FetchSendMessageResponse> SendMessage(string channelId, string content, string nonce,
+            string parentMessageId = "") {
             // We return a promise instantly and start the coroutine to do the real work
             var promise = new Promise<FetchSendMessageResponse>();
             Window.instance.startCoroutine(_SendMessage(promise, channelId, content, nonce, parentMessageId));
             return promise;
         }
 
-        private static IEnumerator _SendMessage(Promise<FetchSendMessageResponse> promise, string channelId, string content, string nonce,
+        private static IEnumerator _SendMessage(Promise<FetchSendMessageResponse> promise, string channelId,
+            string content, string nonce,
             string parentMessageId = "") {
             var para = new SendCommentParameter {
                 content = content,
@@ -92,9 +94,10 @@ namespace ConnectApp.api {
                         nonce = nonce
                     };
                     promise.Resolve(sendMessageResponse);
-                } 
-                else
+                }
+                else {
                     promise.Reject(new Exception("No user under this username found!"));
+                }
             }
         }
     }

@@ -5,9 +5,7 @@ using ConnectApp.utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
     public class EventDetail : StatelessWidget {
@@ -27,7 +25,7 @@ namespace ConnectApp.components {
         private Widget _buildContent(BuildContext context) {
             var items = new List<Widget>();
             items.Add(_buildContentHead());
-            items.AddRange(ArticleDescription.map(context,eventObj.content, eventObj.contentMap));
+            items.AddRange(ArticleDescription.map(context, eventObj.content, eventObj.contentMap));
             items.Add(_buildContentLecturerList());
             return new Container(
                 child: ListView.builder(
@@ -142,7 +140,7 @@ namespace ConnectApp.components {
                                     children: new List<Widget> {
                                         new Container(
                                             child: new Text(
-                                                host.fullName, 
+                                                host.fullName,
                                                 style: new TextStyle(
                                                     color: CColors.TextBody,
                                                     fontFamily: "Roboto-Medium",
@@ -153,7 +151,7 @@ namespace ConnectApp.components {
                                         new Container(
                                             child: new Text(
                                                 host.title ?? "title",
-                                                maxLines: 1, 
+                                                maxLines: 1,
                                                 overflow: TextOverflow.ellipsis,
                                                 style: CTextStyle.PRegularBody3
                                             )

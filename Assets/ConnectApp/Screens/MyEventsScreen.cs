@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.api;
-using ConnectApp.components.pull_to_refresh;
 using ConnectApp.components;
+using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
@@ -31,7 +31,7 @@ namespace ConnectApp.screens {
         private int _myFuturePageNumber;
         private int _myPastPageNumber;
         private RefreshController _refreshController;
-        
+
 
         public override void initState() {
             base.initState();
@@ -51,34 +51,31 @@ namespace ConnectApp.screens {
 
         private void _onRefresh(bool up) {
             if (_selectedIndex == 0) {
-                if (up) {
+                if (up)
                     _myFuturePageNumber = 1;
-                } else {
+                else
                     _myFuturePageNumber++;
-                }
                 MineApi.FetchMyFutureEvents(_myFuturePageNumber)
                     .Then(events => {
-                        StoreProvider.store.Dispatch(new FetchMyFutureEventsSuccessAction {events = events, pageNumber = _myFuturePageNumber});
+                        StoreProvider.store.Dispatch(new FetchMyFutureEventsSuccessAction
+                            {events = events, pageNumber = _myFuturePageNumber});
                         _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle);
                     })
-                    .Catch(error => {
-                        _refreshController.sendBack(up, RefreshStatus.failed);
-                    });
+                    .Catch(error => { _refreshController.sendBack(up, RefreshStatus.failed); });
             }
+
             if (_selectedIndex == 1) {
-                if (up) {
+                if (up)
                     _myPastPageNumber = 1;
-                } else {
+                else
                     _myPastPageNumber++;
-                }
                 MineApi.FetchMyPastEvents(_myPastPageNumber)
                     .Then(events => {
-                        StoreProvider.store.Dispatch(new FetchMyPastEventsSuccessAction {events = events, pageNumber = _myPastPageNumber});
+                        StoreProvider.store.Dispatch(new FetchMyPastEventsSuccessAction
+                            {events = events, pageNumber = _myPastPageNumber});
                         _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle);
                     })
-                    .Catch(error => {
-                        _refreshController.sendBack(up, RefreshStatus.failed);
-                    });
+                    .Catch(error => { _refreshController.sendBack(up, RefreshStatus.failed); });
             }
         }
 
@@ -110,7 +107,7 @@ namespace ConnectApp.screens {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
                         new Container(
-                            child:new CustomButton(
+                            child: new CustomButton(
                                 padding: EdgeInsets.only(16, 10, 16),
                                 onPressed: () => StoreProvider.store.Dispatch(new MainNavigatorPopAction()),
                                 child: new Icon(
@@ -119,7 +116,7 @@ namespace ConnectApp.screens {
                                     color: CColors.icon3
                                 )
                             ),
-                            height:44
+                            height: 44
                         ),
                         new Container(
                             margin: EdgeInsets.only(16, bottom: 12),
@@ -199,7 +196,7 @@ namespace ConnectApp.screens {
                             controller: _refreshController,
                             enablePullDown: true,
                             enablePullUp: true,
-                            headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode), 
+                            headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
                             footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
                             onRefresh: _onRefresh,
                             child: ListView.builder(
@@ -212,7 +209,9 @@ namespace ConnectApp.screens {
                                         () => {
                                             StoreProvider.store.Dispatch(new MainNavigatorPushToEventDetailAction {
                                                 EventId = model.id,
-                                                EventType = model.mode == "online" ? EventType.onLine : EventType.offline
+                                                EventType = model.mode == "online"
+                                                    ? EventType.onLine
+                                                    : EventType.offline
                                             });
                                         }
                                     );

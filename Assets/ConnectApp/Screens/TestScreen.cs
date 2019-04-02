@@ -6,8 +6,6 @@ using ConnectApp.utils;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
     public class TestScreen : StatelessWidget {
@@ -23,7 +21,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         private static Widget renderWebSocket() {
             return new ListView(
                 children: new List<Widget> {

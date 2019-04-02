@@ -169,7 +169,8 @@ namespace ConnectApp.api {
                 reactionType = "like"
             };
             var body = JsonConvert.SerializeObject(para);
-            var request = new UnityWebRequest(Config.apiAddress + "/api/messages/" + commentId + "/addReaction", "POST");
+            var request =
+                new UnityWebRequest(Config.apiAddress + "/api/messages/" + commentId + "/addReaction", "POST");
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.downloadHandler = new DownloadHandlerBuffer();

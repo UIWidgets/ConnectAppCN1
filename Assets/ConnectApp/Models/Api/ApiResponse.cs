@@ -14,14 +14,14 @@ namespace ConnectApp.models {
     public class FetchArticleDetailResponse {
         public Project project;
     }
-    
+
     [Serializable]
     public class FetchEventsResponse {
         public FetchEventListResponse events;
         public Dictionary<string, User> userMap;
         public Dictionary<string, Place> placeMap;
     }
-    
+
     [Serializable]
     public class FetchEventListResponse {
         public List<IEvent> items;
@@ -53,7 +53,7 @@ namespace ConnectApp.models {
     public class FetchSocketUrlResponse {
         public string url;
     }
-    
+
     [Serializable]
     public class FetchCommentsResponse {
         public List<Message> items;

@@ -1,16 +1,9 @@
-using System.Collections.Generic;
 using ConnectApp.components;
-using ConnectApp.constants;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using Texture = Unity.UIWidgets.widgets.Texture;
 
-namespace ConnectApp.screens
-{
-    public class VideoPlayerTest : StatelessWidget
-    {
-        public override Widget build(BuildContext context)
-        {
+namespace ConnectApp.screens {
+    public class VideoPlayerTest : StatelessWidget {
+        public override Widget build(BuildContext context) {
             return new Center(
                 child: new Container(
                     width: MediaQuery.of(context).size.width,

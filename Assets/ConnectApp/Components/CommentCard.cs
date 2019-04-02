@@ -46,30 +46,28 @@ namespace ConnectApp.components {
                     alignment: Alignment.centerLeft
                 );
             }
-            else
-            {
-                if (messageDict.ContainsKey(message.parentMessageId))
-                {
+            else {
+                if (messageDict.ContainsKey(message.parentMessageId)) {
                     var parentMessage = messageDict[message.parentMessageId];
-                    _content = new Container(alignment: Alignment.centerLeft, child: new RichText(text: new TextSpan("回复@",
-                        children: new List<TextSpan> {
-                            new TextSpan(
-                                $"{parentMessage.author.fullName}",
+                    _content = new Container(alignment: Alignment.centerLeft, child: new RichText(text: new TextSpan(
+                                "回复@",
                                 children: new List<TextSpan> {
                                     new TextSpan(
-                                        $": {content}", 
-                                        CTextStyle.PLargeBody
-                                    )
+                                        $"{parentMessage.author.fullName}",
+                                        children: new List<TextSpan> {
+                                            new TextSpan(
+                                                $": {content}",
+                                                CTextStyle.PLargeBody
+                                            )
+                                        },
+                                        style: CTextStyle.PLargeBlue)
                                 },
-                                style: CTextStyle.PLargeBlue)
-                            },
-                         style: CTextStyle.PLargeBody4
+                                style: CTextStyle.PLargeBody4
+                            )
                         )
-                    )
-                );
+                    );
                 }
-                else
-                {
+                else {
                     _content = new Container(
                         child: new Text(message.content, style: CTextStyle.PLargeBody),
                         alignment: Alignment.centerLeft
