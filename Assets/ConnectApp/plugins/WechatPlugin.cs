@@ -1,4 +1,11 @@
+using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using ConnectApp.redux;
+using ConnectApp.redux.actions;
+using Unity.UIWidgets.engine;
+using Unity.UIWidgets.external.simplejson;
+using UnityEngine;
 
 namespace ConnectApp.plugins
 {
@@ -6,23 +13,38 @@ namespace ConnectApp.plugins
     public class WechatPlugin
     {
         private WechatPlugin() {
+            UIWidgetsMessageManager.instance.
+                AddChannelMessageDelegate("wechat", this._handleMethodCall);
         }
-
-        public static readonly WechatPlugin instance = new WechatPlugin();
         
-#if UNITY_IOS 
+        public static readonly WechatPlugin instance = new WechatPlugin();
 
-        public void init(string appId)
-        {
-            InitWechat(appId);
-        }
+        void _handleMethodCall(string method, List<JSONNode> args) {
+            switch (method)
+            {
+                case "callback":
+                {
+                    StoreProvider.store.Dispatch(new LoginNavigatorPushToAction());
+                }
+                    break;
+                    
+            }
+           
+        } 
+
+
+#if UNITY_IOS 
+        
         public void login(string stateId)
         {
-            loginWechat(stateId);
+            if (!Application.isEditor)
+                loginWechat(stateId);
         }
         public bool inInstalled()
         {
-            return isInstallWechat();
+            if (!Application.isEditor)
+                return isInstallWechat();
+            return false;
         }
 
         [DllImport ("__Internal")]
@@ -33,7 +55,9 @@ namespace ConnectApp.plugins
         
         [DllImport ("__Internal")]
         internal static extern bool isInstallWechat();
+        
 #endif
+       
     }
             
 

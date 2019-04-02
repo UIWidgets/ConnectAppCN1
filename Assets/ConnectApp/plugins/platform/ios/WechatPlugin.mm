@@ -7,6 +7,7 @@
 
 #import "WechatPlugin.h"
 #import "WXApi.h"
+#include "UIWidgetsMessageManager.h"
 
 @implementation WechatPlugin
 
@@ -52,16 +53,40 @@
 -(BOOL)isInstallWechat{
     return [WXApi isWXAppInstalled];
 }
+
+- (void) sendEvent:(NSDictionary*) model {
+  NSError *error = nil;
+  NSData *json = [NSJSONSerialization dataWithJSONObject:model options:NSJSONWritingPrettyPrinted error: &error];
+  if (json != nil && error == nil) {
+    NSString *jsonString = [[NSString alloc] initWithData:json encoding:NSUTF8StringEncoding];
+    UIWidgetsMethodMessage(@"wechat", @"callback", @[jsonString]);
+  }
+}
+
+- (void) sendCodeEvent:(NSString*)code stateId:(nonnull NSString*)stateId {
+  if (stateId == nil) {
+    [self sendEvent:@{@"type": @"cancel"}];
+  } else {
+    [self sendEvent:@{@"type": @"code",
+                      @"code": code,
+                      @"id": stateId}];
+  }
+}
+
+
 @end
 
 extern "C" {
-    void InitWechat(NSString * appId){
-        [[WechatPlugin instance] initialize: appId];
-    }
-    
-    void loginWechat(NSString* stateId){
-        [[WechatPlugin instance]tryWechatLogin:stateId];
-    }
+
+    void InitWechat(const char * appId){
+            NSString *app=[NSString stringWithUTF8String:appId];
+            [[WechatPlugin instance] initialize:app];
+        }
+        
+        void loginWechat(const char * stateId){
+            NSString *state=[NSString stringWithUTF8String:stateId];
+            [[WechatPlugin instance]tryWechatLogin:state];
+        }
     
     void shareToWechat(){
         

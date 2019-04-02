@@ -13,6 +13,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (nonnull instancetype) instance;
 
+- (void) sendCodeEvent:(nonnull NSString*)code stateId:(nonnull NSString*)stateId;
+
 @end
 
 NS_ASSUME_NONNULL_END
