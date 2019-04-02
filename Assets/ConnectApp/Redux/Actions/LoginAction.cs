@@ -29,4 +29,7 @@ namespace ConnectApp.redux.actions {
     
     public class CleanEmailAndPasswordAction : BaseAction {
     }
+
+    public class CreateUnityIdUrlAction : RequestAction {
+    }
 }

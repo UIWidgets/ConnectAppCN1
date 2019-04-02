@@ -181,7 +181,7 @@ namespace ConnectApp.screens {
                     })
                     .Catch(error =>
                     { 
-                        _refreshController.sendBack(true, RefreshStatus.failed);
+                        _refreshController.sendBack(false, RefreshStatus.failed);
                     });
             }
         }

@@ -143,6 +143,7 @@ namespace ConnectApp.screens {
                             children: new List<Widget> {
                                 leftWidget,
                                 new CustomButton(
+                                    onPressed: () => StoreProvider.store.Dispatch(new CreateUnityIdUrlAction()),
                                     child: new Text(
                                         "创建 Unity ID",
                                         style: CTextStyle.PLargeMediumBlue
@@ -298,8 +299,7 @@ namespace ConnectApp.screens {
                                     right = new Padding(
                                         padding: EdgeInsets.only(right: 24),
                                         child: new CustomActivityIndicator(
-                                            animationImage: AnimationImage.white,
-                                            size: 24
+                                            animationImage: AnimationImage.white
                                         )
                                     );
                                 return new CustomButton(
@@ -340,6 +340,7 @@ namespace ConnectApp.screens {
                         ),
                         new Container(height: 8),
                         new CustomButton(
+                            onPressed: () => StoreProvider.store.Dispatch(new OpenUrlAction {url = $"{Config.idBaseUrl}/password/new"}),
                             child: new Text(
                                 "忘记密码",
                                 style: CTextStyle.PRegularBody3
