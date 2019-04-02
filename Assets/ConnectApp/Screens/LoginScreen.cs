@@ -113,8 +113,8 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new CustomButton(
                             onPressed: () => {
-                                StoreProvider.store.Dispatch(new LoginNavigatorPushToBindUintyAction
-                                    {FromPage = FromPage.wechat});
+                                StoreProvider.store.Dispatch(new LoginNavigatorPushToBindUnityAction
+                                    {fromPage = FromPage.wechat});
                             },
                             padding: EdgeInsets.zero,
                             child: new Container(
@@ -145,8 +145,8 @@ namespace ConnectApp.screens {
                         new Container(height: 16),
                         new CustomButton(
                             onPressed: () => {
-                                StoreProvider.store.Dispatch(new LoginNavigatorPushToBindUintyAction
-                                    {FromPage = FromPage.login});
+                                StoreProvider.store.Dispatch(new LoginNavigatorPushToBindUnityAction
+                                    {fromPage = FromPage.login});
                             },
                             padding: EdgeInsets.zero,
                             child: new Container(

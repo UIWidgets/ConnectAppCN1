@@ -124,7 +124,7 @@ namespace ConnectApp.screens {
                                                                 () => {
                                                                     StoreProvider.store.Dispatch(
                                                                         new MainNavigatorPushToArticleDetailAction
-                                                                            {ArticleId = searchArticle.id});
+                                                                            {articleId = searchArticle.id});
                                                                 }
                                                             );
                                                         }

@@ -29,7 +29,7 @@ namespace ConnectApp.components {
             return new GestureDetector(
                 onTap: () => {
                     StoreProvider.store.Dispatch(
-                        new MainNavigatorPushToArticleDetailAction {ArticleId = data.projectId});
+                        new MainNavigatorPushToArticleDetailAction {articleId = data.projectId});
                 },
                 child: new Container(
                     color: CColors.Transparent,

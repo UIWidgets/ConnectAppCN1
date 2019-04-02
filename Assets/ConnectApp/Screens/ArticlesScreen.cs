@@ -65,7 +65,7 @@ namespace ConnectApp.screens {
                 new List<Widget> {
                     new CustomButton(
                         onPressed: () => StoreProvider.store.Dispatch(new MainNavigatorPushToAction
-                            {RouteName = MainNavigatorRoutes.Search}),
+                            {routeName = MainNavigatorRoutes.Search}),
                         child: new Icon(
                             Icons.search,
                             size: 28,
@@ -117,7 +117,7 @@ namespace ConnectApp.screens {
                                             article,
                                             () => {
                                                 StoreProvider.store.Dispatch(new MainNavigatorPushToArticleDetailAction
-                                                    {ArticleId = articleId});
+                                                    {articleId = articleId});
                                             },
                                             () => {
                                                 ActionSheetUtils.showModalActionSheet(new ActionSheet(

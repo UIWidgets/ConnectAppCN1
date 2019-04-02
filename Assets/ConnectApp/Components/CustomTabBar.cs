@@ -109,7 +109,7 @@ namespace ConnectApp.components {
                                             var isLoggedIn = StoreProvider.store.state.loginState.isLoggedIn;
                                             if (!isLoggedIn) {
                                                 StoreProvider.store.Dispatch(new MainNavigatorPushToAction
-                                                    {RouteName = MainNavigatorRoutes.Login});
+                                                    {routeName = MainNavigatorRoutes.Login});
                                                 return;
                                             }
                                         }

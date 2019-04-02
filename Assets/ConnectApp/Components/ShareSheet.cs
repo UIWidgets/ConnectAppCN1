@@ -18,10 +18,10 @@ namespace ConnectApp.components {
     public delegate void OnPressed(ShareType type);
 
     public static class ShareUtils {
-        public static IPromise<object> showShareView(
+        public static void showShareView(
             Widget child
         ) {
-            return ActionSheetUtils.showModalActionSheet(child);
+            ActionSheetUtils.showModalActionSheet(child);
         }
     }
 
@@ -33,7 +33,7 @@ namespace ConnectApp.components {
             this.onPressed = onPressed;
         }
 
-        public readonly OnPressed onPressed;
+        private readonly OnPressed onPressed;
 
         public override Widget build(BuildContext context) {
             var mediaQueryData = MediaQuery.of(context);
