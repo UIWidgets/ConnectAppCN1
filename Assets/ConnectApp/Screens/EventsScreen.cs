@@ -188,8 +188,8 @@ namespace ConnectApp.screens {
                                         model,
                                         () => {
                                             StoreProvider.store.Dispatch(new MainNavigatorPushToEventDetailAction {
-                                                EventId = model.id,
-                                                EventType = model.mode == "online"
+                                                eventId = model.id,
+                                                eventType = model.mode == "online"
                                                     ? EventType.onLine
                                                     : EventType.offline
                                             });
@@ -239,8 +239,8 @@ namespace ConnectApp.screens {
                                         model,
                                         () => {
                                             StoreProvider.store.Dispatch(new MainNavigatorPushToEventDetailAction {
-                                                EventId = model.id,
-                                                EventType = model.mode == "online"
+                                                eventId = model.id,
+                                                eventType = model.mode == "online"
                                                     ? EventType.onLine
                                                     : EventType.offline
                                             });

@@ -54,7 +54,7 @@ namespace ConnectApp.screens {
         }
 
         private static void _toLogin() {
-            StoreProvider.store.Dispatch(new MainNavigatorPushToAction {RouteName = MainNavigatorRoutes.Login});
+            StoreProvider.store.Dispatch(new MainNavigatorPushToAction {routeName = MainNavigatorRoutes.Login});
         }
 
         public override Widget build(BuildContext context) {
@@ -362,7 +362,7 @@ namespace ConnectApp.screens {
                     article,
                     () => {
                         StoreProvider.store.Dispatch(
-                            new MainNavigatorPushToArticleDetailAction {ArticleId = article.id});
+                            new MainNavigatorPushToArticleDetailAction {articleId = article.id});
                     }
                 ));
             });

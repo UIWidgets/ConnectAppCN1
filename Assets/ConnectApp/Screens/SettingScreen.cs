@@ -100,12 +100,7 @@ namespace ConnectApp.screens {
                             _buildCellView("关于我们", () => { }),
                             _buildGapView(),
                             _buildCellView("清理缓存", () => {
-//                                CustomDialogUtils.showCustomDialog(
-//                                    context,
-//                                    child: new CustomDialog(
-//                                        message: "正在清理缓存"
-//                                    )
-//                                );
+                                StoreProvider.store.Dispatch(new SettingClearCacheAction());
                             }),
                             _buildGapView(),
                             _buildLogoutBtn(context)
@@ -130,7 +125,7 @@ namespace ConnectApp.screens {
                         items: new List<ActionSheetItem> {
                             new ActionSheetItem("退出", ActionType.destructive,
                                 () => { StoreProvider.store.Dispatch(new LogoutAction {context = context}); }),
-                            new ActionSheetItem("取消", ActionType.cancel, () => { })
+                            new ActionSheetItem("取消", ActionType.cancel)
                         }
                     ));
                 },

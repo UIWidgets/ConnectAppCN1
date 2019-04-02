@@ -272,7 +272,7 @@ namespace ConnectApp.screens {
                                         if (joinEventLoading) return;
                                         if (!StoreProvider.store.state.loginState.isLoggedIn) {
                                             StoreProvider.store.Dispatch(new MainNavigatorPushToAction
-                                                {RouteName = MainNavigatorRoutes.Login});
+                                                {routeName = MainNavigatorRoutes.Login});
                                         }
                                         else {
                                             if (!userIsCheckedIn)
@@ -515,7 +515,7 @@ namespace ConnectApp.screens {
                             StoreProvider.store.Dispatch(new JoinEventAction {eventId = eventObj.id});
                         else
                             StoreProvider.store.Dispatch(new MainNavigatorPushToAction
-                                {RouteName = MainNavigatorRoutes.Login});
+                                {routeName = MainNavigatorRoutes.Login});
                     },
                     padding: EdgeInsets.zero,
                     child: new Container(

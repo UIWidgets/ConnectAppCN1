@@ -1,13 +1,14 @@
+using System;
 using System.Collections.Generic;
-using ConnectApp.canvas;
 using ConnectApp.constants;
-using RSG;
+using ConnectApp.redux;
+using ConnectApp.redux.actions;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using DialogUtils = Unity.UIWidgets.material.DialogUtils;
 
 namespace ConnectApp.components {
     public class CustomDialog : StatelessWidget {
@@ -20,12 +21,12 @@ namespace ConnectApp.components {
             this.message = message;
         }
 
-        public readonly Widget widget;
-        public readonly string message;
+        private readonly Widget widget;
+        private readonly string message;
 
         public override Widget build(BuildContext context) {
             return new GestureDetector(
-                onTap: () => { Router.navigator.pop(); },
+                onTap: () => { },
                 child: new Container(
                     color: Color.fromRGBO(0, 0, 0, 0.1f),
                     child: new Center(
@@ -66,20 +67,79 @@ namespace ConnectApp.components {
     }
 
     public static class CustomDialogUtils {
-        public static IPromise<object> showCustomDialog(
-            BuildContext context,
+        public static void showCustomDialog(
             bool barrierDismissible = false,
             Widget child = null
         ) {
-            return DialogUtils.showDialog(
-                context,
+            var route = new _DialogRoute(
+                (context, animation, secondaryAnimation) => child,
                 barrierDismissible,
-                cxt => child
+                new Color(0x8A000000),
+                new TimeSpan(0, 0, 0, 0, 150),
+                _transitionBuilder
             );
+            StoreProvider.store.Dispatch(new MainNavigatorPushToRouteAction{route = route});
         }
 
-        public static bool hiddenCustomDialog(BuildContext context) {
-            return Router.navigator.pop();
+        public static void hiddenCustomDialog() {
+            StoreProvider.store.Dispatch(new MainNavigatorPopAction{index = 1});
+        }
+        
+        private static Widget _transitionBuilder(BuildContext context, Animation<float> animation,
+            Animation<float> secondaryAnimation, Widget child) {
+            return new FadeTransition(
+                opacity: new CurvedAnimation(
+                    animation,
+                    Curves.easeOut
+                ),
+                child: child
+            );
+        }
+    }
+    
+    internal class _DialogRoute : PopupRoute {
+        public _DialogRoute(
+            RoutePageBuilder pageBuilder = null,
+            bool barrierDismissible = true,
+            Color barrierColor = null,
+            TimeSpan? transitionDuration = null,
+            RouteTransitionsBuilder transitionBuilder = null,
+            RouteSettings setting = null
+        ) : base(setting) {
+            this.pageBuilder = pageBuilder;
+            this.barrierDismissible = barrierDismissible;
+            this.barrierColor = barrierColor ?? new Color(0x80000000);
+            this.transitionDuration = transitionDuration ?? TimeSpan.FromMilliseconds(200);
+            this.transitionBuilder = transitionBuilder;
+        }
+
+        private readonly RoutePageBuilder pageBuilder;
+
+        public override bool barrierDismissible { get; }
+
+        public override Color barrierColor { get; }
+
+        public override TimeSpan transitionDuration { get; }
+
+        private readonly RouteTransitionsBuilder transitionBuilder;
+
+        public override Widget buildPage(BuildContext context, Animation<float> animation,
+            Animation<float> secondaryAnimation) {
+            return this.pageBuilder(context, animation, secondaryAnimation);
+        }
+
+        public override Widget buildTransitions(BuildContext context, Animation<float> animation,
+            Animation<float> secondaryAnimation, Widget child) {
+            if (this.transitionBuilder == null) {
+                return new FadeTransition(
+                    opacity: new CurvedAnimation(
+                        animation,
+                        Curves.linear
+                    ),
+                    child: child
+                );
+            }
+            return this.transitionBuilder(context, animation, secondaryAnimation, child);
         }
     }
 }

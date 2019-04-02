@@ -7,6 +7,7 @@ using ConnectApp.models;
 using ConnectApp.redux.actions;
 using ConnectApp.screens;
 using Newtonsoft.Json;
+using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -98,9 +99,18 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case CreateUnityIdUrlAction action: {
+                    CustomDialogUtils.showCustomDialog(
+                        child: new CustomDialog()
+                    );
                     LoginApi.FetchCreateUnityIdUrl()
-                        .Then(url => { StoreProvider.store.Dispatch(new OpenUrlAction {url = url}); })
-                        .Catch(error => { Debug.Log(error); });
+                        .Then(url => {
+                            CustomDialogUtils.hiddenCustomDialog();
+                            StoreProvider.store.Dispatch(new OpenUrlAction {url = url});
+                        })
+                        .Catch(error => {
+                            Debug.Log(error);
+                            CustomDialogUtils.hiddenCustomDialog();
+                        });
                     break;
                 }
                 case FetchArticlesAction action: {
@@ -218,7 +228,8 @@ namespace ConnectApp.redux.reducers {
                 }
                 case DeleteAllArticleHistoryAction action: {
                     state.articleState.articleHistory = new List<Article>();
-                    PlayerPrefs.DeleteKey(_articleHistoryKey);
+                    if (PlayerPrefs.HasKey(_articleHistoryKey))
+                        PlayerPrefs.DeleteKey(_articleHistoryKey);
                     break;
                 }
                 case LikeArticleAction action: {
@@ -490,7 +501,8 @@ namespace ConnectApp.redux.reducers {
                 }
                 case DeleteAllEventHistoryAction action: {
                     state.eventState.eventHistory = new List<IEvent>();
-                    PlayerPrefs.DeleteKey(_eventHistoryKey);
+                    if (PlayerPrefs.HasKey(_eventHistoryKey))
+                        PlayerPrefs.DeleteKey(_eventHistoryKey);
                     break;
                 }
                 case JoinEventAction action: {
@@ -853,14 +865,15 @@ namespace ConnectApp.redux.reducers {
                 }
                 case DeleteAllSearchHistoryAction action: {
                     state.searchState.searchHistoryList = new List<string>();
-                    PlayerPrefs.DeleteKey(_searchHistoryKey);
+                    if (PlayerPrefs.HasKey(_searchHistoryKey))
+                        PlayerPrefs.DeleteKey(_searchHistoryKey);
                     break;
                 }
                 case MainNavigatorPushToArticleDetailAction action: {
-                    if (action.ArticleId != null)
+                    if (action.articleId != null)
                         Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                                new ArticleDetailScreen(articleId: action.ArticleId),
+                                new ArticleDetailScreen(articleId: action.articleId),
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new PushPageTransition(
                                     routeAnimation: animation,
@@ -870,10 +883,10 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case MainNavigatorPushToEventDetailAction action: {
-                    if (action.EventId != null)
+                    if (action.eventId != null)
                         Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                                new EventDetailScreen(eventId: action.EventId, eventType: action.EventType),
+                                new EventDetailScreen(eventId: action.eventId, eventType: action.eventType),
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new PushPageTransition(
                                     routeAnimation: animation,
@@ -883,19 +896,23 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case MainNavigatorPushToAction action: {
-                    Router.navigator.pushNamed(action.RouteName);
+                    Router.navigator.pushNamed(action.routeName);
+                    break;
+                }
+                case MainNavigatorPushToRouteAction action: {
+                    Router.navigator.push(action.route);
                     break;
                 }
                 case MainNavigatorPopAction action: {
-                    for (var i = 0; i < action.Index; i++)
+                    for (var i = 0; i < action.index; i++)
                         if (Router.navigator.canPop())
                             Router.navigator.pop();
                     break;
                 }
-                case LoginNavigatorPushToBindUintyAction action: {
+                case LoginNavigatorPushToBindUnityAction action: {
                     LoginScreen.navigator.push(new PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
-                            new BindUnityScreen(fromPage: action.FromPage),
+                            new BindUnityScreen(fromPage: action.fromPage),
                         transitionsBuilder: (context1, animation, secondaryAnimation, child) => new PushPageTransition(
                             routeAnimation: animation,
                             child: child
@@ -904,11 +921,11 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case LoginNavigatorPushToAction action: {
-                    LoginScreen.navigator.pushNamed(action.RouteName);
+                    LoginScreen.navigator.pushNamed(action.routeName);
                     break;
                 }
                 case LoginNavigatorPopAction action: {
-                    for (var i = 0; i < action.Index; i++)
+                    for (var i = 0; i < action.index; i++)
                         if (LoginScreen.navigator.canPop())
                             LoginScreen.navigator.pop();
                     break;
@@ -930,6 +947,21 @@ namespace ConnectApp.redux.reducers {
                 case SettingReviewUrlSuccessAction action: {
                     StoreProvider.store.state.settingState.reviewLoading = false;
                     StoreProvider.store.state.settingState.reviewUrl = action.url;
+                    break;
+                }
+                case SettingClearCacheAction action: {
+                    CustomDialogUtils.showCustomDialog(
+                        child: new CustomDialog(
+                            message: "正在清理缓存"
+                        )
+                    );
+                    StoreProvider.store.Dispatch(new DeleteAllSearchHistoryAction());
+                    StoreProvider.store.Dispatch(new DeleteAllArticleHistoryAction());
+                    StoreProvider.store.Dispatch(new DeleteAllEventHistoryAction());
+                    Promise.Delayed(new TimeSpan(0,0,0,2))
+                        .Then(() => {
+                            CustomDialogUtils.hiddenCustomDialog();
+                        });
                     break;
                 }
             }
