@@ -27,7 +27,7 @@ namespace ConnectApp.screens {
     }
 
     internal class _SearchScreenState : State<SearchScreen> {
-        private readonly TextEditingController _controller = new TextEditingController(null);
+        private readonly TextEditingController _controller = new TextEditingController("");
         private int _pageNumber;
         private RefreshController _refreshController;
 
@@ -36,6 +36,8 @@ namespace ConnectApp.screens {
             _pageNumber = 0;
             _refreshController = new RefreshController();
             StoreProvider.store.Dispatch(new GetSearchHistoryAction());
+            if (StoreProvider.store.state.popularSearchState.popularSearchs.Count == 0)
+                StoreProvider.store.Dispatch(new PopularSearchAction());
         }
 
         public override void dispose() {
@@ -110,7 +112,7 @@ namespace ConnectApp.screens {
                                                 return new SmartRefresher(
                                                     controller: _refreshController,
                                                     enablePullDown: true,
-                                                    enablePullUp: currentPage >= pages.Count - 1,
+                                                    enablePullUp: currentPage != pages.Count - 1,
                                                     headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
                                                     footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
                                                     onRefresh: _onRefresh,
@@ -187,13 +189,41 @@ namespace ConnectApp.screens {
         }
 
         private Widget _buildHotSearch() {
-            List<string> hotSearch = new List<string> {
-                "Unity", "Animation", "AR", "Icon", "Component", "Flutter", "C#"
-            };
+            return new StoreConnector<AppState, PopularSearchState>(
+                converter: (state, dispatch) => state.popularSearchState,
+                builder: (cxt, viewModel) => {
+                    var results = viewModel.popularSearchs;
+                    if (results.Count <= 0) return new Container();
+                    return new Container(
+                        padding: EdgeInsets.only(16, 24, 16),
+                        color: CColors.White,
+                        child: new Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: new List<Widget> {
+                                new Container(
+                                    margin: EdgeInsets.only(bottom: 16),
+                                    child: new Text(
+                                        "热门搜索",
+                                        style: CTextStyle.PXLargeBody4
+                                    )
+                                ),
+                                new Wrap(
+                                    spacing: 8,
+                                    runSpacing: 20,
+                                    children: _buildPopularSearchItem(results)
+                                )
+                            }
+                        )
+                    );
+                }
+            );
+        }
+
+        private List<Widget> _buildPopularSearchItem(List<PopularSearch> popularSearch) {
             List<Widget> widgets = new List<Widget>();
-            hotSearch.ForEach(item => {
+            popularSearch.ForEach(item => {
                 Widget widget = new GestureDetector(
-                    onTap: () => _searchArticle(item),
+                    onTap: () => _searchArticle(item.keyword),
                     child: new Container(
                         decoration: new BoxDecoration(
                             CColors.Separator2,
@@ -202,34 +232,14 @@ namespace ConnectApp.screens {
                         height: 32,
                         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                         child: new Text(
-                            item,
+                            item.keyword,
                             style: CTextStyle.PLargeBody
                         )
                     )
                 );
                 widgets.Add(widget);
             });
-            return new Container(
-                padding: EdgeInsets.only(16, 24, 16),
-                color: CColors.White,
-                child: new Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget> {
-                        new Container(
-                            margin: EdgeInsets.only(bottom: 16),
-                            child: new Text(
-                                "热门搜索",
-                                style: CTextStyle.PXLargeBody4
-                            )
-                        ),
-                        new Wrap(
-                            spacing: 8,
-                            runSpacing: 20,
-                            children: widgets
-                        )
-                    }
-                )
-            );
+            return widgets;
         }
 
         private Widget _buildSearchHistory(List<string> searchHistoryList) {

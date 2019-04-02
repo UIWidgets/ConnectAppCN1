@@ -30,12 +30,54 @@ namespace ConnectApp.components {
 
     public class _CustomInputState : State<CustomInput> {
         private bool _isPublish;
-        private string inputText;
-        private readonly TextEditingController _controller = new TextEditingController(null);
+        private string _inputText;
+        private readonly TextEditingController _controller = new TextEditingController("");
+        private readonly GlobalKey _inputFieldKey = GlobalKey.key();
+        private readonly EdgeInsets _inputFieldPadding = EdgeInsets.symmetric(horizontal: 16, vertical: 5);
+        private readonly TextStyle _inputFieldStyle = CTextStyle.PLargeBody;
+        private float _inputFieldHeight = 22;
 
         public override void initState() {
             base.initState();
             _isPublish = false;
+            _controller.addListener(_controllerListener);
+        }
+
+        public override void dispose() {
+            _controller.removeListener(_controllerListener);
+            base.dispose();
+        }
+
+        private void _controllerListener() {
+            var text = _controller.text;
+            if (!mounted) {
+                return;
+            }
+            var inputFieldHeight = 22.0f;
+            if (text.isNotEmpty()) {
+                var inputFieldWidth = _inputFieldKey.currentContext.size.width;
+                inputFieldHeight = _calculateTextHeight(text, inputFieldWidth);
+            }
+            if (_inputFieldHeight != inputFieldHeight) 
+                setState(() => { _inputFieldHeight = inputFieldHeight; });
+        }
+        
+        private float _calculateTextHeight(string text, float textWidth) {
+            var textPainter = new TextPainter(
+                textDirection: TextDirection.ltr,
+                text: new TextSpan(
+                    text,
+                    _inputFieldStyle
+                ),
+                maxLines: 2
+            );
+            textPainter.layout(maxWidth: textWidth);
+            return textPainter.height;
+        }
+
+        private void _onSubmitted(string text) {
+            if (widget.doneCallBack != null)
+                widget.doneCallBack(text);
         }
 
         public override Widget build(BuildContext context) {
@@ -86,12 +128,13 @@ namespace ConnectApp.components {
                                                             borderRadius: BorderRadius.circular(22)
                                                         ),
                                                         child: new Container(
-                                                            padding: EdgeInsets.only(16, right: 16),
+                                                            padding: _inputFieldPadding,
                                                             child: new InputField(
-                                                                height: 36,
+                                                                _inputFieldKey,
+                                                                height: _inputFieldHeight,
                                                                 controller: _controller,
-                                                                style: CTextStyle.PLargeBody,
-                                                                maxLines: 1,
+                                                                style: _inputFieldStyle,
+                                                                maxLines: 2,
                                                                 autofocus: true,
                                                                 hintText: "友好的评论是交流的起点…",
                                                                 hintStyle: CTextStyle.PLargeBody4,
@@ -101,9 +144,9 @@ namespace ConnectApp.components {
                                                                     var isTextEmpty = text.Length > 0;
                                                                     if (_isPublish != isTextEmpty)
                                                                         setState(() => { _isPublish = isTextEmpty; });
-                                                                    inputText = text;
+                                                                    _inputText = text;
                                                                 },
-                                                                onSubmitted: text => { widget.doneCallBack(text); }
+                                                                onSubmitted: _onSubmitted
                                                             )
                                                         )
                                                     )
@@ -111,7 +154,7 @@ namespace ConnectApp.components {
                                                 new CustomButton(
                                                     onPressed: () => {
                                                         if (!_isPublish) return;
-                                                        widget.doneCallBack(inputText);
+                                                        _onSubmitted(_inputText);
                                                     },
                                                     child: new Text(
                                                         "发布",

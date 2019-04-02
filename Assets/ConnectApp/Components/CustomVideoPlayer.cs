@@ -12,6 +12,7 @@ namespace ConnectApp.components {
             string url,
             Key key = null
         ) : base(key) {
+            D.assert(url != null);
             this.url = url;
         }
 
@@ -38,8 +39,8 @@ namespace ConnectApp.components {
         }
 
         public override void dispose() {
-            base.dispose();
             _player.Stop();
+            base.dispose();
         }
 
         public override Widget build(BuildContext context) {

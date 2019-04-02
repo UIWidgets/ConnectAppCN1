@@ -98,14 +98,14 @@ namespace ConnectApp.screens {
                                     itemCount: 4,
                                     itemBuilder: (cxt, index) => new ArticleLoading()
                                 );
-                            var smartRefreshPage = new SmartRefresher(
+                            if (articleList.Count < 0)
+                                return new BlankView("暂无文章");
+                            return new SmartRefresher(
                                 controller: _refreshController,
                                 enablePullDown: true,
                                 enablePullUp: articleList.Count < articleTotal,
-                                headerBuilder: (cxt, mode) =>
-                                    new SmartRefreshHeader(mode),
-                                footerBuilder: (cxt, mode) =>
-                                    new SmartRefreshHeader(mode),
+                                headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
+                                footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
                                 onRefresh: onRefresh,
                                 child: ListView.builder(
                                     physics: new AlwaysScrollableScrollPhysics(),
@@ -132,7 +132,6 @@ namespace ConnectApp.screens {
                                     }
                                 )
                             );
-                            return smartRefreshPage;
                         }
                     )
                 )

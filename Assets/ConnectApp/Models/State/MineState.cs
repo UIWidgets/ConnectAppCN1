@@ -8,5 +8,7 @@ namespace ConnectApp.models {
         public List<IEvent> pastEventsList { get; set; }
         public bool futureListLoading { get; set; }
         public bool pastListLoading { get; set; }
+        public int futureEventTotal { get; set; }
+        public int pastEventTotal { get; set; }
     }
 }

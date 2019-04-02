@@ -11,14 +11,13 @@ namespace ConnectApp.canvas {
         protected override void OnEnable() {
             base.OnEnable();
             Application.targetFrameRate = 60;
-            FontManager.instance.addFont(Resources.Load<Font>("Material Icons"), familyName: "Material Icons");
-            FontManager.instance.addFont(Resources.Load<Font>("Roboto-Regular"), familyName: "Roboto-Regular");
-            FontManager.instance.addFont(Resources.Load<Font>("Roboto-Medium"), familyName: "Roboto-Medium");
-            FontManager.instance.addFont(Resources.Load<Font>("Roboto-Bold"), familyName: "Roboto-Bold");
-            FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Regular"), familyName: "PingFangSC-Regular");
-            FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Medium"), familyName: "PingFangSC-Medium");
-            FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Semibold"),
-                familyName: "PingFangSC-Semibold");
+            FontManager.instance.addFont(Resources.Load<Font>("Material Icons"), "Material Icons");
+            FontManager.instance.addFont(Resources.Load<Font>("Roboto-Regular"), "Roboto-Regular");
+            FontManager.instance.addFont(Resources.Load<Font>("Roboto-Medium"), "Roboto-Medium");
+            FontManager.instance.addFont(Resources.Load<Font>("Roboto-Bold"), "Roboto-Bold");
+            FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Regular"), "PingFangSC-Regular");
+            FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Medium"), "PingFangSC-Medium");
+            FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Semibold"), "PingFangSC-Semibold");
 //            var videoPlayer = GetComponent<VideoPlayer>();
 //            VideoPlayerManager.instance.player = videoPlayer;
         }
@@ -35,11 +34,10 @@ namespace ConnectApp.canvas {
 
         private PageRouteFactory pageRouteBuilder {
             get {
-                return (RouteSettings settings, WidgetBuilder builder) =>
+                return (settings, builder) =>
                     new PageRouteBuilder(
                         settings,
-                        pageBuilder: (BuildContext context, Animation<float> animation,
-                            Animation<float> secondaryAnimation) => builder(context)
+                        (context, animation, secondaryAnimation) => builder(context)
                     );
             }
         }

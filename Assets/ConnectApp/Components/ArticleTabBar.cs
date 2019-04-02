@@ -25,12 +25,12 @@ namespace ConnectApp.components {
             this.shareCallback = shareCallback;
         }
 
-        public readonly GestureTapCallback addCommentCallback;
-        public readonly GestureTapCallback commentCallback;
-        public readonly GestureTapCallback favorCallback;
-        public readonly GestureTapCallback bookmarkCallback;
-        public readonly GestureTapCallback shareCallback;
-        public readonly bool like;
+        private readonly GestureTapCallback addCommentCallback;
+        private readonly GestureTapCallback commentCallback;
+        private readonly GestureTapCallback favorCallback;
+        private readonly GestureTapCallback bookmarkCallback;
+        private readonly GestureTapCallback shareCallback;
+        private readonly bool like;
 
         public override Widget build(BuildContext context) {
             return new Container(
@@ -57,22 +57,18 @@ namespace ConnectApp.components {
                                 alignment: Alignment.centerLeft,
                                 child: new Text(
                                     "说点想法...",
-                                    style: new TextStyle(
-                                        fontSize: 14,
-                                        fontFamily: "Roboto-Regular",
-                                        color: CColors.TextBody3
-                                    )
+                                    style: CTextStyle.PRegularBody3
                                 )
                             )
                         ),
                         //评论
                         new GestureDetector(
                             onTap: commentCallback,
-                            child: new Icon(Icons.comment, null, 24, CColors.icon3)
+                            child: new Icon(Icons.comment, size: 24, color: CColors.icon3)
                         ),
                         new GestureDetector(
                             onTap: favorCallback,
-                            child: new Icon(Icons.favorite, null, 24, like ? CColors.PrimaryBlue : CColors.icon3)
+                            child: new Icon(Icons.favorite, size: 24, color: like ? CColors.PrimaryBlue : CColors.icon3)
                         ),
 //                        new GestureDetector(
 //                            onTap:bookmarkCallback,
@@ -80,7 +76,7 @@ namespace ConnectApp.components {
 //                        ),
                         new GestureDetector(
                             onTap: shareCallback,
-                            child: new Icon(Icons.share, null, 24, CColors.icon3)
+                            child: new Icon(Icons.share, size: 24, color: CColors.icon3)
                         )
                     }
                 )
