@@ -156,11 +156,15 @@ namespace ConnectApp.screens {
                                         }
                                     ),
                                     new Container(
-                                        color: CColors.Red,
+                                        color: CColors.Error,
+                                        padding: EdgeInsets.symmetric(horizontal: 16),
                                         child: new Row(
                                             mainAxisAlignment: MainAxisAlignment.end,
                                             children: new List<Widget> {
-                                                new Text("删除")
+                                                new Text(
+                                                    "删除",
+                                                    style: CTextStyle.PLargeWhite
+                                                )
                                             }
                                         )
                                     ),

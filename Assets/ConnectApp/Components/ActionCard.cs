@@ -32,7 +32,7 @@ namespace ConnectApp.components {
             var textColor = done ? CColors.PrimaryBlue : CColors.TextBody2;
             var child = new Container(
                 decoration: new BoxDecoration(
-                    color: CColors.Transparent,
+                    CColors.Transparent,
                     borderRadius: BorderRadius.circular(4),
                     border: Border.all(CColors.Separator)
                 ),
@@ -47,14 +47,20 @@ namespace ConnectApp.components {
                             child: new Icon(iconData, color: iconColor)),
                         new Text(
                             title,
-                            style: CTextStyle.PLargeBody
+                            style: new TextStyle(
+                                height: 1.09f,
+                                fontSize: 16,
+                                fontFamily: "Roboto-Regular",
+                                color: textColor
+                            )
                         )
                     }
                 )
             );
             return new GestureDetector(
                 onTap: onTap,
-                child: child);
+                child: child
+            );
         }
     }
 }

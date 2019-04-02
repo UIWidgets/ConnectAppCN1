@@ -9,6 +9,7 @@ namespace ConnectApp.models {
         public LoginState loginState { get; set; }
         public ArticleState articleState { get; set; }
         public EventState eventState { get; set; }
+        public PopularSearchState popularSearchState { get; set; }
         public SearchState searchState { get; set; }
         public NotificationState notificationState { get; set; }
         public UserState userState { get; set; }
@@ -55,6 +56,9 @@ namespace ConnectApp.models {
                     eventHistory = new List<IEvent>(),
                     channelId = ""
                 },
+                popularSearchState = new PopularSearchState {
+                    popularSearchs = new List<PopularSearch>()
+                },
                 searchState = new SearchState {
                     loading = false,
                     keyword = "",
@@ -79,7 +83,9 @@ namespace ConnectApp.models {
                     futureEventsList = new List<IEvent>(),
                     pastEventsList = new List<IEvent>(),
                     futureListLoading = false,
-                    pastListLoading = false
+                    pastListLoading = false,
+                    futureEventTotal = 0,
+                    pastEventTotal = 0
                 },
                 messageState = new MessageState {
                     channelMessageDict = new Dictionary<string, Dictionary<string, Message>>(),

@@ -19,7 +19,7 @@ namespace ConnectApp.canvas {
     }
 
     internal class Router : StatelessWidget {
-        private static readonly GlobalKey globalKey = GlobalKey.key(debugLabel: "main-router");
+        private static readonly GlobalKey globalKey = GlobalKey.key("main-router");
         public static NavigatorState navigator => globalKey.currentState as NavigatorState;
 
         private static Dictionary<string, WidgetBuilder> mainRoutes => new Dictionary<string, WidgetBuilder> {

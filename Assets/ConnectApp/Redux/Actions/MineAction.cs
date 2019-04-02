@@ -7,7 +7,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchMyFutureEventsSuccessAction : BaseAction {
-        public List<IEvent> events;
+        public FetchEventsResponse eventsResponse;
         public int pageNumber;
     }
 
@@ -16,7 +16,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchMyPastEventsSuccessAction : BaseAction {
-        public List<IEvent> events;
+        public FetchEventsResponse eventsResponse;
         public int pageNumber;
     }
 }

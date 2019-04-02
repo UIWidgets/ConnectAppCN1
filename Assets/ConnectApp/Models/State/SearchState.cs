@@ -11,4 +11,9 @@ namespace ConnectApp.models {
         public List<int> pages { get; set; }
         public List<string> searchHistoryList { get; set; }
     }
+
+    [Serializable]
+    public class PopularSearchState {
+        public List<PopularSearch> popularSearchs { get; set; }
+    }
 }
