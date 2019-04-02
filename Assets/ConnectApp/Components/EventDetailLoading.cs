@@ -16,9 +16,9 @@ namespace ConnectApp.components {
         ) : base(key) {
             this.eventType = eventType;
         }
-        
+
         private readonly EventType eventType;
-        
+
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
@@ -52,7 +52,8 @@ namespace ConnectApp.components {
                                         child: new Row(
                                             children: new List<Widget> {
                                                 new CustomButton(
-                                                    onPressed: () => StoreProvider.store.Dispatch(new MainNavigatorPopAction()),
+                                                    onPressed: () =>
+                                                        StoreProvider.store.Dispatch(new MainNavigatorPopAction()),
                                                     child: new Icon(
                                                         Icons.arrow_back,
                                                         size: 28,

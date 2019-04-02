@@ -1,22 +1,16 @@
 using System.Collections.Generic;
-using System.Linq;
 using ConnectApp.api;
 using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.components.pull_to_refresh;
-using ConnectApp.components.refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
-using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using Color = Unity.UIWidgets.ui.Color;
-using RefreshController = ConnectApp.components.pull_to_refresh.RefreshController;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
     public class ArticleScreen : StatefulWidget {
@@ -36,7 +30,7 @@ namespace ConnectApp.screens {
         private float _offsetY;
         private int pageNumber = 1;
         private RefreshController _refreshController;
-        
+
         public override void initState() {
             base.initState();
             _refreshController = new RefreshController();
@@ -70,13 +64,13 @@ namespace ConnectApp.screens {
                 )),
                 new List<Widget> {
                     new CustomButton(
-                        onPressed: () => StoreProvider.store.Dispatch(new MainNavigatorPushToAction {RouteName = MainNavigatorRoutes.Search}),
+                        onPressed: () => StoreProvider.store.Dispatch(new MainNavigatorPushToAction
+                            {RouteName = MainNavigatorRoutes.Search}),
                         child: new Icon(
                             Icons.search,
                             size: 28,
                             color: Color.fromRGBO(181, 181, 181, 1))
                     )
-                    
                 },
                 CColors.White,
                 _offsetY);
@@ -99,7 +93,7 @@ namespace ConnectApp.screens {
                             var articleList = (List<string>) viewModel["articleList"];
                             var articleDict = (Dictionary<string, Article>) viewModel["articleDict"];
                             var articleTotal = (int) viewModel["articleTotal"];
-                            if (articlesLoading&&articleList.isEmpty())
+                            if (articlesLoading && articleList.isEmpty())
                                 return ListView.builder(
                                     itemCount: 4,
                                     itemBuilder: (cxt, index) => new ArticleLoading()
@@ -108,12 +102,12 @@ namespace ConnectApp.screens {
                                 controller: _refreshController,
                                 enablePullDown: true,
                                 enablePullUp: articleList.Count < articleTotal,
-                                headerBuilder: (cxt,mode) =>
-                                    new SmartRefreshHeader(mode), 
-                                footerBuilder: (cxt,mode) =>
+                                headerBuilder: (cxt, mode) =>
+                                    new SmartRefreshHeader(mode),
+                                footerBuilder: (cxt, mode) =>
                                     new SmartRefreshHeader(mode),
                                 onRefresh: onRefresh,
-                                child:ListView.builder(
+                                child: ListView.builder(
                                     physics: new AlwaysScrollableScrollPhysics(),
                                     itemCount: articleList.Count,
                                     itemBuilder: (cxt, index) => {
@@ -122,7 +116,8 @@ namespace ConnectApp.screens {
                                         return new ArticleCard(
                                             article,
                                             () => {
-                                                StoreProvider.store.Dispatch(new MainNavigatorPushToArticleDetailAction {ArticleId = articleId});
+                                                StoreProvider.store.Dispatch(new MainNavigatorPushToArticleDetailAction
+                                                    {ArticleId = articleId});
                                             },
                                             () => {
                                                 ActionSheetUtils.showModalActionSheet(new ActionSheet(
@@ -144,45 +139,38 @@ namespace ConnectApp.screens {
             );
         }
 
-        private void onRefresh(bool up)
-        {
-            if (up)
-            {
+        private void onRefresh(bool up) {
+            if (up) {
                 pageNumber = 1;
                 StoreProvider.store.Dispatch(new FetchArticlesAction() {pageNumber = pageNumber});
-                
+
                 ArticleApi.FetchArticles(pageNumber)
                     .Then(articlesResponse => {
                         StoreProvider.store.Dispatch(new UserMapAction {userMap = articlesResponse.userMap});
                         StoreProvider.store.Dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
-                        StoreProvider.store.Dispatch(new FetchArticleSuccessAction
-                            {pageNumber = pageNumber, articleList = articlesResponse.items, total = articlesResponse.total});
+                        StoreProvider.store.Dispatch(new FetchArticleSuccessAction {
+                            pageNumber = pageNumber, articleList = articlesResponse.items,
+                            total = articlesResponse.total
+                        });
                         _refreshController.sendBack(true, RefreshStatus.completed);
                     })
-                    .Catch(error =>
-                    {
-                        _refreshController.sendBack(true, RefreshStatus.failed);
-
-                    });
+                    .Catch(error => { _refreshController.sendBack(true, RefreshStatus.failed); });
             }
-            else
-            {
+            else {
                 pageNumber++;
                 ArticleApi.FetchArticles(pageNumber)
                     .Then(articlesResponse => {
                         if (articlesResponse.items.Count != 0) {
                             StoreProvider.store.Dispatch(new UserMapAction {userMap = articlesResponse.userMap});
                             StoreProvider.store.Dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
-                            StoreProvider.store.Dispatch(new FetchArticleSuccessAction
-                                {pageNumber = pageNumber, articleList = articlesResponse.items, total = articlesResponse.total});
+                            StoreProvider.store.Dispatch(new FetchArticleSuccessAction {
+                                pageNumber = pageNumber, articleList = articlesResponse.items,
+                                total = articlesResponse.total
+                            });
                             _refreshController.sendBack(false, RefreshStatus.idle);
-
                         }
                     })
-                    .Catch(error =>
-                    { 
-                        _refreshController.sendBack(false, RefreshStatus.failed);
-                    });
+                    .Catch(error => { _refreshController.sendBack(false, RefreshStatus.failed); });
             }
         }
 
@@ -197,6 +185,5 @@ namespace ConnectApp.screens {
 
             return true;
         }
-
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.screens;
 using UnityEngine;
 
 namespace ConnectApp.models {

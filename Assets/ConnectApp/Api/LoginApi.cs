@@ -60,7 +60,7 @@ namespace ConnectApp.api {
                     promise.Reject(new Exception("No user under this username found!"));
             }
         }
-        
+
         public static IPromise<string> FetchCreateUnityIdUrl() {
             // We return a promise instantly and start the coroutine to do the real work
             var promise = new Promise<string>();
@@ -69,7 +69,8 @@ namespace ConnectApp.api {
         }
 
         private static IEnumerator _FetchCreateUnityIdUrl(Promise<string> promise) {
-            var request = UnityWebRequest.Get(Config.apiAddress + "/api/authUrl?redirect_to=%2F&locale=zh_CN&is_reg=true");
+            var request =
+                UnityWebRequest.Get(Config.apiAddress + "/api/authUrl?redirect_to=%2F&locale=zh_CN&is_reg=true");
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
 #pragma warning disable 618
             yield return request.Send();

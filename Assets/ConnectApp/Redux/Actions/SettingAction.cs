@@ -3,7 +3,7 @@ namespace ConnectApp.redux.actions {
         public string platform;
         public string store;
     }
-    
+
     public class SettingReviewUrlSuccessAction : RequestAction {
         public string url;
     }

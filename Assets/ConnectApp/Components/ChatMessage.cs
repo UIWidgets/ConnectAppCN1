@@ -25,7 +25,7 @@ namespace ConnectApp.components {
         public override Widget build(BuildContext context) {
             if (channelId == null || channelId.Length < 0) return new Container();
             if (messageId == null || messageId.Length < 0) return new Container();
-                
+
             var channelMessageDict = StoreProvider.store.state.messageState.channelMessageDict;
             var messageDict = new Dictionary<string, Message>();
             if (channelMessageDict.ContainsKey(channelId))
@@ -35,13 +35,13 @@ namespace ConnectApp.components {
                 message = messageDict[messageId];
 
             var author = message.author != null ? message.author : new User();
-            
+
             var messageContent = MessageUtil.AnalyzeMessage(message.content, message.mentions, message.mentionEveryone);
             return new Container(
                 padding: EdgeInsets.symmetric(6),
                 child: new Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget>{
+                    children: new List<Widget> {
                         new Avatar(
                             author.id,
                             24
@@ -53,7 +53,7 @@ namespace ConnectApp.components {
                                     child: new RichText(
                                         softWrap: true,
                                         text: new TextSpan(
-                                            children: new List <TextSpan>{
+                                            children: new List<TextSpan> {
                                                 new TextSpan(
                                                     $"{author.fullName}:".Replace(' ', '\u00a0'),
                                                     CTextStyle.PMediumBlue

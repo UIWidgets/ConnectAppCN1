@@ -69,11 +69,10 @@ namespace ConnectApp.screens {
         }
 
         private void _onRefresh(bool up) {
-            if (up) {
+            if (up)
                 _pageNumber = 0;
-            } else {
+            else
                 _pageNumber++;
-            }
             var keyword = StoreProvider.store.state.searchState.keyword;
             SearchApi.SearchArticle(keyword, _pageNumber)
                 .Then(searchResponse => {
@@ -132,6 +131,7 @@ namespace ConnectApp.screens {
                                                     )
                                                 );
                                             }
+
                                             return new BlankView("暂无搜索结果");
                                         }
 
@@ -253,7 +253,8 @@ namespace ConnectApp.screens {
                                         new ActionSheet(
                                             title: "确定清除搜索历史记录？",
                                             items: new List<ActionSheetItem> {
-                                                new ActionSheetItem("确定", ActionType.destructive, _deleteAllSearchHistory),
+                                                new ActionSheetItem("确定", ActionType.destructive,
+                                                    _deleteAllSearchHistory),
                                                 new ActionSheetItem("取消", ActionType.cancel)
                                             }
                                         )

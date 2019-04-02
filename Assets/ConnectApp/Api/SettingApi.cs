@@ -18,7 +18,8 @@ namespace ConnectApp.api {
         }
 
         private static IEnumerator _FetchReviewUrl(Promise<string> promise, string platform, string store) {
-            var request = UnityWebRequest.Get(Config.apiAddress + $"/api/live/reviewUrl?platform={platform}&store={store}");
+            var request =
+                UnityWebRequest.Get(Config.apiAddress + $"/api/live/reviewUrl?platform={platform}&store={store}");
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
 #pragma warning disable 618
             yield return request.Send();

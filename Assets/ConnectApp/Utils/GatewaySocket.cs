@@ -2,7 +2,6 @@ using System;
 using BestHTTP.WebSocket;
 using BestHTTP.WebSocket.Frames;
 using ConnectApp.api;
-using RSG;
 using UnityEngine;
 
 namespace ConnectApp.utils {

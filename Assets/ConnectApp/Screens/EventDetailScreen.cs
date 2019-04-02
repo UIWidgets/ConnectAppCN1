@@ -17,7 +17,6 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.screens {
     public class EventDetailScreen : StatefulWidget {
@@ -33,14 +32,13 @@ namespace ConnectApp.screens {
 
         public readonly string eventId;
         public readonly EventType eventType;
-        
+
         public override State createState() {
             return new _EventDetailScreenState();
         }
     }
 
     internal class _EventDetailScreenState : State<EventDetailScreen>, TickerProvider {
-        
         private AnimationController _controller;
         private Animation<Offset> _position;
         private readonly TextEditingController _textController = new TextEditingController("");
@@ -52,7 +50,7 @@ namespace ConnectApp.screens {
             StoreProvider.store.Dispatch(new FetchEventDetailAction
                 {eventId = widget.eventId});
             _controller = new AnimationController(
-                duration: new TimeSpan(0,0,0,0,300),
+                duration: new TimeSpan(0, 0, 0, 0, 300),
                 vsync: this
             );
         }
@@ -63,15 +61,13 @@ namespace ConnectApp.screens {
             _controller.dispose();
             base.dispose();
         }
-        
+
         public Ticker createTicker(TickerCallback onTick) {
             return new Ticker(onTick, $"created by {this}");
         }
-        
+
         private void _setAnimationPosition(BuildContext context) {
-            if (_position != null) {
-                return;
-            }
+            if (_position != null) return;
             var screenHeight = MediaQuery.of(context).size.height;
             var screenWidth = MediaQuery.of(context).size.width;
             var ratio = 1.0f - 64.0f / (screenHeight - screenWidth * 9.0f / 16.0f);
@@ -100,12 +96,10 @@ namespace ConnectApp.screens {
                         });
                         _refreshController.sendBack(true, RefreshStatus.completed);
                     })
-                    .Catch(error => {
-                        _refreshController.sendBack(true, RefreshStatus.failed);
-                    });
+                    .Catch(error => { _refreshController.sendBack(true, RefreshStatus.failed); });
             }
         }
-        
+
         private void _handleSubmitted(string text) {
             var store = StoreProvider.store;
             store.Dispatch(new SendMessageAction {
@@ -118,7 +112,7 @@ namespace ConnectApp.screens {
 
         private static Widget _buildHeadTop(bool isShowShare) {
             Widget shareWidget = new Container();
-            if (isShowShare) {
+            if (isShowShare)
                 shareWidget = new CustomButton(
                     child: new Icon(
                         Icons.share,
@@ -127,7 +121,6 @@ namespace ConnectApp.screens {
                     ),
                     onPressed: () => ShareUtils.showShareView(new ShareView())
                 );
-            }
             return new Container(
                 height: 44,
                 padding: EdgeInsets.symmetric(horizontal: 8),
@@ -157,8 +150,9 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
-        private static Widget _buildEventHeader(IEvent eventObj, EventType eventType, EventStatus eventStatus, bool isLoggedIn) {
+
+        private static Widget _buildEventHeader(IEvent eventObj, EventType eventType, EventStatus eventStatus,
+            bool isLoggedIn) {
             return new Stack(
                 children: new List<Widget> {
                     new EventHeader(eventObj, eventType, eventStatus, isLoggedIn),
@@ -171,13 +165,14 @@ namespace ConnectApp.screens {
                 }
             );
         }
-        
-        private Widget _buildEventDetail(IEvent eventObj, EventType eventType, EventStatus eventStatus, bool isLoggedIn) {
-            if (eventStatus != EventStatus.future && eventType == EventType.onLine && isLoggedIn) {
+
+        private Widget _buildEventDetail(IEvent eventObj, EventType eventType, EventStatus eventStatus,
+            bool isLoggedIn) {
+            if (eventStatus != EventStatus.future && eventType == EventType.onLine && isLoggedIn)
                 return new Expanded(
                     child: new Stack(
                         fit: StackFit.expand,
-                        children: new List<Widget>{
+                        children: new List<Widget> {
                             new Container(
                                 margin: EdgeInsets.only(bottom: 64),
                                 color: CColors.White,
@@ -194,20 +189,17 @@ namespace ConnectApp.screens {
                         }
                     )
                 );
-            }
             return new Expanded(
                 child: new EventDetail(eventObj)
             );
         }
-        
-        private Widget _buildEventBottom(IEvent eventObj, EventType eventType, EventStatus eventStatus, bool isLoggedIn) {
-            if (eventType == EventType.offline) {
-                return _buildOfflineRegisterNow(eventObj, isLoggedIn);
-            }
-            if (eventStatus != EventStatus.future && eventType == EventType.onLine && isLoggedIn) {
+
+        private Widget _buildEventBottom(IEvent eventObj, EventType eventType, EventStatus eventStatus,
+            bool isLoggedIn) {
+            if (eventType == EventType.offline) return _buildOfflineRegisterNow(eventObj, isLoggedIn);
+            if (eventStatus != EventStatus.future && eventType == EventType.onLine && isLoggedIn)
                 return new Container();
-            }
-            
+
             var onlineCount = eventObj.onlineMemberCount;
             var recordWatchCount = eventObj.recordWatchCount;
             var userIsCheckedIn = eventObj.userIsCheckedIn;
@@ -217,18 +209,19 @@ namespace ConnectApp.screens {
                 title = "正在直播";
                 subTitle = $"{onlineCount}人正在观看";
             }
+
             if (eventStatus == EventStatus.past) {
                 title = "回放";
                 subTitle = $"{recordWatchCount}次观看";
             }
+
             if (eventStatus == EventStatus.future || eventStatus == EventStatus.countDown) {
                 var begin = eventObj.begin != null ? eventObj.begin : new TimeMap();
                 var startTime = begin.startTime;
-                if (startTime.isNotEmpty()) {
-                    subTitle = DateConvert.GetFutureTimeFromNow(startTime);
-                }
+                if (startTime.isNotEmpty()) subTitle = DateConvert.GetFutureTimeFromNow(startTime);
                 title = "距离开始还有";
             }
+
             return new Container(
                 height: 64,
                 padding: EdgeInsets.symmetric(horizontal: 16),
@@ -265,24 +258,26 @@ namespace ConnectApp.screens {
                                     joinInText = "已加入";
                                     textStyle = CTextStyle.PLargeMediumWhite;
                                 }
+
                                 Widget child = new Text(
                                     joinInText,
                                     style: textStyle
                                 );
-                                if (joinEventLoading) {
+                                if (joinEventLoading)
                                     child = new CustomActivityIndicator(
                                         animationImage: AnimationImage.white
                                     );
-                                }
                                 return new CustomButton(
                                     onPressed: () => {
                                         if (joinEventLoading) return;
                                         if (!StoreProvider.store.state.loginState.isLoggedIn) {
-                                            StoreProvider.store.Dispatch(new MainNavigatorPushToAction {RouteName = MainNavigatorRoutes.Login});
-                                        } else {
-                                            if (!userIsCheckedIn) {
-                                                StoreProvider.store.Dispatch(new JoinEventAction {eventId = widget.eventId});
-                                            }
+                                            StoreProvider.store.Dispatch(new MainNavigatorPushToAction
+                                                {RouteName = MainNavigatorRoutes.Login});
+                                        }
+                                        else {
+                                            if (!userIsCheckedIn)
+                                                StoreProvider.store.Dispatch(new JoinEventAction
+                                                    {eventId = widget.eventId});
                                         }
                                     },
                                     child: new Container(
@@ -333,21 +328,22 @@ namespace ConnectApp.screens {
             if (showChatWindow) {
                 iconData = Icons.expand_more;
                 bottomWidget = new Container();
-            } else {
+            }
+            else {
                 iconData = Icons.expand_less;
                 bottomWidget = new Text(
                     "轻点展开聊天",
                     style: CTextStyle.PSmallBody4
                 );
             }
+
             return new GestureDetector(
                 onTap: () => {
                     _focusNode.unfocus();
-                    if (!showChatWindow) {
+                    if (!showChatWindow)
                         _controller.forward();
-                    } else {
+                    else
                         _controller.reverse();
-                    }
                     StoreProvider.store.Dispatch(new ChatWindowShowAction {show = !showChatWindow});
                 },
                 child: new Container(
@@ -356,7 +352,7 @@ namespace ConnectApp.screens {
                     height: showChatWindow ? 44 : 64,
                     child: new Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: new List<Widget>{
+                        children: new List<Widget> {
                             new Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -406,7 +402,7 @@ namespace ConnectApp.screens {
                         child: new StoreConnector<AppState, Dictionary<string, object>>(
                             converter: (state, dispatcher) => {
                                 var channelId = state.eventState.channelId;
-                                
+
                                 var channelMessageList = state.messageState.channelMessageList;
                                 var messageList = new List<string>();
                                 if (channelMessageList.ContainsKey(channelId))
@@ -421,13 +417,13 @@ namespace ConnectApp.screens {
                             builder: (_context, model) => {
                                 var messageLoading = (bool) model["messageLoading"];
                                 if (messageLoading) return new GlobalLoading();
-                                
+
                                 var channelId = (string) model["channelId"];
                                 var messageList = (List<string>) model["messageList"];
                                 var hasMore = (bool) model["hasMore"];
-                                
+
                                 if (messageList.Count <= 0) return new BlankView("暂无聊天内容");
-                                
+
                                 return new SmartRefresher(
                                     controller: _refreshController,
                                     enablePullDown: hasMore,
@@ -459,7 +455,7 @@ namespace ConnectApp.screens {
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 height: 40,
                 child: new Row(
-                    children: new List<Widget>{
+                    children: new List<Widget> {
                         new Expanded(
                             child: new InputField(
                                 // key: _textFieldKey,
@@ -518,7 +514,8 @@ namespace ConnectApp.screens {
                         if (isLoggedIn)
                             StoreProvider.store.Dispatch(new JoinEventAction {eventId = eventObj.id});
                         else
-                            StoreProvider.store.Dispatch(new MainNavigatorPushToAction {RouteName = MainNavigatorRoutes.Login});
+                            StoreProvider.store.Dispatch(new MainNavigatorPushToAction
+                                {RouteName = MainNavigatorRoutes.Login});
                     },
                     padding: EdgeInsets.zero,
                     child: new Container(

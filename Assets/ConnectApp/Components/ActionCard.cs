@@ -46,7 +46,7 @@ namespace ConnectApp.components {
                             margin: EdgeInsets.only(right: 10),
                             child: new Icon(iconData, color: iconColor)),
                         new Text(
-                            title, 
+                            title,
                             style: CTextStyle.PLargeBody
                         )
                     }

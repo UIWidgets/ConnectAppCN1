@@ -10,7 +10,6 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using Image = Unity.UIWidgets.widgets.Image;
-using TextStyle = Unity.UIWidgets.painting.TextStyle;
 
 namespace ConnectApp.components {
     public class EventCard : StatelessWidget {
@@ -19,7 +18,7 @@ namespace ConnectApp.components {
             GestureTapCallback onTap = null,
             Key key = null
         ) : base(key) {
-            this._model = model;
+            _model = model;
             this.onTap = onTap;
         }
 
@@ -28,7 +27,7 @@ namespace ConnectApp.components {
 
         public override Widget build(BuildContext context) {
             if (_model == null) return new Container();
-            
+
             var time = Convert.ToDateTime(_model.createdTime);
             var placeId = _model.placeId;
             var address = "";
@@ -39,6 +38,7 @@ namespace ConnectApp.components {
                     address = place.name;
                 }
             }
+
             var imageUrl = _model.avatar != null ? _model.avatar : _model.background;
             var card = new Container(
                 padding: EdgeInsets.all(16),
@@ -115,7 +115,9 @@ namespace ConnectApp.components {
                                             child: new Container(
                                                 width: 41,
                                                 height: 24,
-                                                color: _model.mode == "online" ? CColors.PrimaryBlue : CColors.SecondaryPink,
+                                                color: _model.mode == "online"
+                                                    ? CColors.PrimaryBlue
+                                                    : CColors.SecondaryPink,
                                                 alignment: Alignment.center,
                                                 child: new Text(
                                                     _model.mode == "online" ? "线上" : "线下",

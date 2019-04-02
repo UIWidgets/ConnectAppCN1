@@ -1,5 +1,4 @@
 using System;
-using ConnectApp.screens;
 
 namespace ConnectApp.models {
     [Serializable]

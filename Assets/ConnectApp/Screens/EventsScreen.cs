@@ -7,7 +7,6 @@ using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
-using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -33,14 +32,14 @@ namespace ConnectApp.screens {
         private int pageNumber = 1;
         private int completedPageNumber = 1;
         private float _offsetY;
-        RefreshController _ongoingRefreshController;
-        RefreshController _completedRereshController;
+        private RefreshController _ongoingRefreshController;
+        private RefreshController _completedRereshController;
 
 
         public override void initState() {
             base.initState();
             _offsetY = 0;
-            
+
             _ongoingRefreshController = new RefreshController();
             _completedRereshController = new RefreshController();
             _pageController = new PageController();
@@ -145,7 +144,7 @@ namespace ConnectApp.screens {
                     child: new Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: new List<Widget> {
-                            _buildSelectItem("即将开始", 0), 
+                            _buildSelectItem("即将开始", 0),
                             _buildSelectItem("往期活动", 1)
                         }
                     )
@@ -165,40 +164,41 @@ namespace ConnectApp.screens {
                     builder: (context1, viewModel) => {
                         var loading = (bool) viewModel["loading"];
                         if (loading) return new GlobalLoading();
-                        
+
                         var ongoingEvents = viewModel["ongoingEvents"] as List<string>;
                         var ongoingEventDict = viewModel["eventsDict"] as Dictionary<string, IEvent>;
                         var ongoingEventTotal = (int) viewModel["ongoingEventTotal"];
 
                         return new SmartRefresher(
-                                controller: _ongoingRefreshController,
-                                enablePullDown: true,
-                                enablePullUp: ongoingEvents.Count < ongoingEventTotal,
-                                headerBuilder: (cxt,mode) =>
-                                    new SmartRefreshHeader(mode), 
-                                footerBuilder: (cxt,mode) =>
-                                    new SmartRefreshHeader(mode),
-                                onRefresh: ongoingRefresh,
-                                child: ListView.builder(
-                                    physics: new AlwaysScrollableScrollPhysics(),
-                                    itemCount: ongoingEvents.Count,
-                                    itemBuilder: (cxt, index) => {
-                                        var eventId = ongoingEvents[index];
-                                        var model = ongoingEventDict[eventId];
-                                        return new EventCard(
-                                            model,
-                                            () => {
-                                                StoreProvider.store.Dispatch(new MainNavigatorPushToEventDetailAction {
-                                                    EventId = model.id,
-                                                    EventType = model.mode == "online" ? EventType.onLine : EventType.offline
-                                                });
-                                            },
-                                            new ObjectKey(model.id)
-                                        );
-                                    }
-                                )
-                            );
-                        
+                            controller: _ongoingRefreshController,
+                            enablePullDown: true,
+                            enablePullUp: ongoingEvents.Count < ongoingEventTotal,
+                            headerBuilder: (cxt, mode) =>
+                                new SmartRefreshHeader(mode),
+                            footerBuilder: (cxt, mode) =>
+                                new SmartRefreshHeader(mode),
+                            onRefresh: ongoingRefresh,
+                            child: ListView.builder(
+                                physics: new AlwaysScrollableScrollPhysics(),
+                                itemCount: ongoingEvents.Count,
+                                itemBuilder: (cxt, index) => {
+                                    var eventId = ongoingEvents[index];
+                                    var model = ongoingEventDict[eventId];
+                                    return new EventCard(
+                                        model,
+                                        () => {
+                                            StoreProvider.store.Dispatch(new MainNavigatorPushToEventDetailAction {
+                                                EventId = model.id,
+                                                EventType = model.mode == "online"
+                                                    ? EventType.onLine
+                                                    : EventType.offline
+                                            });
+                                        },
+                                        new ObjectKey(model.id)
+                                    );
+                                }
+                            )
+                        );
                     }
                 )
             );
@@ -216,7 +216,7 @@ namespace ConnectApp.screens {
                     builder: (context1, viewModel) => {
                         var loading = (bool) viewModel["loading"];
                         if (loading) return new GlobalLoading();
-                        
+
                         var completedEvents = viewModel["completedEvents"] as List<string>;
                         var eventsDict = viewModel["eventsDict"] as Dictionary<string, IEvent>;
                         var completedEventTotal = (int) viewModel["completedEventTotal"];
@@ -224,9 +224,9 @@ namespace ConnectApp.screens {
                             controller: _completedRereshController,
                             enablePullDown: true,
                             enablePullUp: completedEvents.Count < completedEventTotal,
-                            headerBuilder: (cxt,mode) =>
-                                new SmartRefreshHeader(mode), 
-                            footerBuilder: (cxt,mode) =>
+                            headerBuilder: (cxt, mode) =>
+                                new SmartRefreshHeader(mode),
+                            footerBuilder: (cxt, mode) =>
                                 new SmartRefreshHeader(mode),
                             onRefresh: completedRefresh,
                             child: ListView.builder(
@@ -240,7 +240,9 @@ namespace ConnectApp.screens {
                                         () => {
                                             StoreProvider.store.Dispatch(new MainNavigatorPushToEventDetailAction {
                                                 EventId = model.id,
-                                                EventType = model.mode == "online" ? EventType.onLine : EventType.offline
+                                                EventType = model.mode == "online"
+                                                    ? EventType.onLine
+                                                    : EventType.offline
                                             });
                                         },
                                         new ObjectKey(model.id)
@@ -269,83 +271,79 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
-        private void ongoingRefresh(bool up)
-        {
+
+        private void ongoingRefresh(bool up) {
             string tab = "ongoing";
-            if (up)
-            {
+            if (up) {
                 pageNumber = 1;
                 EventApi.FetchEvents(pageNumber, tab)
                     .Then(eventsResponse => {
-                        StoreProvider.store.Dispatch(new FetchEventsSuccessAction
-                            {events = eventsResponse.events.items, tab = tab, pageNumber = pageNumber, total = eventsResponse.events.total});
+                        StoreProvider.store.Dispatch(new FetchEventsSuccessAction {
+                            events = eventsResponse.events.items, tab = tab, pageNumber = pageNumber,
+                            total = eventsResponse.events.total
+                        });
                         _ongoingRefreshController.sendBack(true, RefreshStatus.completed);
                     })
-                    .Catch(error =>
-                    {
-                        Debug.Log($"{error}"); 
+                    .Catch(error => {
+                        Debug.Log($"{error}");
                         _ongoingRefreshController.sendBack(true, RefreshStatus.failed);
                     });
             }
-            else
-            {
+            else {
                 pageNumber++;
                 EventApi.FetchEvents(pageNumber, tab)
                     .Then(eventsResponse => {
-                        StoreProvider.store.Dispatch(new FetchEventsSuccessAction
-                            {events = eventsResponse.events.items, tab = tab, pageNumber = pageNumber, total = eventsResponse.events.total});
+                        StoreProvider.store.Dispatch(new FetchEventsSuccessAction {
+                            events = eventsResponse.events.items, tab = tab, pageNumber = pageNumber,
+                            total = eventsResponse.events.total
+                        });
                         _ongoingRefreshController.sendBack(false, RefreshStatus.idle);
                     })
-                    .Catch(error =>
-                    {
+                    .Catch(error => {
                         Debug.Log($"{error}");
                         _ongoingRefreshController.sendBack(false, RefreshStatus.failed);
-
                     });
             }
         }
-        private void completedRefresh(bool up)
-        {
+
+        private void completedRefresh(bool up) {
             string tab = "completed";
-            if (up)
-            {
+            if (up) {
                 completedPageNumber = 1;
                 EventApi.FetchEvents(pageNumber, tab)
                     .Then(eventsResponse => {
                         StoreProvider.store.Dispatch(new UserMapAction {userMap = eventsResponse.userMap});
                         StoreProvider.store.Dispatch(new PlaceMapAction {placeMap = eventsResponse.placeMap});
-                        StoreProvider.store.Dispatch(new FetchEventsSuccessAction
-                            {events = eventsResponse.events.items, tab = tab, pageNumber = completedPageNumber, total = eventsResponse.events.total});
+                        StoreProvider.store.Dispatch(new FetchEventsSuccessAction {
+                            events = eventsResponse.events.items, tab = tab, pageNumber = completedPageNumber,
+                            total = eventsResponse.events.total
+                        });
                         _completedRereshController.sendBack(true, RefreshStatus.completed);
                     })
-                    .Catch(error =>
-                    {
-                        Debug.Log($"{error}"); 
+                    .Catch(error => {
+                        Debug.Log($"{error}");
                         _completedRereshController.sendBack(true, RefreshStatus.failed);
                     });
             }
-            else
-            {
+            else {
                 completedPageNumber++;
                 EventApi.FetchEvents(completedPageNumber, tab)
                     .Then(eventsResponse => {
                         StoreProvider.store.Dispatch(new UserMapAction {userMap = eventsResponse.userMap});
                         StoreProvider.store.Dispatch(new PlaceMapAction {placeMap = eventsResponse.placeMap});
-                        StoreProvider.store.Dispatch(new FetchEventsSuccessAction
-                            {events = eventsResponse.events.items, tab = tab, pageNumber = completedPageNumber, total = eventsResponse.events.total});
+                        StoreProvider.store.Dispatch(new FetchEventsSuccessAction {
+                            events = eventsResponse.events.items, tab = tab, pageNumber = completedPageNumber,
+                            total = eventsResponse.events.total
+                        });
                         _completedRereshController.sendBack(false, RefreshStatus.idle);
                     })
-                    .Catch(error =>
-                    {
+                    .Catch(error => {
                         Debug.Log($"{error}");
                         _completedRereshController.sendBack(false, RefreshStatus.failed);
                     });
             }
         }
-        
 
-        
 
         public override void dispose() {
             base.dispose();

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
@@ -12,13 +11,13 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
-    
     public class SettingScreen : StatefulWidget {
-        public override State createState() => new _SettingScreenState();
+        public override State createState() {
+            return new _SettingScreenState();
+        }
     }
-    
+
     internal class _SettingScreenState : State<SettingScreen> {
-        
         public override void initState() {
             base.initState();
             StoreProvider.store.Dispatch(new SettingReviewUrlAction {
@@ -45,9 +44,9 @@ namespace ConnectApp.screens {
 
         private static Widget _buildNavigationBar(BuildContext context) {
             return new Container(
-                decoration:new BoxDecoration(
+                decoration: new BoxDecoration(
                     CColors.White,
-                    border:new Border(bottom:new BorderSide(CColors.Separator2))
+                    border: new Border(bottom: new BorderSide(CColors.Separator2))
                 ),
                 width: MediaQuery.of(context).size.width,
                 height: 140,
@@ -55,8 +54,8 @@ namespace ConnectApp.screens {
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        new Container(height:44,
-                            child:new CustomButton(
+                        new Container(height: 44,
+                            child: new CustomButton(
                                 padding: EdgeInsets.only(16),
                                 onPressed: () => StoreProvider.store.Dispatch(new MainNavigatorPopAction()),
                                 child: new Icon(
@@ -66,7 +65,7 @@ namespace ConnectApp.screens {
                                 )
                             )
                         ),
-                        
+
                         new Container(
                             padding: EdgeInsets.only(16, bottom: 12),
                             child: new Text(
@@ -92,10 +91,9 @@ namespace ConnectApp.screens {
                             new StoreConnector<AppState, string>(
                                 converter: (state, dispatch) => state.settingState.reviewUrl,
                                 builder: (cxt, reviewUrl) => {
-                                    if (reviewUrl.Length <= 0) {
-                                        return new Container();
-                                    }
-                                    return _buildCellView("评分", () => StoreProvider.store.Dispatch(new OpenUrlAction{url = reviewUrl}));
+                                    if (reviewUrl.Length <= 0) return new Container();
+                                    return _buildCellView("评分",
+                                        () => StoreProvider.store.Dispatch(new OpenUrlAction {url = reviewUrl}));
                                 }
                             ),
                             _buildCellView("意见反馈", () => { }),
@@ -131,9 +129,7 @@ namespace ConnectApp.screens {
                         title: "确定退出当前账号吗？",
                         items: new List<ActionSheetItem> {
                             new ActionSheetItem("退出", ActionType.destructive,
-                                () => {
-                                    StoreProvider.store.Dispatch(new LogoutAction {context = context});
-                                }),
+                                () => { StoreProvider.store.Dispatch(new LogoutAction {context = context}); }),
                             new ActionSheetItem("取消", ActionType.cancel, () => { })
                         }
                     ));

@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace ConnectApp.models{
+namespace ConnectApp.models {
     [Serializable]
-    public class Place{
+    public class Place {
         public string id;
         public string type;
         public string name;

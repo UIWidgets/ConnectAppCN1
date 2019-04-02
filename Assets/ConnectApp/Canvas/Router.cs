@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using ConnectApp.screens;
 using Unity.UIWidgets.animation;
-using Unity.UIWidgets.widgets;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
+using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.canvas {
     internal static class MainNavigatorRoutes {
@@ -17,6 +17,7 @@ namespace ConnectApp.canvas {
         public const string Login = "/login";
         public const string BindUnity = "/bind-unity";
     }
+
     internal class Router : StatelessWidget {
         private static readonly GlobalKey globalKey = GlobalKey.key(debugLabel: "main-router");
         public static NavigatorState navigator => globalKey.currentState as NavigatorState;
@@ -61,8 +62,8 @@ namespace ConnectApp.canvas {
             );
         }
     }
-    
-        internal class PushPageTransition : StatelessWidget {
+
+    internal class PushPageTransition : StatelessWidget {
         internal PushPageTransition(
             Key key = null,
             Animation<float> routeAnimation = null, // The route's linear 0.0 - 1.0 animation.
