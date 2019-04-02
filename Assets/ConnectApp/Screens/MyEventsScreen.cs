@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.canvas;
+using ConnectApp.api;
+using ConnectApp.components.pull_to_refresh;
 using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
@@ -10,7 +11,6 @@ using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -28,11 +28,18 @@ namespace ConnectApp.screens {
     internal class _MyEventsScreenState : State<MyEventsScreen> {
         private PageController _pageController;
         private int _selectedIndex;
+        private int _myFuturePageNumber;
+        private int _myPastPageNumber;
+        private RefreshController _refreshController;
+        
 
         public override void initState() {
             base.initState();
             _pageController = new PageController();
             _selectedIndex = 0;
+            _myFuturePageNumber = 0;
+            _myPastPageNumber = 0;
+            _refreshController = new RefreshController();
             if (StoreProvider.store.state.mineState.futureEventsList.Count == 0)
                 StoreProvider.store.Dispatch(new FetchMyFutureEventsAction {pageNumber = 0});
         }
@@ -40,6 +47,39 @@ namespace ConnectApp.screens {
         private static void _fetchMyPastEvents() {
             if (StoreProvider.store.state.mineState.pastEventsList.Count == 0)
                 StoreProvider.store.Dispatch(new FetchMyPastEventsAction {pageNumber = 0});
+        }
+
+        private void _onRefresh(bool up) {
+            if (_selectedIndex == 0) {
+                if (up) {
+                    _myFuturePageNumber = 1;
+                } else {
+                    _myFuturePageNumber++;
+                }
+                MineApi.FetchMyFutureEvents(_myFuturePageNumber)
+                    .Then(events => {
+                        StoreProvider.store.Dispatch(new FetchMyFutureEventsSuccessAction {events = events, pageNumber = _myFuturePageNumber});
+                        _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle);
+                    })
+                    .Catch(error => {
+                        _refreshController.sendBack(up, RefreshStatus.failed);
+                    });
+            }
+            if (_selectedIndex == 1) {
+                if (up) {
+                    _myPastPageNumber = 1;
+                } else {
+                    _myPastPageNumber++;
+                }
+                MineApi.FetchMyPastEvents(_myPastPageNumber)
+                    .Then(events => {
+                        StoreProvider.store.Dispatch(new FetchMyPastEventsSuccessAction {events = events, pageNumber = _myPastPageNumber});
+                        _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle);
+                    })
+                    .Catch(error => {
+                        _refreshController.sendBack(up, RefreshStatus.failed);
+                    });
+            }
         }
 
         public override Widget build(BuildContext context) {
@@ -139,7 +179,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private static Widget _buildMyEventContent(int index) {
+        private Widget _buildMyEventContent(int index) {
             return new Container(
                 child: new StoreConnector<AppState, MineState>(
                     converter: (state, dispatch) => state.mineState,
@@ -155,21 +195,29 @@ namespace ConnectApp.screens {
                             if (data.Count <= 0) return new BlankView("暂无我的往期活动");
                         }
 
-                        return ListView.builder(
-                            physics: new AlwaysScrollableScrollPhysics(),
-                            itemCount: data.Count,
-                            itemBuilder: (cxt, idx) => {
-                                var model = data[idx];
-                                return new EventCard(
-                                    model,
-                                    () => {
-                                        StoreProvider.store.Dispatch(new MainNavigatorPushToEventDetailAction {
-                                            EventId = model.id,
-                                            EventType = model.mode == "online" ? EventType.onLine : EventType.offline
-                                        });
-                                    }
-                                );
-                            }
+                        return new SmartRefresher(
+                            controller: _refreshController,
+                            enablePullDown: true,
+                            enablePullUp: true,
+                            headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode), 
+                            footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
+                            onRefresh: _onRefresh,
+                            child: ListView.builder(
+                                physics: new AlwaysScrollableScrollPhysics(),
+                                itemCount: data.Count,
+                                itemBuilder: (cxt, idx) => {
+                                    var model = data[idx];
+                                    return new EventCard(
+                                        model,
+                                        () => {
+                                            StoreProvider.store.Dispatch(new MainNavigatorPushToEventDetailAction {
+                                                EventId = model.id,
+                                                EventType = model.mode == "online" ? EventType.onLine : EventType.offline
+                                            });
+                                        }
+                                    );
+                                }
+                            )
                         );
                     }
                 )

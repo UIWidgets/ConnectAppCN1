@@ -96,6 +96,14 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.password = "";
                     break;
                 }
+                case CreateUnityIdUrlAction action: {
+                    LoginApi.FetchCreateUnityIdUrl()
+                        .Then(url => {
+                            StoreProvider.store.Dispatch(new OpenUrlAction {url = url});
+                        })
+                        .Catch(error => { Debug.Log(error); });
+                    break;
+                }
                 case FetchArticlesAction action: {
                     state.articleState.articlesLoading = true;
                     ArticleApi.FetchArticles(action.pageNumber)
@@ -578,7 +586,10 @@ namespace ConnectApp.redux.reducers {
                     state.mineState.futureListLoading = true;
                     MineApi.FetchMyFutureEvents(action.pageNumber)
                         .Then(events => {
-                            StoreProvider.store.Dispatch(new FetchMyFutureEventsSuccessAction {events = events});
+                            StoreProvider.store.Dispatch(new FetchMyFutureEventsSuccessAction {
+                                events = events,
+                                pageNumber = action.pageNumber
+                            });
                         })
                         .Catch(error => {
                             state.mineState.futureListLoading = false;
@@ -595,14 +606,23 @@ namespace ConnectApp.redux.reducers {
                             };
                             StoreProvider.store.Dispatch(new UserMapAction {userMap = userMap});
                         });
-                    state.mineState.futureEventsList = action.events;
+                    if (action.pageNumber == 0) {
+                        state.mineState.futureEventsList = action.events;
+                    } else {
+                        var results = state.mineState.futureEventsList;
+                        results.AddRange(action.events);
+                        state.mineState.futureEventsList = results;
+                    }
                     break;
                 }
                 case FetchMyPastEventsAction action: {
                     state.mineState.pastListLoading = true;
                     MineApi.FetchMyPastEvents(action.pageNumber)
                         .Then(events => {
-                            StoreProvider.store.Dispatch(new FetchMyPastEventsSuccessAction {events = events});
+                            StoreProvider.store.Dispatch(new FetchMyPastEventsSuccessAction{
+                                events = events,
+                                pageNumber = action.pageNumber
+                            });
                         })
                         .Catch(error => {
                             state.mineState.pastListLoading = false;
@@ -619,7 +639,13 @@ namespace ConnectApp.redux.reducers {
                             };
                             StoreProvider.store.Dispatch(new UserMapAction {userMap = userMap});
                         });
-                    state.mineState.pastEventsList = action.events;
+                    if (action.pageNumber == 0) {
+                        state.mineState.pastEventsList = action.events;
+                    } else {
+                        var results = state.mineState.pastEventsList;
+                        results.AddRange(action.events);
+                        state.mineState.pastEventsList = results;
+                    }
                     break;
                 }
                 case FetchMessagesAction action: {
@@ -777,14 +803,11 @@ namespace ConnectApp.redux.reducers {
                     state.searchState.loading = true;
                     SearchApi.SearchArticle(action.keyword, action.pageNumber)
                         .Then(searchResponse => {
-                            StoreProvider.store.Dispatch(new UserMapAction {
-                                userMap = searchResponse.userMap
-                            });
-                            StoreProvider.store.Dispatch(new TeamMapAction {teamMap = searchResponse.teamMap});
+                            
                             StoreProvider.store.Dispatch(new SearchArticleSuccessAction {
                                 keyword = action.keyword,
                                 pageNumber = action.pageNumber,
-                                searchResponse = searchResponse.projects
+                                searchResponse = searchResponse
                             });
                         })
                         .Catch(error => {
@@ -796,12 +819,18 @@ namespace ConnectApp.redux.reducers {
                 case SearchArticleSuccessAction action: {
                     state.searchState.loading = false;
                     state.searchState.keyword = action.keyword;
+                    StoreProvider.store.Dispatch(new UserMapAction {
+                        userMap = action.searchResponse.userMap
+                    });
+                    StoreProvider.store.Dispatch(new TeamMapAction {teamMap = action.searchResponse.teamMap});
+                    state.searchState.currentPage = action.searchResponse.currentPage;
+                    state.searchState.pages = action.searchResponse.pages;
                     if (action.pageNumber == 0) {
-                        state.searchState.searchArticles = action.searchResponse;
+                        state.searchState.searchArticles = action.searchResponse.projects;
                     }
                     else {
                         var searchArticles = state.searchState.searchArticles;
-                        searchArticles.AddRange(action.searchResponse);
+                        searchArticles.AddRange(action.searchResponse.projects);
                         state.searchState.searchArticles = searchArticles;
                     }
 
@@ -909,9 +938,25 @@ namespace ConnectApp.redux.reducers {
                     }
                     break;
                 }
-                case OpenUrlAction action:
-                {
+                case OpenUrlAction action: {
                     Application.OpenURL(action.url);
+                    break;
+                }
+                case SettingReviewUrlAction action: {
+                    StoreProvider.store.state.settingState.reviewLoading = true;
+                    SettingApi.FetchReviewUrl(action.platform, action.store)
+                        .Then(url => {
+                            StoreProvider.store.Dispatch(new SettingReviewUrlSuccessAction {url = url});
+                        })
+                        .Catch(error => {
+                            StoreProvider.store.state.settingState.reviewLoading = false;
+                            Debug.Log(error);
+                        });
+                    break;
+                }
+                case SettingReviewUrlSuccessAction action: {
+                    StoreProvider.store.state.settingState.reviewLoading = false;
+                    StoreProvider.store.state.settingState.reviewUrl = action.url;
                     break;
                 }
             }
