@@ -20,9 +20,7 @@ namespace ConnectApp.api {
         private static IEnumerator _FetchMyFutureEvents(Promise<FetchEventsResponse> promise, int pageNumber) {
             var request = UnityWebRequest.Get(Config.apiAddress + $"/api/events?tab=my&status=ongoing&page={pageNumber}");
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
-#pragma warning disable 618
-            yield return request.Send();
-#pragma warning restore 618
+            yield return request.SendWebRequest();
 
             if (request.isNetworkError) {
                 // something went wrong
@@ -53,9 +51,7 @@ namespace ConnectApp.api {
         private static IEnumerator _FetchMyPastEvents(Promise<FetchEventsResponse> promise, int pageNumber) {
             var request = UnityWebRequest.Get(Config.apiAddress + $"/api/events?tab=my&status=completed&page={pageNumber}");
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
-#pragma warning disable 618
-            yield return request.Send();
-#pragma warning restore 618
+            yield return request.SendWebRequest();
 
             if (request.isNetworkError) {
                 // something went wrong

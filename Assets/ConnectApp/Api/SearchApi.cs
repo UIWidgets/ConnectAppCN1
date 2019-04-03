@@ -21,9 +21,7 @@ namespace ConnectApp.api {
         private static IEnumerator _PopularSearch(Promise<List<PopularSearch>> promise) {
             var request = UnityWebRequest.Get(Config.apiAddress + "/api/search/popularSearch");
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
-#pragma warning disable 618
-            yield return request.Send();
-#pragma warning restore 618
+            yield return request.SendWebRequest();
 
             if (request.isNetworkError) {
                 // something went wrong
@@ -56,9 +54,7 @@ namespace ConnectApp.api {
             var request = UnityWebRequest.Get(Config.apiAddress +
                                               $"/api/search?t=project&projectType=article&k=[\"q:{keyword}\"]&searchAllLoadMore=false&page={pageNumber}");
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
-#pragma warning disable 618
-            yield return request.Send();
-#pragma warning restore 618
+            yield return request.SendWebRequest();
 
             if (request.isNetworkError) {
                 // something went wrong

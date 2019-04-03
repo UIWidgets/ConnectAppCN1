@@ -20,9 +20,7 @@ namespace ConnectApp.api {
         private static IEnumerator _FetchEvents(Promise<FetchEventsResponse> promise, int pageNumber, string tab) {
             var request = UnityWebRequest.Get(Config.apiAddress + $"/api/events?tab={tab}&page={pageNumber}");
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
-#pragma warning disable 618
-            yield return request.Send();
-#pragma warning restore 618
+            yield return request.SendWebRequest();
 
             if (request.isNetworkError) {
                 // something went wrong
@@ -53,9 +51,7 @@ namespace ConnectApp.api {
         private static IEnumerator _FetchEventDetail(Promise<IEvent> promise, string eventId) {
             var request = UnityWebRequest.Get(Config.apiAddress + "/api/live/events/" + eventId);
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
-#pragma warning disable 618
-            yield return request.Send();
-#pragma warning restore 618
+            yield return request.SendWebRequest();
             if (request.isNetworkError) {
                 // something went wrong
                 promise.Reject(new Exception(request.error));
@@ -86,9 +82,7 @@ namespace ConnectApp.api {
             var request = new UnityWebRequest(Config.apiAddress + $"/api/live/events/{eventId}/join", "POST");
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
-#pragma warning disable 618
-            yield return request.Send();
-#pragma warning restore 618
+            yield return request.SendWebRequest();
 
             if (request.isNetworkError) {
                 // something went wrong
