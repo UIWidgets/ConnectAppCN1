@@ -78,13 +78,13 @@ namespace ConnectApp.components.pull_to_refresh {
 
     public class _SmartRefresherState : State<SmartRefresher> {
         private ScrollController _scrollController;
-        private GlobalKey _headerKey = GlobalKey.key();
-        private GlobalKey _footerKey = GlobalKey.key();
+        private readonly GlobalKey _headerKey = GlobalKey.key();
+        private readonly GlobalKey _footerKey = GlobalKey.key();
         private float _headerHeight = 0.0f;
         private float _footerHeight = 0.0f;
-        private ValueNotifier<float> offsetLis = new ValueNotifier<float>(0.0f);
-        private ValueNotifier<int> topModeLis = new ValueNotifier<int>(0);
-        private ValueNotifier<int> bottomModeLis = new ValueNotifier<int>(0);
+        private readonly ValueNotifier<float> offsetLis = new ValueNotifier<float>(0.0f);
+        private readonly ValueNotifier<int> topModeLis = new ValueNotifier<int>(0);
+        private readonly ValueNotifier<int> bottomModeLis = new ValueNotifier<int>(0);
 
         private bool _handleScrollStart(ScrollStartNotification notification) {
             // This is used to interupt useless callback when the pull up load rolls back.
@@ -135,13 +135,13 @@ namespace ConnectApp.components.pull_to_refresh {
             return false;
         }
 
-        private bool _isPullUp(ScrollNotification noti) {
-            return noti.metrics.pixels < 0;
+        private static bool _isPullUp(ScrollNotification notification) {
+            return notification.metrics.pixels < 0;
         }
 
         //check user is pulling down
-        private bool _isPullDown(ScrollNotification noti) {
-            return noti.metrics.pixels > 0;
+        private static bool _isPullDown(ScrollNotification notification) {
+            return notification.metrics.pixels > 0;
         }
 
         private float _measure(ScrollNotification notification) {
@@ -150,7 +150,7 @@ namespace ConnectApp.components.pull_to_refresh {
                 return (notification.metrics.minScrollExtent -
                         notification.metrics.pixels) /
                        widget.headerConfig.triggerDistance;
-            else if (notification.metrics.pixels -
+            if (notification.metrics.pixels -
                      notification.metrics.maxScrollExtent >
                      0)
                 return (notification.metrics.pixels -
@@ -162,7 +162,7 @@ namespace ConnectApp.components.pull_to_refresh {
         private void _init() {
             _scrollController = new ScrollController();
             widget.controller.scrollController = _scrollController;
-            SchedulerBinding.instance.addPostFrameCallback((_) => { _onAfterBuild(); });
+            SchedulerBinding.instance.addPostFrameCallback(duration => { _onAfterBuild(); });
             _scrollController.addListener(_handleOffsetCallback);
             widget.controller._headerMode = topModeLis;
             widget.controller._footerMode = bottomModeLis;
@@ -246,7 +246,7 @@ namespace ConnectApp.components.pull_to_refresh {
                     builder: up ? widget.headerBuilder : widget.footerBuilder
                 );
             }
-            else if (config is RefreshConfig) {
+            if (config is RefreshConfig) {
                 var refreshConfig = (RefreshConfig) config;
                 return new RefreshWrapper(
                     key: up ? _headerKey : _footerKey,

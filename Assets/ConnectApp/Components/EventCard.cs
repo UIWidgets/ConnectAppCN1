@@ -9,7 +9,6 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.components {
     public class EventCard : StatelessWidget {
@@ -28,7 +27,10 @@ namespace ConnectApp.components {
         public override Widget build(BuildContext context) {
             if (_model == null) return new Container();
 
-            var time = Convert.ToDateTime(_model.createdTime);
+            var time = Convert.ToDateTime(_model.begin.startTime);
+            var hour = $"{time.Hour.ToString().PadLeft(2, '0')}";
+            var minute = $"{time.Minute.ToString().PadLeft(2, '0')}";
+            var hourMinute = $"{hour}:{minute}";
             var placeId = _model.placeId;
             var address = "";
             if (placeId.isNotEmpty()) {
@@ -85,8 +87,8 @@ namespace ConnectApp.components {
                                         ),
                                         new Text(
                                             _model.mode == "online"
-                                                ? $"{time.Hour}:{time.Minute} · {_model.participantsCount}人已预订"
-                                                : $"{time.Hour}:{time.Minute} · {address}",
+                                                ? $"{hourMinute} · {_model.participantsCount}人已预订"
+                                                : $"{hourMinute}  · {address}",
                                             style: CTextStyle.PSmallBody3
                                         )
                                     }
@@ -98,14 +100,12 @@ namespace ConnectApp.components {
                             height: 76,
                             child: new Stack(
                                 children: new List<Widget> {
-                                    new ClipRRect(
-                                        borderRadius: BorderRadius.all(4),
-                                        child: new Container(
-                                            width: 114,
-                                            height: 76,
-                                            color: new Color(0xFFD8D8D8),
-                                            child: Image.network(imageUrl, fit: BoxFit.fill)
-                                        )
+                                    new PlaceholderImage(
+                                        imageUrl,
+                                        114,
+                                        76,
+                                        4,
+                                        BoxFit.fill
                                     ),
                                     new Positioned(
                                         bottom: 0,

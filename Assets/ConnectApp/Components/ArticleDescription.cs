@@ -10,7 +10,6 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.components {
     public static class ArticleDescription {
@@ -252,11 +251,11 @@ namespace ConnectApp.components {
             var nodes = new List<Widget> {
                 new Stack(
                     children: new List<Widget> {
-                        new Container(
-                            color: CColors.Separator,
-                            width: width,
-                            height: width * originalImage.height / originalImage.width,
-                            child: Image.network(originalImage.url ?? "", fit: BoxFit.cover)
+                        new PlaceholderImage(
+                            originalImage.url ?? "",
+                            width,
+                            width * originalImage.height / originalImage.width,
+                            fit: BoxFit.cover
                         ),
                         playButton
                     }

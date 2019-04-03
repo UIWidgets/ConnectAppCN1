@@ -8,10 +8,9 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchEventsSuccessAction : BaseAction {
-        public List<IEvent> events;
+        public FetchEventsResponse eventsResponse;
         public int pageNumber = 0;
         public string tab;
-        public int total = 0;
     }
 
     public class FetchEventDetailAction : RequestAction {
@@ -20,6 +19,9 @@ namespace ConnectApp.redux.actions {
 
     public class FetchEventDetailSuccessAction : BaseAction {
         public IEvent eventObj;
+    }
+    
+    public class FetchEventDetailFailedAction : BaseAction {
     }
 
     public class GetEventHistoryAction : BaseAction {

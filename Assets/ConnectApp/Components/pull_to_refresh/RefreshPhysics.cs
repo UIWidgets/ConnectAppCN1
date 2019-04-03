@@ -8,7 +8,8 @@ namespace ConnectApp.components.pull_to_refresh {
     public class RefreshScrollPhysics : ScrollPhysics {
         public RefreshScrollPhysics(
             ScrollPhysics parent = null,
-            bool enableOverScroll = true) : base(parent) {
+            bool enableOverScroll = true
+        ) : base(parent) {
             this.enableOverScroll = enableOverScroll;
         }
 
