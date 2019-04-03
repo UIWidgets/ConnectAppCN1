@@ -7,6 +7,10 @@ namespace ConnectApp.models {
         public string email;
         public string password;
     }
+    public class WechatLoginParameter
+    {
+        public string code;
+    }
 
     [Serializable]
     public class LikeArticleParameter {

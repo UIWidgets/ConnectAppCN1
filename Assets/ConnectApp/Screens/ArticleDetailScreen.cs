@@ -5,6 +5,7 @@ using ConnectApp.components;
 using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.plugins;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using ConnectApp.utils;
@@ -15,6 +16,7 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Avatar = ConnectApp.components.Avatar;
+using Config = ConnectApp.constants.Config;
 
 namespace ConnectApp.screens {
     public class ArticleDetailScreen : StatefulWidget {
@@ -167,7 +169,14 @@ namespace ConnectApp.screens {
                                                 });
                                         }
                                     },
-                                    shareCallback: () => { ShareUtils.showShareView(new ShareView()); }
+                                    shareCallback: () => { ShareUtils.showShareView(new ShareView(
+                                        onPressed: type =>
+                                        {
+                                            string linkUrl =
+                                                $"{Config.apiAddress}/p/{_article.id}";
+                                            string imageUrl = $"{_article.thumbnail.url}.200x0x1.jpg";
+                                            StoreProvider.store.Dispatch(new ShareAction{type = type,title = _article.title,description = _article.description,linkUrl = linkUrl,imageUrl = imageUrl});
+                                        })); }
                                 )
                             }
                         )

@@ -17,6 +17,7 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Config = ConnectApp.constants.Config;
 
 namespace ConnectApp.screens {
     public class EventDetailScreen : StatefulWidget {
@@ -110,7 +111,7 @@ namespace ConnectApp.screens {
             _refreshController.scrollTo(0);
         }
 
-        private static Widget _buildHeadTop(bool isShowShare) {
+        private static Widget _buildHeadTop(bool isShowShare,IEvent eventObj) {
             Widget shareWidget = new Container();
             if (isShowShare)
                 shareWidget = new CustomButton(
@@ -119,7 +120,14 @@ namespace ConnectApp.screens {
                         size: 28,
                         color: CColors.White
                     ),
-                    onPressed: () => ShareUtils.showShareView(new ShareView())
+                    onPressed: () => ShareUtils.showShareView(new ShareView(
+                        onPressed: type =>
+                        {
+                            string linkUrl =
+                                $"{Config.apiAddress}/events/{eventObj.id}";
+                            string imageUrl = $"{eventObj.background}.200x0x1.jpg";
+                            StoreProvider.store.Dispatch(new ShareAction{type = type,title = eventObj.title,description = eventObj.shortDescription,linkUrl = linkUrl,imageUrl = imageUrl});
+                        }))
                 );
             return new Container(
                 height: 44,
@@ -160,7 +168,7 @@ namespace ConnectApp.screens {
                         left: 0,
                         top: 0,
                         right: 0,
-                        child: _buildHeadTop(eventType == EventType.onLine)
+                        child: _buildHeadTop(eventType == EventType.onLine,eventObj = eventObj)
                     )
                 }
             );

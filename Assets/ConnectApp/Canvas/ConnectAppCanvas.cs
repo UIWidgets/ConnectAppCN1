@@ -22,7 +22,8 @@ namespace ConnectApp.canvas {
             FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Medium"), familyName: "PingFangSC-Medium");
             FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Semibold"),
                 familyName: "PingFangSC-Semibold");
-
+            WechatPlugin.instance.init(Config.wechatAppId);
+            WechatPlugin.instance.panel = this;
         }
 
         protected override Widget createWidget() {
@@ -33,6 +34,7 @@ namespace ConnectApp.canvas {
                     pageRouteBuilder: pageRouteBuilder
                 )
             );
+            
         }
 
         private PageRouteFactory pageRouteBuilder {

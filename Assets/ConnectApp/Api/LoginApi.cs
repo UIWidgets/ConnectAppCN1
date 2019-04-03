@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.ui;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace ConnectApp.api {
@@ -61,6 +62,49 @@ namespace ConnectApp.api {
             }
         }
 
+        
+        public static IPromise<LoginInfo> LoginByWechat(string code) {
+            // We return a promise instantly and start the coroutine to do the real work
+            var promise = new Promise<LoginInfo>();
+            Window.instance.startCoroutine(_LoginByWechat(promise, code));
+            return promise;
+        }
+
+        private static IEnumerator _LoginByWechat(IPendingPromise<LoginInfo> promise, string code) {
+            var para = new WechatLoginParameter
+            {
+                code = code
+            };
+            var body = JsonConvert.SerializeObject(para);
+            var request = new UnityWebRequest(Config.apiAddress + "/auth/live/wechat", "POST");
+            var bodyRaw = Encoding.UTF8.GetBytes(body);
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
+            request.SetRequestHeader("Content-Type", "application/json");
+#pragma warning disable 618
+            yield return request.Send();
+#pragma warning restore 618
+
+            if (request.isNetworkError) {
+                // something went wrong
+                promise.Reject(new Exception(request.error));
+            }
+            else if (request.responseCode != 200) {
+                // or the response is not OK
+                promise.Reject(new Exception(request.downloadHandler.text));
+            }
+            else {
+                var json = request.downloadHandler.text;
+                Debug.Log($"wechat login request {json}");
+                var loginInfo = JsonConvert.DeserializeObject<LoginInfo>(json);
+                if (loginInfo != null)
+                    promise.Resolve(loginInfo);
+                else
+                    promise.Reject(new Exception("No user under this username found!"));
+            }
+        }
+        
         public static IPromise<string> FetchCreateUnityIdUrl() {
             // We return a promise instantly and start the coroutine to do the real work
             var promise = new Promise<string>();
