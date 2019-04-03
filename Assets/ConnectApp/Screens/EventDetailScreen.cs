@@ -550,9 +550,9 @@ namespace ConnectApp.screens {
                     var isLoggedIn = (bool) viewModel["isLoggedIn"];
                     var eventType = widget.eventType;
                     var eventId = widget.eventId;
-                    var ongoingEventDict = (Dictionary<string, IEvent>) viewModel["eventsDict"];
+                    var eventsDict = (Dictionary<string, IEvent>) viewModel["eventsDict"];
                     var eventObj = new IEvent();
-                    if (ongoingEventDict.ContainsKey(eventId)) eventObj = ongoingEventDict[eventId];
+                    if (eventsDict.ContainsKey(eventId)) eventObj = eventsDict[eventId];
                     var loading = (bool) viewModel["loading"];
                     if (loading || eventObj == null)
                         return new EventDetailLoading();

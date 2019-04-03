@@ -3,11 +3,12 @@ using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.components.pull_to_refresh {
     public class SmartRefreshHeader : StatelessWidget {
-        public readonly int mode;
+        private readonly int mode;
 
         public SmartRefreshHeader(
             int mode,
-            Key key = null) : base(key) {
+            Key key = null
+        ) : base(key) {
             this.mode = mode;
         }
 
@@ -19,8 +20,7 @@ namespace ConnectApp.components.pull_to_refresh {
             return new Container(
                 height: 44.0f,
                 child: new CustomActivityIndicator(
-                    animating: animatingType,
-                    size: 24
+                    animating: animatingType
                 )
             );
         }

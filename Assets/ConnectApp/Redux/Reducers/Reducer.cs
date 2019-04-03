@@ -384,11 +384,8 @@ namespace ConnectApp.redux.reducers {
                     state.eventState.eventsLoading = true;
                     EventApi.FetchEvents(action.pageNumber, action.tab)
                         .Then(eventsResponse => {
-                            StoreProvider.store.Dispatch(new UserMapAction {userMap = eventsResponse.userMap});
-                            StoreProvider.store.Dispatch(new PlaceMapAction {placeMap = eventsResponse.placeMap});
                             StoreProvider.store.Dispatch(new FetchEventsSuccessAction {
-                                    events = eventsResponse.events.items, 
-                                    total = eventsResponse.events.total,
+                                    eventsResponse = eventsResponse, 
                                     tab = action.tab,
                                     pageNumber = action.pageNumber
                                 }
@@ -402,13 +399,15 @@ namespace ConnectApp.redux.reducers {
                 }
                 case FetchEventsSuccessAction action: {
                     state.eventState.eventsLoading = false;
+                    StoreProvider.store.Dispatch(new UserMapAction {userMap = action.eventsResponse.userMap});
+                    StoreProvider.store.Dispatch(new PlaceMapAction {placeMap = action.eventsResponse.placeMap});
                     if (action.tab == "ongoing") {
                         state.eventState.pageNumber = action.pageNumber;
-                        state.eventState.ongoingEventTotal = action.total;
+                        state.eventState.ongoingEventTotal = action.eventsResponse.events.total;
                     }
                     else {
                         state.eventState.completedPageNumber = action.pageNumber;
-                        state.eventState.completedEventTotal = action.total;
+                        state.eventState.completedEventTotal = action.eventsResponse.events.total;
                     }
 
                     if (action.pageNumber == 1) {
@@ -418,7 +417,7 @@ namespace ConnectApp.redux.reducers {
                             state.eventState.completedEvents.Clear();
                     }
 
-                    action.events.ForEach(eventObj => {
+                    action.eventsResponse.events.items.ForEach(eventObj => {
                         if (action.tab == "ongoing") {
                             if (!state.eventState.ongoingEvents.Contains(eventObj.id))
                                 state.eventState.ongoingEvents.Add(eventObj.id);
@@ -446,7 +445,7 @@ namespace ConnectApp.redux.reducers {
                             StoreProvider.store.Dispatch(new FetchEventDetailSuccessAction {eventObj = eventObj});
                         })
                         .Catch(error => {
-                            state.eventState.eventDetailLoading = false;
+                            StoreProvider.store.Dispatch(new FetchEventDetailFailedAction());
                             Debug.Log(error);
                         });
                     break;
@@ -469,6 +468,10 @@ namespace ConnectApp.redux.reducers {
                     else
                         state.eventState.eventsDict.Add(action.eventObj.id, action.eventObj);
                     StoreProvider.store.Dispatch(new SaveEventHistoryAction {eventObj = action.eventObj});
+                    break;
+                }
+                case FetchEventDetailFailedAction action: {
+                    state.eventState.eventDetailLoading = false;
                     break;
                 }
                 case SaveEventHistoryAction action: {
@@ -569,7 +572,6 @@ namespace ConnectApp.redux.reducers {
                         results.AddRange(action.notificationResponse.results);
                         state.notificationState.notifications = results;
                     }
-
                     break;
                 }
                 case ReportItemAction action: {
