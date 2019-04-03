@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ConnectApp.plugins;
 using ConnectApp.screens;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
@@ -18,7 +19,6 @@ namespace ConnectApp.canvas {
         public const string BindUnity = "/bind-unity";
         public const string VideoPlayer = "/video-player";
     }
-
     internal class Router : StatelessWidget {
         private static readonly GlobalKey globalKey = GlobalKey.key("main-router");
         public static NavigatorState navigator => globalKey.currentState as NavigatorState;
@@ -41,7 +41,9 @@ namespace ConnectApp.canvas {
             {MainNavigatorRoutes.Login, context => new LoginScreen()}
         };
 
-        public override Widget build(BuildContext context) {
+        public override Widget build(BuildContext context)
+        {
+            WechatPlugin.instance.context = context;
             return new Navigator(
                 globalKey,
                 onGenerateRoute: (RouteSettings settings) => {

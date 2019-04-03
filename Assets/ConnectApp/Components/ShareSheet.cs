@@ -43,7 +43,7 @@ namespace ConnectApp.components {
                     new Container(
                         color: CColors.White,
                         width: mediaQueryData.size.width,
-                        height: 211,
+                        height: 211+mediaQueryData.padding.bottom,
                         child: new Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,12 +80,12 @@ namespace ConnectApp.components {
                                         alignment: Alignment.center,
                                         child: new Text("取消", style: CTextStyle.PLargeBody)
                                     )
-                                )
+                                ),
+                                new Container(
+                                    height:mediaQueryData.padding.bottom
+                                    )
                             }
                         )
-                    ),
-                    new Container(
-                        height: mediaQueryData.padding.bottom
                     )
                 }
             );

@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using RSG;
+using UnityEngine;
 
 namespace ConnectApp.redux {
     public delegate object Dispatcher(object action);
@@ -25,7 +26,10 @@ namespace ConnectApp.redux {
         }
 
         public IPromise Dispatch(object action) {
-            return Promise.Delayed(new TimeSpan(0, 0, 0)).Then(() => { _dispatcher(action); });
+            return Promise.Delayed(new TimeSpan(0, 0, 0)).Then(() => { _dispatcher(action); }).Catch(err =>
+            {
+                Debug.Log($"dispatch error: {err}");
+            });
         }
 
         public State state => _state;

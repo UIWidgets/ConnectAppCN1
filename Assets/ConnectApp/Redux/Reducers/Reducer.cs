@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using ConnectApp.api;
 using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.models;
+using ConnectApp.plugins;
 using ConnectApp.redux.actions;
 using ConnectApp.screens;
 using Newtonsoft.Json;
@@ -82,6 +84,51 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.loading = false;
                     var customSnackBar = new CustomSnackBar(
                         "邮箱或密码不正确，请稍后再试。",
+                        new TimeSpan(0, 0, 0, 2)
+                    );
+                    customSnackBar.show(action.context);
+                    break;
+                }
+                case LoginByWechatAction action: {
+                    state.loginState.loading = true;
+                    CustomDialogUtils.showCustomDialog(
+                        child: new CustomDialog()
+                    );
+                    LoginApi.LoginByWechat(action.code)
+                        .Then(loginInfo => {
+                            StoreProvider.store.Dispatch(new LoginByWechatSuccessAction() {
+                                loginInfo = loginInfo,
+                                context = action.context
+                            });
+                        })
+                        .Catch(error => {
+                            Debug.Log(error);
+                            StoreProvider.store.Dispatch(new LoginByWechatFailedAction() {context = action.context});
+                        });
+                    break;
+                }
+                case LoginByWechatSuccessAction action: {
+                    state.loginState.loading = false;
+                    state.loginState.loginInfo = action.loginInfo;
+                    var user = new User {
+                        id = state.loginState.loginInfo.userId,
+                        fullName = state.loginState.loginInfo.userFullName,
+                        avatar = state.loginState.loginInfo.userAvatar
+                    };
+                    var dict = new Dictionary<string, User> {
+                        {user.id, user}
+                    };
+                    StoreProvider.store.Dispatch(new UserMapAction {userMap = dict});
+                    state.loginState.isLoggedIn = true;
+                    StoreProvider.store.Dispatch(new MainNavigatorPopAction()).Then(() =>
+                    StoreProvider.store.Dispatch(new CleanEmailAndPasswordAction()));
+                    CustomDialogUtils.hiddenCustomDialog();
+                    break;
+                }
+                case LoginByWechatFailedAction action: {
+                    state.loginState.loading = false;
+                    var customSnackBar = new CustomSnackBar(
+                        "登录失败，请稍后再试。",
                         new TimeSpan(0, 0, 0, 2)
                     );
                     customSnackBar.show(action.context);
@@ -988,6 +1035,26 @@ namespace ConnectApp.redux.reducers {
                         .Then(() => {
                             CustomDialogUtils.hiddenCustomDialog();
                         });
+                    break;
+                }
+                case ShareAction action:
+                {
+                    CustomDialogUtils.showCustomDialog(
+                        child: new CustomDialog()
+                    );
+                    ShareApi.FetchImageBytes(action.imageUrl).Then(imageBtyes =>
+                    {
+                        var encodeBytes = Convert.ToBase64String(imageBtyes);
+                        CustomDialogUtils.hiddenCustomDialog();
+                        if (action.type==ShareType.friends)
+                        {
+                            WechatPlugin.instance.shareToFriend(action.title,action.description,action.linkUrl,encodeBytes);
+                        }else if (action.type==ShareType.moments)
+                        {
+                            WechatPlugin.instance.shareToTimeline(action.title,action.description,action.linkUrl,encodeBytes);
+                        }
+                        
+                    });
                     break;
                 }
             }

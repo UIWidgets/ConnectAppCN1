@@ -22,6 +22,20 @@ namespace ConnectApp.redux.actions {
     public class LoginByEmailFailedAction : BaseAction {
         public BuildContext context;
     }
+    
+    public class LoginByWechatAction : RequestAction {
+        public BuildContext context;
+        public string code;
+    }
+
+    public class LoginByWechatSuccessAction : BaseAction {
+        public BuildContext context;
+        public LoginInfo loginInfo;
+    }
+
+    public class LoginByWechatFailedAction : BaseAction {
+        public BuildContext context;
+    }
 
     public class LogoutAction : BaseAction {
         public BuildContext context;
