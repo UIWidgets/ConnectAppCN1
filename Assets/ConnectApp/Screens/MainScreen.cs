@@ -41,7 +41,9 @@ namespace ConnectApp.screens {
                             ),
                         },
                         CColors.White,
-                        index => { Debug.Log($"index == {index}"); }
+                        index => {
+//                            Debug.Log($"index == {index}");
+                        }
                     )
                 )
             );

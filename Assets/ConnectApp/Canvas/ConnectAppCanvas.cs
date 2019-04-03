@@ -23,7 +23,6 @@ namespace ConnectApp.canvas {
             FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Semibold"),
                 familyName: "PingFangSC-Semibold");
             WechatPlugin.instance.init(Config.wechatAppId);
-            WechatPlugin.instance.panel = this;
         }
 
         protected override Widget createWidget() {
@@ -39,11 +38,10 @@ namespace ConnectApp.canvas {
 
         private PageRouteFactory pageRouteBuilder {
             get {
-                return (RouteSettings settings, WidgetBuilder builder) =>
+                return (settings, builder) =>
                     new PageRouteBuilder(
                         settings,
-                        pageBuilder: (BuildContext context, Animation<float> animation,
-                            Animation<float> secondaryAnimation) => builder(context)
+                        (context, animation, secondaryAnimation) => builder(context)
                     );
             }
         }

@@ -62,6 +62,7 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, Dictionary<string, object>>(
                 converter: (state, dispatcher) => new Dictionary<string, object> {
+                    {"articleDetailLoading", state.articleState.articleDetailLoading},
                     {"articleDict", state.articleState.articleDict},
                     {"channelMessageDict", state.messageState.channelMessageDict},
                     {"channelMessageList", state.messageState.channelMessageList},
@@ -69,7 +70,8 @@ namespace ConnectApp.screens {
                     {"teamDict", state.teamState.teamDict}
                 },
                 builder: (context1, viewModel) => {
-                    if (StoreProvider.store.state.articleState.articleDetailLoading)
+                    var articleDetailLoading = (bool) viewModel["articleDetailLoading"];
+                    if (articleDetailLoading)
                         return new Container(
                             color: CColors.White,
                             child: new SafeArea(
@@ -118,9 +120,8 @@ namespace ConnectApp.screens {
                                         controller: _refreshController,
                                         enablePullDown: false,
                                         enablePullUp: _hasMore,
-                                        footerBuilder: (cxt, mode) =>
-                                            new SmartRefreshHeader(mode),
-                                        onRefresh: onRefresh,
+                                        footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
+                                        onRefresh: _onRefresh,
                                         child: ListView.builder(
                                             physics: new AlwaysScrollableScrollPhysics(),
                                             itemCount: originItems.Count,
@@ -136,6 +137,7 @@ namespace ConnectApp.screens {
                                         else
                                             ActionSheetUtils.showModalActionSheet(new CustomInput(
                                                 doneCallBack: text => {
+                                                    ActionSheetUtils.hiddenModalPopup();
                                                     StoreProvider.store.Dispatch(new SendCommentAction {
                                                         channelId = _article.channelId,
                                                         content = text,
@@ -150,6 +152,7 @@ namespace ConnectApp.screens {
                                         else
                                             ActionSheetUtils.showModalActionSheet(new CustomInput(
                                                 doneCallBack: text => {
+                                                    ActionSheetUtils.hiddenModalPopup();
                                                     StoreProvider.store.Dispatch(new SendCommentAction {
                                                         channelId = _article.channelId,
                                                         content = text,
@@ -244,7 +247,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private void onRefresh(bool up) {
+        private void _onRefresh(bool up) {
             if (!up)
                 ArticleApi.FetchArticleComments(_channelId, _lastCommentId)
                     .Then(responseComments => {
@@ -258,8 +261,12 @@ namespace ConnectApp.screens {
                             hasMore = _hasMore,
                             currOldestMessageId = _lastCommentId
                         });
+                        _refreshController.sendBack(up, RefreshStatus.idle);
                     })
-                    .Catch(error => { Debug.Log(error); });
+                    .Catch(error => {
+                        _refreshController.sendBack(up, RefreshStatus.failed);
+                        Debug.Log(error);
+                    });
         }
 
         private Widget _buildContentHead(BuildContext context) {
@@ -435,6 +442,7 @@ namespace ConnectApp.screens {
                             ActionSheetUtils.showModalActionSheet(new CustomInput(
                                 message.author.fullName.isEmpty() ? "" : message.author.fullName,
                                 text => {
+                                    ActionSheetUtils.hiddenModalPopup();
                                     StoreProvider.store.Dispatch(new SendCommentAction {
                                         channelId = _channelId,
                                         content = text,

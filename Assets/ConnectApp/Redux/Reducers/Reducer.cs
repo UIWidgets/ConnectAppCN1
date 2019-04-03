@@ -173,7 +173,7 @@ namespace ConnectApp.redux.reducers {
                             });
                         })
                         .Catch(error => {
-                            state.articleState.articlesLoading = false;
+                            StoreProvider.store.Dispatch(new FetchArticleFailedAction());
                             Debug.Log(error);
                         });
                     break;
@@ -189,6 +189,10 @@ namespace ConnectApp.redux.reducers {
 
                     state.articleState.pageNumber = action.pageNumber;
                     state.articleState.articleTotal = action.total;
+                    state.articleState.articlesLoading = false;
+                    break;
+                }
+                case FetchArticleFailedAction action: {
                     state.articleState.articlesLoading = false;
                     break;
                 }
@@ -282,7 +286,7 @@ namespace ConnectApp.redux.reducers {
                 case LikeArticleAction action: {
                     ArticleApi.LikeArticle(action.articleId)
                         .Then(() => {
-                            StoreProvider.store.Dispatch(new LikeArticleSuccessAction() {articleId = action.articleId});
+                            StoreProvider.store.Dispatch(new LikeArticleSuccessAction {articleId = action.articleId});
                         })
                         .Catch(error => { Debug.Log(error); });
                     break;
@@ -430,8 +434,10 @@ namespace ConnectApp.redux.reducers {
                             StoreProvider.store.Dispatch(new UserMapAction {userMap = eventsResponse.userMap});
                             StoreProvider.store.Dispatch(new PlaceMapAction {placeMap = eventsResponse.placeMap});
                             StoreProvider.store.Dispatch(new FetchEventsSuccessAction {
-                                    events = eventsResponse.events.items, total = eventsResponse.events.total,
-                                    tab = action.tab, pageNumber = action.pageNumber
+                                    events = eventsResponse.events.items, 
+                                    total = eventsResponse.events.total,
+                                    tab = action.tab,
+                                    pageNumber = action.pageNumber
                                 }
                             );
                         })
@@ -451,7 +457,6 @@ namespace ConnectApp.redux.reducers {
                         state.eventState.completedPageNumber = action.pageNumber;
                         state.eventState.completedEventTotal = action.total;
                     }
-
 
                     if (action.pageNumber == 1) {
                         if (action.tab == "ongoing")
@@ -626,9 +631,9 @@ namespace ConnectApp.redux.reducers {
                 case FetchMyFutureEventsAction action: {
                     state.mineState.futureListLoading = true;
                     MineApi.FetchMyFutureEvents(action.pageNumber)
-                        .Then(events => {
+                        .Then(eventsResponse => {
                             StoreProvider.store.Dispatch(new FetchMyFutureEventsSuccessAction {
-                                events = events,
+                                eventsResponse = eventsResponse,
                                 pageNumber = action.pageNumber
                             });
                         })
@@ -640,30 +645,24 @@ namespace ConnectApp.redux.reducers {
                 }
                 case FetchMyFutureEventsSuccessAction action: {
                     state.mineState.futureListLoading = false;
-                    if (action.events != null && action.events.Count > 0)
-                        action.events.ForEach(item => {
-                            var userMap = new Dictionary<string, User> {
-                                {item.user.id, item.user}
-                            };
-                            StoreProvider.store.Dispatch(new UserMapAction {userMap = userMap});
-                        });
-                    if (action.pageNumber == 0) {
-                        state.mineState.futureEventsList = action.events;
-                    }
-                    else {
+                    StoreProvider.store.Dispatch(new UserMapAction {userMap = action.eventsResponse.userMap});
+                    StoreProvider.store.Dispatch(new PlaceMapAction {placeMap = action.eventsResponse.placeMap});
+                    state.mineState.futureEventTotal = action.eventsResponse.events.total;
+                    if (action.pageNumber == 1) {
+                        state.mineState.futureEventsList = action.eventsResponse.events.items;
+                    } else {
                         var results = state.mineState.futureEventsList;
-                        results.AddRange(action.events);
+                        results.AddRange(action.eventsResponse.events.items);
                         state.mineState.futureEventsList = results;
                     }
-
                     break;
                 }
                 case FetchMyPastEventsAction action: {
                     state.mineState.pastListLoading = true;
                     MineApi.FetchMyPastEvents(action.pageNumber)
-                        .Then(events => {
+                        .Then(eventsResponse => {
                             StoreProvider.store.Dispatch(new FetchMyPastEventsSuccessAction {
-                                events = events,
+                                eventsResponse = eventsResponse,
                                 pageNumber = action.pageNumber
                             });
                         })
@@ -675,22 +674,16 @@ namespace ConnectApp.redux.reducers {
                 }
                 case FetchMyPastEventsSuccessAction action: {
                     state.mineState.pastListLoading = false;
-                    if (action.events != null && action.events.Count > 0)
-                        action.events.ForEach(item => {
-                            var userMap = new Dictionary<string, User> {
-                                {item.user.id, item.user}
-                            };
-                            StoreProvider.store.Dispatch(new UserMapAction {userMap = userMap});
-                        });
-                    if (action.pageNumber == 0) {
-                        state.mineState.pastEventsList = action.events;
-                    }
-                    else {
+                    StoreProvider.store.Dispatch(new UserMapAction {userMap = action.eventsResponse.userMap});
+                    StoreProvider.store.Dispatch(new PlaceMapAction {placeMap = action.eventsResponse.placeMap});
+                    state.mineState.pastEventTotal = action.eventsResponse.events.total;
+                    if (action.pageNumber == 1) {
+                        state.mineState.pastEventsList = action.eventsResponse.events.items;
+                    } else {
                         var results = state.mineState.pastEventsList;
-                        results.AddRange(action.events);
+                        results.AddRange(action.eventsResponse.events.items);
                         state.mineState.pastEventsList = results;
                     }
-
                     break;
                 }
                 case FetchMessagesAction action: {
@@ -835,6 +828,20 @@ namespace ConnectApp.redux.reducers {
                             state.placeState.placeDict.Add(keyValuePair.Key, keyValuePair.Value);
                     break;
                 }
+                case PopularSearchAction action: {
+                    SearchApi.PopularSearch()
+                        .Then(popularSearch => {
+                            StoreProvider.store.Dispatch(new PopularSearchSuccessAction {
+                                popularSearch = popularSearch
+                            });
+                        })
+                        .Catch(error => { Debug.Log(error); });
+                    break;
+                }
+                case PopularSearchSuccessAction action: {
+                    state.popularSearchState.popularSearchs = action.popularSearch;
+                    break;
+                }
                 case SearchArticleAction action: {
                     state.searchState.loading = true;
                     SearchApi.SearchArticle(action.keyword, action.pageNumber)
@@ -846,7 +853,7 @@ namespace ConnectApp.redux.reducers {
                             });
                         })
                         .Catch(error => {
-                            state.searchState.loading = false;
+                            StoreProvider.store.Dispatch(new SearchArticleFailedAction {keyword = action.keyword});
                             Debug.Log(error);
                         });
                     break;
@@ -868,9 +875,13 @@ namespace ConnectApp.redux.reducers {
                         searchArticles.AddRange(action.searchResponse.projects);
                         state.searchState.searchArticles = searchArticles;
                     }
-
                     break;
                 }
+                case SearchArticleFailedAction action: {
+                    state.searchState.loading = false;
+                    state.searchState.keyword = action.keyword;
+                    break;
+                } 
                 case ClearSearchArticleAction action: {
                     state.searchState.keyword = "";
                     state.searchState.searchArticles = new List<Article>();

@@ -41,12 +41,12 @@ namespace ConnectApp.screens {
             _myPastPageNumber = 0;
             _refreshController = new RefreshController();
             if (StoreProvider.store.state.mineState.futureEventsList.Count == 0)
-                StoreProvider.store.Dispatch(new FetchMyFutureEventsAction {pageNumber = 0});
+                StoreProvider.store.Dispatch(new FetchMyFutureEventsAction {pageNumber = 1});
         }
 
         private static void _fetchMyPastEvents() {
             if (StoreProvider.store.state.mineState.pastEventsList.Count == 0)
-                StoreProvider.store.Dispatch(new FetchMyPastEventsAction {pageNumber = 0});
+                StoreProvider.store.Dispatch(new FetchMyPastEventsAction {pageNumber = 1});
         }
 
         private void _onRefresh(bool up) {
@@ -56,9 +56,9 @@ namespace ConnectApp.screens {
                 else
                     _myFuturePageNumber++;
                 MineApi.FetchMyFutureEvents(_myFuturePageNumber)
-                    .Then(events => {
+                    .Then(eventsResponse => {
                         StoreProvider.store.Dispatch(new FetchMyFutureEventsSuccessAction
-                            {events = events, pageNumber = _myFuturePageNumber});
+                            {eventsResponse = eventsResponse, pageNumber = _myFuturePageNumber});
                         _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle);
                     })
                     .Catch(error => { _refreshController.sendBack(up, RefreshStatus.failed); });
@@ -70,9 +70,9 @@ namespace ConnectApp.screens {
                 else
                     _myPastPageNumber++;
                 MineApi.FetchMyPastEvents(_myPastPageNumber)
-                    .Then(events => {
+                    .Then(eventsResponse => {
                         StoreProvider.store.Dispatch(new FetchMyPastEventsSuccessAction
-                            {events = events, pageNumber = _myPastPageNumber});
+                            {eventsResponse = eventsResponse, pageNumber = _myPastPageNumber});
                         _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle);
                     })
                     .Catch(error => { _refreshController.sendBack(up, RefreshStatus.failed); });
@@ -182,20 +182,25 @@ namespace ConnectApp.screens {
                     converter: (state, dispatch) => state.mineState,
                     builder: (_context, viewModel) => {
                         var data = index == 0 ? viewModel.futureEventsList : viewModel.pastEventsList;
+                        var hasMore = true;
                         if (index == 0) {
                             if (viewModel.futureListLoading) return new GlobalLoading();
                             if (data.Count <= 0) return new BlankView("暂无我的即将开始活动");
+                            var futureEventTotal = viewModel.futureEventTotal;
+                            hasMore = futureEventTotal == data.Count;
                         }
 
                         if (index == 1) {
                             if (viewModel.pastListLoading) return new GlobalLoading();
                             if (data.Count <= 0) return new BlankView("暂无我的往期活动");
+                            var pastEventTotal = viewModel.pastEventTotal;
+                            hasMore = pastEventTotal == data.Count;
                         }
 
                         return new SmartRefresher(
                             controller: _refreshController,
                             enablePullDown: true,
-                            enablePullUp: true,
+                            enablePullUp: !hasMore,
                             headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
                             footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
                             onRefresh: _onRefresh,

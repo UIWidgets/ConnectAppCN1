@@ -11,6 +11,8 @@ namespace ConnectApp.redux.actions {
         public List<Article> articleList;
         public int total;
     }
+    public class FetchArticleFailedAction : BaseAction {
+    }
 
     public class FetchArticleDetailAction : RequestAction {
         public string articleId;

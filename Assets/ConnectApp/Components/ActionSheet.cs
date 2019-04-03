@@ -98,7 +98,7 @@ namespace ConnectApp.components {
                     children: new List<Widget> {
                         new GestureDetector(
                             onTap: () => {
-                                StoreProvider.store.Dispatch(new MainNavigatorPopAction());
+                                ActionSheetUtils.hiddenModalPopup();
                                 if (item.onTap != null)
                                     item.onTap();
                             },
@@ -149,7 +149,7 @@ namespace ConnectApp.components {
             StoreProvider.store.Dispatch(new MainNavigatorPushToRouteAction{route = route});
         }
 
-        private static void _hiddenModalPopup() {
+        public static void hiddenModalPopup() {
             StoreProvider.store.Dispatch(new MainNavigatorPopAction());
         }
     }

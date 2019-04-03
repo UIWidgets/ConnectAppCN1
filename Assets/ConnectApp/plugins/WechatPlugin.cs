@@ -9,6 +9,7 @@ using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
+using Unity.UIWidgets.widgets;
 using UnityEngine;
 
 namespace ConnectApp.plugins
@@ -23,7 +24,7 @@ namespace ConnectApp.plugins
 
         private bool isListen;
         
-        public UIWidgetsPanel panel;
+        public BuildContext context;
 
         
 #if UNITY_IOS        
@@ -40,7 +41,7 @@ namespace ConnectApp.plugins
 
         void _handleMethodCall(string method, List<JSONNode> args)
         {
-            using (panel.getScope())
+            using (WindowProvider.of(context).getScope())
             {
                 switch (method)
                 {

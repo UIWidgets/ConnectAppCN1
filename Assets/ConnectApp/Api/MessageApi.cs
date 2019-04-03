@@ -26,9 +26,7 @@ namespace ConnectApp.api {
             if (currOldestMessageId.isNotEmpty()) url += "?before=" + currOldestMessageId;
             var request = UnityWebRequest.Get(url);
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
-#pragma warning disable 618
-            yield return request.Send();
-#pragma warning restore 618
+            yield return request.SendWebRequest();
             if (request.isNetworkError) {
                 // something went wrong
                 promise.Reject(new Exception(request.error));
@@ -72,9 +70,7 @@ namespace ConnectApp.api {
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             request.SetRequestHeader("Content-Type", "application/json");
-#pragma warning disable 618
-            yield return request.Send();
-#pragma warning restore 618
+            yield return request.SendWebRequest();
 
             if (request.isNetworkError) {
                 // something went wrong
