@@ -36,7 +36,7 @@
     WXMediaMessage *message = [WXMediaMessage message];
     message.title = title;
     message.description = description;
-    message.thumbData = imageBytes;
+//    message.thumbData = imageBytes;
     
     WXWebpageObject *webpage = [WXWebpageObject object];
     webpage.webpageUrl = url;
@@ -89,20 +89,14 @@ extern "C" {
     }
     
     void toFriends(const char * title,const char * description,const char * url,const char * imageBytes){
-        
         NSString *utf = [[NSString alloc]initWithUTF8String:imageBytes];
         NSData *data = [[NSData alloc]initWithBase64EncodedString:utf options:0];
-        NSString *imageStr = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
-        NSData *image = [imageStr dataUsingEncoding:NSUTF8StringEncoding];
-        UIImage *images = [UIImage imageWithData:image];
-        [[WechatPlugin instance]shareTo:WXSceneSession title:[NSString stringWithUTF8String:title] description:[NSString stringWithUTF8String:description] url:[NSString stringWithUTF8String:url] imageBytes:image];
+        [[WechatPlugin instance]shareTo:WXSceneSession title:[NSString stringWithUTF8String:title] description:[NSString stringWithUTF8String:description] url:[NSString stringWithUTF8String:url] imageBytes:data];
     }
     void toTimeline(const char * title,const char * description,const char * url,const char * imageBytes){
         NSString *utf = [[NSString alloc]initWithUTF8String:imageBytes];
         NSData *data = [[NSData alloc]initWithBase64EncodedString:utf options:0];
-        NSString *imageStr = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
-        NSData *image = [imageStr dataUsingEncoding:NSUTF8StringEncoding];
-        [[WechatPlugin instance]shareTo:WXSceneTimeline title:[NSString stringWithUTF8String:title] description:[NSString stringWithUTF8String:description] url:[NSString stringWithUTF8String:url] imageBytes:image];
+        [[WechatPlugin instance]shareTo:WXSceneTimeline title:[NSString stringWithUTF8String:title] description:[NSString stringWithUTF8String:description] url:[NSString stringWithUTF8String:url] imageBytes:data];
     }
     BOOL isInstallWechat(){
         return [[WechatPlugin instance]isInstallWechat];
