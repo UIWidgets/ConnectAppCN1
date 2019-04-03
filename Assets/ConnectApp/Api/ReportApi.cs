@@ -33,9 +33,7 @@ namespace ConnectApp.api {
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             request.SetRequestHeader("Content-Type", "application/json");
-#pragma warning disable 618
-            yield return request.Send();
-#pragma warning restore 618
+            yield return request.SendWebRequest();
 
             if (request.isNetworkError) {
                 // something went wrong

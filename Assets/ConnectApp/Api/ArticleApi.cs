@@ -24,9 +24,7 @@ namespace ConnectApp.api {
             var request =
                 UnityWebRequest.Get(Config.apiAddress + "/api/p?projectType=article&t=projects&page=" + pageNumber);
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
-#pragma warning disable 618
-            yield return request.Send();
-#pragma warning restore 618
+            yield return request.SendWebRequest();
             if (request.isNetworkError) {
                 // something went wrong
                 promise.Reject(new Exception(request.error));
@@ -57,9 +55,7 @@ namespace ConnectApp.api {
         private static IEnumerator _FetchArticleDetail(Promise<FetchArticleDetailResponse> promise, string articleId) {
             var request = UnityWebRequest.Get(Config.apiAddress + "/api/p/" + articleId);
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
-#pragma warning disable 618
-            yield return request.Send();
-#pragma warning restore 618
+            yield return request.SendWebRequest();
             if (request.isNetworkError) {
                 // something went wrong
                 promise.Reject(new Exception(request.error));
@@ -94,9 +90,7 @@ namespace ConnectApp.api {
             if (currOldestMessageId.Length > 0) url += "&before=" + currOldestMessageId;
             var request = UnityWebRequest.Get(url);
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
-#pragma warning disable 618
-            yield return request.Send();
-#pragma warning restore 618
+            yield return request.SendWebRequest();
             if (request.isNetworkError) {
                 // something went wrong
                 promise.Reject(new Exception(request.error));
@@ -135,9 +129,7 @@ namespace ConnectApp.api {
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             request.SetRequestHeader("Content-Type", "application/json");
-#pragma warning disable 618
-            yield return request.Send();
-#pragma warning restore 618
+            yield return request.SendWebRequest();
 
             if (request.isNetworkError) {
                 // something went wrong
@@ -176,9 +168,7 @@ namespace ConnectApp.api {
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             request.SetRequestHeader("Content-Type", "application/json");
-#pragma warning disable 618
-            yield return request.Send();
-#pragma warning restore 618
+            yield return request.SendWebRequest();
 
             if (request.isNetworkError) {
                 // something went wrong
@@ -217,9 +207,7 @@ namespace ConnectApp.api {
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             request.SetRequestHeader("Content-Type", "application/json");
-#pragma warning disable 618
-            yield return request.Send();
-#pragma warning restore 618
+            yield return request.SendWebRequest();
 
             if (request.isNetworkError) {
                 // something went wrong
@@ -263,9 +251,7 @@ namespace ConnectApp.api {
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             request.SetRequestHeader("Content-Type", "application/json");
-#pragma warning disable 618
-            yield return request.Send();
-#pragma warning restore 618
+            yield return request.SendWebRequest();
 
             if (request.isNetworkError) {
                 // something went wrong
