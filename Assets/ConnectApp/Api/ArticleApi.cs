@@ -53,7 +53,7 @@ namespace ConnectApp.api {
         }
 
         private static IEnumerator _FetchArticleDetail(Promise<FetchArticleDetailResponse> promise, string articleId) {
-            var request = UnityWebRequest.Get(Config.apiAddress + "/api/p/" + articleId);
+            var request = UnityWebRequest.Get(Config.apiAddress + "/api/p/" + articleId + "?view=true");
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             yield return request.SendWebRequest();
             if (request.isNetworkError) {

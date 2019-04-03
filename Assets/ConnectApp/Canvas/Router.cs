@@ -16,6 +16,7 @@ namespace ConnectApp.canvas {
         public const string History = "/history";
         public const string Login = "/login";
         public const string BindUnity = "/bind-unity";
+        public const string VideoPlayer = "/video-player";
     }
 
     internal class Router : StatelessWidget {
@@ -32,7 +33,8 @@ namespace ConnectApp.canvas {
             {MainNavigatorRoutes.MyEvent, context => new MyEventsScreen()},
             {MainNavigatorRoutes.History, context => new HistoryScreen()},
             {MainNavigatorRoutes.Login, context => new LoginScreen()},
-            {MainNavigatorRoutes.BindUnity, context => new BindUnityScreen()}
+            {MainNavigatorRoutes.BindUnity, context => new BindUnityScreen()},
+            {MainNavigatorRoutes.VideoPlayer, context => new VideoPlayerScreen()}
         };
 
         private static Dictionary<string, WidgetBuilder> fullScreenRoutes => new Dictionary<string, WidgetBuilder> {

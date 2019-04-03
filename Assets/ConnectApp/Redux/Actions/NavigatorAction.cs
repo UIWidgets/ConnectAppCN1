@@ -19,6 +19,10 @@ namespace ConnectApp.redux.actions {
     public class MainNavigatorPushToArticleDetailAction : BaseAction {
         public string articleId;
     }
+    
+    public class MainNavigatorPushToVideoPlayerAction : BaseAction {
+        public string videoUrl;
+    }
 
     public class LoginNavigatorPushToBindUnityAction : BaseAction {
         public FromPage fromPage;

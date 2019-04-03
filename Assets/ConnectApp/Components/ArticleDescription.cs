@@ -20,7 +20,6 @@ namespace ConnectApp.components {
             var content = JsonConvert.DeserializeObject<EventContent>(cont);
             var widgets = new List<Widget>();
 
-            var _isFirstUnorderedListItem = false;
             var _isFirstOrderedListItem = false;
             var blocks = content.blocks;
             for (var i = 0; i < blocks.Count; i++) {
@@ -51,13 +50,14 @@ namespace ConnectApp.components {
                             );
                         break;
                     case "unordered-list-item": {
-                        if (_isFirstUnorderedListItem) break;
-                        var items = new List<string>();
-                        var unorderedItem = blocks.FindAll(item => item.type == "unordered-list-item");
-                        unorderedItem.ForEach(item => items.Add(item.text));
-
-                        widgets.Add(_UnorderedList(items));
-                        _isFirstUnorderedListItem = true;
+                        var isFirst = true;
+                        if (i > 0)  {
+                            var beforeBlock = blocks[i - 1];
+                            isFirst = beforeBlock.type != "unordered-list-item";
+                        }
+                        var afterBlock = blocks[i + 1];
+                        var isLast = afterBlock.type != "unordered-list-item";
+                        widgets.Add(_UnorderedList(block.text, isFirst, isLast));
                     }
                         break;
                     case "ordered-list-item": {
@@ -78,10 +78,11 @@ namespace ConnectApp.components {
                             if (data.contentId.isNotEmpty())
                                 if (contentMap.ContainsKey(data.contentId)) {
                                     var map = contentMap[data.contentId];
+                                    var url = map.url;
                                     var originalImage = map.originalImage == null
                                         ? map.thumbnail
                                         : map.originalImage;
-                                    widgets.Add(_Atomic(context, dataMap.type, data.title, originalImage));
+                                    widgets.Add(_Atomic(context, dataMap.type, data.title, originalImage, url));
                                 }
                         }
                     }
@@ -195,7 +196,7 @@ namespace ConnectApp.components {
                 padding: EdgeInsets.only(16, right: 16, bottom: 24),
                 child: new Container(
                     decoration: new BoxDecoration(
-                        color: CColors.White,
+                        CColors.White,
                         border: new Border(
                             left: new BorderSide(
                                 CColors.Separator,
@@ -212,7 +213,7 @@ namespace ConnectApp.components {
             );
         }
 
-        private static Widget _Atomic(BuildContext context, string type, string title, _OriginalImage originalImage) {
+        private static Widget _Atomic(BuildContext context, string type, string title, _OriginalImage originalImage, string url) {
             if (type == "ATTACHMENT") return new Container();
 
             var playButton = Positioned.fill(
@@ -222,6 +223,13 @@ namespace ConnectApp.components {
                 playButton = Positioned.fill(
                     new Center(
                         child: new CustomButton(
+                            onPressed: () => {
+                                if (url == null || url.Length <= 0) return;
+                                if (url.ToLower().Contains("youtube"))
+                                    StoreProvider.store.Dispatch(new OpenUrlAction {url = url});
+                                else
+                                    StoreProvider.store.Dispatch(new MainNavigatorPushToVideoPlayerAction{videoUrl = url});
+                            },
                             child: new Container(
                                 width: 80,
                                 height: 80,
@@ -238,14 +246,16 @@ namespace ConnectApp.components {
                         )
                     )
                 );
+            var width = originalImage.width < MediaQuery.of(context).size.width - 32
+                ? originalImage.width
+                : MediaQuery.of(context).size.width - 32;
             var nodes = new List<Widget> {
                 new Stack(
                     children: new List<Widget> {
                         new Container(
                             color: CColors.Separator,
-                            width: MediaQuery.of(context).size.width - 32,
-                            height: (MediaQuery.of(context).size.width - 32) * originalImage.height /
-                                    originalImage.width,
+                            width: width,
+                            height: width * originalImage.height / originalImage.width,
                             child: Image.network(originalImage.url ?? "", fit: BoxFit.cover)
                         ),
                         playButton
@@ -325,45 +335,31 @@ namespace ConnectApp.components {
             );
         }
 
-        private static Widget _UnorderedList(List<string> items) {
-            var widgets = new List<Widget>();
-
-            for (var i = 0; i < items.Count; i++) {
-                var spans = new List<Widget> {
-                    new Container(
-                        width: 8,
-                        height: 8,
-                        margin: EdgeInsets.only(top: 12, right: 8),
-                        decoration: new BoxDecoration(
-                            CColors.Black,
-                            borderRadius: BorderRadius.all(4)
-                        )
-                    ),
-                    new Expanded(
-                        child: new Text(
-                            items[i],
-                            style: CTextStyle.PXLarge
-                        )
+        private static Widget _UnorderedList(string text, bool isFirst, bool isLast) {
+            var spans = new List<Widget> {
+                new Container(
+                    width: 8,
+                    height: 8,
+                    margin: EdgeInsets.only(top: 12, right: 8),
+                    decoration: new BoxDecoration(
+                        CColors.Black,
+                        borderRadius: BorderRadius.all(4)
                     )
-                };
-                widgets.Add(
-                    new Container(
-                        padding: EdgeInsets.only(16, right: 16),
-                        margin: EdgeInsets.only(top: i == 0 ? 0 : 4),
-                        child: new Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: spans
-                        )
+                ),
+                new Expanded(
+                    child: new Text(
+                        text,
+                        style: CTextStyle.PXLarge
                     )
-                );
-            }
+                )
+            };
 
             return new Container(
                 color: CColors.White,
-                padding: EdgeInsets.only(bottom: 24),
-                child: new Column(
+                padding: EdgeInsets.only(16, isFirst ? 0 : 4, 16, isLast ? 24 : 0),
+                child: new Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: widgets
+                    children: spans
                 )
             );
         }
