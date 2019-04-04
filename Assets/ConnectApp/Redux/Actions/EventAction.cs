@@ -45,4 +45,7 @@ namespace ConnectApp.redux.actions {
     public class JoinEventSuccessAction : BaseAction {
         public string eventId;
     }
+    
+    public class JoinEventFailedAction : BaseAction {
+    }
 }

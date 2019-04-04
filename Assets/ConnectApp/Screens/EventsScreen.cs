@@ -124,7 +124,7 @@ namespace ConnectApp.screens {
                                 alignment: Alignment.center,
                                 child: new Text(
                                     title,
-                                    style: index == _selectedIndex ? CTextStyle.PLargeBlue : CTextStyle.PLargeMedium
+                                    style: index == _selectedIndex ? CTextStyle.PLargeMediumBlue : CTextStyle.PLargeTitle
                                 )
                             )
                         ),

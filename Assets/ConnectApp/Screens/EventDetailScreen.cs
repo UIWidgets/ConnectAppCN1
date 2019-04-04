@@ -111,7 +111,7 @@ namespace ConnectApp.screens {
             _refreshController.scrollTo(0);
         }
 
-        private static Widget _buildHeadTop(bool isShowShare,IEvent eventObj) {
+        private static Widget _buildHeadTop(bool isShowShare, IEvent eventObj) {
             Widget shareWidget = new Container();
             if (isShowShare)
                 shareWidget = new CustomButton(
@@ -121,8 +121,7 @@ namespace ConnectApp.screens {
                         color: CColors.White
                     ),
                     onPressed: () => ShareUtils.showShareView(new ShareView(
-                        onPressed: type =>
-                        {
+                        onPressed: type => {
                             string linkUrl =
                                 $"{Config.apiAddress}/events/{eventObj.id}";
                             string imageUrl = $"{eventObj.background}.200x0x1.jpg";
@@ -168,7 +167,7 @@ namespace ConnectApp.screens {
                         left: 0,
                         top: 0,
                         right: 0,
-                        child: _buildHeadTop(eventType == EventType.onLine,eventObj = eventObj)
+                        child: _buildHeadTop(eventType == EventType.onLine, eventObj)
                     )
                 }
             );
@@ -176,7 +175,8 @@ namespace ConnectApp.screens {
 
         private Widget _buildEventDetail(IEvent eventObj, EventType eventType, EventStatus eventStatus,
             bool isLoggedIn) {
-            if (eventStatus != EventStatus.future && eventType == EventType.onLine && isLoggedIn)
+            var userIsCheckedIn = eventObj.userIsCheckedIn;
+            if (eventStatus != EventStatus.future && eventType == EventType.onLine && isLoggedIn && userIsCheckedIn)
                 return new Expanded(
                     child: new Stack(
                         fit: StackFit.expand,
@@ -205,12 +205,12 @@ namespace ConnectApp.screens {
         private Widget _buildEventBottom(IEvent eventObj, EventType eventType, EventStatus eventStatus,
             bool isLoggedIn) {
             if (eventType == EventType.offline) return _buildOfflineRegisterNow(eventObj, isLoggedIn);
-            if (eventStatus != EventStatus.future && eventType == EventType.onLine && isLoggedIn)
+            var userIsCheckedIn = eventObj.userIsCheckedIn;
+            if (eventStatus != EventStatus.future && eventType == EventType.onLine && isLoggedIn && userIsCheckedIn)
                 return new Container();
 
             var onlineCount = eventObj.onlineMemberCount;
             var recordWatchCount = eventObj.recordWatchCount;
-            var userIsCheckedIn = eventObj.userIsCheckedIn;
             var title = "";
             var subTitle = "";
             if (eventStatus == EventStatus.live) {

@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using ConnectApp.api;
 using ConnectApp.canvas;
 using ConnectApp.components;
+using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.plugins;
 using ConnectApp.redux.actions;
 using ConnectApp.screens;
 using Newtonsoft.Json;
 using RSG;
+using Color = Unity.UIWidgets.ui.Color;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -392,8 +393,8 @@ namespace ConnectApp.redux.reducers {
                 }
                 case SendCommentAction action: {
                     ArticleApi.SendComment(action.channelId, action.content, action.nonce, action.parentMessageId)
-                        .Then((message) => {
-                            StoreProvider.store.Dispatch(new SendCommentSuccessAction() {
+                        .Then(message => {
+                            StoreProvider.store.Dispatch(new SendCommentSuccessAction {
                                 message = message
                             });
                         })
@@ -567,7 +568,7 @@ namespace ConnectApp.redux.reducers {
                             StoreProvider.store.Dispatch(new JoinEventSuccessAction {eventId = action.eventId});
                         })
                         .Catch(error => {
-                            state.eventState.joinEventLoading = false;
+                            StoreProvider.store.Dispatch(new JoinEventFailedAction());
                             Debug.Log(error);
                         });
                     break;
@@ -577,6 +578,10 @@ namespace ConnectApp.redux.reducers {
                     var eventObj = state.eventState.eventsDict[action.eventId];
                     eventObj.userIsCheckedIn = true;
                     state.eventState.eventsDict[action.eventId] = eventObj;
+                    break;
+                }
+                case JoinEventFailedAction action: {
+                    state.eventState.joinEventLoading = false;
                     break;
                 }
                 case FetchNotificationsAction action: {
@@ -766,7 +771,7 @@ namespace ConnectApp.redux.reducers {
                             });
                         })
                         .Catch(error => {
-                            StoreProvider.store.state.messageState.sendMessageLoading = false;
+                            StoreProvider.store.Dispatch(new SendMessageFailedAction ());
                             Debug.Log(error);
                         });
                     break;
@@ -803,7 +808,21 @@ namespace ConnectApp.redux.reducers {
                     state.messageState.channelMessageList = channelMessageList;
                     state.messageState.channelMessageDict = channelMessageDict;
                     StoreProvider.store.state.messageState.sendMessageLoading = false;
-
+                    break;
+                }
+                case SendMessageFailedAction action: {
+                    CustomDialogUtils.showCustomDialog(
+                        child: new CustomDialog(
+                            message: "发送消息失败",
+                            widget: new Icon(
+                                Icons.error_outline,
+                                size: 32,
+                                color: Color.fromRGBO(199, 203, 207, 1.0f)
+                            ),
+                            duration: new TimeSpan(0, 0, 0, 2)
+                        )
+                    );
+                    StoreProvider.store.state.messageState.sendMessageLoading = false;
                     break;
                 }
                 case UserMapAction action: {
@@ -1037,21 +1056,17 @@ namespace ConnectApp.redux.reducers {
                         });
                     break;
                 }
-                case ShareAction action:
-                {
+                case ShareAction action: {
                     CustomDialogUtils.showCustomDialog(
                         child: new CustomDialog()
                     );
-                    ShareApi.FetchImageBytes(action.imageUrl).Then(imageBtyes =>
-                    {
-                        var encodeBytes = Convert.ToBase64String(imageBtyes);
+                    ShareApi.FetchImageBytes(action.imageUrl).Then(imageBytes => {
+                        var encodeBytes = Convert.ToBase64String(imageBytes);
                         CustomDialogUtils.hiddenCustomDialog();
-                        if (action.type==ShareType.friends)
-                        {
-                            WechatPlugin.instance.shareToFriend(action.title,action.description,action.linkUrl,encodeBytes);
-                        }else if (action.type==ShareType.moments)
-                        {
-                            WechatPlugin.instance.shareToTimeline(action.title,action.description,action.linkUrl,encodeBytes);
+                        if (action.type == ShareType.friends) {
+                            WechatPlugin.instance.shareToFriend(action.title, action.description, action.linkUrl, encodeBytes);
+                        } else if (action.type == ShareType.moments) {
+                            WechatPlugin.instance.shareToTimeline(action.title, action.description, action.linkUrl, encodeBytes);
                         }
                         
                     });
