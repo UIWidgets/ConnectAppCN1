@@ -60,6 +60,7 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
+            Debug.Log($"articledetail - MediaQuery.of(context).viewInsets.bottom==== {MediaQuery.of(context).viewInsets.bottom}");
             return new StoreConnector<AppState, Dictionary<string, object>>(
                 converter: (state, dispatcher) => new Dictionary<string, object> {
                     {"articleDetailLoading", state.articleState.articleDetailLoading},
