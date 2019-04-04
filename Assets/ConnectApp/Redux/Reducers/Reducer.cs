@@ -1029,14 +1029,13 @@ namespace ConnectApp.redux.reducers {
                     );
                     ShareApi.FetchImageBytes(action.imageUrl).Then(imageBtyes =>
                     {
-                        var encodeBytes = Convert.ToBase64String(imageBtyes);
                         CustomDialogUtils.hiddenCustomDialog();
                         if (action.type==ShareType.friends)
                         {
-                            WechatPlugin.instance.shareToFriend(action.title,action.description,action.linkUrl,encodeBytes);
+                            WechatPlugin.instance.shareToFriend(action.title,action.description,action.linkUrl,imageBtyes);
                         }else if (action.type==ShareType.moments)
                         {
-                            WechatPlugin.instance.shareToTimeline(action.title,action.description,action.linkUrl,encodeBytes);
+                            WechatPlugin.instance.shareToTimeline(action.title,action.description,action.linkUrl,imageBtyes);
                         }
                         
                     });
