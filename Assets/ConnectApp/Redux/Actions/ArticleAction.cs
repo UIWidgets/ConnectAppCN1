@@ -1,5 +1,10 @@
 using System.Collections.Generic;
+using System.Diagnostics;
+using ConnectApp.api;
 using ConnectApp.models;
+using RSG;
+using Unity.UIWidgets.Redux;
+using Debug = UnityEngine.Debug;
 
 namespace ConnectApp.redux.actions {
     public class FetchArticlesAction : RequestAction {
@@ -82,5 +87,26 @@ namespace ConnectApp.redux.actions {
 
     public class SendCommentSuccessAction : BaseAction {
         public Message message;
+    }
+
+    public static partial class Actions {
+        public static object fetchArticleComments(string channelId, string currOldestMessageId = "") {
+            return new ThunkAction<AppState>((dispatcher, getState) => {                
+                return ArticleApi.FetchArticleComments(channelId, currOldestMessageId)
+                    .Then(responseComments => {
+                        var hasMore = responseComments.hasMore;
+                        var lastCommentId = responseComments.currOldestMessageId;
+                        dispatcher.dispatch(new FetchArticleCommentsSuccessAction {
+                            channelId = channelId,
+                            commentsResponse = responseComments,
+                            isRefreshList = false,
+                            hasMore = hasMore,
+                            currOldestMessageId = lastCommentId
+                        });
+                    })
+                    .Catch(Debug.Log);
+            });
+        }
+        
     }
 }

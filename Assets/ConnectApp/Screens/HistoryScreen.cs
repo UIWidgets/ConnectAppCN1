@@ -3,20 +3,77 @@ using System.Collections.Generic;
 using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
-using ConnectApp.redux;
+using ConnectApp.Models.Screen;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
+    public class HistoryScreenConnector : StatelessWidget {
+        public override Widget build(BuildContext context) {
+            return new StoreConnector<AppState, HistoryScreenModel>(
+                pure: true,
+                converter: (state) => new HistoryScreenModel {
+                    eventHistory = state.eventState.eventHistory,
+                    articleHistory = state.articleState.articleHistory
+                },
+                builder: (context1, viewModel, dispatcher) => {
+                    return new HistoryScreen(
+                        viewModel,
+                        mainNavigatorPop: () => dispatcher.dispatch(new MainNavigatorPopAction()),
+                        pushToArticleDetail: (id) =>
+                            dispatcher.dispatch(new MainNavigatorPushToArticleDetailAction {articleId = id}),
+                        pushToEventDetail: (id, type) =>
+                            dispatcher.dispatch(new MainNavigatorPushToEventDetailAction
+                                {eventId = id, eventType = type}),
+                        getArticleHistory: () =>
+                            dispatcher.dispatch(new GetArticleHistoryAction()),
+                        getEventHistory: () =>
+                            dispatcher.dispatch(new GetEventHistoryAction()),
+                        deleteArticleHistory: (id) =>
+                            dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = id}),
+                        deleteEventHistory: (id) =>
+                            dispatcher.dispatch(new DeleteEventHistoryAction {eventId = id})
+                    );
+                }
+            );
+        }
+    }
+
     public class HistoryScreen : StatefulWidget {
         public HistoryScreen(
+            HistoryScreenModel screenModel = null,
+            Action mainNavigatorPop = null,
+            Action<string> pushToArticleDetail = null,
+            Action<string, EventType> pushToEventDetail = null,
+            Action getArticleHistory = null,
+            Action getEventHistory = null,
+            Action<string> deleteArticleHistory = null,
+            Action<string> deleteEventHistory = null,
             Key key = null
         ) : base(key) {
+            this.screenModel = screenModel;
+            this.mainNavigatorPop = mainNavigatorPop;
+            this.pushToArticleDetail = pushToArticleDetail;
+            this.pushToEventDetail = pushToEventDetail;
+            this.getArticleHistory = getArticleHistory;
+            this.getEventHistory = getEventHistory;
+            this.deleteArticleHistory = deleteArticleHistory;
+            this.deleteEventHistory = deleteEventHistory;
         }
+
+        public HistoryScreenModel screenModel;
+        public Action mainNavigatorPop;
+        public Action<string> pushToArticleDetail;
+        public Action<string, EventType> pushToEventDetail;
+        public Action getArticleHistory;
+        public Action getEventHistory;
+        public Action<string> deleteArticleHistory;
+        public Action<string> deleteEventHistory;
 
         public override State createState() {
             return new _HistoryScreenState();
@@ -31,10 +88,8 @@ namespace ConnectApp.screens {
             base.initState();
             _pageController = new PageController();
             _selectedIndex = 0;
-            if (StoreProvider.store.state.articleState.articleHistory.Count == 0)
-                StoreProvider.store.Dispatch(new GetArticleHistoryAction());
-            if (StoreProvider.store.state.eventState.eventHistory.Count == 0)
-                StoreProvider.store.Dispatch(new GetEventHistoryAction());
+            widget.getArticleHistory();
+            widget.getEventHistory();
         }
 
         public override Widget build(BuildContext context) {
@@ -55,7 +110,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private static Widget _buildNavigationBar(BuildContext context) {
+        private Widget _buildNavigationBar(BuildContext context) {
             return new Container(
                 decoration: new BoxDecoration(
                     CColors.White
@@ -69,7 +124,7 @@ namespace ConnectApp.screens {
                         new Container(height: 44,
                             child: new CustomButton(
                                 padding: EdgeInsets.only(16),
-                                onPressed: () => StoreProvider.store.Dispatch(new MainNavigatorPopAction()),
+                                onPressed: () => widget.mainNavigatorPop(),
                                 child: new Icon(
                                     Icons.arrow_back,
                                     size: 24,
@@ -131,99 +186,66 @@ namespace ConnectApp.screens {
             );
         }
 
-        private static Widget _buildArticleHistory() {
-            return new Container(
-                child: new StoreConnector<AppState, Dictionary<string, List<Article>>>(
-                    converter: (state, dispatch) => new Dictionary<string, List<Article>> {
-                        {"articleHistory", state.articleState.articleHistory}
-                    },
-                    builder: (_context, viewModel) => {
-                        var data = viewModel["articleHistory"];
-                        if (data.Count <= 0) return new BlankView("暂无浏览文章记录");
-                        return ListView.builder(
-                            physics: new AlwaysScrollableScrollPhysics(),
-                            itemCount: data.Count,
-                            itemBuilder: (cxt, idx) => {
-                                var model = data[idx];
-                                return new Dismissible(
-                                    Key.key(model.id),
-                                    new ArticleCard(
-                                        model,
-                                        () => {
-                                            StoreProvider.store.Dispatch(new MainNavigatorPushToArticleDetailAction {
-                                                articleId = model.id
-                                            });
-                                        }
-                                    ),
-                                    new Container(
-                                        color: CColors.Error,
-                                        padding: EdgeInsets.symmetric(horizontal: 16),
-                                        child: new Row(
-                                            mainAxisAlignment: MainAxisAlignment.end,
-                                            children: new List<Widget> {
-                                                new Text(
-                                                    "删除",
-                                                    style: CTextStyle.PLargeWhite
-                                                )
-                                            }
-                                        )
-                                    ),
-                                    direction: DismissDirection.endToStart,
-                                    onDismissed: direction =>
-                                        StoreProvider.store.Dispatch(new DeleteArticleHistoryAction
-                                            {articleId = model.id})
-                                );
-                            }
-                        );
-                    }
-                )
+        private Widget _buildArticleHistory() {
+            if (widget.screenModel.articleHistory.Count == 0) return new BlankView("暂无浏览文章记录");
+            return ListView.builder(
+                physics: new AlwaysScrollableScrollPhysics(),
+                itemCount: widget.screenModel.articleHistory.Count,
+                itemBuilder: (cxt, index) => {
+                    var model = widget.screenModel.articleHistory[index];
+                    return new Dismissible(
+                        Key.key(model.id),
+                        new ArticleCard(
+                            model,
+                            () => widget.pushToArticleDetail(model.id)
+                        ),
+                        new Container(
+                            color: CColors.Error,
+                            padding: EdgeInsets.symmetric(horizontal: 16),
+                            child: new Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: new List<Widget> {
+                                    new Text(
+                                        "删除",
+                                        style: CTextStyle.PLargeWhite
+                                    )
+                                }
+                            )
+                        ),
+                        direction: DismissDirection.endToStart,
+                        onDismissed: direction => widget.deleteArticleHistory(model.id)
+                    );
+                }
             );
         }
 
-        private static Widget _buildEventHistory() {
-            return new Container(
-                child: new StoreConnector<AppState, Dictionary<string, List<IEvent>>>(
-                    converter: (state, dispatch) => new Dictionary<string, List<IEvent>> {
-                        {"eventHistory", state.eventState.eventHistory}
-                    },
-                    builder: (_context, viewModel) => {
-                        var data = viewModel["eventHistory"];
-                        if (data.Count <= 0) return new BlankView("暂无浏览活动记录");
-                        return ListView.builder(
-                            physics: new AlwaysScrollableScrollPhysics(),
-                            itemCount: data.Count,
-                            itemBuilder: (cxt, idx) => {
-                                var model = data[idx];
-                                return new Dismissible(
-                                    Key.key(model.id),
-                                    new EventCard(
-                                        model,
-                                        () => {
-                                            StoreProvider.store.Dispatch(new MainNavigatorPushToEventDetailAction {
-                                                eventId = model.id,
-                                                eventType = model.mode == "online"
-                                                    ? EventType.onLine
-                                                    : EventType.offline
-                                            });
-                                        }
-                                    ),
-                                    new Container(
-                                        color: CColors.Red,
-                                        child: new Row(
-                                            mainAxisAlignment: MainAxisAlignment.end,
-                                            children: new List<Widget> {
-                                                new Text("删除")
-                                            }
-                                        )
-                                    ),
-                                    direction: DismissDirection.endToStart,
-                                    onDismissed: direction =>
-                                        StoreProvider.store.Dispatch(new DeleteEventHistoryAction {eventId = model.id})
-                                );
-                            }
-                        );
-                    }
-                )
+        private Widget _buildEventHistory() {
+            if (widget.screenModel.eventHistory.Count == 0) return new BlankView("暂无浏览活动记录");
+            return ListView.builder(
+                physics: new AlwaysScrollableScrollPhysics(),
+                itemCount: widget.screenModel.eventHistory.Count,
+                itemBuilder: (cxt, index) => {
+                    var model = widget.screenModel.eventHistory[index];
+                    var eventType = model.mode == "online" ? EventType.onLine : EventType.offline;
+                    return new Dismissible(
+                        Key.key(model.id),
+                        new EventCard(
+                            model,
+                            () => widget.pushToEventDetail(model.id, eventType)
+                        ),
+                        new Container(
+                            color: CColors.Red,
+                            child: new Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: new List<Widget> {
+                                    new Text("删除")
+                                }
+                            )
+                        ),
+                        direction: DismissDirection.endToStart,
+                        onDismissed: direction => widget.deleteEventHistory(model.id)
+                    );
+                }
             );
         }
     }

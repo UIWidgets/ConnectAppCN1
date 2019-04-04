@@ -5,20 +5,69 @@ using ConnectApp.components;
 using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.Models.Screen;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
+using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
+    
+    public class MyEventsScreenConnector : StatelessWidget {
+        public override Widget build(BuildContext context) {
+            return new StoreConnector<AppState, MyEventsScreenModel>(
+                pure: true,
+                converter: (state) => new MyEventsScreenModel {
+                    futureEventsList = state.mineState.futureEventsList,
+                    pastEventsList = state.mineState.pastEventsList,
+                    futureListLoading = state.mineState.futureListLoading,
+                    pastListLoading = state.mineState.pastListLoading,
+                    futureEventTotal = state.mineState.futureEventTotal,
+                    pastEventTotal = state.mineState.pastEventTotal
+                },
+                builder: (context1, viewModel, dispatcher) => {
+                    return new MyEventsScreen(
+                        viewModel,
+                        mainNavigatorPop: () => dispatcher.dispatch(new MainNavigatorPopAction()),
+                        pushToEventDetail: (id, type) =>
+                            dispatcher.dispatch(new MainNavigatorPushToEventDetailAction
+                                {eventId = id, eventType = type}),
+                        fetchMyFutureEvents: (pageNumber) =>
+                            dispatcher.dispatch<IPromise<FetchEventsResponse>>(Actions.fetchMyFutureEvents(pageNumber)),
+                        fetchMyPastEvents: (pageNumber) =>
+                            dispatcher.dispatch<IPromise<FetchEventsResponse>>(Actions.fetchMyPastEvents(pageNumber))
+                    );
+                }
+            );
+        }
+    }
+    
     public class MyEventsScreen : StatefulWidget {
         public MyEventsScreen(
+            MyEventsScreenModel screenModel = null,
+            Action mainNavigatorPop = null,
+            Action<string, EventType> pushToEventDetail = null,
+            Func<int, IPromise<FetchEventsResponse>> fetchMyFutureEvents = null,
+            Func<int, IPromise<FetchEventsResponse>> fetchMyPastEvents = null,
             Key key = null
         ) : base(key) {
+            this.screenModel = screenModel;
+            this.mainNavigatorPop = mainNavigatorPop;
+            this.pushToEventDetail = pushToEventDetail;
+            this.fetchMyFutureEvents = fetchMyFutureEvents;
+            this.fetchMyPastEvents = fetchMyPastEvents;
         }
+
+        public MyEventsScreenModel screenModel;
+        public Action mainNavigatorPop;
+        public Action<string, EventType> pushToEventDetail;
+        public Func<int, IPromise<FetchEventsResponse>> fetchMyFutureEvents;
+        public Func<int, IPromise<FetchEventsResponse>> fetchMyPastEvents;
 
         public override State createState() {
             return new _MyEventsScreenState();
@@ -40,13 +89,11 @@ namespace ConnectApp.screens {
             _myFuturePageNumber = 0;
             _myPastPageNumber = 0;
             _refreshController = new RefreshController();
-            if (StoreProvider.store.state.mineState.futureEventsList.Count == 0)
-                StoreProvider.store.Dispatch(new FetchMyFutureEventsAction {pageNumber = 1});
+//            widget.fetchMyFutureEvents(1);
         }
 
-        private static void _fetchMyPastEvents() {
-            if (StoreProvider.store.state.mineState.pastEventsList.Count == 0)
-                StoreProvider.store.Dispatch(new FetchMyPastEventsAction {pageNumber = 1});
+        private void _fetchMyPastEvents() {
+            widget.fetchMyPastEvents(1);
         }
 
         private void _onRefresh(bool up) {
@@ -55,13 +102,9 @@ namespace ConnectApp.screens {
                     _myFuturePageNumber = 1;
                 else
                     _myFuturePageNumber++;
-                MineApi.FetchMyFutureEvents(_myFuturePageNumber)
-                    .Then(eventsResponse => {
-                        StoreProvider.store.Dispatch(new FetchMyFutureEventsSuccessAction
-                            {eventsResponse = eventsResponse, pageNumber = _myFuturePageNumber});
-                        _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle);
-                    })
-                    .Catch(error => { _refreshController.sendBack(up, RefreshStatus.failed); });
+                    widget.fetchMyFutureEvents(_myFuturePageNumber)
+                        .Then(_ => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle)
+                        ).Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
             }
 
             if (_selectedIndex == 1) {

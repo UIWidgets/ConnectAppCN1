@@ -145,19 +145,7 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.password = "";
                     break;
                 }
-                case CreateUnityIdUrlAction action: {
-                    CustomDialogUtils.showCustomDialog(
-                        child: new CustomDialog()
-                    );
-                    LoginApi.FetchCreateUnityIdUrl()
-                        .Then(url => {
-                            CustomDialogUtils.hiddenCustomDialog();
-                            StoreProvider.store.Dispatch(new OpenUrlAction {url = url});
-                        })
-                        .Catch(error => {
-                            Debug.Log(error);
-                            CustomDialogUtils.hiddenCustomDialog();
-                        });
+                case JumpToCreateUnityIdAction action: {
                     break;
                 }
                 case FetchArticlesAction action: {
@@ -661,17 +649,6 @@ namespace ConnectApp.redux.reducers {
                 }
                 case FetchMyPastEventsAction action: {
                     state.mineState.pastListLoading = true;
-                    MineApi.FetchMyPastEvents(action.pageNumber)
-                        .Then(eventsResponse => {
-                            StoreProvider.store.Dispatch(new FetchMyPastEventsSuccessAction {
-                                eventsResponse = eventsResponse,
-                                pageNumber = action.pageNumber
-                            });
-                        })
-                        .Catch(error => {
-                            state.mineState.pastListLoading = false;
-                            Debug.Log(error);
-                        });
                     break;
                 }
                 case FetchMyPastEventsSuccessAction action: {
@@ -933,7 +910,7 @@ namespace ConnectApp.redux.reducers {
                     if (action.articleId != null)
                         Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                                new ArticleDetailScreen(articleId: action.articleId),
+                                new ArticleDetailScreenConnector(action.articleId),
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new PushPageTransition(
                                     routeAnimation: animation,
@@ -985,7 +962,7 @@ namespace ConnectApp.redux.reducers {
                 case LoginNavigatorPushToBindUnityAction action: {
                     LoginScreen.navigator.push(new PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
-                            new BindUnityScreen(fromPage: action.fromPage),
+                            new BindUnityScreen(fromPage: FromPage.login),
                         transitionsBuilder: (context1, animation, secondaryAnimation, child) => new PushPageTransition(
                             routeAnimation: animation,
                             child: child

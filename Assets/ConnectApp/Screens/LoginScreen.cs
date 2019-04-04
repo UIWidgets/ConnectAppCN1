@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.canvas;
 using ConnectApp.components;
@@ -55,7 +56,7 @@ namespace ConnectApp.screens {
                 color: CColors.White,
                 child: new Column(
                     children: new List<Widget> {
-                        _buildTopView(context),
+                        _buildTopView(),
                         _buildMiddleView(context),
                         new Flexible(child: new Container()),
                         _buildBottomView(context)
@@ -64,14 +65,15 @@ namespace ConnectApp.screens {
             );
         }
 
-        private static Widget _buildTopView(BuildContext context) {
+        private static Widget _buildTopView() {
             return new Container(
                 height: 44,
                 padding: EdgeInsets.only(8, 8),
                 child: new Row(
                     children: new List<Widget> {
                         new CustomButton(
-                            onPressed: () => StoreProvider.store.Dispatch(new MainNavigatorPopAction()),
+                            onPressed: () =>
+                                StoreProvider.store.dispatcher.dispatch(new MainNavigatorPopAction()),
                             child: new Icon(
                                 Icons.close,
                                 size: 28,
@@ -113,9 +115,7 @@ namespace ConnectApp.screens {
                 child: new Column(
                     children: new List<Widget> {
                         new CustomButton(
-                            onPressed: () => {
-                                WechatPlugin.instance.login(System.Guid.NewGuid().ToString());
-                            },
+                            onPressed: () => { WechatPlugin.instance.login(Guid.NewGuid().ToString()); },
                             padding: EdgeInsets.zero,
                             child: new Container(
                                 height: 48,
@@ -144,10 +144,8 @@ namespace ConnectApp.screens {
                         ),
                         new Container(height: 16),
                         new CustomButton(
-                            onPressed: () => {
-                                StoreProvider.store.Dispatch(new LoginNavigatorPushToBindUnityAction
-                                    {fromPage = FromPage.login});
-                            },
+                            onPressed: () =>
+                                StoreProvider.store.dispatcher.dispatch(new LoginNavigatorPushToBindUnityAction()),
                             padding: EdgeInsets.zero,
                             child: new Container(
                                 height: 48,
