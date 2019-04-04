@@ -1061,12 +1061,12 @@ namespace ConnectApp.redux.reducers {
                         child: new CustomDialog()
                     );
                     ShareApi.FetchImageBytes(action.imageUrl).Then(imageBytes => {
-                        var encodeBytes = Convert.ToBase64String(imageBytes);
+//                        var encodeBytes = Convert.ToBase64String(imageBytes);
                         CustomDialogUtils.hiddenCustomDialog();
                         if (action.type == ShareType.friends) {
-                            WechatPlugin.instance.shareToFriend(action.title, action.description, action.linkUrl, encodeBytes);
+                            WechatPlugin.instance.shareToFriend(action.title, action.description, action.linkUrl, imageBytes);
                         } else if (action.type == ShareType.moments) {
-                            WechatPlugin.instance.shareToTimeline(action.title, action.description, action.linkUrl, encodeBytes);
+                            WechatPlugin.instance.shareToTimeline(action.title, action.description, action.linkUrl, imageBytes);
                         }
                         
                     });
