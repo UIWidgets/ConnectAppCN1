@@ -2,7 +2,7 @@ namespace ConnectApp.components.pull_to_refresh {
     public abstract class Config {
         public readonly float triggerDistance;
 
-        public Config(
+        protected Config(
             float triggerDistance
         ) {
             this.triggerDistance = triggerDistance;

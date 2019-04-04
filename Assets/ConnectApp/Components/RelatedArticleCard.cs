@@ -66,14 +66,12 @@ namespace ConnectApp.components {
                         ),
                         new Container(
                             margin: EdgeInsets.only(8),
-                            child: new ClipRRect(
-                                borderRadius: BorderRadius.circular(4),
-                                child: new Container(
-                                    width: 114,
-                                    height: 76,
-                                    color: new Color(0xFFD8D8D8),
-                                    child: Image.network(article.thumbnail.url, fit: BoxFit.fill)
-                                )
+                            child: new PlaceholderImage(
+                                article.thumbnail.url,
+                                114,
+                                76,
+                                4,
+                                BoxFit.fill
                             )
                         )
                     }

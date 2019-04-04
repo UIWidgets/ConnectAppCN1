@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using ConnectApp.api;
 using ConnectApp.canvas;
 using ConnectApp.components;
+using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.plugins;
 using ConnectApp.redux.actions;
 using ConnectApp.screens;
 using Newtonsoft.Json;
 using RSG;
+using Color = Unity.UIWidgets.ui.Color;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -392,8 +393,8 @@ namespace ConnectApp.redux.reducers {
                 }
                 case SendCommentAction action: {
                     ArticleApi.SendComment(action.channelId, action.content, action.nonce, action.parentMessageId)
-                        .Then((message) => {
-                            StoreProvider.store.Dispatch(new SendCommentSuccessAction() {
+                        .Then(message => {
+                            StoreProvider.store.Dispatch(new SendCommentSuccessAction {
                                 message = message
                             });
                         })
@@ -431,11 +432,8 @@ namespace ConnectApp.redux.reducers {
                     state.eventState.eventsLoading = true;
                     EventApi.FetchEvents(action.pageNumber, action.tab)
                         .Then(eventsResponse => {
-                            StoreProvider.store.Dispatch(new UserMapAction {userMap = eventsResponse.userMap});
-                            StoreProvider.store.Dispatch(new PlaceMapAction {placeMap = eventsResponse.placeMap});
                             StoreProvider.store.Dispatch(new FetchEventsSuccessAction {
-                                    events = eventsResponse.events.items, 
-                                    total = eventsResponse.events.total,
+                                    eventsResponse = eventsResponse, 
                                     tab = action.tab,
                                     pageNumber = action.pageNumber
                                 }
@@ -449,13 +447,15 @@ namespace ConnectApp.redux.reducers {
                 }
                 case FetchEventsSuccessAction action: {
                     state.eventState.eventsLoading = false;
+                    StoreProvider.store.Dispatch(new UserMapAction {userMap = action.eventsResponse.userMap});
+                    StoreProvider.store.Dispatch(new PlaceMapAction {placeMap = action.eventsResponse.placeMap});
                     if (action.tab == "ongoing") {
                         state.eventState.pageNumber = action.pageNumber;
-                        state.eventState.ongoingEventTotal = action.total;
+                        state.eventState.ongoingEventTotal = action.eventsResponse.events.total;
                     }
                     else {
                         state.eventState.completedPageNumber = action.pageNumber;
-                        state.eventState.completedEventTotal = action.total;
+                        state.eventState.completedEventTotal = action.eventsResponse.events.total;
                     }
 
                     if (action.pageNumber == 1) {
@@ -465,7 +465,7 @@ namespace ConnectApp.redux.reducers {
                             state.eventState.completedEvents.Clear();
                     }
 
-                    action.events.ForEach(eventObj => {
+                    action.eventsResponse.events.items.ForEach(eventObj => {
                         if (action.tab == "ongoing") {
                             if (!state.eventState.ongoingEvents.Contains(eventObj.id))
                                 state.eventState.ongoingEvents.Add(eventObj.id);
@@ -493,7 +493,7 @@ namespace ConnectApp.redux.reducers {
                             StoreProvider.store.Dispatch(new FetchEventDetailSuccessAction {eventObj = eventObj});
                         })
                         .Catch(error => {
-                            state.eventState.eventDetailLoading = false;
+                            StoreProvider.store.Dispatch(new FetchEventDetailFailedAction());
                             Debug.Log(error);
                         });
                     break;
@@ -516,6 +516,10 @@ namespace ConnectApp.redux.reducers {
                     else
                         state.eventState.eventsDict.Add(action.eventObj.id, action.eventObj);
                     StoreProvider.store.Dispatch(new SaveEventHistoryAction {eventObj = action.eventObj});
+                    break;
+                }
+                case FetchEventDetailFailedAction action: {
+                    state.eventState.eventDetailLoading = false;
                     break;
                 }
                 case SaveEventHistoryAction action: {
@@ -564,7 +568,7 @@ namespace ConnectApp.redux.reducers {
                             StoreProvider.store.Dispatch(new JoinEventSuccessAction {eventId = action.eventId});
                         })
                         .Catch(error => {
-                            state.eventState.joinEventLoading = false;
+                            StoreProvider.store.Dispatch(new JoinEventFailedAction());
                             Debug.Log(error);
                         });
                     break;
@@ -574,6 +578,10 @@ namespace ConnectApp.redux.reducers {
                     var eventObj = state.eventState.eventsDict[action.eventId];
                     eventObj.userIsCheckedIn = true;
                     state.eventState.eventsDict[action.eventId] = eventObj;
+                    break;
+                }
+                case JoinEventFailedAction action: {
+                    state.eventState.joinEventLoading = false;
                     break;
                 }
                 case FetchNotificationsAction action: {
@@ -616,7 +624,6 @@ namespace ConnectApp.redux.reducers {
                         results.AddRange(action.notificationResponse.results);
                         state.notificationState.notifications = results;
                     }
-
                     break;
                 }
                 case ReportItemAction action: {
@@ -764,7 +771,7 @@ namespace ConnectApp.redux.reducers {
                             });
                         })
                         .Catch(error => {
-                            StoreProvider.store.state.messageState.sendMessageLoading = false;
+                            StoreProvider.store.Dispatch(new SendMessageFailedAction ());
                             Debug.Log(error);
                         });
                     break;
@@ -801,7 +808,21 @@ namespace ConnectApp.redux.reducers {
                     state.messageState.channelMessageList = channelMessageList;
                     state.messageState.channelMessageDict = channelMessageDict;
                     StoreProvider.store.state.messageState.sendMessageLoading = false;
-
+                    break;
+                }
+                case SendMessageFailedAction action: {
+                    CustomDialogUtils.showCustomDialog(
+                        child: new CustomDialog(
+                            message: "发送消息失败",
+                            widget: new Icon(
+                                Icons.error_outline,
+                                size: 32,
+                                color: Color.fromRGBO(199, 203, 207, 1.0f)
+                            ),
+                            duration: new TimeSpan(0, 0, 0, 2)
+                        )
+                    );
+                    StoreProvider.store.state.messageState.sendMessageLoading = false;
                     break;
                 }
                 case UserMapAction action: {
@@ -953,6 +974,19 @@ namespace ConnectApp.redux.reducers {
                         );
                     break;
                 }
+                case MainNavigatorPushToVideoPlayerAction action: {
+                    if (action.videoUrl != null)
+                        Router.navigator.push(new PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) =>
+                                new VideoPlayerScreen(action.videoUrl), 
+                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
+                                new PushPageTransition(
+                                    routeAnimation: animation,
+                                    child: child
+                                ))
+                        );
+                    break;
+                }
                 case MainNavigatorPushToAction action: {
                     Router.navigator.pushNamed(action.routeName);
                     break;
@@ -1022,20 +1056,17 @@ namespace ConnectApp.redux.reducers {
                         });
                     break;
                 }
-                case ShareAction action:
-                {
+                case ShareAction action: {
                     CustomDialogUtils.showCustomDialog(
                         child: new CustomDialog()
                     );
-                    ShareApi.FetchImageBytes(action.imageUrl).Then(imageBtyes =>
-                    {
+                    ShareApi.FetchImageBytes(action.imageUrl).Then(imageBytes => {
+                        var encodeBytes = Convert.ToBase64String(imageBytes);
                         CustomDialogUtils.hiddenCustomDialog();
-                        if (action.type==ShareType.friends)
-                        {
-                            WechatPlugin.instance.shareToFriend(action.title,action.description,action.linkUrl,imageBtyes);
-                        }else if (action.type==ShareType.moments)
-                        {
-                            WechatPlugin.instance.shareToTimeline(action.title,action.description,action.linkUrl,imageBtyes);
+                        if (action.type == ShareType.friends) {
+                            WechatPlugin.instance.shareToFriend(action.title, action.description, action.linkUrl, encodeBytes);
+                        } else if (action.type == ShareType.moments) {
+                            WechatPlugin.instance.shareToTimeline(action.title, action.description, action.linkUrl, encodeBytes);
                         }
                         
                     });

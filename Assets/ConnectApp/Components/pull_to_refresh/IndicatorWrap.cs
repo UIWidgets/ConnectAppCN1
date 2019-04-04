@@ -9,7 +9,7 @@ using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.components.pull_to_refresh {
     public abstract class Wrapper : StatefulWidget {
-        public Wrapper(
+        protected Wrapper(
             ValueNotifier<int> modeListener,
             bool up,
             IndicatorBuilder builder = null,
@@ -131,10 +131,9 @@ namespace ConnectApp.components.pull_to_refresh {
                 return (notification.metrics.minScrollExtent -
                         notification.metrics.pixels) /
                        widget.triggerDistance;
-            else
-                return (notification.metrics.pixels -
-                        notification.metrics.maxScrollExtent) /
-                       widget.triggerDistance;
+            return (notification.metrics.pixels -
+                    notification.metrics.maxScrollExtent) /
+                   widget.triggerDistance;
         }
 
         public Ticker createTicker(TickerCallback onTick) {

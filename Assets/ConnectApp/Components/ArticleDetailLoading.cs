@@ -9,7 +9,6 @@ namespace ConnectApp.components {
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
-                height: MediaQuery.of(context).size.height,
                 padding: EdgeInsets.only(16, right: 16, top: 16),
                 child: new Column(
                     children: new List<Widget> {

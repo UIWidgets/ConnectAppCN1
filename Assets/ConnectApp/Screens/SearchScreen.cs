@@ -92,61 +92,62 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            return new SafeArea(
-                child: new Container(
-                    color: CColors.White,
-                    child: new Column(
-                        children: new List<Widget> {
-                            _buildSearchBar(context),
-                            new Flexible(
-                                child: new StoreConnector<AppState, SearchState>(
-                                    converter: (state, dispatch) => state.searchState,
-                                    builder: (_context, viewModel) => {
-                                        if (viewModel.loading) return new GlobalLoading();
-
-                                        if (viewModel.keyword.Length > 0) {
-                                            var searchArticles = viewModel.searchArticles;
-                                            if (searchArticles.Count > 0) {
-                                                var currentPage = viewModel.currentPage;
-                                                var pages = viewModel.pages;
-                                                return new SmartRefresher(
-                                                    controller: _refreshController,
-                                                    enablePullDown: true,
-                                                    enablePullUp: currentPage != pages.Count - 1,
-                                                    headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
-                                                    footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
-                                                    onRefresh: _onRefresh,
-                                                    child: ListView.builder(
-                                                        physics: new AlwaysScrollableScrollPhysics(),
-                                                        itemCount: searchArticles.Count,
-                                                        itemBuilder: (cxt, index) => {
-                                                            var searchArticle = searchArticles[index];
-                                                            return new RelatedArticleCard(
-                                                                searchArticle,
-                                                                () => {
-                                                                    StoreProvider.store.Dispatch(
-                                                                        new MainNavigatorPushToArticleDetailAction
-                                                                            {articleId = searchArticle.id});
-                                                                }
-                                                            );
-                                                        }
-                                                    )
-                                                );
+            return new Container(
+                color: CColors.White,
+                child: new SafeArea(
+                    child: new Container(
+                        color: CColors.White,
+                        child: new Column(
+                            children: new List<Widget> {
+                                _buildSearchBar(context),
+                                new Flexible(
+                                    child: new StoreConnector<AppState, SearchState>(
+                                        converter: (state, dispatch) => state.searchState,
+                                        builder: (_context, viewModel) => {
+                                            if (viewModel.loading) return new GlobalLoading();
+    
+                                            if (viewModel.keyword.Length > 0) {
+                                                var searchArticles = viewModel.searchArticles;
+                                                if (searchArticles.Count > 0) {
+                                                    var currentPage = viewModel.currentPage;
+                                                    var pages = viewModel.pages;
+                                                    return new SmartRefresher(
+                                                        controller: _refreshController,
+                                                        enablePullDown: true,
+                                                        enablePullUp: currentPage != pages.Count - 1,
+                                                        headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
+                                                        footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
+                                                        onRefresh: _onRefresh,
+                                                        child: ListView.builder(
+                                                            physics: new AlwaysScrollableScrollPhysics(),
+                                                            itemCount: searchArticles.Count,
+                                                            itemBuilder: (cxt, index) => {
+                                                                var searchArticle = searchArticles[index];
+                                                                return new RelatedArticleCard(
+                                                                    searchArticle,
+                                                                    () => {
+                                                                        StoreProvider.store.Dispatch(
+                                                                            new MainNavigatorPushToArticleDetailAction
+                                                                                {articleId = searchArticle.id});
+                                                                    }
+                                                                );
+                                                            }
+                                                        )
+                                                    );
+                                                }
+                                                return new BlankView("暂无搜索结果");
                                             }
-
-                                            return new BlankView("暂无搜索结果");
+                                            return new ListView(
+                                                children: new List<Widget> {
+                                                    _buildSearchHistory(viewModel.searchHistoryList),
+                                                    _buildHotSearch()
+                                                }
+                                            );
                                         }
-
-                                        return new ListView(
-                                            children: new List<Widget> {
-                                                _buildSearchHistory(viewModel.searchHistoryList),
-                                                _buildHotSearch()
-                                            }
-                                        );
-                                    }
+                                    )
                                 )
-                            )
-                        }
+                            }
+                        )
                     )
                 )
             );

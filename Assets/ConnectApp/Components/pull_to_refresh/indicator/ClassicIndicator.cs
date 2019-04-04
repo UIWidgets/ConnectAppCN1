@@ -91,7 +91,7 @@ namespace ConnectApp.components.pull_to_refresh {
                 textWidget
             };
             Widget container = new Row(
-                textDirection: widget.iconPos == IconPosition.right
+                widget.iconPos == IconPosition.right
                     ? TextDirection.rtl
                     : TextDirection.ltr,
                 mainAxisAlignment: MainAxisAlignment.center,

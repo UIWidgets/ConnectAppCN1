@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
+using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -15,16 +16,23 @@ namespace ConnectApp.components {
         public CustomDialog(
             Key key = null,
             Widget widget = null,
-            string message = null
+            string message = null,
+            TimeSpan? duration = null
         ) : base(key) {
             this.widget = widget;
             this.message = message;
+            this.duration = duration;
         }
 
         private readonly Widget widget;
         private readonly string message;
+        private readonly TimeSpan? duration;
 
         public override Widget build(BuildContext context) {
+            if (duration != null) {
+                Promise.Delayed((TimeSpan)duration)
+                    .Then(() => CustomDialogUtils.hiddenCustomDialog());
+            }
             return new GestureDetector(
                 onTap: () => { },
                 child: new Container(
