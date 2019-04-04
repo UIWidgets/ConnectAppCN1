@@ -129,9 +129,7 @@ namespace ConnectApp.plugins
         
         [DllImport ("__Internal")]
         internal static extern void toTimeline(string title, string description, string url,string imageBytes);
-#endif
-        
-#if UNITY_ANDROID || UNITY_EDITOR 
+#elif UNITY_ANDROID || UNITY_EDITOR 
         public void init(string appId) {}
         public void login(string stateId) {}
         public void shareToFriend(string title, string description, string url,string imageBytes) {}
