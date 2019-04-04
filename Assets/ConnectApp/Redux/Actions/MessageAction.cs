@@ -29,4 +29,7 @@ namespace ConnectApp.redux.actions {
         public string nonce;
         public string parentMessageId = "";
     }
+    
+    public class SendMessageFailedAction : BaseAction {
+    }
 }
