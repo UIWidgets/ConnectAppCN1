@@ -49,10 +49,7 @@ namespace ConnectApp.redux.actions {
                             pageNumber = pageNumber
                         });
                     })
-                    .Catch(error => {
-                        state.mineState.pastListLoading = false;
-                        Debug.Log(error);
-                    });;
+                    .Catch(Debug.Log);
             });
         }
         

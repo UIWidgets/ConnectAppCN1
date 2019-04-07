@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using Unity.UIWidgets.foundation;
 using UnityEngine;
 
 namespace ConnectApp.models {
@@ -20,12 +22,12 @@ namespace ConnectApp.models {
         public SettingState settingState { get; set; }
 
         public static AppState initialState() {
-//            var xx = PlayerPrefs.GetString();
-//            var xxxx = new LoginState {
-//                email = "empty",
-//                isLoggedIn = false,
-//                loading = false
-//            };
+
+            var searchHistory = PlayerPrefs.GetString("searchHistoryKey");
+            var searchHistoryList = new List<string>();
+            if (searchHistory.isNotEmpty())
+                searchHistoryList = JsonConvert.DeserializeObject<List<string>>(searchHistory);
+            
             return new AppState {
                 Count = PlayerPrefs.GetInt("count", 0),
                 loginState = new LoginState {
@@ -64,7 +66,8 @@ namespace ConnectApp.models {
                     keyword = "",
                     searchArticles = new List<Article>(),
                     currentPage = 0,
-                    pages = new List<int>()
+                    pages = new List<int>(),
+                    searchHistoryList = searchHistoryList,
                 },
                 notificationState = new NotificationState {
                     loading = false,

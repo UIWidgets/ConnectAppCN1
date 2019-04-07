@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.api;
 using ConnectApp.canvas;
@@ -5,39 +6,86 @@ using ConnectApp.components;
 using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.Models.Screen;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
+using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
-    public class ArticleScreen : StatefulWidget {
+    
+    public class ArticlesScreenConnector : StatelessWidget {
+        public override Widget build(BuildContext context) {
+            return new StoreConnector<AppState, ArticlesScreenModel>(
+                pure: true,
+                converter: (state) => new ArticlesScreenModel {
+                    articlesLoading = state.articleState.articlesLoading,
+                    articleList = state.articleState.articleList,
+                    articleDict = state.articleState.articleDict,
+                    articleTotal = state.articleState.articleTotal
+                },
+                builder: (context1, viewModel, dispatcher) => {
+                    return new ArticlesScreen(
+                        viewModel,
+                        () => dispatcher.dispatch(new MainNavigatorPushToAction {
+                            routeName = MainNavigatorRoutes.Search
+                        }),
+                        id => dispatcher.dispatch(
+                            new MainNavigatorPushToArticleDetailAction {
+                                articleId = id
+                            }
+                        ),
+                        pageNumber =>
+                            dispatcher.dispatch<IPromise<FetchArticlesResponse>>(Actions.fetchArticles(pageNumber))
+                    );
+                });
+        }
+    }
+    
+    public class ArticlesScreen : StatefulWidget {
+        
         public override State createState() {
-            return new _ArticleScreenState();
+            return new _ArticlesScreenState();
         }
 
-        public ArticleScreen(
+        public ArticlesScreen(
+            ArticlesScreenModel screenModel = null,
+            Action pushToSearch = null,    
+            Action<string> pushToArticleDetail = null,    
+            Func<int, IPromise<FetchArticlesResponse>> fetchArticles = null,    
             Key key = null
-        ) : base(key) {
+        ) : base(key)
+        {
+            this.screenModel = screenModel;
+            this.pushToSearch = pushToSearch;
+            this.pushToArticleDetail = pushToArticleDetail;
+            this.fetchArticles = fetchArticles;
         }
+
+        public ArticlesScreenModel screenModel;
+        public Action pushToSearch;
+        public Action<string> pushToArticleDetail;
+        public Func<int, IPromise<FetchArticlesResponse>> fetchArticles;
     }
 
 
-    public class _ArticleScreenState : State<ArticleScreen> {
+    public class _ArticlesScreenState : State<ArticlesScreen>
+    {
+        private const int firstPageNumber = 1;
         private const float headerHeight = 140;
         private float _offsetY;
-        private int pageNumber = 1;
+        private int pageNumber = firstPageNumber;
         private RefreshController _refreshController;
 
         public override void initState() {
             base.initState();
             _refreshController = new RefreshController();
             _offsetY = 0;
-            pageNumber = StoreProvider.store.state.articleState.pageNumber;
-            if (StoreProvider.store.state.articleState.articleList.Count == 0)
-                StoreProvider.store.Dispatch(new FetchArticlesAction {pageNumber = pageNumber});
+            widget.fetchArticles(firstPageNumber);
         }
 
         public override Widget build(BuildContext context) {
@@ -64,8 +112,7 @@ namespace ConnectApp.screens {
                 )),
                 new List<Widget> {
                     new CustomButton(
-                        onPressed: () => StoreProvider.store.Dispatch(new MainNavigatorPushToAction
-                            {routeName = MainNavigatorRoutes.Search}),
+                        onPressed: () => widget.pushToSearch(),
                         child: new Icon(
                             Icons.search,
                             size: 28,
@@ -76,101 +123,73 @@ namespace ConnectApp.screens {
                 _offsetY);
         }
 
-        private Widget _buildArticleList(BuildContext context) {
+        private Widget _buildArticleList(BuildContext context)
+        {
+            object content = new Container();
+
+            if (widget.screenModel.articlesLoading && widget.screenModel.articleList.isEmpty())
+            {
+                content = ListView.builder(
+                    itemCount: 4,
+                    itemBuilder: (cxt, index) => new ArticleLoading()
+                );
+            } else if (widget.screenModel.articleList.Count <= 0)
+            {
+                content = new BlankView("暂无文章");
+            }
+            else
+            {
+                content = new SmartRefresher(
+                    controller: _refreshController,
+                    enablePullDown: true,
+                    enablePullUp: widget.screenModel.articleList.Count < widget.screenModel.articleTotal,
+                    headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
+                    footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
+                    onRefresh: onRefresh,
+                    child: ListView.builder(
+                        physics: new AlwaysScrollableScrollPhysics(),
+                        itemCount: widget.screenModel.articleList.Count,
+                        itemBuilder: (cxt, index) =>
+                        {
+                            var articleId = widget.screenModel.articleList[index];
+                            var article = widget.screenModel.articleDict[articleId];
+                            return new ArticleCard(
+                                article,
+                                () => widget.pushToArticleDetail(articleId),
+                                () =>
+                                {
+                                    ActionSheetUtils.showModalActionSheet(new ActionSheet(
+                                        items: new List<ActionSheetItem>
+                                        {
+                                            new ActionSheetItem("举报", ActionType.destructive, () => { }),
+                                            new ActionSheetItem("取消", ActionType.cancel)
+                                        }
+                                    ));
+                                },
+                                new ObjectKey(article.id)
+                            );
+                        }
+                    )
+                );
+            }
+            
             return new NotificationListener<ScrollNotification>(
                 onNotification: _onNotification,
                 child: new Container(
                     margin: EdgeInsets.only(bottom: 49),
-                    child: new StoreConnector<AppState, Dictionary<string, object>>(
-                        converter: (state, dispatch) => new Dictionary<string, object> {
-                            {"articlesLoading", state.articleState.articlesLoading},
-                            {"articleList", state.articleState.articleList},
-                            {"articleDict", state.articleState.articleDict},
-                            {"articleTotal", state.articleState.articleTotal}
-                        },
-                        builder: (context1, viewModel) => {
-                            var articlesLoading = (bool) viewModel["articlesLoading"];
-                            var articleList = (List<string>) viewModel["articleList"];
-                            var articleDict = (Dictionary<string, Article>) viewModel["articleDict"];
-                            var articleTotal = (int) viewModel["articleTotal"];
-                            if (articlesLoading && articleList.isEmpty())
-                                return ListView.builder(
-                                    itemCount: 4,
-                                    itemBuilder: (cxt, index) => new ArticleLoading()
-                                );
-                            if (articleList.Count < 0)
-                                return new BlankView("暂无文章");
-                            return new SmartRefresher(
-                                controller: _refreshController,
-                                enablePullDown: true,
-                                enablePullUp: articleList.Count < articleTotal,
-                                headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
-                                footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
-                                onRefresh: onRefresh,
-                                child: ListView.builder(
-                                    physics: new AlwaysScrollableScrollPhysics(),
-                                    itemCount: articleList.Count,
-                                    itemBuilder: (cxt, index) => {
-                                        var articleId = articleList[index];
-                                        var article = articleDict[articleId];
-                                        return new ArticleCard(
-                                            article,
-                                            () => {
-                                                StoreProvider.store.Dispatch(new MainNavigatorPushToArticleDetailAction
-                                                    {articleId = articleId});
-                                            },
-                                            () => {
-                                                ActionSheetUtils.showModalActionSheet(new ActionSheet(
-                                                    items: new List<ActionSheetItem> {
-                                                        new ActionSheetItem("举报", ActionType.destructive, () => { }),
-                                                        new ActionSheetItem("取消", ActionType.cancel)
-                                                    }
-                                                ));
-                                            },
-                                            new ObjectKey(article.id)
-                                        );
-                                    }
-                                )
-                            );
-                        }
-                    )
+                    child: (Widget)content
                 )
             );
         }
 
         private void onRefresh(bool up) {
-            if (up) {
-                pageNumber = 1;
-                StoreProvider.store.Dispatch(new FetchArticlesAction() {pageNumber = pageNumber});
-
-                ArticleApi.FetchArticles(pageNumber)
-                    .Then(articlesResponse => {
-                        StoreProvider.store.Dispatch(new UserMapAction {userMap = articlesResponse.userMap});
-                        StoreProvider.store.Dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
-                        StoreProvider.store.Dispatch(new FetchArticleSuccessAction {
-                            pageNumber = pageNumber, articleList = articlesResponse.items,
-                            total = articlesResponse.total
-                        });
-                        _refreshController.sendBack(true, RefreshStatus.completed);
-                    })
-                    .Catch(error => { _refreshController.sendBack(true, RefreshStatus.failed); });
-            }
-            else {
+            if (up)
+                pageNumber = firstPageNumber;
+            else
                 pageNumber++;
-                ArticleApi.FetchArticles(pageNumber)
-                    .Then(articlesResponse => {
-                        if (articlesResponse.items.Count != 0) {
-                            StoreProvider.store.Dispatch(new UserMapAction {userMap = articlesResponse.userMap});
-                            StoreProvider.store.Dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
-                            StoreProvider.store.Dispatch(new FetchArticleSuccessAction {
-                                pageNumber = pageNumber, articleList = articlesResponse.items,
-                                total = articlesResponse.total
-                            });
-                            _refreshController.sendBack(false, RefreshStatus.idle);
-                        }
-                    })
-                    .Catch(error => { _refreshController.sendBack(false, RefreshStatus.failed); });
-            }
+            widget.fetchArticles(firstPageNumber)
+                .Then(_ => _refreshController.sendBack(true, RefreshStatus.completed))
+                .Catch(_ => _refreshController.sendBack(true, RefreshStatus.failed));
         }
 
         private bool _onNotification(ScrollNotification notification) {

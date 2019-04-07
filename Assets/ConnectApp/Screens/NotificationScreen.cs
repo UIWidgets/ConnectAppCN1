@@ -1,22 +1,54 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.api;
 using ConnectApp.components;
 using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.Models.Screen;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
+using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
+using Notification = UnityEngine.Playables.Notification;
 
 namespace ConnectApp.screens {
-    public class NotificationScreen : StatefulWidget {
-        public NotificationScreen(
-            Key key = null
-        ) : base(key) {
+    public class NotificationScreenConnector : StatelessWidget {
+        public override Widget build(BuildContext context) {
+            return new StoreConnector<AppState, NotifcationScreenModel>(
+                pure: true,
+                converter: (state) => new NotifcationScreenModel {
+                    notifationLoading = state.notificationState.loading,
+                    total = state.notificationState.total,
+                    notifications = state.notificationState.notifications
+                },
+                builder: (context1, viewModel, dispatcher) => {
+                    return new NotificationScreen(
+                        viewModel,
+                        pageNumber =>
+                            dispatcher.dispatch<IPromise<FetchNotificationResponse>>(Actions.fetchNotifications(pageNumber))
+                    );
+                }
+            );
         }
+    }
+    public class NotificationScreen : StatefulWidget {
+
+        public NotificationScreen(
+            NotifcationScreenModel screenModel = null,    
+            Func<int, IPromise<FetchNotificationResponse>> fetchNotifications = null,
+            Key key = null
+        ) : base(key)
+        {
+            this.screenModel = screenModel;
+            this.fetchNotifications = fetchNotifications;
+        }
+        
+        public NotifcationScreenModel screenModel;
+        public Func<int, IPromise<FetchNotificationResponse>> fetchNotifications;
 
         public override State createState() {
             return new _NotificationScreenState();
@@ -33,9 +65,7 @@ namespace ConnectApp.screens {
             base.initState();
             _offsetY = 0;
             _refreshController = new RefreshController();
-            var results = StoreProvider.store.state.notificationState.notifications;
-            if (results == null || results.Count == 0)
-                StoreProvider.store.Dispatch(new FetchNotificationsAction {pageNumber = 1});
+            widget.fetchNotifications(1);
         }
 
         private bool _onNotification(ScrollNotification notification) {
@@ -55,21 +85,41 @@ namespace ConnectApp.screens {
                 _pageNumber = 1;
             else
                 _pageNumber++;
-            NotificationApi.FetchNotifications(_pageNumber)
-                .Then(notificationResponse => {
-                    StoreProvider.store.Dispatch(new FetchNotificationsSuccessAction {
-                        notificationResponse = notificationResponse,
-                        pageNumber = _pageNumber
-                    });
-                    _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle);
-                })
-                .Catch(error => {
-                    _refreshController.sendBack(up, RefreshStatus.failed);
-                    Debug.Log($"{error}");
-                });
+            widget.fetchNotifications(_pageNumber)
+                .Then(_ => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
         }
 
-        public override Widget build(BuildContext context) {
+        public override Widget build(BuildContext context)
+        {
+            object content = new Container();
+            if (widget.screenModel.notifationLoading) 
+                content = new GlobalLoading();
+            else if (widget.screenModel.notifications.Count <= 0) 
+                content = new BlankView("暂无通知消息");
+            else {
+                var isLoadMore = widget.screenModel.notifications.Count == widget.screenModel.total;
+                content = new SmartRefresher(
+                    controller: _refreshController,
+                    enablePullDown: true,
+                    enablePullUp: !isLoadMore,
+                    headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
+                    footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
+                    onRefresh: _onRefresh,
+                    child: ListView.builder(
+                        physics: new AlwaysScrollableScrollPhysics(),
+                        itemCount: widget.screenModel.notifications.Count,
+                        itemBuilder: (cxt, index) => {
+                            var notification = widget.screenModel.notifications[index];
+                            return new NotificationCard(
+                                notification: notification
+                            );
+                        }
+                    )
+                );
+            }
+            
+            
             return new Container(
                 color: CColors.White,
                 child: new Column(
@@ -95,37 +145,7 @@ namespace ConnectApp.screens {
                         new Flexible(
                             child: new NotificationListener<ScrollNotification>(
                                 onNotification: _onNotification,
-                                child: new Container(
-                                    padding: EdgeInsets.only(bottom: 49),
-                                    child: new StoreConnector<AppState, NotificationState>(
-                                        converter: (state, dispatch) => state.notificationState,
-                                        builder: (_context, viewModel) => {
-                                            if (viewModel.loading) return new GlobalLoading();
-                                            var notifications = viewModel.notifications;
-                                            if (notifications.Count <= 0) return new BlankView("暂无通知消息");
-                                            var isLoadMore = notifications.Count == viewModel.total;
-
-                                            return new SmartRefresher(
-                                                controller: _refreshController,
-                                                enablePullDown: true,
-                                                enablePullUp: !isLoadMore,
-                                                headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
-                                                footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
-                                                onRefresh: _onRefresh,
-                                                child: ListView.builder(
-                                                    physics: new AlwaysScrollableScrollPhysics(),
-                                                    itemCount: notifications.Count,
-                                                    itemBuilder: (cxt, index) => {
-                                                        var notification = notifications[index];
-                                                        return new NotificationCard(
-                                                            notification: notification
-                                                        );
-                                                    }
-                                                )
-                                            );
-                                        }
-                                    )
-                                )
+                                child: (Widget)content
                             )
                         )
                     }

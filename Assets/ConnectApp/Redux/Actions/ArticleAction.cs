@@ -16,7 +16,7 @@ namespace ConnectApp.redux.actions {
         public List<Article> articleList;
         public int total;
     }
-    public class FetchArticleFailedAction : BaseAction {
+    public class FetchArticleFailureAction : BaseAction {
     }
 
     public class FetchArticleDetailAction : RequestAction {
@@ -90,6 +90,26 @@ namespace ConnectApp.redux.actions {
     }
 
     public static partial class Actions {
+        public static object fetchArticles(int pageNumber)
+        {
+            return new ThunkAction<AppState>((dispatcher, getState) => {                
+                return ArticleApi.FetchArticles(pageNumber)
+                    .Then(articlesResponse => {
+                        dispatcher.dispatch(new UserMapAction {userMap = articlesResponse.userMap});
+                        dispatcher.dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
+                        dispatcher.dispatch(new FetchArticleSuccessAction {
+                            pageNumber = pageNumber, 
+                            articleList = articlesResponse.items,
+                            total = articlesResponse.total
+                        });
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new FetchArticleFailureAction());
+                        Debug.Log(error);
+                    });
+            });
+        }
+
         public static object fetchArticleComments(string channelId, string currOldestMessageId = "") {
             return new ThunkAction<AppState>((dispatcher, getState) => {                
                 return ArticleApi.FetchArticleComments(channelId, currOldestMessageId)

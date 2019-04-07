@@ -89,7 +89,7 @@ namespace ConnectApp.screens {
             _myFuturePageNumber = 0;
             _myPastPageNumber = 0;
             _refreshController = new RefreshController();
-//            widget.fetchMyFutureEvents(1);
+            widget.fetchMyFutureEvents(1);
         }
 
         private void _fetchMyPastEvents() {
@@ -103,8 +103,8 @@ namespace ConnectApp.screens {
                 else
                     _myFuturePageNumber++;
                     widget.fetchMyFutureEvents(_myFuturePageNumber)
-                        .Then(_ => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle)
-                        ).Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
+                        .Then(_ => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                        .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
             }
 
             if (_selectedIndex == 1) {
@@ -114,8 +114,6 @@ namespace ConnectApp.screens {
                     _myPastPageNumber++;
                 MineApi.FetchMyPastEvents(_myPastPageNumber)
                     .Then(eventsResponse => {
-                        StoreProvider.store.Dispatch(new FetchMyPastEventsSuccessAction
-                            {eventsResponse = eventsResponse, pageNumber = _myPastPageNumber});
                         _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle);
                     })
                     .Catch(error => { _refreshController.sendBack(up, RefreshStatus.failed); });
@@ -140,7 +138,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private static Widget _buildNavigationBar(BuildContext context) {
+        private Widget _buildNavigationBar(BuildContext context) {
             return new Container(
                 decoration: new BoxDecoration(CColors.White),
                 width: MediaQuery.of(context).size.width,
@@ -152,7 +150,7 @@ namespace ConnectApp.screens {
                         new Container(
                             child: new CustomButton(
                                 padding: EdgeInsets.only(16, 10, 16),
-                                onPressed: () => StoreProvider.store.Dispatch(new MainNavigatorPopAction()),
+                                onPressed: () => widget.mainNavigatorPop(),
                                 child: new Icon(
                                     Icons.arrow_back,
                                     size: 24,
@@ -220,51 +218,38 @@ namespace ConnectApp.screens {
         }
 
         private Widget _buildMyEventContent(int index) {
-            return new Container(
-                child: new StoreConnector<AppState, MineState>(
-                    converter: (state, dispatch) => state.mineState,
-                    builder: (_context, viewModel) => {
-                        var data = index == 0 ? viewModel.futureEventsList : viewModel.pastEventsList;
-                        var hasMore = true;
-                        if (index == 0) {
-                            if (viewModel.futureListLoading) return new GlobalLoading();
-                            if (data.Count <= 0) return new BlankView("暂无我的即将开始活动");
-                            var futureEventTotal = viewModel.futureEventTotal;
-                            hasMore = futureEventTotal == data.Count;
-                        }
+            var data = index == 0 ? widget.screenModel.futureEventsList : widget.screenModel.pastEventsList;
+            var hasMore = true;
+            if (index == 0) {
+                if (widget.screenModel.futureListLoading) return new GlobalLoading();
+                if (data.Count <= 0) return new BlankView("暂无我的即将开始活动");
+                var futureEventTotal = widget.screenModel.futureEventTotal;
+                hasMore = futureEventTotal == data.Count;
+            }
 
-                        if (index == 1) {
-                            if (viewModel.pastListLoading) return new GlobalLoading();
-                            if (data.Count <= 0) return new BlankView("暂无我的往期活动");
-                            var pastEventTotal = viewModel.pastEventTotal;
-                            hasMore = pastEventTotal == data.Count;
-                        }
-
-                        return new SmartRefresher(
-                            controller: _refreshController,
-                            enablePullDown: true,
-                            enablePullUp: !hasMore,
-                            headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
-                            footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
-                            onRefresh: _onRefresh,
-                            child: ListView.builder(
-                                physics: new AlwaysScrollableScrollPhysics(),
-                                itemCount: data.Count,
-                                itemBuilder: (cxt, idx) => {
-                                    var model = data[idx];
-                                    return new EventCard(
-                                        model,
-                                        () => {
-                                            StoreProvider.store.Dispatch(new MainNavigatorPushToEventDetailAction {
-                                                eventId = model.id,
-                                                eventType = model.mode == "online"
-                                                    ? EventType.onLine
-                                                    : EventType.offline
-                                            });
-                                        }
-                                    );
-                                }
-                            )
+            if (index == 1) {
+                if (widget.screenModel.pastListLoading) return new GlobalLoading();
+                if (data.Count <= 0) return new BlankView("暂无我的往期活动");
+                var pastEventTotal = widget.screenModel.pastEventTotal;
+                hasMore = pastEventTotal == data.Count;
+            }
+            
+            return new SmartRefresher(
+                controller: _refreshController,
+                enablePullDown: true,
+                enablePullUp: !hasMore,
+                headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
+                footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
+                onRefresh: _onRefresh,
+                child: ListView.builder(
+                    physics: new AlwaysScrollableScrollPhysics(),
+                    itemCount: data.Count,
+                    itemBuilder: (cxt, idx) => {
+                        var model = data[idx];
+                        var eventType = model.mode == "online" ? EventType.onLine : EventType.offline;
+                        return new EventCard(
+                            model,
+                            () => widget.pushToEventDetail(model.id, eventType)
                         );
                     }
                 )

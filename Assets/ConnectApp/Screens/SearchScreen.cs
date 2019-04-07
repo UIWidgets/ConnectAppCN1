@@ -1,25 +1,90 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.api;
 using ConnectApp.components;
 using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.Models.Screen;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
+using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.screens {
+    
+    public class SearchScreenConnector : StatelessWidget {
+        public override Widget build(BuildContext context) {
+            return new StoreConnector<AppState, SearchScreenModel>(
+                pure: true,
+                converter: state => new SearchScreenModel {
+                    searchLoading = state.searchState.loading,
+                    searchKeyword = state.searchState.keyword,
+                    searchArticles = state.searchState.searchArticles,
+                    currentPage = state.searchState.currentPage,
+                    pages = state.searchState.pages,
+                    searchHistoryList = state.searchState.searchHistoryList
+                },
+                builder: (context1, viewModel, dispatcher) => {
+                    return new SearchScreen(
+                        viewModel,
+                        () => dispatcher.dispatch(new MainNavigatorPopAction()),
+                        articleId => dispatcher.dispatch(
+                                new MainNavigatorPushToArticleDetailAction {articleId = articleId}),
+                        (keyword, pageNumber) => dispatcher.dispatch<IPromise<FetchSearchResponse>>(
+                            Actions.searchArticles(keyword, pageNumber)),
+                        () => dispatcher.dispatch(new PopularSearchAction()),
+                        () => dispatcher.dispatch(new ClearSearchArticleResultAction()),
+                        keyword => dispatcher.dispatch(new SaveSearchHistoryAction {keyword = keyword}),
+                        keyword => dispatcher.dispatch(new DeleteSearchHistoryAction {keyword = keyword}),
+                        () => dispatcher.dispatch(new DeleteAllSearchHistoryAction())
+                    );
+                }
+            );
+        }
+    }
+    
     public class SearchScreen : StatefulWidget {
         public SearchScreen(
+            SearchScreenModel screenModel = null,
+            Action mainRouterPop = null,
+            Action<string> pushToArticleDetail = null,
+            Func<string, int, IPromise<FetchSearchResponse>> searchArticle = null,
+            Action fetchPopularSearch = null,
+            Action clearSearchArticleResult = null,
+            Action<string> saveSearchHistory = null,
+            Action<string> deleteSearchHistory = null,
+            Action deleteAllSearchHistory = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key)
+        {
+            this.screenModel = screenModel;
+            this.mainRouterPop = mainRouterPop;
+            this.pushToArticleDetail = pushToArticleDetail;
+            this.searchArticle = searchArticle;
+            this.fetchPopularSearch = fetchPopularSearch;
+            this.clearSearchArticleResult = clearSearchArticleResult;
+            this.saveSearchHistory = saveSearchHistory;
+            this.deleteSearchHistory = deleteSearchHistory;
+            this.deleteAllSearchHistory = deleteAllSearchHistory;
         }
+
+        public SearchScreenModel screenModel;
+        public Action mainRouterPop;
+        public Action<string> pushToArticleDetail;
+        public Func<string, int, IPromise<FetchSearchResponse>> searchArticle;
+        public Action fetchPopularSearch;
+        public Action clearSearchArticleResult;
+        public Action<string> saveSearchHistory;
+        public Action<string> deleteSearchHistory;
+        public Action deleteAllSearchHistory;
 
         public override State createState() {
             return new _SearchScreenState();
@@ -35,25 +100,23 @@ namespace ConnectApp.screens {
             base.initState();
             _pageNumber = 0;
             _refreshController = new RefreshController();
-            StoreProvider.store.Dispatch(new GetSearchHistoryAction());
-            if (StoreProvider.store.state.popularSearchState.popularSearchs.Count == 0)
-                StoreProvider.store.Dispatch(new PopularSearchAction());
+            widget.fetchPopularSearch();
         }
 
         public override void dispose() {
-            _clearSearchArticle();
+            widget.clearSearchArticleResult();
             base.dispose();
         }
 
         private void _searchArticle(string text) {
             if (text.isEmpty()) return;
-            _saveSearchHistory(text);
+            widget.saveSearchHistory(text);
             _controller.text = text;
-            StoreProvider.store.Dispatch(new SearchArticleAction {keyword = text});
+            widget.searchArticle(text, 0);
         }
 
         private static void _clearSearchArticle() {
-            StoreProvider.store.Dispatch(new ClearSearchArticleAction());
+            StoreProvider.store.Dispatch(new ClearSearchArticleResultAction());
         }
 
         private static void _saveSearchHistory(string text) {
@@ -180,7 +243,7 @@ namespace ConnectApp.screens {
                             textInputAction: TextInputAction.search,
                             clearButtonMode: InputFieldClearButtonMode.whileEditing,
                             onChanged: text => {
-                                if (text == null || text.Length <= 0) _clearSearchArticle();
+                                if (text == null || text.Length <= 0) widget.clearSearchArticleResult();
                             },
                             onSubmitted: _searchArticle
                         )
