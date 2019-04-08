@@ -1,6 +1,6 @@
 using System;
 
-namespace ConnectApp.Models.Screen
+namespace ConnectApp.Models.ViewModel
 {
     public class SettingScreenModel : IEquatable<SettingScreenModel>
     {

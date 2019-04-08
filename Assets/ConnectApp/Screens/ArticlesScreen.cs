@@ -6,7 +6,7 @@ using ConnectApp.components;
 using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
-using ConnectApp.Models.Screen;
+using ConnectApp.Models.ViewModel;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using RSG;
@@ -21,6 +21,7 @@ namespace ConnectApp.screens {
     
     public class ArticlesScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
+            Debug.Log("ArticlesScreenConnector build");
             return new StoreConnector<AppState, ArticlesScreenModel>(
                 pure: false,
                 converter: (state) => new ArticlesScreenModel {
@@ -91,7 +92,7 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            Debug.Log($"build articleList: {widget.screenModel.articleList.Count}");
+            Debug.Log($"_ArticlesScreenState build articleList: {widget.screenModel.articleList.Count}");
             return new Container(
                 color: CColors.BgGrey,
                 child: new Column(

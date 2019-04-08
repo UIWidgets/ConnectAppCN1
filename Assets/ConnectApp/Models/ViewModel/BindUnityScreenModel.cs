@@ -1,7 +1,7 @@
 using System;
 using ConnectApp.screens;
 
-namespace ConnectApp.Models.Screen {
+namespace ConnectApp.Models.ViewModel {
 
     public class BindUnityScreenModel : IEquatable<BindUnityScreenModel> {
         public FromPage fromPage = FromPage.setting;

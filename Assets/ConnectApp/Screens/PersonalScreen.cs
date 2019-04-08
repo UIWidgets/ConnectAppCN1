@@ -4,7 +4,7 @@ using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
-using ConnectApp.Models.Screen;
+using ConnectApp.Models.ViewModel;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using RSG;

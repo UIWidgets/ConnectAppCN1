@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.models;
 
-namespace ConnectApp.Models.Screen
+namespace ConnectApp.Models.ViewModel
 {
     public class EventsScreenModel : IEquatable<EventsScreenModel>
     {

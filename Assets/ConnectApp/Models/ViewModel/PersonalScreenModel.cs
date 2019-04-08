@@ -1,6 +1,6 @@
 using System;
 
-namespace ConnectApp.Models.Screen
+namespace ConnectApp.Models.ViewModel
 {
     public class PersonalScreenModel : IEquatable<PersonalScreenModel>{
         public bool isLoggedIn;
