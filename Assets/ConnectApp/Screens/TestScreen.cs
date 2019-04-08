@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.redux;
@@ -362,7 +363,7 @@ namespace ConnectApp.screens {
                     new Container(height: 10),
                     new GestureDetector(
                         onTap: () => {
-                            StoreProvider.store.dispatcher.dispatch(new FetchMessagesAction {channelId = "0522ffbb43000001"});
+                            StoreProvider.store.dispatcher.dispatch(Actions.fetchMessages("0522ffbb43000001", "", true));
                         },
                         child: new Container(
                             color: CColors.White,
@@ -375,8 +376,7 @@ namespace ConnectApp.screens {
                     new Container(height: 10),
                     new GestureDetector(
                         onTap: () => {
-                            StoreProvider.store.dispatcher.dispatch(new FetchMessagesAction
-                                {channelId = "0522ffbb43000001", currOldestMessageId = "0587f55b2b40c000"});
+                            StoreProvider.store.dispatcher.dispatch(Actions.fetchMessages("0522ffbb43000001", "0587f55b2b40c000", false));
                         },
                         child: new Container(
                             color: CColors.White,

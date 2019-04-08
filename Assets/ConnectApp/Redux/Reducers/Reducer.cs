@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using ConnectApp.api;
 using ConnectApp.canvas;
 using ConnectApp.components;
@@ -38,7 +37,7 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.password = action.changeText;
                     break;
                 }
-                case ChatWindowShowAction action: {
+                case ShowChatWindowAction action: {
                     state.eventState.showChatWindow = action.show;
                     break;
                 }
@@ -46,20 +45,19 @@ namespace ConnectApp.redux.reducers {
                     state.eventState.openChatWindow = action.status;
                     break;
                 }
-                case LoginByEmailAction action: {
+                case LoginByEmailAction _: {
                     state.loginState.loading = true;
                     var email = state.loginState.email;
                     var password = state.loginState.password;
                     LoginApi.LoginByEmail(email, password)
                         .Then(loginInfo => {
-                            StoreProvider.store.Dispatch(new LoginByEmailSuccessAction {
-                                loginInfo = loginInfo,
-                                context = action.context
+                            StoreProvider.store.dispatcher.dispatch(new LoginByEmailSuccessAction {
+                                loginInfo = loginInfo
                             });
                         })
                         .Catch(error => {
                             Debug.Log(error);
-                            StoreProvider.store.Dispatch(new LoginByEmailFailedAction {context = action.context});
+                            StoreProvider.store.dispatcher.dispatch(new LoginByEmailFailedAction());
                         });
                     break;
                 }
@@ -74,10 +72,10 @@ namespace ConnectApp.redux.reducers {
                     var dict = new Dictionary<string, User> {
                         {user.id, user}
                     };
-                    StoreProvider.store.Dispatch(new UserMapAction {userMap = dict});
+                    StoreProvider.store.dispatcher.dispatch(new UserMapAction {userMap = dict});
                     state.loginState.isLoggedIn = true;
-                    StoreProvider.store.Dispatch(new MainNavigatorPopAction()).Then(() =>
-                        StoreProvider.store.Dispatch(new CleanEmailAndPasswordAction()));
+                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPopAction());
+                    StoreProvider.store.dispatcher.dispatch(new CleanEmailAndPasswordAction());
                     break;
                 }
                 case LoginByEmailFailedAction action: {
@@ -86,7 +84,7 @@ namespace ConnectApp.redux.reducers {
                         "邮箱或密码不正确，请稍后再试。",
                         new TimeSpan(0, 0, 0, 2)
                     );
-                    customSnackBar.show(action.context);
+                    customSnackBar.show();
                     break;
                 }
                 case LoginByWechatAction action: {
@@ -96,14 +94,13 @@ namespace ConnectApp.redux.reducers {
                     );
                     LoginApi.LoginByWechat(action.code)
                         .Then(loginInfo => {
-                            StoreProvider.store.Dispatch(new LoginByWechatSuccessAction() {
+                            StoreProvider.store.dispatcher.dispatch(new LoginByWechatSuccessAction {
                                 loginInfo = loginInfo,
-                                context = action.context
                             });
                         })
                         .Catch(error => {
                             Debug.Log(error);
-                            StoreProvider.store.Dispatch(new LoginByWechatFailedAction() {context = action.context});
+                            StoreProvider.store.dispatcher.dispatch(new LoginByWechatFailedAction());
                         });
                     break;
                 }
@@ -118,10 +115,10 @@ namespace ConnectApp.redux.reducers {
                     var dict = new Dictionary<string, User> {
                         {user.id, user}
                     };
-                    StoreProvider.store.Dispatch(new UserMapAction {userMap = dict});
+                    StoreProvider.store.dispatcher.dispatch(new UserMapAction {userMap = dict});
                     state.loginState.isLoggedIn = true;
-                    StoreProvider.store.Dispatch(new MainNavigatorPopAction()).Then(() =>
-                    StoreProvider.store.Dispatch(new CleanEmailAndPasswordAction()));
+                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPopAction());
+                    StoreProvider.store.dispatcher.dispatch(new CleanEmailAndPasswordAction());
                     CustomDialogUtils.hiddenCustomDialog();
                     break;
                 }
@@ -131,13 +128,13 @@ namespace ConnectApp.redux.reducers {
                         "登录失败，请稍后再试。",
                         new TimeSpan(0, 0, 0, 2)
                     );
-                    customSnackBar.show(action.context);
+                    customSnackBar.show();
                     break;
                 }
-                case LogoutAction action: {
+                case LogoutAction _: {
                     state.loginState.loginInfo = new LoginInfo();
                     state.loginState.isLoggedIn = false;
-                    StoreProvider.store.Dispatch(new MainNavigatorPopAction());
+                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPopAction());
                     break;
                 }
                 case CleanEmailAndPasswordAction action: {
@@ -160,7 +157,6 @@ namespace ConnectApp.redux.reducers {
                         if (!state.articleState.articleDict.ContainsKey(article.id))
                             state.articleState.articleDict.Add(article.id, article);
                     }
-
                     state.articleState.pageNumber = action.pageNumber;
                     state.articleState.articleTotal = action.total;
                     state.articleState.articlesLoading = false;
@@ -175,19 +171,19 @@ namespace ConnectApp.redux.reducers {
                     ArticleApi.FetchArticleDetail(action.articleId)
                         .Then(articleDetailResponse => {
                             if (articleDetailResponse.project.comments.items.Count > 0)
-                                StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction {
+                                StoreProvider.store.dispatcher.dispatch(new FetchArticleCommentsSuccessAction {
                                     channelId = articleDetailResponse.project.channelId,
                                     commentsResponse = articleDetailResponse.project.comments,
                                     isRefreshList = true
                                 });
 
-                            StoreProvider.store.Dispatch(new UserMapAction {
+                            StoreProvider.store.dispatcher.dispatch(new UserMapAction {
                                 userMap = articleDetailResponse.project.userMap
                             });
-                            StoreProvider.store.Dispatch(new TeamMapAction {
+                            StoreProvider.store.dispatcher.dispatch(new TeamMapAction {
                                 teamMap = articleDetailResponse.project.teamMap
                             });
-                            StoreProvider.store.Dispatch(new FetchArticleDetailSuccessAction {
+                            StoreProvider.store.dispatcher.dispatch(new FetchArticleDetailSuccessAction {
                                 articleDetail = articleDetailResponse.project
                             });
                         })
@@ -213,7 +209,7 @@ namespace ConnectApp.redux.reducers {
                     else
                         state.articleState.articleDict.Add(article.id, article);
 
-                    StoreProvider.store.Dispatch(new SaveArticleHistoryAction {
+                    StoreProvider.store.dispatcher.dispatch(new SaveArticleHistoryAction {
                         article = article
                     });
                     break;
@@ -260,7 +256,7 @@ namespace ConnectApp.redux.reducers {
                 case LikeArticleAction action: {
                     ArticleApi.LikeArticle(action.articleId)
                         .Then(() => {
-                            StoreProvider.store.Dispatch(new LikeArticleSuccessAction {articleId = action.articleId});
+                            StoreProvider.store.dispatcher.dispatch(new LikeArticleSuccessAction {articleId = action.articleId});
                         })
                         .Catch(error => { Debug.Log(error); });
                     break;
@@ -272,15 +268,6 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case FetchArticleCommentsAction action: {
-                    ArticleApi.FetchArticleComments(action.channelId, action.currOldestMessageId)
-                        .Then(responseComments => {
-                            StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction {
-                                channelId = action.channelId,
-                                commentsResponse = responseComments,
-                                isRefreshList = false
-                            });
-                        })
-                        .Catch(error => { Debug.Log(error); });
                     break;
                 }
                 case FetchArticleCommentsSuccessAction action: {
@@ -301,7 +288,7 @@ namespace ConnectApp.redux.reducers {
                     // action.commentsResponse.parents.ForEach(message => { messageItem[message.id] = message; });
                     channelMessageList.Add(action.channelId, itemIds);
                     channelMessageDict.Add(action.channelId, messageItem);
-                    StoreProvider.store.Dispatch(new UserMapAction {
+                    StoreProvider.store.dispatcher.dispatch(new UserMapAction {
                         userMap = userMap
                     });
 
@@ -343,7 +330,7 @@ namespace ConnectApp.redux.reducers {
                 case LikeCommentAction action: {
                     ArticleApi.LikeComment(action.messageId)
                         .Then((message) => {
-                            StoreProvider.store.Dispatch(new LikeCommentSuccessAction() {message = message});
+                            StoreProvider.store.dispatcher.dispatch(new LikeCommentSuccessAction() {message = message});
                         })
                         .Catch(error => { Debug.Log(error); });
                     break;
@@ -355,7 +342,7 @@ namespace ConnectApp.redux.reducers {
                 case RemoveLikeCommentAction action: {
                     ArticleApi.RemoveLikeComment(action.messageId)
                         .Then((message) => {
-                            StoreProvider.store.Dispatch(new RemoveLikeSuccessAction() {message = message});
+                            StoreProvider.store.dispatcher.dispatch(new RemoveLikeSuccessAction() {message = message});
                         })
                         .Catch(error => { Debug.Log(error); });
                     break;
@@ -367,7 +354,7 @@ namespace ConnectApp.redux.reducers {
                 case SendCommentAction action: {
                     ArticleApi.SendComment(action.channelId, action.content, action.nonce, action.parentMessageId)
                         .Then((message) => {
-                            StoreProvider.store.Dispatch(new SendCommentSuccessAction() {
+                            StoreProvider.store.dispatcher.dispatch(new SendCommentSuccessAction() {
                                 message = message
                             });
                         })
@@ -403,25 +390,12 @@ namespace ConnectApp.redux.reducers {
                 }
                 case FetchEventsAction action: {
                     state.eventState.eventsLoading = true;
-                    EventApi.FetchEvents(action.pageNumber, action.tab)
-                        .Then(eventsResponse => {
-                            StoreProvider.store.Dispatch(new FetchEventsSuccessAction {
-                                    eventsResponse = eventsResponse, 
-                                    tab = action.tab,
-                                    pageNumber = action.pageNumber
-                                }
-                            );
-                        })
-                        .Catch(error => {
-                            state.eventState.eventsLoading = false;
-                            Debug.Log(error);
-                        });
                     break;
                 }
                 case FetchEventsSuccessAction action: {
                     state.eventState.eventsLoading = false;
-                    StoreProvider.store.Dispatch(new UserMapAction {userMap = action.eventsResponse.userMap});
-                    StoreProvider.store.Dispatch(new PlaceMapAction {placeMap = action.eventsResponse.placeMap});
+                    StoreProvider.store.dispatcher.dispatch(new UserMapAction {userMap = action.eventsResponse.userMap});
+                    StoreProvider.store.dispatcher.dispatch(new PlaceMapAction {placeMap = action.eventsResponse.placeMap});
                     if (action.tab == "ongoing") {
                         state.eventState.pageNumber = action.pageNumber;
                         state.eventState.ongoingEventTotal = action.eventsResponse.events.total;
@@ -457,18 +431,6 @@ namespace ConnectApp.redux.reducers {
                 }
                 case FetchEventDetailAction action: {
                     state.eventState.eventDetailLoading = true;
-                    EventApi.FetchEventDetail(action.eventId)
-                        .Then(eventObj => {
-                            var isLoggedIn = StoreProvider.store.state.loginState.isLoggedIn;
-                            if (isLoggedIn)
-                                StoreProvider.store.Dispatch(new FetchMessagesAction
-                                    {channelId = eventObj.channelId, isFirstLoad = true});
-                            StoreProvider.store.Dispatch(new FetchEventDetailSuccessAction {eventObj = eventObj});
-                        })
-                        .Catch(error => {
-                            StoreProvider.store.Dispatch(new FetchEventDetailFailedAction());
-                            Debug.Log(error);
-                        });
                     break;
                 }
                 case FetchEventDetailSuccessAction action: {
@@ -483,12 +445,12 @@ namespace ConnectApp.redux.reducers {
                         else
                             userMap.Add(host.id, host);
                     });
-                    StoreProvider.store.Dispatch(new UserMapAction {userMap = userMap});
+                    StoreProvider.store.dispatcher.dispatch(new UserMapAction {userMap = userMap});
                     if (state.eventState.eventsDict.ContainsKey(action.eventObj.id))
                         state.eventState.eventsDict[action.eventObj.id] = action.eventObj;
                     else
                         state.eventState.eventsDict.Add(action.eventObj.id, action.eventObj);
-                    StoreProvider.store.Dispatch(new SaveEventHistoryAction {eventObj = action.eventObj});
+                    StoreProvider.store.dispatcher.dispatch(new SaveEventHistoryAction {eventObj = action.eventObj});
                     break;
                 }
                 case FetchEventDetailFailedAction action: {
@@ -538,7 +500,7 @@ namespace ConnectApp.redux.reducers {
                     state.eventState.joinEventLoading = true;
                     EventApi.JoinEvent(action.eventId)
                         .Then(eventId => {
-                            StoreProvider.store.Dispatch(new JoinEventSuccessAction {eventId = action.eventId});
+                            StoreProvider.store.dispatcher.dispatch(new JoinEventSuccessAction {eventId = action.eventId});
                         })
                         .Catch(error => {
                             state.eventState.joinEventLoading = false;
@@ -571,32 +533,21 @@ namespace ConnectApp.redux.reducers {
                 }
                 case ReportItemAction action: {
                     ReportApi.ReportItem(action.itemId, action.itemType, action.reportContext)
-                        .Then(() => { StoreProvider.store.Dispatch(new ReportItemSuccessAction()); })
+                        .Then(() => { StoreProvider.store.dispatcher.dispatch(new ReportItemSuccessAction()); })
                         .Catch(error => { Debug.Log(error); });
                     break;
                 }
-                case ReportItemSuccessAction action: {
+                case ReportItemSuccessAction _: {
                     break;
                 }
-                case FetchMyFutureEventsAction action: {
+                case FetchMyFutureEventsAction _: {
                     state.mineState.futureListLoading = true;
-                    MineApi.FetchMyFutureEvents(action.pageNumber)
-                        .Then(eventsResponse => {
-                            StoreProvider.store.Dispatch(new FetchMyFutureEventsSuccessAction {
-                                eventsResponse = eventsResponse,
-                                pageNumber = action.pageNumber
-                            });
-                        })
-                        .Catch(error => {
-                            state.mineState.futureListLoading = false;
-                            Debug.Log(error);
-                        });
                     break;
                 }
                 case FetchMyFutureEventsSuccessAction action: {
                     state.mineState.futureListLoading = false;
-                    StoreProvider.store.Dispatch(new UserMapAction {userMap = action.eventsResponse.userMap});
-                    StoreProvider.store.Dispatch(new PlaceMapAction {placeMap = action.eventsResponse.placeMap});
+                    StoreProvider.store.dispatcher.dispatch(new UserMapAction {userMap = action.eventsResponse.userMap});
+                    StoreProvider.store.dispatcher.dispatch(new PlaceMapAction {placeMap = action.eventsResponse.placeMap});
                     state.mineState.futureEventTotal = action.eventsResponse.events.total;
                     if (action.pageNumber == 1) {
                         state.mineState.futureEventsList = action.eventsResponse.events.items;
@@ -613,8 +564,8 @@ namespace ConnectApp.redux.reducers {
                 }
                 case FetchMyPastEventsSuccessAction action: {
                     state.mineState.pastListLoading = false;
-                    StoreProvider.store.Dispatch(new UserMapAction {userMap = action.eventsResponse.userMap});
-                    StoreProvider.store.Dispatch(new PlaceMapAction {placeMap = action.eventsResponse.placeMap});
+                    StoreProvider.store.dispatcher.dispatch(new UserMapAction {userMap = action.eventsResponse.userMap});
+                    StoreProvider.store.dispatcher.dispatch(new PlaceMapAction {placeMap = action.eventsResponse.placeMap});
                     state.mineState.pastEventTotal = action.eventsResponse.events.total;
                     if (action.pageNumber == 1) {
                         state.mineState.pastEventsList = action.eventsResponse.events.items;
@@ -625,26 +576,11 @@ namespace ConnectApp.redux.reducers {
                     }
                     break;
                 }
-                case FetchMessagesAction action: {
-                    StoreProvider.store.state.messageState.messageLoading = true;
-                    MessageApi.FetchMessages(action.channelId, action.currOldestMessageId)
-                        .Then(messagesResponse => {
-                            StoreProvider.store.Dispatch(new FetchMessagesSuccessAction {
-                                isFirstLoad = action.isFirstLoad,
-                                channelId = action.channelId,
-                                messages = messagesResponse.items,
-                                hasMore = messagesResponse.hasMore,
-                                currOldestMessageId = messagesResponse.currOldestMessageId
-                            });
-                        })
-                        .Catch(error => {
-                            StoreProvider.store.state.messageState.messageLoading = false;
-                            Debug.Log(error);
-                        });
+                case FetchMessagesAction _: {
+                    state.messageState.messageLoading = true;
                     break;
                 }
                 case FetchMessagesSuccessAction action: {
-                    StoreProvider.store.state.messageState.messageLoading = false;
                     if (action.messages != null && action.messages.Count > 0) {
                         var channelMessageList = state.messageState.channelMessageList;
                         var channelMessageDict = state.messageState.channelMessageDict;
@@ -681,7 +617,7 @@ namespace ConnectApp.redux.reducers {
                             channelMessageDict[action.channelId] = messageDict;
                         else
                             channelMessageDict.Add(action.channelId, messageDict);
-                        StoreProvider.store.Dispatch(new UserMapAction {
+                        StoreProvider.store.dispatcher.dispatch(new UserMapAction {
                             userMap = userMap
                         });
                         state.messageState.channelMessageList = channelMessageList;
@@ -689,21 +625,25 @@ namespace ConnectApp.redux.reducers {
                         state.messageState.hasMore = action.hasMore;
                         state.messageState.currOldestMessageId = action.currOldestMessageId;
                     }
-
+                    state.messageState.messageLoading = false;
+                    break;
+                }
+                case FetchMessagesFailureAction _ : {
+                    state.messageState.messageLoading = false;
                     break;
                 }
                 case SendMessageAction action: {
-                    StoreProvider.store.state.messageState.sendMessageLoading = true;
+                    state.messageState.sendMessageLoading = true;
                     MessageApi.SendMessage(action.channelId, action.content, action.nonce, action.parentMessageId)
                         .Then(sendMessageResponse => {
-                            StoreProvider.store.Dispatch(new SendMessageSuccessAction {
+                            StoreProvider.store.dispatcher.dispatch(new SendMessageSuccessAction {
                                 channelId = action.channelId,
                                 content = action.content,
                                 nonce = action.nonce
                             });
                         })
                         .Catch(error => {
-                            StoreProvider.store.state.messageState.sendMessageLoading = false;
+                            state.messageState.sendMessageLoading = false;
                             Debug.Log(error);
                         });
                     break;
@@ -728,8 +668,8 @@ namespace ConnectApp.redux.reducers {
                         id = action.nonce,
                         content = action.content,
                         author = new User {
-                            id = StoreProvider.store.state.loginState.loginInfo.userId,
-                            fullName = StoreProvider.store.state.loginState.loginInfo.userFullName
+                            id = state.loginState.loginInfo.userId,
+                            fullName = state.loginState.loginInfo.userFullName
                         }
                     };
                     _nonce.Add(action.nonce);
@@ -739,7 +679,7 @@ namespace ConnectApp.redux.reducers {
                         messageDict.Add(action.nonce, previewMsg);
                     state.messageState.channelMessageList = channelMessageList;
                     state.messageState.channelMessageDict = channelMessageDict;
-                    StoreProvider.store.state.messageState.sendMessageLoading = false;
+                    state.messageState.sendMessageLoading = false;
 
                     break;
                 }
@@ -770,7 +710,7 @@ namespace ConnectApp.redux.reducers {
                 case PopularSearchAction action: {
                     SearchApi.PopularSearch()
                         .Then(popularSearch => {
-                            StoreProvider.store.Dispatch(new PopularSearchSuccessAction {
+                            StoreProvider.store.dispatcher.dispatch(new PopularSearchSuccessAction {
                                 popularSearch = popularSearch
                             });
                         })
@@ -783,27 +723,15 @@ namespace ConnectApp.redux.reducers {
                 }
                 case SearchArticleAction action: {
                     state.searchState.loading = true;
-                    SearchApi.SearchArticle(action.keyword, action.pageNumber)
-                        .Then(searchResponse => {
-                            StoreProvider.store.Dispatch(new SearchArticleSuccessAction {
-                                keyword = action.keyword,
-                                pageNumber = action.pageNumber,
-                                searchResponse = searchResponse
-                            });
-                        })
-                        .Catch(error => {
-                            StoreProvider.store.Dispatch(new SearchArticleFailedAction {keyword = action.keyword});
-                            Debug.Log(error);
-                        });
                     break;
                 }
                 case SearchArticleSuccessAction action: {
                     state.searchState.loading = false;
                     state.searchState.keyword = action.keyword;
-                    StoreProvider.store.Dispatch(new UserMapAction {
+                    StoreProvider.store.dispatcher.dispatch(new UserMapAction {
                         userMap = action.searchResponse.userMap
                     });
-                    StoreProvider.store.Dispatch(new TeamMapAction {teamMap = action.searchResponse.teamMap});
+                    StoreProvider.store.dispatcher.dispatch(new TeamMapAction {teamMap = action.searchResponse.teamMap});
                     state.searchState.currentPage = action.searchResponse.currentPage;
                     state.searchState.pages = action.searchResponse.pages;
                     if (action.pageNumber == 0) {
@@ -883,7 +811,7 @@ namespace ConnectApp.redux.reducers {
                     if (action.eventId != null)
                         Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                                new EventDetailScreen(eventId: action.eventId, eventType: action.eventType),
+                                new EventDetailScreenConnector(eventId: action.eventId, eventType: action.eventType), 
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new PushPageTransition(
                                     routeAnimation: animation,
@@ -919,10 +847,10 @@ namespace ConnectApp.redux.reducers {
                             Router.navigator.pop();
                     break;
                 }
-                case LoginNavigatorPushToBindUnityAction action: {
+                case LoginNavigatorPushToBindUnityAction _: {
                     LoginScreen.navigator.push(new PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
-                            new BindUnityScreen(fromPage: FromPage.login),
+                            new BindUnityScreenConnector(FromPage.login), 
                         transitionsBuilder: (context1, animation, secondaryAnimation, child) => new PushPageTransition(
                             routeAnimation: animation,
                             child: child
@@ -965,9 +893,9 @@ namespace ConnectApp.redux.reducers {
                             message: "正在清理缓存"
                         )
                     );
-                    StoreProvider.store.Dispatch(new DeleteAllSearchHistoryAction());
-                    StoreProvider.store.Dispatch(new DeleteAllArticleHistoryAction());
-                    StoreProvider.store.Dispatch(new DeleteAllEventHistoryAction());
+                    StoreProvider.store.dispatcher.dispatch(new DeleteAllSearchHistoryAction());
+                    StoreProvider.store.dispatcher.dispatch(new DeleteAllArticleHistoryAction());
+                    StoreProvider.store.dispatcher.dispatch(new DeleteAllEventHistoryAction());
                     Promise.Delayed(new TimeSpan(0,0,0,2))
                         .Then(() => {
                             CustomDialogUtils.hiddenCustomDialog();

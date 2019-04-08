@@ -85,6 +85,7 @@ namespace ConnectApp.screens {
             base.initState();
             _refreshController = new RefreshController();
             _offsetY = 0;
+            
             widget.fetchArticles(firstPageNumber);
         }
 
@@ -188,8 +189,8 @@ namespace ConnectApp.screens {
             else
                 pageNumber++;
             widget.fetchArticles(firstPageNumber)
-                .Then(_ => _refreshController.sendBack(true, RefreshStatus.completed))
-                .Catch(_ => _refreshController.sendBack(true, RefreshStatus.failed));
+                .Then(_ => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
         }
 
         private bool _onNotification(ScrollNotification notification) {

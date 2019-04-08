@@ -31,12 +31,12 @@ namespace ConnectApp.components {
         public override Widget build(BuildContext context) {
             var username = "";
             if (article.ownerType == "user") {
-                var userDict = StoreProvider.store.state.userState.userDict;
+                var userDict = StoreProvider.store.getState().userState.userDict;
                 if (userDict.ContainsKey(article.userId)) username = userDict[article.userId].fullName;
             }
 
             if (article.ownerType == "team") {
-                var teamDict = StoreProvider.store.state.teamState.teamDict;
+                var teamDict = StoreProvider.store.getState().teamState.teamDict;
                 if (teamDict.ContainsKey(article.teamId)) username = teamDict[article.teamId].name;
             }
 

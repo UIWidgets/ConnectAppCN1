@@ -37,7 +37,7 @@ namespace ConnectApp.components {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: new List<Widget> {
                         leading ?? new CustomButton(
-                            onPressed: () => StoreProvider.store.Dispatch(new MainNavigatorPopAction()),
+                            onPressed: () => StoreProvider.store.dispatcher.dispatch(new MainNavigatorPopAction()),
                             child: new Icon(
                                 Icons.arrow_back,
                                 size: 24,

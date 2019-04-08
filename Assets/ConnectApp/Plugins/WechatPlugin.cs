@@ -69,7 +69,7 @@ namespace ConnectApp.plugins
 
         public void loginByWechat(string code)
         {
-           StoreProvider.store.Dispatch(new LoginByWechatAction {code = code});
+           StoreProvider.store.dispatcher.dispatch(new LoginByWechatAction {code = code});
         }
 
         public void init(string appId)

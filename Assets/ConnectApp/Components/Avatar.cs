@@ -34,47 +34,41 @@ namespace ConnectApp.components {
 
         public override Widget build(BuildContext context) {
             if (type == OwnerType.team) return _buildTeamAvatar();
-
-            return new StoreConnector<AppState, User>(
-                converter: (state, dispatch) => state.userState.userDict.ContainsKey(id)
-                    ? state.userState.userDict[id]
-                    : new User(),
-                builder: (_context, viewModel) => {
-                    var avatarUrl = viewModel.avatar ?? "";
-                    var fullName = viewModel.fullName;
-                    var result = _extractName(fullName) ?? "";
-                    return new ClipRRect(
-                        borderRadius: BorderRadius.circular(size / 2),
-                        child: avatarUrl.Length <= 0
-                            ? new Container(
-                                child: new _Placeholder(result, size)
-                            )
-                            : new Container(
-                                width: size,
-                                height: size,
-                                child: Image.network(avatarUrl)
-                            )
-                    );
-                }
+            var user = new User();
+            if (StoreProvider.store.getState().userState.userDict.ContainsKey(id)) {
+                user = StoreProvider.store.getState().userState.userDict[id];
+            }
+            var avatarUrl = user.avatar ?? "";
+            var fullName = user.fullName;
+            var result = _extractName(fullName) ?? "";
+            return new ClipRRect(
+                borderRadius: BorderRadius.circular(size / 2),
+                child: avatarUrl.Length <= 0
+                    ? new Container(
+                        child: new _Placeholder(result, size)
+                    )
+                    : new Container(
+                        width: size,
+                        height: size,
+                        child: Image.network(avatarUrl)
+                    )
             );
         }
 
         private Widget _buildTeamAvatar() {
-            return new StoreConnector<AppState, Team>(
-                converter: (state, dispatch) => state.teamState.teamDict.ContainsKey(id)
-                    ? state.teamState.teamDict[id]
-                    : new Team(),
-                builder: (_context, viewModel) => {
-                    var avatarUrl = viewModel.avatar ?? "";
-                    var name = viewModel.name;
-                    var result = _extractName(name) ?? "";
-                    if (avatarUrl.Length <= 0) return new _Placeholder(result, size);
-                    return new Container(
-                        width: size,
-                        height: size,
-                        child: Image.network(avatarUrl)
-                    );
-                }
+            var team = new Team();
+            if (StoreProvider.store.getState().teamState.teamDict.ContainsKey(id)) {
+                team = StoreProvider.store.getState().teamState.teamDict[id];
+            }
+            
+            var avatarUrl = team.avatar ?? "";
+            var name = team.name;
+            var result = _extractName(name) ?? "";
+            if (avatarUrl.Length <= 0) return new _Placeholder(result, size);
+            return new Container(
+                width: size,
+                height: size,
+                child: Image.network(avatarUrl)
             );
         }
 

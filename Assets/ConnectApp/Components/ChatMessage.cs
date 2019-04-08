@@ -26,7 +26,7 @@ namespace ConnectApp.components {
             if (channelId == null || channelId.Length < 0) return new Container();
             if (messageId == null || messageId.Length < 0) return new Container();
 
-            var channelMessageDict = StoreProvider.store.state.messageState.channelMessageDict;
+            var channelMessageDict = StoreProvider.store.getState().messageState.channelMessageDict;
             var messageDict = new Dictionary<string, Message>();
             if (channelMessageDict.ContainsKey(channelId))
                 messageDict = channelMessageDict[channelId];

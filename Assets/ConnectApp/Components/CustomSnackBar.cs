@@ -17,11 +17,9 @@ using Icons = ConnectApp.constants.Icons;
 namespace ConnectApp.components {
     internal class _SnackBarRoute : OverlayRoute {
         public _SnackBarRoute(
-            ThemeData theme = null,
             CustomSnackBar customSnackBar = null,
             RouteSettings settings = null
         ) : base(settings) {
-            this.theme = theme;
             this.customSnackBar = customSnackBar;
             _builder = new Builder(builder: innerContext => customSnackBar);
         }
@@ -140,21 +138,19 @@ namespace ConnectApp.components {
 
         private _SnackBarRoute _snackBarRoute;
 
-        public void show(BuildContext context) {
-            D.assert(this != null);
+        public void show() {
             _snackBarRoute = new _SnackBarRoute(
-                Theme.of(context),
                 this,
                 new RouteSettings("/snackBarRoute")
             );
-            StoreProvider.store.Dispatch(new MainNavigatorPushToRouteAction{route = _snackBarRoute});
+            StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToRouteAction{route = _snackBarRoute});
         }
 
         public void dismiss() {
             if (_snackBarRoute == null) return;
 
             if (_snackBarRoute.isCurrent)
-                StoreProvider.store.Dispatch(new MainNavigatorPopAction());
+                StoreProvider.store.dispatcher.dispatch(new MainNavigatorPopAction());
             else if (_snackBarRoute.isActive) _snackBarRoute.navigator.removeRoute(_snackBarRoute);
             if (_snackBarRoute._timer != null) {
                 _snackBarRoute._timer.cancel();

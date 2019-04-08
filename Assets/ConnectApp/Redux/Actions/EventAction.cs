@@ -65,5 +65,21 @@ namespace ConnectApp.redux.actions {
                     .Catch(Debug.Log);
             });
         }
+        
+        public static object fetchEventDetail(string eventId)
+        {
+            return new ThunkAction<AppState>((dispatcher, getState) => {                
+                return EventApi.FetchEventDetail(eventId)
+                    .Then(eventObj => {
+                        if (getState().loginState.isLoggedIn)
+                           dispatcher.dispatch(fetchMessages(eventObj.channelId, "", true));
+                        dispatcher.dispatch(new FetchEventDetailSuccessAction {eventObj = eventObj});
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new FetchEventDetailFailedAction());
+                        Debug.Log(error);
+                    });
+            });
+        }
     }
 }

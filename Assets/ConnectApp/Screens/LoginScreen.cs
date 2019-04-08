@@ -22,7 +22,7 @@ namespace ConnectApp.screens {
 
         private static Dictionary<string, WidgetBuilder> loginRoutes => new Dictionary<string, WidgetBuilder> {
             {LoginNavigatorRoutes.Root, context => new LoginSwitchScreen()},
-            {LoginNavigatorRoutes.BindUnity, context => new BindUnityScreen()}
+            {LoginNavigatorRoutes.BindUnity, context => new BindUnityScreenConnector(FromPage.login)}
         };
 
         public override Widget build(BuildContext context) {

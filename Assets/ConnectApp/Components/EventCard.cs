@@ -34,7 +34,7 @@ namespace ConnectApp.components {
             var placeId = _model.placeId;
             var address = "";
             if (placeId.isNotEmpty()) {
-                var placeDict = StoreProvider.store.state.placeState.placeDict;
+                var placeDict = StoreProvider.store.getState().placeState.placeDict;
                 if (placeDict.ContainsKey(placeId)) {
                     var place = placeDict[placeId];
                     address = place.name;

@@ -53,7 +53,7 @@ namespace ConnectApp.components {
                                             children: new List<Widget> {
                                                 new CustomButton(
                                                     onPressed: () =>
-                                                        StoreProvider.store.Dispatch(new MainNavigatorPopAction()),
+                                                        StoreProvider.store.dispatcher.dispatch(new MainNavigatorPopAction()),
                                                     child: new Icon(
                                                         Icons.arrow_back,
                                                         size: 28,

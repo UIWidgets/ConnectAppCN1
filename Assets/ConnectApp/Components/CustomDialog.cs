@@ -78,11 +78,11 @@ namespace ConnectApp.components {
                 new TimeSpan(0, 0, 0, 0, 150),
                 _transitionBuilder
             );
-            StoreProvider.store.Dispatch(new MainNavigatorPushToRouteAction{route = route});
+            StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToRouteAction{route = route});
         }
 
         public static void hiddenCustomDialog() {
-            StoreProvider.store.Dispatch(new MainNavigatorPopAction{index = 1});
+            StoreProvider.store.dispatcher.dispatch(new MainNavigatorPopAction{index = 1});
         }
         
         private static Widget _transitionBuilder(BuildContext context, Animation<float> animation,

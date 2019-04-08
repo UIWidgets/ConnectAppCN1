@@ -106,9 +106,9 @@ namespace ConnectApp.components {
                                 onTap: () => {
                                     if (_selectedIndex != item.index) {
                                         if (item.index == 2) {
-                                            var isLoggedIn = StoreProvider.store.state.loginState.isLoggedIn;
+                                            var isLoggedIn = StoreProvider.store.getState().loginState.isLoggedIn;
                                             if (!isLoggedIn) {
-                                                StoreProvider.store.Dispatch(new MainNavigatorPushToAction
+                                                StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToAction
                                                     {routeName = MainNavigatorRoutes.Login});
                                                 return;
                                             }

@@ -13,10 +13,10 @@ namespace ConnectApp.screens {
                     top: false,
                     child: new CustomTabBar(
                         new List<Widget> {
-                            new ArticlesScreen(),
-                            new EventsScreen(),
-                            new NotificationScreen(),
-                            new PersonalScreen()
+                            new ArticlesScreenConnector(),
+                            new MyEventsScreenConnector(),
+                            new NotificationScreenConnector(),
+                            new PersonalScreenConnector()
                         },
                         new List<CustomTabBarItem> {
                             new CustomTabBarItem(

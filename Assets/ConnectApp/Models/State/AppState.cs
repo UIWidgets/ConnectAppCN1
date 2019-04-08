@@ -95,7 +95,7 @@ namespace ConnectApp.models {
                     channelMessageList = new Dictionary<string, List<string>>()
                 },
                 settingState = new SettingState {
-                    reviewLoading = false,
+                    fetchReviewUrlLoading = false,
                     reviewUrl = ""
                 }
             };

@@ -134,7 +134,7 @@ namespace ConnectApp.components {
                         var currentText = text.Substring(offset, length);
                         var rightText = text.Substring(length + offset, text.Length - length - offset);
                         var recognizer = new TapGestureRecognizer {
-                            onTap = () => { StoreProvider.store.Dispatch(new OpenUrlAction {url = data.data.url}); }
+                            onTap = () => { StoreProvider.store.dispatcher.dispatch(new OpenUrlAction {url = data.data.url}); }
                         };
                         return new Container(
                             color: CColors.White,
@@ -225,9 +225,9 @@ namespace ConnectApp.components {
                             onPressed: () => {
                                 if (url == null || url.Length <= 0) return;
                                 if (url.ToLower().Contains("youtube"))
-                                    StoreProvider.store.Dispatch(new OpenUrlAction {url = url});
+                                    StoreProvider.store.dispatcher.dispatch(new OpenUrlAction {url = url});
                                 else
-                                    StoreProvider.store.Dispatch(new MainNavigatorPushToVideoPlayerAction{videoUrl = url});
+                                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToVideoPlayerAction{videoUrl = url});
                             },
                             child: new Container(
                                 width: 80,

@@ -73,7 +73,7 @@ namespace ConnectApp.components {
                                     )
                                 ),
                                 new GestureDetector(
-                                    onTap: () => { StoreProvider.store.Dispatch(new MainNavigatorPopAction()); },
+                                    onTap: () => { StoreProvider.store.dispatcher.dispatch(new MainNavigatorPopAction()); },
                                     child: new Container(
                                         height: 49,
                                         color: CColors.Transparent,

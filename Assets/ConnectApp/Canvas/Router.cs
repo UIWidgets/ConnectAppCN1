@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ConnectApp.models;
 using ConnectApp.plugins;
 using ConnectApp.screens;
 using Unity.UIWidgets.animation;
@@ -26,14 +27,14 @@ namespace ConnectApp.canvas {
         private static Dictionary<string, WidgetBuilder> mainRoutes => new Dictionary<string, WidgetBuilder> {
             {MainNavigatorRoutes.Root, context => new MainScreen()},
 //            {MainNavigatorRoutes.Root, context => new TestScreen()},
-            {MainNavigatorRoutes.Search, context => new SearchScreen()},
-            {MainNavigatorRoutes.EventDetail, context => new EventDetailScreen()},
-            {MainNavigatorRoutes.ArticleDetail, context => new ArticleDetailScreen()},
-            {MainNavigatorRoutes.Setting, context => new SettingScreen()},
-            {MainNavigatorRoutes.MyEvent, context => new MyEventsScreen()},
-            {MainNavigatorRoutes.History, context => new HistoryScreen()},
+            {MainNavigatorRoutes.Search, context => new SearchScreenConnector()},
+            {MainNavigatorRoutes.EventDetail, context => new EventDetailScreenConnector("", EventType.offline)},
+            {MainNavigatorRoutes.ArticleDetail, context => new ArticleDetailScreenConnector("")},
+            {MainNavigatorRoutes.Setting, context => new SettingScreenConnector()},
+            {MainNavigatorRoutes.MyEvent, context => new MyEventsScreenConnector()},
+            {MainNavigatorRoutes.History, context => new HistoryScreenConnector()},
             {MainNavigatorRoutes.Login, context => new LoginScreen()},
-            {MainNavigatorRoutes.BindUnity, context => new BindUnityScreen()},
+            {MainNavigatorRoutes.BindUnity, context => new BindUnityScreenConnector(FromPage.setting)},
             {MainNavigatorRoutes.VideoPlayer, context => new VideoPlayerScreen()}
         };
 

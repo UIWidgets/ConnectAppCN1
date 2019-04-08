@@ -76,7 +76,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    public class ArticleDetailScreen : StatefulWidget {
+    internal class ArticleDetailScreen : StatefulWidget {
         public ArticleDetailScreen(
             ArticleDetailScreenModel screenModel = null,
             Action popAction = null,
