@@ -40,7 +40,7 @@ namespace ConnectApp.screens {
                             }
                         ),
                         pageNumber =>
-                            dispatcher.dispatch<IPromise<FetchArticlesResponse>>(Actions.fetchArticles(pageNumber))
+                            dispatcher.dispatch<IPromise>(Actions.fetchArticles(pageNumber))
                     );
                 });
         }
@@ -56,7 +56,7 @@ namespace ConnectApp.screens {
             ArticlesScreenModel screenModel = null,
             Action pushToSearch = null,    
             Action<string> pushToArticleDetail = null,    
-            Func<int, IPromise<FetchArticlesResponse>> fetchArticles = null,    
+            Func<int, IPromise> fetchArticles = null,    
             Key key = null
         ) : base(key)
         {
@@ -69,7 +69,7 @@ namespace ConnectApp.screens {
         public ArticlesScreenModel screenModel;
         public Action pushToSearch;
         public Action<string> pushToArticleDetail;
-        public Func<int, IPromise<FetchArticlesResponse>> fetchArticles;
+        public Func<int, IPromise> fetchArticles;
     }
 
 
@@ -85,7 +85,6 @@ namespace ConnectApp.screens {
             base.initState();
             _refreshController = new RefreshController();
             _offsetY = 0;
-            
             widget.fetchArticles(firstPageNumber);
         }
 
@@ -188,8 +187,8 @@ namespace ConnectApp.screens {
                 pageNumber = firstPageNumber;
             else
                 pageNumber++;
-            widget.fetchArticles(firstPageNumber)
-                .Then(_ => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
+            widget.fetchArticles(pageNumber)
+                .Then(() => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
         }
 

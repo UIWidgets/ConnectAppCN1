@@ -176,7 +176,6 @@ namespace ConnectApp.redux.reducers {
                                     commentsResponse = articleDetailResponse.project.comments,
                                     isRefreshList = true
                                 });
-
                             StoreProvider.store.dispatcher.dispatch(new UserMapAction {
                                 userMap = articleDetailResponse.project.userMap
                             });

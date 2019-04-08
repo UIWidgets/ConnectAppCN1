@@ -38,9 +38,9 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new MainNavigatorPushToEventDetailAction
                                 {eventId = id, eventType = type}),
                         fetchMyFutureEvents: (pageNumber) =>
-                            dispatcher.dispatch<IPromise<FetchEventsResponse>>(Actions.fetchMyFutureEvents(pageNumber)),
+                            dispatcher.dispatch<IPromise>(Actions.fetchMyFutureEvents(pageNumber)),
                         fetchMyPastEvents: (pageNumber) =>
-                            dispatcher.dispatch<IPromise<FetchEventsResponse>>(Actions.fetchMyPastEvents(pageNumber))
+                            dispatcher.dispatch<IPromise>(Actions.fetchMyPastEvents(pageNumber))
                     );
                 }
             );
@@ -52,8 +52,8 @@ namespace ConnectApp.screens {
             MyEventsScreenModel screenModel = null,
             Action mainNavigatorPop = null,
             Action<string, EventType> pushToEventDetail = null,
-            Func<int, IPromise<FetchEventsResponse>> fetchMyFutureEvents = null,
-            Func<int, IPromise<FetchEventsResponse>> fetchMyPastEvents = null,
+            Func<int, IPromise> fetchMyFutureEvents = null,
+            Func<int, IPromise> fetchMyPastEvents = null,
             Key key = null
         ) : base(key) {
             this.screenModel = screenModel;
@@ -66,8 +66,8 @@ namespace ConnectApp.screens {
         public MyEventsScreenModel screenModel;
         public Action mainNavigatorPop;
         public Action<string, EventType> pushToEventDetail;
-        public Func<int, IPromise<FetchEventsResponse>> fetchMyFutureEvents;
-        public Func<int, IPromise<FetchEventsResponse>> fetchMyPastEvents;
+        public Func<int, IPromise> fetchMyFutureEvents;
+        public Func<int, IPromise> fetchMyPastEvents;
 
         public override State createState() {
             return new _MyEventsScreenState();
@@ -103,7 +103,7 @@ namespace ConnectApp.screens {
                 else
                     _myFuturePageNumber++;
                     widget.fetchMyFutureEvents(_myFuturePageNumber)
-                        .Then(_ => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                        .Then(() => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
                         .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
             }
 

@@ -33,7 +33,6 @@ namespace ConnectApp.canvas {
                     pageRouteBuilder: pageRouteBuilder
                 )
             );
-            
         }
 
         private PageRouteFactory pageRouteBuilder {

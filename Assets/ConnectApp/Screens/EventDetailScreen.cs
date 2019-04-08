@@ -69,7 +69,7 @@ namespace ConnectApp.screens {
                             routeName = MainNavigatorRoutes.Login
                         }),
                         fetchEventDetail: (id) =>
-                            dispatcher.dispatch<IPromise<FetchEventsResponse>>(Actions.fetchEventDetail(id)),
+                            dispatcher.dispatch<IPromise>(Actions.fetchEventDetail(id)),
                         joinEvent: (id) =>
                             dispatcher.dispatch(new JoinEventAction {eventId = id}),
                         sendMessage: (channelId, content, nonce, parentMessageId) => dispatcher.dispatch(
@@ -83,7 +83,7 @@ namespace ConnectApp.screens {
                             show = show
                         }),
                         fetchMessages: (channelId, currOldestMessageId, isFirstLoad) => 
-                            dispatcher.dispatch<IPromise<FetchCommentsResponse>>(
+                            dispatcher.dispatch<IPromise>(
                                 Actions.fetchMessages(channelId, currOldestMessageId, isFirstLoad)
                             ),
                         share: (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch(new ShareAction {
@@ -103,10 +103,10 @@ namespace ConnectApp.screens {
             EventDetailScreenModel screenModel = null,
             Action mainRouterPop = null,
             Action pushToLogin = null,
-            Func<string, IPromise<FetchEventsResponse>> fetchEventDetail = null,
+            Func<string, IPromise> fetchEventDetail = null,
             Action<string> joinEvent = null,
             Action<bool> showChatWindow = null,
-            Func<string, string, bool, IPromise<FetchCommentsResponse>> fetchMessages = null,
+            Func<string, string, bool, IPromise> fetchMessages = null,
             Action<string, string, string, string> sendMessage = null,
             Action<ShareType, string, string, string, string> share = null,
             Key key = null
@@ -125,10 +125,10 @@ namespace ConnectApp.screens {
         public readonly EventDetailScreenModel screenModel;
         public readonly Action mainRouterPop;
         public readonly Action pushToLogin;
-        public readonly Func<string, IPromise<FetchEventsResponse>> fetchEventDetail;
+        public readonly Func<string, IPromise> fetchEventDetail;
         public readonly Action<string> joinEvent;
         public readonly Action<bool> showChatWindow;
-        public readonly Func<string, string, bool, IPromise<FetchCommentsResponse>> fetchMessages;
+        public readonly Func<string, string, bool, IPromise> fetchMessages;
         public readonly Action<string, string, string, string> sendMessage;
         public readonly Action<ShareType, string, string, string, string> share;
 
@@ -183,7 +183,7 @@ namespace ConnectApp.screens {
         void _onRefresh(bool up) {
             if (up) {
                 widget.fetchMessages(widget.screenModel.channelId, widget.screenModel.currOldestMessageId, false)
-                    .Then(_ => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                    .Then(() => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
                     .Catch(_ => _refreshController.sendBack(true, RefreshStatus.failed));
             }
         }

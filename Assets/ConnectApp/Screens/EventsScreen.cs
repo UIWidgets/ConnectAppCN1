@@ -40,7 +40,7 @@ namespace ConnectApp.screens {
                             eventId = eventId, eventType = eventType
                         }),
                         (pageNumber, tab) =>
-                            dispatcher.dispatch<IPromise<FetchEventsResponse>>(Actions.fetchEvents(pageNumber, tab))
+                            dispatcher.dispatch<IPromise>(Actions.fetchEvents(pageNumber, tab))
                     );
                 });
         }
@@ -49,18 +49,18 @@ namespace ConnectApp.screens {
         public EventsScreen(
             EventsScreenModel screenModel = null,
             Action<string, EventType> pushToEventDetail = null,
-            Func<int, string, IPromise<FetchEventsResponse>> fetchEvents = null,
+            Func<int, string, IPromise> fetchEvents = null,
             Key key = null
             ) : base(key)
         {
             this.screenModel = screenModel;
             this.pushToEventDetail = pushToEventDetail;
-            this.screenModel = screenModel;
+            this.fetchEvents = fetchEvents;
         }
 
         public EventsScreenModel screenModel;
         public Action<string, EventType> pushToEventDetail;
-        public Func<int, string, IPromise<FetchEventsResponse>> fetchEvents;
+        public Func<int, string, IPromise> fetchEvents;
 
         public override State createState() {
             return new _EventsScreenState();
@@ -86,8 +86,8 @@ namespace ConnectApp.screens {
             _completedRefreshController = new RefreshController();
             _pageController = new PageController();
             _selectedIndex = 0;
-            widget.fetchEvents(firstPageNumber, "ongoing");
-            widget.fetchEvents(firstPageNumber, "completed");
+            widget.fetchEvents(pageNumber, "ongoing");
+            widget.fetchEvents(completedPageNumber, "completed");
         }
 
         public override Widget build(BuildContext context) {
@@ -256,7 +256,7 @@ namespace ConnectApp.screens {
                 pageNumber++;
             }
             widget.fetchEvents(pageNumber, "ongoing")
-                .Then(_ => _ongoingRefreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Then(() => _ongoingRefreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => _ongoingRefreshController.sendBack(up, RefreshStatus.failed));
         }
 
@@ -267,7 +267,7 @@ namespace ConnectApp.screens {
                 completedPageNumber++;
             }
             widget.fetchEvents(completedPageNumber, "completed")
-                .Then(_ => _ongoingRefreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Then(() => _ongoingRefreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => _ongoingRefreshController.sendBack(up, RefreshStatus.failed));
         }
 

@@ -47,7 +47,7 @@ namespace ConnectApp.redux.actions {
     }
     
     public static partial class Actions {
-        public static object OpenCreateUnityIdUrl() {
+        public static object openCreateUnityIdUrl() {
             return new ThunkAction<AppState>((dispatcher, getState) => {
 //                CustomDialogUtils.showCustomDialog(
 //                    child: new CustomDialog()

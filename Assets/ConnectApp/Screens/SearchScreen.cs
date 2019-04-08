@@ -39,7 +39,7 @@ namespace ConnectApp.screens {
                         () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         articleId => dispatcher.dispatch(
                                 new MainNavigatorPushToArticleDetailAction {articleId = articleId}),
-                        (keyword, pageNumber) => dispatcher.dispatch<IPromise<FetchSearchResponse>>(
+                        (keyword, pageNumber) => dispatcher.dispatch<IPromise>(
                             Actions.searchArticles(keyword, pageNumber)),
                         () => dispatcher.dispatch(new PopularSearchAction()),
                         () => dispatcher.dispatch(new ClearSearchArticleResultAction()),
@@ -57,7 +57,7 @@ namespace ConnectApp.screens {
             SearchScreenModel screenModel = null,
             Action mainRouterPop = null,
             Action<string> pushToArticleDetail = null,
-            Func<string, int, IPromise<FetchSearchResponse>> searchArticle = null,
+            Func<string, int, IPromise> searchArticle = null,
             Action fetchPopularSearch = null,
             Action clearSearchArticleResult = null,
             Action<string> saveSearchHistory = null,
@@ -80,7 +80,7 @@ namespace ConnectApp.screens {
         public SearchScreenModel screenModel;
         public Action mainRouterPop;
         public Action<string> pushToArticleDetail;
-        public Func<string, int, IPromise<FetchSearchResponse>> searchArticle;
+        public Func<string, int, IPromise> searchArticle;
         public Action fetchPopularSearch;
         public Action clearSearchArticleResult;
         public Action<string> saveSearchHistory;
@@ -122,7 +122,7 @@ namespace ConnectApp.screens {
             else
                 _pageNumber++;
             widget.searchArticle(widget.screenModel.searchKeyword, _pageNumber)
-                .Then(_ => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Then(() => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
         }
 

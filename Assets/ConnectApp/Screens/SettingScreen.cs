@@ -30,7 +30,7 @@ namespace ConnectApp.screens {
                     return new SettingScreen(
                         viewModel,
                        () => dispatcher.dispatch(new MainNavigatorPopAction()),
-                       (platform, store) => dispatcher.dispatch<IPromise<string>>(Actions.fetchReviewUrl(platform, store)),
+                       (platform, store) => dispatcher.dispatch<IPromise>(Actions.fetchReviewUrl(platform, store)),
                        url => dispatcher.dispatch(new OpenUrlAction {url = url}),
                        () => dispatcher.dispatch(new SettingClearCacheAction()),
                        () => dispatcher.dispatch(new LogoutAction())
@@ -45,7 +45,7 @@ namespace ConnectApp.screens {
         public SettingScreen(
             SettingScreenModel screenModel = null,    
             Action mainNavigatorPop = null,    
-            Func<string, string, IPromise<string>> fetchReviewUrl = null, 
+            Func<string, string, IPromise> fetchReviewUrl = null, 
             Action<string> openUrl = null,
             Action clearCache = null,
             Action logout = null,
@@ -62,7 +62,7 @@ namespace ConnectApp.screens {
         
         public SettingScreenModel screenModel;
         public Action mainNavigatorPop;
-        public Func<string, string, IPromise<string>>  fetchReviewUrl;
+        public Func<string, string, IPromise>  fetchReviewUrl;
         public Action<string> openUrl;
         public Action clearCache;
         public Action logout;

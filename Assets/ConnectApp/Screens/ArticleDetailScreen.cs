@@ -68,7 +68,7 @@ namespace ConnectApp.screens {
                             messageId = commentId
                         }),
                         fetchArticleCommentsAction: (channelId, currOldestMessageId) =>
-                            dispatcher.dispatch<IPromise<FetchCommentsResponse>>(
+                            dispatcher.dispatch<IPromise>(
                                 Actions.fetchArticleComments(channelId, currOldestMessageId)
                             )
                     );
@@ -83,14 +83,13 @@ namespace ConnectApp.screens {
             Action pushToLoginAction = null,
             Action<string> pushToArticleDetailAction = null,
             Action<string> fetchArticleDetailAction = null,
-            Func<string, string, IPromise<FetchCommentsResponse>> fetchArticleCommentsAction = null,
+            Func<string, string, IPromise> fetchArticleCommentsAction = null,
             Action<string> likeArticleAction = null,
             Action<string> likeCommentAction = null,
             Action<string> removeLikeCommentAction = null,
             Action<string, string, string, string> sendCommentAction = null,
             Key key = null
         ) : base(key) {
-            D.assert(screenModel != null);
             this.screenModel = screenModel;
             this.popAction = popAction;
             this.pushToLoginAction = pushToLoginAction;
@@ -109,7 +108,7 @@ namespace ConnectApp.screens {
         public readonly Action pushToLoginAction;
         public readonly Action<string> pushToArticleDetailAction;
         public readonly Action<string> fetchArticleDetailAction;
-        public readonly Func<string, string, IPromise<FetchCommentsResponse>> fetchArticleCommentsAction;
+        public readonly Func<string, string, IPromise> fetchArticleCommentsAction;
         public readonly Action<string> likeArticleAction;
         public readonly Action<string> likeCommentAction;
         public readonly Action<string> removeLikeCommentAction;
@@ -302,7 +301,7 @@ namespace ConnectApp.screens {
         private void _onRefresh(bool up) {
             if (!up)
                 widget.fetchArticleCommentsAction(_channelId, _lastCommentId)
-                    .Then(_ => { _refreshController.sendBack(up, RefreshStatus.idle); })
+                    .Then(() => { _refreshController.sendBack(up, RefreshStatus.idle); })
                     .Catch(err => { _refreshController.sendBack(up, RefreshStatus.failed); });
         }
 

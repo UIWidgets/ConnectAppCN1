@@ -51,7 +51,7 @@ namespace ConnectApp.screens {
                         openUrlAction: (url) =>
                             dispatcher.dispatch(new OpenUrlAction {url = url}),
                         openCreateUnityIdUrlAction: () =>
-                            dispatcher.dispatch<IPromise<string>>(Actions.OpenCreateUnityIdUrl()),
+                            dispatcher.dispatch<IPromise>(Actions.openCreateUnityIdUrl()),
                         changeEmailAction: (text) =>
                             dispatcher.dispatch(new LoginChangeEmailAction {changeText = text}),
                         changePasswordAction: (text) =>
@@ -70,7 +70,7 @@ namespace ConnectApp.screens {
             Action mainRouterPopAction = null,
             Action loginRouterPopAction = null,
             Action<string> openUrlAction = null,
-            Func<IPromise<string>> openCreateUnityIdUrlAction = null,
+            Func<IPromise> openCreateUnityIdUrlAction = null,
             Action<string> changeEmailAction = null,
             Action<string> changePasswordAction = null,
             Action loginByEmailAction = null,
@@ -90,7 +90,7 @@ namespace ConnectApp.screens {
         public readonly Action mainRouterPopAction;
         public readonly Action loginRouterPopAction;
         public readonly Action<string> openUrlAction;
-        public readonly Func<IPromise<string>> openCreateUnityIdUrlAction;
+        public readonly Func<IPromise> openCreateUnityIdUrlAction;
         public readonly Action<string> changeEmailAction;
         public readonly Action<string> changePasswordAction;
         public readonly Action loginByEmailAction;

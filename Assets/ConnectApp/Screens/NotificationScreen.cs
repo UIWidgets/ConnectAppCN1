@@ -29,7 +29,7 @@ namespace ConnectApp.screens {
                     return new NotificationScreen(
                         viewModel,
                         pageNumber =>
-                            dispatcher.dispatch<IPromise<FetchNotificationResponse>>(Actions.fetchNotifications(pageNumber))
+                            dispatcher.dispatch<IPromise>(Actions.fetchNotifications(pageNumber))
                     );
                 }
             );
@@ -39,7 +39,7 @@ namespace ConnectApp.screens {
 
         public NotificationScreen(
             NotifcationScreenModel screenModel = null,    
-            Func<int, IPromise<FetchNotificationResponse>> fetchNotifications = null,
+            Func<int, IPromise> fetchNotifications = null,
             Key key = null
         ) : base(key)
         {
@@ -48,7 +48,7 @@ namespace ConnectApp.screens {
         }
         
         public NotifcationScreenModel screenModel;
-        public Func<int, IPromise<FetchNotificationResponse>> fetchNotifications;
+        public Func<int, IPromise> fetchNotifications;
 
         public override State createState() {
             return new _NotificationScreenState();
@@ -86,7 +86,7 @@ namespace ConnectApp.screens {
             else
                 _pageNumber++;
             widget.fetchNotifications(_pageNumber)
-                .Then(_ => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Then(() => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
         }
 

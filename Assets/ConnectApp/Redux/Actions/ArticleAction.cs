@@ -90,6 +90,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public static partial class Actions {
+        
         public static object fetchArticles(int pageNumber)
         {
             return new ThunkAction<AppState>((dispatcher, getState) => {                
