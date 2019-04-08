@@ -88,14 +88,12 @@ extern "C" {
         [[WechatPlugin instance]tryWechatLogin:state];
     }
     
-    void toFriends(const char * title,const char * description,const char * url,const char * imageBytes){
-        NSString *utf = [[NSString alloc]initWithUTF8String:imageBytes];
-        NSData *data = [[NSData alloc]initWithBase64EncodedString:utf options:0];
+    void toFriends(const char * title,const char * description,const char * url,const uint8_t * imageBytes){
+        NSData *data = [NSData dataWithBytesNoCopy:imageBytes length:imageBytes.length];
         [[WechatPlugin instance]shareTo:WXSceneSession title:[NSString stringWithUTF8String:title] description:[NSString stringWithUTF8String:description] url:[NSString stringWithUTF8String:url] imageBytes:data];
     }
-    void toTimeline(const char * title,const char * description,const char * url,const char * imageBytes){
-        NSString *utf = [[NSString alloc]initWithUTF8String:imageBytes];
-        NSData *data = [[NSData alloc]initWithBase64EncodedString:utf options:0];
+    void toTimeline(const char * title,const char * description,const char * url,const uint8_t * imageBytes){
+        NSData *data = [NSData dataWithBytesNoCopy:imageBytes length:imageBytes.length];
         [[WechatPlugin instance]shareTo:WXSceneTimeline title:[NSString stringWithUTF8String:title] description:[NSString stringWithUTF8String:description] url:[NSString stringWithUTF8String:url] imageBytes:data];
     }
     BOOL isInstallWechat(){
