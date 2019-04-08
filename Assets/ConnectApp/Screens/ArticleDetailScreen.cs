@@ -15,6 +15,8 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Avatar = ConnectApp.components.Avatar;
 
 namespace ConnectApp.screens {
     public class ArticleDetailScreenConnector : StatelessWidget {
@@ -102,7 +104,6 @@ namespace ConnectApp.screens {
             this.sendCommentAction = sendCommentAction;
         }
 
-        public readonly string articleId;
         public readonly ArticleDetailScreenModel screenModel;
         public readonly Action popAction;
         public readonly Action pushToLoginAction;
@@ -135,7 +136,7 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             _refreshController = new RefreshController();
-            widget.fetchArticleDetailAction(widget.articleId);
+            widget.fetchArticleDetailAction(widget.screenModel.articleId);
         }
 
         public override Widget build(BuildContext context) {
@@ -151,7 +152,7 @@ namespace ConnectApp.screens {
                         )
                     )
                 );
-            widget.screenModel.articleDict.TryGetValue(widget.articleId, out _article);
+            widget.screenModel.articleDict.TryGetValue(widget.screenModel.articleId, out _article);
             if (_article == null || _article.channelId == null) return new Container();
             if (_article.ownerType == "user")
                 if (_article.userId != null && widget.screenModel.userDict.TryGetValue(_article.userId, out _user))

@@ -13,15 +13,16 @@ using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.screens {
     
     public class ArticlesScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ArticlesScreenModel>(
-                pure: true,
+                pure: false,
                 converter: (state) => new ArticlesScreenModel {
                     articlesLoading = state.articleState.articlesLoading,
                     articleList = state.articleState.articleList,
@@ -29,6 +30,7 @@ namespace ConnectApp.screens {
                     articleTotal = state.articleState.articleTotal
                 },
                 builder: (context1, viewModel, dispatcher) => {
+                    Debug.Log($"articleList: {viewModel.articleList.Count}");
                     return new ArticlesScreen(
                         viewModel,
                         () => dispatcher.dispatch(new MainNavigatorPushToAction {
@@ -39,8 +41,7 @@ namespace ConnectApp.screens {
                                 articleId = id
                             }
                         ),
-                        pageNumber =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchArticles(pageNumber))
+                        pageNumber => dispatcher.dispatch<IPromise>(Actions.fetchArticles(pageNumber))
                     );
                 });
         }
@@ -66,10 +67,10 @@ namespace ConnectApp.screens {
             this.fetchArticles = fetchArticles;
         }
 
-        public ArticlesScreenModel screenModel;
-        public Action pushToSearch;
-        public Action<string> pushToArticleDetail;
-        public Func<int, IPromise> fetchArticles;
+        public readonly  ArticlesScreenModel screenModel;
+        public readonly Action pushToSearch;
+        public readonly Action<string> pushToArticleDetail;
+        public readonly Func<int, IPromise> fetchArticles;
     }
 
 
@@ -80,15 +81,17 @@ namespace ConnectApp.screens {
         private float _offsetY;
         private int pageNumber = firstPageNumber;
         private RefreshController _refreshController;
-
+        
         public override void initState() {
             base.initState();
             _refreshController = new RefreshController();
             _offsetY = 0;
             widget.fetchArticles(firstPageNumber);
+            Debug.Log($"initState articleList: {widget.screenModel.articleList.Count}");
         }
 
         public override Widget build(BuildContext context) {
+            Debug.Log($"build articleList: {widget.screenModel.articleList.Count}");
             return new Container(
                 color: CColors.BgGrey,
                 child: new Column(
@@ -188,7 +191,10 @@ namespace ConnectApp.screens {
             else
                 pageNumber++;
             widget.fetchArticles(pageNumber)
-                .Then(() => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Then(() => {
+                    Debug.Log("refreshed!!!!!");
+                    _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle);
+                })
                 .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
         }
 

@@ -183,7 +183,7 @@ namespace ConnectApp.screens {
         void _onRefresh(bool up) {
             if (up) {
                 widget.fetchMessages(widget.screenModel.channelId, widget.screenModel.currOldestMessageId, false)
-                    .Then(() => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                    .Then(() => _refreshController.sendBack(true, RefreshStatus.completed))
                     .Catch(_ => _refreshController.sendBack(true, RefreshStatus.failed));
             }
         }
