@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using ConnectApp.api;
 using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.components.pull_to_refresh;
@@ -7,6 +6,7 @@ using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
+using ConnectApp.utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
@@ -28,16 +28,25 @@ namespace ConnectApp.screens {
     public class _ArticleScreenState : State<ArticleScreen> {
         private const float headerHeight = 140;
         private float _offsetY;
-        private int pageNumber = 1;
+        private int _pageNumber = 1;
         private RefreshController _refreshController;
+        private string _eventBusId;
 
         public override void initState() {
             base.initState();
             _refreshController = new RefreshController();
             _offsetY = 0;
-            pageNumber = StoreProvider.store.state.articleState.pageNumber;
+            _eventBusId = EventBus.subscribe(EventBusConstant.article_refresh, args => {
+                _refreshController.sendBack((bool)args[0], (int)args[1]);
+            });
+            _pageNumber = StoreProvider.store.state.articleState.pageNumber;
             if (StoreProvider.store.state.articleState.articleList.Count == 0)
-                StoreProvider.store.Dispatch(new FetchArticlesAction {pageNumber = pageNumber});
+                StoreProvider.store.Dispatch(new FetchArticlesAction {pageNumber = _pageNumber, isRefresh = false});
+        }
+
+        public override void dispose() {
+            EventBus.unSubscribe(EventBusConstant.article_refresh, _eventBusId);
+            base.dispose();
         }
 
         public override Widget build(BuildContext context) {
@@ -106,7 +115,7 @@ namespace ConnectApp.screens {
                                 enablePullUp: articleList.Count < articleTotal,
                                 headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
                                 footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
-                                onRefresh: onRefresh,
+                                onRefresh: _onRefresh,
                                 child: ListView.builder(
                                     physics: new AlwaysScrollableScrollPhysics(),
                                     itemCount: articleList.Count,
@@ -138,39 +147,13 @@ namespace ConnectApp.screens {
             );
         }
 
-        private void onRefresh(bool up) {
+        private void _onRefresh(bool up) {
             if (up) {
-                pageNumber = 1;
-                StoreProvider.store.Dispatch(new FetchArticlesAction() {pageNumber = pageNumber});
-
-                ArticleApi.FetchArticles(pageNumber)
-                    .Then(articlesResponse => {
-                        StoreProvider.store.Dispatch(new UserMapAction {userMap = articlesResponse.userMap});
-                        StoreProvider.store.Dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
-                        StoreProvider.store.Dispatch(new FetchArticleSuccessAction {
-                            pageNumber = pageNumber, articleList = articlesResponse.items,
-                            total = articlesResponse.total
-                        });
-                        _refreshController.sendBack(true, RefreshStatus.completed);
-                    })
-                    .Catch(error => { _refreshController.sendBack(true, RefreshStatus.failed); });
+                _pageNumber = 1;
+            } else {
+                _pageNumber++;
             }
-            else {
-                pageNumber++;
-                ArticleApi.FetchArticles(pageNumber)
-                    .Then(articlesResponse => {
-                        if (articlesResponse.items.Count != 0) {
-                            StoreProvider.store.Dispatch(new UserMapAction {userMap = articlesResponse.userMap});
-                            StoreProvider.store.Dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
-                            StoreProvider.store.Dispatch(new FetchArticleSuccessAction {
-                                pageNumber = pageNumber, articleList = articlesResponse.items,
-                                total = articlesResponse.total
-                            });
-                            _refreshController.sendBack(false, RefreshStatus.idle);
-                        }
-                    })
-                    .Catch(error => { _refreshController.sendBack(false, RefreshStatus.failed); });
-            }
+            StoreProvider.store.Dispatch(new FetchArticlesAction {pageNumber = _pageNumber, isRefresh = true});
         }
 
         private bool _onNotification(ScrollNotification notification) {

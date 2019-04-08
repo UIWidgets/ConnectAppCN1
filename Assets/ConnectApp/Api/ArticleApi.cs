@@ -22,7 +22,7 @@ namespace ConnectApp.api {
 
         private static IEnumerator _FetchArticles(Promise<FetchArticlesResponse> promise, int pageNumber) {
             var request =
-                UnityWebRequest.Get(Config.apiAddress + "/api/p?projectType=article&t=projects&page=" + pageNumber);
+                UnityWebRequest.Get(Config.apiAddress + "/api/p?orderBy=latest&projectType=article&t=projects&page=" + pageNumber);
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             yield return request.SendWebRequest();
             if (request.isNetworkError) {
