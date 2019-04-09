@@ -14,6 +14,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -51,7 +52,7 @@ namespace ConnectApp.screens {
                                 articleId = id
                             }),
                         fetchArticleDetail = (id) =>
-                            dispatcher.dispatch(new FetchArticleDetailAction {articleId = id}),
+                            dispatcher.dispatch<IPromise>(Actions.fetchArticleDetatil(id)),
                         fetchArticleComments = (channelId, currOldestMessageId) =>
                             dispatcher.dispatch<IPromise>(
                                 Actions.fetchArticleComments(channelId, currOldestMessageId)
@@ -109,13 +110,14 @@ namespace ConnectApp.screens {
         private bool _hasMore = false;
         private RefreshController _refreshController;
 
-
         public override void initState() {
             base.initState();
             _refreshController = new RefreshController();
-            widget.actionModel.fetchArticleDetail(widget.viewModel.articleId);
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                widget.actionModel.fetchArticleDetail(widget.viewModel.articleId);  
+            });
         }
-
+        
         public override Widget build(BuildContext context) {
             if (widget.viewModel.articleDetailLoading)
                 return new Container(

@@ -169,28 +169,6 @@ namespace ConnectApp.redux.reducers {
                 }
                 case FetchArticleDetailAction action: {
                     state.articleState.articleDetailLoading = true;
-                    ArticleApi.FetchArticleDetail(action.articleId)
-                        .Then(articleDetailResponse => {
-                            if (articleDetailResponse.project.comments.items.Count > 0)
-                                StoreProvider.store.dispatcher.dispatch(new FetchArticleCommentsSuccessAction {
-                                    channelId = articleDetailResponse.project.channelId,
-                                    commentsResponse = articleDetailResponse.project.comments,
-                                    isRefreshList = true
-                                });
-                            StoreProvider.store.dispatcher.dispatch(new UserMapAction {
-                                userMap = articleDetailResponse.project.userMap
-                            });
-                            StoreProvider.store.dispatcher.dispatch(new TeamMapAction {
-                                teamMap = articleDetailResponse.project.teamMap
-                            });
-                            StoreProvider.store.dispatcher.dispatch(new FetchArticleDetailSuccessAction {
-                                articleDetail = articleDetailResponse.project
-                            });
-                        })
-                        .Catch(error => {
-                            state.articleState.articleDetailLoading = false;
-                            Debug.Log(error);
-                        });
                     break;
                 }
                 case FetchArticleDetailSuccessAction action: {
@@ -212,6 +190,10 @@ namespace ConnectApp.redux.reducers {
                     StoreProvider.store.dispatcher.dispatch(new SaveArticleHistoryAction {
                         article = article
                     });
+                    break;
+                }
+                case FetchArticleDetailFailureAction _: {
+                    state.articleState.articleDetailLoading = false;
                     break;
                 }
                 case SaveArticleHistoryAction action: {

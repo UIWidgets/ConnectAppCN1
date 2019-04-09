@@ -255,7 +255,7 @@ namespace ConnectApp.screens {
                         left: 0,
                         top: 0,
                         right: 0,
-                        child: _buildHeadTop(eventType == EventType.onLine,eventObj = eventObj)
+                        child: _buildHeadTop(eventType == EventType.onLine, eventObj)
                     )
                 }
             );
