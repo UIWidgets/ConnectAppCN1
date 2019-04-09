@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace ConnectApp.models {
     [Serializable]
-    public class AppState : IEquatable<AppState> {
+    public class AppState {
         public int Count { get; set; }
         public LoginState loginState { get; set; }
         public ArticleState articleState { get; set; }
@@ -99,38 +99,6 @@ namespace ConnectApp.models {
                     reviewUrl = ""
                 }
             };
-        }
-
-        public bool Equals(AppState other) {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return Count == other.Count && Equals(loginState, other.loginState) && Equals(articleState, other.articleState) && Equals(eventState, other.eventState) && Equals(popularSearchState, other.popularSearchState) && Equals(searchState, other.searchState) && Equals(notificationState, other.notificationState) && Equals(userState, other.userState) && Equals(teamState, other.teamState) && Equals(placeState, other.placeState) && Equals(mineState, other.mineState) && Equals(messageState, other.messageState) && Equals(settingState, other.settingState);
-        }
-
-        public override bool Equals(object obj) {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((AppState) obj);
-        }
-
-        public override int GetHashCode() {
-            unchecked {
-                var hashCode = Count;
-                hashCode = (hashCode * 397) ^ (loginState != null ? loginState.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (articleState != null ? articleState.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (eventState != null ? eventState.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (popularSearchState != null ? popularSearchState.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (searchState != null ? searchState.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (notificationState != null ? notificationState.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (userState != null ? userState.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (teamState != null ? teamState.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (placeState != null ? placeState.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (mineState != null ? mineState.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (messageState != null ? messageState.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (settingState != null ? settingState.GetHashCode() : 0);
-                return hashCode;
-            }
         }
     }
 }

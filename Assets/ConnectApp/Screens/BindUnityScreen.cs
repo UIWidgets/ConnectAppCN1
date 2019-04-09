@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using RSG;
@@ -12,6 +13,7 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 
 namespace ConnectApp.screens {
     public enum FromPage {
@@ -28,9 +30,8 @@ namespace ConnectApp.screens {
         private readonly FromPage fromPage;
 
         public override Widget build(BuildContext context) {
-            return new StoreConnector<AppState, BindUnityScreenModel>(
-                pure: true,
-                converter: (state) => new BindUnityScreenModel {
+            return new StoreConnector<AppState, BindUnityScreenViewModel>(
+                converter: (state) => new BindUnityScreenViewModel {
                     fromPage = fromPage,
                     loginLoading = state.loginState.loading,
                     loginEmail = state.loginState.email,
@@ -38,26 +39,26 @@ namespace ConnectApp.screens {
                     loginBtnEnable = state.loginState.email.Length > 0 && state.loginState.password.Length > 0
                 },
                 builder: (context1, viewModel, dispatcher) => {
-                    return new BindUnityScreen(
-                        viewModel,
-                        mainRouterPopAction: () => {
+                    var actionModel = new BindUnityScreenActionModel {
+                        mainRouterPop = () => {
                             dispatcher.dispatch(new MainNavigatorPopAction());
                             dispatcher.dispatch(new CleanEmailAndPasswordAction());
                         },
-                        loginRouterPopAction: () => {
+                        loginRouterPop = () => {
                             dispatcher.dispatch(new LoginNavigatorPopAction());
                             dispatcher.dispatch(new CleanEmailAndPasswordAction());
                         },
-                        openUrlAction: (url) =>
+                        openUrl = (url) =>
                             dispatcher.dispatch(new OpenUrlAction {url = url}),
-                        openCreateUnityIdUrlAction: () =>
+                        openCreateUnityIdUrl = () =>
                             dispatcher.dispatch<IPromise>(Actions.openCreateUnityIdUrl()),
-                        changeEmailAction: (text) =>
+                        changeEmail = (text) =>
                             dispatcher.dispatch(new LoginChangeEmailAction {changeText = text}),
-                        changePasswordAction: (text) =>
+                        changePassword = (text) =>
                             dispatcher.dispatch(new LoginChangePasswordAction {changeText = text}),
-                        loginByEmailAction: () => dispatcher.dispatch(new LoginByEmailAction())
-                    );
+                        loginByEmail = () => dispatcher.dispatch(new LoginByEmailAction())
+                    };
+                    return new BindUnityScreen(viewModel, actionModel);
                 }
             );
         }
@@ -66,35 +67,17 @@ namespace ConnectApp.screens {
 
     public class BindUnityScreen : StatefulWidget {
         public BindUnityScreen(
-            BindUnityScreenModel screenModel = null,
-            Action mainRouterPopAction = null,
-            Action loginRouterPopAction = null,
-            Action<string> openUrlAction = null,
-            Func<IPromise> openCreateUnityIdUrlAction = null,
-            Action<string> changeEmailAction = null,
-            Action<string> changePasswordAction = null,
-            Action loginByEmailAction = null,
+            BindUnityScreenViewModel viewModel = null,
+            BindUnityScreenActionModel actionModel = null,
             Key key = null
         ) : base(key) {
-            this.screenModel = screenModel;
-            this.mainRouterPopAction = mainRouterPopAction;
-            this.loginRouterPopAction = loginRouterPopAction;
-            this.openUrlAction = openUrlAction;
-            this.openCreateUnityIdUrlAction = openCreateUnityIdUrlAction;
-            this.changeEmailAction = changeEmailAction;
-            this.changePasswordAction = changePasswordAction;
-            this.loginByEmailAction = loginByEmailAction;
+            this.viewModel = viewModel;
+            this.actionModel = actionModel;
         }
 
-        public readonly BindUnityScreenModel screenModel;
-        public readonly Action mainRouterPopAction;
-        public readonly Action loginRouterPopAction;
-        public readonly Action<string> openUrlAction;
-        public readonly Func<IPromise> openCreateUnityIdUrlAction;
-        public readonly Action<string> changeEmailAction;
-        public readonly Action<string> changePasswordAction;
-        public readonly Action loginByEmailAction;
-
+        public readonly BindUnityScreenViewModel viewModel;
+        public readonly BindUnityScreenActionModel actionModel;
+        
         public override State createState() {
             return new _BindUnityScreenState();
         }
@@ -131,13 +114,14 @@ namespace ConnectApp.screens {
         }
 
         private void _login() {
-            if (!widget.screenModel.loginBtnEnable || widget.screenModel.loginLoading) return;
+            if (!widget.viewModel.loginBtnEnable || widget.viewModel.loginLoading) return;
             _emailFocusNode.unfocus();
             _passwordFocusNode.unfocus();
-            widget.loginByEmailAction();
+            widget.actionModel.loginByEmail();
         }
 
         public override Widget build(BuildContext context) {
+            Debug.Log($"_ArticleDetailScreenState build");
             return new Container(
                 color: CColors.White,
                 child: new SafeArea(
@@ -161,10 +145,10 @@ namespace ConnectApp.screens {
 
         private Widget _buildTopView() {
             Widget leftWidget;
-            switch (widget.screenModel.fromPage) {
+            switch (widget.viewModel.fromPage) {
                 case FromPage.login: {
                     leftWidget = new CustomButton(
-                        onPressed: () => widget.loginRouterPopAction(),
+                        onPressed: () => widget.actionModel.loginRouterPop(),
                         child: new Icon(
                             Icons.arrow_back,
                             size: 24,
@@ -175,7 +159,7 @@ namespace ConnectApp.screens {
                 }
                 case FromPage.wechat: {
                     leftWidget = new CustomButton(
-                        onPressed: () => widget.mainRouterPopAction(),
+                        onPressed: () => widget.actionModel.mainRouterPop(),
                         child: new Text(
                             "跳过",
                             style: CTextStyle.PLargeBody4
@@ -185,7 +169,7 @@ namespace ConnectApp.screens {
                 }
                 case FromPage.setting: {
                     leftWidget = new CustomButton(
-                        onPressed: () => widget.mainRouterPopAction(),
+                        onPressed: () => widget.actionModel.mainRouterPop(),
                         child: new Icon(
                             Icons.arrow_back,
                             size: 24,
@@ -209,7 +193,7 @@ namespace ConnectApp.screens {
                             children: new List<Widget> {
                                 leftWidget,
                                 new CustomButton(
-                                    onPressed: () => widget.openCreateUnityIdUrlAction(),
+                                    onPressed: () => widget.actionModel.openCreateUnityIdUrl(),
                                     child: new Text(
                                         "创建 Unity ID",
                                         style: CTextStyle.PLargeMediumBlue
@@ -222,7 +206,7 @@ namespace ConnectApp.screens {
                     new Container(
                         padding: EdgeInsets.symmetric(horizontal: 16),
                         child: new Text(
-                            widget.screenModel.fromPage == FromPage.login ? "登陆你的Unity账号" : "绑定你的Unity账号",
+                            widget.viewModel.fromPage == FromPage.login ? "登陆你的Unity账号" : "绑定你的Unity账号",
                             style: CTextStyle.H2
                         )
                     )
@@ -256,7 +240,7 @@ namespace ConnectApp.screens {
                             ),
                             alignment: Alignment.center,
                             child: new IgnorePointer(
-                                ignoring: widget.screenModel.loginLoading,
+                                ignoring: widget.viewModel.loginLoading,
                                 child: new InputField(
                                     focusNode: _emailFocusNode,
                                     maxLines: 1,
@@ -265,7 +249,7 @@ namespace ConnectApp.screens {
                                     cursorColor: CColors.PrimaryBlue,
                                     clearButtonMode: InputFieldClearButtonMode.whileEditing,
                                     keyboardType: TextInputType.emailAddress,
-                                    onChanged: text => widget.changeEmailAction(text),
+                                    onChanged: text => widget.actionModel.changeEmail(text),
                                     onSubmitted: _ => {
                                         _emailFocusNode.unfocus();
                                         FocusScope.of(context).requestFocus(_passwordFocusNode);
@@ -293,7 +277,7 @@ namespace ConnectApp.screens {
                             ),
                             alignment: Alignment.center,
                             child: new IgnorePointer(
-                                ignoring: widget.screenModel.loginLoading,
+                                ignoring: widget.viewModel.loginLoading,
                                 child: new InputField(
                                     focusNode: _passwordFocusNode,
                                     maxLines: 1,
@@ -302,7 +286,7 @@ namespace ConnectApp.screens {
                                     style: CTextStyle.PLargeBody,
                                     cursorColor: CColors.PrimaryBlue,
                                     clearButtonMode: InputFieldClearButtonMode.whileEditing,
-                                    onChanged: text => widget.changePasswordAction(text),
+                                    onChanged: text => widget.actionModel.changePassword(text),
                                     onSubmitted: _ => _login()
                                 )
                             )
@@ -314,7 +298,7 @@ namespace ConnectApp.screens {
 
         private Widget _buildBottomView() {
             Widget right = new Container();
-            if (widget.screenModel.loginLoading)
+            if (widget.viewModel.loginLoading)
                 right = new Padding(
                     padding: EdgeInsets.only(right: 24),
                     child: new CustomActivityIndicator(
@@ -333,7 +317,7 @@ namespace ConnectApp.screens {
                             child: new Container(
                                 height: 48,
                                 decoration: new BoxDecoration(
-                                    widget.screenModel.loginBtnEnable
+                                    widget.viewModel.loginBtnEnable
                                         ? CColors.PrimaryBlue
                                         : CColors.Disable,
                                     borderRadius: BorderRadius.all(24)
@@ -358,7 +342,7 @@ namespace ConnectApp.screens {
                         ),
                         new Container(height: 8),
                         new CustomButton(
-                            onPressed: () => widget.openUrlAction($"{Config.idBaseUrl}/password/new"),
+                            onPressed: () => widget.actionModel.openUrl($"{Config.idBaseUrl}/password/new"),
                             child: new Text(
                                 "忘记密码",
                                 style: CTextStyle.PRegularBody3

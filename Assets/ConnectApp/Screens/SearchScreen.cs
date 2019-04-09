@@ -5,6 +5,7 @@ using ConnectApp.components;
 using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
@@ -22,9 +23,8 @@ namespace ConnectApp.screens {
     
     public class SearchScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
-            return new StoreConnector<AppState, SearchScreenModel>(
-                pure: true,
-                converter: state => new SearchScreenModel {
+            return new StoreConnector<AppState, SearchScreenViewModel>(
+                converter: state => new SearchScreenViewModel {
                     searchLoading = state.searchState.loading,
                     searchKeyword = state.searchState.keyword,
                     searchArticles = state.searchState.searchArticles,
@@ -34,19 +34,19 @@ namespace ConnectApp.screens {
                     popularSearchs = state.popularSearchState.popularSearchs
                 },
                 builder: (context1, viewModel, dispatcher) => {
-                    return new SearchScreen(
-                        viewModel,
-                        () => dispatcher.dispatch(new MainNavigatorPopAction()),
-                        articleId => dispatcher.dispatch(
-                                new MainNavigatorPushToArticleDetailAction {articleId = articleId}),
-                        (keyword, pageNumber) => dispatcher.dispatch<IPromise>(
+                    var actionModel = new SearchScreenActionModel {
+                        mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
+                        pushToArticleDetail = articleId => dispatcher.dispatch(
+                            new MainNavigatorPushToArticleDetailAction {articleId = articleId}),
+                        searchArticle = (keyword, pageNumber) => dispatcher.dispatch<IPromise>(
                             Actions.searchArticles(keyword, pageNumber)),
-                        () => dispatcher.dispatch(new PopularSearchAction()),
-                        () => dispatcher.dispatch(new ClearSearchArticleResultAction()),
-                        keyword => dispatcher.dispatch(new SaveSearchHistoryAction {keyword = keyword}),
-                        keyword => dispatcher.dispatch(new DeleteSearchHistoryAction {keyword = keyword}),
-                        () => dispatcher.dispatch(new DeleteAllSearchHistoryAction())
-                    );
+                        fetchPopularSearch = () => dispatcher.dispatch(new PopularSearchAction()),
+                        clearSearchArticleResult = () => dispatcher.dispatch(new ClearSearchArticleResultAction()),
+                        saveSearchHistory = keyword => dispatcher.dispatch(new SaveSearchHistoryAction {keyword = keyword}),
+                        deleteSearchHistory = keyword => dispatcher.dispatch(new DeleteSearchHistoryAction {keyword = keyword}),
+                        deleteAllSearchHistory = () => dispatcher.dispatch(new DeleteAllSearchHistoryAction())
+                    };
+                    return new SearchScreen(viewModel, actionModel);
                 }
             );
         }
@@ -54,38 +54,18 @@ namespace ConnectApp.screens {
     
     public class SearchScreen : StatefulWidget {
         public SearchScreen(
-            SearchScreenModel screenModel = null,
-            Action mainRouterPop = null,
-            Action<string> pushToArticleDetail = null,
-            Func<string, int, IPromise> searchArticle = null,
-            Action fetchPopularSearch = null,
-            Action clearSearchArticleResult = null,
-            Action<string> saveSearchHistory = null,
-            Action<string> deleteSearchHistory = null,
-            Action deleteAllSearchHistory = null,
+            SearchScreenViewModel viewModel = null,
+            SearchScreenActionModel actionModel = null,
             Key key = null
         ) : base(key)
         {
-            this.screenModel = screenModel;
-            this.mainRouterPop = mainRouterPop;
-            this.pushToArticleDetail = pushToArticleDetail;
-            this.searchArticle = searchArticle;
-            this.fetchPopularSearch = fetchPopularSearch;
-            this.clearSearchArticleResult = clearSearchArticleResult;
-            this.saveSearchHistory = saveSearchHistory;
-            this.deleteSearchHistory = deleteSearchHistory;
-            this.deleteAllSearchHistory = deleteAllSearchHistory;
+            this.viewModel = viewModel;
+            this.actionModel = actionModel;
         }
 
-        public SearchScreenModel screenModel;
-        public Action mainRouterPop;
-        public Action<string> pushToArticleDetail;
-        public Func<string, int, IPromise> searchArticle;
-        public Action fetchPopularSearch;
-        public Action clearSearchArticleResult;
-        public Action<string> saveSearchHistory;
-        public Action<string> deleteSearchHistory;
-        public Action deleteAllSearchHistory;
+        public readonly SearchScreenViewModel viewModel;
+        public readonly SearchScreenActionModel actionModel;
+        
 
         public override State createState() {
             return new _SearchScreenState();
@@ -101,19 +81,19 @@ namespace ConnectApp.screens {
             base.initState();
             _pageNumber = 0;
             _refreshController = new RefreshController();
-            widget.fetchPopularSearch();
+            widget.actionModel.fetchPopularSearch();
         }
 
         public override void dispose() {
-            widget.clearSearchArticleResult();
+            widget.actionModel.clearSearchArticleResult();
             base.dispose();
         }
 
         private void _searchArticle(string text) {
             if (text.isEmpty()) return;
-            widget.saveSearchHistory(text);
+            widget.actionModel.saveSearchHistory(text);
             _controller.text = text;
-            widget.searchArticle(text, 0);
+            widget.actionModel.searchArticle(text, 0);
         }
 
         private void _onRefresh(bool up) {
@@ -121,20 +101,20 @@ namespace ConnectApp.screens {
                 _pageNumber = 0;
             else
                 _pageNumber++;
-            widget.searchArticle(widget.screenModel.searchKeyword, _pageNumber)
+            widget.actionModel.searchArticle(widget.viewModel.searchKeyword, _pageNumber)
                 .Then(() => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
         }
 
         public override Widget build(BuildContext context) {
             object child = new Container();
-            if (widget.screenModel.searchLoading) {
+            if (widget.viewModel.searchLoading) {
                 child = new GlobalLoading();
             }
-            else if (widget.screenModel.searchKeyword.Length > 0) {
-                    if (widget.screenModel.searchArticles.Count > 0) {
-                        var currentPage = widget.screenModel.currentPage;
-                        var pages = widget.screenModel.pages;
+            else if (widget.viewModel.searchKeyword.Length > 0) {
+                    if (widget.viewModel.searchArticles.Count > 0) {
+                        var currentPage = widget.viewModel.currentPage;
+                        var pages = widget.viewModel.pages;
                         child = new SmartRefresher(
                             controller: _refreshController,
                             enablePullDown: true,
@@ -144,12 +124,12 @@ namespace ConnectApp.screens {
                             onRefresh: _onRefresh,
                             child: ListView.builder(
                                 physics: new AlwaysScrollableScrollPhysics(),
-                                itemCount: widget.screenModel.searchArticles.Count,
+                                itemCount: widget.viewModel.searchArticles.Count,
                                 itemBuilder: (cxt, index) => {
-                                    var searchArticle = widget.screenModel.searchArticles[index];
+                                    var searchArticle = widget.viewModel.searchArticles[index];
                                     return new RelatedArticleCard(
                                         searchArticle,
-                                        () => widget.pushToArticleDetail(searchArticle.id)
+                                        () => widget.actionModel.pushToArticleDetail(searchArticle.id)
                                     );
                                 }
                             )
@@ -162,7 +142,7 @@ namespace ConnectApp.screens {
             else {
                 child = new ListView(
                     children: new List<Widget> {
-                        _buildSearchHistory(widget.screenModel.searchHistoryList),
+                        _buildSearchHistory(widget.viewModel.searchHistoryList),
                         _buildHotSearch()
                     }
                 ); 
@@ -198,7 +178,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new CustomButton(
                             padding: EdgeInsets.only(8, 8, 0, 8),
-                            onPressed: () => widget.mainRouterPop(),
+                            onPressed: () => widget.actionModel.mainRouterPop(),
                             child: new Text(
                                 "取消",
                                 style: CTextStyle.PLargeBlue
@@ -214,7 +194,7 @@ namespace ConnectApp.screens {
                             textInputAction: TextInputAction.search,
                             clearButtonMode: InputFieldClearButtonMode.whileEditing,
                             onChanged: text => {
-                                if (text == null || text.Length <= 0) widget.clearSearchArticleResult();
+                                if (text == null || text.Length <= 0) widget.actionModel.clearSearchArticleResult();
                             },
                             onSubmitted: _searchArticle
                         )
@@ -224,7 +204,7 @@ namespace ConnectApp.screens {
         }
 
         private Widget _buildHotSearch() {
-            if (widget.screenModel.popularSearchs.Count <= 0) 
+            if (widget.viewModel.popularSearchs.Count <= 0) 
                 return new Container();
             return new Container(
                 padding: EdgeInsets.only(16, 24, 16),
@@ -242,7 +222,7 @@ namespace ConnectApp.screens {
                         new Wrap(
                             spacing: 8,
                             runSpacing: 20,
-                            children: _buildPopularSearchItem(widget.screenModel.popularSearchs)
+                            children: _buildPopularSearchItem(widget.viewModel.popularSearchs)
                         )
                     }
                 )
@@ -294,7 +274,7 @@ namespace ConnectApp.screens {
                                             title: "确定清除搜索历史记录？",
                                             items: new List<ActionSheetItem> {
                                                 new ActionSheetItem("确定", ActionType.destructive,
-                                                    () => widget.deleteAllSearchHistory()),
+                                                    () => widget.actionModel.deleteAllSearchHistory()),
                                                 new ActionSheetItem("取消", ActionType.cancel)
                                             }
                                         )
@@ -324,7 +304,7 @@ namespace ConnectApp.screens {
                                 ),
                                 new CustomButton(
                                     padding: EdgeInsets.only(8, 8, 0, 8),
-                                    onPressed: () => widget.deleteSearchHistory(item),
+                                    onPressed: () => widget.actionModel.deleteSearchHistory(item),
                                     child: new Icon(
                                         Icons.close,
                                         size: 16,

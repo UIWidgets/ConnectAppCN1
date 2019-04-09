@@ -6,6 +6,7 @@ using ConnectApp.components;
 using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
@@ -23,9 +24,8 @@ namespace ConnectApp.screens {
     
     public class EventsScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
-            return new StoreConnector<AppState, EventsScreenModel>(
-                pure: true,
-                converter: state => new EventsScreenModel {
+            return new StoreConnector<AppState, EventsScreenViewModel>(
+                converter: state => new EventsScreenViewModel {
                     eventsLoading = state.eventState.eventsLoading, 
                     ongoingEvents = state.eventState.ongoingEvents, 
                     completedEvents = state.eventState.completedEvents, 
@@ -34,33 +34,30 @@ namespace ConnectApp.screens {
                     eventsDict = state.eventState.eventsDict
                 },
                 builder: (context1, viewModel, dispatcher) => {
-                    return new EventsScreen(
-                        viewModel,
-                        (eventId, eventType) => dispatcher.dispatch(new MainNavigatorPushToEventDetailAction {
+                    var actionModel = new EventsScreenActionModel {
+                        pushToEventDetail = (eventId, eventType) => dispatcher.dispatch(new MainNavigatorPushToEventDetailAction {
                             eventId = eventId, eventType = eventType
                         }),
-                        (pageNumber, tab) =>
+                        fetchEvents = (pageNumber, tab) =>
                             dispatcher.dispatch<IPromise>(Actions.fetchEvents(pageNumber, tab))
-                    );
+                    };
+                    return new EventsScreen(viewModel, actionModel);
                 });
         }
     }
     public class EventsScreen : StatefulWidget {
         public EventsScreen(
-            EventsScreenModel screenModel = null,
-            Action<string, EventType> pushToEventDetail = null,
-            Func<int, string, IPromise> fetchEvents = null,
+            EventsScreenViewModel viewModel = null,
+            EventsScreenActionModel actionModel = null,
             Key key = null
             ) : base(key)
         {
-            this.screenModel = screenModel;
-            this.pushToEventDetail = pushToEventDetail;
-            this.fetchEvents = fetchEvents;
+            this.viewModel = viewModel;
+            this.actionModel = actionModel;
         }
 
-        public EventsScreenModel screenModel;
-        public Action<string, EventType> pushToEventDetail;
-        public Func<int, string, IPromise> fetchEvents;
+        public readonly EventsScreenViewModel viewModel;
+        public readonly EventsScreenActionModel actionModel;
 
         public override State createState() {
             return new _EventsScreenState();
@@ -90,8 +87,8 @@ namespace ConnectApp.screens {
             _completedRefreshController = new RefreshController();
             _pageController = new PageController();
             _selectedIndex = 0;
-            widget.fetchEvents(pageNumber, "ongoing");
-            widget.fetchEvents(completedPageNumber, "completed");
+            widget.actionModel.fetchEvents(pageNumber, "ongoing");
+            widget.actionModel.fetchEvents(completedPageNumber, "completed");
         }
 
         public override Widget build(BuildContext context) {
@@ -181,23 +178,23 @@ namespace ConnectApp.screens {
         }
 
         private Widget _buildOngoingEventList() {
-            if (widget.screenModel.eventsLoading) return new GlobalLoading();
+            if (widget.viewModel.eventsLoading) return new GlobalLoading();
             return new SmartRefresher(
                 controller: _ongoingRefreshController,
                 enablePullDown: true,
-                enablePullUp: widget.screenModel.ongoingEvents.Count < widget.screenModel.ongoingEventTotal,
+                enablePullUp: widget.viewModel.ongoingEvents.Count < widget.viewModel.ongoingEventTotal,
                 headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
                 footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
                 onRefresh: _ongoingRefresh,
                 child: ListView.builder(
                     physics: new AlwaysScrollableScrollPhysics(),
-                    itemCount: widget.screenModel.ongoingEvents.Count,
+                    itemCount: widget.viewModel.ongoingEvents.Count,
                     itemBuilder: (cxt, index) => {
-                        var eventId = widget.screenModel.ongoingEvents[index];
-                        var model = widget.screenModel.eventsDict[eventId];
+                        var eventId = widget.viewModel.ongoingEvents[index];
+                        var model = widget.viewModel.eventsDict[eventId];
                         return new EventCard(
                             model,
-                            () => widget.pushToEventDetail(
+                            () => widget.actionModel.pushToEventDetail(
                                 model.id,
                                 model.mode == "online" ? EventType.onLine : EventType.offline
                             ),
@@ -209,23 +206,23 @@ namespace ConnectApp.screens {
         }
 
         private Widget _buildCompletedEventList() {
-            if (widget.screenModel.eventsLoading) return new GlobalLoading();
+            if (widget.viewModel.eventsLoading) return new GlobalLoading();
             return new SmartRefresher(
                 controller: _completedRefreshController,
                 enablePullDown: true,
-                enablePullUp: widget.screenModel.completedEvents.Count < widget.screenModel.completedEventTotal,
+                enablePullUp: widget.viewModel.completedEvents.Count < widget.viewModel.completedEventTotal,
                 headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
                 footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
                 onRefresh: _completedRefresh,
                 child: ListView.builder(
                     physics: new AlwaysScrollableScrollPhysics(),
-                    itemCount: widget.screenModel.completedEvents.Count,
+                    itemCount: widget.viewModel.completedEvents.Count,
                     itemBuilder: (cxt, index) => {
-                        var eventId = widget.screenModel.completedEvents[index];
-                        var model = widget.screenModel.eventsDict[eventId];
+                        var eventId = widget.viewModel.completedEvents[index];
+                        var model = widget.viewModel.eventsDict[eventId];
                         return new EventCard(
                             model,
-                            () => widget.pushToEventDetail(
+                            () => widget.actionModel.pushToEventDetail(
                                 model.id,
                                 model.mode == "online" ? EventType.onLine : EventType.offline
                             ),
@@ -259,7 +256,7 @@ namespace ConnectApp.screens {
             } else {
                 pageNumber++;
             }
-            widget.fetchEvents(pageNumber, "ongoing")
+            widget.actionModel.fetchEvents(pageNumber, "ongoing")
                 .Then(() => _ongoingRefreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => _ongoingRefreshController.sendBack(up, RefreshStatus.failed));
         }
@@ -270,7 +267,7 @@ namespace ConnectApp.screens {
             } else {
                 completedPageNumber++;
             }
-            widget.fetchEvents(completedPageNumber, "completed")
+            widget.actionModel.fetchEvents(completedPageNumber, "completed")
                 .Then(() => _ongoingRefreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => _ongoingRefreshController.sendBack(up, RefreshStatus.failed));
         }
