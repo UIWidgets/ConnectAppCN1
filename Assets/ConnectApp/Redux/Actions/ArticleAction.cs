@@ -26,6 +26,8 @@ namespace ConnectApp.redux.actions {
     public class FetchArticleDetailSuccessAction : BaseAction {
         public Project articleDetail;
     }
+    
+    public class FetchArticleDetailFailureAction : BaseAction {}
 
     public class GetArticleHistoryAction : BaseAction {
     }
@@ -129,5 +131,32 @@ namespace ConnectApp.redux.actions {
             });
         }
         
+        public static object fetchArticleDetatil(string articleId)
+        {
+            return new ThunkAction<AppState>((dispatcher, getState) => {                
+                return ArticleApi.FetchArticleDetail(articleId)
+                    .Then(articleDetailResponse => {
+                        if (articleDetailResponse.project.comments.items.Count > 0)
+                            dispatcher.dispatch(new FetchArticleCommentsSuccessAction {
+                                channelId = articleDetailResponse.project.channelId,
+                                commentsResponse = articleDetailResponse.project.comments,
+                                isRefreshList = true
+                            });
+                        dispatcher.dispatch(new UserMapAction {
+                            userMap = articleDetailResponse.project.userMap
+                        });
+                        dispatcher.dispatch(new TeamMapAction {
+                            teamMap = articleDetailResponse.project.teamMap
+                        });
+                        dispatcher.dispatch(new FetchArticleDetailSuccessAction {
+                            articleDetail = articleDetailResponse.project
+                        });
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new FetchArticleDetailFailureAction()); 
+                        Debug.Log(error);
+                    });
+            });
+        }
     }
 }
