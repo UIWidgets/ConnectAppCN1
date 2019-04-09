@@ -229,7 +229,7 @@ namespace ConnectApp.screens {
             var originItems = new List<Widget>();
             originItems.Add(_buildContentHead());
             originItems.Add(_buildSubTitle());
-            originItems.AddRange(ArticleDescription.map(context, _article.body, _contentMap));
+            originItems.AddRange(ContentDescription.map(context, _article.body, _contentMap));
             originItems.Add(_buildActionCards(_article.like));
             originItems.Add(_buildRelatedArticles());
             originItems.Add(_comments());

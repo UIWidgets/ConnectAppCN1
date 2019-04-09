@@ -25,7 +25,7 @@ namespace ConnectApp.components {
         private Widget _buildContent(BuildContext context) {
             var items = new List<Widget>();
             items.Add(_buildContentHead());
-            items.AddRange(ArticleDescription.map(context, eventObj.content, eventObj.contentMap));
+            items.AddRange(ContentDescription.map(context, eventObj.content, eventObj.contentMap));
             items.Add(_buildContentLecturerList());
             return new Container(
                 child: ListView.builder(

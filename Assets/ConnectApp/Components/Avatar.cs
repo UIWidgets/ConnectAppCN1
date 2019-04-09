@@ -73,10 +73,6 @@ namespace ConnectApp.components {
 
         public override Widget build(BuildContext context) {
             if (type == OwnerType.team) return _buildTeamAvatar();
-//            var user = new User();
-//            if (StoreProvider.store.getState().userState.userDict.ContainsKey(id)) {
-//                user = StoreProvider.store.getState().userState.userDict[id];
-//            }
             var avatarUrl = user.avatar ?? "";
             var fullName = user.fullName;
             var result = _extractName(fullName) ?? "";
@@ -94,11 +90,6 @@ namespace ConnectApp.components {
             );
         }
         private Widget _buildTeamAvatar() {
-//            var team = new Team();
-//            if (StoreProvider.store.getState().teamState.teamDict.ContainsKey(id)) {
-//                team = StoreProvider.store.getState().teamState.teamDict[id];
-//            }
-            
             var avatarUrl = team.avatar ?? "";
             var name = team.name;
             var result = _extractName(name) ?? "";

@@ -39,7 +39,6 @@ namespace ConnectApp.components {
 
         public override Widget build(BuildContext context) {
             Widget _content = null;
-//            var messageDict = StoreProvider.store.getState().messageState.channelMessageDict[message.channelId];
             var content = MessageUtil.AnalyzeMessage(message.content, message.mentions, message.mentionEveryone);
             _content = parentName.isEmpty()?new Container(
                 child: new Text(

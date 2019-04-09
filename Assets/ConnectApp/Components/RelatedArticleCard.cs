@@ -59,16 +59,6 @@ namespace ConnectApp.components {
 
         public override Widget build(BuildContext context) {
             var username = user==null?team.name:user.fullName;
-//            if (article.ownerType == "user") {
-//                var userDict = StoreProvider.store.getState().userState.userDict;
-//                if (userDict.ContainsKey(article.userId)) username = userDict[article.userId].fullName;
-//            }
-//
-//            if (article.ownerType == "team") {
-//                var teamDict = StoreProvider.store.getState().teamState.teamDict;
-//                if (teamDict.ContainsKey(article.teamId)) username = teamDict[article.teamId].name;
-//            }
-
             var child = new Container(
                 color: CColors.White,
                 padding: EdgeInsets.all(16),
