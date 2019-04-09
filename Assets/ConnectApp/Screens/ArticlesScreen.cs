@@ -187,13 +187,14 @@ namespace ConnectApp.screens {
         }
 
         private bool _onNotification(ScrollNotification notification) {
-            var pixels = notification.metrics.pixels;
-            if (pixels >= 0) {
-                if (pixels <= headerHeight) setState(() => { _offsetY = pixels / 2.0f; });
-            }
-            else {
-                if (_offsetY != 0) setState(() => { _offsetY = 0; });
-            }
+//            var pixels = notification.metrics.pixels;
+//            Debug.Log($"pixels: {pixels}");
+//            if (pixels >= 0) {
+//                if (pixels <= headerHeight) setState(() => { _offsetY = pixels / 2.0f; });
+//            }
+//            else {
+//                if (_offsetY != 0) setState(() => { _offsetY = 0; });
+//            }
             return true;
         }
     }
