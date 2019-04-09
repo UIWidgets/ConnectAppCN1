@@ -10,5 +10,7 @@ namespace ConnectApp.Models.ViewModel {
         public bool pastListLoading;
         public int futureEventTotal;
         public int pastEventTotal;
+        public Dictionary<string, Place> placeDict;
+
     }
 }

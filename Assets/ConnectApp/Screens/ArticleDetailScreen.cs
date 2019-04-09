@@ -229,7 +229,7 @@ namespace ConnectApp.screens {
             var originItems = new List<Widget>();
             originItems.Add(_buildContentHead());
             originItems.Add(_buildSubTitle());
-            originItems.AddRange(ArticleDescription.map(context, _article.body, _contentMap));
+            originItems.AddRange(ContentDescription.map(context, _article.body, _contentMap));
             originItems.Add(_buildActionCards(_article.like));
             originItems.Add(_buildRelatedArticles());
             originItems.Add(_comments());
@@ -285,12 +285,17 @@ namespace ConnectApp.screens {
                     .Catch(err => { _refreshController.sendBack(up, RefreshStatus.failed); });
         }
 
-        private Widget _buildContentHead() {
-            var avatar = new Avatar(
-                _article.ownerType == "user" ? _user.id : _team.id,
-                32,
-                _article.ownerType == "user" ? OwnerType.user : OwnerType.team
-            );
+        private Widget _buildContentHead()
+        {
+            Widget _avatar;
+            if (_article.ownerType == OwnerType.user.ToString())
+            {
+                _avatar = Avatar.User(_user.id, _user, 32);
+            }
+            else
+            {
+                _avatar = Avatar.Team(_team.id, _team, 32);
+            }
             var text = _article.ownerType == "user" ? _user.fullName : _team.name;
             var description = _article.ownerType == "user" ? _user.title : "";
             Widget descriptionWidget = new Container();
@@ -322,7 +327,7 @@ namespace ConnectApp.screens {
                                 children: new List<Widget> {
                                     new Container(
                                         margin: EdgeInsets.only(right: 8),
-                                        child: avatar
+                                        child: _avatar
                                     ),
                                     new Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
@@ -387,11 +392,25 @@ namespace ConnectApp.screens {
         private Widget _buildRelatedArticles() {
             if (_relArticles.Count == 0) return new Container();
             var widgets = new List<Widget>();
-            _relArticles.ForEach(article => {
-                widgets.Add(new RelatedArticleCard(
-                    article,
-                    () => widget.actionModel.pushToArticleDetail(article.id)
-                ));
+            _relArticles.ForEach(article =>
+            {
+                Widget card;
+                if (article.ownerType==OwnerType.user.ToString())
+                {
+                    card = RelatedArticleCard.User(article,_user, () =>
+                        {
+                            widget.actionModel.pushToArticleDetail(article.id);
+                        },new ObjectKey(article.id));
+                }
+                else
+                {
+                    card = RelatedArticleCard.Team(article,_team, () =>
+                    {
+                        widget.actionModel.pushToArticleDetail(article.id);
+                    },new ObjectKey(article.id));
+                }
+
+                widgets.Add(card);
             });
             return new Container(
                 color: CColors.White,

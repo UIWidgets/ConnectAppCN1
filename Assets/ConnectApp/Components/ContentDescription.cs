@@ -12,7 +12,7 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.components {
-    public static class ArticleDescription {
+    public static class ContentDescription {
         public static List<Widget> map(BuildContext context, string cont, Dictionary<string, ContentMap> contentMap) {
             if (cont == null) return new List<Widget>();
 

@@ -31,7 +31,8 @@ namespace ConnectApp.screens {
                     completedEvents = state.eventState.completedEvents, 
                     ongoingEventTotal = state.eventState.ongoingEventTotal, 
                     completedEventTotal = state.eventState.completedEventTotal, 
-                    eventsDict = state.eventState.eventsDict
+                    eventsDict = state.eventState.eventsDict,
+                    placeDict = state.placeState.placeDict
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new EventsScreenActionModel {
@@ -75,6 +76,10 @@ namespace ConnectApp.screens {
         private float _offsetY;
         private RefreshController _ongoingRefreshController;
         private RefreshController _completedRefreshController;
+
+//        protected override bool wantKeepAlive {
+//            get => true;
+//        }
 
         public override void initState() {
             base.initState();
@@ -188,8 +193,10 @@ namespace ConnectApp.screens {
                     itemBuilder: (cxt, index) => {
                         var eventId = widget.viewModel.ongoingEvents[index];
                         var model = widget.viewModel.eventsDict[eventId];
+                        var place = model.placeId.isEmpty() ? null : widget.viewModel.placeDict[model.placeId];
                         return new EventCard(
                             model,
+                            place,
                             () => widget.actionModel.pushToEventDetail(
                                 model.id,
                                 model.mode == "online" ? EventType.onLine : EventType.offline
@@ -216,8 +223,10 @@ namespace ConnectApp.screens {
                     itemBuilder: (cxt, index) => {
                         var eventId = widget.viewModel.completedEvents[index];
                         var model = widget.viewModel.eventsDict[eventId];
+                        var place = model.placeId.isEmpty() ? null : widget.viewModel.placeDict[model.placeId];
                         return new EventCard(
                             model,
+                            place,
                             () => widget.actionModel.pushToEventDetail(
                                 model.id,
                                 model.mode == "online" ? EventType.onLine : EventType.offline

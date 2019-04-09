@@ -27,7 +27,9 @@ namespace ConnectApp.screens {
                     articlesLoading = state.articleState.articlesLoading,
                     articleList = state.articleState.articleList,
                     articleDict = state.articleState.articleDict,
-                    articleTotal = state.articleState.articleTotal
+                    articleTotal = state.articleState.articleTotal,
+                    userDict = state.userState.userDict,
+                    teamDict = state.teamState.teamDict
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ArticlesScreenActionModel {
@@ -75,6 +77,10 @@ namespace ConnectApp.screens {
         private int pageNumber = firstPageNumber;
         private RefreshController _refreshController;
         
+//        protected override bool wantKeepAlive
+//        {
+//            get => true;
+//        }
         public override void initState() {
             base.initState();
             _refreshController = new RefreshController();
@@ -147,21 +153,48 @@ namespace ConnectApp.screens {
                         {
                             var articleId = widget.viewModel.articleList[index];
                             var article = widget.viewModel.articleDict[articleId];
-                            return new ArticleCard(
-                                article,
-                                () => widget.actionModel.pushToArticleDetail(articleId),
-                                () =>
+                            if (article.ownerType == OwnerType.user.ToString())
+                            {
+                                var _user = new User();
+                                if (widget.viewModel.userDict.ContainsKey(article.userId))
                                 {
-                                    ActionSheetUtils.showModalActionSheet(new ActionSheet(
-                                        items: new List<ActionSheetItem>
-                                        {
-                                            new ActionSheetItem("举报", ActionType.destructive, () => { }),
-                                            new ActionSheetItem("取消", ActionType.cancel)
-                                        }
-                                    ));
-                                },
-                                new ObjectKey(article.id)
-                            );
+                                    _user = widget.viewModel.userDict[article.userId];
+                                }
+                                return ArticleCard.User(article,
+                                    () => widget.actionModel.pushToArticleDetail(articleId),
+                                    () =>
+                                    {
+                                        ActionSheetUtils.showModalActionSheet(new ActionSheet(
+                                            items: new List<ActionSheetItem>
+                                            {
+                                                new ActionSheetItem("举报", ActionType.destructive, () => { }),
+                                                new ActionSheetItem("取消", ActionType.cancel)
+                                            }
+                                        ));
+                                    },
+                                    new ObjectKey(article.id), _user);
+                            }
+                            else
+                            {
+                                var _team = new Team();
+                                if (widget.viewModel.teamDict.ContainsKey(article.teamId))
+                                {
+                                    _team = widget.viewModel.teamDict[article.teamId];
+                                }
+                                return ArticleCard.Team(article,
+                                    () => widget.actionModel.pushToArticleDetail(articleId),
+                                    () =>
+                                    {
+                                        ActionSheetUtils.showModalActionSheet(new ActionSheet(
+                                            items: new List<ActionSheetItem>
+                                            {
+                                                new ActionSheetItem("举报", ActionType.destructive, () => { }),
+                                                new ActionSheetItem("取消", ActionType.cancel)
+                                            }
+                                        ));
+                                    },
+                                    new ObjectKey(article.id),_team);
+                            }
                         }
                     )
                 );

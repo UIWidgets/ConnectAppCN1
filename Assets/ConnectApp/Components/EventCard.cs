@@ -14,34 +14,28 @@ namespace ConnectApp.components {
     public class EventCard : StatelessWidget {
         public EventCard(
             IEvent model,
+            Place place = null,
             GestureTapCallback onTap = null,
             Key key = null
         ) : base(key) {
-            _model = model;
+            this.model = model;
+            this.place = place;
             this.onTap = onTap;
         }
 
-        private readonly IEvent _model;
+        private readonly IEvent model;
+        private readonly Place place;
         private readonly GestureTapCallback onTap;
 
         public override Widget build(BuildContext context) {
-            if (_model == null) return new Container();
+            if (model == null) return new Container();
 
-            var time = Convert.ToDateTime(_model.begin.startTime);
+            var time = Convert.ToDateTime(model.begin.startTime);
             var hour = $"{time.Hour.ToString().PadLeft(2, '0')}";
             var minute = $"{time.Minute.ToString().PadLeft(2, '0')}";
             var hourMinute = $"{hour}:{minute}";
-            var placeId = _model.placeId;
-            var address = "";
-            if (placeId.isNotEmpty()) {
-                var placeDict = StoreProvider.store.getState().placeState.placeDict;
-                if (placeDict.ContainsKey(placeId)) {
-                    var place = placeDict[placeId];
-                    address = place.name;
-                }
-            }
-
-            var imageUrl = _model.avatar != null ? _model.avatar : _model.background;
+            var address = place == null ? "" : place.name;
+            var imageUrl = model.avatar != null ? model.avatar : model.background;
             var card = new Container(
                 padding: EdgeInsets.all(16),
                 color: CColors.White,
@@ -80,14 +74,14 @@ namespace ConnectApp.components {
                                         new Container(
                                             margin: EdgeInsets.only(bottom: 8),
                                             child: new Text(
-                                                _model.title,
+                                                model.title,
                                                 style: CTextStyle.PLargeMedium,
                                                 maxLines: 2
                                             )
                                         ),
                                         new Text(
-                                            _model.mode == "online"
-                                                ? $"{hourMinute} · {_model.participantsCount}人已预订"
+                                            model.mode == "online"
+                                                ? $"{hourMinute} · {model.participantsCount}人已预订"
                                                 : $"{hourMinute}  · {address}",
                                             style: CTextStyle.PSmallBody3
                                         )
@@ -115,12 +109,12 @@ namespace ConnectApp.components {
                                             child: new Container(
                                                 width: 41,
                                                 height: 24,
-                                                color: _model.mode == "online"
+                                                color: model.mode == "online"
                                                     ? CColors.PrimaryBlue
                                                     : CColors.SecondaryPink,
                                                 alignment: Alignment.center,
                                                 child: new Text(
-                                                    _model.mode == "online" ? "线上" : "线下",
+                                                    model.mode == "online" ? "线上" : "线下",
                                                     style: CTextStyle.CaptionWhite,
                                                     textAlign: TextAlign.center
                                                 )

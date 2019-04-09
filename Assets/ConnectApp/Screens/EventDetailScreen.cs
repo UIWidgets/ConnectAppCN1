@@ -497,12 +497,20 @@ namespace ConnectApp.screens {
                             padding: EdgeInsets.only(16, right: 16, bottom: 10),
                             physics: new AlwaysScrollableScrollPhysics(),
                             itemCount: widget.viewModel.messageList.Count,
-                            itemBuilder: (cxt, index) => new ChatMessage(
-                                widget.viewModel.channelId,
-                                widget.viewModel.messageList[widget.viewModel.messageList.Count - index - 1],
-                                new ObjectKey(
-                                    widget.viewModel.messageList[widget.viewModel.messageList.Count - index - 1])
-                            )
+                            itemBuilder: (cxt, index) =>
+                            {
+                                var messageId =
+                                    widget.viewModel.messageList[widget.viewModel.messageList.Count - index - 1];
+                                var messageDict = new Dictionary<string, Message>();
+                                if (widget.viewModel.channelMessageDict.ContainsKey(widget.viewModel.channelId))
+                                    messageDict = widget.viewModel.channelMessageDict[widget.viewModel.channelId];
+                                var message = new Message();
+                                if (messageDict.ContainsKey(messageId))
+                                    message = messageDict[messageId];
+                                return new ChatMessage(
+                                    message
+                                );
+                            }
                         )
                     );
                 }

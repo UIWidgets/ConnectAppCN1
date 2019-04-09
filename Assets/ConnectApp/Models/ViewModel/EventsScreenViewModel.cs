@@ -12,5 +12,7 @@ namespace ConnectApp.Models.ViewModel
         public int ongoingEventTotal;
         public int completedEventTotal;
         public Dictionary<string, IEvent> eventsDict;
+        public Dictionary<string, Place> placeDict;
+
     }
 }
