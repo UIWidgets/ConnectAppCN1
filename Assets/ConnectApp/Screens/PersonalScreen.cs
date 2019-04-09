@@ -22,7 +22,8 @@ namespace ConnectApp.screens {
                 converter: state => new PersonalScreenViewModel {
                     isLoggedIn = state.loginState.isLoggedIn,
                     userId = state.loginState.loginInfo.userId,
-                    userFullName = state.loginState.loginInfo.userFullName
+                    userFullName = state.loginState.loginInfo.userFullName,
+                    userDict = state.userState.userDict
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     return new PersonalScreen(
@@ -57,7 +58,7 @@ namespace ConnectApp.screens {
 
     public class _PersonalScreenState : AutomaticKeepAliveClientMixin<PersonalScreen> {
         protected override bool wantKeepAlive {
-            get { return true; }
+            get => true;
         }
         public override Widget build(BuildContext context) {
             var navigationBar = widget.viewModel.isLoggedIn
@@ -127,8 +128,7 @@ namespace ConnectApp.screens {
                     child: new Text(widget.viewModel.userFullName, style: CTextStyle.H2)
                 ),
                 new List<Widget> {
-                    new Avatar(widget.viewModel.userId, 40)
-                },
+                    Avatar.User(widget.viewModel.userId,widget.viewModel.userDict[widget.viewModel.userId],40)                },
                 CColors.White,
                 0
             );

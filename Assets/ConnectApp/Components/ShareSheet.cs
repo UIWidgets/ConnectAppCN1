@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
-using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;

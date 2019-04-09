@@ -19,7 +19,8 @@ namespace ConnectApp.components {
             GestureTapCallback replyCallBack = null,
             Key key = null,
             string parentName = null
-        ) : base(key) {
+        ) : base(key)
+        {
             this.message = message;
             this.isPraised = isPraised; 
             this.parentName = parentName;
@@ -27,7 +28,7 @@ namespace ConnectApp.components {
             this.praiseCallBack = praiseCallBack;
             this.replyCallBack = replyCallBack;
         }
-
+        
         private readonly Message message;
         private readonly bool isPraised;
         private readonly string parentName;
@@ -73,7 +74,7 @@ namespace ConnectApp.components {
                     children: new List<Widget> {
                         new Container(
                             margin: EdgeInsets.only(right: 8),
-                            child: new Avatar(message.author.id, 24)
+                            child: Avatar.User(message.author.id,message.author,24)
                         ),
                         new Expanded(
                             child: new Container(

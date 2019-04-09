@@ -31,7 +31,9 @@ namespace ConnectApp.screens {
                     currentPage = state.searchState.currentPage,
                     pages = state.searchState.pages,
                     searchHistoryList = state.searchState.searchHistoryList,
-                    popularSearchs = state.popularSearchState.popularSearchs
+                    popularSearchs = state.popularSearchState.popularSearchs,
+                    userDict = state.userState.userDict,
+                    teamDict = state.teamState.teamDict
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new SearchScreenActionModel {
@@ -127,10 +129,22 @@ namespace ConnectApp.screens {
                                 itemCount: widget.viewModel.searchArticles.Count,
                                 itemBuilder: (cxt, index) => {
                                     var searchArticle = widget.viewModel.searchArticles[index];
-                                    return new RelatedArticleCard(
-                                        searchArticle,
-                                        () => widget.actionModel.pushToArticleDetail(searchArticle.id)
-                                    );
+                                    if (searchArticle.ownerType==OwnerType.user.ToString())
+                                    {
+                                        var _user = widget.viewModel.userDict[searchArticle.userId];
+                                        return RelatedArticleCard.User(searchArticle,_user, () =>
+                                            {
+                                                widget.actionModel.pushToArticleDetail(searchArticle.id);
+                                            });
+                                    }
+                                    else
+                                    {
+                                        var _team = widget.viewModel.teamDict[searchArticle.teamId];
+                                        return RelatedArticleCard.Team(searchArticle,_team, () =>
+                                        {
+                                            widget.actionModel.pushToArticleDetail(searchArticle.id);
+                                        });
+                                    }
                                 }
                             )
                         );

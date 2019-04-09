@@ -13,42 +13,61 @@ using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.components {
     public class RelatedArticleCard : StatelessWidget {
-        public RelatedArticleCard(
+        private RelatedArticleCard(
             Article article,
+            User user = null,
+            Team team = null,
+            OwnerType type = OwnerType.user,
             GestureTapCallback onTap = null,
             Key key = null
         ) : base(key) {
             this.article = article;
             this.onTap = onTap;
+            this.user = user;
+            this.team = team;
         }
 
 
         public static RelatedArticleCard User(
             Article article,
+            User user = null,
             GestureTapCallback onTap = null,
             Key key = null
         )
         {
             return new RelatedArticleCard(
-                article,onTap,key
+                article,user,null,OwnerType.user,onTap,key
+            );
+        }
+        public static RelatedArticleCard Team(
+            Article article,
+            Team team = null,
+            GestureTapCallback onTap = null,
+            Key key = null
+        )
+        {
+            return new RelatedArticleCard(
+                article,null,team,OwnerType.team,onTap,key
             );
         }
 
-
+        private readonly OwnerType type;
+        private readonly User user;
+        private readonly Team team;
         private readonly Article article;
         private readonly GestureTapCallback onTap;
 
         public override Widget build(BuildContext context) {
-            var username = "";
-            if (article.ownerType == "user") {
-                var userDict = StoreProvider.store.getState().userState.userDict;
-                if (userDict.ContainsKey(article.userId)) username = userDict[article.userId].fullName;
-            }
-
-            if (article.ownerType == "team") {
-                var teamDict = StoreProvider.store.getState().teamState.teamDict;
-                if (teamDict.ContainsKey(article.teamId)) username = teamDict[article.teamId].name;
-            }
+            var username = user==null?team.name:user.fullName;
+//            if (article.ownerType == "user") {
+//                var userDict = StoreProvider.store.getState().userState.userDict;
+//                if (userDict.ContainsKey(article.userId)) username = userDict[article.userId].fullName;
+//            }
+//
+//            if (article.ownerType == "team") {
+//                var teamDict = StoreProvider.store.getState().teamState.teamDict;
+//                if (teamDict.ContainsKey(article.teamId)) username = teamDict[article.teamId].name;
+//            }
 
             var child = new Container(
                 color: CColors.White,

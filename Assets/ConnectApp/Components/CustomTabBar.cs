@@ -13,7 +13,7 @@ using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.components {
-    public delegate void SelectTabCallBack(int index);
+    public delegate bool SelectTabCallBack(int index);
 
     public class CustomTabBar : StatefulWidget {
         public CustomTabBar(
@@ -106,12 +106,20 @@ namespace ConnectApp.components {
                                 onTap: () => {
                                     if (_selectedIndex != item.index) {
 
-                                        if (widget.tapCallBack != null) widget.tapCallBack(item.index);
-                                        setState(() => {
-                                            _selectedIndex = item.index;
-                                            _pageController.animateToPage(item.index, new TimeSpan(0, 0, 0, 0, 1),
-                                                Curves.ease);
-                                        });
+                                        if (widget.tapCallBack != null)
+                                        {
+                                            if (widget.tapCallBack(item.index))
+                                            {
+                                              setState(() =>
+                                                 {
+                                                     _selectedIndex = item.index;
+                                                     _pageController.animateToPage(item.index, new TimeSpan(0, 0, 0, 0, 1),
+                                                         Curves.ease);
+                                                 });
+                                            } 
+                                        }
+                                        
+                                       
                                     }
                                 },
                                 child: new Container(

@@ -54,10 +54,7 @@ namespace ConnectApp.components {
                                 children: new List<Widget> {
                                     new Container(
                                         margin: EdgeInsets.only(right: 8),
-                                        child: new Avatar(
-                                            user.id ?? "",
-                                            32
-                                        )
+                                        child: Avatar.User(user.id,user,32)
                                     ),
                                     new Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
@@ -116,10 +113,7 @@ namespace ConnectApp.components {
                             children: new List<Widget> {
                                 new Container(
                                     margin: EdgeInsets.only(right: 8),
-                                    child: new Avatar(
-                                        host.id,
-                                        48
-                                    )
+                                    child:  Avatar.User(host.id,host,32)
                                 ),
                                 new Column(
                                     mainAxisAlignment: MainAxisAlignment.center,

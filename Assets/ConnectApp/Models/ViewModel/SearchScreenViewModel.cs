@@ -12,6 +12,8 @@ namespace ConnectApp.Models.ViewModel
         public int currentPage;
         public List<int> pages;
         public List<string> searchHistoryList;
+        public Dictionary<string, User> userDict;
+        public Dictionary<string, Team> teamDict;
         public List<PopularSearch> popularSearchs;
     }
 }

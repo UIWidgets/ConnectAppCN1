@@ -22,7 +22,8 @@ namespace ConnectApp.screens {
                 converter: (state) => new NotifcationScreenViewModel {
                     notifationLoading = state.notificationState.loading,
                     total = state.notificationState.total,
-                    notifications = state.notificationState.notifications
+                    notifications = state.notificationState.notifications,
+                    userDict = state.userState.userDict
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     return new NotificationScreen(
@@ -61,7 +62,7 @@ namespace ConnectApp.screens {
         private RefreshController _refreshController;
 
         protected override bool wantKeepAlive {
-            get { return true; }
+            get => true;
         }
         public override void initState() {
             base.initState();
@@ -91,8 +92,11 @@ namespace ConnectApp.screens {
                         itemCount: widget.viewModel.notifications.Count,
                         itemBuilder: (cxt, index) => {
                             var notification = widget.viewModel.notifications[index];
+                            var _user = widget.viewModel.userDict[notification.userId];
                             return new NotificationCard(
-                                notification: notification
+                                notification,
+                                _user,
+                                new ObjectKey(notification.id)
                             );
                         }
                     )

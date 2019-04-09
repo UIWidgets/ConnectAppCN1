@@ -14,9 +14,9 @@ namespace ConnectApp.components {
     public class EventCard : StatelessWidget {
         public EventCard(
             IEvent model,
+            Place place = null,
             GestureTapCallback onTap = null,
-            Key key = null,
-            Place place = null
+            Key key = null
         ) : base(key) {
             this.model = model;
             this.place = place;
@@ -34,16 +34,7 @@ namespace ConnectApp.components {
             var hour = $"{time.Hour.ToString().PadLeft(2, '0')}";
             var minute = $"{time.Minute.ToString().PadLeft(2, '0')}";
             var hourMinute = $"{hour}:{minute}";
-            var placeId = model.placeId;
-            var address = place.name??"";
-//            if (placeId.isNotEmpty()) {
-//                var placeDict = StoreProvider.store.getState().placeState.placeDict;
-//                if (placeDict.ContainsKey(placeId)) {
-//                    var place = placeDict[placeId];
-//                    address = place.name;
-//                }
-//            }
-            
+            var address = place == null ? "" : place.name;
             var imageUrl = model.avatar != null ? model.avatar : model.background;
             var card = new Container(
                 padding: EdgeInsets.all(16),

@@ -8,5 +8,6 @@ namespace ConnectApp.Models.ViewModel {
         public bool notifationLoading;
         public int total;
         public List<Notification> notifications;
+        public Dictionary<string, User> userDict;
     }
 }

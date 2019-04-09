@@ -12,7 +12,6 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 using EventType = ConnectApp.models.EventType;
 
 namespace ConnectApp.screens {
@@ -21,7 +20,10 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, HistoryScreenViewModel>(
                 converter: (state) => new HistoryScreenViewModel {
                     eventHistory = state.eventState.eventHistory,
-                    articleHistory = state.articleState.articleHistory
+                    articleHistory = state.articleState.articleHistory,
+                    userDict = state.userState.userDict,
+                    teamDict = state.teamState.teamDict,
+                    placeDict = state.placeState.placeDict
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new HistoryScreenActionModel {
@@ -73,8 +75,14 @@ namespace ConnectApp.screens {
             base.initState();
             _pageController = new PageController();
             _selectedIndex = 0;
-            widget.actionModel.getArticleHistory();
-            widget.actionModel.getEventHistory();
+//            widget.actionModel.getArticleHistory();
+//            widget.actionModel.getEventHistory();
+        }
+
+        public override void dispose()
+        {
+            base.dispose();
+            _pageController.dispose();
         }
 
         public override Widget build(BuildContext context) {
@@ -86,8 +94,8 @@ namespace ConnectApp.screens {
                         child: new Column(
                             children: new List<Widget> {
                                 _buildNavigationBar(context),
-                                _buildSelectView(),
-                                _buildContentView()
+//                                _buildSelectView(),
+//                                _buildContentView()
                             }
                         )
                     )
@@ -173,17 +181,49 @@ namespace ConnectApp.screens {
 
         private Widget _buildArticleHistory() {
             if (widget.viewModel.articleHistory.Count == 0) return new BlankView("暂无浏览文章记录");
+           
             return ListView.builder(
                 physics: new AlwaysScrollableScrollPhysics(),
                 itemCount: widget.viewModel.articleHistory.Count,
                 itemBuilder: (cxt, index) => {
                     var model = widget.viewModel.articleHistory[index];
+                    Widget child;
+                    if (model.ownerType==OwnerType.user.ToString())
+                    {
+                        var _user = new User();
+                        if (widget.viewModel.userDict.ContainsKey(model.userId))
+                        {
+                            _user = widget.viewModel.userDict[model.userId];
+                        }
+                        child = ArticleCard.User(
+                            model, 
+                            onTap: () =>
+                                widget.actionModel.pushToArticleDetail(model.id),
+                            moreCallBack: () => { },
+                            null, 
+                            _user
+                        );
+                    }
+                    else
+                    {
+                        var _team = new Team();
+                        if (widget.viewModel.teamDict.ContainsKey(model.teamId))
+                        {
+                            _team = widget.viewModel.teamDict[model.teamId];
+                        }
+                        child = ArticleCard.Team(
+                            model, 
+                            onTap: () =>
+                                widget.actionModel.pushToArticleDetail(model.id),
+                            moreCallBack: () => { },
+                            null, 
+                            _team
+                        );
+                    }
+
                     return new Dismissible(
                         Key.key(model.id),
-                        new ArticleCard(
-                            model,
-                            () => widget.actionModel.pushToArticleDetail(model.id)
-                        ),
+                        child,
                         new Container(
                             color: CColors.Error,
                             padding: EdgeInsets.symmetric(horizontal: 16),
@@ -212,10 +252,12 @@ namespace ConnectApp.screens {
                 itemBuilder: (cxt, index) => {
                     var model = widget.viewModel.eventHistory[index];
                     var eventType = model.mode == "online" ? EventType.onLine : EventType.offline;
+                    var place = model.placeId.isEmpty() ? null : widget.viewModel.placeDict[model.placeId];
                     return new Dismissible(
                         Key.key(model.id),
                         new EventCard(
                             model,
+                            place,
                             () => widget.actionModel.pushToEventDetail(model.id, eventType)
                         ),
                         new Container(

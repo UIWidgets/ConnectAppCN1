@@ -16,7 +16,7 @@ namespace ConnectApp.components {
     }
 
     public class Avatar : StatelessWidget {
-        public Avatar(
+        private Avatar(
             string id,
             float size = 36,
             OwnerType type = OwnerType.user,
@@ -34,8 +34,8 @@ namespace ConnectApp.components {
 
         public static Avatar User(
             string id,
-            float size = 36,
             User user = null,
+            float size = 36,
             Key key = null
         )
         {
@@ -49,8 +49,8 @@ namespace ConnectApp.components {
         }
         public static Avatar Team(
             string id,
-            float size = 36,
             Team team = null,
+            float size = 36,
             Key key = null
         )
         {

@@ -30,7 +30,8 @@ namespace ConnectApp.screens {
                     futureListLoading = state.mineState.futureListLoading,
                     pastListLoading = state.mineState.pastListLoading,
                     futureEventTotal = state.mineState.futureEventTotal,
-                    pastEventTotal = state.mineState.pastEventTotal
+                    pastEventTotal = state.mineState.pastEventTotal,
+                    placeDict = state.placeState.placeDict
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new MyEventsScreenActionModel {
@@ -239,8 +240,10 @@ namespace ConnectApp.screens {
                     itemBuilder: (cxt, idx) => {
                         var model = data[idx];
                         var eventType = model.mode == "online" ? EventType.onLine : EventType.offline;
+                        var place = widget.viewModel.placeDict[model.placeId];
                         return new EventCard(
                             model,
+                            place,
                             () => widget.actionModel.pushToEventDetail(model.id, eventType)
                         );
                     }

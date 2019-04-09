@@ -1,11 +1,48 @@
+using System;
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
+using ConnectApp.models;
+using ConnectApp.Models.ViewModel;
+using ConnectApp.redux.actions;
+using RSG;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
 namespace ConnectApp.screens {
+    
+    public class MainScreenConnector : StatelessWidget {
+        public override Widget build(BuildContext context) {
+            return new StoreConnector<AppState, bool>(
+                converter: state => state.loginState.isLoggedIn,
+                builder: (context1, isLoggedIn, dispatcher) => {
+                    return new MainScreen(isLoggedIn, () =>
+                    {
+                        dispatcher.dispatch(new MainNavigatorPushToAction
+                        {
+                            routeName = MainNavigatorRoutes.Login
+                        });
+                    });
+                }
+            );
+        }
+    }
+    
     public class MainScreen : StatelessWidget {
+
+        public MainScreen(
+            bool isLoggedIn,
+            Action pushToLogin = null
+        )
+        {
+            this.isLoggedIn = isLoggedIn;
+            this.pushToLogin = pushToLogin;
+        }
+
+        private readonly bool isLoggedIn;
+        public Action pushToLogin;
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
@@ -42,15 +79,15 @@ namespace ConnectApp.screens {
                         },
                         CColors.White,
                         index => {
-//                            Debug.Log($"index == {index}");
                             if (index == 2) {
-//                                var isLoggedIn = StoreProvider.store.getState().loginState.isLoggedIn;
-//                                if (!isLoggedIn) {
-//                                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToAction
-//                                        {routeName = MainNavigatorRoutes.Login});
-//                                    return;
-//                                }
+                                if (!isLoggedIn)
+                                {
+                                    pushToLogin();
+                                    return false;
+                                }
                             }
+
+                            return true;
                         }
                     )
                 )

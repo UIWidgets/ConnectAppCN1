@@ -11,32 +11,16 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.components {
     public class ChatMessage : StatelessWidget {
         public ChatMessage(
-            string channelId,
-            string messageId,
-            Key key = null,
-            Message message = null
+            Message message,
+            Key key = null
         ) : base(key) {
-            this.channelId = channelId;
-            this.messageId = messageId;
             this.message = message;
         }
 
-        private readonly string channelId;
-        private readonly string messageId;
         private readonly Message message;
 
 
         public override Widget build(BuildContext context) {
-            if (channelId == null || channelId.Length < 0) return new Container();
-            if (messageId == null || messageId.Length < 0) return new Container();
-
-//            var channelMessageDict = StoreProvider.store.getState().messageState.channelMessageDict;
-//            var messageDict = new Dictionary<string, Message>();
-//            if (channelMessageDict.ContainsKey(channelId))
-//                messageDict = channelMessageDict[channelId];
-//            var message = new Message();
-//            if (channelMessageDict.ContainsKey(channelId))
-//                message = messageDict[messageId];
 
             var author = message.author != null ? message.author : new User();
 
@@ -46,10 +30,7 @@ namespace ConnectApp.components {
                 child: new Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        new Avatar(
-                            author.id,
-                            24
-                        ),
+                        Avatar.User(message.author.id,message.author,24),
                         new Expanded(
                             child: new Container(
                                 margin: EdgeInsets.only(8),
