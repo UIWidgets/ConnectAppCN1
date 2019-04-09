@@ -69,7 +69,7 @@ namespace ConnectApp.screens {
     }
 
 
-    public class _ArticlesScreenState : AutomaticKeepAliveClientMixin<ArticlesScreen>
+    public class _ArticlesScreenState : State<ArticlesScreen>
     {
         private const int firstPageNumber = 1;
         private const float headerHeight = 140;
@@ -77,10 +77,10 @@ namespace ConnectApp.screens {
         private int pageNumber = firstPageNumber;
         private RefreshController _refreshController;
         
-        protected override bool wantKeepAlive
-        {
-            get => true;
-        }
+//        protected override bool wantKeepAlive
+//        {
+//            get => true;
+//        }
         public override void initState() {
             base.initState();
             _refreshController = new RefreshController();

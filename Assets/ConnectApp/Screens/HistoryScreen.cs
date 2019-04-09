@@ -94,8 +94,8 @@ namespace ConnectApp.screens {
                         child: new Column(
                             children: new List<Widget> {
                                 _buildNavigationBar(context),
-//                                _buildSelectView(),
-//                                _buildContentView()
+                                _buildSelectView(),
+                                _buildContentView()
                             }
                         )
                     )

@@ -65,7 +65,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    internal class _EventsScreenState : AutomaticKeepAliveClientMixin<EventsScreen>
+    internal class _EventsScreenState : State<EventsScreen>
     {
         private const int firstPageNumber = 1;
         private const float headerHeight = 80;
@@ -77,9 +77,9 @@ namespace ConnectApp.screens {
         private RefreshController _ongoingRefreshController;
         private RefreshController _completedRefreshController;
 
-        protected override bool wantKeepAlive {
-            get => true;
-        }
+//        protected override bool wantKeepAlive {
+//            get => true;
+//        }
 
         public override void initState() {
             base.initState();
