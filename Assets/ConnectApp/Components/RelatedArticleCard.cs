@@ -22,6 +22,19 @@ namespace ConnectApp.components {
             this.onTap = onTap;
         }
 
+
+        public static RelatedArticleCard User(
+            Article article,
+            GestureTapCallback onTap = null,
+            Key key = null
+        )
+        {
+            return new RelatedArticleCard(
+                article,onTap,key
+            );
+        }
+
+
         private readonly Article article;
         private readonly GestureTapCallback onTap;
 

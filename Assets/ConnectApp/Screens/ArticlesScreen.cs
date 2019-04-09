@@ -75,14 +75,19 @@ namespace ConnectApp.screens {
     }
 
 
-    public class _ArticlesScreenState : State<ArticlesScreen>
+    public class _ArticlesScreenState : AutomaticKeepAliveClientMixin<ArticlesScreen>
     {
         private const int firstPageNumber = 1;
         private const float headerHeight = 140;
         private float _offsetY;
         private int pageNumber = firstPageNumber;
         private RefreshController _refreshController;
-        
+
+        protected override bool wantKeepAlive
+        {
+            get { return true; }
+        }
+
         public override void initState() {
             base.initState();
             _refreshController = new RefreshController();
@@ -159,6 +164,7 @@ namespace ConnectApp.screens {
                             var article = widget.screenModel.articleDict[articleId];
                             return new ArticleCard(
                                 article,
+                                "",
                                 () => widget.pushToArticleDetail(articleId),
                                 () =>
                                 {

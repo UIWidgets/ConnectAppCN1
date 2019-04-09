@@ -43,6 +43,14 @@ namespace ConnectApp.screens {
                         CColors.White,
                         index => {
 //                            Debug.Log($"index == {index}");
+                            if (index == 2) {
+//                                var isLoggedIn = StoreProvider.store.getState().loginState.isLoggedIn;
+//                                if (!isLoggedIn) {
+//                                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToAction
+//                                        {routeName = MainNavigatorRoutes.Login});
+//                                    return;
+//                                }
+                            }
                         }
                     )
                 )

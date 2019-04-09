@@ -81,19 +81,6 @@ namespace ConnectApp.components {
             );
         }
 
-        private Widget _buildContentDetail() {
-            return new Container(
-                margin: EdgeInsets.only(top: 44),
-                child: new Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget> {
-                        new EventDescription(content: eventObj.content, contentMap: eventObj.contentMap)
-                    }
-                )
-            );
-        }
-
         private Widget _buildContentLecturerList() {
             var hosts = eventObj.hosts;
             if (hosts == null || hosts.Count == 0) return new Container();

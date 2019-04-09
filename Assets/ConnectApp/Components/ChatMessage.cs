@@ -13,26 +13,30 @@ namespace ConnectApp.components {
         public ChatMessage(
             string channelId,
             string messageId,
-            Key key = null
+            Key key = null,
+            Message message = null
         ) : base(key) {
             this.channelId = channelId;
             this.messageId = messageId;
+            this.message = message;
         }
 
         private readonly string channelId;
         private readonly string messageId;
+        private readonly Message message;
+
 
         public override Widget build(BuildContext context) {
             if (channelId == null || channelId.Length < 0) return new Container();
             if (messageId == null || messageId.Length < 0) return new Container();
 
-            var channelMessageDict = StoreProvider.store.getState().messageState.channelMessageDict;
-            var messageDict = new Dictionary<string, Message>();
-            if (channelMessageDict.ContainsKey(channelId))
-                messageDict = channelMessageDict[channelId];
-            var message = new Message();
-            if (channelMessageDict.ContainsKey(channelId))
-                message = messageDict[messageId];
+//            var channelMessageDict = StoreProvider.store.getState().messageState.channelMessageDict;
+//            var messageDict = new Dictionary<string, Message>();
+//            if (channelMessageDict.ContainsKey(channelId))
+//                messageDict = channelMessageDict[channelId];
+//            var message = new Message();
+//            if (channelMessageDict.ContainsKey(channelId))
+//                message = messageDict[messageId];
 
             var author = message.author != null ? message.author : new User();
 

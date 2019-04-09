@@ -47,7 +47,7 @@ namespace ConnectApp.components {
 
         public override void initState() {
             base.initState();
-            _pageController = new PageController(_selectedIndex);
+            _pageController = new PageController(_selectedIndex,keepPage:true);
         }
 
         public override Widget build(BuildContext context) {
@@ -105,14 +105,6 @@ namespace ConnectApp.components {
                             new GestureDetector(
                                 onTap: () => {
                                     if (_selectedIndex != item.index) {
-                                        if (item.index == 2) {
-                                            var isLoggedIn = StoreProvider.store.getState().loginState.isLoggedIn;
-                                            if (!isLoggedIn) {
-                                                StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToAction
-                                                    {routeName = MainNavigatorRoutes.Login});
-                                                return;
-                                            }
-                                        }
 
                                         if (widget.tapCallBack != null) widget.tapCallBack(item.index);
                                         setState(() => {

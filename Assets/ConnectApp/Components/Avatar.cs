@@ -20,46 +20,84 @@ namespace ConnectApp.components {
             string id,
             float size = 36,
             OwnerType type = OwnerType.user,
+            User user = null,
+            Team team = null,
             Key key = null
         ) : base(key) {
             D.assert(id != null);
             this.id = id;
+            this.user = user;
+            this.team = team;
             this.size = size;
             this.type = type;
         }
 
+        public static Avatar User(
+            string id,
+            float size = 36,
+            User user = null,
+            Key key = null
+        )
+        {
+            return new Avatar(
+                id,
+                size,
+                OwnerType.user,
+                user,
+                key:key
+            );
+        }
+        public static Avatar Team(
+            string id,
+            float size = 36,
+            Team team = null,
+            Key key = null
+        )
+        {
+            return new Avatar(
+                id,
+                size,
+                OwnerType.team,
+                null,
+                team,
+                key
+            );
+        }
+
+
         private readonly string id;
+        private readonly User user;
+        private readonly Team team;
         private readonly float size;
         private readonly OwnerType type;
 
         public override Widget build(BuildContext context) {
             if (type == OwnerType.team) return _buildTeamAvatar();
-            var user = new User();
-            if (StoreProvider.store.getState().userState.userDict.ContainsKey(id)) {
-                user = StoreProvider.store.getState().userState.userDict[id];
-            }
+//            var user = new User();
+//            if (StoreProvider.store.getState().userState.userDict.ContainsKey(id)) {
+//                user = StoreProvider.store.getState().userState.userDict[id];
+//            }
             var avatarUrl = user.avatar ?? "";
             var fullName = user.fullName;
             var result = _extractName(fullName) ?? "";
             return new ClipRRect(
                 borderRadius: BorderRadius.circular(size / 2),
-                child: avatarUrl.Length <= 0
+                child: avatarUrl.isEmpty()
                     ? new Container(
                         child: new _Placeholder(result, size)
                     )
                     : new Container(
                         width: size,
                         height: size,
-                        child: Image.network(avatarUrl)
+                        child: Image.network(avatarUrl,fit:BoxFit.cover)
                     )
             );
         }
-
         private Widget _buildTeamAvatar() {
-            var team = new Team();
-            if (StoreProvider.store.getState().teamState.teamDict.ContainsKey(id)) {
-                team = StoreProvider.store.getState().teamState.teamDict[id];
-            }
+//            var team = new Team();
+//            if (StoreProvider.store.getState().teamState.teamDict.ContainsKey(id)) {
+//                team = StoreProvider.store.getState().teamState.teamDict[id];
+//            }
             
             var avatarUrl = team.avatar ?? "";
             var name = team.name;
@@ -71,6 +109,7 @@ namespace ConnectApp.components {
                 child: Image.network(avatarUrl)
             );
         }
+
 
         private static string _extractName(string name) {
             if (name == null || name.Length <= 0) return "";

@@ -55,12 +55,15 @@ namespace ConnectApp.screens {
         }
     }
 
-    public class _NotificationScreenState : State<NotificationScreen> {
+    public class _NotificationScreenState : AutomaticKeepAliveClientMixin<NotificationScreen> {
         private const float headerHeight = 140;
         private float _offsetY;
         private int _pageNumber = 1;
         private RefreshController _refreshController;
 
+        protected override bool wantKeepAlive {
+            get { return true; }
+        }
         public override void initState() {
             base.initState();
             _offsetY = 0;

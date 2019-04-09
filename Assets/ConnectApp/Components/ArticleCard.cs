@@ -15,30 +15,33 @@ namespace ConnectApp.components {
     public class ArticleCard : StatelessWidget {
         public ArticleCard(
             Article article,
+            string userName,
             GestureTapCallback onTap = null,
             GestureTapCallback moreCallBack = null,
             Key key = null
         ) : base(key) {
             this.article = article;
+            this.userName = userName;
             this.onTap = onTap;
             this.moreCallBack = moreCallBack;
         }
 
         private readonly Article article;
+        private readonly string userName;
         private readonly GestureTapCallback onTap;
         private readonly GestureTapCallback moreCallBack;
 
         public override Widget build(BuildContext context) {
-            var username = "";
-            if (article.ownerType == "user") {
-                var userDict = StoreProvider.store.getState().userState.userDict;
-                if (userDict.ContainsKey(article.userId)) username = userDict[article.userId].fullName;
-            }
-
-            if (article.ownerType == "team") {
-                var teamDict = StoreProvider.store.getState().teamState.teamDict;
-                if (teamDict.ContainsKey(article.teamId)) username = teamDict[article.teamId].name;
-            }
+//            var username = "";
+//            if (article.ownerType == "user") {
+//                var userDict = StoreProvider.store.getState().userState.userDict;
+//                if (userDict.ContainsKey(article.userId)) username = userDict[article.userId].fullName;
+//            }
+//
+//            if (article.ownerType == "team") {
+//                var teamDict = StoreProvider.store.getState().teamState.teamDict;
+//                if (teamDict.ContainsKey(article.teamId)) username = teamDict[article.teamId].name;
+//            }
 
             var card = new Container(
                 color: CColors.White,
@@ -90,7 +93,7 @@ namespace ConnectApp.components {
                                         children: new List<Widget> {
                                             new Expanded(
                                                 child: new Text(
-                                                    $"{username} · {DateConvert.DateStringFromNow(article.publishedTime)} · 阅读 {article.viewCount}",
+                                                    $"{userName} · {DateConvert.DateStringFromNow(article.publishedTime)} · 阅读 {article.viewCount}",
                                                     style: CTextStyle.PSmallBody3
                                                 )
                                             ),

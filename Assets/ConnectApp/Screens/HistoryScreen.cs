@@ -197,6 +197,7 @@ namespace ConnectApp.screens {
                         Key.key(model.id),
                         new ArticleCard(
                             model,
+                            "",
                             () => widget.pushToArticleDetail(model.id)
                         ),
                         new Container(
