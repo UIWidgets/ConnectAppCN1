@@ -5,6 +5,7 @@ using ConnectApp.components;
 using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using ConnectApp.utils;
@@ -27,9 +28,8 @@ namespace ConnectApp.screens {
         private readonly string articleId;
 
         public override Widget build(BuildContext context) {
-            return new StoreConnector<AppState, ArticleDetailScreenModel>(
-                pure: true,
-                converter: (state) => new ArticleDetailScreenModel {
+            return new StoreConnector<AppState, ArticleDetailScreenViewModel>(
+                converter: (state) => new ArticleDetailScreenViewModel {
                     articleId = articleId,
                     loginUserId = state.loginState.loginInfo.userId,
                     isLoggedIn = state.loginState.isLoggedIn,
@@ -41,79 +41,56 @@ namespace ConnectApp.screens {
                     teamDict = state.teamState.teamDict
                 },
                 builder: (context1, viewModel, dispatcher) => {
-                    return new ArticleDetailScreen(
-                        viewModel,
-                        popAction: () => dispatcher.dispatch(new MainNavigatorPopAction()),
-                        fetchArticleDetailAction: (id) =>
+                    var actionModel = new ArticleDetailScreenActionModel {
+                        mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
+                        pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
+                            routeName = MainNavigatorRoutes.Login
+                        }),
+                        pushToArticleDetail = (id) => dispatcher.dispatch(
+                            new MainNavigatorPushToArticleDetailAction {
+                                articleId = id
+                            }),
+                        fetchArticleDetail = (id) =>
                             dispatcher.dispatch(new FetchArticleDetailAction {articleId = id}),
-                        sendCommentAction: (channelId, content, nonce, parentMessageId) => dispatcher.dispatch(
+                        fetchArticleComments = (channelId, currOldestMessageId) =>
+                            dispatcher.dispatch<IPromise>(
+                                Actions.fetchArticleComments(channelId, currOldestMessageId)
+                            ),
+                        likeArticle = (id) => dispatcher.dispatch(new LikeArticleAction {
+                            articleId = id
+                        }),
+                        likeComment = (commentId) => dispatcher.dispatch(new LikeCommentAction {
+                            messageId = commentId
+                        }),
+                        removeLikeComment = (commentId) => dispatcher.dispatch(new RemoveLikeCommentAction {
+                            messageId = commentId
+                        }),
+                        sendComment = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch(
                             new SendCommentAction {
                                 channelId = channelId,
                                 content = content,
                                 nonce = nonce,
                                 parentMessageId = parentMessageId
-                            }),
-                        pushToLoginAction: () => dispatcher.dispatch(new MainNavigatorPushToAction {
-                            routeName = MainNavigatorRoutes.Login
-                        }),
-                        likeArticleAction: (id) => dispatcher.dispatch(new LikeArticleAction {
-                            articleId = id
-                        }),
-                        pushToArticleDetailAction: (id) => dispatcher.dispatch(
-                            new MainNavigatorPushToArticleDetailAction {
-                                articleId = id
-                            }),
-                        likeCommentAction: (commentId) => dispatcher.dispatch(new LikeCommentAction {
-                            messageId = commentId
-                        }),
-                        removeLikeCommentAction: (commentId) => dispatcher.dispatch(new RemoveLikeCommentAction {
-                            messageId = commentId
-                        }),
-                        fetchArticleCommentsAction: (channelId, currOldestMessageId) =>
-                            dispatcher.dispatch<IPromise>(
-                                Actions.fetchArticleComments(channelId, currOldestMessageId)
-                            )
-                    );
+                            })
+                    };
+                    
+                    return new ArticleDetailScreen(viewModel, actionModel);
                 });
         }
     }
 
     internal class ArticleDetailScreen : StatefulWidget {
         public ArticleDetailScreen(
-            ArticleDetailScreenModel screenModel = null,
-            Action popAction = null,
-            Action pushToLoginAction = null,
-            Action<string> pushToArticleDetailAction = null,
-            Action<string> fetchArticleDetailAction = null,
-            Func<string, string, IPromise> fetchArticleCommentsAction = null,
-            Action<string> likeArticleAction = null,
-            Action<string> likeCommentAction = null,
-            Action<string> removeLikeCommentAction = null,
-            Action<string, string, string, string> sendCommentAction = null,
+            ArticleDetailScreenViewModel viewModel = null,
+            ArticleDetailScreenActionModel actionModel = null,
             Key key = null
         ) : base(key) {
-            this.screenModel = screenModel;
-            this.popAction = popAction;
-            this.pushToLoginAction = pushToLoginAction;
-            this.pushToArticleDetailAction = pushToArticleDetailAction;
-            this.fetchArticleDetailAction = fetchArticleDetailAction;
-            this.fetchArticleCommentsAction = fetchArticleCommentsAction;
-            this.likeArticleAction = likeArticleAction;
-            this.likeCommentAction = likeCommentAction;
-            this.removeLikeCommentAction = removeLikeCommentAction;
-            this.sendCommentAction = sendCommentAction;
+            this.viewModel = viewModel;
+            this.actionModel = actionModel;
         }
 
-        public readonly ArticleDetailScreenModel screenModel;
-        public readonly Action popAction;
-        public readonly Action pushToLoginAction;
-        public readonly Action<string> pushToArticleDetailAction;
-        public readonly Action<string> fetchArticleDetailAction;
-        public readonly Func<string, string, IPromise> fetchArticleCommentsAction;
-        public readonly Action<string> likeArticleAction;
-        public readonly Action<string> likeCommentAction;
-        public readonly Action<string> removeLikeCommentAction;
-        public readonly Action<string, string, string, string> sendCommentAction;
+        public readonly ArticleDetailScreenViewModel viewModel;
+        public readonly ArticleDetailScreenActionModel actionModel;
 
         public override State createState() {
             return new _ArticleDetailScreenState();
@@ -136,11 +113,11 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             _refreshController = new RefreshController();
-            widget.fetchArticleDetailAction(widget.screenModel.articleId);
+            widget.actionModel.fetchArticleDetail(widget.viewModel.articleId);
         }
 
         public override Widget build(BuildContext context) {
-            if (widget.screenModel.articleDetailLoading)
+            if (widget.viewModel.articleDetailLoading)
                 return new Container(
                     color: CColors.White,
                     child: new SafeArea(
@@ -152,19 +129,19 @@ namespace ConnectApp.screens {
                         )
                     )
                 );
-            widget.screenModel.articleDict.TryGetValue(widget.screenModel.articleId, out _article);
+            widget.viewModel.articleDict.TryGetValue(widget.viewModel.articleId, out _article);
             if (_article == null || _article.channelId == null) return new Container();
             if (_article.ownerType == "user")
-                if (_article.userId != null && widget.screenModel.userDict.TryGetValue(_article.userId, out _user))
-                    _user = widget.screenModel.userDict[_article.userId];
+                if (_article.userId != null && widget.viewModel.userDict.TryGetValue(_article.userId, out _user))
+                    _user = widget.viewModel.userDict[_article.userId];
 
             if (_article.ownerType == "team")
-                if (_article.teamId != null && widget.screenModel.teamDict.TryGetValue(_article.teamId, out _team))
-                    _team = widget.screenModel.teamDict[_article.teamId];
+                if (_article.teamId != null && widget.viewModel.teamDict.TryGetValue(_article.teamId, out _team))
+                    _team = widget.viewModel.teamDict[_article.teamId];
             _channelId = _article.channelId;
             _relArticles = _article.projects;
-            if (widget.screenModel.channelMessageList.ContainsKey(_article.channelId))
-                _channelComments = widget.screenModel.channelMessageList[_article.channelId];
+            if (widget.viewModel.channelMessageList.ContainsKey(_article.channelId))
+                _channelComments = widget.viewModel.channelMessageList[_article.channelId];
             _contentMap = _article.contentMap;
             _lastCommentId = _article.currOldestMessageId ?? "";
             _hasMore = _article.hasMore;
@@ -193,13 +170,13 @@ namespace ConnectApp.screens {
                         new ArticleTabBar(
                             _article.like,
                             () => {
-                                if (!widget.screenModel.isLoggedIn)
-                                    widget.pushToLoginAction();
+                                if (!widget.viewModel.isLoggedIn)
+                                    widget.actionModel.pushToLogin();
                                 else
                                     ActionSheetUtils.showModalActionSheet(new CustomInput(
                                         doneCallBack: text => {
                                             ActionSheetUtils.hiddenModalPopup();
-                                            widget.sendCommentAction(
+                                            widget.actionModel.sendComment(
                                                 _article.channelId,
                                                 text,
                                                 Snowflake.CreateNonce(),
@@ -209,13 +186,13 @@ namespace ConnectApp.screens {
                                     );
                             },
                             () => {
-                                if (!widget.screenModel.isLoggedIn)
-                                    widget.pushToLoginAction();
+                                if (!widget.viewModel.isLoggedIn)
+                                    widget.actionModel.pushToLogin();
                                 else
                                     ActionSheetUtils.showModalActionSheet(new CustomInput(
                                         doneCallBack: text => {
                                             ActionSheetUtils.hiddenModalPopup();
-                                            widget.sendCommentAction(
+                                            widget.actionModel.sendComment(
                                                 _article.channelId,
                                                 text,
                                                 Snowflake.CreateNonce(),
@@ -225,12 +202,12 @@ namespace ConnectApp.screens {
                                     );
                             },
                             () => {
-                                if (!widget.screenModel.isLoggedIn) {
-                                    widget.pushToLoginAction();
+                                if (!widget.viewModel.isLoggedIn) {
+                                    widget.actionModel.pushToLogin();
                                 }
                                 else {
                                     if (!_article.like)
-                                        widget.likeArticleAction(_article.id);
+                                        widget.actionModel.likeArticle(_article.id);
                                 }
                             },
                             shareCallback: () => { ShareUtils.showShareView(new ShareView()); }
@@ -270,7 +247,7 @@ namespace ConnectApp.screens {
                 ),
                 child: new CustomNavigationBar(
                     new GestureDetector(
-                        onTap: () => widget.popAction(),
+                        onTap: () => widget.actionModel.mainRouterPop(),
                         child: new Icon(Icons.arrow_back, size: 24, color: CColors.icon3)
                     ), new List<Widget> {
                         new CustomButton(
@@ -301,7 +278,7 @@ namespace ConnectApp.screens {
 
         private void _onRefresh(bool up) {
             if (!up)
-                widget.fetchArticleCommentsAction(_channelId, _lastCommentId)
+                widget.actionModel.fetchArticleComments(_channelId, _lastCommentId)
                     .Then(() => { _refreshController.sendBack(up, RefreshStatus.idle); })
                     .Catch(err => { _refreshController.sendBack(up, RefreshStatus.failed); });
         }
@@ -390,12 +367,12 @@ namespace ConnectApp.screens {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: new List<Widget> {
                         new ActionCard(Icons.favorite, like ? "已赞" : "点赞", like, () => {
-                            if (!widget.screenModel.isLoggedIn) {
-                                widget.pushToLoginAction();
+                            if (!widget.viewModel.isLoggedIn) {
+                                widget.actionModel.pushToLogin();
                             }
                             else {
                                 if (!like)
-                                    widget.likeArticleAction(_article.id);
+                                    widget.actionModel.likeArticle(_article.id);
                             }
                         }),
                         new Container(width: 16),
@@ -411,7 +388,7 @@ namespace ConnectApp.screens {
             _relArticles.ForEach(article => {
                 widgets.Add(new RelatedArticleCard(
                     article,
-                    () => widget.pushToArticleDetailAction(article.id)
+                    () => widget.actionModel.pushToArticleDetail(article.id)
                 ));
             });
             return new Container(
@@ -449,12 +426,12 @@ namespace ConnectApp.screens {
         private List<Widget> _buildComments() {
             if (_channelComments.isEmpty()) return new List<Widget>();
             var comments = new List<Widget>();
-            if (!widget.screenModel.channelMessageDict.ContainsKey(_channelId)) return comments;
-            var messageDict = widget.screenModel.channelMessageDict[_channelId];
+            if (!widget.viewModel.channelMessageDict.ContainsKey(_channelId)) return comments;
+            var messageDict = widget.viewModel.channelMessageDict[_channelId];
             foreach (var commentId in _channelComments) {
                 if (!messageDict.ContainsKey(commentId)) break;
                 var message = messageDict[commentId];
-                bool isPraised = _isPraised(message, widget.screenModel.loginUserId);
+                bool isPraised = _isPraised(message, widget.viewModel.loginUserId);
                 var card = new CommentCard(
                     message,
                     isPraised,
@@ -467,14 +444,14 @@ namespace ConnectApp.screens {
                         ));
                     },
                     replyCallBack: () => {
-                        if (!widget.screenModel.isLoggedIn)
-                            widget.pushToLoginAction();
+                        if (!widget.viewModel.isLoggedIn)
+                            widget.actionModel.pushToLogin();
                         else
                             ActionSheetUtils.showModalActionSheet(new CustomInput(
                                 message.author.fullName.isEmpty() ? "" : message.author.fullName,
                                 text => {
                                     ActionSheetUtils.hiddenModalPopup();
-                                    widget.sendCommentAction(
+                                    widget.actionModel.sendComment(
                                         _channelId,
                                         text,
                                         Snowflake.CreateNonce(),
@@ -484,14 +461,14 @@ namespace ConnectApp.screens {
                             );
                     },
                     praiseCallBack: () => {
-                        if (!widget.screenModel.isLoggedIn) {
-                            widget.pushToLoginAction();
+                        if (!widget.viewModel.isLoggedIn) {
+                            widget.actionModel.pushToLogin();
                         }
                         else {
                             if (isPraised)
-                                widget.removeLikeCommentAction(commentId);
+                                widget.actionModel.removeLikeComment(commentId);
                             else
-                                widget.likeCommentAction(commentId);
+                                widget.actionModel.likeComment(commentId);
                         }
                     });
                 comments.Add(card);

@@ -18,9 +18,8 @@ namespace ConnectApp.screens {
     
     public class PersonalScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
-            return new StoreConnector<AppState, PersonalScreenModel>(
-                pure: true,
-                converter: state => new PersonalScreenModel {
+            return new StoreConnector<AppState, PersonalScreenViewModel>(
+                converter: state => new PersonalScreenViewModel {
                     isLoggedIn = state.loginState.isLoggedIn,
                     userId = state.loginState.loginInfo.userId,
                     userFullName = state.loginState.loginInfo.userFullName
@@ -39,17 +38,17 @@ namespace ConnectApp.screens {
 
     public class PersonalScreen : StatefulWidget {
         public PersonalScreen(
-            PersonalScreenModel screenModel = null,    
+            PersonalScreenViewModel viewModel = null,    
             Action<string> mainRouterPushTo = null,    
             Key key = null
         ) : base(key)
         {
-            this.screenModel = screenModel;
+            this.viewModel = viewModel;
             this.mainRouterPushTo = mainRouterPushTo;
         }
         
-        public PersonalScreenModel screenModel;
-        public Action<string> mainRouterPushTo;
+        public readonly PersonalScreenViewModel viewModel;
+        public readonly Action<string> mainRouterPushTo;
 
         public override State createState() {
             return new _PersonalScreenState();
@@ -58,7 +57,7 @@ namespace ConnectApp.screens {
 
     public class _PersonalScreenState : State<PersonalScreen> {
         public override Widget build(BuildContext context) {
-            var navigationBar = widget.screenModel.isLoggedIn
+            var navigationBar = widget.viewModel.isLoggedIn
                 ? _buildLoginInNavigationBar()
                 : _buildNotLoginInNavigationBar(context);
             
@@ -122,10 +121,10 @@ namespace ConnectApp.screens {
         private Widget _buildLoginInNavigationBar() {
             return new CustomNavigationBar(
                 new Expanded(
-                    child: new Text(widget.screenModel.userFullName, style: CTextStyle.H2)
+                    child: new Text(widget.viewModel.userFullName, style: CTextStyle.H2)
                 ),
                 new List<Widget> {
-                    new Avatar(widget.screenModel.userId, 40)
+                    new Avatar(widget.viewModel.userId, 40)
                 },
                 CColors.White,
                 0
@@ -138,7 +137,7 @@ namespace ConnectApp.screens {
                     Icons.ievent, 
                     "我的活动", 
                     () => {
-                    var routeName = widget.screenModel.isLoggedIn ? MainNavigatorRoutes.MyEvent : MainNavigatorRoutes.Login;
+                    var routeName = widget.viewModel.isLoggedIn ? MainNavigatorRoutes.MyEvent : MainNavigatorRoutes.Login;
                     widget.mainRouterPushTo(routeName);
                     }
                 ),
@@ -151,7 +150,7 @@ namespace ConnectApp.screens {
                     Icons.settings, 
                     "设置", 
                     () => {
-                        var routeName = widget.screenModel.isLoggedIn ? MainNavigatorRoutes.Setting : MainNavigatorRoutes.Login;
+                        var routeName = widget.viewModel.isLoggedIn ? MainNavigatorRoutes.Setting : MainNavigatorRoutes.Login;
                         widget.mainRouterPushTo(routeName);
                     }
                 )

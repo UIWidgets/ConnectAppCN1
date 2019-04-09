@@ -18,9 +18,8 @@ using Notification = UnityEngine.Playables.Notification;
 namespace ConnectApp.screens {
     public class NotificationScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
-            return new StoreConnector<AppState, NotifcationScreenModel>(
-                pure: true,
-                converter: (state) => new NotifcationScreenModel {
+            return new StoreConnector<AppState, NotifcationScreenViewModel>(
+                converter: (state) => new NotifcationScreenViewModel {
                     notifationLoading = state.notificationState.loading,
                     total = state.notificationState.total,
                     notifications = state.notificationState.notifications
@@ -38,17 +37,17 @@ namespace ConnectApp.screens {
     public class NotificationScreen : StatefulWidget {
 
         public NotificationScreen(
-            NotifcationScreenModel screenModel = null,    
+            NotifcationScreenViewModel viewModel = null,    
             Func<int, IPromise> fetchNotifications = null,
             Key key = null
         ) : base(key)
         {
-            this.screenModel = screenModel;
+            this.viewModel = viewModel;
             this.fetchNotifications = fetchNotifications;
         }
         
-        public NotifcationScreenModel screenModel;
-        public Func<int, IPromise> fetchNotifications;
+        public readonly NotifcationScreenViewModel viewModel;
+        public readonly Func<int, IPromise> fetchNotifications;
 
         public override State createState() {
             return new _NotificationScreenState();
@@ -67,38 +66,16 @@ namespace ConnectApp.screens {
             _refreshController = new RefreshController();
             widget.fetchNotifications(1);
         }
-
-        private bool _onNotification(ScrollNotification notification) {
-            var pixels = notification.metrics.pixels;
-            if (pixels >= 0) {
-                if (pixels <= headerHeight) setState(() => { _offsetY = pixels / 2.0f; });
-            }
-            else {
-                if (_offsetY != 0) setState(() => { _offsetY = 0; });
-            }
-
-            return true;
-        }
-
-        private void _onRefresh(bool up) {
-            if (up)
-                _pageNumber = 1;
-            else
-                _pageNumber++;
-            widget.fetchNotifications(_pageNumber)
-                .Then(() => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
-                .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
-        }
-
+        
         public override Widget build(BuildContext context)
         {
             object content = new Container();
-            if (widget.screenModel.notifationLoading) 
+            if (widget.viewModel.notifationLoading) 
                 content = new GlobalLoading();
-            else if (widget.screenModel.notifications.Count <= 0) 
+            else if (widget.viewModel.notifications.Count <= 0) 
                 content = new BlankView("暂无通知消息");
             else {
-                var isLoadMore = widget.screenModel.notifications.Count == widget.screenModel.total;
+                var isLoadMore = widget.viewModel.notifications.Count == widget.viewModel.total;
                 content = new SmartRefresher(
                     controller: _refreshController,
                     enablePullDown: true,
@@ -108,9 +85,9 @@ namespace ConnectApp.screens {
                     onRefresh: _onRefresh,
                     child: ListView.builder(
                         physics: new AlwaysScrollableScrollPhysics(),
-                        itemCount: widget.screenModel.notifications.Count,
+                        itemCount: widget.viewModel.notifications.Count,
                         itemBuilder: (cxt, index) => {
-                            var notification = widget.screenModel.notifications[index];
+                            var notification = widget.viewModel.notifications[index];
                             return new NotificationCard(
                                 notification: notification
                             );
@@ -118,7 +95,6 @@ namespace ConnectApp.screens {
                     )
                 );
             }
-            
             
             return new Container(
                 color: CColors.White,
@@ -151,6 +127,28 @@ namespace ConnectApp.screens {
                     }
                 )
             );
+        }
+
+        private bool _onNotification(ScrollNotification notification) {
+            var pixels = notification.metrics.pixels;
+            if (pixels >= 0) {
+                if (pixels <= headerHeight) setState(() => { _offsetY = pixels / 2.0f; });
+            }
+            else {
+                if (_offsetY != 0) setState(() => { _offsetY = 0; });
+            }
+
+            return true;
+        }
+
+        private void _onRefresh(bool up) {
+            if (up)
+                _pageNumber = 1;
+            else
+                _pageNumber++;
+            widget.fetchNotifications(_pageNumber)
+                .Then(() => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
         }
     }
 }

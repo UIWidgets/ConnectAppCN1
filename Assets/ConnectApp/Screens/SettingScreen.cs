@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
@@ -19,22 +20,21 @@ namespace ConnectApp.screens {
     
     public class SettingScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
-            return new StoreConnector<AppState, SettingScreenModel>(
-                pure: true,
-                converter: state => new SettingScreenModel {
+            return new StoreConnector<AppState, SettingScreenViewModel>(
+                converter: state => new SettingScreenViewModel {
                     anonymous = state.loginState.loginInfo.anonymous,
                     hasReviewUrl = state.settingState.hasReviewUrl,
                     reviewUrl = state.settingState.reviewUrl
                 },
                 builder: (context1, viewModel, dispatcher) => {
-                    return new SettingScreen(
-                        viewModel,
-                       () => dispatcher.dispatch(new MainNavigatorPopAction()),
-                       (platform, store) => dispatcher.dispatch<IPromise>(Actions.fetchReviewUrl(platform, store)),
-                       url => dispatcher.dispatch(new OpenUrlAction {url = url}),
-                       () => dispatcher.dispatch(new SettingClearCacheAction()),
-                       () => dispatcher.dispatch(new LogoutAction())
-                    );
+                    var actionModel = new SettingScreenActionModel {
+                        mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
+                        fetchReviewUrl = (platform, store) => dispatcher.dispatch<IPromise>(Actions.fetchReviewUrl(platform, store)),
+                        openUrl = url => dispatcher.dispatch(new OpenUrlAction {url = url}),
+                        clearCache = () => dispatcher.dispatch(new SettingClearCacheAction()),
+                        logout = () => dispatcher.dispatch(new LogoutAction())
+                    };
+                    return new SettingScreen(viewModel, actionModel);
                 }
             );
         }
@@ -43,29 +43,18 @@ namespace ConnectApp.screens {
     public class SettingScreen : StatefulWidget {
         
         public SettingScreen(
-            SettingScreenModel screenModel = null,    
-            Action mainNavigatorPop = null,    
-            Func<string, string, IPromise> fetchReviewUrl = null, 
-            Action<string> openUrl = null,
-            Action clearCache = null,
-            Action logout = null,
+            SettingScreenViewModel viewModel = null,    
+            SettingScreenActionModel actionModel = null,
             Key key = null
         ) : base(key)
         {
-            this.screenModel = screenModel;
-            this.mainNavigatorPop = mainNavigatorPop;
-            this.fetchReviewUrl = fetchReviewUrl;
-            this.openUrl = openUrl;
-            this.clearCache = clearCache;
-            this.logout = logout;
+            this.viewModel = viewModel;
+            this.actionModel = actionModel;
         }
         
-        public SettingScreenModel screenModel;
-        public Action mainNavigatorPop;
-        public Func<string, string, IPromise>  fetchReviewUrl;
-        public Action<string> openUrl;
-        public Action clearCache;
-        public Action logout;
+        public readonly SettingScreenViewModel viewModel;
+        public readonly SettingScreenActionModel actionModel;
+        
         
         public override State createState() {
             return new _SettingScreenState();
@@ -75,7 +64,7 @@ namespace ConnectApp.screens {
     internal class _SettingScreenState : State<SettingScreen> {
         public override void initState() {
             base.initState();
-            widget.fetchReviewUrl(Config.platform, Config.store);
+            widget.actionModel.fetchReviewUrl(Config.platform, Config.store);
         }
 
         public override Widget build(BuildContext context) {
@@ -109,7 +98,7 @@ namespace ConnectApp.screens {
                         new Container(height: 44,
                             child: new CustomButton(
                                 padding: EdgeInsets.only(16),
-                                onPressed: () => widget.mainNavigatorPop(),
+                                onPressed: () => widget.actionModel.mainRouterPop(),
                                 child: new Icon(
                                     Icons.arrow_back,
                                     size: 24,
@@ -140,12 +129,12 @@ namespace ConnectApp.screens {
                         physics: new AlwaysScrollableScrollPhysics(),
                         children: new List<Widget> {
                             _buildGapView(),
-                            widget.screenModel.hasReviewUrl ? _buildCellView("评分",
-                                () => widget.openUrl(widget.screenModel.reviewUrl)) : new Container(),
+                            widget.viewModel.hasReviewUrl ? _buildCellView("评分",
+                                () => widget.actionModel.openUrl(widget.viewModel.reviewUrl)) : new Container(),
                             _buildCellView("意见反馈", () => { }),
                             _buildCellView("关于我们", () => { }),
                             _buildGapView(),
-                            _buildCellView("清理缓存", () => widget.clearCache()),
+                            _buildCellView("清理缓存", () => widget.actionModel.clearCache()),
                             _buildGapView(),
                             _buildLogoutBtn(context)
                         }
@@ -168,9 +157,10 @@ namespace ConnectApp.screens {
                         title: "确定退出当前账号吗？",
                         items: new List<ActionSheetItem> {
                             new ActionSheetItem("退出", ActionType.destructive,
-                                () => widget.logout()),
+                                () => widget.actionModel.logout()),
                             new ActionSheetItem("取消", ActionType.cancel)
                         }
+                        
                     ));
                 },
                 child: new Container(

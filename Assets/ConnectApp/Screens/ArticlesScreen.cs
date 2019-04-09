@@ -6,6 +6,7 @@ using ConnectApp.components;
 using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
@@ -21,29 +22,26 @@ namespace ConnectApp.screens {
     
     public class ArticlesScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
-            Debug.Log("ArticlesScreenConnector build");
-            return new StoreConnector<AppState, ArticlesScreenModel>(
-                pure: false,
-                converter: (state) => new ArticlesScreenModel {
+            return new StoreConnector<AppState, ArticlesScreenViewModel>(
+                converter: (state) => new ArticlesScreenViewModel {
                     articlesLoading = state.articleState.articlesLoading,
                     articleList = state.articleState.articleList,
                     articleDict = state.articleState.articleDict,
                     articleTotal = state.articleState.articleTotal
                 },
                 builder: (context1, viewModel, dispatcher) => {
-                    Debug.Log($"articleList: {viewModel.articleList.Count}");
-                    return new ArticlesScreen(
-                        viewModel,
-                        () => dispatcher.dispatch(new MainNavigatorPushToAction {
+                    var actionModel = new ArticlesScreenActionModel {
+                        pushToSearch = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Search
                         }),
-                        id => dispatcher.dispatch(
+                        pushToArticleDetail = id => dispatcher.dispatch(
                             new MainNavigatorPushToArticleDetailAction {
                                 articleId = id
                             }
                         ),
-                        pageNumber => dispatcher.dispatch<IPromise>(Actions.fetchArticles(pageNumber))
-                    );
+                        fetchArticles = pageNumber => dispatcher.dispatch<IPromise>(Actions.fetchArticles(pageNumber))
+                    };
+                    return new ArticlesScreen(viewModel, actionModel);
                 });
         }
     }
@@ -55,23 +53,17 @@ namespace ConnectApp.screens {
         }
 
         public ArticlesScreen(
-            ArticlesScreenModel screenModel = null,
-            Action pushToSearch = null,    
-            Action<string> pushToArticleDetail = null,    
-            Func<int, IPromise> fetchArticles = null,    
+            ArticlesScreenViewModel viewModel = null,
+            ArticlesScreenActionModel actionModel = null,  
             Key key = null
         ) : base(key)
         {
-            this.screenModel = screenModel;
-            this.pushToSearch = pushToSearch;
-            this.pushToArticleDetail = pushToArticleDetail;
-            this.fetchArticles = fetchArticles;
+            this.viewModel = viewModel;
+            this.actionModel = actionModel;
         }
 
-        public readonly  ArticlesScreenModel screenModel;
-        public readonly Action pushToSearch;
-        public readonly Action<string> pushToArticleDetail;
-        public readonly Func<int, IPromise> fetchArticles;
+        public readonly  ArticlesScreenViewModel viewModel;
+        public readonly  ArticlesScreenActionModel actionModel;
     }
 
 
@@ -87,12 +79,10 @@ namespace ConnectApp.screens {
             base.initState();
             _refreshController = new RefreshController();
             _offsetY = 0;
-            widget.fetchArticles(firstPageNumber);
-            Debug.Log($"initState articleList: {widget.screenModel.articleList.Count}");
+            widget.actionModel.fetchArticles(firstPageNumber);
         }
 
         public override Widget build(BuildContext context) {
-            Debug.Log($"_ArticlesScreenState build articleList: {widget.screenModel.articleList.Count}");
             return new Container(
                 color: CColors.BgGrey,
                 child: new Column(
@@ -116,7 +106,7 @@ namespace ConnectApp.screens {
                 )),
                 new List<Widget> {
                     new CustomButton(
-                        onPressed: () => widget.pushToSearch(),
+                        onPressed: () => widget.actionModel.pushToSearch(),
                         child: new Icon(
                             Icons.search,
                             size: 28,
@@ -131,13 +121,13 @@ namespace ConnectApp.screens {
         {
             object content = new Container();
 
-            if (widget.screenModel.articlesLoading && widget.screenModel.articleList.isEmpty())
+            if (widget.viewModel.articlesLoading && widget.viewModel.articleList.isEmpty())
             {
                 content = ListView.builder(
                     itemCount: 4,
                     itemBuilder: (cxt, index) => new ArticleLoading()
                 );
-            } else if (widget.screenModel.articleList.Count <= 0)
+            } else if (widget.viewModel.articleList.Count <= 0)
             {
                 content = new BlankView("暂无文章");
             }
@@ -146,20 +136,20 @@ namespace ConnectApp.screens {
                 content = new SmartRefresher(
                     controller: _refreshController,
                     enablePullDown: true,
-                    enablePullUp: widget.screenModel.articleList.Count < widget.screenModel.articleTotal,
+                    enablePullUp: widget.viewModel.articleList.Count < widget.viewModel.articleTotal,
                     headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
                     footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
                     onRefresh: onRefresh,
                     child: ListView.builder(
                         physics: new AlwaysScrollableScrollPhysics(),
-                        itemCount: widget.screenModel.articleList.Count,
+                        itemCount: widget.viewModel.articleList.Count,
                         itemBuilder: (cxt, index) =>
                         {
-                            var articleId = widget.screenModel.articleList[index];
-                            var article = widget.screenModel.articleDict[articleId];
+                            var articleId = widget.viewModel.articleList[index];
+                            var article = widget.viewModel.articleDict[articleId];
                             return new ArticleCard(
                                 article,
-                                () => widget.pushToArticleDetail(articleId),
+                                () => widget.actionModel.pushToArticleDetail(articleId),
                                 () =>
                                 {
                                     ActionSheetUtils.showModalActionSheet(new ActionSheet(
@@ -191,11 +181,8 @@ namespace ConnectApp.screens {
                 pageNumber = firstPageNumber;
             else
                 pageNumber++;
-            widget.fetchArticles(pageNumber)
-                .Then(() => {
-                    Debug.Log("refreshed!!!!!");
-                    _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle);
-                })
+            widget.actionModel.fetchArticles(pageNumber)
+                .Then(() => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
         }
 
@@ -207,7 +194,6 @@ namespace ConnectApp.screens {
             else {
                 if (_offsetY != 0) setState(() => { _offsetY = 0; });
             }
-
             return true;
         }
     }
