@@ -48,7 +48,7 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new LoginNavigatorPopAction());
                             dispatcher.dispatch(new CleanEmailAndPasswordAction());
                         },
-                        openUrl = (url) =>
+                        openUrl = url =>
                             dispatcher.dispatch(new OpenUrlAction {url = url}),
                         openCreateUnityIdUrl = () =>
                             dispatcher.dispatch<IPromise>(Actions.openCreateUnityIdUrl()),
@@ -56,7 +56,7 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new LoginChangeEmailAction {changeText = text}),
                         changePassword = (text) =>
                             dispatcher.dispatch(new LoginChangePasswordAction {changeText = text}),
-                        loginByEmail = () => dispatcher.dispatch(new LoginByEmailAction())
+                        loginByEmail = () => dispatcher.dispatch<IPromise>(Actions.loginByEmail())
                     };
                     return new BindUnityScreen(viewModel, actionModel);
                 }
@@ -113,11 +113,18 @@ namespace ConnectApp.screens {
             if (_isEmailFocus) setState(() => { _isEmailFocus = false; });
         }
 
-        private void _login() {
+        private void _login(BuildContext context) {
             if (!widget.viewModel.loginBtnEnable || widget.viewModel.loginLoading) return;
             _emailFocusNode.unfocus();
             _passwordFocusNode.unfocus();
-            widget.actionModel.loginByEmail();
+            widget.actionModel.loginByEmail().Catch(_ =>
+            {
+                var customSnackBar = new CustomSnackBar(
+                    "邮箱或密码不正确，请稍后再试。",
+                    new TimeSpan(0, 0, 0, 2)
+                );
+                customSnackBar.show(context);
+            });
         }
 
         public override Widget build(BuildContext context) {
@@ -137,7 +144,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         _buildTopView(),
                         _buildMiddleView(context),
-                        _buildBottomView()
+                        _buildBottomView(context)
                     }
                 )
             );
@@ -287,7 +294,7 @@ namespace ConnectApp.screens {
                                     cursorColor: CColors.PrimaryBlue,
                                     clearButtonMode: InputFieldClearButtonMode.whileEditing,
                                     onChanged: text => widget.actionModel.changePassword(text),
-                                    onSubmitted: _ => _login()
+                                    onSubmitted: _ => _login(context)
                                 )
                             )
                         )
@@ -296,7 +303,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildBottomView() {
+        private Widget _buildBottomView(BuildContext context) {
             Widget right = new Container();
             if (widget.viewModel.loginLoading)
                 right = new Padding(
@@ -312,7 +319,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new Container(height: 32),
                         new CustomButton(
-                            onPressed: _login,
+                            onPressed: () =>  _login(context),
                             padding: EdgeInsets.zero,
                             child: new Container(
                                 height: 48,

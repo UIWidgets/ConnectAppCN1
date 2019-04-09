@@ -7,7 +7,7 @@ using Unity.UIWidgets.Redux;
 using Debug = UnityEngine.Debug;
 
 namespace ConnectApp.redux.actions {
-    public class FetchArticlesAction : RequestAction {
+    public class StartFetchArticlesAction : RequestAction {
         public int pageNumber = 0;
     }
 
@@ -16,12 +16,9 @@ namespace ConnectApp.redux.actions {
         public List<Article> articleList;
         public int total;
     }
-    public class FetchArticleFailureAction : BaseAction {
-    }
+    public class FetchArticleFailureAction : BaseAction {}
 
-    public class FetchArticleDetailAction : RequestAction {
-        public string articleId;
-    }
+    public class StartFetchArticleDetailAction : RequestAction {}
 
     public class FetchArticleDetailSuccessAction : BaseAction {
         public Project articleDetail;
@@ -95,7 +92,8 @@ namespace ConnectApp.redux.actions {
         
         public static object fetchArticles(int pageNumber)
         {
-            return new ThunkAction<AppState>((dispatcher, getState) => {                
+            return new ThunkAction<AppState>((dispatcher, getState) =>
+            {
                 return ArticleApi.FetchArticles(pageNumber)
                     .Then(articlesResponse => {
                         dispatcher.dispatch(new UserMapAction {userMap = articlesResponse.userMap});
@@ -154,6 +152,21 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchArticleDetailFailureAction()); 
+                        Debug.Log(error);
+                    });
+            });
+        }
+        
+        public static object likeArtcle(string articleId)
+        {
+            return new ThunkAction<AppState>((dispatcher, getState) =>
+            {
+                return ArticleApi.LikeArticle(articleId)
+                    .Then(() => {
+                        dispatcher.dispatch(new LikeArticleSuccessAction {articleId = articleId});
+                    })
+                    .Catch(error =>
+                    {
                         Debug.Log(error);
                     });
             });

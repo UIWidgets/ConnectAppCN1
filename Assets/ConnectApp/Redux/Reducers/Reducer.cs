@@ -47,44 +47,16 @@ namespace ConnectApp.redux.reducers {
                 }
                 case LoginByEmailAction _: {
                     state.loginState.loading = true;
-                    var email = state.loginState.email;
-                    var password = state.loginState.password;
-                    LoginApi.LoginByEmail(email, password)
-                        .Then(loginInfo => {
-                            StoreProvider.store.dispatcher.dispatch(new LoginByEmailSuccessAction {
-                                loginInfo = loginInfo
-                            });
-                        })
-                        .Catch(error => {
-                            Debug.Log(error);
-                            StoreProvider.store.dispatcher.dispatch(new LoginByEmailFailedAction());
-                        });
                     break;
                 }
                 case LoginByEmailSuccessAction action: {
                     state.loginState.loading = false;
                     state.loginState.loginInfo = action.loginInfo;
-                    var user = new User {
-                        id = state.loginState.loginInfo.userId,
-                        fullName = state.loginState.loginInfo.userFullName,
-                        avatar = state.loginState.loginInfo.userAvatar
-                    };
-                    var dict = new Dictionary<string, User> {
-                        {user.id, user}
-                    };
-                    StoreProvider.store.dispatcher.dispatch(new UserMapAction {userMap = dict});
                     state.loginState.isLoggedIn = true;
-                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPopAction());
-                    StoreProvider.store.dispatcher.dispatch(new CleanEmailAndPasswordAction());
                     break;
                 }
-                case LoginByEmailFailedAction action: {
+                case LoginByEmailFailureAction _: {
                     state.loginState.loading = false;
-                    var customSnackBar = new CustomSnackBar(
-                        "邮箱或密码不正确，请稍后再试。",
-                        new TimeSpan(0, 0, 0, 2)
-                    );
-                    customSnackBar.show();
                     break;
                 }
                 case LoginByWechatAction action: {
@@ -100,7 +72,7 @@ namespace ConnectApp.redux.reducers {
                         })
                         .Catch(error => {
                             Debug.Log(error);
-                            StoreProvider.store.dispatcher.dispatch(new LoginByWechatFailedAction());
+                            StoreProvider.store.dispatcher.dispatch(new LoginByWechatFailureAction());
                         });
                     break;
                 }
@@ -122,13 +94,13 @@ namespace ConnectApp.redux.reducers {
                     CustomDialogUtils.hiddenCustomDialog();
                     break;
                 }
-                case LoginByWechatFailedAction action: {
+                case LoginByWechatFailureAction action: {
                     state.loginState.loading = false;
                     var customSnackBar = new CustomSnackBar(
                         "登录失败，请稍后再试。",
                         new TimeSpan(0, 0, 0, 2)
                     );
-                    customSnackBar.show();
+//                    customSnackBar.show();
                     break;
                 }
                 case LogoutAction _: {
@@ -145,7 +117,7 @@ namespace ConnectApp.redux.reducers {
                 case JumpToCreateUnityIdAction action: {
                     break;
                 }
-                case FetchArticlesAction action: {
+                case StartFetchArticlesAction action: {
                     state.articleState.articlesLoading = true;
                     break;
                 }
@@ -157,7 +129,6 @@ namespace ConnectApp.redux.reducers {
                         if (!state.articleState.articleDict.ContainsKey(article.id))
                             state.articleState.articleDict.Add(article.id, article);
                     }
-                    Debug.Log($"articleList: {state.articleState.articleList.Count}");
                     state.articleState.pageNumber = action.pageNumber;
                     state.articleState.articleTotal = action.total;
                     state.articleState.articlesLoading = false;
@@ -167,7 +138,7 @@ namespace ConnectApp.redux.reducers {
                     state.articleState.articlesLoading = false;
                     break;
                 }
-                case FetchArticleDetailAction action: {
+                case StartFetchArticleDetailAction _: {
                     state.articleState.articleDetailLoading = true;
                     break;
                 }
@@ -236,11 +207,6 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case LikeArticleAction action: {
-                    ArticleApi.LikeArticle(action.articleId)
-                        .Then(() => {
-                            StoreProvider.store.dispatcher.dispatch(new LikeArticleSuccessAction {articleId = action.articleId});
-                        })
-                        .Catch(error => { Debug.Log(error); });
                     break;
                 }
                 case LikeArticleSuccessAction action: {
