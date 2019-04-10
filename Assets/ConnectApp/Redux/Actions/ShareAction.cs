@@ -22,16 +22,16 @@ namespace ConnectApp.redux.actions
             return new ThunkAction<AppState>((dispatcher, getState) =>
             {
                 return ShareApi.FetchImageBytes(imageUrl)
-                    .Then(imageBtyes =>
+                    .Then(imageBytes =>
                 {
-                    var encodeBytes = Convert.ToBase64String(imageBtyes);
+//                    var encodeBytes = Convert.ToBase64String(imageBytes);
                     CustomDialogUtils.hiddenCustomDialog();
                     if (type == ShareType.friends)
                     {
-                        WechatPlugin.instance.shareToFriend(title, description, linkUrl, encodeBytes);
+                        WechatPlugin.instance.shareToFriend(title, description, linkUrl, imageBytes);
                     }else if (type == ShareType.moments)
                     {
-                        WechatPlugin.instance.shareToTimeline(title, description, linkUrl, encodeBytes);
+                        WechatPlugin.instance.shareToTimeline(title, description, linkUrl, imageBytes);
                     }
                         
                 });

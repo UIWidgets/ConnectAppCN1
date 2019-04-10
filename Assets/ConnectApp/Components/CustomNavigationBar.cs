@@ -20,11 +20,11 @@ namespace ConnectApp.components {
             this.offset = offset;
         }
 
-        public readonly Widget leftWidget;
-        public readonly List<Widget> rightWidgets;
-        public readonly Color backgroundColor;
-        public readonly float offset;
-        public readonly float height = 140;
+        private readonly Widget leftWidget;
+        private readonly List<Widget> rightWidgets;
+        private readonly Color backgroundColor;
+        private readonly float offset;
+        private readonly float height = 140;
 
 
         public override Widget build(BuildContext context) {

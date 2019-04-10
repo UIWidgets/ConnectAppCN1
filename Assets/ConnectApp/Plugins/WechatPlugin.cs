@@ -27,11 +27,14 @@ namespace ConnectApp.plugins
         public BuildContext context;
 
         
-#if UNITY_IOS        
+       
+
         public void addListener()
         {
+            Debug.Log("addListener");
             if (!isListen)
             {
+                Debug.Log("!isListen addListener");
                 UIWidgetsMessageManager.instance.
                     AddChannelMessageDelegate("wechat", this._handleMethodCall);
                 isListen = true;
@@ -46,30 +49,19 @@ namespace ConnectApp.plugins
                 {
                     case "callback":
                     {
-                        var dict = JSON.Parse(args.first());
+                        var node = args[0];
+                        var dict = JSON.Parse(node);
                         var type = dict["type"];
                         if (type == "code")
                         {
                             var code = dict["code"];
-                            loginByWechat(code);
-                        }
-                        else if(type == "cancel")
-                        {
-                     
-                     
+                            StoreProvider.store.dispatcher.dispatch(new LoginByWechatAction {code = code});
                         }
                     }
                         break;
                     
                 }
             }
-            
-           
-        }
-
-        public void loginByWechat(string code)
-        {
-           StoreProvider.store.dispatcher.dispatch(new LoginByWechatAction {code = code});
         }
 
         public void init(string appId)
@@ -81,26 +73,27 @@ namespace ConnectApp.plugins
         {
             if (!Application.isEditor)
             {
-                loginWechat(stateId);
                 addListener();
+                loginWechat(stateId);
             }
                 
         }
 
-        public void shareToFriend(string title, string description, string url,string imageBytes)
+        public void shareToFriend(string title, string description, string url,byte[] imageBytes)
         {
             if (!Application.isEditor)
             {
-                toFriends(title,description,url,imageBytes); 
                 addListener();
+                toFriends(title,description,url,imageBytes); 
+
             }
         }
-        public void shareToTimeline(string title, string description, string url,string imageBytes)
+        public void shareToTimeline(string title, string description, string url,byte[] imageBytes)
         {
             if (!Application.isEditor)
             {
-                toTimeline(title,description,url,imageBytes); 
                 addListener();
+                toTimeline(title,description,url,imageBytes);
             }
         }
 
@@ -114,6 +107,7 @@ namespace ConnectApp.plugins
             }
             return false;
         }
+#if UNITY_IOS 
 
         [DllImport ("__Internal")]
         internal static extern void initWechat(string appId);
@@ -125,16 +119,59 @@ namespace ConnectApp.plugins
         internal static extern bool isInstallWechat();
         
         [DllImport ("__Internal")]
-        internal static extern void toFriends(string title, string description, string url,string imageBytes);
+        internal static extern void toFriends(string title, string description, string url,byte[] imageBytes);
         
         [DllImport ("__Internal")]
-        internal static extern void toTimeline(string title, string description, string url,string imageBytes);
-#elif UNITY_ANDROID || UNITY_EDITOR 
+        internal static extern void toTimeline(string title, string description, string url,byte[] imageBytes);
+        
+#elif UNITY_ANDROID
+        static void initWechat(string appId) {
+        }
+        static void loginWechat(string stateId) {
+            using (
+                AndroidJavaClass managerClass = new AndroidJavaClass("com.unity3d.unityconnect.plugins.WechatPlugin")
+            ) {
+                using (
+                    AndroidJavaObject managerInstance = managerClass.CallStatic<AndroidJavaObject>("getInstance")
+                ) {
+                    managerInstance.Call("loginWechat", stateId);
+                }
+            }
+        }
+        static bool isInstallWechat()
+        {
+            return true;
+        }
+        static void toFriends(string title, string description, string url,byte[] imageBytes) {
+            using (
+                AndroidJavaClass managerClass = new AndroidJavaClass("com.unity3d.unityconnect.plugins.WechatPlugin")
+            ) {
+                using (
+                    AndroidJavaObject managerInstance = managerClass.CallStatic<AndroidJavaObject>("getInstance")
+                ) {
+                    managerInstance.Call("shareToFriends",title,description,url,imageBytes);
+                }
+            }
+        }
+        static void toTimeline(string title, string description, string url,byte[] imageBytes) {
+            using (
+                AndroidJavaClass managerClass = new AndroidJavaClass("com.unity3d.unityconnect.plugins.WechatPlugin")
+            ) {
+                using (
+                    AndroidJavaObject managerInstance = managerClass.CallStatic<AndroidJavaObject>("getInstance")
+                ) {
+                    managerInstance.Call("shareToTimeline",title,description,url,imageBytes);
+                }
+            }
+        }
+#else
         public void init(string appId) {}
         public void login(string stateId) {}
-        public void shareToFriend(string title, string description, string url,string imageBytes) {}
-        public void shareToTimeline(string title, string description, string url,string imageBytes) {}
-#endif         
+        public void shareToFriend(string title, string description, string url,byte[] imageBytes) {}
+        public void shareToTimeline(string title, string description, string url,byte[] imageBytes) {}
+#endif
+       
     }
+            
 
 }

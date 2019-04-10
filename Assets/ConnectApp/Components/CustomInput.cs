@@ -6,6 +6,8 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.components {
     public delegate void InputDone(string text);
@@ -81,6 +83,7 @@ namespace ConnectApp.components {
         }
 
         public override Widget build(BuildContext context) {
+            Debug.Log($"MediaQuery.of(context).viewInsets.bottom==== {MediaQuery.of(context).viewInsets.bottom}");
             var reply = new Container();
             if (!widget.replyUserName.isEmpty())
                 reply = new Container(
@@ -168,7 +171,7 @@ namespace ConnectApp.components {
                                         )
                                     }
                                 ),
-                                margin: EdgeInsets.only(bottom: 250)
+                                margin: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom)
                             )
                         )
                     }
