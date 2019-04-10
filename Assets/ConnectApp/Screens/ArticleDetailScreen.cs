@@ -444,9 +444,19 @@ namespace ConnectApp.screens {
                 if (!messageDict.ContainsKey(commentId)) break;
                 var message = messageDict[commentId];
                 bool isPraised = _isPraised(message, widget.viewModel.loginUserId);
+                var parentName = "";
+                if (message.parentMessageId.isNotEmpty())
+                {
+                    if (messageDict.ContainsKey(message.parentMessageId))
+                    {
+                       var parentMessage = messageDict[message.parentMessageId];
+                       parentName = parentMessage.author.fullName;
+                    } 
+                }
                 var card = new CommentCard(
                     message,
                     isPraised,
+                    parentName,
                     () => {
                         ActionSheetUtils.showModalActionSheet(new ActionSheet(
                             items: new List<ActionSheetItem> {
