@@ -17,7 +17,6 @@ using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 using Avatar = ConnectApp.components.Avatar;
 
 namespace ConnectApp.screens {
@@ -53,25 +52,16 @@ namespace ConnectApp.screens {
                             }),
                         startFetchArticleDetail = () => dispatcher.dispatch(new StartFetchArticleDetailAction()),
                         fetchArticleDetail = (id) =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchArticleDetatil(id)),
+                            dispatcher.dispatch<IPromise>(Actions.FetchArticleDetail(id)),
                         fetchArticleComments = (channelId, currOldestMessageId) =>
                             dispatcher.dispatch<IPromise>(
                                 Actions.fetchArticleComments(channelId, currOldestMessageId)
                             ),
-                        likeArticle = (id) => dispatcher.dispatch(Actions.likeArtcle(articleId)),
-                        likeComment = (commentId) => dispatcher.dispatch(new LikeCommentAction {
-                            messageId = commentId
-                        }),
-                        removeLikeComment = (commentId) => dispatcher.dispatch(new RemoveLikeCommentAction {
-                            messageId = commentId
-                        }),
-                        sendComment = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch(
-                            new SendCommentAction {
-                                channelId = channelId,
-                                content = content,
-                                nonce = nonce,
-                                parentMessageId = parentMessageId
-                            })
+                        likeArticle = (id) => dispatcher.dispatch<IPromise>(Actions.likeArticle(id)),
+                        likeComment = (id) => dispatcher.dispatch<IPromise>(Actions.likeComment(id)),
+                        removeLikeComment = (id) => dispatcher.dispatch<IPromise>(Actions.removeLikeComment(id)),
+                        sendComment = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
+                            Actions.sendComment(channelId, content, nonce, parentMessageId))
                     };
                     
                     return new ArticleDetailScreen(viewModel, actionModel);

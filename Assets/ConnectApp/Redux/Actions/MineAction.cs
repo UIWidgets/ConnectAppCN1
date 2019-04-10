@@ -5,17 +5,14 @@ using Unity.UIWidgets.Redux;
 using UnityEngine;
 
 namespace ConnectApp.redux.actions {
-    public class FetchMyFutureEventsAction : RequestAction {
-        public int pageNumber = 0;
-    }
+    public class StartFetchMyFutureEventsAction : RequestAction {}
 
     public class FetchMyFutureEventsSuccessAction : BaseAction {
         public FetchEventsResponse eventsResponse;
         public int pageNumber;
     }
 
-    public class FetchMyPastEventsAction : RequestAction {
-    }
+    public class StartFetchMyPastEventsAction : RequestAction {}
 
     public class FetchMyPastEventsSuccessAction : BaseAction {
         public FetchEventsResponse eventsResponse;
@@ -32,6 +29,8 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {                
                 return MineApi.FetchMyFutureEvents(pageNumber)
                     .Then(eventsResponse => {
+                        dispatcher.dispatch(new UserMapAction {userMap = eventsResponse.userMap});
+                        dispatcher.dispatch(new PlaceMapAction {placeMap = eventsResponse.placeMap});
                         dispatcher.dispatch(new FetchMyFutureEventsSuccessAction
                             {eventsResponse = eventsResponse, pageNumber = pageNumber});
                     })
@@ -41,9 +40,10 @@ namespace ConnectApp.redux.actions {
         
         public static object fetchMyPastEvents(int pageNumber) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                dispatcher.dispatch(new FetchMyPastEventsAction());
                 return MineApi.FetchMyPastEvents(pageNumber)
                     .Then(eventsResponse => {
+                        dispatcher.dispatch(new UserMapAction {userMap = eventsResponse.userMap});
+                        dispatcher.dispatch(new PlaceMapAction {placeMap = eventsResponse.placeMap});
                         dispatcher.dispatch(new FetchMyPastEventsSuccessAction {
                             eventsResponse = eventsResponse,
                             pageNumber = pageNumber

@@ -9,9 +9,9 @@ namespace ConnectApp.Models.ActionModel {
         public Action startFetchArticleDetail;
         public Func<string, IPromise> fetchArticleDetail;
         public Func<string, string, IPromise> fetchArticleComments;
-        public Action<string> likeArticle;
-        public Action<string> likeComment;
-        public Action<string> removeLikeComment;
-        public Action<string, string, string, string> sendComment;
+        public Func<string, IPromise> likeArticle;
+        public Func<string, IPromise> likeComment;
+        public Func<string, IPromise> removeLikeComment;
+        public Func<string, string, string, string, IPromise> sendComment;
     }
 }

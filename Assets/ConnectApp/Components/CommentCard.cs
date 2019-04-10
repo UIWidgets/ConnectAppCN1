@@ -39,7 +39,7 @@ namespace ConnectApp.components {
 
         public override Widget build(BuildContext context) {
             Widget _content = null;
-            var content = MessageUtil.AnalyzeMessage(message.content, message.mentions, message.mentionEveryone);
+            var content = MessageUtils.AnalyzeMessage(message.content, message.mentions, message.mentionEveryone);
             _content = parentName.isEmpty()?new Container(
                 child: new Text(
                     content,

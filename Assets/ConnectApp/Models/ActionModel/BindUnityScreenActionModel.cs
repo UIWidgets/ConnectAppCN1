@@ -9,6 +9,8 @@ namespace ConnectApp.Models.ActionModel {
         public Func<IPromise> openCreateUnityIdUrl;
         public Action<string> changeEmail;
         public Action<string> changePassword;
+        public Action startLoginByEmail;
+        public Action loginByEmailFailure;
         public Func<IPromise> loginByEmail;
     }
 }

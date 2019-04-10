@@ -28,6 +28,16 @@ namespace ConnectApp.models {
             if (searchHistory.isNotEmpty())
                 searchHistoryList = JsonConvert.DeserializeObject<List<string>>(searchHistory);
             
+            var articleHistory = PlayerPrefs.GetString("articleHistoryKey");
+            var articleHistoryList = new List<Article>();
+            if (articleHistory.isNotEmpty())
+                articleHistoryList = JsonConvert.DeserializeObject<List<Article>>(articleHistory);
+            
+            var eventHistory = PlayerPrefs.GetString("eventHistoryKey");
+            var eventHistoryList = new List<IEvent>();
+            if (eventHistory.isNotEmpty())
+                eventHistoryList = JsonConvert.DeserializeObject<List<IEvent>>(eventHistory);
+            
             return new AppState {
                 Count = PlayerPrefs.GetInt("count", 0),
                 loginState = new LoginState {
@@ -44,7 +54,7 @@ namespace ConnectApp.models {
                     articleDetailLoading = false,
                     articleTotal = 0,
                     pageNumber = 1,
-                    articleHistory = new List<Article>()
+                    articleHistory = articleHistoryList
                 },
                 eventState = new EventState {
                     ongoingEvents = new List<string>(),
@@ -55,7 +65,7 @@ namespace ConnectApp.models {
                     pageNumber = 1,
                     completedPageNumber = 1,
                     eventsLoading = false,
-                    eventHistory = new List<IEvent>(),
+                    eventHistory = eventHistoryList,
                     channelId = ""
                 },
                 popularSearchState = new PopularSearchState {

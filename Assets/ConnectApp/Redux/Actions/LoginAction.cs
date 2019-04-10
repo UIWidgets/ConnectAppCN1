@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using ConnectApp.api;
 using ConnectApp.components;
 using ConnectApp.models;
+using RSG;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -15,15 +16,13 @@ namespace ConnectApp.redux.actions {
         public string changeText;
     }
 
-    public class LoginByEmailAction : RequestAction {
-    }
+    public class StartLoginByEmailAction : RequestAction {}
 
     public class LoginByEmailSuccessAction : BaseAction {
         public LoginInfo loginInfo;
     }
 
-    public class LoginByEmailFailureAction : BaseAction {
-    }
+    public class LoginByEmailFailureAction : BaseAction {}
     
     public class LoginByWechatAction : RequestAction {
         public BuildContext context;
@@ -64,16 +63,13 @@ namespace ConnectApp.redux.actions {
                         var dict = new Dictionary<string, User> {
                             {user.id, user}
                         };
-                        StoreProvider.store.dispatcher.dispatch(new UserMapAction {userMap = dict});
-                        StoreProvider.store.dispatcher.dispatch(new LoginByEmailSuccessAction {
+                        dispatcher.dispatch(new UserMapAction {userMap = dict});
+                        dispatcher.dispatch(new LoginByEmailSuccessAction {
                             loginInfo = loginInfo
                         });
-                        StoreProvider.store.dispatcher.dispatch(new MainNavigatorPopAction());
-                        StoreProvider.store.dispatcher.dispatch(new CleanEmailAndPasswordAction());
-                    })
-                    .Catch(error => {
-                        Debug.Log(error);
-                        StoreProvider.store.dispatcher.dispatch(new LoginByEmailFailureAction());
+                        dispatcher.dispatch(new MainNavigatorPopAction());
+                        dispatcher.dispatch(new CleanEmailAndPasswordAction());
+                        dispatcher.dispatch<IPromise>(fetchReviewUrl());
                     });
             });
         }

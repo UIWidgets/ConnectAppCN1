@@ -11,6 +11,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 using EventType = ConnectApp.models.EventType;
 
@@ -33,10 +34,6 @@ namespace ConnectApp.screens {
                         pushToEventDetail = (id, type) =>
                             dispatcher.dispatch(new MainNavigatorPushToEventDetailAction
                                 {eventId = id, eventType = type}),
-                        getArticleHistory = () =>
-                            dispatcher.dispatch(new GetArticleHistoryAction()),
-                        getEventHistory = () =>
-                            dispatcher.dispatch(new GetEventHistoryAction()),
                         deleteArticleHistory = (id) =>
                             dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = id}),
                         deleteEventHistory = (id) =>
@@ -61,7 +58,6 @@ namespace ConnectApp.screens {
         public readonly HistoryScreenViewModel viewModel;
         public readonly HistoryScreenActionModel actionModel;
        
-
         public override State createState() {
             return new _HistoryScreenState();
         }
@@ -75,8 +71,6 @@ namespace ConnectApp.screens {
             base.initState();
             _pageController = new PageController();
             _selectedIndex = 0;
-//            widget.actionModel.getArticleHistory();
-//            widget.actionModel.getEventHistory();
         }
 
         public override void dispose()

@@ -12,6 +12,7 @@ using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 using Notification = UnityEngine.Playables.Notification;
 
@@ -28,7 +29,8 @@ namespace ConnectApp.screens {
                 builder: (context1, viewModel, dispatcher) => {
                     return new NotificationScreen(
                         viewModel,
-                        pageNumber =>
+                        startFetchNotifications: () => dispatcher.dispatch(new StartFetchNotificationsAction()),
+                        fetchNotifications: pageNumber =>
                             dispatcher.dispatch<IPromise>(Actions.fetchNotifications(pageNumber))
                     );
                 }
@@ -38,16 +40,19 @@ namespace ConnectApp.screens {
     public class NotificationScreen : StatefulWidget {
 
         public NotificationScreen(
-            NotifcationScreenViewModel viewModel = null,    
+            NotifcationScreenViewModel viewModel = null,   
+            Action startFetchNotifications = null,
             Func<int, IPromise> fetchNotifications = null,
             Key key = null
         ) : base(key)
         {
             this.viewModel = viewModel;
+            this.startFetchNotifications = startFetchNotifications;
             this.fetchNotifications = fetchNotifications;
         }
         
         public readonly NotifcationScreenViewModel viewModel;
+        public readonly Action startFetchNotifications;
         public readonly Func<int, IPromise> fetchNotifications;
 
         public override State createState() {
@@ -57,8 +62,9 @@ namespace ConnectApp.screens {
 
     public class _NotificationScreenState : State<NotificationScreen> {
         private const float headerHeight = 140;
+        private const int firstPageNumber = 1;
         private float _offsetY;
-        private int _pageNumber = 1;
+        private int _pageNumber = firstPageNumber;
         private RefreshController _refreshController;
 
 //        protected override bool wantKeepAlive {
@@ -68,7 +74,10 @@ namespace ConnectApp.screens {
             base.initState();
             _offsetY = 0;
             _refreshController = new RefreshController();
-            widget.fetchNotifications(1);
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                widget.startFetchNotifications();
+                widget.fetchNotifications(_pageNumber);
+            });
         }
         
         public override Widget build(BuildContext context)
@@ -76,33 +85,35 @@ namespace ConnectApp.screens {
             object content = new Container();
             if (widget.viewModel.notifationLoading) 
                 content = new GlobalLoading();
-            else if (widget.viewModel.notifications.Count <= 0) 
-                content = new BlankView("暂无通知消息");
             else {
-                var isLoadMore = widget.viewModel.notifications.Count == widget.viewModel.total;
-                content = new SmartRefresher(
-                    controller: _refreshController,
-                    enablePullDown: true,
-                    enablePullUp: !isLoadMore,
-                    headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
-                    footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
-                    onRefresh: _onRefresh,
-                    child: ListView.builder(
-                        physics: new AlwaysScrollableScrollPhysics(),
-                        itemCount: widget.viewModel.notifications.Count,
-                        itemBuilder: (cxt, index) => {
-                            var notification = widget.viewModel.notifications[index];
-                            var _user = widget.viewModel.userDict[notification.userId];
-                            return new NotificationCard(
-                                notification,
-                                _user,
-                                new ObjectKey(notification.id)
-                            );
-                        }
-                    )
-                );
+                if (widget.viewModel.notifications.Count <= 0) 
+                    content = new BlankView("暂无通知消息");
+                else {
+                    var isLoadMore = widget.viewModel.notifications.Count == widget.viewModel.total;
+                    content = new SmartRefresher(
+                        controller: _refreshController,
+                        enablePullDown: true,
+                        enablePullUp: !isLoadMore,
+                        headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
+                        footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
+                        onRefresh: _onRefresh,
+                        child: ListView.builder(
+                            physics: new AlwaysScrollableScrollPhysics(),
+                            itemCount: widget.viewModel.notifications.Count,
+                            itemBuilder: (cxt, index) => {
+                                var notification = widget.viewModel.notifications[index];
+                                var user = widget.viewModel.userDict[notification.userId];
+                                return new NotificationCard(
+                                    notification,
+                                    user,
+                                    new ObjectKey(notification.id)
+                                );
+                            }
+                        )
+                    );
+                }
             }
-            
+                
             return new Container(
                 color: CColors.White,
                 child: new Column(

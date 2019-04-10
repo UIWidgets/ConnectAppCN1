@@ -14,6 +14,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -40,9 +41,10 @@ namespace ConnectApp.screens {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         pushToArticleDetail = articleId => dispatcher.dispatch(
                             new MainNavigatorPushToArticleDetailAction {articleId = articleId}),
+                        startSearchArticle = () => dispatcher.dispatch(new StartSearchArticleAction()),
                         searchArticle = (keyword, pageNumber) => dispatcher.dispatch<IPromise>(
                             Actions.searchArticles(keyword, pageNumber)),
-                        fetchPopularSearch = () => dispatcher.dispatch(new PopularSearchAction()),
+                        fetchPopularSearch = () => dispatcher.dispatch<IPromise>(Actions.popularSearch()),
                         clearSearchArticleResult = () => dispatcher.dispatch(new ClearSearchArticleResultAction()),
                         saveSearchHistory = keyword => dispatcher.dispatch(new SaveSearchHistoryAction {keyword = keyword}),
                         deleteSearchHistory = keyword => dispatcher.dispatch(new DeleteSearchHistoryAction {keyword = keyword}),
@@ -83,7 +85,9 @@ namespace ConnectApp.screens {
             base.initState();
             _pageNumber = 0;
             _refreshController = new RefreshController();
-            widget.actionModel.fetchPopularSearch();
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                widget.actionModel.fetchPopularSearch();
+            });
         }
 
         public override void dispose() {
@@ -95,6 +99,7 @@ namespace ConnectApp.screens {
             if (text.isEmpty()) return;
             widget.actionModel.saveSearchHistory(text);
             _controller.text = text;
+            widget.actionModel.startSearchArticle();
             widget.actionModel.searchArticle(text, 0);
         }
 
@@ -131,16 +136,16 @@ namespace ConnectApp.screens {
                                     var searchArticle = widget.viewModel.searchArticles[index];
                                     if (searchArticle.ownerType==OwnerType.user.ToString())
                                     {
-                                        var _user = widget.viewModel.userDict[searchArticle.userId];
-                                        return RelatedArticleCard.User(searchArticle,_user, () =>
+                                        var user = widget.viewModel.userDict[searchArticle.userId];
+                                        return RelatedArticleCard.User(searchArticle,user, () =>
                                             {
                                                 widget.actionModel.pushToArticleDetail(searchArticle.id);
                                             });
                                     }
                                     else
                                     {
-                                        var _team = widget.viewModel.teamDict[searchArticle.teamId];
-                                        return RelatedArticleCard.Team(searchArticle,_team, () =>
+                                        var team = widget.viewModel.teamDict[searchArticle.teamId];
+                                        return RelatedArticleCard.Team(searchArticle,team, () =>
                                         {
                                             widget.actionModel.pushToArticleDetail(searchArticle.id);
                                         });
@@ -161,8 +166,6 @@ namespace ConnectApp.screens {
                     }
                 ); 
             }
-            
-            
             
             return new Container(
                 color: CColors.White,

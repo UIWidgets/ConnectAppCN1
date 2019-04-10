@@ -42,7 +42,8 @@ namespace ConnectApp.screens {
         }
 
         private readonly bool isLoggedIn;
-        public Action pushToLogin;
+        private readonly Action pushToLogin;
+        
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,

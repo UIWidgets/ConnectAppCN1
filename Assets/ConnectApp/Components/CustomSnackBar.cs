@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
+using ConnectApp.screens;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
@@ -17,16 +18,13 @@ using Icons = ConnectApp.constants.Icons;
 namespace ConnectApp.components {
     internal class _SnackBarRoute : OverlayRoute {
         public _SnackBarRoute(
-            ThemeData theme = null,
             CustomSnackBar customSnackBar = null,
             RouteSettings settings = null
         ) : base(settings) {
-            this.theme = theme;
             this.customSnackBar = customSnackBar;
             _builder = new Builder(builder: innerContext => customSnackBar);
         }
 
-        private readonly ThemeData theme;
         private readonly CustomSnackBar customSnackBar;
 
         private readonly Builder _builder;
@@ -44,11 +42,6 @@ namespace ConnectApp.components {
                             alignment: animation,
                             child: _builder
                         );
-                        if (theme != null)
-                            return new Theme(
-                                data: theme,
-                                child: annotatedChild
-                            );
                         return annotatedChild;
                     },
                     maintainState: false,
@@ -140,10 +133,9 @@ namespace ConnectApp.components {
 
         private _SnackBarRoute _snackBarRoute;
 
-        public void show(BuildContext context) {
+        public void show() {
             D.assert(this != null);
             _snackBarRoute = new _SnackBarRoute(
-                Theme.of(context),
                 this,
                 new RouteSettings("/snackBarRoute")
             );

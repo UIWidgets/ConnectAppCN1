@@ -29,10 +29,12 @@ namespace ConnectApp.screens {
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new SettingScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
-                        fetchReviewUrl = (platform, store) => dispatcher.dispatch<IPromise>(Actions.fetchReviewUrl(platform, store)),
                         openUrl = url => dispatcher.dispatch(new OpenUrlAction {url = url}),
                         clearCache = () => dispatcher.dispatch(new SettingClearCacheAction()),
-                        logout = () => dispatcher.dispatch(new LogoutAction())
+                        logout = () => {
+                            dispatcher.dispatch(new LogoutAction());
+                            dispatcher.dispatch(new MainNavigatorPopAction());
+                        }
                     };
                     return new SettingScreen(viewModel, actionModel);
                 }
@@ -40,7 +42,7 @@ namespace ConnectApp.screens {
         }
     }
     
-    public class SettingScreen : StatefulWidget {
+    public class SettingScreen : StatelessWidget {
         
         public SettingScreen(
             SettingScreenViewModel viewModel = null,    
@@ -51,22 +53,10 @@ namespace ConnectApp.screens {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
-        
-        public readonly SettingScreenViewModel viewModel;
-        public readonly SettingScreenActionModel actionModel;
-        
-        
-        public override State createState() {
-            return new _SettingScreenState();
-        }
-    }
 
-    internal class _SettingScreenState : State<SettingScreen> {
-        public override void initState() {
-            base.initState();
-            widget.actionModel.fetchReviewUrl(Config.platform, Config.store);
-        }
-
+        private readonly SettingScreenViewModel viewModel;
+        private readonly SettingScreenActionModel actionModel;
+        
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
@@ -98,7 +88,7 @@ namespace ConnectApp.screens {
                         new Container(height: 44,
                             child: new CustomButton(
                                 padding: EdgeInsets.only(16),
-                                onPressed: () => widget.actionModel.mainRouterPop(),
+                                onPressed: () => actionModel.mainRouterPop(),
                                 child: new Icon(
                                     Icons.arrow_back,
                                     size: 24,
@@ -129,12 +119,20 @@ namespace ConnectApp.screens {
                         physics: new AlwaysScrollableScrollPhysics(),
                         children: new List<Widget> {
                             _buildGapView(),
-                            widget.viewModel.hasReviewUrl ? _buildCellView("评分",
-                                () => widget.actionModel.openUrl(widget.viewModel.reviewUrl)) : new Container(),
+                            viewModel.hasReviewUrl ? _buildCellView("评分",
+                                () => actionModel.openUrl(viewModel.reviewUrl)) : new Container(),
                             _buildCellView("意见反馈", () => { }),
                             _buildCellView("关于我们", () => { }),
                             _buildGapView(),
-                            _buildCellView("清理缓存", () => widget.actionModel.clearCache()),
+                            _buildCellView("清理缓存", () => {
+                                CustomDialogUtils.showCustomDialog(
+                                    child: new CustomDialog(
+                                        message: "正在清理缓存"
+                                    )
+                                );
+                                actionModel.clearCache();
+                                Window.instance.run(TimeSpan.FromSeconds(15), CustomDialogUtils.hiddenCustomDialog);
+                            }),
                             _buildGapView(),
                             _buildLogoutBtn(context)
                         }
@@ -157,7 +155,7 @@ namespace ConnectApp.screens {
                         title: "确定退出当前账号吗？",
                         items: new List<ActionSheetItem> {
                             new ActionSheetItem("退出", ActionType.destructive,
-                                () => widget.actionModel.logout()),
+                                () => actionModel.logout()),
                             new ActionSheetItem("取消", ActionType.cancel)
                         }
                         

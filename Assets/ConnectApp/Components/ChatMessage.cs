@@ -24,7 +24,7 @@ namespace ConnectApp.components {
 
             var author = message.author != null ? message.author : new User();
 
-            var messageContent = MessageUtil.AnalyzeMessage(message.content, message.mentions, message.mentionEveryone);
+            var messageContent = MessageUtils.AnalyzeMessage(message.content, message.mentions, message.mentionEveryone);
             return new Container(
                 padding: EdgeInsets.symmetric(6),
                 child: new Row(

@@ -26,9 +26,6 @@ namespace ConnectApp.redux.actions {
     
     public class FetchArticleDetailFailureAction : BaseAction {}
 
-    public class GetArticleHistoryAction : BaseAction {
-    }
-
     public class SaveArticleHistoryAction : BaseAction {
         public Article article;
     }
@@ -40,14 +37,15 @@ namespace ConnectApp.redux.actions {
     public class DeleteAllArticleHistoryAction : BaseAction {
     }
 
-    public class FetchArticleCommentsAction : RequestAction {
+    public class StartFetchArticleCommentsAction : RequestAction {
         public string channelId;
         public string currOldestMessageId = "";
     }
 
     public class FetchArticleCommentsSuccessAction : BaseAction {
         public string channelId;
-        public FetchCommentsResponse commentsResponse;
+        public List<string> itemIds;
+        public Dictionary<string, Message> messageItems;
         public string currOldestMessageId;
         public bool hasMore;
         public bool isRefreshList;
@@ -61,15 +59,17 @@ namespace ConnectApp.redux.actions {
         public string articleId;
     }
 
-    public class LikeCommentAction : RequestAction {
+    public class StartLikeCommentAction : RequestAction {
         public string messageId;
     }
 
     public class LikeCommentSuccessAction : BaseAction {
         public Message message;
     }
+    
+    public class LikeCommentFailureAction : BaseAction {}
 
-    public class RemoveLikeCommentAction : RequestAction {
+    public class StartRemoveLikeCommentAction : RequestAction {
         public string messageId;
     }
 
@@ -77,7 +77,7 @@ namespace ConnectApp.redux.actions {
         public Message message;
     }
 
-    public class SendCommentAction : RequestAction {
+    public class StartSendCommentAction : RequestAction {
         public string channelId;
         public string content;
         public string nonce;
@@ -115,11 +115,26 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {                
                 return ArticleApi.FetchArticleComments(channelId, currOldestMessageId)
                     .Then(responseComments => {
+                        var itemIds = new List<string>();
+                        var messageItems = new Dictionary<string, Message>();
+                        var userMap = new Dictionary<string, User>();
+                        responseComments.items.ForEach(message => {
+                            itemIds.Add(message.id);
+                            messageItems[message.id] = message;
+                            if (userMap.ContainsKey(message.author.id))
+                                userMap[message.author.id] = message.author;
+                            else
+                                userMap.Add(message.author.id, message.author);
+                        });
+                        dispatcher.dispatch(new UserMapAction {
+                            userMap = userMap
+                        });
                         var hasMore = responseComments.hasMore;
                         var lastCommentId = responseComments.currOldestMessageId;
                         dispatcher.dispatch(new FetchArticleCommentsSuccessAction {
                             channelId = channelId,
-                            commentsResponse = responseComments,
+                            itemIds = itemIds,
+                            messageItems = messageItems,
                             isRefreshList = false,
                             hasMore = hasMore,
                             currOldestMessageId = lastCommentId
@@ -129,17 +144,33 @@ namespace ConnectApp.redux.actions {
             });
         }
         
-        public static object fetchArticleDetatil(string articleId)
+        public static object FetchArticleDetail(string articleId)
         {
             return new ThunkAction<AppState>((dispatcher, getState) => {                
                 return ArticleApi.FetchArticleDetail(articleId)
                     .Then(articleDetailResponse => {
-                        if (articleDetailResponse.project.comments.items.Count > 0)
+                        if (articleDetailResponse.project.comments.items.Count > 0) {
+                            var itemIds = new List<string>();
+                            var messageItems = new Dictionary<string, Message>();
+                            var userMap = new Dictionary<string, User>();
+                            articleDetailResponse.project.comments.items.ForEach(message => {
+                                itemIds.Add(message.id);
+                                messageItems[message.id] = message;
+                                if (userMap.ContainsKey(message.author.id))
+                                    userMap[message.author.id] = message.author;
+                                else
+                                    userMap.Add(message.author.id, message.author);
+                            });
+                            dispatcher.dispatch(new UserMapAction {
+                                userMap = userMap
+                            });
                             dispatcher.dispatch(new FetchArticleCommentsSuccessAction {
                                 channelId = articleDetailResponse.project.channelId,
-                                commentsResponse = articleDetailResponse.project.comments,
+                                itemIds = itemIds,
+                                messageItems = messageItems,
                                 isRefreshList = true
                             });
+                        }
                         dispatcher.dispatch(new UserMapAction {
                             userMap = articleDetailResponse.project.userMap
                         });
@@ -149,6 +180,9 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new FetchArticleDetailSuccessAction {
                             articleDetail = articleDetailResponse.project
                         });
+                        dispatcher.dispatch(new SaveArticleHistoryAction {
+                            article = articleDetailResponse.project.projectData
+                        });
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchArticleDetailFailureAction()); 
@@ -157,7 +191,7 @@ namespace ConnectApp.redux.actions {
             });
         }
         
-        public static object likeArtcle(string articleId)
+        public static object likeArticle(string articleId)
         {
             return new ThunkAction<AppState>((dispatcher, getState) =>
             {
@@ -165,10 +199,45 @@ namespace ConnectApp.redux.actions {
                     .Then(() => {
                         dispatcher.dispatch(new LikeArticleSuccessAction {articleId = articleId});
                     })
-                    .Catch(error =>
-                    {
-                        Debug.Log(error);
-                    });
+                    .Catch(Debug.Log);
+            });
+        }
+        
+        public static object likeComment(string messageId)
+        {
+            return new ThunkAction<AppState>((dispatcher, getState) =>
+            {
+                return ArticleApi.LikeComment(messageId)
+                    .Then((message) => {
+                        dispatcher.dispatch(new LikeCommentSuccessAction {message = message});
+                    })
+                    .Catch(error => { Debug.Log(error); });
+            });
+        }
+        
+        public static object removeLikeComment(string messageId)
+        {
+            return new ThunkAction<AppState>((dispatcher, getState) =>
+            {
+                return ArticleApi.RemoveLikeComment(messageId)
+                    .Then((message) => {
+                        dispatcher.dispatch(new RemoveLikeSuccessAction() {message = message});
+                    })
+                    .Catch(error => { Debug.Log(error); });
+            });
+        }
+        
+        public static object sendComment(string channelId, string content, string nonce, string parentMessageId)
+        {
+            return new ThunkAction<AppState>((dispatcher, getState) =>
+            {
+                return ArticleApi.SendComment(channelId, content, nonce, parentMessageId)
+                    .Then((message) => {
+                        dispatcher.dispatch(new SendCommentSuccessAction {
+                            message = message
+                        });
+                    })
+                    .Catch(error => { Debug.Log(error); });
             });
         }
     }

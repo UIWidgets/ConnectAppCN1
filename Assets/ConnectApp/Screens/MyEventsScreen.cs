@@ -15,6 +15,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using EventType = ConnectApp.models.EventType;
@@ -39,8 +40,10 @@ namespace ConnectApp.screens {
                         pushToEventDetail = (id, type) =>
                             dispatcher.dispatch(new MainNavigatorPushToEventDetailAction
                                 {eventId = id, eventType = type}),
+                        startFetchMyFutureEvents = () => dispatcher.dispatch(new StartFetchMyFutureEventsAction()),
                         fetchMyFutureEvents = (pageNumber) =>
                             dispatcher.dispatch<IPromise>(Actions.fetchMyFutureEvents(pageNumber)),
+                        startFetchMyPastEvents = () => dispatcher.dispatch(new StartFetchMyPastEventsAction()),
                         fetchMyPastEvents = (pageNumber) =>
                             dispatcher.dispatch<IPromise>(Actions.fetchMyPastEvents(pageNumber))
                     };
@@ -69,6 +72,7 @@ namespace ConnectApp.screens {
     }
 
     internal class _MyEventsScreenState : State<MyEventsScreen> {
+        private const int firstPageNumber = 1;
         private PageController _pageController;
         private int _selectedIndex;
         private int _myFuturePageNumber;
@@ -79,10 +83,13 @@ namespace ConnectApp.screens {
             base.initState();
             _pageController = new PageController();
             _selectedIndex = 0;
-            _myFuturePageNumber = 0;
-            _myPastPageNumber = 0;
+            _myFuturePageNumber = firstPageNumber;
+            _myPastPageNumber = firstPageNumber;
             _refreshController = new RefreshController();
-            widget.actionModel.fetchMyFutureEvents(1);
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                widget.actionModel.startFetchMyFutureEvents();
+                widget.actionModel.fetchMyFutureEvents(_myFuturePageNumber);
+            });
         }
 
         public override Widget build(BuildContext context) {
@@ -110,24 +117,22 @@ namespace ConnectApp.screens {
         private void _onRefresh(bool up) {
             if (_selectedIndex == 0) {
                 if (up)
-                    _myFuturePageNumber = 1;
+                    _myFuturePageNumber = firstPageNumber;
                 else
                     _myFuturePageNumber++;
-                    widget.actionModel.fetchMyFutureEvents(_myFuturePageNumber)
-                        .Then(() => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
-                        .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
+                widget.actionModel.fetchMyFutureEvents(_myFuturePageNumber)
+                    .Then(() => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                    .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
             }
 
             if (_selectedIndex == 1) {
                 if (up)
-                    _myPastPageNumber = 1;
+                    _myPastPageNumber = firstPageNumber;
                 else
                     _myPastPageNumber++;
-                MineApi.FetchMyPastEvents(_myPastPageNumber)
-                    .Then(eventsResponse => {
-                        _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle);
-                    })
-                    .Catch(error => { _refreshController.sendBack(up, RefreshStatus.failed); });
+                widget.actionModel.fetchMyPastEvents(_myPastPageNumber)
+                    .Then(() => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                    .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
             }
         }
 

@@ -7,6 +7,7 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using RSG;
+using Unity.UIWidgets;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -56,6 +57,8 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new LoginChangeEmailAction {changeText = text}),
                         changePassword = (text) =>
                             dispatcher.dispatch(new LoginChangePasswordAction {changeText = text}),
+                        startLoginByEmail = () => dispatcher.dispatch(new StartLoginByEmailAction()),
+                        loginByEmailFailure = () => dispatcher.dispatch(new LoginByEmailFailureAction()),
                         loginByEmail = () => dispatcher.dispatch<IPromise>(Actions.loginByEmail())
                     };
                     return new BindUnityScreen(viewModel, actionModel);
@@ -113,22 +116,22 @@ namespace ConnectApp.screens {
             if (_isEmailFocus) setState(() => { _isEmailFocus = false; });
         }
 
-        private void _login(BuildContext context) {
+        private void _login() {
             if (!widget.viewModel.loginBtnEnable || widget.viewModel.loginLoading) return;
             _emailFocusNode.unfocus();
             _passwordFocusNode.unfocus();
+            widget.actionModel.startLoginByEmail();
             widget.actionModel.loginByEmail().Catch(_ =>
             {
                 var customSnackBar = new CustomSnackBar(
                     "邮箱或密码不正确，请稍后再试。",
                     new TimeSpan(0, 0, 0, 2)
                 );
-                customSnackBar.show(context);
+                customSnackBar.show();
             });
         }
 
         public override Widget build(BuildContext context) {
-            Debug.Log($"_ArticleDetailScreenState build");
             return new Container(
                 color: CColors.White,
                 child: new SafeArea(
@@ -294,7 +297,7 @@ namespace ConnectApp.screens {
                                     cursorColor: CColors.PrimaryBlue,
                                     clearButtonMode: InputFieldClearButtonMode.whileEditing,
                                     onChanged: text => widget.actionModel.changePassword(text),
-                                    onSubmitted: _ => _login(context)
+                                    onSubmitted: _ => _login()
                                 )
                             )
                         )
@@ -319,7 +322,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new Container(height: 32),
                         new CustomButton(
-                            onPressed: () =>  _login(context),
+                            onPressed: _login,
                             padding: EdgeInsets.zero,
                             child: new Container(
                                 height: 48,

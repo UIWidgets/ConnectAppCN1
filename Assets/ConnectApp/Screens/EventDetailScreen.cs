@@ -67,31 +67,20 @@ namespace ConnectApp.screens {
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
+                        startFetchEventDetail = () => dispatcher.dispatch(new StartFetchEventDetailAction()),
                         fetchEventDetail = (id) =>
                             dispatcher.dispatch<IPromise>(Actions.fetchEventDetail(id)),
-                        joinEvent = (id) =>
-                            dispatcher.dispatch(new JoinEventAction {eventId = id}),
-                        sendMessage = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch(
-                            new SendMessageAction {
-                                channelId = channelId,
-                                content = content,
-                                nonce = nonce,
-                                parentMessageId = parentMessageId
-                            }),
-                        showChatWindow = (show) => dispatcher.dispatch(new ShowChatWindowAction {
-                            show = show
-                        }),
+                        startJoinEvent = () => dispatcher.dispatch(new StartJoinEventAction()),
+                        joinEvent = (id) => dispatcher.dispatch<IPromise>(Actions.joinEvent(id)),
+                        sendMessage = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
+                            Actions.sendMessage(channelId, content, nonce, parentMessageId)),
+                        showChatWindow = (show) => dispatcher.dispatch(new ShowChatWindowAction {show = show}),
                         fetchMessages = (channelId, currOldestMessageId, isFirstLoad) => 
                             dispatcher.dispatch<IPromise>(
                                 Actions.fetchMessages(channelId, currOldestMessageId, isFirstLoad)
                             ),
-                        share = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch(new ShareAction {
-                            type = type,
-                            title = title,
-                            description = description,
-                            linkUrl = linkUrl,
-                            imageUrl = imageUrl
-                        })
+                        shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch(
+                            Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
                     };
                     return new EventDetailScreen(viewModel, actionModel);
                 });
@@ -129,7 +118,11 @@ namespace ConnectApp.screens {
                 duration: new TimeSpan(0, 0, 0, 0, 300),
                 vsync: this
             );
-            widget.actionModel.fetchEventDetail(widget.viewModel.eventId);
+            SchedulerBinding.instance.addPostFrameCallback(_ =>
+            {
+                widget.actionModel.startFetchEventDetail();
+                widget.actionModel.fetchEventDetail(widget.viewModel.eventId);
+            });
         }
 
         public override Widget build(BuildContext context) {
@@ -137,10 +130,9 @@ namespace ConnectApp.screens {
             var eventObj = new IEvent();
             if (widget.viewModel.eventsDict.ContainsKey(widget.viewModel.eventId)) 
                 eventObj = widget.viewModel.eventsDict[widget.viewModel.eventId];
-            if (widget.viewModel.eventDetailLoading || eventObj == null)
+            if (widget.viewModel.eventDetailLoading || eventObj?.user == null)
                 return new EventDetailLoading();
             var eventStatus = DateConvert.GetEventStatus(eventObj.begin);
-
             return new Container(
                 color: CColors.White,
                 child: new SafeArea(
@@ -213,7 +205,7 @@ namespace ConnectApp.screens {
                             string linkUrl =
                                 $"{Config.apiAddress}/events/{eventObj.id}";
                             string imageUrl = $"{eventObj.background}.200x0x1.jpg";
-                            widget.actionModel.share(type, eventObj.title, eventObj.shortDescription, linkUrl, imageUrl);
+                            widget.actionModel.shareToWechat(type, eventObj.title, eventObj.shortDescription, linkUrl, imageUrl);
                         }))
                 );
             return new Container(
@@ -364,8 +356,10 @@ namespace ConnectApp.screens {
                                             widget.actionModel.pushToLogin();
                                         }
                                         else {
-                                            if (!userIsCheckedIn)
+                                            if (!userIsCheckedIn) {
+                                                widget.actionModel.startJoinEvent();
                                                 widget.actionModel.joinEvent(widget.viewModel.eventId);
+                                            }
                                         }
                                     },
                                     child: new Container(
@@ -589,8 +583,10 @@ namespace ConnectApp.screens {
                 child: new CustomButton(
                     onPressed: () => {
                         if (isEnabled) return;
-                        if (isLoggedIn)
+                        if (isLoggedIn) {
+                            widget.actionModel.startJoinEvent();
                             widget.actionModel.joinEvent(eventObj.id);
+                        }
                         else
                             widget.actionModel.pushToLogin();
                     },

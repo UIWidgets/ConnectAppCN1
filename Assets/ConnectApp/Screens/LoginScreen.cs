@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
+using ConnectApp.models;
 using ConnectApp.plugins;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -21,7 +23,7 @@ namespace ConnectApp.screens {
         public static NavigatorState navigator => globalKey.currentState as NavigatorState;
 
         private static Dictionary<string, WidgetBuilder> loginRoutes => new Dictionary<string, WidgetBuilder> {
-            {LoginNavigatorRoutes.Root, context => new LoginSwitchScreen()},
+            {LoginNavigatorRoutes.Root, context => new LoginSwitchScreenConnector()},
             {LoginNavigatorRoutes.BindUnity, context => new BindUnityScreenConnector(FromPage.login)}
         };
 
@@ -40,8 +42,35 @@ namespace ConnectApp.screens {
             );
         }
     }
+    
+    public class LoginSwitchScreenConnector : StatelessWidget {
+        public override Widget build(BuildContext context) {
+            return new StoreConnector<AppState, object>(
+                converter: state => null,
+                builder: (context1, _, dispatcher) => {
+                    return new LoginSwitchScreen(
+                        mainRouterPop: () => dispatcher.dispatch(new MainNavigatorPopAction()),
+                        loginRouterPushToUnityBind: () => dispatcher.dispatch(new LoginNavigatorPushToBindUnityAction())
+                    );
+                }
+            );
+        }
+    }
 
     public class LoginSwitchScreen : StatelessWidget {
+        
+        public LoginSwitchScreen(
+            Action mainRouterPop = null,
+            Action loginRouterPushToUnityBind = null
+        )
+        {
+            this.mainRouterPop = mainRouterPop;
+            this.loginRouterPushToUnityBind = loginRouterPushToUnityBind;
+        }
+        
+        private readonly Action mainRouterPop;
+        private readonly Action loginRouterPushToUnityBind;
+        
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
@@ -51,7 +80,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private static Widget _buildContent(BuildContext context) {
+        private Widget _buildContent(BuildContext context) {
             return new Container(
                 color: CColors.White,
                 child: new Column(
@@ -65,15 +94,14 @@ namespace ConnectApp.screens {
             );
         }
 
-        private static Widget _buildTopView() {
+        private Widget _buildTopView() {
             return new Container(
                 height: 44,
                 padding: EdgeInsets.only(8, 8),
                 child: new Row(
                     children: new List<Widget> {
                         new CustomButton(
-                            onPressed: () =>
-                                StoreProvider.store.dispatcher.dispatch(new MainNavigatorPopAction()),
+                            onPressed: () => mainRouterPop(),
                             child: new Icon(
                                 Icons.close,
                                 size: 28,
@@ -87,7 +115,7 @@ namespace ConnectApp.screens {
 
         private static Widget _buildMiddleView(BuildContext context) {
             var mediaQuery = MediaQuery.of(context);
-            var height = mediaQuery.size.height - mediaQuery.padding.top - -mediaQuery.padding.bottom;
+            var height = mediaQuery.size.height - mediaQuery.padding.top + mediaQuery.padding.bottom;
             return new Column(
                 children: new List<Widget> {
                     new Container(
@@ -109,7 +137,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private static Widget _buildBottomView(BuildContext context) {
+        private Widget _buildBottomView(BuildContext context) {
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
@@ -144,8 +172,7 @@ namespace ConnectApp.screens {
                         ),
                         new Container(height: 16),
                         new CustomButton(
-                            onPressed: () =>
-                                StoreProvider.store.dispatcher.dispatch(new LoginNavigatorPushToBindUnityAction()),
+                            onPressed: () => loginRouterPushToUnityBind(),
                             padding: EdgeInsets.zero,
                             child: new Container(
                                 height: 48,

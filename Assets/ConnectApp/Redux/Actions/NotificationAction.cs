@@ -4,8 +4,7 @@ using ConnectApp.models;
 using Unity.UIWidgets.Redux;
 
 namespace ConnectApp.redux.actions {
-    public class FetchNotificationsAction : RequestAction {
-    }
+    public class StartFetchNotificationsAction : RequestAction {}
 
     public class FetchNotificationsSuccessAction : BaseAction {
         public int total;

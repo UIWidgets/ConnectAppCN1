@@ -16,6 +16,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using EventType = ConnectApp.models.EventType;
@@ -39,6 +40,7 @@ namespace ConnectApp.screens {
                         pushToEventDetail = (eventId, eventType) => dispatcher.dispatch(new MainNavigatorPushToEventDetailAction {
                             eventId = eventId, eventType = eventType
                         }),
+                        startFetchEvents = () => dispatcher.dispatch(new StartFetchEventsAction()),
                         fetchEvents = (pageNumber, tab) =>
                             dispatcher.dispatch<IPromise>(Actions.fetchEvents(pageNumber, tab))
                     };
@@ -88,8 +90,11 @@ namespace ConnectApp.screens {
             _completedRefreshController = new RefreshController();
             _pageController = new PageController();
             _selectedIndex = 0;
-            widget.actionModel.fetchEvents(pageNumber, "ongoing");
-            widget.actionModel.fetchEvents(completedPageNumber, "completed");
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                widget.actionModel.startFetchEvents();
+                widget.actionModel.fetchEvents(pageNumber, "ongoing");
+                widget.actionModel.fetchEvents(completedPageNumber, "completed");
+            });
         }
 
         public override Widget build(BuildContext context) {
