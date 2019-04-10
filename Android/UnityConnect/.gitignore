@@ -3,6 +3,9 @@
 *.ap_
 *.aab
 
+# Custom
+UnityConnect/src/main/jinLibs/
+
 # Files for the ART/Dalvik VM
 *.dex
 
