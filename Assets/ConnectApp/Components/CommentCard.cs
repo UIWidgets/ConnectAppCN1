@@ -14,11 +14,11 @@ namespace ConnectApp.components {
         public CommentCard(
             Message message,
             bool isPraised,
+            string parentName = null,
             GestureTapCallback moreCallBack = null,
             GestureTapCallback praiseCallBack = null,
             GestureTapCallback replyCallBack = null,
-            Key key = null,
-            string parentName = null
+            Key key = null
         ) : base(key)
         {
             this.message = message;

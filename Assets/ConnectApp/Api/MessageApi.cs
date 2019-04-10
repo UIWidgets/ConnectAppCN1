@@ -3,6 +3,7 @@ using System.Collections;
 using System.Text;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.utils;
 using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.async;
@@ -24,8 +25,7 @@ namespace ConnectApp.api {
             _FetchMessages(Promise<FetchCommentsResponse> promise, string channelId, string currOldestMessageId) {
             var url = Config.apiAddress + "/api/channels/" + channelId + "/messages";
             if (currOldestMessageId.isNotEmpty()) url += "?before=" + currOldestMessageId;
-            var request = UnityWebRequest.Get(url);
-            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
+            var request = HttpManager.GET(url);
             yield return request.SendWebRequest();
             if (request.isNetworkError) {
                 // something went wrong
@@ -36,6 +36,10 @@ namespace ConnectApp.api {
                 promise.Reject(new Exception(request.downloadHandler.text));
             }
             else {
+                if (request.GetResponseHeaders().ContainsKey("SET-COOKIE")) {
+                    var cookie = request.GetResponseHeaders()["SET-COOKIE"];
+                    HttpManager.updateCookie(cookie);
+                }
                 // Format output and resolve promise
                 var responseText = request.downloadHandler.text;
                 var messagesResponse = JsonConvert.DeserializeObject<FetchCommentsResponse>(responseText);
@@ -64,11 +68,9 @@ namespace ConnectApp.api {
                 nonce = nonce
             };
             var body = JsonConvert.SerializeObject(para);
-            var request = new UnityWebRequest(Config.apiAddress + "/api/channels/" + channelId + "/messages", "POST");
+            var request = HttpManager.initRequest(Config.apiAddress + "/api/channels/" + channelId + "/messages", "POST");
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             request.SetRequestHeader("Content-Type", "application/json");
             yield return request.SendWebRequest();
 
@@ -81,6 +83,10 @@ namespace ConnectApp.api {
                 promise.Reject(new Exception(request.downloadHandler.text));
             }
             else {
+                if (request.GetResponseHeaders().ContainsKey("SET-COOKIE")) {
+                    var cookie = request.GetResponseHeaders()["SET-COOKIE"];
+                    HttpManager.updateCookie(cookie);
+                }
                 var json = request.downloadHandler.text;
                 Debug.Log(json);
                 if (json != null) {
