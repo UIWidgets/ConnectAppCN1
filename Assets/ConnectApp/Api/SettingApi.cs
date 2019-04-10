@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using ConnectApp.constants;
+using ConnectApp.utils;
 using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.async;
@@ -19,8 +20,7 @@ namespace ConnectApp.api {
 
         private static IEnumerator _FetchReviewUrl(Promise<string> promise, string platform, string store) {
             var request =
-                UnityWebRequest.Get(Config.apiAddress + $"/api/live/reviewUrl?platform={platform}&store={store}");
-            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
+                HttpManager.GET(Config.apiAddress + $"/api/live/reviewUrl?platform={platform}&store={store}");
             yield return request.SendWebRequest();
             if (request.isNetworkError) {
                 // something went wrong

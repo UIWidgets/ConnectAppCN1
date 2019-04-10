@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.utils;
 using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.async;
@@ -18,8 +19,7 @@ namespace ConnectApp.api {
         }
 
         private static IEnumerator _FetchMyFutureEvents(Promise<FetchEventsResponse> promise, int pageNumber) {
-            var request = UnityWebRequest.Get(Config.apiAddress + $"/api/events?tab=my&status=ongoing&page={pageNumber}");
-            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
+            var request = HttpManager.GET(Config.apiAddress + $"/api/events?tab=my&status=ongoing&page={pageNumber}");
             yield return request.SendWebRequest();
 
             if (request.isNetworkError) {
@@ -49,8 +49,7 @@ namespace ConnectApp.api {
         }
 
         private static IEnumerator _FetchMyPastEvents(Promise<FetchEventsResponse> promise, int pageNumber) {
-            var request = UnityWebRequest.Get(Config.apiAddress + $"/api/events?tab=my&status=completed&page={pageNumber}");
-            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
+            var request = HttpManager.GET(Config.apiAddress + $"/api/events?tab=my&status=completed&page={pageNumber}");
             yield return request.SendWebRequest();
 
             if (request.isNetworkError) {

@@ -23,11 +23,7 @@ namespace ConnectApp.api
             _FetchImageBytes(Promise<byte[]> promise,string url)
         {
             var request = UnityWebRequestTexture.GetTexture(url);
-            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
-#pragma warning disable 618
             yield return request.SendWebRequest();
-#pragma warning restore 618
-
             
             if (request.isNetworkError) {
                 // something went wrong

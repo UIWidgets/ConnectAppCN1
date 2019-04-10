@@ -3,6 +3,7 @@ using System.Collections;
 using System.Text;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.utils;
 using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.async;
@@ -21,9 +22,7 @@ namespace ConnectApp.api {
         }
 
         private static IEnumerator _FetchArticles(Promise<FetchArticlesResponse> promise, int pageNumber) {
-            var request =
-                UnityWebRequest.Get(Config.apiAddress + "/api/p?projectType=article&t=projects&page=" + pageNumber);
-            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
+            var request = HttpManager.GET(Config.apiAddress + "/api/p?projectType=article&t=projects&page=" + pageNumber);
             yield return request.SendWebRequest();
             if (request.isNetworkError) {
                 // something went wrong
@@ -53,8 +52,7 @@ namespace ConnectApp.api {
         }
 
         private static IEnumerator _FetchArticleDetail(Promise<FetchArticleDetailResponse> promise, string articleId) {
-            var request = UnityWebRequest.Get(Config.apiAddress + "/api/p/" + articleId + "?view=true");
-            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
+            var request = HttpManager.GET(Config.apiAddress + "/api/p/" + articleId + "?view=true");
             yield return request.SendWebRequest();
             if (request.isNetworkError) {
                 // something went wrong
@@ -88,8 +86,7 @@ namespace ConnectApp.api {
                 string currOldestMessageId) {
             var url = Config.apiAddress + "/api/channels/" + channelId + "/messages?limit=5";
             if (currOldestMessageId.Length > 0) url += "&before=" + currOldestMessageId;
-            var request = UnityWebRequest.Get(url);
-            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
+            var request = HttpManager.GET(url);
             yield return request.SendWebRequest();
             if (request.isNetworkError) {
                 // something went wrong
@@ -123,11 +120,9 @@ namespace ConnectApp.api {
                 itemId = articleId
             };
             var body = JsonConvert.SerializeObject(para);
-            var request = new UnityWebRequest(Config.apiAddress + "/api/like", "POST");
+            var request = HttpManager.initRequest(Config.apiAddress + "/api/like", "POST");
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             request.SetRequestHeader("Content-Type", "application/json");
             yield return request.SendWebRequest();
 
@@ -140,6 +135,10 @@ namespace ConnectApp.api {
                 promise.Reject(new Exception(request.downloadHandler.text));
             }
             else {
+                if (request.GetResponseHeaders().ContainsKey("SET-COOKIE")) {
+                    var cookie = request.GetResponseHeaders()["SET-COOKIE"];
+                    HttpManager.updateCookie(cookie);
+                }
                 var json = request.downloadHandler.text;
                 Debug.Log(json);
                 if (json != null)
@@ -162,11 +161,9 @@ namespace ConnectApp.api {
             };
             var body = JsonConvert.SerializeObject(para);
             var request =
-                new UnityWebRequest(Config.apiAddress + "/api/messages/" + commentId + "/addReaction", "POST");
+                HttpManager.initRequest(Config.apiAddress + "/api/messages/" + commentId + "/addReaction", "POST");
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             request.SetRequestHeader("Content-Type", "application/json");
             yield return request.SendWebRequest();
 
@@ -179,6 +176,10 @@ namespace ConnectApp.api {
                 promise.Reject(new Exception(request.downloadHandler.text));
             }
             else {
+                if (request.GetResponseHeaders().ContainsKey("SET-COOKIE")) {
+                    var cookie = request.GetResponseHeaders()["SET-COOKIE"];
+                    HttpManager.updateCookie(cookie);
+                }
                 var responseText = request.downloadHandler.text;
                 var message = JsonConvert.DeserializeObject<Message>(responseText);
                 if (responseText != null)
@@ -201,11 +202,9 @@ namespace ConnectApp.api {
             };
             var body = JsonConvert.SerializeObject(para);
             var request =
-                new UnityWebRequest(Config.apiAddress + "/api/messages/" + commentId + "/removeReaction", "POST");
+                HttpManager.initRequest(Config.apiAddress + "/api/messages/" + commentId + "/removeReaction", "POST");
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             request.SetRequestHeader("Content-Type", "application/json");
             yield return request.SendWebRequest();
 
@@ -218,6 +217,10 @@ namespace ConnectApp.api {
                 promise.Reject(new Exception(request.downloadHandler.text));
             }
             else {
+                if (request.GetResponseHeaders().ContainsKey("SET-COOKIE")) {
+                    var cookie = request.GetResponseHeaders()["SET-COOKIE"];
+                    HttpManager.updateCookie(cookie);
+                }
                 var responseText = request.downloadHandler.text;
                 var message = JsonConvert.DeserializeObject<Message>(responseText);
                 Debug.Log(responseText);
@@ -245,11 +248,9 @@ namespace ConnectApp.api {
                 nonce = nonce
             };
             var body = JsonConvert.SerializeObject(para);
-            var request = new UnityWebRequest(Config.apiAddress + "/api/channels/" + channelId + "/messages", "POST");
+            var request = HttpManager.initRequest(Config.apiAddress + "/api/channels/" + channelId + "/messages", "POST");
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             request.SetRequestHeader("Content-Type", "application/json");
             yield return request.SendWebRequest();
 
@@ -262,6 +263,10 @@ namespace ConnectApp.api {
                 promise.Reject(new Exception(request.downloadHandler.text));
             }
             else {
+                if (request.GetResponseHeaders().ContainsKey("SET-COOKIE")) {
+                    var cookie = request.GetResponseHeaders()["SET-COOKIE"];
+                    HttpManager.updateCookie(cookie);
+                }
                 var responseText = request.downloadHandler.text;
                 var message = JsonConvert.DeserializeObject<Message>(responseText);
                 if (responseText != null)

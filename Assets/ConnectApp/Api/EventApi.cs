@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.utils;
 using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.async;
@@ -18,8 +19,7 @@ namespace ConnectApp.api {
         }
 
         private static IEnumerator _FetchEvents(Promise<FetchEventsResponse> promise, int pageNumber, string tab) {
-            var request = UnityWebRequest.Get(Config.apiAddress + $"/api/events?tab={tab}&page={pageNumber}");
-            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
+            var request = HttpManager.GET(Config.apiAddress + $"/api/events?tab={tab}&page={pageNumber}");
             yield return request.SendWebRequest();
 
             if (request.isNetworkError) {
@@ -49,8 +49,7 @@ namespace ConnectApp.api {
         }
 
         private static IEnumerator _FetchEventDetail(Promise<IEvent> promise, string eventId) {
-            var request = UnityWebRequest.Get(Config.apiAddress + "/api/live/events/" + eventId);
-            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
+            var request = HttpManager.GET(Config.apiAddress + "/api/live/events/" + eventId);
             yield return request.SendWebRequest();
             if (request.isNetworkError) {
                 // something went wrong
@@ -79,9 +78,7 @@ namespace ConnectApp.api {
         }
 
         private static IEnumerator _JoinEvent(Promise<string> promise, string eventId) {
-            var request = new UnityWebRequest(Config.apiAddress + $"/api/live/events/{eventId}/join", "POST");
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
+            var request = HttpManager.initRequest(Config.apiAddress + $"/api/live/events/{eventId}/join", "POST");
             yield return request.SendWebRequest();
 
             if (request.isNetworkError) {
@@ -93,6 +90,10 @@ namespace ConnectApp.api {
                 promise.Reject(new Exception(request.downloadHandler.text));
             }
             else {
+                if (request.GetResponseHeaders().ContainsKey("SET-COOKIE")) {
+                    var cookie = request.GetResponseHeaders()["SET-COOKIE"];
+                    HttpManager.updateCookie(cookie);
+                }
                 var json = request.downloadHandler.text;
                 if (json != null)
                     promise.Resolve(eventId);

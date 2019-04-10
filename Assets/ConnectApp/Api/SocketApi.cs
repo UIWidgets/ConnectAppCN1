@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.utils;
 using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.async;
@@ -19,8 +20,7 @@ namespace ConnectApp.api {
 
         private static IEnumerator
             _FetchSocketUrl(Promise<string> promise) {
-            var request = UnityWebRequest.Get(Config.apiAddress + "/api/socketgw");
-            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
+            var request = HttpManager.GET(Config.apiAddress + "/api/socketgw");
             yield return request.SendWebRequest();
 
             if (request.isNetworkError) {

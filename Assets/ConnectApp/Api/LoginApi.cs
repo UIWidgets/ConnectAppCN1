@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.utils;
 using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.async;
@@ -26,11 +27,9 @@ namespace ConnectApp.api {
                 password = password
             };
             var body = JsonConvert.SerializeObject(para);
-            var request = new UnityWebRequest(Config.apiAddress + "/auth/live/login", "POST");
+            var request = HttpManager.initRequest(Config.apiAddress + "/auth/live/login", "POST");
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             request.SetRequestHeader("Content-Type", "application/json");
             yield return request.SendWebRequest();
 
@@ -43,13 +42,12 @@ namespace ConnectApp.api {
                 promise.Reject(new Exception(request.downloadHandler.text));
             }
             else {
-//                var cookie = "";
-//                if (request.GetResponseHeaders().ContainsKey("SET-COOKIE")) {
-//                    cookie = request.GetResponseHeaders()["SET-COOKIE"];
-//                    PlayerPrefs.SetString("cookie", cookie);
-//                    PlayerPrefs.Save();
-//                }
-//                Debug.Log(cookie);
+                
+                if (request.GetResponseHeaders().ContainsKey("SET-COOKIE")) {
+                    var cookie = request.GetResponseHeaders()["SET-COOKIE"];
+                    HttpManager.updateCookie(cookie);
+                }
+                    
                 // Format output and resolve promise
                 var json = request.downloadHandler.text;
                 var loginInfo = JsonConvert.DeserializeObject<LoginInfo>(json);
@@ -74,15 +72,11 @@ namespace ConnectApp.api {
                 code = code
             };
             var body = JsonConvert.SerializeObject(para);
-            var request = new UnityWebRequest(Config.apiAddress + "/auth/live/wechat", "POST");
+            var request = HttpManager.initRequest(Config.apiAddress + "/auth/live/wechat", "POST");
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             request.SetRequestHeader("Content-Type", "application/json");
-#pragma warning disable 618
             yield return request.Send();
-#pragma warning restore 618
 
             if (request.isNetworkError) {
                 // something went wrong
@@ -93,6 +87,10 @@ namespace ConnectApp.api {
                 promise.Reject(new Exception(request.downloadHandler.text));
             }
             else {
+                if (request.GetResponseHeaders().ContainsKey("SET-COOKIE")) {
+                    var cookie = request.GetResponseHeaders()["SET-COOKIE"];
+                    HttpManager.updateCookie(cookie);
+                }
                 var json = request.downloadHandler.text;
                 Debug.Log($"wechat login request {json}");
                 var loginInfo = JsonConvert.DeserializeObject<LoginInfo>(json);
@@ -112,8 +110,7 @@ namespace ConnectApp.api {
 
         private static IEnumerator _FetchCreateUnityIdUrl(Promise<string> promise) {
             var request =
-                UnityWebRequest.Get(Config.apiAddress + "/api/authUrl?redirect_to=%2F&locale=zh_CN&is_reg=true");
-            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
+                HttpManager.GET(Config.apiAddress + "/api/authUrl?redirect_to=%2F&locale=zh_CN&is_reg=true");
             yield return request.SendWebRequest();
             if (request.isNetworkError) {
                 // something went wrong

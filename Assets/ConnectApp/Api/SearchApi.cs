@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.utils;
 using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.async;
@@ -19,8 +20,7 @@ namespace ConnectApp.api {
         }
 
         private static IEnumerator _PopularSearch(Promise<List<PopularSearch>> promise) {
-            var request = UnityWebRequest.Get(Config.apiAddress + "/api/search/popularSearch");
-            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
+            var request = HttpManager.GET(Config.apiAddress + "/api/search/popularSearch");
             yield return request.SendWebRequest();
 
             if (request.isNetworkError) {
@@ -51,9 +51,8 @@ namespace ConnectApp.api {
 
         private static IEnumerator
             _SearchArticle(Promise<FetchSearchResponse> promise, string keyword, int pageNumber) {
-            var request = UnityWebRequest.Get(Config.apiAddress +
+            var request = HttpManager.GET(Config.apiAddress +
                                               $"/api/search?t=project&projectType=article&k=[\"q:{keyword}\"]&searchAllLoadMore=false&page={pageNumber}");
-            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             yield return request.SendWebRequest();
 
             if (request.isNetworkError) {
