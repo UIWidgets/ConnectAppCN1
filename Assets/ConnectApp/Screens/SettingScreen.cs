@@ -131,7 +131,7 @@ namespace ConnectApp.screens {
                                     )
                                 );
                                 actionModel.clearCache();
-                                Window.instance.run(TimeSpan.FromSeconds(15), CustomDialogUtils.hiddenCustomDialog);
+                                Window.instance.run(TimeSpan.FromSeconds(2), CustomDialogUtils.hiddenCustomDialog);
                             }),
                             _buildGapView(),
                             _buildLogoutBtn(context)

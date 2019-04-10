@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.constants;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
@@ -139,14 +140,13 @@ namespace ConnectApp.components {
                 this,
                 new RouteSettings("/snackBarRoute")
             );
-            StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToRouteAction{route = _snackBarRoute});
+            Router.navigator.push(_snackBarRoute);
         }
 
         public void dismiss() {
             if (_snackBarRoute == null) return;
 
-            if (_snackBarRoute.isCurrent)
-                StoreProvider.store.dispatcher.dispatch(new MainNavigatorPopAction());
+            if (_snackBarRoute.isCurrent) Router.navigator.pop();
             else if (_snackBarRoute.isActive) _snackBarRoute.navigator.removeRoute(_snackBarRoute);
             if (_snackBarRoute._timer != null) {
                 _snackBarRoute._timer.cancel();

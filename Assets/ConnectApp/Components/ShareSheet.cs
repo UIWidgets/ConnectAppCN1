@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.constants;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
@@ -72,7 +73,11 @@ namespace ConnectApp.components {
                                     )
                                 ),
                                 new GestureDetector(
-                                    onTap: () => { StoreProvider.store.dispatcher.dispatch(new MainNavigatorPopAction()); },
+                                    onTap: () => {
+                                        if (Router.navigator.canPop()) {
+                                            Router.navigator.pop();
+                                        }
+                                    },
                                     child: new Container(
                                         height: 49,
                                         color: CColors.Transparent,
