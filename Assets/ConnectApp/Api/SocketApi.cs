@@ -32,6 +32,10 @@ namespace ConnectApp.api {
                 promise.Reject(new Exception(request.downloadHandler.text));
             }
             else {
+                if (request.GetResponseHeaders().ContainsKey("SET-COOKIE")) {
+                    var cookie = request.GetResponseHeaders()["SET-COOKIE"];
+                    HttpManager.updateCookie(cookie);
+                }
                 // Format output and resolve promise
                 var responseText = request.downloadHandler.text;
                 var response = JsonConvert.DeserializeObject<FetchSocketUrlResponse>(responseText);
