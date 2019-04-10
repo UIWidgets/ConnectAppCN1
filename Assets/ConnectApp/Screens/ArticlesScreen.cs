@@ -14,6 +14,7 @@ using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
@@ -41,6 +42,7 @@ namespace ConnectApp.screens {
                                 articleId = id
                             }
                         ),
+                        startFetchArticles = () => dispatcher.dispatch(new StartFetchArticlesAction()),
                         fetchArticles = pageNumber => dispatcher.dispatch<IPromise>(Actions.fetchArticles(pageNumber))
                     };
                     return new ArticlesScreen(viewModel, actionModel);
@@ -85,7 +87,11 @@ namespace ConnectApp.screens {
             base.initState();
             _refreshController = new RefreshController();
             _offsetY = 0;
-            widget.actionModel.fetchArticles(firstPageNumber);
+            SchedulerBinding.instance.addPostFrameCallback(_ =>
+            {
+                widget.actionModel.startFetchArticles();
+                widget.actionModel.fetchArticles(firstPageNumber);
+            });
         }
 
         public override Widget build(BuildContext context) {

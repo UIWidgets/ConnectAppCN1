@@ -51,15 +51,14 @@ namespace ConnectApp.screens {
                             new MainNavigatorPushToArticleDetailAction {
                                 articleId = id
                             }),
+                        startFetchArticleDetail = () => dispatcher.dispatch(new StartFetchArticleDetailAction()),
                         fetchArticleDetail = (id) =>
                             dispatcher.dispatch<IPromise>(Actions.fetchArticleDetatil(id)),
                         fetchArticleComments = (channelId, currOldestMessageId) =>
                             dispatcher.dispatch<IPromise>(
                                 Actions.fetchArticleComments(channelId, currOldestMessageId)
                             ),
-                        likeArticle = (id) => dispatcher.dispatch(new LikeArticleAction {
-                            articleId = id
-                        }),
+                        likeArticle = (id) => dispatcher.dispatch(Actions.likeArtcle(articleId)),
                         likeComment = (commentId) => dispatcher.dispatch(new LikeCommentAction {
                             messageId = commentId
                         }),
@@ -113,7 +112,9 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             _refreshController = new RefreshController();
-            SchedulerBinding.instance.addPostFrameCallback(_ => {
+            SchedulerBinding.instance.addPostFrameCallback(_ =>
+            {
+                widget.actionModel.startFetchArticleDetail();
                 widget.actionModel.fetchArticleDetail(widget.viewModel.articleId);  
             });
         }

@@ -136,7 +136,7 @@ namespace ConnectApp.screens {
                     ),
                     new Container(height: 10),
                     new GestureDetector(
-                        onTap: () => { StoreProvider.store.dispatcher.dispatch(new FetchArticlesAction()); },
+                        onTap: () => { StoreProvider.store.dispatcher.dispatch(new StartFetchArticlesAction()); },
                         child: new Container(
                             color: CColors.White,
                             child: new Text(
@@ -148,8 +148,7 @@ namespace ConnectApp.screens {
                     new Container(height: 10),
                     new GestureDetector(
                         onTap: () => {
-                            StoreProvider.store.dispatcher.dispatch(new FetchArticleDetailAction
-                                {articleId = "59c8cdfe09091500294d1bb9"});
+                            StoreProvider.store.dispatcher.dispatch(new StartFetchArticleDetailAction());
                         },
                         child: new Container(
                             color: CColors.White,

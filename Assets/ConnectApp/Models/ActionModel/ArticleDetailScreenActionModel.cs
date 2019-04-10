@@ -6,6 +6,7 @@ namespace ConnectApp.Models.ActionModel {
         public Action mainRouterPop;
         public Action pushToLogin;
         public Action<string> pushToArticleDetail;
+        public Action startFetchArticleDetail;
         public Func<string, IPromise> fetchArticleDetail;
         public Func<string, string, IPromise> fetchArticleComments;
         public Action<string> likeArticle;
