@@ -151,8 +151,8 @@ namespace ConnectApp.components.pull_to_refresh {
                         notification.metrics.pixels) /
                        widget.headerConfig.triggerDistance;
             if (notification.metrics.pixels -
-                     notification.metrics.maxScrollExtent >
-                     0)
+                notification.metrics.maxScrollExtent >
+                0)
                 return (notification.metrics.pixels -
                         notification.metrics.maxScrollExtent) /
                        widget.footerConfig.triggerDistance;
@@ -246,6 +246,7 @@ namespace ConnectApp.components.pull_to_refresh {
                     builder: up ? widget.headerBuilder : widget.footerBuilder
                 );
             }
+
             if (config is RefreshConfig) {
                 var refreshConfig = (RefreshConfig) config;
                 return new RefreshWrapper(

@@ -1,22 +1,57 @@
 using System.Collections.Generic;
-using ConnectApp.api;
 using ConnectApp.components;
 using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
-using ConnectApp.redux;
+using ConnectApp.Models.ActionModel;
+using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 
 namespace ConnectApp.screens {
+    public class NotificationScreenConnector : StatelessWidget {
+        public override Widget build(BuildContext context) {
+            return new StoreConnector<AppState, NotifcationScreenViewModel>(
+                converter: (state) => new NotifcationScreenViewModel {
+                    notifationLoading = state.notificationState.loading,
+                    total = state.notificationState.total,
+                    notifications = state.notificationState.notifications,
+                    userDict = state.userState.userDict
+                },
+                builder: (context1, viewModel, dispatcher) => {
+                    var actionModel = new NotificationScreenActionModel {
+                        startFetchNotifications = () => dispatcher.dispatch(new StartFetchNotificationsAction()),
+                        fetchNotifications = pageNumber =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchNotifications(pageNumber)),
+                        pushToArticleDetail = id => dispatcher.dispatch(
+                            new MainNavigatorPushToArticleDetailAction {
+                                articleId = id
+                            }
+                        )
+                    };
+                    return new NotificationScreen(viewModel, actionModel);
+                }
+            );
+        }
+    }
+
     public class NotificationScreen : StatefulWidget {
         public NotificationScreen(
+            NotifcationScreenViewModel viewModel = null,
+            NotificationScreenActionModel actionModel = null,
             Key key = null
         ) : base(key) {
+            this.viewModel = viewModel;
+            this.actionModel = actionModel;
         }
+
+        public readonly NotifcationScreenViewModel viewModel;
+        public readonly NotificationScreenActionModel actionModel;
 
         public override State createState() {
             return new _NotificationScreenState();
@@ -25,51 +60,60 @@ namespace ConnectApp.screens {
 
     public class _NotificationScreenState : State<NotificationScreen> {
         private const float headerHeight = 140;
+        private const int firstPageNumber = 1;
         private float _offsetY;
-        private int _pageNumber = 1;
+        private int _pageNumber = firstPageNumber;
         private RefreshController _refreshController;
 
+//        protected override bool wantKeepAlive {
+//            get => true;
+//        }
         public override void initState() {
             base.initState();
             _offsetY = 0;
             _refreshController = new RefreshController();
-            var results = StoreProvider.store.state.notificationState.notifications;
-            if (results == null || results.Count == 0)
-                StoreProvider.store.Dispatch(new FetchNotificationsAction {pageNumber = 1});
-        }
-
-        private bool _onNotification(ScrollNotification notification) {
-            var pixels = notification.metrics.pixels;
-            if (pixels >= 0) {
-                if (pixels <= headerHeight) setState(() => { _offsetY = pixels / 2.0f; });
-            }
-            else {
-                if (_offsetY != 0) setState(() => { _offsetY = 0; });
-            }
-
-            return true;
-        }
-
-        private void _onRefresh(bool up) {
-            if (up)
-                _pageNumber = 1;
-            else
-                _pageNumber++;
-            NotificationApi.FetchNotifications(_pageNumber)
-                .Then(notificationResponse => {
-                    StoreProvider.store.Dispatch(new FetchNotificationsSuccessAction {
-                        notificationResponse = notificationResponse,
-                        pageNumber = _pageNumber
-                    });
-                    _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle);
-                })
-                .Catch(error => {
-                    _refreshController.sendBack(up, RefreshStatus.failed);
-                    Debug.Log($"{error}");
-                });
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                widget.actionModel.startFetchNotifications();
+                widget.actionModel.fetchNotifications(_pageNumber);
+            });
         }
 
         public override Widget build(BuildContext context) {
+            object content = new Container();
+            if (widget.viewModel.notifationLoading) {
+                content = new GlobalLoading();
+            }
+            else {
+                if (widget.viewModel.notifications.Count <= 0) {
+                    content = new BlankView("暂无通知消息");
+                }
+                else {
+                    var isLoadMore = widget.viewModel.notifications.Count == widget.viewModel.total;
+                    content = new SmartRefresher(
+                        controller: _refreshController,
+                        enablePullDown: true,
+                        enablePullUp: !isLoadMore,
+                        headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
+                        footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
+                        onRefresh: _onRefresh,
+                        child: ListView.builder(
+                            physics: new AlwaysScrollableScrollPhysics(),
+                            itemCount: widget.viewModel.notifications.Count,
+                            itemBuilder: (cxt, index) => {
+                                var notification = widget.viewModel.notifications[index];
+                                var user = widget.viewModel.userDict[notification.userId];
+                                return new NotificationCard(
+                                    notification,
+                                    user,
+                                    onTap: () => widget.actionModel.pushToArticleDetail(notification.data.projectId),
+                                    new ObjectKey(notification.id)
+                                );
+                            }
+                        )
+                    );
+                }
+            }
+
             return new Container(
                 color: CColors.White,
                 child: new Column(
@@ -95,42 +139,33 @@ namespace ConnectApp.screens {
                         new Flexible(
                             child: new NotificationListener<ScrollNotification>(
                                 onNotification: _onNotification,
-                                child: new Container(
-                                    padding: EdgeInsets.only(bottom: 49),
-                                    child: new StoreConnector<AppState, NotificationState>(
-                                        converter: (state, dispatch) => state.notificationState,
-                                        builder: (_context, viewModel) => {
-                                            if (viewModel.loading) return new GlobalLoading();
-                                            var notifications = viewModel.notifications;
-                                            if (notifications.Count <= 0) return new BlankView("暂无通知消息");
-                                            var isLoadMore = notifications.Count == viewModel.total;
-
-                                            return new SmartRefresher(
-                                                controller: _refreshController,
-                                                enablePullDown: true,
-                                                enablePullUp: !isLoadMore,
-                                                headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
-                                                footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
-                                                onRefresh: _onRefresh,
-                                                child: ListView.builder(
-                                                    physics: new AlwaysScrollableScrollPhysics(),
-                                                    itemCount: notifications.Count,
-                                                    itemBuilder: (cxt, index) => {
-                                                        var notification = notifications[index];
-                                                        return new NotificationCard(
-                                                            notification: notification
-                                                        );
-                                                    }
-                                                )
-                                            );
-                                        }
-                                    )
-                                )
+                                child: (Widget) content
                             )
                         )
                     }
                 )
             );
+        }
+
+        private bool _onNotification(ScrollNotification notification) {
+//            var pixels = notification.metrics.pixels;
+//            if (pixels >= 0) {
+//                if (pixels <= headerHeight) setState(() => { _offsetY = pixels / 2.0f; });
+//            }
+//            else {
+//                if (_offsetY != 0) setState(() => { _offsetY = 0; });
+//            }
+            return true;
+        }
+
+        private void _onRefresh(bool up) {
+            if (up)
+                _pageNumber = 1;
+            else
+                _pageNumber++;
+            widget.actionModel.fetchNotifications(_pageNumber)
+                .Then(() => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
         }
     }
 }

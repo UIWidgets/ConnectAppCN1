@@ -66,14 +66,12 @@ namespace ConnectApp.components {
                             onTap: commentCallback,
                             child: new Icon(Icons.comment, size: 24, color: CColors.icon3)
                         ),
+                        //点赞
                         new GestureDetector(
                             onTap: favorCallback,
                             child: new Icon(Icons.favorite, size: 24, color: like ? CColors.PrimaryBlue : CColors.icon3)
                         ),
-//                        new GestureDetector(
-//                            onTap:bookmarkCallback,
-//                            child:new Icon(Icons.bookmark,null,24,CColors.icon3)
-//                        ),
+                        //分享
                         new GestureDetector(
                             onTap: shareCallback,
                             child: new Icon(Icons.share, size: 24, color: CColors.icon3)

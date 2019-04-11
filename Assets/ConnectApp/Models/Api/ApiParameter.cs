@@ -7,8 +7,8 @@ namespace ConnectApp.models {
         public string email;
         public string password;
     }
-    public class WechatLoginParameter
-    {
+
+    public class WechatLoginParameter {
         public string code;
     }
 

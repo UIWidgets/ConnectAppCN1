@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.canvas;
 using ConnectApp.constants;
-using ConnectApp.redux;
-using ConnectApp.redux.actions;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -13,7 +10,7 @@ using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.components {
-    public delegate void SelectTabCallBack(int index);
+    public delegate bool SelectTabCallBack(int index);
 
     public class CustomTabBar : StatefulWidget {
         public CustomTabBar(
@@ -47,7 +44,7 @@ namespace ConnectApp.components {
 
         public override void initState() {
             base.initState();
-            _pageController = new PageController(_selectedIndex);
+            _pageController = new PageController(_selectedIndex, keepPage: true);
         }
 
         public override Widget build(BuildContext context) {
@@ -104,23 +101,15 @@ namespace ConnectApp.components {
                         children: new List<Widget> {
                             new GestureDetector(
                                 onTap: () => {
-                                    if (_selectedIndex != item.index) {
-                                        if (item.index == 2) {
-                                            var isLoggedIn = StoreProvider.store.state.loginState.isLoggedIn;
-                                            if (!isLoggedIn) {
-                                                StoreProvider.store.Dispatch(new MainNavigatorPushToAction
-                                                    {routeName = MainNavigatorRoutes.Login});
-                                                return;
-                                            }
-                                        }
-
-                                        if (widget.tapCallBack != null) widget.tapCallBack(item.index);
-                                        setState(() => {
-                                            _selectedIndex = item.index;
-                                            _pageController.animateToPage(item.index, new TimeSpan(0, 0, 0, 0, 1),
-                                                Curves.ease);
-                                        });
-                                    }
+                                    if (_selectedIndex != item.index)
+                                        if (widget.tapCallBack != null)
+                                            if (widget.tapCallBack(item.index))
+                                                setState(() => {
+                                                    _selectedIndex = item.index;
+                                                    _pageController.animateToPage(item.index,
+                                                        new TimeSpan(0, 0, 0, 0, 1),
+                                                        Curves.ease);
+                                                });
                                 },
                                 child: new Container(
                                     decoration: new BoxDecoration(

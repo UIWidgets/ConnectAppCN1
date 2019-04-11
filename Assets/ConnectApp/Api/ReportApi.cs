@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.utils;
 using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.async;
@@ -27,11 +28,9 @@ namespace ConnectApp.api {
                 reasons = new List<string> {"other:" + reportContext}
             };
             var body = JsonConvert.SerializeObject(para);
-            var request = new UnityWebRequest(Config.apiAddress + "/api/report", "POST");
+            var request = HttpManager.initRequest(Config.apiAddress + "/api/report", "POST");
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             request.SetRequestHeader("Content-Type", "application/json");
             yield return request.SendWebRequest();
 
@@ -44,6 +43,11 @@ namespace ConnectApp.api {
                 promise.Reject(new Exception(request.downloadHandler.text));
             }
             else {
+                if (request.GetResponseHeaders().ContainsKey("SET-COOKIE")) {
+                    var cookie = request.GetResponseHeaders()["SET-COOKIE"];
+                    HttpManager.updateCookie(cookie);
+                }
+
                 var json = request.downloadHandler.text;
                 Debug.Log(json);
                 if (json != null)

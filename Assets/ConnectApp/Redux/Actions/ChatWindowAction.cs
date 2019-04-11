@@ -3,7 +3,7 @@ namespace ConnectApp.redux.actions {
         public bool status;
     }
 
-    public class ChatWindowShowAction : BaseAction {
+    public class ShowChatWindowAction : BaseAction {
         public bool show;
     }
 }

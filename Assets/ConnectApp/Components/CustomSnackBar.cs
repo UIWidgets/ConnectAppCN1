@@ -1,32 +1,26 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.constants;
-using ConnectApp.redux;
-using ConnectApp.redux.actions;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Icons = ConnectApp.constants.Icons;
 
 namespace ConnectApp.components {
     internal class _SnackBarRoute : OverlayRoute {
         public _SnackBarRoute(
-            ThemeData theme = null,
             CustomSnackBar customSnackBar = null,
             RouteSettings settings = null
         ) : base(settings) {
-            this.theme = theme;
             this.customSnackBar = customSnackBar;
             _builder = new Builder(builder: innerContext => customSnackBar);
         }
 
-        private readonly ThemeData theme;
         private readonly CustomSnackBar customSnackBar;
 
         private readonly Builder _builder;
@@ -44,11 +38,6 @@ namespace ConnectApp.components {
                             alignment: animation,
                             child: _builder
                         );
-                        if (theme != null)
-                            return new Theme(
-                                data: theme,
-                                child: annotatedChild
-                            );
                         return annotatedChild;
                     },
                     maintainState: false,
@@ -140,21 +129,19 @@ namespace ConnectApp.components {
 
         private _SnackBarRoute _snackBarRoute;
 
-        public void show(BuildContext context) {
+        public void show() {
             D.assert(this != null);
             _snackBarRoute = new _SnackBarRoute(
-                Theme.of(context),
                 this,
                 new RouteSettings("/snackBarRoute")
             );
-            StoreProvider.store.Dispatch(new MainNavigatorPushToRouteAction{route = _snackBarRoute});
+            Router.navigator.push(_snackBarRoute);
         }
 
         public void dismiss() {
             if (_snackBarRoute == null) return;
 
-            if (_snackBarRoute.isCurrent)
-                StoreProvider.store.Dispatch(new MainNavigatorPopAction());
+            if (_snackBarRoute.isCurrent) Router.navigator.pop();
             else if (_snackBarRoute.isActive) _snackBarRoute.navigator.removeRoute(_snackBarRoute);
             if (_snackBarRoute._timer != null) {
                 _snackBarRoute._timer.cancel();

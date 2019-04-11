@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using ConnectApp.constants;
 using ConnectApp.models;
-using ConnectApp.redux;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
@@ -16,67 +15,91 @@ namespace ConnectApp.components {
     }
 
     public class Avatar : StatelessWidget {
-        public Avatar(
+        private Avatar(
             string id,
             float size = 36,
             OwnerType type = OwnerType.user,
+            User user = null,
+            Team team = null,
             Key key = null
         ) : base(key) {
             D.assert(id != null);
             this.id = id;
+            this.user = user;
+            this.team = team;
             this.size = size;
             this.type = type;
         }
 
+        public static Avatar User(
+            string id,
+            User user = null,
+            float size = 36,
+            Key key = null
+        ) {
+            return new Avatar(
+                id,
+                size,
+                OwnerType.user,
+                user,
+                key: key
+            );
+        }
+
+        public static Avatar Team(
+            string id,
+            Team team = null,
+            float size = 36,
+            Key key = null
+        ) {
+            return new Avatar(
+                id,
+                size,
+                OwnerType.team,
+                null,
+                team,
+                key
+            );
+        }
+
+
         private readonly string id;
+        private readonly User user;
+        private readonly Team team;
         private readonly float size;
         private readonly OwnerType type;
 
         public override Widget build(BuildContext context) {
             if (type == OwnerType.team) return _buildTeamAvatar();
-
-            return new StoreConnector<AppState, User>(
-                converter: (state, dispatch) => state.userState.userDict.ContainsKey(id)
-                    ? state.userState.userDict[id]
-                    : new User(),
-                builder: (_context, viewModel) => {
-                    var avatarUrl = viewModel.avatar ?? "";
-                    var fullName = viewModel.fullName;
-                    var result = _extractName(fullName) ?? "";
-                    return new ClipRRect(
-                        borderRadius: BorderRadius.circular(size / 2),
-                        child: avatarUrl.Length <= 0
-                            ? new Container(
-                                child: new _Placeholder(result, size)
-                            )
-                            : new Container(
-                                width: size,
-                                height: size,
-                                child: Image.network(avatarUrl)
-                            )
-                    );
-                }
+            var avatarUrl = user.avatar ?? "";
+            var fullName = user.fullName;
+            var result = _extractName(fullName) ?? "";
+            return new ClipRRect(
+                borderRadius: BorderRadius.circular(size / 2),
+                child: avatarUrl.isEmpty()
+                    ? new Container(
+                        child: new _Placeholder(result, size)
+                    )
+                    : new Container(
+                        width: size,
+                        height: size,
+                        child: Image.network(avatarUrl, fit: BoxFit.cover)
+                    )
             );
         }
 
         private Widget _buildTeamAvatar() {
-            return new StoreConnector<AppState, Team>(
-                converter: (state, dispatch) => state.teamState.teamDict.ContainsKey(id)
-                    ? state.teamState.teamDict[id]
-                    : new Team(),
-                builder: (_context, viewModel) => {
-                    var avatarUrl = viewModel.avatar ?? "";
-                    var name = viewModel.name;
-                    var result = _extractName(name) ?? "";
-                    if (avatarUrl.Length <= 0) return new _Placeholder(result, size);
-                    return new Container(
-                        width: size,
-                        height: size,
-                        child: Image.network(avatarUrl)
-                    );
-                }
+            var avatarUrl = team.avatar ?? "";
+            var name = team.name;
+            var result = _extractName(name) ?? "";
+            if (avatarUrl.Length <= 0) return new _Placeholder(result, size);
+            return new Container(
+                width: size,
+                height: size,
+                child: Image.network(avatarUrl)
             );
         }
+
 
         private static string _extractName(string name) {
             if (name == null || name.Length <= 0) return "";

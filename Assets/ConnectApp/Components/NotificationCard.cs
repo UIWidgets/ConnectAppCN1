@@ -1,7 +1,7 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
-using ConnectApp.redux;
-using ConnectApp.redux.actions;
+using ConnectApp.models;
 using ConnectApp.utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -12,25 +12,27 @@ using Notification = ConnectApp.models.Notification;
 namespace ConnectApp.components {
     public class NotificationCard : StatelessWidget {
         public NotificationCard(
-            Key key = null,
-            Notification notification = null
+            Notification notification,
+            User user,
+            Action onTap = null,
+            Key key = null
         ) : base(key) {
             this.notification = notification;
+            this.user = user;
+            this.onTap = onTap;
         }
 
         private readonly Notification notification;
+        private readonly User user;
+        private readonly Action onTap;
 
         public override Widget build(BuildContext context) {
             if (notification == null) return new Container();
             var type = notification.type;
             if (type != "project_liked" && type != "project_message_commented") return new Container();
 
-            var data = notification.data;
             return new GestureDetector(
-                onTap: () => {
-                    StoreProvider.store.Dispatch(
-                        new MainNavigatorPushToArticleDetailAction {articleId = data.projectId});
-                },
+                onTap: () => onTap(),
                 child: new Container(
                     color: CColors.Transparent,
                     child: new Row(
@@ -38,10 +40,7 @@ namespace ConnectApp.components {
                         children: new List<Widget> {
                             new Container(
                                 padding: EdgeInsets.only(16, 16, 16),
-                                child: new Avatar(
-                                    data.userId,
-                                    48
-                                )
+                                child: Avatar.User(user.id, user, 48)
                             ),
                             new Expanded(
                                 child: new Container(

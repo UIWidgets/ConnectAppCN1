@@ -1,11 +1,41 @@
+using System;
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
+using ConnectApp.models;
+using ConnectApp.redux.actions;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 
 namespace ConnectApp.screens {
+    public class MainScreenConnector : StatelessWidget {
+        public override Widget build(BuildContext context) {
+            return new StoreConnector<AppState, bool>(
+                converter: state => state.loginState.isLoggedIn,
+                builder: (context1, isLoggedIn, dispatcher) => {
+                    return new MainScreen(isLoggedIn, () => {
+                        dispatcher.dispatch(new MainNavigatorPushToAction {
+                            routeName = MainNavigatorRoutes.Login
+                        });
+                    });
+                }
+            );
+        }
+    }
+
     public class MainScreen : StatelessWidget {
+        public MainScreen(
+            bool isLoggedIn,
+            Action pushToLogin = null
+        ) {
+            this.isLoggedIn = isLoggedIn;
+            this.pushToLogin = pushToLogin;
+        }
+
+        private readonly bool isLoggedIn;
+        private readonly Action pushToLogin;
+
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
@@ -13,10 +43,10 @@ namespace ConnectApp.screens {
                     top: false,
                     child: new CustomTabBar(
                         new List<Widget> {
-                            new ArticleScreen(),
-                            new EventsScreen(),
-                            new NotificationScreen(),
-                            new PersonalScreen()
+                            new ArticlesScreenConnector(),
+                            new EventsScreenConnector(),
+                            new NotificationScreenConnector(),
+                            new PersonalScreenConnector()
                         },
                         new List<CustomTabBarItem> {
                             new CustomTabBarItem(
@@ -42,7 +72,13 @@ namespace ConnectApp.screens {
                         },
                         CColors.White,
                         index => {
-//                            Debug.Log($"index == {index}");
+                            if (index == 2)
+                                if (!isLoggedIn) {
+                                    pushToLogin();
+                                    return false;
+                                }
+
+                            return true;
                         }
                     )
                 )
