@@ -4,6 +4,7 @@ using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.Models.ActionModel;
 using ConnectApp.plugins;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets.painting;
@@ -47,10 +48,13 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, object>(
                 converter: state => null,
                 builder: (context1, _, dispatcher) => {
-                    return new LoginSwitchScreen(
-                        mainRouterPop: () => dispatcher.dispatch(new MainNavigatorPopAction()),
-                        loginRouterPushToUnityBind: () => dispatcher.dispatch(new LoginNavigatorPushToBindUnityAction())
-                    );
+                    var actionModel = new LoginSwitchScreenActionModel {
+                        mainRouterPop =() => dispatcher.dispatch(new MainNavigatorPopAction()),
+                        loginByWechatAction =code=>dispatcher.dispatch(new LoginByWechatAction {code = code}),
+                        loginRouterPushToUnityBind=() => dispatcher.dispatch(new LoginNavigatorPushToBindUnityAction())
+
+                    };
+                    return new LoginSwitchScreen(actionModel);
                 }
             );
         }
@@ -58,15 +62,12 @@ namespace ConnectApp.screens {
 
     public class LoginSwitchScreen : StatelessWidget {
         public LoginSwitchScreen(
-            Action mainRouterPop = null,
-            Action loginRouterPushToUnityBind = null
+            LoginSwitchScreenActionModel actionModel
         ) {
-            this.mainRouterPop = mainRouterPop;
-            this.loginRouterPushToUnityBind = loginRouterPushToUnityBind;
+            this.actionModel = actionModel;
         }
 
-        private readonly Action mainRouterPop;
-        private readonly Action loginRouterPushToUnityBind;
+        public readonly LoginSwitchScreenActionModel actionModel;
 
         public override Widget build(BuildContext context) {
             return new Container(
@@ -98,7 +99,7 @@ namespace ConnectApp.screens {
                 child: new Row(
                     children: new List<Widget> {
                         new CustomButton(
-                            onPressed: () => mainRouterPop(),
+                            onPressed: () => actionModel.mainRouterPop(),
                             child: new Icon(
                                 Icons.close,
                                 size: 28,
@@ -140,7 +141,11 @@ namespace ConnectApp.screens {
                 child: new Column(
                     children: new List<Widget> {
                         new CustomButton(
-                            onPressed: () => { WechatPlugin.instance.login(Guid.NewGuid().ToString()); },
+                            onPressed: () =>
+                            {
+                                WechatPlugin.instance.login(Guid.NewGuid().ToString());
+                                WechatPlugin.instance._codeCallBack = code => { actionModel.loginByWechatAction(code); };
+                            },
                             padding: EdgeInsets.zero,
                             child: new Container(
                                 height: 48,
@@ -169,7 +174,7 @@ namespace ConnectApp.screens {
                         ),
                         new Container(height: 16),
                         new CustomButton(
-                            onPressed: () => loginRouterPushToUnityBind(),
+                            onPressed: () => actionModel.loginRouterPushToUnityBind(),
                             padding: EdgeInsets.zero,
                             child: new Container(
                                 height: 48,

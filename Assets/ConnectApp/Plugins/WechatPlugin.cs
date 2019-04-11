@@ -8,6 +8,9 @@ using Unity.UIWidgets.widgets;
 using UnityEngine;
 
 namespace ConnectApp.plugins {
+    
+    public delegate void codeCallBack(string code);
+
     public class WechatPlugin {
         private WechatPlugin() {
         }
@@ -18,6 +21,7 @@ namespace ConnectApp.plugins {
 
         public BuildContext context;
 
+        public codeCallBack _codeCallBack;
 
         public void addListener() {
             Debug.Log("addListener");
@@ -37,7 +41,10 @@ namespace ConnectApp.plugins {
                         var type = dict["type"];
                         if (type == "code") {
                             var code = dict["code"];
-                            StoreProvider.store.dispatcher.dispatch(new LoginByWechatAction {code = code});
+                            if (_codeCallBack!=null)
+                            {
+                                _codeCallBack(code);
+                            }
                         }
                     }
                         break;

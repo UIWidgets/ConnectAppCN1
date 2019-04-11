@@ -16,9 +16,8 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.screens {
     public class HistoryScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
-            return new StoreConnector<AppState, HistoryScreenViewModel>(
-                converter: (state) => new HistoryScreenViewModel {
-                },
+            return new StoreConnector<AppState, object>(
+                converter: state => null,
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new HistoryScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction())
