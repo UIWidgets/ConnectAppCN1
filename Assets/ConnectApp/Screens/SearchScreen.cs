@@ -90,11 +90,6 @@ namespace ConnectApp.screens {
             });
         }
 
-        public override void dispose() {
-            widget.actionModel.clearSearchArticleResult();
-            base.dispose();
-        }
-
         private void _searchArticle(string text) {
             if (text.isEmpty()) return;
             widget.actionModel.saveSearchHistory(text);
@@ -195,7 +190,10 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new CustomButton(
                             padding: EdgeInsets.only(8, 8, 0, 8),
-                            onPressed: () => widget.actionModel.mainRouterPop(),
+                            onPressed: () => {
+                                widget.actionModel.mainRouterPop();
+                                widget.actionModel.clearSearchArticleResult();
+                            },
                             child: new Text(
                                 "取消",
                                 style: CTextStyle.PLargeBlue
