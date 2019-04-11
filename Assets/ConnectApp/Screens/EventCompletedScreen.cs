@@ -89,6 +89,7 @@ namespace ConnectApp.screens
                 footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
                 onRefresh: _completedRefresh,
                 child: ListView.builder(
+                    itemExtent:108,
                     physics: new AlwaysScrollableScrollPhysics(),
                     itemCount: widget.viewModel.completedEvents.Count,
                     itemBuilder: (cxt, index) => {
