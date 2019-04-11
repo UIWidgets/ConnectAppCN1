@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
@@ -15,26 +16,25 @@ namespace ConnectApp.components {
         public NotificationCard(
             Notification notification,
             User user,
+            Action onTap = null,
             Key key = null
         ) : base(key) {
             this.notification = notification;
             this.user = user;
+            this.onTap = onTap;
         }
 
         private readonly Notification notification;
         private readonly User user;
+        private readonly Action onTap;
 
         public override Widget build(BuildContext context) {
             if (notification == null) return new Container();
             var type = notification.type;
             if (type != "project_liked" && type != "project_message_commented") return new Container();
 
-            var data = notification.data;
             return new GestureDetector(
-                onTap: () => {
-                    StoreProvider.store.dispatcher.dispatch(
-                        new MainNavigatorPushToArticleDetailAction {articleId = data.projectId});
-                },
+                onTap: () => onTap(),
                 child: new Container(
                     color: CColors.Transparent,
                     child: new Row(

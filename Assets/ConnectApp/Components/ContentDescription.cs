@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
@@ -13,7 +14,8 @@ using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.components {
     public static class ContentDescription {
-        public static List<Widget> map(BuildContext context, string cont, Dictionary<string, ContentMap> contentMap) {
+        
+        public static List<Widget> map(BuildContext context, string cont, Dictionary<string, ContentMap> contentMap, Action<string> openUrl) {
             if (cont == null) return new List<Widget>();
 
             var content = JsonConvert.DeserializeObject<EventContent>(cont);
@@ -44,7 +46,8 @@ namespace ConnectApp.components {
                                 _Unstyled(
                                     text,
                                     content.entityMap,
-                                    block.entityRanges
+                                    block.entityRanges,
+                                    openUrl
                                 )
                             );
                         break;
@@ -81,7 +84,7 @@ namespace ConnectApp.components {
                                     var originalImage = map.originalImage == null
                                         ? map.thumbnail
                                         : map.originalImage;
-                                    widgets.Add(_Atomic(context, dataMap.type, data.title, originalImage, url));
+                                    widgets.Add(_Atomic(context, dataMap.type, data.title, originalImage, url, openUrl));
                                 }
                         }
                     }
@@ -119,7 +122,8 @@ namespace ConnectApp.components {
         private static Widget _Unstyled(
             string text,
             Dictionary<string, _EventContentEntity> entityMap,
-            List<_EntityRange> entityRanges
+            List<_EntityRange> entityRanges,
+            Action<string> openUrl
         ) {
             if (text == null) return new Container();
             if (entityRanges != null && entityRanges.Count > 0) {
@@ -134,7 +138,7 @@ namespace ConnectApp.components {
                         var currentText = text.Substring(offset, length);
                         var rightText = text.Substring(length + offset, text.Length - length - offset);
                         var recognizer = new TapGestureRecognizer {
-                            onTap = () => { StoreProvider.store.dispatcher.dispatch(new OpenUrlAction {url = data.data.url}); }
+                            onTap = () => openUrl(data.data.url)
                         };
                         return new Container(
                             color: CColors.White,
@@ -212,7 +216,7 @@ namespace ConnectApp.components {
             );
         }
 
-        private static Widget _Atomic(BuildContext context, string type, string title, _OriginalImage originalImage, string url) {
+        private static Widget _Atomic(BuildContext context, string type, string title, _OriginalImage originalImage, string url, Action<string> openUrl) {
             if (type == "ATTACHMENT") return new Container();
 
             var playButton = Positioned.fill(
@@ -225,7 +229,7 @@ namespace ConnectApp.components {
                             onPressed: () => {
                                 if (url == null || url.Length <= 0) return;
                                 if (url.ToLower().Contains("youtube"))
-                                    StoreProvider.store.dispatcher.dispatch(new OpenUrlAction {url = url});
+                                    openUrl(url);
                                 else
                                     StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToVideoPlayerAction{videoUrl = url});
                             },

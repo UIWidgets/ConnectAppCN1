@@ -67,6 +67,7 @@ namespace ConnectApp.screens {
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
+                        openUrl = url => dispatcher.dispatch(new OpenUrlAction {url = url}),
                         startFetchEventDetail = () => dispatcher.dispatch(new StartFetchEventDetailAction()),
                         fetchEventDetail = (id) =>
                             dispatcher.dispatch<IPromise>(Actions.fetchEventDetail(id)),
@@ -131,7 +132,7 @@ namespace ConnectApp.screens {
             if (widget.viewModel.eventsDict.ContainsKey(widget.viewModel.eventId)) 
                 eventObj = widget.viewModel.eventsDict[widget.viewModel.eventId];
             if (widget.viewModel.eventDetailLoading || eventObj?.user == null)
-                return new EventDetailLoading();
+                return new EventDetailLoading(mainRouterPop: widget.actionModel.mainRouterPop);
             var eventStatus = DateConvert.GetEventStatus(eventObj.begin);
             return new Container(
                 color: CColors.White,
@@ -263,7 +264,7 @@ namespace ConnectApp.screens {
                             new Container(
                                 margin: EdgeInsets.only(bottom: 64),
                                 color: CColors.White,
-                                child: new EventDetail(eventObj)
+                                child: new EventDetail(eventObj, widget.actionModel.openUrl)
                             ),
                             Positioned.fill(
                                 new Container(
@@ -277,7 +278,7 @@ namespace ConnectApp.screens {
                     )
                 );
             return new Expanded(
-                child: new EventDetail(eventObj)
+                child: new EventDetail(eventObj, widget.actionModel.openUrl)
             );
         }
 

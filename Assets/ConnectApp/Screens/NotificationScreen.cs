@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.api;
+using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
@@ -14,7 +16,6 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
-using Notification = UnityEngine.Playables.Notification;
 
 namespace ConnectApp.screens {
     public class NotificationScreenConnector : StatelessWidget {
@@ -27,12 +28,17 @@ namespace ConnectApp.screens {
                     userDict = state.userState.userDict
                 },
                 builder: (context1, viewModel, dispatcher) => {
-                    return new NotificationScreen(
-                        viewModel,
-                        startFetchNotifications: () => dispatcher.dispatch(new StartFetchNotificationsAction()),
-                        fetchNotifications: pageNumber =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchNotifications(pageNumber))
-                    );
+                    var actionModel = new NotificationScreenActionModel {
+                        startFetchNotifications = () => dispatcher.dispatch(new StartFetchNotificationsAction()),
+                        fetchNotifications = pageNumber =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchNotifications(pageNumber)),
+                        pushToArticleDetail = id => dispatcher.dispatch(
+                            new MainNavigatorPushToArticleDetailAction {
+                                articleId = id
+                            }
+                        )
+                    };
+                    return new NotificationScreen(viewModel, actionModel);
                 }
             );
         }
@@ -41,19 +47,16 @@ namespace ConnectApp.screens {
 
         public NotificationScreen(
             NotifcationScreenViewModel viewModel = null,   
-            Action startFetchNotifications = null,
-            Func<int, IPromise> fetchNotifications = null,
+            NotificationScreenActionModel actionModel = null,   
             Key key = null
         ) : base(key)
         {
             this.viewModel = viewModel;
-            this.startFetchNotifications = startFetchNotifications;
-            this.fetchNotifications = fetchNotifications;
+            this.actionModel = actionModel;
         }
         
         public readonly NotifcationScreenViewModel viewModel;
-        public readonly Action startFetchNotifications;
-        public readonly Func<int, IPromise> fetchNotifications;
+        public readonly NotificationScreenActionModel actionModel;
 
         public override State createState() {
             return new _NotificationScreenState();
@@ -75,8 +78,8 @@ namespace ConnectApp.screens {
             _offsetY = 0;
             _refreshController = new RefreshController();
             SchedulerBinding.instance.addPostFrameCallback(_ => {
-                widget.startFetchNotifications();
-                widget.fetchNotifications(_pageNumber);
+                widget.actionModel.startFetchNotifications();
+                widget.actionModel.fetchNotifications(_pageNumber);
             });
         }
         
@@ -106,6 +109,7 @@ namespace ConnectApp.screens {
                                 return new NotificationCard(
                                     notification,
                                     user,
+                                    onTap: () => widget.actionModel.pushToArticleDetail(notification.data.projectId),
                                     new ObjectKey(notification.id)
                                 );
                             }
@@ -163,7 +167,7 @@ namespace ConnectApp.screens {
                 _pageNumber = 1;
             else
                 _pageNumber++;
-            widget.fetchNotifications(_pageNumber)
+            widget.actionModel.fetchNotifications(_pageNumber)
                 .Then(() => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
         }

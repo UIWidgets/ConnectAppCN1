@@ -46,6 +46,7 @@ namespace ConnectApp.screens {
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
+                        openUrl = url => dispatcher.dispatch(new OpenUrlAction {url = url}),
                         pushToArticleDetail = (id) => dispatcher.dispatch(
                             new MainNavigatorPushToArticleDetailAction {
                                 articleId = id
@@ -220,7 +221,7 @@ namespace ConnectApp.screens {
             var originItems = new List<Widget>();
             originItems.Add(_buildContentHead());
             originItems.Add(_buildSubTitle());
-            originItems.AddRange(ContentDescription.map(context, _article.body, _contentMap));
+            originItems.AddRange(ContentDescription.map(context, _article.body, _contentMap, widget.actionModel.openUrl));
             originItems.Add(_buildActionCards(_article.like));
             originItems.Add(_buildRelatedArticles());
             originItems.Add(_comments());
