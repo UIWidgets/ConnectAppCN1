@@ -7,14 +7,12 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using RSG;
-using Unity.UIWidgets;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 
 namespace ConnectApp.screens {
     public enum FromPage {
@@ -80,7 +78,7 @@ namespace ConnectApp.screens {
 
         public readonly BindUnityScreenViewModel viewModel;
         public readonly BindUnityScreenActionModel actionModel;
-        
+
         public override State createState() {
             return new _BindUnityScreenState();
         }
@@ -121,8 +119,8 @@ namespace ConnectApp.screens {
             _emailFocusNode.unfocus();
             _passwordFocusNode.unfocus();
             widget.actionModel.startLoginByEmail();
-            widget.actionModel.loginByEmail().Catch(_ =>
-            {
+            widget.actionModel.loginByEmail().Catch(_ => {
+                widget.actionModel.loginByEmailFailure();
                 var customSnackBar = new CustomSnackBar(
                     "邮箱或密码不正确，请稍后再试。",
                     new TimeSpan(0, 0, 0, 2)

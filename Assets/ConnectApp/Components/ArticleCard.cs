@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
-using ConnectApp.redux;
 using ConnectApp.utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -9,7 +8,6 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.components {
     public class ArticleCard : StatelessWidget {
@@ -41,28 +39,27 @@ namespace ConnectApp.components {
             GestureTapCallback moreCallBack = null,
             Key key = null,
             User user = null
-        )
-        {
+        ) {
             return new ArticleCard(
-                article,onTap,moreCallBack,key,user
+                article, onTap, moreCallBack, key, user
             );
         }
+
         public static ArticleCard Team(
             Article article,
             GestureTapCallback onTap = null,
             GestureTapCallback moreCallBack = null,
             Key key = null,
             Team team = null
-        )
-        {
+        ) {
             return new ArticleCard(
-                article,onTap,moreCallBack,key,null,team
+                article, onTap, moreCallBack, key, null, team
             );
         }
 
 
         public override Widget build(BuildContext context) {
-            var userName = article.ownerType == OwnerType.team.ToString()?team.name:user.fullName;
+            var userName = article.ownerType == OwnerType.team.ToString() ? team.name : user.fullName;
             var card = new Container(
                 color: CColors.White,
                 child: new Padding(

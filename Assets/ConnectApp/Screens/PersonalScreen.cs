@@ -5,9 +5,7 @@ using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.Models.ViewModel;
-using ConnectApp.redux;
 using ConnectApp.redux.actions;
-using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -15,7 +13,6 @@ using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
-    
     public class PersonalScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, PersonalScreenViewModel>(
@@ -39,15 +36,14 @@ namespace ConnectApp.screens {
 
     public class PersonalScreen : StatefulWidget {
         public PersonalScreen(
-            PersonalScreenViewModel viewModel = null,    
-            Action<string> mainRouterPushTo = null,    
+            PersonalScreenViewModel viewModel = null,
+            Action<string> mainRouterPushTo = null,
             Key key = null
-        ) : base(key)
-        {
+        ) : base(key) {
             this.viewModel = viewModel;
             this.mainRouterPushTo = mainRouterPushTo;
         }
-        
+
         public readonly PersonalScreenViewModel viewModel;
         public readonly Action<string> mainRouterPushTo;
 
@@ -64,7 +60,7 @@ namespace ConnectApp.screens {
             var navigationBar = widget.viewModel.isLoggedIn
                 ? _buildLoginInNavigationBar()
                 : _buildNotLoginInNavigationBar(context);
-            
+
             return new Container(
                 color: CColors.White,
                 child: new Column(
@@ -128,7 +124,8 @@ namespace ConnectApp.screens {
                     child: new Text(widget.viewModel.userFullName, style: CTextStyle.H2)
                 ),
                 new List<Widget> {
-                    Avatar.User(widget.viewModel.userId,widget.viewModel.userDict[widget.viewModel.userId],40)                },
+                    Avatar.User(widget.viewModel.userId, widget.viewModel.userDict[widget.viewModel.userId], 40)
+                },
                 CColors.White,
                 0
             );
@@ -137,23 +134,27 @@ namespace ConnectApp.screens {
         private List<Widget> _buildItems() {
             var personalCardItems = new List<PersonalCardItem> {
                 new PersonalCardItem(
-                    Icons.ievent, 
-                    "我的活动", 
+                    Icons.ievent,
+                    "我的活动",
                     () => {
-                    var routeName = widget.viewModel.isLoggedIn ? MainNavigatorRoutes.MyEvent : MainNavigatorRoutes.Login;
-                    widget.mainRouterPushTo(routeName);
+                        var routeName = widget.viewModel.isLoggedIn
+                            ? MainNavigatorRoutes.MyEvent
+                            : MainNavigatorRoutes.Login;
+                        widget.mainRouterPushTo(routeName);
                     }
                 ),
                 new PersonalCardItem(
-                    Icons.eye, 
+                    Icons.eye,
                     "浏览历史",
                     () => widget.mainRouterPushTo(MainNavigatorRoutes.History)
                 ),
                 new PersonalCardItem(
-                    Icons.settings, 
-                    "设置", 
+                    Icons.settings,
+                    "设置",
                     () => {
-                        var routeName = widget.viewModel.isLoggedIn ? MainNavigatorRoutes.Setting : MainNavigatorRoutes.Login;
+                        var routeName = widget.viewModel.isLoggedIn
+                            ? MainNavigatorRoutes.Setting
+                            : MainNavigatorRoutes.Login;
                         widget.mainRouterPushTo(routeName);
                     }
                 )

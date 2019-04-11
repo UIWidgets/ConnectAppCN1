@@ -1,12 +1,10 @@
-using System;
 using System.Collections.Generic;
-using ConnectApp.api;
 using ConnectApp.components;
 using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
-using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using RSG;
 using Unity.UIWidgets.foundation;
@@ -14,7 +12,6 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
-using Notification = UnityEngine.Playables.Notification;
 
 namespace ConnectApp.screens {
     public class NotificationScreenConnector : StatelessWidget {
@@ -27,33 +24,34 @@ namespace ConnectApp.screens {
                     userDict = state.userState.userDict
                 },
                 builder: (context1, viewModel, dispatcher) => {
-                    return new NotificationScreen(
-                        viewModel,
-                        startFetchNotifications: () => dispatcher.dispatch(new StartFetchNotificationsAction()),
-                        fetchNotifications: pageNumber =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchNotifications(pageNumber))
-                    );
+                    var actionModel = new NotificationScreenActionModel {
+                        startFetchNotifications = () => dispatcher.dispatch(new StartFetchNotificationsAction()),
+                        fetchNotifications = pageNumber =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchNotifications(pageNumber)),
+                        pushToArticleDetail = id => dispatcher.dispatch(
+                            new MainNavigatorPushToArticleDetailAction {
+                                articleId = id
+                            }
+                        )
+                    };
+                    return new NotificationScreen(viewModel, actionModel);
                 }
             );
         }
     }
-    public class NotificationScreen : StatefulWidget {
 
+    public class NotificationScreen : StatefulWidget {
         public NotificationScreen(
-            NotifcationScreenViewModel viewModel = null,   
-            Action startFetchNotifications = null,
-            Func<int, IPromise> fetchNotifications = null,
+            NotifcationScreenViewModel viewModel = null,
+            NotificationScreenActionModel actionModel = null,
             Key key = null
-        ) : base(key)
-        {
+        ) : base(key) {
             this.viewModel = viewModel;
-            this.startFetchNotifications = startFetchNotifications;
-            this.fetchNotifications = fetchNotifications;
+            this.actionModel = actionModel;
         }
-        
+
         public readonly NotifcationScreenViewModel viewModel;
-        public readonly Action startFetchNotifications;
-        public readonly Func<int, IPromise> fetchNotifications;
+        public readonly NotificationScreenActionModel actionModel;
 
         public override State createState() {
             return new _NotificationScreenState();
@@ -75,19 +73,20 @@ namespace ConnectApp.screens {
             _offsetY = 0;
             _refreshController = new RefreshController();
             SchedulerBinding.instance.addPostFrameCallback(_ => {
-                widget.startFetchNotifications();
-                widget.fetchNotifications(_pageNumber);
+                widget.actionModel.startFetchNotifications();
+                widget.actionModel.fetchNotifications(_pageNumber);
             });
         }
-        
-        public override Widget build(BuildContext context)
-        {
+
+        public override Widget build(BuildContext context) {
             object content = new Container();
-            if (widget.viewModel.notifationLoading) 
+            if (widget.viewModel.notifationLoading) {
                 content = new GlobalLoading();
+            }
             else {
-                if (widget.viewModel.notifications.Count <= 0) 
+                if (widget.viewModel.notifications.Count <= 0) {
                     content = new BlankView("暂无通知消息");
+                }
                 else {
                     var isLoadMore = widget.viewModel.notifications.Count == widget.viewModel.total;
                     content = new SmartRefresher(
@@ -106,6 +105,7 @@ namespace ConnectApp.screens {
                                 return new NotificationCard(
                                     notification,
                                     user,
+                                    onTap: () => widget.actionModel.pushToArticleDetail(notification.data.projectId),
                                     new ObjectKey(notification.id)
                                 );
                             }
@@ -113,7 +113,7 @@ namespace ConnectApp.screens {
                     );
                 }
             }
-                
+
             return new Container(
                 color: CColors.White,
                 child: new Column(
@@ -139,7 +139,7 @@ namespace ConnectApp.screens {
                         new Flexible(
                             child: new NotificationListener<ScrollNotification>(
                                 onNotification: _onNotification,
-                                child: (Widget)content
+                                child: (Widget) content
                             )
                         )
                     }
@@ -163,7 +163,7 @@ namespace ConnectApp.screens {
                 _pageNumber = 1;
             else
                 _pageNumber++;
-            widget.fetchNotifications(_pageNumber)
+            widget.actionModel.fetchNotifications(_pageNumber)
                 .Then(() => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
         }

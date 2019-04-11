@@ -37,6 +37,7 @@ namespace ConnectApp.api {
                     var cookie = request.GetResponseHeaders()["SET-COOKIE"];
                     HttpManager.updateCookie(cookie);
                 }
+
                 // Format output and resolve promise
                 var responseText = request.downloadHandler.text;
                 var articlesResponse = JsonConvert.DeserializeObject<FetchArticlesResponse>(responseText);
@@ -71,6 +72,7 @@ namespace ConnectApp.api {
                     var cookie = request.GetResponseHeaders()["SET-COOKIE"];
                     HttpManager.updateCookie(cookie);
                 }
+
                 // Format output and resolve promise
                 var responseText = request.downloadHandler.text;
                 var articleDetailResponse = JsonConvert.DeserializeObject<FetchArticleDetailResponse>(responseText);
@@ -109,6 +111,7 @@ namespace ConnectApp.api {
                     var cookie = request.GetResponseHeaders()["SET-COOKIE"];
                     HttpManager.updateCookie(cookie);
                 }
+
                 // Format output and resolve promise
                 var responseText = request.downloadHandler.text;
                 var responseComments = JsonConvert.DeserializeObject<FetchCommentsResponse>(responseText);
@@ -151,6 +154,7 @@ namespace ConnectApp.api {
                     var cookie = request.GetResponseHeaders()["SET-COOKIE"];
                     HttpManager.updateCookie(cookie);
                 }
+
                 var json = request.downloadHandler.text;
                 Debug.Log(json);
                 if (json != null)
@@ -192,6 +196,7 @@ namespace ConnectApp.api {
                     var cookie = request.GetResponseHeaders()["SET-COOKIE"];
                     HttpManager.updateCookie(cookie);
                 }
+
                 var responseText = request.downloadHandler.text;
                 var message = JsonConvert.DeserializeObject<Message>(responseText);
                 if (responseText != null)
@@ -233,6 +238,7 @@ namespace ConnectApp.api {
                     var cookie = request.GetResponseHeaders()["SET-COOKIE"];
                     HttpManager.updateCookie(cookie);
                 }
+
                 var responseText = request.downloadHandler.text;
                 var message = JsonConvert.DeserializeObject<Message>(responseText);
                 Debug.Log(responseText);
@@ -260,7 +266,8 @@ namespace ConnectApp.api {
                 nonce = nonce
             };
             var body = JsonConvert.SerializeObject(para);
-            var request = HttpManager.initRequest(Config.apiAddress + "/api/channels/" + channelId + "/messages", "POST");
+            var request =
+                HttpManager.initRequest(Config.apiAddress + "/api/channels/" + channelId + "/messages", "POST");
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.SetRequestHeader("Content-Type", "application/json");
@@ -279,6 +286,7 @@ namespace ConnectApp.api {
                     var cookie = request.GetResponseHeaders()["SET-COOKIE"];
                     HttpManager.updateCookie(cookie);
                 }
+
                 var responseText = request.downloadHandler.text;
                 var message = JsonConvert.DeserializeObject<Message>(responseText);
                 if (responseText != null)

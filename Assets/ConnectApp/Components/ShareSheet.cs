@@ -1,7 +1,6 @@
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.constants;
-using ConnectApp.redux;
-using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -42,7 +41,7 @@ namespace ConnectApp.components {
                     new Container(
                         color: CColors.White,
                         width: mediaQueryData.size.width,
-                        height: 211+mediaQueryData.padding.bottom,
+                        height: 211 + mediaQueryData.padding.bottom,
                         child: new Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,7 +71,9 @@ namespace ConnectApp.components {
                                     )
                                 ),
                                 new GestureDetector(
-                                    onTap: () => { StoreProvider.store.dispatcher.dispatch(new MainNavigatorPopAction()); },
+                                    onTap: () => {
+                                        if (Router.navigator.canPop()) Router.navigator.pop();
+                                    },
                                     child: new Container(
                                         height: 49,
                                         color: CColors.Transparent,
@@ -81,8 +82,8 @@ namespace ConnectApp.components {
                                     )
                                 ),
                                 new Container(
-                                    height:mediaQueryData.padding.bottom
-                                    )
+                                    height: mediaQueryData.padding.bottom
+                                )
                             }
                         )
                     )

@@ -4,18 +4,20 @@ using ConnectApp.models;
 using Unity.UIWidgets.Redux;
 
 namespace ConnectApp.redux.actions {
-    public class StartFetchNotificationsAction : RequestAction {}
+    public class StartFetchNotificationsAction : RequestAction {
+    }
 
     public class FetchNotificationsSuccessAction : BaseAction {
         public int total;
         public List<Notification> notifications;
     }
-    
-    public class FetchNotificationsFailureAction : BaseAction {}
-    
+
+    public class FetchNotificationsFailureAction : BaseAction {
+    }
+
     public static partial class Actions {
         public static object fetchNotifications(int pageNumber) {
-            return new ThunkAction<AppState>((dispatcher, getState) => {                
+            return new ThunkAction<AppState>((dispatcher, getState) => {
                 return NotificationApi.FetchNotifications(pageNumber)
                     .Then(notificationResponse => {
                         var oldResults = notificationResponse.results;
@@ -35,13 +37,16 @@ namespace ConnectApp.redux.actions {
                         var notifications = new List<Notification>();
                         if (pageNumber == 1) {
                             notifications = notificationResponse.results;
-                        } else {
+                        }
+                        else {
                             notifications = getState().notificationState.notifications;
                             notifications.AddRange(notificationResponse.results);
                         }
-                        dispatcher.dispatch(new FetchNotificationsSuccessAction {total = notificationResponse.total, notifications = notifications});
+
+                        dispatcher.dispatch(new FetchNotificationsSuccessAction
+                            {total = notificationResponse.total, notifications = notifications});
                     })
-                    .Catch(err => { dispatcher.dispatch(new FetchNotificationsFailureAction());});
+                    .Catch(err => { dispatcher.dispatch(new FetchNotificationsFailureAction()); });
             });
         }
     }

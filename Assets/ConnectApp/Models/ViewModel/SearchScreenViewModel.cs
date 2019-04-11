@@ -1,11 +1,8 @@
-using System;
 using System.Collections.Generic;
 using ConnectApp.models;
 
-namespace ConnectApp.Models.ViewModel
-{
-    public class SearchScreenViewModel
-    {
+namespace ConnectApp.Models.ViewModel {
+    public class SearchScreenViewModel {
         public bool searchLoading;
         public string searchKeyword;
         public List<Article> searchArticles;

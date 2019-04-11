@@ -1,19 +1,15 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.constants;
-using ConnectApp.redux;
-using ConnectApp.redux.actions;
-using ConnectApp.screens;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Icons = ConnectApp.constants.Icons;
 
 namespace ConnectApp.components {
     internal class _SnackBarRoute : OverlayRoute {
@@ -139,14 +135,13 @@ namespace ConnectApp.components {
                 this,
                 new RouteSettings("/snackBarRoute")
             );
-            StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToRouteAction{route = _snackBarRoute});
+            Router.navigator.push(_snackBarRoute);
         }
 
         public void dismiss() {
             if (_snackBarRoute == null) return;
 
-            if (_snackBarRoute.isCurrent)
-                StoreProvider.store.dispatcher.dispatch(new MainNavigatorPopAction());
+            if (_snackBarRoute.isCurrent) Router.navigator.pop();
             else if (_snackBarRoute.isActive) _snackBarRoute.navigator.removeRoute(_snackBarRoute);
             if (_snackBarRoute._timer != null) {
                 _snackBarRoute._timer.cancel();

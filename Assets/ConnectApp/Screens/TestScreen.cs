@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.redux;
@@ -147,9 +146,7 @@ namespace ConnectApp.screens {
                     ),
                     new Container(height: 10),
                     new GestureDetector(
-                        onTap: () => {
-                            StoreProvider.store.dispatcher.dispatch(new StartFetchArticleDetailAction());
-                        },
+                        onTap: () => { StoreProvider.store.dispatcher.dispatch(new StartFetchArticleDetailAction()); },
                         child: new Container(
                             color: CColors.White,
                             child: new Text(
@@ -301,9 +298,7 @@ namespace ConnectApp.screens {
                     ),
                     new Container(height: 10),
                     new GestureDetector(
-                        onTap: () => {
-                            StoreProvider.store.dispatcher.dispatch(new StartFetchEventDetailAction());
-                        },
+                        onTap: () => { StoreProvider.store.dispatcher.dispatch(new StartFetchEventDetailAction()); },
                         child: new Container(
                             color: CColors.White,
                             child: new Text(
@@ -326,7 +321,8 @@ namespace ConnectApp.screens {
                     new Container(height: 10),
                     new GestureDetector(
                         onTap: () => {
-                            StoreProvider.store.dispatcher.dispatch(new StartJoinEventAction {eventId = "5bc84dd8edbc2a001f2d927c"});
+                            StoreProvider.store.dispatcher.dispatch(new StartJoinEventAction
+                                {eventId = "5bc84dd8edbc2a001f2d927c"});
                         },
                         child: new Container(
                             color: CColors.White,
@@ -361,7 +357,8 @@ namespace ConnectApp.screens {
                     new Container(height: 10),
                     new GestureDetector(
                         onTap: () => {
-                            StoreProvider.store.dispatcher.dispatch(Actions.fetchMessages("0522ffbb43000001", "", true));
+                            StoreProvider.store.dispatcher.dispatch(Actions.fetchMessages("0522ffbb43000001", "",
+                                true));
                         },
                         child: new Container(
                             color: CColors.White,
@@ -374,7 +371,8 @@ namespace ConnectApp.screens {
                     new Container(height: 10),
                     new GestureDetector(
                         onTap: () => {
-                            StoreProvider.store.dispatcher.dispatch(Actions.fetchMessages("0522ffbb43000001", "0587f55b2b40c000", false));
+                            StoreProvider.store.dispatcher.dispatch(Actions.fetchMessages("0522ffbb43000001",
+                                "0587f55b2b40c000", false));
                         },
                         child: new Container(
                             color: CColors.White,
@@ -401,9 +399,7 @@ namespace ConnectApp.screens {
                     ),
                     new Container(height: 10),
                     new GestureDetector(
-                        onTap: () => {
-                            StoreProvider.store.dispatcher.dispatch(new StartSearchArticleAction());
-                        },
+                        onTap: () => { StoreProvider.store.dispatcher.dispatch(new StartSearchArticleAction()); },
                         child: new Container(
                             color: CColors.White,
                             child: new Text(

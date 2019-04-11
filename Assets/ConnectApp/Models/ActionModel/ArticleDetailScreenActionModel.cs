@@ -5,6 +5,7 @@ namespace ConnectApp.Models.ActionModel {
     public class ArticleDetailScreenActionModel {
         public Action mainRouterPop;
         public Action pushToLogin;
+        public Action<string> openUrl;
         public Action<string> pushToArticleDetail;
         public Action startFetchArticleDetail;
         public Func<string, IPromise> fetchArticleDetail;

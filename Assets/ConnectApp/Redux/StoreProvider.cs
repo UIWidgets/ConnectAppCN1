@@ -12,7 +12,7 @@ namespace ConnectApp.redux {
                 if (_store != null) return _store;
 
                 var middleware = new[] {
-                    ReduxLogging.create<AppState>(),
+//                    ReduxLogging.create<AppState>(),
                     ReduxThunk.create<AppState>()
                 };
                 _store = new Store<AppState>(

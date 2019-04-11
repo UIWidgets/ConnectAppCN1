@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
@@ -11,12 +12,15 @@ namespace ConnectApp.components {
     public class EventDetail : StatelessWidget {
         public EventDetail(
             IEvent eventObj = null,
+            Action<string> openUrl = null,
             Key key = null
         ) : base(key) {
             this.eventObj = eventObj;
+            this.openUrl = openUrl;
         }
 
         private readonly IEvent eventObj;
+        private readonly Action<string> openUrl;
 
         public override Widget build(BuildContext context) {
             return new Container(child: _buildContent(context));
@@ -25,7 +29,7 @@ namespace ConnectApp.components {
         private Widget _buildContent(BuildContext context) {
             var items = new List<Widget>();
             items.Add(_buildContentHead());
-            items.AddRange(ContentDescription.map(context, eventObj.content, eventObj.contentMap));
+            items.AddRange(ContentDescription.map(context, eventObj.content, eventObj.contentMap, openUrl));
             items.Add(_buildContentLecturerList());
             return new Container(
                 child: ListView.builder(
@@ -54,7 +58,7 @@ namespace ConnectApp.components {
                                 children: new List<Widget> {
                                     new Container(
                                         margin: EdgeInsets.only(right: 8),
-                                        child: Avatar.User(user.id,user,32)
+                                        child: Avatar.User(user.id, user, 32)
                                     ),
                                     new Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
@@ -113,7 +117,7 @@ namespace ConnectApp.components {
                             children: new List<Widget> {
                                 new Container(
                                     margin: EdgeInsets.only(right: 8),
-                                    child:  Avatar.User(host.id,host,32)
+                                    child: Avatar.User(host.id, host, 32)
                                 ),
                                 new Column(
                                     mainAxisAlignment: MainAxisAlignment.center,

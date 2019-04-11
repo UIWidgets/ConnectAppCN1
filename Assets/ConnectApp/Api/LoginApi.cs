@@ -42,12 +42,11 @@ namespace ConnectApp.api {
                 promise.Reject(new Exception(request.downloadHandler.text));
             }
             else {
-                
                 if (request.GetResponseHeaders().ContainsKey("SET-COOKIE")) {
                     var cookie = request.GetResponseHeaders()["SET-COOKIE"];
                     HttpManager.updateCookie(cookie);
                 }
-                    
+
                 // Format output and resolve promise
                 var json = request.downloadHandler.text;
                 var loginInfo = JsonConvert.DeserializeObject<LoginInfo>(json);
@@ -58,7 +57,7 @@ namespace ConnectApp.api {
             }
         }
 
-        
+
         public static IPromise<LoginInfo> LoginByWechat(string code) {
             // We return a promise instantly and start the coroutine to do the real work
             var promise = new Promise<LoginInfo>();
@@ -67,8 +66,7 @@ namespace ConnectApp.api {
         }
 
         private static IEnumerator _LoginByWechat(IPendingPromise<LoginInfo> promise, string code) {
-            var para = new WechatLoginParameter
-            {
+            var para = new WechatLoginParameter {
                 code = code
             };
             var body = JsonConvert.SerializeObject(para);
@@ -76,7 +74,7 @@ namespace ConnectApp.api {
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.SetRequestHeader("Content-Type", "application/json");
-            yield return request.Send();
+            yield return request.SendWebRequest();
 
             if (request.isNetworkError) {
                 // something went wrong
@@ -91,6 +89,7 @@ namespace ConnectApp.api {
                     var cookie = request.GetResponseHeaders()["SET-COOKIE"];
                     HttpManager.updateCookie(cookie);
                 }
+
                 var json = request.downloadHandler.text;
                 Debug.Log($"wechat login request {json}");
                 var loginInfo = JsonConvert.DeserializeObject<LoginInfo>(json);
@@ -100,7 +99,7 @@ namespace ConnectApp.api {
                     promise.Reject(new Exception("No user under this username found!"));
             }
         }
-        
+
         public static IPromise<string> FetchCreateUnityIdUrl() {
             // We return a promise instantly and start the coroutine to do the real work
             var promise = new Promise<string>();
@@ -125,6 +124,7 @@ namespace ConnectApp.api {
                     var cookie = request.GetResponseHeaders()["SET-COOKIE"];
                     HttpManager.updateCookie(cookie);
                 }
+
                 // Format output and resolve promise
                 var responseText = request.downloadHandler.text;
                 var urlDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseText);

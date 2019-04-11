@@ -1,17 +1,12 @@
 using System;
 using System.Collections;
-using ConnectApp.constants;
-using ConnectApp.models;
-using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.ui;
 using UnityEngine.Networking;
 
-namespace ConnectApp.api
-{
-    public class ShareApi
-    {
+namespace ConnectApp.api {
+    public class ShareApi {
         public static Promise<byte[]> FetchImageBytes(string url) {
             // We return a promise instantly and start the coroutine to do the real work
             var promise = new Promise<byte[]>();
@@ -20,11 +15,10 @@ namespace ConnectApp.api
         }
 
         private static IEnumerator
-            _FetchImageBytes(Promise<byte[]> promise,string url)
-        {
+            _FetchImageBytes(Promise<byte[]> promise, string url) {
             var request = UnityWebRequestTexture.GetTexture(url);
             yield return request.SendWebRequest();
-            
+
             if (request.isNetworkError) {
                 // something went wrong
                 promise.Reject(new Exception(request.error));
@@ -40,9 +34,6 @@ namespace ConnectApp.api
                 else
                     promise.Reject(new Exception("No user under this username found!"));
             }
-            
-           
-            
         }
     }
 }

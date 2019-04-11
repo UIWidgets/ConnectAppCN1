@@ -6,6 +6,7 @@ namespace ConnectApp.Models.ActionModel {
     public class EventDetailScreenActionModel {
         public Action mainRouterPop;
         public Action pushToLogin;
+        public Action<string> openUrl;
         public Action startFetchEventDetail;
         public Func<string, IPromise> fetchEventDetail;
         public Action startJoinEvent;
