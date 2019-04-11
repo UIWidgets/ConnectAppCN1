@@ -44,7 +44,7 @@ namespace ConnectApp.screens {
                     child: new CustomTabBar(
                         new List<Widget> {
                             new ArticlesScreenConnector(),
-                            new EventsScreenConnector(),
+                            new EventsScreen(),
                             new NotificationScreenConnector(),
                             new PersonalScreenConnector()
                         },

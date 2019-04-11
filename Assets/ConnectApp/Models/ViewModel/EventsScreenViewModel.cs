@@ -3,7 +3,8 @@ using ConnectApp.models;
 
 namespace ConnectApp.Models.ViewModel {
     public class EventsScreenViewModel {
-        public bool eventsLoading;
+        public bool eventOngoingLoading;
+        public bool eventCompletedLoading;
         public List<string> ongoingEvents;
         public List<string> completedEvents;
         public int ongoingEventTotal;

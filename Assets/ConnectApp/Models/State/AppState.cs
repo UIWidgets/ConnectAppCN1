@@ -63,7 +63,8 @@ namespace ConnectApp.models {
                     completedEventTotal = 0,
                     pageNumber = 1,
                     completedPageNumber = 1,
-                    eventsLoading = false,
+                    eventsOngoingLoading = false,
+                    eventsCompletedLoading = false,
                     eventHistory = eventHistoryList,
                     channelId = ""
                 },

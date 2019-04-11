@@ -275,17 +275,22 @@ namespace ConnectApp.redux.reducers {
 
                     break;
                 }
-                case StartFetchEventsAction _: {
-                    state.eventState.eventsLoading = true;
+                case StartFetchEventOngoingAction _: {
+                    state.eventState.eventsOngoingLoading = true;
+                    break;
+                }
+                case StartFetchEventCompletedAction _: {
+                    state.eventState.eventsCompletedLoading = true;
                     break;
                 }
                 case FetchEventsSuccessAction action: {
-                    state.eventState.eventsLoading = false;
                     if (action.tab == "ongoing") {
+                        state.eventState.eventsOngoingLoading = false;
                         state.eventState.pageNumber = action.pageNumber;
                         state.eventState.ongoingEventTotal = action.eventsResponse.events.total;
                     }
                     else {
+                        state.eventState.eventsCompletedLoading = false;
                         state.eventState.completedPageNumber = action.pageNumber;
                         state.eventState.completedEventTotal = action.eventsResponse.events.total;
                     }

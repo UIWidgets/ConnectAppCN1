@@ -9,7 +9,9 @@ namespace ConnectApp.models {
 
     [Serializable]
     public class EventState {
-        public bool eventsLoading { get; set; }
+        public bool eventsOngoingLoading { get; set; }
+        public bool eventsCompletedLoading { get; set; }
+
         public List<string> ongoingEvents { get; set; }
         public int ongoingEventTotal { get; set; }
         public List<string> completedEvents { get; set; }
