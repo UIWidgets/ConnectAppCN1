@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.constants;
+using ConnectApp.models;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using ConnectApp.utils;
@@ -12,13 +13,16 @@ using Notification = ConnectApp.models.Notification;
 namespace ConnectApp.components {
     public class NotificationCard : StatelessWidget {
         public NotificationCard(
-            Key key = null,
-            Notification notification = null
+            Notification notification,
+            User user,
+            Key key = null
         ) : base(key) {
             this.notification = notification;
+            this.user = user;
         }
 
         private readonly Notification notification;
+        private readonly User user;
 
         public override Widget build(BuildContext context) {
             if (notification == null) return new Container();
@@ -28,7 +32,7 @@ namespace ConnectApp.components {
             var data = notification.data;
             return new GestureDetector(
                 onTap: () => {
-                    StoreProvider.store.Dispatch(
+                    StoreProvider.store.dispatcher.dispatch(
                         new MainNavigatorPushToArticleDetailAction {articleId = data.projectId});
                 },
                 child: new Container(
@@ -38,10 +42,7 @@ namespace ConnectApp.components {
                         children: new List<Widget> {
                             new Container(
                                 padding: EdgeInsets.only(16, 16, 16),
-                                child: new Avatar(
-                                    data.userId,
-                                    48
-                                )
+                                child:  Avatar.User(user.id,user,48)
                             ),
                             new Expanded(
                                 child: new Container(

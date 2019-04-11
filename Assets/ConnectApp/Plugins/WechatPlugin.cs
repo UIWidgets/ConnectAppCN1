@@ -55,7 +55,7 @@ namespace ConnectApp.plugins
                         if (type == "code")
                         {
                             var code = dict["code"];
-                            StoreProvider.store.Dispatch(new LoginByWechatAction {code = code});
+                            StoreProvider.store.dispatcher.dispatch(new LoginByWechatAction {code = code});
                         }
                     }
                         break;

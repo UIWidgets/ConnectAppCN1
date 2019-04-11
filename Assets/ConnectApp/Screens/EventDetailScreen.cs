@@ -1,38 +1,104 @@
 using System;
 using System.Collections.Generic;
+using BestHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Signers;
 using ConnectApp.api;
 using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.Models.ActionModel;
+using ConnectApp.Models.ViewModel;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using ConnectApp.utils;
+using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 using Config = ConnectApp.constants.Config;
+using EventType = ConnectApp.models.EventType;
 
 namespace ConnectApp.screens {
-    public class EventDetailScreen : StatefulWidget {
-        public EventDetailScreen(
-            Key key = null,
-            string eventId = null,
-            EventType eventType = EventType.offline
-        ) : base(key) {
-            D.assert(eventId != null);
+    public class EventDetailScreenConnector : StatelessWidget {
+        public EventDetailScreenConnector(string eventId, EventType eventType) {
             this.eventId = eventId;
             this.eventType = eventType;
         }
 
-        public readonly string eventId;
-        public readonly EventType eventType;
+        private readonly string eventId;
+        private readonly EventType eventType;
+
+        public override Widget build(BuildContext context) {
+            return new StoreConnector<AppState, EventDetailScreenViewModel>(
+                converter: (state) => {
+                    var channelId = state.eventState.channelId;
+                    var channelMessageList = state.messageState.channelMessageList;
+                    var messageList = new List<string>();
+                    if (channelMessageList.ContainsKey(channelId))
+                        messageList = channelMessageList[channelId];
+                    return new EventDetailScreenViewModel {
+                        eventId = eventId,
+                        eventType = eventType,
+                        currOldestMessageId = state.messageState.currOldestMessageId,
+                        isLoggedIn = state.loginState.isLoggedIn,
+                        eventDetailLoading = state.eventState.eventDetailLoading,
+                        joinEventLoading = state.eventState.joinEventLoading,
+                        showChatWindow = state.eventState.showChatWindow,
+                        channelId = state.eventState.channelId,
+                        messageList = messageList,
+                        messageLoading = state.messageState.messageLoading,
+                        hasMore = state.messageState.hasMore,
+                        channelMessageDict = state.messageState.channelMessageDict,
+                        eventsDict = state.eventState.eventsDict
+                    };
+                },
+                builder: (context1, viewModel, dispatcher) => {
+                    var actionModel = new EventDetailScreenActionModel {
+                        mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
+                        pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
+                            routeName = MainNavigatorRoutes.Login
+                        }),
+                        startFetchEventDetail = () => dispatcher.dispatch(new StartFetchEventDetailAction()),
+                        fetchEventDetail = (id) =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchEventDetail(id)),
+                        startJoinEvent = () => dispatcher.dispatch(new StartJoinEventAction()),
+                        joinEvent = (id) => dispatcher.dispatch<IPromise>(Actions.joinEvent(id)),
+                        sendMessage = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
+                            Actions.sendMessage(channelId, content, nonce, parentMessageId)),
+                        showChatWindow = (show) => dispatcher.dispatch(new ShowChatWindowAction {show = show}),
+                        fetchMessages = (channelId, currOldestMessageId, isFirstLoad) => 
+                            dispatcher.dispatch<IPromise>(
+                                Actions.fetchMessages(channelId, currOldestMessageId, isFirstLoad)
+                            ),
+                        shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch(
+                            Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
+                    };
+                    return new EventDetailScreen(viewModel, actionModel);
+                });
+        }
+    }
+    
+    public class EventDetailScreen : StatefulWidget {
+        public EventDetailScreen(
+            EventDetailScreenViewModel viewModel = null,
+            EventDetailScreenActionModel actionModel = null,
+            Key key = null
+        ) : base(key) {
+            this.viewModel = viewModel;
+            this.actionModel = actionModel;
+        }
+
+        public readonly EventDetailScreenViewModel viewModel;
+        public readonly EventDetailScreenActionModel actionModel;
 
         public override State createState() {
             return new _EventDetailScreenState();
@@ -48,16 +114,44 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            StoreProvider.store.Dispatch(new FetchEventDetailAction
-                {eventId = widget.eventId});
             _controller = new AnimationController(
                 duration: new TimeSpan(0, 0, 0, 0, 300),
                 vsync: this
             );
+            SchedulerBinding.instance.addPostFrameCallback(_ =>
+            {
+                widget.actionModel.startFetchEventDetail();
+                widget.actionModel.fetchEventDetail(widget.viewModel.eventId);
+            });
         }
 
+        public override Widget build(BuildContext context) {
+            _setAnimationPosition(context);
+            var eventObj = new IEvent();
+            if (widget.viewModel.eventsDict.ContainsKey(widget.viewModel.eventId)) 
+                eventObj = widget.viewModel.eventsDict[widget.viewModel.eventId];
+            if (widget.viewModel.eventDetailLoading || eventObj?.user == null)
+                return new EventDetailLoading();
+            var eventStatus = DateConvert.GetEventStatus(eventObj.begin);
+            return new Container(
+                color: CColors.White,
+                child: new SafeArea(
+                    child: new Container(
+                        color: CColors.White,
+                        child: new Column(
+                            children: new List<Widget> {
+                                _buildEventHeader(eventObj, widget.viewModel.eventType, eventStatus, widget.viewModel.isLoggedIn),
+                                _buildEventDetail(eventObj, widget.viewModel.eventType, eventStatus, widget.viewModel.isLoggedIn),
+                                _buildEventBottom(eventObj, widget.viewModel.eventType, eventStatus, widget.viewModel.isLoggedIn)
+                            }
+                        )
+                    )
+                )
+            );
+        }
+        
         public override void dispose() {
-            StoreProvider.store.Dispatch(new ChatWindowShowAction {show = false});
+            widget.actionModel.showChatWindow(false);
             _textController.dispose();
             _controller.dispose();
             base.dispose();
@@ -82,36 +176,21 @@ namespace ConnectApp.screens {
             ));
         }
 
-        private void _onRefresh(bool up) {
+
+        void _onRefresh(bool up) {
             if (up) {
-                var channelId = StoreProvider.store.state.eventState.channelId;
-                var currOldestMessageId = StoreProvider.store.state.messageState.currOldestMessageId;
-                MessageApi.FetchMessages(channelId, currOldestMessageId)
-                    .Then(messagesResponse => {
-                        StoreProvider.store.Dispatch(new FetchMessagesSuccessAction {
-                            isFirstLoad = false,
-                            channelId = channelId,
-                            messages = messagesResponse.items,
-                            hasMore = messagesResponse.hasMore,
-                            currOldestMessageId = messagesResponse.currOldestMessageId
-                        });
-                        _refreshController.sendBack(true, RefreshStatus.completed);
-                    })
-                    .Catch(error => { _refreshController.sendBack(true, RefreshStatus.failed); });
+                widget.actionModel.fetchMessages(widget.viewModel.channelId, widget.viewModel.currOldestMessageId, false)
+                    .Then(() => _refreshController.sendBack(true, RefreshStatus.completed))
+                    .Catch(_ => _refreshController.sendBack(true, RefreshStatus.failed));
             }
         }
 
-        private void _handleSubmitted(string text) {
-            var store = StoreProvider.store;
-            store.Dispatch(new SendMessageAction {
-                channelId = store.state.eventState.channelId,
-                content = text,
-                nonce = Snowflake.CreateNonce()
-            });
+        void _handleSubmitted(string text) {
+            widget.actionModel.sendMessage(widget.viewModel.channelId, text, Snowflake.CreateNonce(), "");
             _refreshController.scrollTo(0);
         }
 
-        private static Widget _buildHeadTop(bool isShowShare, IEvent eventObj) {
+        Widget _buildHeadTop(bool isShowShare,IEvent eventObj) {
             Widget shareWidget = new Container();
             if (isShowShare)
                 shareWidget = new CustomButton(
@@ -121,11 +200,12 @@ namespace ConnectApp.screens {
                         color: CColors.White
                     ),
                     onPressed: () => ShareUtils.showShareView(new ShareView(
-                        onPressed: type => {
+                        onPressed: type =>
+                        {
                             string linkUrl =
                                 $"{Config.apiAddress}/events/{eventObj.id}";
                             string imageUrl = $"{eventObj.background}.200x0x1.jpg";
-                            StoreProvider.store.Dispatch(new ShareAction{type = type,title = eventObj.title,description = eventObj.shortDescription,linkUrl = linkUrl,imageUrl = imageUrl});
+                            widget.actionModel.shareToWechat(type, eventObj.title, eventObj.shortDescription, linkUrl, imageUrl);
                         }))
                 );
             return new Container(
@@ -145,7 +225,7 @@ namespace ConnectApp.screens {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: new List<Widget> {
                         new CustomButton(
-                            onPressed: () => StoreProvider.store.Dispatch(new MainNavigatorPopAction()),
+                            onPressed: () => widget.actionModel.mainRouterPop(),
                             child: new Icon(
                                 Icons.arrow_back,
                                 size: 28,
@@ -158,7 +238,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private static Widget _buildEventHeader(IEvent eventObj, EventType eventType, EventStatus eventStatus,
+        Widget _buildEventHeader(IEvent eventObj, EventType eventType, EventStatus eventStatus,
             bool isLoggedIn) {
             return new Stack(
                 children: new List<Widget> {
@@ -173,10 +253,9 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildEventDetail(IEvent eventObj, EventType eventType, EventStatus eventStatus,
+        Widget _buildEventDetail(IEvent eventObj, EventType eventType, EventStatus eventStatus,
             bool isLoggedIn) {
-            var userIsCheckedIn = eventObj.userIsCheckedIn;
-            if (eventStatus != EventStatus.future && eventType == EventType.onLine && isLoggedIn && userIsCheckedIn)
+            if (eventStatus != EventStatus.future && eventType == EventType.onLine && isLoggedIn)
                 return new Expanded(
                     child: new Stack(
                         fit: StackFit.expand,
@@ -202,15 +281,15 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildEventBottom(IEvent eventObj, EventType eventType, EventStatus eventStatus,
+        Widget _buildEventBottom(IEvent eventObj, EventType eventType, EventStatus eventStatus,
             bool isLoggedIn) {
             if (eventType == EventType.offline) return _buildOfflineRegisterNow(eventObj, isLoggedIn);
-            var userIsCheckedIn = eventObj.userIsCheckedIn;
-            if (eventStatus != EventStatus.future && eventType == EventType.onLine && isLoggedIn && userIsCheckedIn)
+            if (eventStatus != EventStatus.future && eventType == EventType.onLine && isLoggedIn)
                 return new Container();
 
             var onlineCount = eventObj.onlineMemberCount;
             var recordWatchCount = eventObj.recordWatchCount;
+            var userIsCheckedIn = eventObj.userIsCheckedIn;
             var title = "";
             var subTitle = "";
             if (eventStatus == EventStatus.live) {
@@ -229,7 +308,24 @@ namespace ConnectApp.screens {
                 if (startTime.isNotEmpty()) subTitle = DateConvert.GetFutureTimeFromNow(startTime);
                 title = "距离开始还有";
             }
+            
+            var backgroundColor = CColors.PrimaryBlue;
+            var joinInText = "立即加入";
+            var textStyle = CTextStyle.PLargeMediumWhite;
+            if (userIsCheckedIn && isLoggedIn) {
+                backgroundColor = CColors.Disable;
+                joinInText = "已加入";
+                textStyle = CTextStyle.PLargeMediumWhite;
+            }
 
+            Widget child = new Text(
+                joinInText,
+                style: textStyle
+            );
+            if (widget.viewModel.joinEventLoading)
+                child = new CustomActivityIndicator(
+                    animationImage: AnimationImage.white
+                );
             return new Container(
                 height: 64,
                 padding: EdgeInsets.symmetric(horizontal: 16),
@@ -252,40 +348,18 @@ namespace ConnectApp.screens {
                                 new Text(
                                     subTitle,
                                     style: CTextStyle.H5Body
-                                )
-                            }
-                        ),
-                        new StoreConnector<AppState, bool>(
-                            converter: (state, dispatcher) => state.eventState.joinEventLoading,
-                            builder: (_context, joinEventLoading) => {
-                                var backgroundColor = CColors.PrimaryBlue;
-                                var joinInText = "立即加入";
-                                var textStyle = CTextStyle.PLargeMediumWhite;
-                                if (userIsCheckedIn && isLoggedIn) {
-                                    backgroundColor = CColors.Disable;
-                                    joinInText = "已加入";
-                                    textStyle = CTextStyle.PLargeMediumWhite;
-                                }
-
-                                Widget child = new Text(
-                                    joinInText,
-                                    style: textStyle
-                                );
-                                if (joinEventLoading)
-                                    child = new CustomActivityIndicator(
-                                        animationImage: AnimationImage.white
-                                    );
-                                return new CustomButton(
+                                ),
+                                new CustomButton(
                                     onPressed: () => {
-                                        if (joinEventLoading) return;
-                                        if (!StoreProvider.store.state.loginState.isLoggedIn) {
-                                            StoreProvider.store.Dispatch(new MainNavigatorPushToAction
-                                                {routeName = MainNavigatorRoutes.Login});
+                                        if (widget.viewModel.joinEventLoading) return;
+                                        if (!widget.viewModel.isLoggedIn) {
+                                            widget.actionModel.pushToLogin();
                                         }
                                         else {
-                                            if (!userIsCheckedIn)
-                                                StoreProvider.store.Dispatch(new JoinEventAction
-                                                    {eventId = widget.eventId});
+                                            if (!userIsCheckedIn) {
+                                                widget.actionModel.startJoinEvent();
+                                                widget.actionModel.joinEvent(widget.viewModel.eventId);
+                                            }
                                         }
                                     },
                                     child: new Container(
@@ -303,7 +377,7 @@ namespace ConnectApp.screens {
                                             }
                                         )
                                     )
-                                );
+                                )
                             }
                         )
                     }
@@ -311,26 +385,23 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildChatWindow() {
-            return new StoreConnector<AppState, bool>(
-                converter: (state, dispatcher) => state.eventState.showChatWindow,
-                builder: (context, showChatWindow) => new Container(
-                    child: new Column(
-                        children: new List<Widget> {
-                            _buildChatBar(showChatWindow),
-                            _buildChatList(),
-                            new CustomDivider(
-                                height: 1,
-                                color: CColors.Separator
-                            ),
-                            _buildTextField()
-                        }
-                    )
+        Widget _buildChatWindow() {
+            return new Container(
+                child: new Column(
+                    children: new List<Widget> {
+                        _buildChatBar(widget.viewModel.showChatWindow),
+                        _buildChatList(),
+                        new CustomDivider(
+                            height: 1,
+                            color: CColors.Separator
+                        ),
+                        _buildTextField()
+                    }
                 )
             );
         }
 
-        private Widget _buildChatBar(bool showChatWindow) {
+        Widget _buildChatBar(bool showChatWindow) {
             IconData iconData;
             Widget bottomWidget;
             if (showChatWindow) {
@@ -352,7 +423,7 @@ namespace ConnectApp.screens {
                         _controller.forward();
                     else
                         _controller.reverse();
-                    StoreProvider.store.Dispatch(new ChatWindowShowAction {show = !showChatWindow});
+                    widget.actionModel.showChatWindow(!widget.viewModel.showChatWindow);
                 },
                 child: new Container(
                     padding: EdgeInsets.symmetric(horizontal: 16),
@@ -401,62 +472,56 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildChatList() {
+        Widget _buildChatList() {
+            object child = new Container();
+            if (widget.viewModel.messageLoading) 
+                child = new GlobalLoading();
+            else {
+                if (widget.viewModel.messageList.Count <= 0) {
+                    child = new BlankView("暂无聊天内容");
+                }
+                else {
+                    child = new SmartRefresher(
+                        controller: _refreshController,
+                        enablePullDown: widget.viewModel.hasMore,
+                        enablePullUp: false,
+                        headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
+                        onRefresh: _onRefresh,
+                        child: ListView.builder(
+                            padding: EdgeInsets.only(16, right: 16, bottom: 10),
+                            physics: new AlwaysScrollableScrollPhysics(),
+                            itemCount: widget.viewModel.messageList.Count,
+                            itemBuilder: (cxt, index) =>
+                            {
+                                var messageId =
+                                    widget.viewModel.messageList[widget.viewModel.messageList.Count - index - 1];
+                                var messageDict = new Dictionary<string, Message>();
+                                if (widget.viewModel.channelMessageDict.ContainsKey(widget.viewModel.channelId))
+                                    messageDict = widget.viewModel.channelMessageDict[widget.viewModel.channelId];
+                                var message = new Message();
+                                if (messageDict.ContainsKey(messageId))
+                                    message = messageDict[messageId];
+                                return new ChatMessage(
+                                    message
+                                );
+                            }
+                        )
+                    );
+                }
+            }
+
             return new Flexible(
                 child: new GestureDetector(
                     onTap: () => _focusNode.unfocus(),
                     child: new Container(
                         color: CColors.White,
-                        child: new StoreConnector<AppState, Dictionary<string, object>>(
-                            converter: (state, dispatcher) => {
-                                var channelId = state.eventState.channelId;
-
-                                var channelMessageList = state.messageState.channelMessageList;
-                                var messageList = new List<string>();
-                                if (channelMessageList.ContainsKey(channelId))
-                                    messageList = channelMessageList[channelId];
-                                return new Dictionary<string, object> {
-                                    {"messageLoading", state.messageState.messageLoading},
-                                    {"channelId", channelId},
-                                    {"messageList", messageList},
-                                    {"hasMore", state.messageState.hasMore}
-                                };
-                            },
-                            builder: (_context, model) => {
-                                var messageLoading = (bool) model["messageLoading"];
-                                if (messageLoading) return new GlobalLoading();
-
-                                var channelId = (string) model["channelId"];
-                                var messageList = (List<string>) model["messageList"];
-                                var hasMore = (bool) model["hasMore"];
-
-                                if (messageList.Count <= 0) return new BlankView("暂无聊天内容");
-
-                                return new SmartRefresher(
-                                    controller: _refreshController,
-                                    enablePullDown: hasMore,
-                                    enablePullUp: false,
-                                    headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
-                                    onRefresh: _onRefresh,
-                                    child: ListView.builder(
-                                        padding: EdgeInsets.only(16, right: 16, bottom: 10),
-                                        physics: new AlwaysScrollableScrollPhysics(),
-                                        itemCount: messageList.Count,
-                                        itemBuilder: (cxt, index) => new ChatMessage(
-                                            channelId,
-                                            messageList[messageList.Count - index - 1],
-                                            new ObjectKey(messageList[messageList.Count - index - 1])
-                                        )
-                                    )
-                                );
-                            }
-                        )
+                        child: (Widget)child
                     )
                 )
             );
         }
 
-        private Widget _buildTextField() {
+        Widget _buildTextField() {
             var sendMessageLoading = false;
             return new Container(
                 color: CColors.White,
@@ -498,7 +563,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private static Widget _buildOfflineRegisterNow(IEvent eventObj, bool isLoggedIn) {
+        Widget _buildOfflineRegisterNow(IEvent eventObj, bool isLoggedIn) {
             var buttonText = "立即报名";
             var backgroundColor = CColors.PrimaryBlue;
             var isEnabled = false;
@@ -518,12 +583,12 @@ namespace ConnectApp.screens {
                 child: new CustomButton(
                     onPressed: () => {
                         if (isEnabled) return;
-
-                        if (isLoggedIn)
-                            StoreProvider.store.Dispatch(new JoinEventAction {eventId = eventObj.id});
+                        if (isLoggedIn) {
+                            widget.actionModel.startJoinEvent();
+                            widget.actionModel.joinEvent(eventObj.id);
+                        }
                         else
-                            StoreProvider.store.Dispatch(new MainNavigatorPushToAction
-                                {routeName = MainNavigatorRoutes.Login});
+                            widget.actionModel.pushToLogin();
                     },
                     padding: EdgeInsets.zero,
                     child: new Container(
@@ -542,46 +607,6 @@ namespace ConnectApp.screens {
                         )
                     )
                 )
-            );
-        }
-
-
-        public override Widget build(BuildContext context) {
-            return new StoreConnector<AppState, Dictionary<string, object>>(
-                converter: (state, dispatcher) => new Dictionary<string, object> {
-                    {"isLoggedIn", state.loginState.isLoggedIn},
-                    {"loading", state.eventState.eventDetailLoading},
-                    {"eventsDict", state.eventState.eventsDict}
-                },
-                builder: (_context, viewModel) => {
-                    _setAnimationPosition(context);
-                    var isLoggedIn = (bool) viewModel["isLoggedIn"];
-                    var eventType = widget.eventType;
-                    var eventId = widget.eventId;
-                    var eventsDict = (Dictionary<string, IEvent>) viewModel["eventsDict"];
-                    var eventObj = new IEvent();
-                    if (eventsDict.ContainsKey(eventId)) eventObj = eventsDict[eventId];
-                    var loading = (bool) viewModel["loading"];
-                    if (loading || eventObj == null)
-                        return new EventDetailLoading();
-                    var eventStatus = DateConvert.GetEventStatus(eventObj.begin);
-
-                    return new Container(
-                        color: CColors.White,
-                        child: new SafeArea(
-                            child: new Container(
-                                color: CColors.White,
-                                child: new Column(
-                                    children: new List<Widget> {
-                                        _buildEventHeader(eventObj, eventType, eventStatus, isLoggedIn),
-                                        _buildEventDetail(eventObj, eventType, eventStatus, isLoggedIn),
-                                        _buildEventBottom(eventObj, eventType, eventStatus, isLoggedIn)
-                                    }
-                                )
-                            )
-                        )
-                    );
-                }
             );
         }
     }

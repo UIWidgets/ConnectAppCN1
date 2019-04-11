@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RSG;
 
 namespace ConnectApp.models {
     [Serializable]

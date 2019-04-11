@@ -3,6 +3,7 @@ using ConnectApp.models;
 using ConnectApp.plugins;
 using ConnectApp.redux;
 using Unity.UIWidgets.engine;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -30,7 +31,6 @@ namespace ConnectApp.canvas {
                     pageRouteBuilder: pageRouteBuilder
                 )
             );
-            
         }
 
         private static PageRouteFactory pageRouteBuilder {

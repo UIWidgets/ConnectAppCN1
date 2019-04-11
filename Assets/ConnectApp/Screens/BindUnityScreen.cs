@@ -3,13 +3,18 @@ using System.Collections.Generic;
 using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
-using ConnectApp.redux;
+using ConnectApp.Models.ActionModel;
+using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using RSG;
+using Unity.UIWidgets;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 
 namespace ConnectApp.screens {
     public enum FromPage {
@@ -18,16 +23,64 @@ namespace ConnectApp.screens {
         setting
     }
 
-    public class BindUnityScreen : StatefulWidget {
-        public BindUnityScreen(
-            Key key = null,
-            FromPage fromPage = FromPage.setting
-        ) : base(key) {
+    public class BindUnityScreenConnector : StatelessWidget {
+        public BindUnityScreenConnector(FromPage fromPage) {
             this.fromPage = fromPage;
         }
 
-        public readonly FromPage fromPage;
+        private readonly FromPage fromPage;
 
+        public override Widget build(BuildContext context) {
+            return new StoreConnector<AppState, BindUnityScreenViewModel>(
+                converter: (state) => new BindUnityScreenViewModel {
+                    fromPage = fromPage,
+                    loginLoading = state.loginState.loading,
+                    loginEmail = state.loginState.email,
+                    loginPassword = state.loginState.password,
+                    loginBtnEnable = state.loginState.email.Length > 0 && state.loginState.password.Length > 0
+                },
+                builder: (context1, viewModel, dispatcher) => {
+                    var actionModel = new BindUnityScreenActionModel {
+                        mainRouterPop = () => {
+                            dispatcher.dispatch(new MainNavigatorPopAction());
+                            dispatcher.dispatch(new CleanEmailAndPasswordAction());
+                        },
+                        loginRouterPop = () => {
+                            dispatcher.dispatch(new LoginNavigatorPopAction());
+                            dispatcher.dispatch(new CleanEmailAndPasswordAction());
+                        },
+                        openUrl = url =>
+                            dispatcher.dispatch(new OpenUrlAction {url = url}),
+                        openCreateUnityIdUrl = () =>
+                            dispatcher.dispatch<IPromise>(Actions.openCreateUnityIdUrl()),
+                        changeEmail = (text) =>
+                            dispatcher.dispatch(new LoginChangeEmailAction {changeText = text}),
+                        changePassword = (text) =>
+                            dispatcher.dispatch(new LoginChangePasswordAction {changeText = text}),
+                        startLoginByEmail = () => dispatcher.dispatch(new StartLoginByEmailAction()),
+                        loginByEmailFailure = () => dispatcher.dispatch(new LoginByEmailFailureAction()),
+                        loginByEmail = () => dispatcher.dispatch<IPromise>(Actions.loginByEmail())
+                    };
+                    return new BindUnityScreen(viewModel, actionModel);
+                }
+            );
+        }
+    }
+
+
+    public class BindUnityScreen : StatefulWidget {
+        public BindUnityScreen(
+            BindUnityScreenViewModel viewModel = null,
+            BindUnityScreenActionModel actionModel = null,
+            Key key = null
+        ) : base(key) {
+            this.viewModel = viewModel;
+            this.actionModel = actionModel;
+        }
+
+        public readonly BindUnityScreenViewModel viewModel;
+        public readonly BindUnityScreenActionModel actionModel;
+        
         public override State createState() {
             return new _BindUnityScreenState();
         }
@@ -63,6 +116,21 @@ namespace ConnectApp.screens {
             if (_isEmailFocus) setState(() => { _isEmailFocus = false; });
         }
 
+        private void _login() {
+            if (!widget.viewModel.loginBtnEnable || widget.viewModel.loginLoading) return;
+            _emailFocusNode.unfocus();
+            _passwordFocusNode.unfocus();
+            widget.actionModel.startLoginByEmail();
+            widget.actionModel.loginByEmail().Catch(_ =>
+            {
+                var customSnackBar = new CustomSnackBar(
+                    "邮箱或密码不正确，请稍后再试。",
+                    new TimeSpan(0, 0, 0, 2)
+                );
+                customSnackBar.show();
+            });
+        }
+
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
@@ -77,7 +145,7 @@ namespace ConnectApp.screens {
                 color: CColors.White,
                 child: new Column(
                     children: new List<Widget> {
-                        _buildTopView(context),
+                        _buildTopView(),
                         _buildMiddleView(context),
                         _buildBottomView(context)
                     }
@@ -85,15 +153,12 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildTopView(BuildContext context) {
+        private Widget _buildTopView() {
             Widget leftWidget;
-            switch (widget.fromPage) {
+            switch (widget.viewModel.fromPage) {
                 case FromPage.login: {
                     leftWidget = new CustomButton(
-                        onPressed: () => {
-                            StoreProvider.store.Dispatch(new LoginNavigatorPopAction()).Then(() =>
-                                StoreProvider.store.Dispatch(new CleanEmailAndPasswordAction()));
-                        },
+                        onPressed: () => widget.actionModel.loginRouterPop(),
                         child: new Icon(
                             Icons.arrow_back,
                             size: 24,
@@ -104,10 +169,7 @@ namespace ConnectApp.screens {
                 }
                 case FromPage.wechat: {
                     leftWidget = new CustomButton(
-                        onPressed: () => {
-                            StoreProvider.store.Dispatch(new MainNavigatorPopAction()).Then(() =>
-                                StoreProvider.store.Dispatch(new CleanEmailAndPasswordAction()));
-                        },
+                        onPressed: () => widget.actionModel.mainRouterPop(),
                         child: new Text(
                             "跳过",
                             style: CTextStyle.PLargeBody4
@@ -117,10 +179,7 @@ namespace ConnectApp.screens {
                 }
                 case FromPage.setting: {
                     leftWidget = new CustomButton(
-                        onPressed: () => {
-                            StoreProvider.store.Dispatch(new MainNavigatorPopAction()).Then(() =>
-                                StoreProvider.store.Dispatch(new CleanEmailAndPasswordAction()));
-                        },
+                        onPressed: () => widget.actionModel.mainRouterPop(),
                         child: new Icon(
                             Icons.arrow_back,
                             size: 24,
@@ -144,7 +203,7 @@ namespace ConnectApp.screens {
                             children: new List<Widget> {
                                 leftWidget,
                                 new CustomButton(
-                                    onPressed: () => StoreProvider.store.Dispatch(new CreateUnityIdUrlAction()),
+                                    onPressed: () => widget.actionModel.openCreateUnityIdUrl(),
                                     child: new Text(
                                         "创建 Unity ID",
                                         style: CTextStyle.PLargeMediumBlue
@@ -157,7 +216,7 @@ namespace ConnectApp.screens {
                     new Container(
                         padding: EdgeInsets.symmetric(horizontal: 16),
                         child: new Text(
-                            widget.fromPage == FromPage.login ? "登陆你的Unity账号" : "绑定你的Unity账号",
+                            widget.viewModel.fromPage == FromPage.login ? "登陆你的Unity账号" : "绑定你的Unity账号",
                             style: CTextStyle.H2
                         )
                     )
@@ -190,30 +249,22 @@ namespace ConnectApp.screens {
                                 )
                             ),
                             alignment: Alignment.center,
-                            child: new StoreConnector<AppState, bool>(
-                                converter: (state, dispatch) => state.loginState.loading,
-                                builder: (context1, loading) => {
-                                    return new IgnorePointer(
-                                        ignoring: loading,
-                                        child: new InputField(
-                                            focusNode: _emailFocusNode,
-                                            maxLines: 1,
-                                            autofocus: true,
-                                            style: CTextStyle.PLargeBody,
-                                            cursorColor: CColors.PrimaryBlue,
-                                            clearButtonMode: InputFieldClearButtonMode.whileEditing,
-                                            keyboardType: TextInputType.emailAddress,
-                                            onChanged: text => {
-                                                StoreProvider.store.Dispatch(new LoginChangeEmailAction
-                                                    {changeText = text});
-                                            },
-                                            onSubmitted: text => {
-                                                _emailFocusNode.unfocus();
-                                                FocusScope.of(context).requestFocus(_passwordFocusNode);
-                                            }
-                                        )
-                                    );
-                                }
+                            child: new IgnorePointer(
+                                ignoring: widget.viewModel.loginLoading,
+                                child: new InputField(
+                                    focusNode: _emailFocusNode,
+                                    maxLines: 1,
+                                    autofocus: true,
+                                    style: CTextStyle.PLargeBody,
+                                    cursorColor: CColors.PrimaryBlue,
+                                    clearButtonMode: InputFieldClearButtonMode.whileEditing,
+                                    keyboardType: TextInputType.emailAddress,
+                                    onChanged: text => widget.actionModel.changeEmail(text),
+                                    onSubmitted: _ => {
+                                        _emailFocusNode.unfocus();
+                                        FocusScope.of(context).requestFocus(_passwordFocusNode);
+                                    }
+                                )
                             )
                         ),
                         new Container(height: 16),
@@ -235,41 +286,19 @@ namespace ConnectApp.screens {
                                 )
                             ),
                             alignment: Alignment.center,
-                            child: new StoreConnector<AppState, Dictionary<string, object>>(
-                                converter: (state, dispatch) => new Dictionary<string, object> {
-                                    {"loading", state.loginState.loading},
-                                    {"email", state.loginState.email},
-                                    {"password", state.loginState.password}
-                                },
-                                builder: (context1, viewModel) => {
-                                    var loading = (bool) viewModel["loading"];
-                                    var email = viewModel["email"] as string;
-                                    var password = viewModel["password"] as string;
-                                    var btnEnable = email.Length > 0 && password.Length > 0;
-                                    return new IgnorePointer(
-                                        ignoring: loading,
-                                        child: new InputField(
-                                            focusNode: _passwordFocusNode,
-                                            maxLines: 1,
-                                            autofocus: false,
-                                            obscureText: true,
-                                            style: CTextStyle.PLargeBody,
-                                            cursorColor: CColors.PrimaryBlue,
-                                            clearButtonMode: InputFieldClearButtonMode.whileEditing,
-                                            onChanged: text => {
-                                                StoreProvider.store.Dispatch(new LoginChangePasswordAction
-                                                    {changeText = text});
-                                            },
-                                            onSubmitted: text => {
-                                                if (!btnEnable || loading) return;
-                                                _emailFocusNode.unfocus();
-                                                _passwordFocusNode.unfocus();
-                                                StoreProvider.store.Dispatch(new LoginByEmailAction
-                                                    {context = context});
-                                            }
-                                        )
-                                    );
-                                }
+                            child: new IgnorePointer(
+                                ignoring: widget.viewModel.loginLoading,
+                                child: new InputField(
+                                    focusNode: _passwordFocusNode,
+                                    maxLines: 1,
+                                    autofocus: false,
+                                    obscureText: true,
+                                    style: CTextStyle.PLargeBody,
+                                    cursorColor: CColors.PrimaryBlue,
+                                    clearButtonMode: InputFieldClearButtonMode.whileEditing,
+                                    onChanged: text => widget.actionModel.changePassword(text),
+                                    onSubmitted: _ => _login()
+                                )
                             )
                         )
                     }
@@ -278,71 +307,52 @@ namespace ConnectApp.screens {
         }
 
         private Widget _buildBottomView(BuildContext context) {
+            Widget right = new Container();
+            if (widget.viewModel.loginLoading)
+                right = new Padding(
+                    padding: EdgeInsets.only(right: 24),
+                    child: new CustomActivityIndicator(
+                        animationImage: AnimationImage.white
+                    )
+                );
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
                         new Container(height: 32),
-                        new StoreConnector<AppState, Dictionary<string, object>>(
-                            converter: (state, dispatch) => new Dictionary<string, object> {
-                                {"loading", state.loginState.loading},
-                                {"email", state.loginState.email},
-                                {"password", state.loginState.password}
-                            },
-                            builder: (context1, viewModel) => {
-                                var loading = (bool) viewModel["loading"];
-                                var email = viewModel["email"] as string;
-                                var password = viewModel["password"] as string;
-                                var btnEnable = email.Length > 0 && password.Length > 0;
-                                Widget right = new Container();
-                                if (loading)
-                                    right = new Padding(
-                                        padding: EdgeInsets.only(right: 24),
-                                        child: new CustomActivityIndicator(
-                                            animationImage: AnimationImage.white
-                                        )
-                                    );
-                                return new CustomButton(
-                                    onPressed: () => {
-                                        if (!btnEnable || loading) return;
-                                        _emailFocusNode.unfocus();
-                                        _passwordFocusNode.unfocus();
-                                        StoreProvider.store.Dispatch(new LoginByEmailAction {context = context});
-                                    },
-                                    padding: EdgeInsets.zero,
-                                    child: new Container(
-                                        height: 48,
-                                        decoration: new BoxDecoration(
-                                            btnEnable
-                                                ? CColors.PrimaryBlue
-                                                : CColors.Disable,
-                                            borderRadius: BorderRadius.all(24)
+                        new CustomButton(
+                            onPressed: _login,
+                            padding: EdgeInsets.zero,
+                            child: new Container(
+                                height: 48,
+                                decoration: new BoxDecoration(
+                                    widget.viewModel.loginBtnEnable
+                                        ? CColors.PrimaryBlue
+                                        : CColors.Disable,
+                                    borderRadius: BorderRadius.all(24)
+                                ),
+                                child: new Stack(
+                                    children: new List<Widget> {
+                                        new Align(
+                                            alignment: Alignment.center,
+                                            child: new Text(
+                                                "确定",
+                                                maxLines: 1,
+                                                style: CTextStyle.PLargeWhite
+                                            )
                                         ),
-                                        child: new Stack(
-                                            children: new List<Widget> {
-                                                new Align(
-                                                    alignment: Alignment.center,
-                                                    child: new Text(
-                                                        "确定",
-                                                        maxLines: 1,
-                                                        style: CTextStyle.PLargeWhite
-                                                    )
-                                                ),
-                                                new Align(
-                                                    alignment: Alignment.centerRight,
-                                                    child: right
-                                                )
-                                            }
+                                        new Align(
+                                            alignment: Alignment.centerRight,
+                                            child: right
                                         )
-                                    )
-                                );
-                            }
+                                    }
+                                )
+                            )
                         ),
                         new Container(height: 8),
                         new CustomButton(
-                            onPressed: () => StoreProvider.store.Dispatch(new OpenUrlAction
-                                {url = $"{Config.idBaseUrl}/password/new"}),
+                            onPressed: () => widget.actionModel.openUrl($"{Config.idBaseUrl}/password/new"),
                             child: new Text(
                                 "忘记密码",
                                 style: CTextStyle.PRegularBody3

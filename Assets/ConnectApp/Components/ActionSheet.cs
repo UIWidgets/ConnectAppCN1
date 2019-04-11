@@ -146,11 +146,11 @@ namespace ConnectApp.components {
                 cxt => child,
                 "Dismiss"
             );
-            StoreProvider.store.Dispatch(new MainNavigatorPushToRouteAction{route = route});
+            StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToRouteAction{route = route});
         }
 
         public static void hiddenModalPopup() {
-            StoreProvider.store.Dispatch(new MainNavigatorPopAction());
+            StoreProvider.store.dispatcher.dispatch(new MainNavigatorPopAction());
         }
     }
 
