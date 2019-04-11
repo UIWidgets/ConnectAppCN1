@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using ConnectApp.redux;
@@ -9,19 +10,30 @@ using UnityEngine;
 
 namespace ConnectApp.plugins {
     
-    public delegate void codeCallBack(string code);
 
     public class WechatPlugin {
-        private WechatPlugin() {
+
+        public static WechatPlugin instance(Action<string> codeCallBack=null)
+        {
+            if (plugin==null)
+            {
+                plugin = new WechatPlugin();
+            }
+
+            if (codeCallBack!=null)
+            {
+                plugin.codeCallBack = codeCallBack;
+            }
+            return plugin;
         }
 
-        public static readonly WechatPlugin instance = new WechatPlugin();
+        public static WechatPlugin plugin;
 
         private bool isListen;
 
         public BuildContext context;
 
-        public codeCallBack _codeCallBack;
+        public Action<string> codeCallBack;
 
         public void addListener() {
             Debug.Log("addListener");
@@ -41,9 +53,9 @@ namespace ConnectApp.plugins {
                         var type = dict["type"];
                         if (type == "code") {
                             var code = dict["code"];
-                            if (_codeCallBack!=null)
+                            if (codeCallBack!=null)
                             {
-                                _codeCallBack(code);
+                                codeCallBack(code);
                             }
                         }
                     }
@@ -64,14 +76,14 @@ namespace ConnectApp.plugins {
             }
         }
 
-        public void shareToFriend(string title, string description, string url, string imageBytes) {
+        public void shareToFriend(string title, string description, string url, byte[] imageBytes) {
             if (!Application.isEditor) {
                 addListener();
                 toFriends(title, description, url, imageBytes);
             }
         }
 
-        public void shareToTimeline(string title, string description, string url, string imageBytes) {
+        public void shareToTimeline(string title, string description, string url, byte[] imageBytes) {
             if (!Application.isEditor) {
                 addListener();
                 toTimeline(title, description, url, imageBytes);
@@ -99,10 +111,10 @@ namespace ConnectApp.plugins {
         internal static extern bool isInstallWechat();
 
         [DllImport("__Internal")]
-        internal static extern void toFriends(string title, string description, string url, string imageBytes);
+        internal static extern void toFriends(string title, string description, string url, byte[] imageBytes);
 
         [DllImport("__Internal")]
-        internal static extern void toTimeline(string title, string description, string url, string imageBytes);
+        internal static extern void toTimeline(string title, string description, string url, byte[] imageBytes);
 
 #elif UNITY_ANDROID
         static void initWechat(string appId) {

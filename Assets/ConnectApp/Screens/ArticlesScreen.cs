@@ -64,7 +64,7 @@ namespace ConnectApp.screens {
     }
 
 
-    public class _ArticlesScreenState : State<ArticlesScreen> {
+    public class _ArticlesScreenState :State<ArticlesScreen> {
         private const int firstPageNumber = 1;
         private const float headerHeight = 140;
         private float _offsetY;
@@ -73,16 +73,18 @@ namespace ConnectApp.screens {
 
 //        protected override bool wantKeepAlive
 //        {
-//            get => true;
+//            get => false;
 //        }
         public override void initState() {
             base.initState();
             _refreshController = new RefreshController();
             _offsetY = 0;
-            SchedulerBinding.instance.addPostFrameCallback(_ => {
-                widget.actionModel.startFetchArticles();
-                widget.actionModel.fetchArticles(firstPageNumber);
-            });
+            widget.actionModel.startFetchArticles();
+            widget.actionModel.fetchArticles(firstPageNumber);
+//            SchedulerBinding.instance.addPostFrameCallback(_ => {
+//                widget.actionModel.startFetchArticles();
+//                widget.actionModel.fetchArticles(firstPageNumber);
+//            });
         }
 
         public override Widget build(BuildContext context) {

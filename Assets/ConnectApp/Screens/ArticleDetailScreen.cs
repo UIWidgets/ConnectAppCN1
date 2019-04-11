@@ -62,7 +62,7 @@ namespace ConnectApp.screens {
                         removeLikeComment = (id) => dispatcher.dispatch<IPromise>(Actions.removeLikeComment(id)),
                         sendComment = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
                             Actions.sendComment(channelId, content, nonce, parentMessageId)),
-                        shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch(
+                        shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
                             Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
                     };
 
@@ -208,11 +208,14 @@ namespace ConnectApp.screens {
                             {
                                 ShareUtils.showShareView(new ShareView(
                                     onPressed: type => {
+                                        CustomDialogUtils.showCustomDialog(
+                                            child: new CustomDialog()
+                                        );
                                         string linkUrl =
                                             $"{Config.apiAddress}/events/{_article.id}";
                                         string imageUrl = $"{_article.thumbnail.url}.200x0x1.jpg";
                                         widget.actionModel.shareToWechat(type, _article.title, _article.description, linkUrl,
-                                            imageUrl);
+                                            imageUrl).Then(CustomDialogUtils.hiddenCustomDialog).Catch(_ => CustomDialogUtils.hiddenCustomDialog());
                                     }));
                             }
                         )
@@ -385,11 +388,14 @@ namespace ConnectApp.screens {
                         {
                             ShareUtils.showShareView(new ShareView(
                                 onPressed: type => {
+                                    CustomDialogUtils.showCustomDialog(
+                                        child: new CustomDialog()
+                                    );
                                     string linkUrl =
                                         $"{Config.apiAddress}/events/{_article.id}";
                                     string imageUrl = $"{_article.thumbnail.url}.200x0x1.jpg";
                                     widget.actionModel.shareToWechat(type, _article.title, _article.description, linkUrl,
-                                        imageUrl);
+                                        imageUrl).Then(CustomDialogUtils.hiddenCustomDialog).Catch(_ => CustomDialogUtils.hiddenCustomDialog());
                                 }));
                         })
                     }

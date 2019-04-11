@@ -7,6 +7,7 @@ using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.plugins;
 using ConnectApp.redux.actions;
+using RSG;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
@@ -50,7 +51,7 @@ namespace ConnectApp.screens {
                 builder: (context1, _, dispatcher) => {
                     var actionModel = new LoginSwitchScreenActionModel {
                         mainRouterPop =() => dispatcher.dispatch(new MainNavigatorPopAction()),
-                        loginByWechatAction =code=>dispatcher.dispatch(new LoginByWechatAction {code = code}),
+                        loginByWechatAction =code=>dispatcher.dispatch<IPromise>(Actions.loginByWechat(code)),
                         loginRouterPushToUnityBind=() => dispatcher.dispatch(new LoginNavigatorPushToBindUnityAction())
 
                     };
@@ -143,8 +144,10 @@ namespace ConnectApp.screens {
                         new CustomButton(
                             onPressed: () =>
                             {
-                                WechatPlugin.instance.login(Guid.NewGuid().ToString());
-                                WechatPlugin.instance._codeCallBack = code => { actionModel.loginByWechatAction(code); };
+                                CustomDialogUtils.showCustomDialog(
+                                    child: new CustomDialog()
+                                );
+                                WechatPlugin.instance(code =>actionModel.loginByWechatAction(code)).login(Guid.NewGuid().ToString());
                             },
                             padding: EdgeInsets.zero,
                             child: new Container(

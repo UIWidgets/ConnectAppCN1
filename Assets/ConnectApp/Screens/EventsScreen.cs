@@ -32,7 +32,7 @@ namespace ConnectApp.screens {
         private float _offsetY;
 
 //        protected override bool wantKeepAlive {
-//            get => true;
+//            get => false;
 //        }
 
         public override void initState() {

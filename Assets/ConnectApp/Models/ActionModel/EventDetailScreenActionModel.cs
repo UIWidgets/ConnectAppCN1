@@ -14,6 +14,6 @@ namespace ConnectApp.Models.ActionModel {
         public Action<bool> showChatWindow;
         public Func<string, string, bool, IPromise> fetchMessages;
         public Func<string, string, string, string, IPromise> sendMessage;
-        public Action<ShareType, string, string, string, string> shareToWechat;
+        public Func<ShareType, string, string, string, string, IPromise> shareToWechat;
     }
 }

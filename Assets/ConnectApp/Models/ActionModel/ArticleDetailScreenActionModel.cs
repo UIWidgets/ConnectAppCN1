@@ -15,6 +15,6 @@ namespace ConnectApp.Models.ActionModel {
         public Func<string, IPromise> likeComment;
         public Func<string, IPromise> removeLikeComment;
         public Func<string, string, string, string, IPromise> sendComment;
-        public Action<ShareType, string, string, string, string> shareToWechat;
+        public Func<ShareType, string, string, string, string, IPromise> shareToWechat;
     }
 }

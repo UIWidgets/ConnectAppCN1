@@ -709,12 +709,7 @@ namespace ConnectApp.redux.reducers {
                         PlayerPrefs.DeleteKey(_eventHistoryKey);
                     break;
                 }
-                case ShareAction action: {
-                    CustomDialogUtils.showCustomDialog(
-                        child: new CustomDialog()
-                    );
-                    break;
-                }
+                
             }
 
             return state;

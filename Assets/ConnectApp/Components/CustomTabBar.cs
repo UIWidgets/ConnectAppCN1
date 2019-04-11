@@ -44,7 +44,7 @@ namespace ConnectApp.components {
 
         public override void initState() {
             base.initState();
-            _pageController = new PageController(_selectedIndex, keepPage: true);
+            _pageController = new PageController(_selectedIndex);
         }
 
         public override Widget build(BuildContext context) {
@@ -107,7 +107,7 @@ namespace ConnectApp.components {
                                                 setState(() => {
                                                     _selectedIndex = item.index;
                                                     _pageController.animateToPage(item.index,
-                                                        new TimeSpan(0, 0, 0, 0, 1),
+                                                        new TimeSpan(0, 0, 0, 0,1),
                                                         Curves.ease);
                                                 });
                                 },
@@ -147,7 +147,13 @@ namespace ConnectApp.components {
         }
 
         private void onPageChanged(int page) {
-            setState(() => { _selectedIndex = page; });
+            _pageController.jumpToPage(page);
+        }
+
+        public override void dispose()
+        {
+            base.dispose();
+            _pageController.dispose();
         }
     }
 }
