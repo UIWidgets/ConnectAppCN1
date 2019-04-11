@@ -1,14 +1,11 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.api;
-using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
-using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using RSG;
 using Unity.UIWidgets.animation;
@@ -18,28 +15,26 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using EventType = ConnectApp.models.EventType;
 
 namespace ConnectApp.screens {
-    
     public class EventsScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, EventsScreenViewModel>(
                 converter: state => new EventsScreenViewModel {
-                    eventsLoading = state.eventState.eventsLoading, 
-                    ongoingEvents = state.eventState.ongoingEvents, 
-                    completedEvents = state.eventState.completedEvents, 
-                    ongoingEventTotal = state.eventState.ongoingEventTotal, 
-                    completedEventTotal = state.eventState.completedEventTotal, 
+                    eventsLoading = state.eventState.eventsLoading,
+                    ongoingEvents = state.eventState.ongoingEvents,
+                    completedEvents = state.eventState.completedEvents,
+                    ongoingEventTotal = state.eventState.ongoingEventTotal,
+                    completedEventTotal = state.eventState.completedEventTotal,
                     eventsDict = state.eventState.eventsDict,
                     placeDict = state.placeState.placeDict
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new EventsScreenActionModel {
-                        pushToEventDetail = (eventId, eventType) => dispatcher.dispatch(new MainNavigatorPushToEventDetailAction {
-                            eventId = eventId, eventType = eventType
-                        }),
+                        pushToEventDetail = (eventId, eventType) => dispatcher.dispatch(
+                            new MainNavigatorPushToEventDetailAction {
+                                eventId = eventId, eventType = eventType
+                            }),
                         startFetchEvents = () => dispatcher.dispatch(new StartFetchEventsAction()),
                         fetchEvents = (pageNumber, tab) =>
                             dispatcher.dispatch<IPromise>(Actions.fetchEvents(pageNumber, tab))
@@ -48,13 +43,13 @@ namespace ConnectApp.screens {
                 });
         }
     }
+
     public class EventsScreen : StatefulWidget {
         public EventsScreen(
             EventsScreenViewModel viewModel = null,
             EventsScreenActionModel actionModel = null,
             Key key = null
-            ) : base(key)
-        {
+        ) : base(key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
@@ -67,8 +62,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    internal class _EventsScreenState : State<EventsScreen>
-    {
+    internal class _EventsScreenState : State<EventsScreen> {
         private const int firstPageNumber = 1;
         private const float headerHeight = 80;
         private PageController _pageController;
@@ -155,7 +149,9 @@ namespace ConnectApp.screens {
                                 alignment: Alignment.center,
                                 child: new Text(
                                     title,
-                                    style: index == _selectedIndex ? CTextStyle.PLargeMediumBlue : CTextStyle.PLargeTitle
+                                    style: index == _selectedIndex
+                                        ? CTextStyle.PLargeMediumBlue
+                                        : CTextStyle.PLargeTitle
                                 )
                             )
                         ),
@@ -261,22 +257,20 @@ namespace ConnectApp.screens {
         }
 
         private void _ongoingRefresh(bool up) {
-            if (up) {
+            if (up)
                 pageNumber = 1;
-            } else {
+            else
                 pageNumber++;
-            }
             widget.actionModel.fetchEvents(pageNumber, "ongoing")
                 .Then(() => _ongoingRefreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => _ongoingRefreshController.sendBack(up, RefreshStatus.failed));
         }
 
         private void _completedRefresh(bool up) {
-            if (up) {
+            if (up)
                 completedPageNumber = 1;
-            } else {
+            else
                 completedPageNumber++;
-            }
             widget.actionModel.fetchEvents(completedPageNumber, "completed")
                 .Then(() => _ongoingRefreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => _ongoingRefreshController.sendBack(up, RefreshStatus.failed));

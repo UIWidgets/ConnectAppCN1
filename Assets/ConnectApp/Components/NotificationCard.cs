@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
-using ConnectApp.redux;
-using ConnectApp.redux.actions;
 using ConnectApp.utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -42,7 +40,7 @@ namespace ConnectApp.components {
                         children: new List<Widget> {
                             new Container(
                                 padding: EdgeInsets.only(16, 16, 16),
-                                child:  Avatar.User(user.id,user,48)
+                                child: Avatar.User(user.id, user, 48)
                             ),
                             new Expanded(
                                 child: new Container(

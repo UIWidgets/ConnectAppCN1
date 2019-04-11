@@ -11,9 +11,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
-using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
-using EventType = ConnectApp.models.EventType;
 
 namespace ConnectApp.screens {
     public class HistoryScreenConnector : StatelessWidget {
@@ -57,7 +55,7 @@ namespace ConnectApp.screens {
 
         public readonly HistoryScreenViewModel viewModel;
         public readonly HistoryScreenActionModel actionModel;
-       
+
         public override State createState() {
             return new _HistoryScreenState();
         }
@@ -73,8 +71,7 @@ namespace ConnectApp.screens {
             _selectedIndex = 0;
         }
 
-        public override void dispose()
-        {
+        public override void dispose() {
             base.dispose();
             _pageController.dispose();
         }
@@ -175,42 +172,36 @@ namespace ConnectApp.screens {
 
         private Widget _buildArticleHistory() {
             if (widget.viewModel.articleHistory.Count == 0) return new BlankView("暂无浏览文章记录");
-           
+
             return ListView.builder(
                 physics: new AlwaysScrollableScrollPhysics(),
                 itemCount: widget.viewModel.articleHistory.Count,
                 itemBuilder: (cxt, index) => {
                     var model = widget.viewModel.articleHistory[index];
                     Widget child;
-                    if (model.ownerType==OwnerType.user.ToString())
-                    {
+                    if (model.ownerType == OwnerType.user.ToString()) {
                         var _user = new User();
                         if (widget.viewModel.userDict.ContainsKey(model.userId))
-                        {
                             _user = widget.viewModel.userDict[model.userId];
-                        }
                         child = ArticleCard.User(
-                            model, 
+                            model,
                             onTap: () =>
                                 widget.actionModel.pushToArticleDetail(model.id),
                             moreCallBack: () => { },
-                            null, 
+                            null,
                             _user
                         );
                     }
-                    else
-                    {
+                    else {
                         var _team = new Team();
                         if (widget.viewModel.teamDict.ContainsKey(model.teamId))
-                        {
                             _team = widget.viewModel.teamDict[model.teamId];
-                        }
                         child = ArticleCard.Team(
-                            model, 
+                            model,
                             onTap: () =>
                                 widget.actionModel.pushToArticleDetail(model.id),
                             moreCallBack: () => { },
-                            null, 
+                            null,
                             _team
                         );
                     }

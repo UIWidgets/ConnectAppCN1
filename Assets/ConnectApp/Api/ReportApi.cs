@@ -47,6 +47,7 @@ namespace ConnectApp.api {
                     var cookie = request.GetResponseHeaders()["SET-COOKIE"];
                     HttpManager.updateCookie(cookie);
                 }
+
                 var json = request.downloadHandler.text;
                 Debug.Log(json);
                 if (json != null)

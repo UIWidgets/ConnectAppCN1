@@ -5,7 +5,6 @@ using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.plugins;
-using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -42,7 +41,7 @@ namespace ConnectApp.screens {
             );
         }
     }
-    
+
     public class LoginSwitchScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, object>(
@@ -58,19 +57,17 @@ namespace ConnectApp.screens {
     }
 
     public class LoginSwitchScreen : StatelessWidget {
-        
         public LoginSwitchScreen(
             Action mainRouterPop = null,
             Action loginRouterPushToUnityBind = null
-        )
-        {
+        ) {
             this.mainRouterPop = mainRouterPop;
             this.loginRouterPushToUnityBind = loginRouterPushToUnityBind;
         }
-        
+
         private readonly Action mainRouterPop;
         private readonly Action loginRouterPushToUnityBind;
-        
+
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,

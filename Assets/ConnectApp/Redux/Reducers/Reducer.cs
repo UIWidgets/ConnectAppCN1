@@ -1,14 +1,10 @@
-using System;
 using System.Collections.Generic;
-using ConnectApp.api;
 using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.models;
-using ConnectApp.plugins;
 using ConnectApp.redux.actions;
 using ConnectApp.screens;
 using Newtonsoft.Json;
-using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -107,13 +103,14 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case FetchArticleSuccessAction action: {
-                    if (action.pageNumber == 1) 
+                    if (action.pageNumber == 1)
                         state.articleState.articleList.Clear();
                     foreach (var article in action.articleList) {
                         state.articleState.articleList.Add(article.id);
                         if (!state.articleState.articleDict.ContainsKey(article.id))
                             state.articleState.articleDict.Add(article.id, article);
                     }
+
                     state.articleState.pageNumber = action.pageNumber;
                     state.articleState.articleTotal = action.total;
                     state.articleState.articlesLoading = false;
@@ -194,7 +191,7 @@ namespace ConnectApp.redux.reducers {
                 case FetchArticleCommentsSuccessAction action: {
                     var channelMessageList = new Dictionary<string, List<string>>();
                     var channelMessageDict = new Dictionary<string, Dictionary<string, Message>>();
-                    
+
                     // action.commentsResponse.parents.ForEach(message => { messageItem[message.id] = message; });
                     channelMessageList.Add(action.channelId, action.itemIds);
                     channelMessageDict.Add(action.channelId, action.messageItems);
@@ -231,6 +228,7 @@ namespace ConnectApp.redux.reducers {
                         else {
                             state.messageState.channelMessageDict.Add(keyValuePair.Key, keyValuePair.Value);
                         }
+
                     break;
                 }
                 case StartLikeCommentAction action: {
@@ -383,15 +381,13 @@ namespace ConnectApp.redux.reducers {
                     state.notificationState.loading = true;
                     break;
                 }
-                case FetchNotificationsSuccessAction action:
-                {
+                case FetchNotificationsSuccessAction action: {
                     state.notificationState.total = action.total;
                     state.notificationState.notifications = action.notifications;
                     state.notificationState.loading = false;
                     break;
                 }
-                case FetchNotificationsFailureAction _:
-                {
+                case FetchNotificationsFailureAction _: {
                     state.notificationState.loading = false;
                     break;
                 }
@@ -410,11 +406,13 @@ namespace ConnectApp.redux.reducers {
                     state.mineState.futureEventTotal = action.eventsResponse.events.total;
                     if (action.pageNumber == 1) {
                         state.mineState.futureEventsList = action.eventsResponse.events.items;
-                    } else {
+                    }
+                    else {
                         var results = state.mineState.futureEventsList;
                         results.AddRange(action.eventsResponse.events.items);
                         state.mineState.futureEventsList = results;
                     }
+
                     break;
                 }
                 case StartFetchMyPastEventsAction action: {
@@ -426,11 +424,13 @@ namespace ConnectApp.redux.reducers {
                     state.mineState.pastEventTotal = action.eventsResponse.events.total;
                     if (action.pageNumber == 1) {
                         state.mineState.pastEventsList = action.eventsResponse.events.items;
-                    } else {
+                    }
+                    else {
                         var results = state.mineState.pastEventsList;
                         results.AddRange(action.eventsResponse.events.items);
                         state.mineState.pastEventsList = results;
                     }
+
                     break;
                 }
                 case StartFetchMessagesAction _: {
@@ -450,16 +450,17 @@ namespace ConnectApp.redux.reducers {
                             channelMessageDict[action.channelId] = action.messageDict;
                         else
                             channelMessageDict.Add(action.channelId, action.messageDict);
-                        
+
                         state.messageState.channelMessageList = channelMessageList;
                         state.messageState.channelMessageDict = channelMessageDict;
                         state.messageState.hasMore = action.hasMore;
                         state.messageState.currOldestMessageId = action.currOldestMessageId;
                     }
+
                     state.messageState.messageLoading = false;
                     break;
                 }
-                case FetchMessagesFailureAction _ : {
+                case FetchMessagesFailureAction _: {
                     state.messageState.messageLoading = false;
                     break;
                 }
@@ -554,13 +555,14 @@ namespace ConnectApp.redux.reducers {
                         searchArticles.AddRange(action.searchResponse.projects);
                         state.searchState.searchArticles = searchArticles;
                     }
+
                     break;
                 }
                 case SearchArticleFailureAction action: {
                     state.searchState.loading = false;
                     state.searchState.keyword = action.keyword;
                     break;
-                } 
+                }
                 case ClearSearchArticleResultAction action: {
                     state.searchState.keyword = "";
                     state.searchState.searchArticles = new List<Article>();
@@ -615,7 +617,7 @@ namespace ConnectApp.redux.reducers {
                     if (action.eventId != null)
                         Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                                new EventDetailScreenConnector(eventId: action.eventId, eventType: action.eventType), 
+                                new EventDetailScreenConnector(eventId: action.eventId, eventType: action.eventType),
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new PushPageTransition(
                                     routeAnimation: animation,
@@ -628,7 +630,7 @@ namespace ConnectApp.redux.reducers {
                     if (action.videoUrl != null)
                         Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                                new VideoPlayerScreen(action.videoUrl), 
+                                new VideoPlayerScreen(action.videoUrl),
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new PushPageTransition(
                                     routeAnimation: animation,
@@ -654,7 +656,7 @@ namespace ConnectApp.redux.reducers {
                 case LoginNavigatorPushToBindUnityAction _: {
                     LoginScreen.navigator.push(new PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
-                            new BindUnityScreenConnector(FromPage.login), 
+                            new BindUnityScreenConnector(FromPage.login),
                         transitionsBuilder: (context1, animation, secondaryAnimation, child) => new PushPageTransition(
                             routeAnimation: animation,
                             child: child
@@ -702,8 +704,7 @@ namespace ConnectApp.redux.reducers {
                         PlayerPrefs.DeleteKey(_eventHistoryKey);
                     break;
                 }
-                case ShareAction action:
-                {
+                case ShareAction action: {
                     CustomDialogUtils.showCustomDialog(
                         child: new CustomDialog()
                     );

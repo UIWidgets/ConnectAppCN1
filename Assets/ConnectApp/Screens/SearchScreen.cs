@@ -1,13 +1,10 @@
-using System;
 using System.Collections.Generic;
-using ConnectApp.api;
 using ConnectApp.components;
 using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
-using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using RSG;
 using Unity.UIWidgets.foundation;
@@ -16,12 +13,10 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.screens {
-    
     public class SearchScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, SearchScreenViewModel>(
@@ -46,8 +41,10 @@ namespace ConnectApp.screens {
                             Actions.searchArticles(keyword, pageNumber)),
                         fetchPopularSearch = () => dispatcher.dispatch<IPromise>(Actions.popularSearch()),
                         clearSearchArticleResult = () => dispatcher.dispatch(new ClearSearchArticleResultAction()),
-                        saveSearchHistory = keyword => dispatcher.dispatch(new SaveSearchHistoryAction {keyword = keyword}),
-                        deleteSearchHistory = keyword => dispatcher.dispatch(new DeleteSearchHistoryAction {keyword = keyword}),
+                        saveSearchHistory = keyword =>
+                            dispatcher.dispatch(new SaveSearchHistoryAction {keyword = keyword}),
+                        deleteSearchHistory = keyword =>
+                            dispatcher.dispatch(new DeleteSearchHistoryAction {keyword = keyword}),
                         deleteAllSearchHistory = () => dispatcher.dispatch(new DeleteAllSearchHistoryAction())
                     };
                     return new SearchScreen(viewModel, actionModel);
@@ -55,21 +52,20 @@ namespace ConnectApp.screens {
             );
         }
     }
-    
+
     public class SearchScreen : StatefulWidget {
         public SearchScreen(
             SearchScreenViewModel viewModel = null,
             SearchScreenActionModel actionModel = null,
             Key key = null
-        ) : base(key)
-        {
+        ) : base(key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
 
         public readonly SearchScreenViewModel viewModel;
         public readonly SearchScreenActionModel actionModel;
-        
+
 
         public override State createState() {
             return new _SearchScreenState();
@@ -85,9 +81,7 @@ namespace ConnectApp.screens {
             base.initState();
             _pageNumber = 0;
             _refreshController = new RefreshController();
-            SchedulerBinding.instance.addPostFrameCallback(_ => {
-                widget.actionModel.fetchPopularSearch();
-            });
+            SchedulerBinding.instance.addPostFrameCallback(_ => { widget.actionModel.fetchPopularSearch(); });
         }
 
         private void _searchArticle(string text) {
@@ -114,44 +108,38 @@ namespace ConnectApp.screens {
                 child = new GlobalLoading();
             }
             else if (widget.viewModel.searchKeyword.Length > 0) {
-                    if (widget.viewModel.searchArticles.Count > 0) {
-                        var currentPage = widget.viewModel.currentPage;
-                        var pages = widget.viewModel.pages;
-                        child = new SmartRefresher(
-                            controller: _refreshController,
-                            enablePullDown: true,
-                            enablePullUp: currentPage != pages.Count - 1,
-                            headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
-                            footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
-                            onRefresh: _onRefresh,
-                            child: ListView.builder(
-                                physics: new AlwaysScrollableScrollPhysics(),
-                                itemCount: widget.viewModel.searchArticles.Count,
-                                itemBuilder: (cxt, index) => {
-                                    var searchArticle = widget.viewModel.searchArticles[index];
-                                    if (searchArticle.ownerType==OwnerType.user.ToString())
-                                    {
-                                        var user = widget.viewModel.userDict[searchArticle.userId];
-                                        return RelatedArticleCard.User(searchArticle,user, () =>
-                                            {
-                                                widget.actionModel.pushToArticleDetail(searchArticle.id);
-                                            });
-                                    }
-                                    else
-                                    {
-                                        var team = widget.viewModel.teamDict[searchArticle.teamId];
-                                        return RelatedArticleCard.Team(searchArticle,team, () =>
-                                        {
-                                            widget.actionModel.pushToArticleDetail(searchArticle.id);
-                                        });
-                                    }
+                if (widget.viewModel.searchArticles.Count > 0) {
+                    var currentPage = widget.viewModel.currentPage;
+                    var pages = widget.viewModel.pages;
+                    child = new SmartRefresher(
+                        controller: _refreshController,
+                        enablePullDown: true,
+                        enablePullUp: currentPage != pages.Count - 1,
+                        headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
+                        footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
+                        onRefresh: _onRefresh,
+                        child: ListView.builder(
+                            physics: new AlwaysScrollableScrollPhysics(),
+                            itemCount: widget.viewModel.searchArticles.Count,
+                            itemBuilder: (cxt, index) => {
+                                var searchArticle = widget.viewModel.searchArticles[index];
+                                if (searchArticle.ownerType == OwnerType.user.ToString()) {
+                                    var user = widget.viewModel.userDict[searchArticle.userId];
+                                    return RelatedArticleCard.User(searchArticle, user,
+                                        () => { widget.actionModel.pushToArticleDetail(searchArticle.id); });
                                 }
-                            )
-                        );
-                    }
-                    else {
-                        child = new BlankView("暂无搜索结果");
-                    }
+                                else {
+                                    var team = widget.viewModel.teamDict[searchArticle.teamId];
+                                    return RelatedArticleCard.Team(searchArticle, team,
+                                        () => { widget.actionModel.pushToArticleDetail(searchArticle.id); });
+                                }
+                            }
+                        )
+                    );
+                }
+                else {
+                    child = new BlankView("暂无搜索结果");
+                }
             }
             else {
                 child = new ListView(
@@ -159,9 +147,9 @@ namespace ConnectApp.screens {
                         _buildSearchHistory(widget.viewModel.searchHistoryList),
                         _buildHotSearch()
                     }
-                ); 
+                );
             }
-            
+
             return new Container(
                 color: CColors.White,
                 child: new SafeArea(
@@ -170,7 +158,7 @@ namespace ConnectApp.screens {
                             children: new List<Widget> {
                                 _buildSearchBar(context),
                                 new Flexible(
-                                    child: (Widget)child
+                                    child: (Widget) child
                                 )
                             }
                         )
@@ -219,7 +207,7 @@ namespace ConnectApp.screens {
         }
 
         private Widget _buildHotSearch() {
-            if (widget.viewModel.popularSearchs.Count <= 0) 
+            if (widget.viewModel.popularSearchs.Count <= 0)
                 return new Container();
             return new Container(
                 padding: EdgeInsets.only(16, 24, 16),

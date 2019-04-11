@@ -7,14 +7,12 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using RSG;
-using Unity.UIWidgets;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 
 namespace ConnectApp.screens {
     public enum FromPage {
@@ -80,7 +78,7 @@ namespace ConnectApp.screens {
 
         public readonly BindUnityScreenViewModel viewModel;
         public readonly BindUnityScreenActionModel actionModel;
-        
+
         public override State createState() {
             return new _BindUnityScreenState();
         }

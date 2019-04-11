@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.canvas;
 using ConnectApp.constants;
-using ConnectApp.redux;
-using ConnectApp.redux.actions;
 using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
@@ -30,10 +28,9 @@ namespace ConnectApp.components {
         private readonly TimeSpan? duration;
 
         public override Widget build(BuildContext context) {
-            if (duration != null) {
-                Promise.Delayed((TimeSpan)duration)
+            if (duration != null)
+                Promise.Delayed((TimeSpan) duration)
                     .Then(() => CustomDialogUtils.hiddenCustomDialog());
-            }
             return new GestureDetector(
                 onTap: () => { },
                 child: new Container(
@@ -91,11 +88,9 @@ namespace ConnectApp.components {
         }
 
         public static void hiddenCustomDialog() {
-            if (Router.navigator.canPop()) {
-                Router.navigator.pop();
-            }
+            if (Router.navigator.canPop()) Router.navigator.pop();
         }
-        
+
         private static Widget _transitionBuilder(BuildContext context, Animation<float> animation,
             Animation<float> secondaryAnimation, Widget child) {
             return new FadeTransition(
@@ -107,7 +102,7 @@ namespace ConnectApp.components {
             );
         }
     }
-    
+
     internal class _DialogRoute : PopupRoute {
         public _DialogRoute(
             RoutePageBuilder pageBuilder = null,
@@ -136,12 +131,12 @@ namespace ConnectApp.components {
 
         public override Widget buildPage(BuildContext context, Animation<float> animation,
             Animation<float> secondaryAnimation) {
-            return this.pageBuilder(context, animation, secondaryAnimation);
+            return pageBuilder(context, animation, secondaryAnimation);
         }
 
         public override Widget buildTransitions(BuildContext context, Animation<float> animation,
             Animation<float> secondaryAnimation, Widget child) {
-            if (this.transitionBuilder == null) {
+            if (transitionBuilder == null)
                 return new FadeTransition(
                     opacity: new CurvedAnimation(
                         animation,
@@ -149,8 +144,7 @@ namespace ConnectApp.components {
                     ),
                     child: child
                 );
-            }
-            return this.transitionBuilder(context, animation, secondaryAnimation, child);
+            return transitionBuilder(context, animation, secondaryAnimation, child);
         }
     }
 }
