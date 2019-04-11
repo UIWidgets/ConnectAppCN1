@@ -72,7 +72,6 @@ namespace ConnectApp.screens {
         private float _offsetY;
         private RefreshController _ongoingRefreshController;
         private RefreshController _completedRefreshController;
-        private string _loginSubId;
 
 //        protected override bool wantKeepAlive {
 //            get => true;
@@ -90,14 +89,9 @@ namespace ConnectApp.screens {
                 widget.actionModel.fetchEvents(pageNumber, "ongoing");
                 widget.actionModel.fetchEvents(completedPageNumber, "completed");
             });
-            _loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
-                var tab = _selectedIndex == 0 ? "ongoing" : "completed";
-                widget.actionModel.fetchEvents(firstPageNumber, tab);
-            });
         }
 
         public override void dispose() {
-            EventBus.unSubscribe(EventBusConstant.login_success, _loginSubId);
             _pageController.dispose();
             base.dispose();
         }

@@ -81,7 +81,6 @@ namespace ConnectApp.redux.reducers {
 //                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPopAction());
 //                    StoreProvider.store.dispatcher.dispatch(new CleanEmailAndPasswordAction());
                     CustomDialogUtils.hiddenCustomDialog();
-                    EventBus.publish(EventBusConstant.login_success, new List<object>());
                     break;
                 }
                 case LoginByWechatFailureAction action: {

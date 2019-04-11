@@ -75,7 +75,6 @@ namespace ConnectApp.screens {
 //        {
 //            get => true;
 //        }
-        private string _loginSubId;
         public override void initState() {
             base.initState();
             _refreshController = new RefreshController();
@@ -84,14 +83,6 @@ namespace ConnectApp.screens {
                 widget.actionModel.startFetchArticles();
                 widget.actionModel.fetchArticles(firstPageNumber);
             });
-            _loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
-                widget.actionModel.fetchArticles(_pageNumber);
-            });
-        }
-
-        public override void dispose() {
-            EventBus.unSubscribe(EventBusConstant.login_success, _loginSubId);
-            base.dispose();
         }
 
         public override Widget build(BuildContext context) {
@@ -208,13 +199,13 @@ namespace ConnectApp.screens {
         }
 
         private bool _onNotification(ScrollNotification notification) {
-            var pixels = notification.metrics.pixels;
-            if (pixels >= 0) {
-                if (pixels <= headerHeight) setState(() => { _offsetY = pixels / 2.8f; });
-            }
-            else {
-                if (_offsetY != 0) setState(() => { _offsetY = 0; });
-            }
+//            var pixels = notification.metrics.pixels;
+//            if (pixels >= 0) {
+//                if (pixels <= headerHeight) setState(() => { _offsetY = pixels / 2.8f; });
+//            }
+//            else {
+//                if (_offsetY != 0) setState(() => { _offsetY = 0; });
+//            }
             return true;
         }
     }
