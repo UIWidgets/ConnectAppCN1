@@ -1,3 +1,4 @@
+using System;
 using ConnectApp.api;
 using ConnectApp.components;
 using ConnectApp.models;
@@ -19,13 +20,19 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ShareApi.FetchImageBytes(imageUrl)
                     .Then(imageBytes => {
-//                    var encodeBytes = Convert.ToBase64String(imageBytes);
+                    var encodeBytes = Convert.ToBase64String(imageBytes);
                         CustomDialogUtils.hiddenCustomDialog();
                         if (type == ShareType.friends)
-                            WechatPlugin.instance.shareToFriend(title, description, linkUrl, imageBytes);
+                            WechatPlugin.instance.shareToFriend(title, description, linkUrl, encodeBytes);
                         else if (type == ShareType.moments)
-                            WechatPlugin.instance.shareToTimeline(title, description, linkUrl, imageBytes);
-                    });
+                            WechatPlugin.instance.shareToTimeline(title, description, linkUrl, encodeBytes);
+                }).Catch(error=>{
+                    CustomDialogUtils.hiddenCustomDialog();
+                    if (type == ShareType.friends)
+                        WechatPlugin.instance.shareToFriend(title, description, linkUrl, "");
+                    else if (type == ShareType.moments)
+                        WechatPlugin.instance.shareToTimeline(title, description, linkUrl, "");
+                });
             });
         }
     }

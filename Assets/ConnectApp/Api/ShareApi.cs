@@ -17,6 +17,7 @@ namespace ConnectApp.api {
         private static IEnumerator
             _FetchImageBytes(Promise<byte[]> promise, string url) {
             var request = UnityWebRequestTexture.GetTexture(url);
+            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             yield return request.SendWebRequest();
 
             if (request.isNetworkError) {

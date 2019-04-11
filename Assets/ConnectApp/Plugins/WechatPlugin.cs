@@ -64,14 +64,14 @@ namespace ConnectApp.plugins {
             }
         }
 
-        public void shareToFriend(string title, string description, string url, byte[] imageBytes) {
+        public void shareToFriend(string title, string description, string url, string imageBytes) {
             if (!Application.isEditor) {
                 addListener();
                 toFriends(title, description, url, imageBytes);
             }
         }
 
-        public void shareToTimeline(string title, string description, string url, byte[] imageBytes) {
+        public void shareToTimeline(string title, string description, string url, string imageBytes) {
             if (!Application.isEditor) {
                 addListener();
                 toTimeline(title, description, url, imageBytes);
@@ -99,10 +99,10 @@ namespace ConnectApp.plugins {
         internal static extern bool isInstallWechat();
 
         [DllImport("__Internal")]
-        internal static extern void toFriends(string title, string description, string url, byte[] imageBytes);
+        internal static extern void toFriends(string title, string description, string url, string imageBytes);
 
         [DllImport("__Internal")]
-        internal static extern void toTimeline(string title, string description, string url, byte[] imageBytes);
+        internal static extern void toTimeline(string title, string description, string url, string imageBytes);
 
 #elif UNITY_ANDROID
         static void initWechat(string appId) {

@@ -1,4 +1,5 @@
 using System;
+using ConnectApp.components;
 using RSG;
 
 namespace ConnectApp.Models.ActionModel {
@@ -14,5 +15,6 @@ namespace ConnectApp.Models.ActionModel {
         public Func<string, IPromise> likeComment;
         public Func<string, IPromise> removeLikeComment;
         public Func<string, string, string, string, IPromise> sendComment;
+        public Action<ShareType, string, string, string, string> shareToWechat;
     }
 }
