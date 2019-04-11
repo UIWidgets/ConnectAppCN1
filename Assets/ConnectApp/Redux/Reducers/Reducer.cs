@@ -1,12 +1,9 @@
 using System.Collections.Generic;
 using ConnectApp.canvas;
 using ConnectApp.components;
-using ConnectApp.components.pull_to_refresh;
-using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.redux.actions;
 using ConnectApp.screens;
-using ConnectApp.utils;
 using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
@@ -14,9 +11,9 @@ using UnityEngine;
 
 namespace ConnectApp.redux.reducers {
     public static class AppReducer {
-        public const string _searchHistoryKey = "searchHistoryKey";
-        public const string _articleHistoryKey = "articleHistoryKey";
-        public const string _eventHistoryKey = "eventHistoryKey";
+        private const string _searchHistoryKey = "searchHistoryKey";
+        private const string _articleHistoryKey = "articleHistoryKey";
+        private const string _eventHistoryKey = "eventHistoryKey";
 
         private static List<string> _nonce = new List<string>();
 
@@ -117,18 +114,10 @@ namespace ConnectApp.redux.reducers {
                     state.articleState.pageNumber = action.pageNumber;
                     state.articleState.articleTotal = action.total;
                     state.articleState.articlesLoading = false;
-                    if (action.isRefresh) {
-                        var up = action.pageNumber == 1;
-                        EventBus.publish(EventBusConstant.article_refresh, new List<object>{up, up ? RefreshStatus.completed : RefreshStatus.idle});
-                    }
                     break;
                 }
-                case FetchArticleFailedAction action: {
+                case FetchArticleFailedAction _: {
                     state.articleState.articlesLoading = false;
-                    if (action.isRefresh) {
-                        var up = action.pageNumber == 1;
-                        EventBus.publish(EventBusConstant.article_refresh, new List<object>{up, RefreshStatus.failed});
-                    }
                     break;
                 }
                 case StartFetchArticleDetailAction _: {

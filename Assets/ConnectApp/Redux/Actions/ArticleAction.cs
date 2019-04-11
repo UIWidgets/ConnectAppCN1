@@ -7,21 +7,14 @@ using UnityEngine;
 namespace ConnectApp.redux.actions {
     public class StartFetchArticlesAction : RequestAction {
         public int pageNumber = 0;
-        public bool isRefresh = false;
     }
 
     public class FetchArticleSuccessAction : BaseAction {
         public int pageNumber = 0;
         public List<Article> articleList;
         public int total;
-        public bool isRefresh = false;
     }
     public class FetchArticleFailedAction : BaseAction {
-        public int pageNumber = 0;
-        public bool isRefresh = false;
-    }
-
-    public class FetchArticleFailureAction : BaseAction {
     }
 
     public class StartFetchArticleDetailAction : RequestAction {
