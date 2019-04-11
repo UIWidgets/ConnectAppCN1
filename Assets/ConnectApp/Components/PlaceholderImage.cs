@@ -1,7 +1,7 @@
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.widgets;
 using Unity.UIWidgets.ui;
+using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.components {
     public class PlaceholderImage : StatelessWidget {
@@ -27,16 +27,16 @@ namespace ConnectApp.components {
         private readonly float? height;
         private readonly float? borderRadius;
         private readonly BoxFit? fit;
-        
+
         public override Widget build(BuildContext context) {
             Widget child;
-            if (imageUrl == null || imageUrl.Length <= 0) 
+            if (imageUrl == null || imageUrl.Length <= 0)
                 child = new Container(
                     width: width,
                     height: height,
                     color: new Color(0xFFD8D8D8)
                 );
-            else 
+            else
                 child = new CachedNetworkImage(
                     imageUrl,
                     new Container(
@@ -49,7 +49,7 @@ namespace ConnectApp.components {
                     height: height,
                     fit: fit
                 );
-            
+
             return new ClipRRect(
                 borderRadius: BorderRadius.all(borderRadius == null ? 0 : (float) borderRadius),
                 child: child

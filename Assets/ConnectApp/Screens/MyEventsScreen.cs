@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.api;
 using ConnectApp.components;
 using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
-using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using RSG;
 using Unity.UIWidgets.animation;
@@ -17,11 +15,8 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using EventType = ConnectApp.models.EventType;
 
 namespace ConnectApp.screens {
-    
     public class MyEventsScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, MyEventsScreenViewModel>(
@@ -52,7 +47,7 @@ namespace ConnectApp.screens {
             );
         }
     }
-    
+
     public class MyEventsScreen : StatefulWidget {
         public MyEventsScreen(
             MyEventsScreenViewModel viewModel = null,
@@ -65,7 +60,7 @@ namespace ConnectApp.screens {
 
         public readonly MyEventsScreenViewModel viewModel;
         public readonly MyEventsScreenActionModel actionModel;
-        
+
         public override State createState() {
             return new _MyEventsScreenState();
         }
@@ -109,7 +104,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         private void _fetchMyPastEvents() {
             widget.actionModel.fetchMyPastEvents(1);
         }
@@ -231,7 +226,7 @@ namespace ConnectApp.screens {
                 var pastEventTotal = widget.viewModel.pastEventTotal;
                 hasMore = pastEventTotal == data.Count;
             }
-            
+
             return new SmartRefresher(
                 controller: _refreshController,
                 enablePullDown: true,

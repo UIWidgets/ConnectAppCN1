@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
-using ConnectApp.redux;
 using ConnectApp.utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -21,16 +20,16 @@ namespace ConnectApp.components {
 
 
         public override Widget build(BuildContext context) {
-
             var author = message.author != null ? message.author : new User();
 
-            var messageContent = MessageUtils.AnalyzeMessage(message.content, message.mentions, message.mentionEveryone);
+            var messageContent =
+                MessageUtils.AnalyzeMessage(message.content, message.mentions, message.mentionEveryone);
             return new Container(
                 padding: EdgeInsets.symmetric(6),
                 child: new Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        Avatar.User(message.author.id,message.author,24),
+                        Avatar.User(message.author.id, message.author, 24),
                         new Expanded(
                             child: new Container(
                                 margin: EdgeInsets.only(8),

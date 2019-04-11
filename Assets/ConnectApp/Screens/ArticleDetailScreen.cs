@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using ConnectApp.canvas;
 using ConnectApp.components;
@@ -17,7 +16,6 @@ using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Avatar = ConnectApp.components.Avatar;
 
 namespace ConnectApp.screens {
     public class ArticleDetailScreenConnector : StatelessWidget {
@@ -64,7 +62,7 @@ namespace ConnectApp.screens {
                         sendComment = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
                             Actions.sendComment(channelId, content, nonce, parentMessageId))
                     };
-                    
+
                     return new ArticleDetailScreen(viewModel, actionModel);
                 });
         }
@@ -103,13 +101,12 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             _refreshController = new RefreshController();
-            SchedulerBinding.instance.addPostFrameCallback(_ =>
-            {
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
                 widget.actionModel.startFetchArticleDetail();
-                widget.actionModel.fetchArticleDetail(widget.viewModel.articleId);  
+                widget.actionModel.fetchArticleDetail(widget.viewModel.articleId);
             });
         }
-        
+
         public override Widget build(BuildContext context) {
             if (widget.viewModel.articleDetailLoading)
                 return new Container(
@@ -221,7 +218,8 @@ namespace ConnectApp.screens {
             var originItems = new List<Widget>();
             originItems.Add(_buildContentHead());
             originItems.Add(_buildSubTitle());
-            originItems.AddRange(ContentDescription.map(context, _article.body, _contentMap, widget.actionModel.openUrl));
+            originItems.AddRange(
+                ContentDescription.map(context, _article.body, _contentMap, widget.actionModel.openUrl));
             originItems.Add(_buildActionCards(_article.like));
             originItems.Add(_buildRelatedArticles());
             originItems.Add(_comments());
@@ -277,17 +275,12 @@ namespace ConnectApp.screens {
                     .Catch(err => { _refreshController.sendBack(up, RefreshStatus.failed); });
         }
 
-        private Widget _buildContentHead()
-        {
+        private Widget _buildContentHead() {
             Widget _avatar;
             if (_article.ownerType == OwnerType.user.ToString())
-            {
                 _avatar = Avatar.User(_user.id, _user, 32);
-            }
             else
-            {
                 _avatar = Avatar.Team(_team.id, _team, 32);
-            }
             var text = _article.ownerType == "user" ? _user.fullName : _team.name;
             var description = _article.ownerType == "user" ? _user.title : "";
             Widget descriptionWidget = new Container();
@@ -384,23 +377,14 @@ namespace ConnectApp.screens {
         private Widget _buildRelatedArticles() {
             if (_relArticles.Count == 0) return new Container();
             var widgets = new List<Widget>();
-            _relArticles.ForEach(article =>
-            {
+            _relArticles.ForEach(article => {
                 Widget card;
-                if (article.ownerType==OwnerType.user.ToString())
-                {
-                    card = RelatedArticleCard.User(article,_user, () =>
-                        {
-                            widget.actionModel.pushToArticleDetail(article.id);
-                        },new ObjectKey(article.id));
-                }
+                if (article.ownerType == OwnerType.user.ToString())
+                    card = RelatedArticleCard.User(article, _user,
+                        () => { widget.actionModel.pushToArticleDetail(article.id); }, new ObjectKey(article.id));
                 else
-                {
-                    card = RelatedArticleCard.Team(article,_team, () =>
-                    {
-                        widget.actionModel.pushToArticleDetail(article.id);
-                    },new ObjectKey(article.id));
-                }
+                    card = RelatedArticleCard.Team(article, _team,
+                        () => { widget.actionModel.pushToArticleDetail(article.id); }, new ObjectKey(article.id));
 
                 widgets.Add(card);
             });
@@ -447,13 +431,11 @@ namespace ConnectApp.screens {
                 bool isPraised = _isPraised(message, widget.viewModel.loginUserId);
                 var parentName = "";
                 if (message.parentMessageId.isNotEmpty())
-                {
-                    if (messageDict.ContainsKey(message.parentMessageId))
-                    {
-                       var parentMessage = messageDict[message.parentMessageId];
-                       parentName = parentMessage.author.fullName;
-                    } 
-                }
+                    if (messageDict.ContainsKey(message.parentMessageId)) {
+                        var parentMessage = messageDict[message.parentMessageId];
+                        parentName = parentMessage.author.fullName;
+                    }
+
                 var card = new CommentCard(
                     message,
                     isPraised,

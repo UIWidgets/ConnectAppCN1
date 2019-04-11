@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using ConnectApp.models;
 
@@ -17,5 +16,5 @@ namespace ConnectApp.Models.ViewModel {
         public bool hasMore;
         public Dictionary<string, Dictionary<string, Message>> channelMessageDict;
         public Dictionary<string, IEvent> eventsDict;
-    }    
+    }
 }

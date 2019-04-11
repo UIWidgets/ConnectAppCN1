@@ -52,18 +52,17 @@ namespace ConnectApp.components {
 
         private void _controllerListener() {
             var text = _controller.text;
-            if (!mounted) {
-                return;
-            }
+            if (!mounted) return;
             var inputFieldHeight = 22.0f;
             if (text.isNotEmpty()) {
                 var inputFieldWidth = _inputFieldKey.currentContext.size.width;
                 inputFieldHeight = _calculateTextHeight(text, inputFieldWidth);
             }
-            if (_inputFieldHeight != inputFieldHeight) 
+
+            if (_inputFieldHeight != inputFieldHeight)
                 setState(() => { _inputFieldHeight = inputFieldHeight; });
         }
-        
+
         private float _calculateTextHeight(string text, float textWidth) {
             var textPainter = new TextPainter(
                 textDirection: TextDirection.ltr,

@@ -1,11 +1,9 @@
 using System.Collections.Generic;
 using ConnectApp.api;
-using ConnectApp.components;
 using ConnectApp.models;
 using RSG;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 
 namespace ConnectApp.redux.actions {
     public class LoginChangeEmailAction : BaseAction {
@@ -16,14 +14,16 @@ namespace ConnectApp.redux.actions {
         public string changeText;
     }
 
-    public class StartLoginByEmailAction : RequestAction {}
+    public class StartLoginByEmailAction : RequestAction {
+    }
 
     public class LoginByEmailSuccessAction : BaseAction {
         public LoginInfo loginInfo;
     }
 
-    public class LoginByEmailFailureAction : BaseAction {}
-    
+    public class LoginByEmailFailureAction : BaseAction {
+    }
+
     public class LoginByWechatAction : RequestAction {
         public BuildContext context;
         public string code;
@@ -46,11 +46,10 @@ namespace ConnectApp.redux.actions {
 
     public class JumpToCreateUnityIdAction : RequestAction {
     }
-    
+
     public static partial class Actions {
         public static object loginByEmail() {
-            return new ThunkAction<AppState>((dispatcher, getState) =>
-            {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
                 var email = getState().loginState.email;
                 var password = getState().loginState.password;
                 return LoginApi.LoginByEmail(email, password)
@@ -90,5 +89,5 @@ namespace ConnectApp.redux.actions {
                     });
             });
         }
-    }   
+    }
 }

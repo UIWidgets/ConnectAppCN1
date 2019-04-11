@@ -5,9 +5,7 @@ using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
-using ConnectApp.redux;
 using ConnectApp.redux.actions;
-using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -17,7 +15,6 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
-    
     public class SettingScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, SettingScreenViewModel>(
@@ -41,22 +38,20 @@ namespace ConnectApp.screens {
             );
         }
     }
-    
+
     public class SettingScreen : StatelessWidget {
-        
         public SettingScreen(
-            SettingScreenViewModel viewModel = null,    
+            SettingScreenViewModel viewModel = null,
             SettingScreenActionModel actionModel = null,
             Key key = null
-        ) : base(key)
-        {
+        ) : base(key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
 
         private readonly SettingScreenViewModel viewModel;
         private readonly SettingScreenActionModel actionModel;
-        
+
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
@@ -109,7 +104,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildContent(BuildContext context) {            
+        private Widget _buildContent(BuildContext context) {
             return new Flexible(
                 child: new Container(
                     decoration: new BoxDecoration(
@@ -119,8 +114,10 @@ namespace ConnectApp.screens {
                         physics: new AlwaysScrollableScrollPhysics(),
                         children: new List<Widget> {
                             _buildGapView(),
-                            viewModel.hasReviewUrl ? _buildCellView("评分",
-                                () => actionModel.openUrl(viewModel.reviewUrl)) : new Container(),
+                            viewModel.hasReviewUrl
+                                ? _buildCellView("评分",
+                                    () => actionModel.openUrl(viewModel.reviewUrl))
+                                : new Container(),
                             _buildCellView("意见反馈", () => { }),
                             _buildCellView("关于我们", () => { }),
                             _buildGapView(),
@@ -158,7 +155,6 @@ namespace ConnectApp.screens {
                                 () => actionModel.logout()),
                             new ActionSheetItem("取消", ActionType.cancel)
                         }
-                        
                     ));
                 },
                 child: new Container(

@@ -1,12 +1,11 @@
 using ConnectApp.models;
-using ConnectApp.screens;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.redux.actions {
     public class MainNavigatorPushToAction : BaseAction {
         public string routeName;
     }
-    
+
     public class MainNavigatorPushToRouteAction : BaseAction {
         public Route route;
     }
@@ -19,7 +18,7 @@ namespace ConnectApp.redux.actions {
     public class MainNavigatorPushToArticleDetailAction : BaseAction {
         public string articleId;
     }
-    
+
     public class MainNavigatorPushToVideoPlayerAction : BaseAction {
         public string videoUrl;
     }

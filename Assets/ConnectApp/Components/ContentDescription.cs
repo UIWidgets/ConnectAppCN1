@@ -14,8 +14,8 @@ using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.components {
     public static class ContentDescription {
-        
-        public static List<Widget> map(BuildContext context, string cont, Dictionary<string, ContentMap> contentMap, Action<string> openUrl) {
+        public static List<Widget> map(BuildContext context, string cont, Dictionary<string, ContentMap> contentMap,
+            Action<string> openUrl) {
             if (cont == null) return new List<Widget>();
 
             var content = JsonConvert.DeserializeObject<EventContent>(cont);
@@ -53,10 +53,11 @@ namespace ConnectApp.components {
                         break;
                     case "unordered-list-item": {
                         var isFirst = true;
-                        if (i > 0)  {
+                        if (i > 0) {
                             var beforeBlock = blocks[i - 1];
                             isFirst = beforeBlock.type != "unordered-list-item";
                         }
+
                         var afterBlock = blocks[i + 1];
                         var isLast = afterBlock.type != "unordered-list-item";
                         widgets.Add(_UnorderedList(block.text, isFirst, isLast));
@@ -84,7 +85,8 @@ namespace ConnectApp.components {
                                     var originalImage = map.originalImage == null
                                         ? map.thumbnail
                                         : map.originalImage;
-                                    widgets.Add(_Atomic(context, dataMap.type, data.title, originalImage, url, openUrl));
+                                    widgets.Add(_Atomic(context, dataMap.type, data.title, originalImage, url,
+                                        openUrl));
                                 }
                         }
                     }
@@ -216,7 +218,8 @@ namespace ConnectApp.components {
             );
         }
 
-        private static Widget _Atomic(BuildContext context, string type, string title, _OriginalImage originalImage, string url, Action<string> openUrl) {
+        private static Widget _Atomic(BuildContext context, string type, string title, _OriginalImage originalImage,
+            string url, Action<string> openUrl) {
             if (type == "ATTACHMENT") return new Container();
 
             var playButton = Positioned.fill(
@@ -231,7 +234,8 @@ namespace ConnectApp.components {
                                 if (url.ToLower().Contains("youtube"))
                                     openUrl(url);
                                 else
-                                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToVideoPlayerAction{videoUrl = url});
+                                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToVideoPlayerAction
+                                        {videoUrl = url});
                             },
                             child: new Container(
                                 width: 80,

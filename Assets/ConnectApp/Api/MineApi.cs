@@ -7,7 +7,6 @@ using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.ui;
-using UnityEngine.Networking;
 
 namespace ConnectApp.api {
     public static class MineApi {
@@ -35,6 +34,7 @@ namespace ConnectApp.api {
                     var cookie = request.GetResponseHeaders()["SET-COOKIE"];
                     HttpManager.updateCookie(cookie);
                 }
+
                 // Format output and resolve promise
                 var responseText = request.downloadHandler.text;
                 var eventsResponse = JsonConvert.DeserializeObject<FetchEventsResponse>(responseText);
@@ -69,6 +69,7 @@ namespace ConnectApp.api {
                     var cookie = request.GetResponseHeaders()["SET-COOKIE"];
                     HttpManager.updateCookie(cookie);
                 }
+
                 // Format output and resolve promise
                 var responseText = request.downloadHandler.text;
                 var eventsResponse = JsonConvert.DeserializeObject<FetchEventsResponse>(responseText);

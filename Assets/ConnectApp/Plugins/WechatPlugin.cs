@@ -1,129 +1,102 @@
-using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using ConnectApp.api;
-using ConnectApp.components;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
-using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
-namespace ConnectApp.plugins
-{
-    public class WechatPlugin
-    {
+namespace ConnectApp.plugins {
+    public class WechatPlugin {
         private WechatPlugin() {
-            
         }
-        
+
         public static readonly WechatPlugin instance = new WechatPlugin();
 
         private bool isListen;
-        
+
         public BuildContext context;
 
-        
-       
 
-        public void addListener()
-        {
+        public void addListener() {
             Debug.Log("addListener");
-            if (!isListen)
-            {
+            if (!isListen) {
                 Debug.Log("!isListen addListener");
-                UIWidgetsMessageManager.instance.
-                    AddChannelMessageDelegate("wechat", this._handleMethodCall);
+                UIWidgetsMessageManager.instance.AddChannelMessageDelegate("wechat", _handleMethodCall);
                 isListen = true;
             }
         }
 
-        void _handleMethodCall(string method, List<JSONNode> args)
-        {
-            using (WindowProvider.of(context).getScope())
-            {
-                switch (method)
-                {
-                    case "callback":
-                    {
+        private void _handleMethodCall(string method, List<JSONNode> args) {
+            using (WindowProvider.of(context).getScope()) {
+                switch (method) {
+                    case "callback": {
                         var node = args[0];
                         var dict = JSON.Parse(node);
                         var type = dict["type"];
-                        if (type == "code")
-                        {
+                        if (type == "code") {
                             var code = dict["code"];
                             StoreProvider.store.dispatcher.dispatch(new LoginByWechatAction {code = code});
                         }
                     }
                         break;
-                    
                 }
             }
         }
 
-        public void init(string appId)
-        {
+        public void init(string appId) {
             if (!Application.isEditor)
                 initWechat(appId);
         }
-        public void login(string stateId)
-        {
-            if (!Application.isEditor)
-            {
+
+        public void login(string stateId) {
+            if (!Application.isEditor) {
                 addListener();
                 loginWechat(stateId);
             }
-                
         }
 
-        public void shareToFriend(string title, string description, string url,byte[] imageBytes)
-        {
-            if (!Application.isEditor)
-            {
+        public void shareToFriend(string title, string description, string url, byte[] imageBytes) {
+            if (!Application.isEditor) {
                 addListener();
-                toFriends(title,description,url,imageBytes); 
-
+                toFriends(title, description, url, imageBytes);
             }
         }
-        public void shareToTimeline(string title, string description, string url,byte[] imageBytes)
-        {
-            if (!Application.isEditor)
-            {
+
+        public void shareToTimeline(string title, string description, string url, byte[] imageBytes) {
+            if (!Application.isEditor) {
                 addListener();
-                toTimeline(title,description,url,imageBytes);
+                toTimeline(title, description, url, imageBytes);
             }
         }
 
 
-        public bool inInstalled()
-        {
-            if (!Application.isEditor)
-            {
+        public bool inInstalled() {
+            if (!Application.isEditor) {
                 addListener();
                 return isInstallWechat();
             }
+
             return false;
         }
-#if UNITY_IOS 
+#if UNITY_IOS
 
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         internal static extern void initWechat(string appId);
-         
-        [DllImport ("__Internal")]
+
+        [DllImport("__Internal")]
         internal static extern void loginWechat(string stateId);
-        
-        [DllImport ("__Internal")]
+
+        [DllImport("__Internal")]
         internal static extern bool isInstallWechat();
-        
-        [DllImport ("__Internal")]
-        internal static extern void toFriends(string title, string description, string url,byte[] imageBytes);
-        
-        [DllImport ("__Internal")]
-        internal static extern void toTimeline(string title, string description, string url,byte[] imageBytes);
-        
+
+        [DllImport("__Internal")]
+        internal static extern void toFriends(string title, string description, string url, byte[] imageBytes);
+
+        [DllImport("__Internal")]
+        internal static extern void toTimeline(string title, string description, string url, byte[] imageBytes);
+
 #elif UNITY_ANDROID
         static void initWechat(string appId) {
         }
@@ -170,8 +143,5 @@ namespace ConnectApp.plugins
         public void shareToFriend(string title, string description, string url,byte[] imageBytes) {}
         public void shareToTimeline(string title, string description, string url,byte[] imageBytes) {}
 #endif
-       
     }
-            
-
 }

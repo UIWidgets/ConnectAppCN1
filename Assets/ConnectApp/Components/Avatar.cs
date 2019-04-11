@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using ConnectApp.constants;
 using ConnectApp.models;
-using ConnectApp.redux;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
@@ -37,23 +36,22 @@ namespace ConnectApp.components {
             User user = null,
             float size = 36,
             Key key = null
-        )
-        {
+        ) {
             return new Avatar(
                 id,
                 size,
                 OwnerType.user,
                 user,
-                key:key
+                key: key
             );
         }
+
         public static Avatar Team(
             string id,
             Team team = null,
             float size = 36,
             Key key = null
-        )
-        {
+        ) {
             return new Avatar(
                 id,
                 size,
@@ -85,10 +83,11 @@ namespace ConnectApp.components {
                     : new Container(
                         width: size,
                         height: size,
-                        child: Image.network(avatarUrl,fit:BoxFit.cover)
+                        child: Image.network(avatarUrl, fit: BoxFit.cover)
                     )
             );
         }
+
         private Widget _buildTeamAvatar() {
             var avatarUrl = team.avatar ?? "";
             var name = team.name;

@@ -8,7 +8,6 @@ using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.ui;
-using UnityEngine.Networking;
 
 namespace ConnectApp.api {
     public static class SearchApi {
@@ -36,6 +35,7 @@ namespace ConnectApp.api {
                     var cookie = request.GetResponseHeaders()["SET-COOKIE"];
                     HttpManager.updateCookie(cookie);
                 }
+
                 // Format output and resolve promise
                 var responseText = request.downloadHandler.text;
                 var popularSearch = JsonConvert.DeserializeObject<List<PopularSearch>>(responseText);
@@ -45,7 +45,7 @@ namespace ConnectApp.api {
                     promise.Reject(new Exception("No user under this username found!"));
             }
         }
-        
+
         public static Promise<FetchSearchResponse> SearchArticle(string keyword, int pageNumber) {
             // We return a promise instantly and start the coroutine to do the real work
             var promise = new Promise<FetchSearchResponse>();
@@ -56,7 +56,7 @@ namespace ConnectApp.api {
         private static IEnumerator
             _SearchArticle(Promise<FetchSearchResponse> promise, string keyword, int pageNumber) {
             var request = HttpManager.GET(Config.apiAddress +
-                                              $"/api/search?t=project&projectType=article&k=[\"q:{keyword}\"]&searchAllLoadMore=false&page={pageNumber}");
+                                          $"/api/search?t=project&projectType=article&k=[\"q:{keyword}\"]&searchAllLoadMore=false&page={pageNumber}");
             yield return request.SendWebRequest();
 
             if (request.isNetworkError) {
@@ -72,6 +72,7 @@ namespace ConnectApp.api {
                     var cookie = request.GetResponseHeaders()["SET-COOKIE"];
                     HttpManager.updateCookie(cookie);
                 }
+
                 // Format output and resolve promise
                 var responseText = request.downloadHandler.text;
                 var searchResponse = JsonConvert.DeserializeObject<FetchSearchResponse>(responseText);

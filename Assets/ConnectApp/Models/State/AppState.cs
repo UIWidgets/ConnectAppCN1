@@ -22,22 +22,21 @@ namespace ConnectApp.models {
         public SettingState settingState { get; set; }
 
         public static AppState initialState() {
-
             var searchHistory = PlayerPrefs.GetString("searchHistoryKey");
             var searchHistoryList = new List<string>();
             if (searchHistory.isNotEmpty())
                 searchHistoryList = JsonConvert.DeserializeObject<List<string>>(searchHistory);
-            
+
             var articleHistory = PlayerPrefs.GetString("articleHistoryKey");
             var articleHistoryList = new List<Article>();
             if (articleHistory.isNotEmpty())
                 articleHistoryList = JsonConvert.DeserializeObject<List<Article>>(articleHistory);
-            
+
             var eventHistory = PlayerPrefs.GetString("eventHistoryKey");
             var eventHistoryList = new List<IEvent>();
             if (eventHistory.isNotEmpty())
                 eventHistoryList = JsonConvert.DeserializeObject<List<IEvent>>(eventHistory);
-            
+
             return new AppState {
                 Count = PlayerPrefs.GetInt("count", 0),
                 loginState = new LoginState {

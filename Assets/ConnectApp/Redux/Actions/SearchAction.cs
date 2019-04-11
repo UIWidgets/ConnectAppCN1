@@ -7,24 +7,26 @@ using UnityEngine;
 namespace ConnectApp.redux.actions {
     public class StartPopularSearchAction : RequestAction {
     }
-    
+
     public class PopularSearchSuccessAction : RequestAction {
         public List<PopularSearch> popularSearch;
     }
-    
-    public class StartSearchArticleAction : RequestAction {}
+
+    public class StartSearchArticleAction : RequestAction {
+    }
 
     public class SearchArticleSuccessAction : BaseAction {
         public string keyword;
         public int pageNumber = 0;
         public FetchSearchResponse searchResponse;
     }
-    
+
     public class SearchArticleFailureAction : BaseAction {
         public string keyword;
     }
 
-    public class ClearSearchArticleResultAction : BaseAction {}
+    public class ClearSearchArticleResultAction : BaseAction {
+    }
 
     public class GetSearchHistoryAction : BaseAction {
     }
@@ -39,11 +41,10 @@ namespace ConnectApp.redux.actions {
 
     public class DeleteAllSearchHistoryAction : BaseAction {
     }
-    
+
     public static partial class Actions {
-        public static object searchArticles(string keyword, int pageNumber)
-        {
-            return new ThunkAction<AppState>((dispatcher, getState) => {                
+        public static object searchArticles(string keyword, int pageNumber) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
                 return SearchApi.SearchArticle(keyword, pageNumber)
                     .Then(searchResponse => {
                         dispatcher.dispatch(new UserMapAction {userMap = searchResponse.userMap});
@@ -57,17 +58,16 @@ namespace ConnectApp.redux.actions {
                     .Catch(Debug.Log);
             });
         }
-        
-        public static object popularSearch()
-        {
-            return new ThunkAction<AppState>((dispatcher, getState) => {                
+
+        public static object popularSearch() {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
                 return SearchApi.PopularSearch()
                     .Then(popularSearch => {
                         dispatcher.dispatch(new PopularSearchSuccessAction {
                             popularSearch = popularSearch
                         });
                     })
-                    .Catch(error => { Debug.Log(error);});
+                    .Catch(error => { Debug.Log(error); });
             });
         }
     }

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
-using ConnectApp.redux;
 using ConnectApp.utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -19,16 +18,15 @@ namespace ConnectApp.components {
             GestureTapCallback praiseCallBack = null,
             GestureTapCallback replyCallBack = null,
             Key key = null
-        ) : base(key)
-        {
+        ) : base(key) {
             this.message = message;
-            this.isPraised = isPraised; 
+            this.isPraised = isPraised;
             this.parentName = parentName;
             this.moreCallBack = moreCallBack;
             this.praiseCallBack = praiseCallBack;
             this.replyCallBack = replyCallBack;
         }
-        
+
         private readonly Message message;
         private readonly bool isPraised;
         private readonly string parentName;
@@ -40,30 +38,32 @@ namespace ConnectApp.components {
         public override Widget build(BuildContext context) {
             Widget _content = null;
             var content = MessageUtils.AnalyzeMessage(message.content, message.mentions, message.mentionEveryone);
-            _content = parentName.isEmpty()?new Container(
-                child: new Text(
-                    content,
-                    style: CTextStyle.PLargeBody
-                ),
-                alignment: Alignment.centerLeft
-            ):new Container(alignment: Alignment.centerLeft, child: new RichText(text: new TextSpan(
-                        "回复@",
-                        children: new List<TextSpan> {
-                            new TextSpan(
-                                $"{parentName}",
-                                children: new List<TextSpan> {
-                                    new TextSpan(
-                                        $": {content}",
-                                        CTextStyle.PLargeBody
-                                    )
-                                },
-                                style: CTextStyle.PLargeBlue)
-                        },
-                        style: CTextStyle.PLargeBody4
-                    )
+            _content = parentName.isEmpty()
+                ? new Container(
+                    child: new Text(
+                        content,
+                        style: CTextStyle.PLargeBody
+                    ),
+                    alignment: Alignment.centerLeft
                 )
-            );
-            
+                : new Container(alignment: Alignment.centerLeft, child: new RichText(text: new TextSpan(
+                            "回复@",
+                            children: new List<TextSpan> {
+                                new TextSpan(
+                                    $"{parentName}",
+                                    children: new List<TextSpan> {
+                                        new TextSpan(
+                                            $": {content}",
+                                            CTextStyle.PLargeBody
+                                        )
+                                    },
+                                    style: CTextStyle.PLargeBlue)
+                            },
+                            style: CTextStyle.PLargeBody4
+                        )
+                    )
+                );
+
 
             return new Container(
                 color: CColors.White,
@@ -73,7 +73,7 @@ namespace ConnectApp.components {
                     children: new List<Widget> {
                         new Container(
                             margin: EdgeInsets.only(right: 8),
-                            child: Avatar.User(message.author.id,message.author,24)
+                            child: Avatar.User(message.author.id, message.author, 24)
                         ),
                         new Expanded(
                             child: new Container(

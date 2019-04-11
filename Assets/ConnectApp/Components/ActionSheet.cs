@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.canvas;
 using ConnectApp.constants;
-using ConnectApp.redux;
-using ConnectApp.redux.actions;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -151,9 +149,7 @@ namespace ConnectApp.components {
         }
 
         public static void hiddenModalPopup() {
-            if (Router.navigator.canPop()) {
-                Router.navigator.pop();
-            }
+            if (Router.navigator.canPop()) Router.navigator.pop();
         }
     }
 

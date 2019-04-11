@@ -1,14 +1,10 @@
-using System;
 using System.Collections.Generic;
-using ConnectApp.api;
-using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
-using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using RSG;
 using Unity.UIWidgets.foundation;
@@ -43,18 +39,17 @@ namespace ConnectApp.screens {
             );
         }
     }
-    public class NotificationScreen : StatefulWidget {
 
+    public class NotificationScreen : StatefulWidget {
         public NotificationScreen(
-            NotifcationScreenViewModel viewModel = null,   
-            NotificationScreenActionModel actionModel = null,   
+            NotifcationScreenViewModel viewModel = null,
+            NotificationScreenActionModel actionModel = null,
             Key key = null
-        ) : base(key)
-        {
+        ) : base(key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
-        
+
         public readonly NotifcationScreenViewModel viewModel;
         public readonly NotificationScreenActionModel actionModel;
 
@@ -82,15 +77,16 @@ namespace ConnectApp.screens {
                 widget.actionModel.fetchNotifications(_pageNumber);
             });
         }
-        
-        public override Widget build(BuildContext context)
-        {
+
+        public override Widget build(BuildContext context) {
             object content = new Container();
-            if (widget.viewModel.notifationLoading) 
+            if (widget.viewModel.notifationLoading) {
                 content = new GlobalLoading();
+            }
             else {
-                if (widget.viewModel.notifications.Count <= 0) 
+                if (widget.viewModel.notifications.Count <= 0) {
                     content = new BlankView("暂无通知消息");
+                }
                 else {
                     var isLoadMore = widget.viewModel.notifications.Count == widget.viewModel.total;
                     content = new SmartRefresher(
@@ -117,7 +113,7 @@ namespace ConnectApp.screens {
                     );
                 }
             }
-                
+
             return new Container(
                 color: CColors.White,
                 child: new Column(
@@ -143,7 +139,7 @@ namespace ConnectApp.screens {
                         new Flexible(
                             child: new NotificationListener<ScrollNotification>(
                                 onNotification: _onNotification,
-                                child: (Widget)content
+                                child: (Widget) content
                             )
                         )
                     }
