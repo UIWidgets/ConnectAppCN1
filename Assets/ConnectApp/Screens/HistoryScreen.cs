@@ -18,26 +18,12 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, HistoryScreenViewModel>(
                 converter: (state) => new HistoryScreenViewModel {
-                    eventHistory = state.eventState.eventHistory,
-                    articleHistory = state.articleState.articleHistory,
-                    userDict = state.userState.userDict,
-                    teamDict = state.teamState.teamDict,
-                    placeDict = state.placeState.placeDict
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new HistoryScreenActionModel {
-                        mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
-                        pushToArticleDetail = (id) =>
-                            dispatcher.dispatch(new MainNavigatorPushToArticleDetailAction {articleId = id}),
-                        pushToEventDetail = (id, type) =>
-                            dispatcher.dispatch(new MainNavigatorPushToEventDetailAction
-                                {eventId = id, eventType = type}),
-                        deleteArticleHistory = (id) =>
-                            dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = id}),
-                        deleteEventHistory = (id) =>
-                            dispatcher.dispatch(new DeleteEventHistoryAction {eventId = id})
+                        mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction())
                     };
-                    return new HistoryScreen(viewModel, actionModel);
+                    return new HistoryScreen(actionModel);
                 }
             );
         }
@@ -45,15 +31,11 @@ namespace ConnectApp.screens {
 
     public class HistoryScreen : StatefulWidget {
         public HistoryScreen(
-            HistoryScreenViewModel viewModel = null,
             HistoryScreenActionModel actionModel = null,
             Key key = null
         ) : base(key) {
-            this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
-
-        public readonly HistoryScreenViewModel viewModel;
         public readonly HistoryScreenActionModel actionModel;
 
         public override State createState() {
@@ -162,103 +144,13 @@ namespace ConnectApp.screens {
                         controller: _pageController,
                         onPageChanged: index => { setState(() => { _selectedIndex = index; }); },
                         children: new List<Widget> {
-                            _buildArticleHistory(),
-                            _buildEventHistory()
+                            new HistoryArticleScreenConnector(),
+                            new HistoryEventScreenConnector()
                         }
                     )
                 )
             );
         }
 
-        private Widget _buildArticleHistory() {
-            if (widget.viewModel.articleHistory.Count == 0) return new BlankView("暂无浏览文章记录");
-
-            return ListView.builder(
-                physics: new AlwaysScrollableScrollPhysics(),
-                itemCount: widget.viewModel.articleHistory.Count,
-                itemBuilder: (cxt, index) => {
-                    var model = widget.viewModel.articleHistory[index];
-                    Widget child;
-                    if (model.ownerType == OwnerType.user.ToString()) {
-                        var _user = new User();
-                        if (widget.viewModel.userDict.ContainsKey(model.userId))
-                            _user = widget.viewModel.userDict[model.userId];
-                        child = ArticleCard.User(
-                            model,
-                            onTap: () =>
-                                widget.actionModel.pushToArticleDetail(model.id),
-                            moreCallBack: () => { },
-                            null,
-                            _user
-                        );
-                    }
-                    else {
-                        var _team = new Team();
-                        if (widget.viewModel.teamDict.ContainsKey(model.teamId))
-                            _team = widget.viewModel.teamDict[model.teamId];
-                        child = ArticleCard.Team(
-                            model,
-                            onTap: () =>
-                                widget.actionModel.pushToArticleDetail(model.id),
-                            moreCallBack: () => { },
-                            null,
-                            _team
-                        );
-                    }
-
-                    return new Dismissible(
-                        Key.key(model.id),
-                        child,
-                        new Container(
-                            color: CColors.Error,
-                            padding: EdgeInsets.symmetric(horizontal: 16),
-                            child: new Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: new List<Widget> {
-                                    new Text(
-                                        "删除",
-                                        style: CTextStyle.PLargeWhite
-                                    )
-                                }
-                            )
-                        ),
-                        direction: DismissDirection.endToStart,
-                        onDismissed: direction => widget.actionModel.deleteArticleHistory(model.id)
-                    );
-                }
-            );
-        }
-
-        private Widget _buildEventHistory() {
-            if (widget.viewModel.eventHistory.Count == 0) return new BlankView("暂无浏览活动记录");
-            return ListView.builder(
-                physics: new AlwaysScrollableScrollPhysics(),
-                itemCount: widget.viewModel.eventHistory.Count,
-                itemBuilder: (cxt, index) => {
-                    var model = widget.viewModel.eventHistory[index];
-                    var eventType = model.mode == "online" ? EventType.onLine : EventType.offline;
-                    var place = model.placeId.isEmpty() ? null : widget.viewModel.placeDict[model.placeId];
-                    return new Dismissible(
-                        Key.key(model.id),
-                        new EventCard(
-                            model,
-                            place,
-                            () => widget.actionModel.pushToEventDetail(model.id, eventType)
-                        ),
-                        new Container(
-                            color: CColors.Red,
-                            child: new Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: new List<Widget> {
-                                    new Text("删除")
-                                }
-                            )
-                        ),
-                        direction: DismissDirection.endToStart,
-                        onDismissed: direction => widget.actionModel.deleteEventHistory(model.id)
-                    );
-                }
-            );
-        }
     }
 }
