@@ -8,6 +8,7 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using RSG;
+using ConnectApp.utils;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -64,7 +65,6 @@ namespace ConnectApp.screens {
 
     internal class _EventsScreenState : State<EventsScreen> {
         private const int firstPageNumber = 1;
-        private const float headerHeight = 80;
         private PageController _pageController;
         private int _selectedIndex;
         private int pageNumber = firstPageNumber;
@@ -72,6 +72,7 @@ namespace ConnectApp.screens {
         private float _offsetY;
         private RefreshController _ongoingRefreshController;
         private RefreshController _completedRefreshController;
+        private string _loginSubId;
 
 //        protected override bool wantKeepAlive {
 //            get => true;
@@ -89,8 +90,18 @@ namespace ConnectApp.screens {
                 widget.actionModel.fetchEvents(pageNumber, "ongoing");
                 widget.actionModel.fetchEvents(completedPageNumber, "completed");
             });
+            _loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
+                var tab = _selectedIndex == 0 ? "ongoing" : "completed";
+                widget.actionModel.fetchEvents(firstPageNumber, tab);
+            });
         }
 
+        public override void dispose() {
+            EventBus.unSubscribe(EventBusConstant.login_success, _loginSubId);
+            _pageController.dispose();
+            base.dispose();
+        }
+        
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
@@ -258,7 +269,7 @@ namespace ConnectApp.screens {
 
         private void _ongoingRefresh(bool up) {
             if (up)
-                pageNumber = 1;
+                pageNumber = firstPageNumber;
             else
                 pageNumber++;
             widget.actionModel.fetchEvents(pageNumber, "ongoing")
@@ -268,18 +279,12 @@ namespace ConnectApp.screens {
 
         private void _completedRefresh(bool up) {
             if (up)
-                completedPageNumber = 1;
+                completedPageNumber = firstPageNumber;
             else
                 completedPageNumber++;
             widget.actionModel.fetchEvents(completedPageNumber, "completed")
-                .Then(() => _ongoingRefreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
-                .Catch(_ => _ongoingRefreshController.sendBack(up, RefreshStatus.failed));
-        }
-
-
-        public override void dispose() {
-            base.dispose();
-            _pageController.dispose();
+                .Then(() => _completedRefreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Catch(_ => _completedRefreshController.sendBack(up, RefreshStatus.failed));
         }
     }
 }

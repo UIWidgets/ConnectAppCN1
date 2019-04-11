@@ -38,6 +38,6 @@ namespace ConnectApp.utils {
     }
 
     public static class EventBusConstant {
-        public const string article_refresh = "ARTICLE_REFRESH";
+        public const string login_success = "LOGIN_SUCCEED";
     }
 }

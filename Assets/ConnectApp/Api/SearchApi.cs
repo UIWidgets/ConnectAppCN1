@@ -19,7 +19,7 @@ namespace ConnectApp.api {
         }
 
         private static IEnumerator _PopularSearch(Promise<List<PopularSearch>> promise) {
-            var request = HttpManager.GET(Config.apiAddress + "/api/search/popularSearch");
+            var request = HttpManager.GET(Config.apiAddress + "/api/search/popularSearch?searchType=project");
             yield return request.SendWebRequest();
 
             if (request.isNetworkError) {

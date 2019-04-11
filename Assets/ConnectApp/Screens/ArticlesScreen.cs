@@ -66,7 +66,7 @@ namespace ConnectApp.screens {
 
 
     public class _ArticlesScreenState : State<ArticlesScreen> {
-        private const int firstPageNumber = 1;
+        private const int firstPageNumber = 0;
         private const float headerHeight = 140;
         private float _offsetY;
         private int _pageNumber = firstPageNumber;
@@ -75,6 +75,7 @@ namespace ConnectApp.screens {
 //        {
 //            get => true;
 //        }
+        private string _loginSubId;
         public override void initState() {
             base.initState();
             _refreshController = new RefreshController();
@@ -83,6 +84,14 @@ namespace ConnectApp.screens {
                 widget.actionModel.startFetchArticles();
                 widget.actionModel.fetchArticles(firstPageNumber);
             });
+            _loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
+                widget.actionModel.fetchArticles(_pageNumber);
+            });
+        }
+
+        public override void dispose() {
+            EventBus.unSubscribe(EventBusConstant.login_success, _loginSubId);
+            base.dispose();
         }
 
         public override Widget build(BuildContext context) {
@@ -160,22 +169,21 @@ namespace ConnectApp.screens {
                                     },
                                     new ObjectKey(article.id), _user);
                             }
-                            else {
-                                var _team = new Team();
-                                if (widget.viewModel.teamDict.ContainsKey(article.teamId))
-                                    _team = widget.viewModel.teamDict[article.teamId];
-                                return ArticleCard.Team(article,
-                                    () => widget.actionModel.pushToArticleDetail(articleId),
-                                    () => {
-                                        ActionSheetUtils.showModalActionSheet(new ActionSheet(
-                                            items: new List<ActionSheetItem> {
-                                                new ActionSheetItem("举报", ActionType.destructive, () => { }),
-                                                new ActionSheetItem("取消", ActionType.cancel)
-                                            }
-                                        ));
-                                    },
-                                    new ObjectKey(article.id), _team);
-                            }
+                            var _team = new Team();
+                            if (widget.viewModel.teamDict.ContainsKey(article.teamId))
+                                _team = widget.viewModel.teamDict[article.teamId];
+                            return ArticleCard.Team(article,
+                                () => widget.actionModel.pushToArticleDetail(articleId),
+                                () => {
+                                    ActionSheetUtils.showModalActionSheet(new ActionSheet(
+                                        items: new List<ActionSheetItem> {
+                                            new ActionSheetItem("举报", ActionType.destructive, () => { }),
+                                            new ActionSheetItem("取消", ActionType.cancel)
+                                        }
+                                    ));
+                                },
+                                new ObjectKey(article.id), _team
+                            );
                         }
                     )
                 );
@@ -200,14 +208,13 @@ namespace ConnectApp.screens {
         }
 
         private bool _onNotification(ScrollNotification notification) {
-//            var pixels = notification.metrics.pixels;
-//            Debug.Log($"pixels: {pixels}");
-//            if (pixels >= 0) {
-//                if (pixels <= headerHeight) setState(() => { _offsetY = pixels / 2.0f; });
-//            }
-//            else {
-//                if (_offsetY != 0) setState(() => { _offsetY = 0; });
-//            }
+            var pixels = notification.metrics.pixels;
+            if (pixels >= 0) {
+                if (pixels <= headerHeight) setState(() => { _offsetY = pixels / 2.8f; });
+            }
+            else {
+                if (_offsetY != 0) setState(() => { _offsetY = 0; });
+            }
             return true;
         }
     }

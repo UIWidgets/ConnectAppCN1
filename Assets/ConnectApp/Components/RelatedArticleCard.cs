@@ -55,7 +55,10 @@ namespace ConnectApp.components {
         private readonly GestureTapCallback onTap;
 
         public override Widget build(BuildContext context) {
+            if (article == null) return new Container();
+            
             var username = user == null ? team.name : user.fullName;
+            var time = article.lastPublishedTime == null ? article.publishedTime : article.lastPublishedTime;
             var child = new Container(
                 color: CColors.White,
                 padding: EdgeInsets.all(16),
@@ -75,7 +78,7 @@ namespace ConnectApp.components {
                                             textAlign: TextAlign.left
                                         ),
                                         new Text(
-                                            $"{username} · {DateConvert.DateStringFromNow(article.updatedTime)} · 阅读 {article.viewCount}",
+                                            $"{username} · {DateConvert.DateStringFromNow(time)} · 阅读 {article.viewCount}",
                                             style: CTextStyle.PSmallBody3,
                                             textAlign: TextAlign.left
                                         )

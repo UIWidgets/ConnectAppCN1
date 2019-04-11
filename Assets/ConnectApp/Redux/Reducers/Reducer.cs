@@ -4,6 +4,7 @@ using ConnectApp.components;
 using ConnectApp.models;
 using ConnectApp.redux.actions;
 using ConnectApp.screens;
+using ConnectApp.utils;
 using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
@@ -49,6 +50,7 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.loading = false;
                     state.loginState.loginInfo = action.loginInfo;
                     state.loginState.isLoggedIn = true;
+                    EventBus.publish(EventBusConstant.login_success, new List<object>());
                     break;
                 }
                 case LoginByEmailFailureAction _: {
@@ -79,6 +81,7 @@ namespace ConnectApp.redux.reducers {
 //                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPopAction());
 //                    StoreProvider.store.dispatcher.dispatch(new CleanEmailAndPasswordAction());
                     CustomDialogUtils.hiddenCustomDialog();
+                    EventBus.publish(EventBusConstant.login_success, new List<object>());
                     break;
                 }
                 case LoginByWechatFailureAction action: {
@@ -103,7 +106,7 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case FetchArticleSuccessAction action: {
-                    if (action.pageNumber == 1)
+                    if (action.pageNumber == 0)
                         state.articleState.articleList.Clear();
                     foreach (var article in action.articleList) {
                         state.articleState.articleList.Add(article.id);
@@ -116,7 +119,7 @@ namespace ConnectApp.redux.reducers {
                     state.articleState.articlesLoading = false;
                     break;
                 }
-                case FetchArticleFailedAction _: {
+                case FetchArticleFailureAction _: {
                     state.articleState.articlesLoading = false;
                     break;
                 }
@@ -391,7 +394,10 @@ namespace ConnectApp.redux.reducers {
                     state.notificationState.loading = false;
                     break;
                 }
-                case StartReportItemAction action: {
+                case FetchMakeAllSeenAction _: {
+                    break;
+                }
+                case StartReportItemAction _: {
                     break;
                 }
                 case ReportItemSuccessAction _: {

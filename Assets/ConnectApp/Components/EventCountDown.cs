@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.constants;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -7,19 +8,18 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.components {
-    public class EventCountDown : StatelessWidget {
+    public class EventCountDown : AnimatedWidget {
         public EventCountDown(
-            int animation,
+            Animation<int> animation,
             Key key = null
-        ) : base(key) {
+        ) : base(key, animation) {
             this.animation = animation;
         }
 
-        private readonly int animation;
+        private readonly Animation<int> animation;
 
-        public override Widget build(BuildContext context) {
-            // int seconds = animation.value;
-            int seconds = animation;
+        protected override Widget build(BuildContext context) {
+            int seconds = animation.value;
             int minutes = seconds / 60;
 
             int minutesOne = 0;

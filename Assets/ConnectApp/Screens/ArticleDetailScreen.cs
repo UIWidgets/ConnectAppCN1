@@ -283,6 +283,7 @@ namespace ConnectApp.screens {
                 _avatar = Avatar.Team(_team.id, _team, 32);
             var text = _article.ownerType == "user" ? _user.fullName : _team.name;
             var description = _article.ownerType == "user" ? _user.title : "";
+            var time = _article.lastPublishedTime == null ? _article.publishedTime : _article.lastPublishedTime;
             Widget descriptionWidget = new Container();
             if (description.isNotEmpty())
                 descriptionWidget = new Text(
@@ -302,7 +303,7 @@ namespace ConnectApp.screens {
                         new Container(
                             margin: EdgeInsets.only(top: 8),
                             child: new Text(
-                                $"阅读 {_article.viewCount} · {DateConvert.DateStringFromNow(_article.createdTime)}",
+                                $"阅读 {_article.viewCount} · {DateConvert.DateStringFromNow(time)}",
                                 style: CTextStyle.PSmallBody4
                             )
                         ),

@@ -29,7 +29,12 @@ namespace ConnectApp.components {
         public override Widget build(BuildContext context) {
             if (notification == null) return new Container();
             var type = notification.type;
-            if (type != "project_liked" && type != "project_message_commented") return new Container();
+            var types = new List<string> {
+                "project_liked",
+                "project_message_commented",
+                "project_participate_comment"
+            };
+            if (!types.Contains(type)) return new Container();
 
             return new GestureDetector(
                 onTap: () => onTap(),
@@ -77,6 +82,11 @@ namespace ConnectApp.components {
             if (type == "project_message_commented")
                 subTitle = new TextSpan(
                     $" 评价了你的{data.projectTitle}文章",
+                    CTextStyle.PLargeBody2
+                );
+            if (type == "project_participate_comment")
+                subTitle = new TextSpan(
+                    $" 评价了你关注/喜欢的{data.projectTitle}文章",
                     CTextStyle.PLargeBody2
                 );
 

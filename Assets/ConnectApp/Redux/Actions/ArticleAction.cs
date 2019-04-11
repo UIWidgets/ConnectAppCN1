@@ -14,7 +14,8 @@ namespace ConnectApp.redux.actions {
         public List<Article> articleList;
         public int total;
     }
-    public class FetchArticleFailedAction : BaseAction {
+    
+    public class FetchArticleFailureAction : BaseAction {
     }
 
     public class StartFetchArticleDetailAction : RequestAction {
@@ -104,7 +105,7 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => {
-                        dispatcher.dispatch(new FetchArticleFailedAction());
+                        dispatcher.dispatch(new FetchArticleFailureAction());
                         Debug.Log(error);
                     });
             });
