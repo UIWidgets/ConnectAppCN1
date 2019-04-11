@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using Unity.UIWidgets.foundation;
 using UnityEngine;
 
 namespace ConnectApp.models {
@@ -20,12 +22,22 @@ namespace ConnectApp.models {
         public SettingState settingState { get; set; }
 
         public static AppState initialState() {
-//            var xx = PlayerPrefs.GetString();
-//            var xxxx = new LoginState {
-//                email = "empty",
-//                isLoggedIn = false,
-//                loading = false
-//            };
+
+            var searchHistory = PlayerPrefs.GetString("searchHistoryKey");
+            var searchHistoryList = new List<string>();
+            if (searchHistory.isNotEmpty())
+                searchHistoryList = JsonConvert.DeserializeObject<List<string>>(searchHistory);
+            
+            var articleHistory = PlayerPrefs.GetString("articleHistoryKey");
+            var articleHistoryList = new List<Article>();
+            if (articleHistory.isNotEmpty())
+                articleHistoryList = JsonConvert.DeserializeObject<List<Article>>(articleHistory);
+            
+            var eventHistory = PlayerPrefs.GetString("eventHistoryKey");
+            var eventHistoryList = new List<IEvent>();
+            if (eventHistory.isNotEmpty())
+                eventHistoryList = JsonConvert.DeserializeObject<List<IEvent>>(eventHistory);
+            
             return new AppState {
                 Count = PlayerPrefs.GetInt("count", 0),
                 loginState = new LoginState {
@@ -42,7 +54,7 @@ namespace ConnectApp.models {
                     articleDetailLoading = false,
                     articleTotal = 0,
                     pageNumber = 1,
-                    articleHistory = new List<Article>()
+                    articleHistory = articleHistoryList
                 },
                 eventState = new EventState {
                     ongoingEvents = new List<string>(),
@@ -53,7 +65,7 @@ namespace ConnectApp.models {
                     pageNumber = 1,
                     completedPageNumber = 1,
                     eventsLoading = false,
-                    eventHistory = new List<IEvent>(),
+                    eventHistory = eventHistoryList,
                     channelId = ""
                 },
                 popularSearchState = new PopularSearchState {
@@ -64,7 +76,8 @@ namespace ConnectApp.models {
                     keyword = "",
                     searchArticles = new List<Article>(),
                     currentPage = 0,
-                    pages = new List<int>()
+                    pages = new List<int>(),
+                    searchHistoryList = searchHistoryList,
                 },
                 notificationState = new NotificationState {
                     loading = false,
@@ -92,7 +105,7 @@ namespace ConnectApp.models {
                     channelMessageList = new Dictionary<string, List<string>>()
                 },
                 settingState = new SettingState {
-                    reviewLoading = false,
+                    fetchReviewUrlLoading = false,
                     reviewUrl = ""
                 }
             };

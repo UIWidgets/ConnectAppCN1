@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
@@ -12,12 +13,15 @@ namespace ConnectApp.components {
     public class EventDetailLoading : StatelessWidget {
         public EventDetailLoading(
             EventType eventType = EventType.offline,
+            Action mainRouterPop = null,
             Key key = null
         ) : base(key) {
             this.eventType = eventType;
+            this.mainRouterPop = mainRouterPop;
         }
 
         private readonly EventType eventType;
+        private readonly Action mainRouterPop;
 
         public override Widget build(BuildContext context) {
             return new Container(
@@ -52,8 +56,7 @@ namespace ConnectApp.components {
                                         child: new Row(
                                             children: new List<Widget> {
                                                 new CustomButton(
-                                                    onPressed: () =>
-                                                        StoreProvider.store.Dispatch(new MainNavigatorPopAction()),
+                                                    onPressed: () => mainRouterPop(),
                                                     child: new Icon(
                                                         Icons.arrow_back,
                                                         size: 28,

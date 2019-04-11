@@ -1,18 +1,18 @@
 using System.Collections.Generic;
+using ConnectApp.api;
 using ConnectApp.models;
+using Unity.UIWidgets.Redux;
+using UnityEngine;
 
 namespace ConnectApp.redux.actions {
-    public class PopularSearchAction : RequestAction {
+    public class StartPopularSearchAction : RequestAction {
     }
     
     public class PopularSearchSuccessAction : RequestAction {
         public List<PopularSearch> popularSearch;
     }
     
-    public class SearchArticleAction : RequestAction {
-        public string keyword;
-        public int pageNumber = 0;
-    }
+    public class StartSearchArticleAction : RequestAction {}
 
     public class SearchArticleSuccessAction : BaseAction {
         public string keyword;
@@ -20,12 +20,11 @@ namespace ConnectApp.redux.actions {
         public FetchSearchResponse searchResponse;
     }
     
-    public class SearchArticleFailedAction : BaseAction {
+    public class SearchArticleFailureAction : BaseAction {
         public string keyword;
     }
 
-    public class ClearSearchArticleAction : BaseAction {
-    }
+    public class ClearSearchArticleResultAction : BaseAction {}
 
     public class GetSearchHistoryAction : BaseAction {
     }
@@ -39,5 +38,37 @@ namespace ConnectApp.redux.actions {
     }
 
     public class DeleteAllSearchHistoryAction : BaseAction {
+    }
+    
+    public static partial class Actions {
+        public static object searchArticles(string keyword, int pageNumber)
+        {
+            return new ThunkAction<AppState>((dispatcher, getState) => {                
+                return SearchApi.SearchArticle(keyword, pageNumber)
+                    .Then(searchResponse => {
+                        dispatcher.dispatch(new UserMapAction {userMap = searchResponse.userMap});
+                        dispatcher.dispatch(new TeamMapAction {teamMap = searchResponse.teamMap});
+                        dispatcher.dispatch(new SearchArticleSuccessAction {
+                            keyword = keyword,
+                            pageNumber = pageNumber,
+                            searchResponse = searchResponse
+                        });
+                    })
+                    .Catch(Debug.Log);
+            });
+        }
+        
+        public static object popularSearch()
+        {
+            return new ThunkAction<AppState>((dispatcher, getState) => {                
+                return SearchApi.PopularSearch()
+                    .Then(popularSearch => {
+                        dispatcher.dispatch(new PopularSearchSuccessAction {
+                            popularSearch = popularSearch
+                        });
+                    })
+                    .Catch(error => { Debug.Log(error);});
+            });
+        }
     }
 }

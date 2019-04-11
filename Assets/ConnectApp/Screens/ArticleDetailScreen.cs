@@ -1,34 +1,87 @@
+using System;
 using System.Collections.Generic;
-using ConnectApp.api;
 using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
-using ConnectApp.plugins;
-using ConnectApp.redux;
+using ConnectApp.Models.ActionModel;
+using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using ConnectApp.utils;
+using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 using Avatar = ConnectApp.components.Avatar;
-using Config = ConnectApp.constants.Config;
 
 namespace ConnectApp.screens {
-    public class ArticleDetailScreen : StatefulWidget {
-        public ArticleDetailScreen(
-            Key key = null,
-            string articleId = null
-        ) : base(key) {
-            D.assert(articleId != null);
+    public class ArticleDetailScreenConnector : StatelessWidget {
+        public ArticleDetailScreenConnector(string articleId) {
             this.articleId = articleId;
         }
 
-        public readonly string articleId;
+        private readonly string articleId;
+
+        public override Widget build(BuildContext context) {
+            return new StoreConnector<AppState, ArticleDetailScreenViewModel>(
+                converter: (state) => new ArticleDetailScreenViewModel {
+                    articleId = articleId,
+                    loginUserId = state.loginState.loginInfo.userId,
+                    isLoggedIn = state.loginState.isLoggedIn,
+                    articleDetailLoading = state.articleState.articleDetailLoading,
+                    articleDict = state.articleState.articleDict,
+                    channelMessageList = state.messageState.channelMessageList,
+                    channelMessageDict = state.messageState.channelMessageDict,
+                    userDict = state.userState.userDict,
+                    teamDict = state.teamState.teamDict
+                },
+                builder: (context1, viewModel, dispatcher) => {
+                    var actionModel = new ArticleDetailScreenActionModel {
+                        mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
+                        pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
+                            routeName = MainNavigatorRoutes.Login
+                        }),
+                        openUrl = url => dispatcher.dispatch(new OpenUrlAction {url = url}),
+                        pushToArticleDetail = (id) => dispatcher.dispatch(
+                            new MainNavigatorPushToArticleDetailAction {
+                                articleId = id
+                            }),
+                        startFetchArticleDetail = () => dispatcher.dispatch(new StartFetchArticleDetailAction()),
+                        fetchArticleDetail = (id) =>
+                            dispatcher.dispatch<IPromise>(Actions.FetchArticleDetail(id)),
+                        fetchArticleComments = (channelId, currOldestMessageId) =>
+                            dispatcher.dispatch<IPromise>(
+                                Actions.fetchArticleComments(channelId, currOldestMessageId)
+                            ),
+                        likeArticle = (id) => dispatcher.dispatch<IPromise>(Actions.likeArticle(id)),
+                        likeComment = (id) => dispatcher.dispatch<IPromise>(Actions.likeComment(id)),
+                        removeLikeComment = (id) => dispatcher.dispatch<IPromise>(Actions.removeLikeComment(id)),
+                        sendComment = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
+                            Actions.sendComment(channelId, content, nonce, parentMessageId))
+                    };
+                    
+                    return new ArticleDetailScreen(viewModel, actionModel);
+                });
+        }
+    }
+
+    internal class ArticleDetailScreen : StatefulWidget {
+        public ArticleDetailScreen(
+            ArticleDetailScreenViewModel viewModel = null,
+            ArticleDetailScreenActionModel actionModel = null,
+            Key key = null
+        ) : base(key) {
+            this.viewModel = viewModel;
+            this.actionModel = actionModel;
+        }
+
+        public readonly ArticleDetailScreenViewModel viewModel;
+        public readonly ArticleDetailScreenActionModel actionModel;
 
         public override State createState() {
             return new _ArticleDetailScreenState();
@@ -47,168 +100,137 @@ namespace ConnectApp.screens {
         private bool _hasMore = false;
         private RefreshController _refreshController;
 
-
         public override void initState() {
             base.initState();
             _refreshController = new RefreshController();
-            StoreProvider.store.Dispatch(new FetchArticleDetailAction
-                {articleId = widget.articleId});
+            SchedulerBinding.instance.addPostFrameCallback(_ =>
+            {
+                widget.actionModel.startFetchArticleDetail();
+                widget.actionModel.fetchArticleDetail(widget.viewModel.articleId);  
+            });
         }
-
-        private static void _toLogin() {
-            StoreProvider.store.Dispatch(new MainNavigatorPushToAction {routeName = MainNavigatorRoutes.Login});
-        }
-
+        
         public override Widget build(BuildContext context) {
-            Debug.Log($"articledetail - MediaQuery.of(context).viewInsets.bottom==== {MediaQuery.of(context).viewInsets.bottom}");
-            return new StoreConnector<AppState, Dictionary<string, object>>(
-                converter: (state, dispatcher) => new Dictionary<string, object> {
-                    {"articleDetailLoading", state.articleState.articleDetailLoading},
-                    {"articleDict", state.articleState.articleDict},
-                    {"channelMessageDict", state.messageState.channelMessageDict},
-                    {"channelMessageList", state.messageState.channelMessageList},
-                    {"userDict", state.userState.userDict},
-                    {"teamDict", state.teamState.teamDict}
-                },
-                builder: (context1, viewModel) => {
-                    var articleDetailLoading = (bool) viewModel["articleDetailLoading"];
-                    if (articleDetailLoading)
-                        return new Container(
-                            color: CColors.White,
-                            child: new SafeArea(
-                                child: new Column(
-                                    children: new List<Widget> {
-                                        _buildNavigationBar(),
-                                        new ArticleDetailLoading()
-                                    }
-                                )
-                            )
-                        );
-                    var articleDict = (Dictionary<string, Article>) viewModel["articleDict"];
-                    articleDict.TryGetValue(widget.articleId, out _article);
-                    if (_article == null || _article.channelId == null) return new Container();
-                    var channelMessageList = (Dictionary<string, List<string>>) viewModel["channelMessageList"];
-
-                    if (_article.ownerType == "user") {
-                        var userDict = (Dictionary<string, User>) viewModel["userDict"];
-                        if (_article.userId != null && userDict.TryGetValue(_article.userId, out _user))
-                            _user = userDict[_article.userId];
-                    }
-
-                    if (_article.ownerType == "team") {
-                        var teamDict = (Dictionary<string, Team>) viewModel["teamDict"];
-                        if (_article.teamId != null && teamDict.TryGetValue(_article.teamId, out _team))
-                            _team = teamDict[_article.teamId];
-                    }
-
-                    _channelId = _article.channelId;
-                    _relArticles = _article.projects;
-                    if (channelMessageList.ContainsKey(_article.channelId))
-                        _channelComments = channelMessageList[_article.channelId];
-                    _contentMap = _article.contentMap;
-                    _lastCommentId = _article.currOldestMessageId ?? "";
-                    _hasMore = _article.hasMore;
-
-                    var originItems = _article == null ? new List<Widget>() : _buildItems(context);
-
-                    var child = new Container(
-                        color: CColors.background3,
+            if (widget.viewModel.articleDetailLoading)
+                return new Container(
+                    color: CColors.White,
+                    child: new SafeArea(
                         child: new Column(
                             children: new List<Widget> {
                                 _buildNavigationBar(),
-                                new Expanded(
-                                    child: new SmartRefresher(
-                                        controller: _refreshController,
-                                        enablePullDown: false,
-                                        enablePullUp: _hasMore,
-                                        footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
-                                        onRefresh: _onRefresh,
-                                        child: ListView.builder(
-                                            physics: new AlwaysScrollableScrollPhysics(),
-                                            itemCount: originItems.Count,
-                                            itemBuilder: (cxt, index) => originItems[index]
-                                        )
-                                    )
-                                ),
-                                new ArticleTabBar(
-                                    _article.like,
-                                    () => {
-                                        if (!StoreProvider.store.state.loginState.isLoggedIn)
-                                            _toLogin();
-                                        else
-                                            ActionSheetUtils.showModalActionSheet(new CustomInput(
-                                                doneCallBack: text => {
-                                                    ActionSheetUtils.hiddenModalPopup();
-                                                    StoreProvider.store.Dispatch(new SendCommentAction {
-                                                        channelId = _article.channelId,
-                                                        content = text,
-                                                        nonce = Snowflake.CreateNonce()
-                                                    });
-                                                })
-                                            );
-                                    },
-                                    () => {
-                                        if (!StoreProvider.store.state.loginState.isLoggedIn)
-                                            _toLogin();
-                                        else
-                                            ActionSheetUtils.showModalActionSheet(new CustomInput(
-                                                doneCallBack: text => {
-                                                    ActionSheetUtils.hiddenModalPopup();
-                                                    StoreProvider.store.Dispatch(new SendCommentAction {
-                                                        channelId = _article.channelId,
-                                                        content = text,
-                                                        nonce = Snowflake.CreateNonce()
-                                                    });
-                                                })
-                                            );
-                                    },
-                                    () => {
-                                        if (!StoreProvider.store.state.loginState.isLoggedIn) {
-                                            _toLogin();
-                                        }
-                                        else {
-                                            if (!_article.like)
-                                                StoreProvider.store.Dispatch(new LikeArticleAction {
-                                                    articleId = _article.id
-                                                });
-                                        }
-                                    },
-                                    shareCallback: () => { ShareUtils.showShareView(new ShareView(
-                                        onPressed: type =>
-                                        {
-                                            string linkUrl =
-                                                $"{Config.apiAddress}/p/{_article.id}";
-                                            string imageUrl = $"{_article.thumbnail.url}.200x0x1.jpg";
-                                            StoreProvider.store.Dispatch(new ShareAction{type = type,title = _article.title,description = _article.description,linkUrl = linkUrl,imageUrl = imageUrl});
-                                        })); }
-                                )
+                                new ArticleDetailLoading()
                             }
                         )
-                    );
-                    return new Container(
-                        color: CColors.White,
-                        child: new SafeArea(
-                            child: child
+                    )
+                );
+            widget.viewModel.articleDict.TryGetValue(widget.viewModel.articleId, out _article);
+            if (_article == null || _article.channelId == null) return new Container();
+            if (_article.ownerType == "user")
+                if (_article.userId != null && widget.viewModel.userDict.TryGetValue(_article.userId, out _user))
+                    _user = widget.viewModel.userDict[_article.userId];
+
+            if (_article.ownerType == "team")
+                if (_article.teamId != null && widget.viewModel.teamDict.TryGetValue(_article.teamId, out _team))
+                    _team = widget.viewModel.teamDict[_article.teamId];
+            _channelId = _article.channelId;
+            _relArticles = _article.projects;
+            if (widget.viewModel.channelMessageList.ContainsKey(_article.channelId))
+                _channelComments = widget.viewModel.channelMessageList[_article.channelId];
+            _contentMap = _article.contentMap;
+            _lastCommentId = _article.currOldestMessageId ?? "";
+            _hasMore = _article.hasMore;
+
+            var originItems = _article == null ? new List<Widget>() : _buildItems(context);
+
+            var child = new Container(
+                color: CColors.background3,
+                child: new Column(
+                    children: new List<Widget> {
+                        _buildNavigationBar(),
+                        new Expanded(
+                            child: new SmartRefresher(
+                                controller: _refreshController,
+                                enablePullDown: false,
+                                enablePullUp: _hasMore,
+                                footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
+                                onRefresh: _onRefresh,
+                                child: ListView.builder(
+                                    physics: new AlwaysScrollableScrollPhysics(),
+                                    itemCount: originItems.Count,
+                                    itemBuilder: (cxt, index) => originItems[index]
+                                )
+                            )
+                        ),
+                        new ArticleTabBar(
+                            _article.like,
+                            () => {
+                                if (!widget.viewModel.isLoggedIn)
+                                    widget.actionModel.pushToLogin();
+                                else
+                                    ActionSheetUtils.showModalActionSheet(new CustomInput(
+                                        doneCallBack: text => {
+                                            ActionSheetUtils.hiddenModalPopup();
+                                            widget.actionModel.sendComment(
+                                                _article.channelId,
+                                                text,
+                                                Snowflake.CreateNonce(),
+                                                null
+                                            );
+                                        })
+                                    );
+                            },
+                            () => {
+                                if (!widget.viewModel.isLoggedIn)
+                                    widget.actionModel.pushToLogin();
+                                else
+                                    ActionSheetUtils.showModalActionSheet(new CustomInput(
+                                        doneCallBack: text => {
+                                            ActionSheetUtils.hiddenModalPopup();
+                                            widget.actionModel.sendComment(
+                                                _article.channelId,
+                                                text,
+                                                Snowflake.CreateNonce(),
+                                                null
+                                            );
+                                        })
+                                    );
+                            },
+                            () => {
+                                if (!widget.viewModel.isLoggedIn) {
+                                    widget.actionModel.pushToLogin();
+                                }
+                                else {
+                                    if (!_article.like)
+                                        widget.actionModel.likeArticle(_article.id);
+                                }
+                            },
+                            shareCallback: () => { ShareUtils.showShareView(new ShareView()); }
                         )
-                    );
-                }
+                    }
+                )
+            );
+            return new Container(
+                color: CColors.White,
+                child: new SafeArea(
+                    child: child
+                )
             );
         }
 
         private List<Widget> _buildItems(BuildContext context) {
             var originItems = new List<Widget>();
-            originItems.Add(_buildContentHead(context));
+            originItems.Add(_buildContentHead());
             originItems.Add(_buildSubTitle());
-            originItems.AddRange(ArticleDescription.map(context, _article.body, _contentMap));
-            originItems.Add(_buildActionCards(context, _article.like));
+            originItems.AddRange(ContentDescription.map(context, _article.body, _contentMap, widget.actionModel.openUrl));
+            originItems.Add(_buildActionCards(_article.like));
             originItems.Add(_buildRelatedArticles());
-            originItems.Add(_comments(context));
-            originItems.AddRange(_buildComments(context));
-            if (!_article.hasMore) originItems.Add(_buildEnd(context));
+            originItems.Add(_comments());
+            originItems.AddRange(_buildComments());
+            if (!_article.hasMore) originItems.Add(_buildEnd());
             return originItems;
         }
 
-        private static Widget _buildNavigationBar() {
+        private Widget _buildNavigationBar() {
             return new Container(
                 decoration: new BoxDecoration(
                     border: new Border(
@@ -219,7 +241,7 @@ namespace ConnectApp.screens {
                 ),
                 child: new CustomNavigationBar(
                     new GestureDetector(
-                        onTap: () => { StoreProvider.store.Dispatch(new MainNavigatorPopAction()); },
+                        onTap: () => widget.actionModel.mainRouterPop(),
                         child: new Icon(Icons.arrow_back, size: 24, color: CColors.icon3)
                     ), new List<Widget> {
                         new CustomButton(
@@ -250,32 +272,22 @@ namespace ConnectApp.screens {
 
         private void _onRefresh(bool up) {
             if (!up)
-                ArticleApi.FetchArticleComments(_channelId, _lastCommentId)
-                    .Then(responseComments => {
-                        _lastCommentId = responseComments.currOldestMessageId;
-                        _hasMore = responseComments.hasMore;
-
-                        StoreProvider.store.Dispatch(new FetchArticleCommentsSuccessAction {
-                            channelId = _channelId,
-                            commentsResponse = responseComments,
-                            isRefreshList = false,
-                            hasMore = _hasMore,
-                            currOldestMessageId = _lastCommentId
-                        });
-                        _refreshController.sendBack(up, RefreshStatus.idle);
-                    })
-                    .Catch(error => {
-                        _refreshController.sendBack(up, RefreshStatus.failed);
-                        Debug.Log(error);
-                    });
+                widget.actionModel.fetchArticleComments(_channelId, _lastCommentId)
+                    .Then(() => { _refreshController.sendBack(up, RefreshStatus.idle); })
+                    .Catch(err => { _refreshController.sendBack(up, RefreshStatus.failed); });
         }
 
-        private Widget _buildContentHead(BuildContext context) {
-            var avatar = new Avatar(
-                _article.ownerType == "user" ? _user.id : _team.id,
-                32,
-                _article.ownerType == "user" ? OwnerType.user : OwnerType.team
-            );
+        private Widget _buildContentHead()
+        {
+            Widget _avatar;
+            if (_article.ownerType == OwnerType.user.ToString())
+            {
+                _avatar = Avatar.User(_user.id, _user, 32);
+            }
+            else
+            {
+                _avatar = Avatar.Team(_team.id, _team, 32);
+            }
             var text = _article.ownerType == "user" ? _user.fullName : _team.name;
             var description = _article.ownerType == "user" ? _user.title : "";
             Widget descriptionWidget = new Container();
@@ -307,7 +319,7 @@ namespace ConnectApp.screens {
                                 children: new List<Widget> {
                                     new Container(
                                         margin: EdgeInsets.only(right: 8),
-                                        child: avatar
+                                        child: _avatar
                                     ),
                                     new Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
@@ -345,7 +357,7 @@ namespace ConnectApp.screens {
         }
 
 
-        private Widget _buildActionCards(BuildContext context, bool like) {
+        private Widget _buildActionCards(bool like) {
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(bottom: 40),
@@ -354,14 +366,12 @@ namespace ConnectApp.screens {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: new List<Widget> {
                         new ActionCard(Icons.favorite, like ? "已赞" : "点赞", like, () => {
-                            if (!StoreProvider.store.state.loginState.isLoggedIn) {
-                                _toLogin();
+                            if (!widget.viewModel.isLoggedIn) {
+                                widget.actionModel.pushToLogin();
                             }
                             else {
                                 if (!like)
-                                    StoreProvider.store.Dispatch(new LikeArticleAction {
-                                        articleId = _article.id
-                                    });
+                                    widget.actionModel.likeArticle(_article.id);
                             }
                         }),
                         new Container(width: 16),
@@ -374,14 +384,25 @@ namespace ConnectApp.screens {
         private Widget _buildRelatedArticles() {
             if (_relArticles.Count == 0) return new Container();
             var widgets = new List<Widget>();
-            _relArticles.ForEach(article => {
-                widgets.Add(new RelatedArticleCard(
-                    article,
-                    () => {
-                        StoreProvider.store.Dispatch(
-                            new MainNavigatorPushToArticleDetailAction {articleId = article.id});
-                    }
-                ));
+            _relArticles.ForEach(article =>
+            {
+                Widget card;
+                if (article.ownerType==OwnerType.user.ToString())
+                {
+                    card = RelatedArticleCard.User(article,_user, () =>
+                        {
+                            widget.actionModel.pushToArticleDetail(article.id);
+                        },new ObjectKey(article.id));
+                }
+                else
+                {
+                    card = RelatedArticleCard.Team(article,_team, () =>
+                    {
+                        widget.actionModel.pushToArticleDetail(article.id);
+                    },new ObjectKey(article.id));
+                }
+
+                widgets.Add(card);
             });
             return new Container(
                 color: CColors.White,
@@ -402,7 +423,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _comments(BuildContext context) {
+        private Widget _comments() {
             if (_channelComments.Count == 0) return new Container();
             return new Container(
                 color: CColors.White,
@@ -415,19 +436,28 @@ namespace ConnectApp.screens {
             );
         }
 
-        private List<Widget> _buildComments(BuildContext context) {
+        private List<Widget> _buildComments() {
             if (_channelComments.isEmpty()) return new List<Widget>();
             var comments = new List<Widget>();
-            var channelMessageDict = StoreProvider.store.state.messageState.channelMessageDict;
-            if (!channelMessageDict.ContainsKey(_channelId)) return comments;
-            var messageDict = channelMessageDict[_channelId];
+            if (!widget.viewModel.channelMessageDict.ContainsKey(_channelId)) return comments;
+            var messageDict = widget.viewModel.channelMessageDict[_channelId];
             foreach (var commentId in _channelComments) {
                 if (!messageDict.ContainsKey(commentId)) break;
                 var message = messageDict[commentId];
-                bool isPraised = _isPraised(message);
+                bool isPraised = _isPraised(message, widget.viewModel.loginUserId);
+                var parentName = "";
+                if (message.parentMessageId.isNotEmpty())
+                {
+                    if (messageDict.ContainsKey(message.parentMessageId))
+                    {
+                       var parentMessage = messageDict[message.parentMessageId];
+                       parentName = parentMessage.author.fullName;
+                    } 
+                }
                 var card = new CommentCard(
                     message,
                     isPraised,
+                    parentName,
                     () => {
                         ActionSheetUtils.showModalActionSheet(new ActionSheet(
                             items: new List<ActionSheetItem> {
@@ -437,31 +467,31 @@ namespace ConnectApp.screens {
                         ));
                     },
                     replyCallBack: () => {
-                        if (!StoreProvider.store.state.loginState.isLoggedIn)
-                            _toLogin();
+                        if (!widget.viewModel.isLoggedIn)
+                            widget.actionModel.pushToLogin();
                         else
                             ActionSheetUtils.showModalActionSheet(new CustomInput(
                                 message.author.fullName.isEmpty() ? "" : message.author.fullName,
                                 text => {
                                     ActionSheetUtils.hiddenModalPopup();
-                                    StoreProvider.store.Dispatch(new SendCommentAction {
-                                        channelId = _channelId,
-                                        content = text,
-                                        nonce = Snowflake.CreateNonce(),
-                                        parentMessageId = commentId
-                                    });
+                                    widget.actionModel.sendComment(
+                                        _channelId,
+                                        text,
+                                        Snowflake.CreateNonce(),
+                                        commentId
+                                    );
                                 })
                             );
                     },
                     praiseCallBack: () => {
-                        if (!StoreProvider.store.state.loginState.isLoggedIn) {
-                            _toLogin();
+                        if (!widget.viewModel.isLoggedIn) {
+                            widget.actionModel.pushToLogin();
                         }
                         else {
                             if (isPraised)
-                                StoreProvider.store.Dispatch(new RemoveLikeCommentAction {messageId = commentId});
+                                widget.actionModel.removeLikeComment(commentId);
                             else
-                                StoreProvider.store.Dispatch(new LikeCommentAction {messageId = commentId});
+                                widget.actionModel.likeComment(commentId);
                         }
                     });
                 comments.Add(card);
@@ -470,14 +500,14 @@ namespace ConnectApp.screens {
             return comments;
         }
 
-        private static bool _isPraised(Message message) {
+        private static bool _isPraised(Message message, string loginUserId) {
             foreach (var reaction in message.reactions)
-                if (reaction.user.id == StoreProvider.store.state.loginState.loginInfo.userId)
+                if (reaction.user.id == loginUserId)
                     return true;
             return false;
         }
 
-        private Widget _buildEnd(BuildContext context) {
+        private Widget _buildEnd() {
             if (_channelComments.Count == 0) return new Container();
 
             return new Container(

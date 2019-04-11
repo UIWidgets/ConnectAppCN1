@@ -1,5 +1,7 @@
 using ConnectApp.models;
 using ConnectApp.redux.reducers;
+using Unity.UIWidgets;
+using Unity.UIWidgets.Redux;
 
 namespace ConnectApp.redux {
     public static class StoreProvider {
@@ -10,8 +12,8 @@ namespace ConnectApp.redux {
                 if (_store != null) return _store;
 
                 var middleware = new[] {
-//                    ReduxLogging.Create<AppState>(),
-                    Middleware.Create()
+//                    ReduxLogging.create<AppState>(),
+                    ReduxThunk.create<AppState>()
                 };
                 _store = new Store<AppState>(
                     AppReducer.Reduce,

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.constants;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
@@ -146,11 +147,13 @@ namespace ConnectApp.components {
                 cxt => child,
                 "Dismiss"
             );
-            StoreProvider.store.Dispatch(new MainNavigatorPushToRouteAction{route = route});
+            Router.navigator.push(route);
         }
 
         public static void hiddenModalPopup() {
-            StoreProvider.store.Dispatch(new MainNavigatorPopAction());
+            if (Router.navigator.canPop()) {
+                Router.navigator.pop();
+            }
         }
     }
 

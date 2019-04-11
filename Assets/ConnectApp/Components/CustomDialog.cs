@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.constants;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
@@ -86,11 +87,13 @@ namespace ConnectApp.components {
                 new TimeSpan(0, 0, 0, 0, 150),
                 _transitionBuilder
             );
-            StoreProvider.store.Dispatch(new MainNavigatorPushToRouteAction{route = route});
+            Router.navigator.push(route);
         }
 
         public static void hiddenCustomDialog() {
-            StoreProvider.store.Dispatch(new MainNavigatorPopAction{index = 1});
+            if (Router.navigator.canPop()) {
+                Router.navigator.pop();
+            }
         }
         
         private static Widget _transitionBuilder(BuildContext context, Animation<float> animation,

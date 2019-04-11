@@ -25,7 +25,6 @@ namespace ConnectApp.redux.actions {
     }
 
     public class LoginNavigatorPushToBindUnityAction : BaseAction {
-        public FromPage fromPage;
     }
 
     public class LoginNavigatorPushToAction : BaseAction {
@@ -42,5 +41,11 @@ namespace ConnectApp.redux.actions {
 
     public class OpenUrlAction : BaseAction {
         public string url = "";
+    }
+
+    public static partial class Actions {
+//        public static object popFromBindUnityScreen() {
+//            return 
+//        }
     }
 }
