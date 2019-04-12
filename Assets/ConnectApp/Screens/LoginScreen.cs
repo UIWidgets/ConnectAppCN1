@@ -51,7 +51,13 @@ namespace ConnectApp.screens {
                 builder: (context1, _, dispatcher) => {
                     var actionModel = new LoginSwitchScreenActionModel {
                         mainRouterPop =() => dispatcher.dispatch(new MainNavigatorPopAction()),
-                        loginByWechatAction =code=>dispatcher.dispatch<IPromise>(Actions.loginByWechat(code)),
+                        loginByWechatAction = code =>
+                        {
+                            CustomDialogUtils.showCustomDialog(
+                                child: new CustomDialog()
+                            );
+                            dispatcher.dispatch<IPromise>(Actions.loginByWechat(code));
+                        },
                         loginRouterPushToUnityBind=() => dispatcher.dispatch(new LoginNavigatorPushToBindUnityAction())
 
                     };
@@ -179,9 +185,6 @@ namespace ConnectApp.screens {
             return new CustomButton(
                 onPressed: () =>
                 {
-                    CustomDialogUtils.showCustomDialog(
-                        child: new CustomDialog()
-                    );
                     WechatPlugin.instance(code => actionModel.loginByWechatAction(code))
                         .login(Guid.NewGuid().ToString());
                 },
