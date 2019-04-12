@@ -256,19 +256,16 @@ namespace ConnectApp.components {
             var width = originalImage.width < MediaQuery.of(context).size.width - 32
                 ? originalImage.width
                 : MediaQuery.of(context).size.width - 32;
+            var height = width * originalImage.height / originalImage.width;
             var nodes = new List<Widget> {
                 new Stack(
                     children: new List<Widget> {
-                        new Container(
-                            color:CColors.BgGrey,
-                            child:new PlaceholderImage(
-                                originalImage.url ?? "",
-                                width,
-                                width * originalImage.height / originalImage.width,
-                                fit: BoxFit.cover
-                            )
+                        new PlaceholderImage(
+                            originalImage.url ?? "",
+                            width,
+                            height,
+                            fit: BoxFit.cover
                         ),
-                        
                         playButton
                     }
                 )

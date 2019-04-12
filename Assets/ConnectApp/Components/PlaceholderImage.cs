@@ -38,19 +38,17 @@ namespace ConnectApp.components {
                     color: new Color(0xFFD8D8D8)
                 );
             else
-//                child = new CachedNetworkImage(
-//                    imageUrl,
-//                    new Container(
-//                        color: new Color(0xFFD8D8D8)
-//                    ),
-//                    new Container(
-//                        color: new Color(0xFFD8D8D8)
-//                    ),
-//                    width: width,
-//                    height: height,
-//                    fit: fit
-//                );
-            child = Image.network(imageUrl,width:width,height:height,fit:fit);
+                child = new Container(
+                    width: width,
+                    height: height,
+                    color: new Color(0xFFD8D8D8),
+                    child: Image.network(
+                        imageUrl,
+                        width: width,
+                        height: height,
+                        fit: fit
+                    )
+                );
 
             return new ClipRRect(
                 borderRadius: BorderRadius.all(borderRadius == null ? 0 : (float) borderRadius),
