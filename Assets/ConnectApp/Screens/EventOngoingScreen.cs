@@ -58,15 +58,11 @@ namespace ConnectApp.screens
         }
     }
 
-    public class _EventOngoingScreenState : AutomaticKeepAliveClientMixin<EventOngoingScreen>
+    public class _EventOngoingScreenState : State<EventOngoingScreen>
     {
         private const int firstPageNumber = 1;
         private RefreshController _ongoingRefreshController;
         private int pageNumber = firstPageNumber;
-        protected override bool wantKeepAlive
-        {
-            get => false;
-        }
 
         public override void initState()
         {
@@ -81,6 +77,10 @@ namespace ConnectApp.screens
         public override Widget build(BuildContext context)
         {
             if (widget.viewModel.eventOngoingLoading) return new GlobalLoading();
+            if (widget.viewModel.ongoingEvents.isEmpty())
+            {
+                return new BlankView("暂无即将开始的活动");
+            }
             return new SmartRefresher(
                 controller: _ongoingRefreshController,
                 enablePullDown: true,

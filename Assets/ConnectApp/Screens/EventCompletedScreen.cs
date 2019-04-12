@@ -58,15 +58,11 @@ namespace ConnectApp.screens
         }
     }
 
-    public class _EventCompletedScreenState : AutomaticKeepAliveClientMixin<EventCompletedScreen>
+    public class _EventCompletedScreenState : State<EventCompletedScreen>
     {
         private const int firstPageNumber = 1;
         private RefreshController _completedRefreshController;
         private int pageNumber = firstPageNumber;
-        protected override bool wantKeepAlive
-        {
-            get => false;
-        }
 
         public override void initState()
         {
@@ -81,6 +77,10 @@ namespace ConnectApp.screens
         public override Widget build(BuildContext context)
         {
             if (widget.viewModel.eventCompletedLoading) return new GlobalLoading();
+            if (widget.viewModel.completedEvents.isEmpty())
+            {
+                return new BlankView("暂无即将开始的活动");
+            }
             return new SmartRefresher(
                 controller: _completedRefreshController,
                 enablePullDown: true,

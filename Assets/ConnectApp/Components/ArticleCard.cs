@@ -84,7 +84,7 @@ namespace ConnectApp.components {
                                         children: new List<Widget> {
                                             new Expanded(
                                                 child: new Text(
-                                                    article.bodyPlain,
+                                                    article.subTitle,
                                                     style: CTextStyle.PRegularBody,
                                                     maxLines: 3,
                                                     overflow: TextOverflow.ellipsis
@@ -95,7 +95,7 @@ namespace ConnectApp.components {
                                                 width: 100,
                                                 height: 66,
                                                 child: new PlaceholderImage(
-                                                    article.thumbnail.url,
+                                                    $"{article.thumbnail.url}.600x0x1.jpg",
                                                     100,
                                                     66,
                                                     4,
