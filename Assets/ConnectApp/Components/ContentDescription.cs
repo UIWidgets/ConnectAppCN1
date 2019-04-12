@@ -259,12 +259,16 @@ namespace ConnectApp.components {
             var nodes = new List<Widget> {
                 new Stack(
                     children: new List<Widget> {
-                        new PlaceholderImage(
-                            originalImage.url ?? "",
-                            width,
-                            width * originalImage.height / originalImage.width,
-                            fit: BoxFit.cover
+                        new Container(
+                            color:CColors.BgGrey,
+                            child:new PlaceholderImage(
+                                originalImage.url ?? "",
+                                width,
+                                width * originalImage.height / originalImage.width,
+                                fit: BoxFit.cover
+                            )
                         ),
+                        
                         playButton
                     }
                 )
