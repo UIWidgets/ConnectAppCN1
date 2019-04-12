@@ -57,6 +57,8 @@ namespace ConnectApp.components {
         }
 
         public override Widget build(BuildContext context) {
+            if (article == null) return new Container();
+            
             var userName = article.ownerType == OwnerType.team.ToString() ? team.name : user.fullName;
             var time = article.lastPublishedTime == null ? article.publishedTime : article.lastPublishedTime;
             var card = new Container(
