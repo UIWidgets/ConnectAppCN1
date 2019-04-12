@@ -114,6 +114,7 @@ namespace ConnectApp.screens {
                 vsync: this
             );
             SchedulerBinding.instance.addPostFrameCallback(_ => {
+                widget.actionModel.showChatWindow(false);
                 widget.actionModel.startFetchEventDetail();
                 widget.actionModel.fetchEventDetail(widget.viewModel.eventId);
             });
@@ -148,7 +149,6 @@ namespace ConnectApp.screens {
         }
 
         public override void dispose() {
-            widget.actionModel.showChatWindow(false);
             _textController.dispose();
             _controller.dispose();
             base.dispose();
@@ -348,37 +348,37 @@ namespace ConnectApp.screens {
                                 new Text(
                                     subTitle,
                                     style: CTextStyle.H5Body
-                                ),
-                                new CustomButton(
-                                    onPressed: () => {
-                                        if (widget.viewModel.joinEventLoading) return;
-                                        if (!widget.viewModel.isLoggedIn) {
-                                            widget.actionModel.pushToLogin();
-                                        }
-                                        else {
-                                            if (!userIsCheckedIn) {
-                                                widget.actionModel.startJoinEvent();
-                                                widget.actionModel.joinEvent(widget.viewModel.eventId);
-                                            }
-                                        }
-                                    },
-                                    child: new Container(
-                                        width: 96,
-                                        height: 40,
-                                        decoration: new BoxDecoration(
-                                            backgroundColor,
-                                            borderRadius: BorderRadius.all(4)
-                                        ),
-                                        alignment: Alignment.center,
-                                        child: new Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: new List<Widget> {
-                                                child
-                                            }
-                                        )
-                                    )
                                 )
                             }
+                        ),
+                        new CustomButton(
+                            onPressed: () => {
+                                if (widget.viewModel.joinEventLoading) return;
+                                if (!widget.viewModel.isLoggedIn) {
+                                    widget.actionModel.pushToLogin();
+                                }
+                                else {
+                                    if (!userIsCheckedIn) {
+                                        widget.actionModel.startJoinEvent();
+                                        widget.actionModel.joinEvent(widget.viewModel.eventId);
+                                    }
+                                }
+                            },
+                            child: new Container(
+                                width: 96,
+                                height: 40,
+                                decoration: new BoxDecoration(
+                                    backgroundColor,
+                                    borderRadius: BorderRadius.all(4)
+                                ),
+                                alignment: Alignment.center,
+                                child: new Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: new List<Widget> {
+                                        child
+                                    }
+                                )
+                            )
                         )
                     }
                 )

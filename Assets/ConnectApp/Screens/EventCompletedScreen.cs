@@ -81,6 +81,10 @@ namespace ConnectApp.screens
         public override Widget build(BuildContext context)
         {
             if (widget.viewModel.eventCompletedLoading) return new GlobalLoading();
+            if (widget.viewModel.completedEvents.isEmpty())
+            {
+                return new BlankView("暂无即将开始的活动");
+            }
             return new SmartRefresher(
                 controller: _completedRefreshController,
                 enablePullDown: true,
