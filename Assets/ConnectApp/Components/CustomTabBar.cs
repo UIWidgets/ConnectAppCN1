@@ -16,18 +16,21 @@ namespace ConnectApp.components {
         public CustomTabBar(
             List<Widget> controllers,
             List<CustomTabBarItem> items,
-            Color tabbarBackgroudColor,
+            Color backgroundColor,
             SelectTabCallBack tapCallBack = null,
             Key key = null
         ) : base(key) {
+            D.assert(controllers != null && controllers.Count > 1);
+            D.assert(items != null && items.Count > 1);
+            D.assert(controllers.Count == items.Count);
             this.controllers = controllers;
             this.items = items;
-            this.tabbarBackgroudColor = tabbarBackgroudColor;
+            this.backgroundColor = backgroundColor;
             this.tapCallBack = tapCallBack;
         }
 
         public readonly SelectTabCallBack tapCallBack;
-        public readonly Color tabbarBackgroudColor;
+        public readonly Color backgroundColor;
         public readonly List<Widget> controllers;
         public readonly List<CustomTabBarItem> items;
 
@@ -38,13 +41,14 @@ namespace ConnectApp.components {
 
     public class CustomTabBarState : State<CustomTabBar> {
         private PageController _pageController;
-        private int _selectedIndex = 0;
+        private int _selectedIndex;
 
         private const int KTabBarHeight = 49;
 
         public override void initState() {
             base.initState();
-            _pageController = new PageController(_selectedIndex, keepPage: true);
+            _selectedIndex = 0;
+            _pageController = new PageController(_selectedIndex);
         }
 
         public override Widget build(BuildContext context) {
@@ -82,7 +86,7 @@ namespace ConnectApp.components {
             return new Container(
                 decoration: new BoxDecoration(
                     border: new Border(new BorderSide(CColors.Separator)),
-                    color: widget.tabbarBackgroudColor
+                    color: widget.backgroundColor
                 ),
                 height: KTabBarHeight,
                 child: new Row(

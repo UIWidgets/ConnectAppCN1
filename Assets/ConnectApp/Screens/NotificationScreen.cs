@@ -28,6 +28,7 @@ namespace ConnectApp.screens {
                         startFetchNotifications = () => dispatcher.dispatch(new StartFetchNotificationsAction()),
                         fetchNotifications = pageNumber =>
                             dispatcher.dispatch<IPromise>(Actions.fetchNotifications(pageNumber)),
+                        fetchMakeAllSeen = () => dispatcher.dispatch<IPromise>(Actions.fetchMakeAllSeen()),
                         pushToArticleDetail = id => dispatcher.dispatch(
                             new MainNavigatorPushToArticleDetailAction {
                                 articleId = id
@@ -75,6 +76,7 @@ namespace ConnectApp.screens {
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 widget.actionModel.startFetchNotifications();
                 widget.actionModel.fetchNotifications(_pageNumber);
+                widget.actionModel.fetchMakeAllSeen();
             });
         }
 
@@ -105,7 +107,7 @@ namespace ConnectApp.screens {
                                 return new NotificationCard(
                                     notification,
                                     user,
-                                    onTap: () => widget.actionModel.pushToArticleDetail(notification.data.projectId),
+                                    () => widget.actionModel.pushToArticleDetail(notification.data.projectId),
                                     new ObjectKey(notification.id)
                                 );
                             }
@@ -150,7 +152,7 @@ namespace ConnectApp.screens {
         private bool _onNotification(ScrollNotification notification) {
 //            var pixels = notification.metrics.pixels;
 //            if (pixels >= 0) {
-//                if (pixels <= headerHeight) setState(() => { _offsetY = pixels / 2.0f; });
+//                if (pixels <= headerHeight) setState(() => { _offsetY = pixels / 2.8f; });
 //            }
 //            else {
 //                if (_offsetY != 0) setState(() => { _offsetY = 0; });
@@ -160,7 +162,7 @@ namespace ConnectApp.screens {
 
         private void _onRefresh(bool up) {
             if (up)
-                _pageNumber = 1;
+                _pageNumber = firstPageNumber;
             else
                 _pageNumber++;
             widget.actionModel.fetchNotifications(_pageNumber)

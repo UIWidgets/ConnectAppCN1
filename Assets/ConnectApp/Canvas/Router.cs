@@ -47,7 +47,7 @@ namespace ConnectApp.canvas {
             WechatPlugin.instance.context = context;
             return new Navigator(
                 globalKey,
-                onGenerateRoute: (RouteSettings settings) => {
+                onGenerateRoute: settings => {
                     return new PageRouteBuilder(
                         settings,
                         (context1, animation, secondaryAnimation) => mainRoutes[settings.name](context1),

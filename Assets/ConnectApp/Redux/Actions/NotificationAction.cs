@@ -14,6 +14,9 @@ namespace ConnectApp.redux.actions {
 
     public class FetchNotificationsFailureAction : BaseAction {
     }
+    
+    public class FetchMakeAllSeenAction : RequestAction {
+    }
 
     public static partial class Actions {
         public static object fetchNotifications(int pageNumber) {
@@ -48,6 +51,10 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(err => { dispatcher.dispatch(new FetchNotificationsFailureAction()); });
             });
+        }
+        
+        public static object fetchMakeAllSeen() {
+            return new ThunkAction<AppState>((dispatcher, getState) => NotificationApi.FetchMakeAllSeen());
         }
     }
 }

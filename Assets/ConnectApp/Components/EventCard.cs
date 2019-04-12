@@ -109,8 +109,8 @@ namespace ConnectApp.components {
                                                 width: 41,
                                                 height: 24,
                                                 color: model.mode == "online"
-                                                    ? CColors.PrimaryBlue
-                                                    : CColors.SecondaryPink,
+                                                    ? CColors.SecondaryPink
+                                                    : CColors.PrimaryBlue,
                                                 alignment: Alignment.center,
                                                 child: new Text(
                                                     model.mode == "online" ? "线上" : "线下",

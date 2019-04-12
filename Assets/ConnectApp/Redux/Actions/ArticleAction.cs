@@ -14,7 +14,7 @@ namespace ConnectApp.redux.actions {
         public List<Article> articleList;
         public int total;
     }
-
+    
     public class FetchArticleFailureAction : BaseAction {
     }
 

@@ -74,7 +74,7 @@ namespace ConnectApp.api {
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.SetRequestHeader("Content-Type", "application/json");
-            yield return request.Send();
+            yield return request.SendWebRequest();
 
             if (request.isNetworkError) {
                 // something went wrong

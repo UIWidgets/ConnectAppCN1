@@ -44,7 +44,7 @@ namespace ConnectApp.components {
             base.initState();
             _animationController = new AnimationController(
                 vsync: this,
-                duration: new TimeSpan(0, 0, 100)
+                duration: new TimeSpan(0, 0, 655)
             );
         }
 
@@ -215,7 +215,10 @@ namespace ConnectApp.components {
         private Widget _buildCountDownView() {
             return _buildHeadImage(
                 new EventCountDown(
-                    100
+                    new StepTween(
+                        655,
+                        0
+                    ).animate(_animationController)
                 )
             );
         }

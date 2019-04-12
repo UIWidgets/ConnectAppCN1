@@ -32,7 +32,6 @@ namespace ConnectApp.components {
         private readonly GestureTapCallback onTap;
         private readonly GestureTapCallback moreCallBack;
 
-
         public static ArticleCard User(
             Article article,
             GestureTapCallback onTap = null,
@@ -57,9 +56,9 @@ namespace ConnectApp.components {
             );
         }
 
-
         public override Widget build(BuildContext context) {
             var userName = article.ownerType == OwnerType.team.ToString() ? team.name : user.fullName;
+            var time = article.lastPublishedTime == null ? article.publishedTime : article.lastPublishedTime;
             var card = new Container(
                 color: CColors.White,
                 child: new Padding(
@@ -110,7 +109,7 @@ namespace ConnectApp.components {
                                         children: new List<Widget> {
                                             new Expanded(
                                                 child: new Text(
-                                                    $"{userName} · {DateConvert.DateStringFromNow(article.publishedTime)} · 阅读 {article.viewCount}",
+                                                    $"{userName} · {DateConvert.DateStringFromNow(time)} · 阅读 {article.viewCount}",
                                                     style: CTextStyle.PSmallBody3
                                                 )
                                             ),

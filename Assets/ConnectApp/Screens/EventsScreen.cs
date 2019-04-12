@@ -8,6 +8,7 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using RSG;
+using ConnectApp.utils;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -64,7 +65,6 @@ namespace ConnectApp.screens {
 
     internal class _EventsScreenState : State<EventsScreen> {
         private const int firstPageNumber = 1;
-        private const float headerHeight = 80;
         private PageController _pageController;
         private int _selectedIndex;
         private int pageNumber = firstPageNumber;
@@ -91,6 +91,11 @@ namespace ConnectApp.screens {
             });
         }
 
+        public override void dispose() {
+            _pageController.dispose();
+            base.dispose();
+        }
+        
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
@@ -258,7 +263,7 @@ namespace ConnectApp.screens {
 
         private void _ongoingRefresh(bool up) {
             if (up)
-                pageNumber = 1;
+                pageNumber = firstPageNumber;
             else
                 pageNumber++;
             widget.actionModel.fetchEvents(pageNumber, "ongoing")
@@ -268,18 +273,12 @@ namespace ConnectApp.screens {
 
         private void _completedRefresh(bool up) {
             if (up)
-                completedPageNumber = 1;
+                completedPageNumber = firstPageNumber;
             else
                 completedPageNumber++;
             widget.actionModel.fetchEvents(completedPageNumber, "completed")
-                .Then(() => _ongoingRefreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
-                .Catch(_ => _ongoingRefreshController.sendBack(up, RefreshStatus.failed));
-        }
-
-
-        public override void dispose() {
-            base.dispose();
-            _pageController.dispose();
+                .Then(() => _completedRefreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Catch(_ => _completedRefreshController.sendBack(up, RefreshStatus.failed));
         }
     }
 }
