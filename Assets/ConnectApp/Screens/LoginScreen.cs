@@ -121,9 +121,9 @@ namespace ConnectApp.screens {
                         margin: EdgeInsets.only(top: height * 0.25f - 44),
                         child: Image.asset(
                             "black-logo-unity",
-                            height: 80,
-                            width: 80,
-                            fit: BoxFit.fill
+                            height: 75,
+                            width: 75,
+                            fit: BoxFit.cover
                         )
                     ),
                     new Container(height: 40),
@@ -141,7 +141,7 @@ namespace ConnectApp.screens {
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
                     children: new List<Widget> {
-                        WechatButton(),
+                        WechatButton(context),
                         new Container(height: 16),
                         new CustomButton(
                             onPressed: () => actionModel.loginRouterPushToUnityBind(),
@@ -173,10 +173,11 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget WechatButton()
+        private Widget WechatButton(BuildContext context)
         {
             if (WechatPlugin.instance().inInstalled())
             {
+                WechatPlugin.instance().context = context;
                 return new CustomButton(
                     onPressed: () =>
                     {
@@ -201,7 +202,7 @@ namespace ConnectApp.screens {
                                     "icon-wechat",
                                     width: 24,
                                     height: 24,
-                                    fit: BoxFit.fill
+                                    fit: BoxFit.cover
                                 ),
                                 new Container(width: 8),
                                 new Text(
