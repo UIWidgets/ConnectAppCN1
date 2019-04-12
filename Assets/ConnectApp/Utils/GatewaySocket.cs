@@ -9,7 +9,7 @@ namespace ConnectApp.utils {
 
     public delegate string GetLoginSession();
 
-    public class GatewaySocket {
+    public static class GatewaySocket {
         private static WebSocket _webSocket;
 
         public static void Connect(
@@ -52,7 +52,7 @@ namespace ConnectApp.utils {
 //            }
 //        }
 
-        private void _Info(string msg) {
+        private static void _Info(string msg) {
             Debug.Log($"[INFO] GatewaySocket: {msg}");
         }
     }

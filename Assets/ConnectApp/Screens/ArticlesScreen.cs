@@ -79,12 +79,10 @@ namespace ConnectApp.screens {
             base.initState();
             _refreshController = new RefreshController();
             _offsetY = 0;
-            widget.actionModel.startFetchArticles();
-            widget.actionModel.fetchArticles(firstPageNumber);
-//            SchedulerBinding.instance.addPostFrameCallback(_ => {
-//                widget.actionModel.startFetchArticles();
-//                widget.actionModel.fetchArticles(firstPageNumber);
-//            });
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                widget.actionModel.startFetchArticles();
+                widget.actionModel.fetchArticles(firstPageNumber);
+            });
         }
 
         public override Widget build(BuildContext context) {

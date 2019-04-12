@@ -3,12 +3,12 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 namespace ConnectApp.utils {
-    public class Method {
+    public static class Method {
         public const string GET = "GET";
         public const string POST = "POST";
     }
 
-    public class HttpManager {
+    public static class HttpManager {
         private const string COOKIE = "Cookie";
 
         public static UnityWebRequest initRequest(

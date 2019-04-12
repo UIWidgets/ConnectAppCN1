@@ -18,8 +18,14 @@ namespace ConnectApp.components {
         private readonly PersonalCardItem personalItem;
 
         public override Widget build(BuildContext context) {
+            if (personalItem == null) return new Container();
+            
             return new GestureDetector(
-                onTap: personalItem.onTap,
+                onTap: () => {
+                    if (personalItem.onTap != null) {
+                        personalItem.onTap();
+                    }
+                },
                 child: new Container(
                     padding: EdgeInsets.only(16, right: 16),
                     height: 60,
@@ -41,7 +47,7 @@ namespace ConnectApp.components {
                                             child: new Icon(personalItem.icon, size: 24, color: CColors.TextBody2)
                                         ),
                                         new Text(
-                                            personalItem.title,
+                                            personalItem.title ?? "",
                                             style: CTextStyle.PLargeBody
                                         )
                                     }

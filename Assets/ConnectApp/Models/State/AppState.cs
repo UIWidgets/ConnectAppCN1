@@ -52,7 +52,7 @@ namespace ConnectApp.models {
                     articlesLoading = false,
                     articleDetailLoading = false,
                     articleTotal = 0,
-                    pageNumber = 1,
+                    pageNumber = 0,
                     articleHistory = articleHistoryList
                 },
                 eventState = new EventState {

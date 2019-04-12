@@ -22,8 +22,7 @@ namespace ConnectApp.api {
         }
 
         private static IEnumerator _FetchArticles(Promise<FetchArticlesResponse> promise, int pageNumber) {
-            var request =
-                HttpManager.GET(Config.apiAddress + "/api/p?projectType=article&t=projects&page=" + pageNumber);
+            var request = HttpManager.GET(Config.apiAddress + "/api/p?orderBy=latest&projectType=article&t=projects&page=" + pageNumber);
             yield return request.SendWebRequest();
             if (request.isNetworkError) {
                 // something went wrong
