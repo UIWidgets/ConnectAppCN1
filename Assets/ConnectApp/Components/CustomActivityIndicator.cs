@@ -85,8 +85,8 @@ namespace ConnectApp.components {
         }
 
         public override void dispose() {
-            base.dispose();
             _controller.dispose();
+            base.dispose();
         }
     }
 }

@@ -74,7 +74,7 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch<IPromise>(
                                 Actions.fetchMessages(channelId, currOldestMessageId, isFirstLoad)
                             ),
-                        shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch(
+                        shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
                             Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
                     };
                     return new EventDetailScreen(viewModel, actionModel);
@@ -201,8 +201,11 @@ namespace ConnectApp.screens {
                             string linkUrl =
                                 $"{Config.apiAddress}/events/{eventObj.id}";
                             string imageUrl = $"{eventObj.background}.200x0x1.jpg";
+                            CustomDialogUtils.showCustomDialog(
+                                child: new CustomDialog()
+                            );
                             widget.actionModel.shareToWechat(type, eventObj.title, eventObj.shortDescription, linkUrl,
-                                imageUrl);
+                                imageUrl).Then(CustomDialogUtils.hiddenCustomDialog).Catch(_ => CustomDialogUtils.hiddenCustomDialog());
                         }))
                 );
             return new Container(

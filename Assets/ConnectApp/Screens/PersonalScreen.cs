@@ -54,7 +54,7 @@ namespace ConnectApp.screens {
 
     public class _PersonalScreenState : State<PersonalScreen> {
 //        protected override bool wantKeepAlive {
-//            get => true;
+//            get => false;
 //        }
         public override Widget build(BuildContext context) {
             var navigationBar = widget.viewModel.isLoggedIn

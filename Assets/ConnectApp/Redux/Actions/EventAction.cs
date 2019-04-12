@@ -5,7 +5,9 @@ using Unity.UIWidgets.Redux;
 using UnityEngine;
 
 namespace ConnectApp.redux.actions {
-    public class StartFetchEventsAction : RequestAction {
+    public class StartFetchEventOngoingAction : RequestAction {
+    }
+    public class StartFetchEventCompletedAction : RequestAction {
     }
 
     public class FetchEventsSuccessAction : BaseAction {

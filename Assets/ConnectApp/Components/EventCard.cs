@@ -98,7 +98,7 @@ namespace ConnectApp.components {
                                         114,
                                         76,
                                         4,
-                                        BoxFit.fill
+                                        BoxFit.cover
                                     ),
                                     new Positioned(
                                         bottom: 0,

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using ConnectApp.redux;
@@ -8,16 +9,31 @@ using Unity.UIWidgets.widgets;
 using UnityEngine;
 
 namespace ConnectApp.plugins {
+    
+
     public class WechatPlugin {
-        private WechatPlugin() {
+
+        public static WechatPlugin instance(Action<string> codeCallBack=null)
+        {
+            if (plugin==null)
+            {
+                plugin = new WechatPlugin();
+            }
+
+            if (codeCallBack!=null)
+            {
+                plugin.codeCallBack = codeCallBack;
+            }
+            return plugin;
         }
 
-        public static readonly WechatPlugin instance = new WechatPlugin();
+        public static WechatPlugin plugin;
 
         private bool isListen;
 
         public BuildContext context;
 
+        public Action<string> codeCallBack;
 
         public void addListener() {
             Debug.Log("addListener");
@@ -37,7 +53,10 @@ namespace ConnectApp.plugins {
                         var type = dict["type"];
                         if (type == "code") {
                             var code = dict["code"];
-                            StoreProvider.store.dispatcher.dispatch(new LoginByWechatAction {code = code});
+                            if (codeCallBack!=null)
+                            {
+                                codeCallBack(code);
+                            }
                         }
                     }
                         break;
@@ -77,7 +96,6 @@ namespace ConnectApp.plugins {
                 addListener();
                 return isInstallWechat();
             }
-
             return false;
         }
 #if UNITY_IOS
@@ -139,6 +157,7 @@ namespace ConnectApp.plugins {
         }
 #else
         public void init(string appId) {}
+        public bool isInstallWechat() {return true;}
         public void login(string stateId) {}
         public void shareToFriend(string title, string description, string url,byte[] imageBytes) {}
         public void shareToTimeline(string title, string description, string url,byte[] imageBytes) {}

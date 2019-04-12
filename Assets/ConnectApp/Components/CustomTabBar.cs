@@ -111,7 +111,7 @@ namespace ConnectApp.components {
                                                 setState(() => {
                                                     _selectedIndex = item.index;
                                                     _pageController.animateToPage(item.index,
-                                                        new TimeSpan(0, 0, 0, 0, 1),
+                                                        new TimeSpan(0, 0, 0, 0,1),
                                                         Curves.ease);
                                                 });
                                 },
@@ -151,7 +151,13 @@ namespace ConnectApp.components {
         }
 
         private void onPageChanged(int page) {
-            setState(() => { _selectedIndex = page; });
+            _pageController.jumpToPage(page);
+        }
+
+        public override void dispose()
+        {
+            _pageController.dispose();
+            base.dispose();
         }
     }
 }

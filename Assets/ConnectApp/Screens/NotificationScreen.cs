@@ -67,7 +67,7 @@ namespace ConnectApp.screens {
         private RefreshController _refreshController;
 
 //        protected override bool wantKeepAlive {
-//            get => true;
+//            get => false;
 //        }
         public override void initState() {
             base.initState();

@@ -287,7 +287,7 @@ namespace ConnectApp.screens {
                     ),
                     new Container(height: 10),
                     new GestureDetector(
-                        onTap: () => { StoreProvider.store.dispatcher.dispatch(new StartFetchEventsAction()); },
+                        onTap: () => { StoreProvider.store.dispatcher.dispatch(new StartFetchEventOngoingAction()); },
                         child: new Container(
                             color: CColors.White,
                             child: new Text(

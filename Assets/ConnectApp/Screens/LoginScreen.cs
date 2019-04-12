@@ -4,8 +4,10 @@ using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.Models.ActionModel;
 using ConnectApp.plugins;
 using ConnectApp.redux.actions;
+using RSG;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
@@ -47,10 +49,13 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, object>(
                 converter: state => null,
                 builder: (context1, _, dispatcher) => {
-                    return new LoginSwitchScreen(
-                        mainRouterPop: () => dispatcher.dispatch(new MainNavigatorPopAction()),
-                        loginRouterPushToUnityBind: () => dispatcher.dispatch(new LoginNavigatorPushToBindUnityAction())
-                    );
+                    var actionModel = new LoginSwitchScreenActionModel {
+                        mainRouterPop =() => dispatcher.dispatch(new MainNavigatorPopAction()),
+                        loginByWechatAction =code=>dispatcher.dispatch<IPromise>(Actions.loginByWechat(code)),
+                        loginRouterPushToUnityBind=() => dispatcher.dispatch(new LoginNavigatorPushToBindUnityAction())
+
+                    };
+                    return new LoginSwitchScreen(actionModel);
                 }
             );
         }
@@ -58,15 +63,12 @@ namespace ConnectApp.screens {
 
     public class LoginSwitchScreen : StatelessWidget {
         public LoginSwitchScreen(
-            Action mainRouterPop = null,
-            Action loginRouterPushToUnityBind = null
+            LoginSwitchScreenActionModel actionModel
         ) {
-            this.mainRouterPop = mainRouterPop;
-            this.loginRouterPushToUnityBind = loginRouterPushToUnityBind;
+            this.actionModel = actionModel;
         }
 
-        private readonly Action mainRouterPop;
-        private readonly Action loginRouterPushToUnityBind;
+        public readonly LoginSwitchScreenActionModel actionModel;
 
         public override Widget build(BuildContext context) {
             return new Container(
@@ -98,7 +100,7 @@ namespace ConnectApp.screens {
                 child: new Row(
                     children: new List<Widget> {
                         new CustomButton(
-                            onPressed: () => mainRouterPop(),
+                            onPressed: () => actionModel.mainRouterPop(),
                             child: new Icon(
                                 Icons.close,
                                 size: 28,
@@ -139,37 +141,10 @@ namespace ConnectApp.screens {
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
                     children: new List<Widget> {
-                        new CustomButton(
-                            onPressed: () => { WechatPlugin.instance.login(Guid.NewGuid().ToString()); },
-                            padding: EdgeInsets.zero,
-                            child: new Container(
-                                height: 48,
-                                decoration: new BoxDecoration(
-                                    CColors.PrimaryBlue,
-                                    borderRadius: BorderRadius.all(24)
-                                ),
-                                child: new Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: new List<Widget> {
-                                        Image.asset(
-                                            "icon-wechat",
-                                            width: 24,
-                                            height: 24,
-                                            fit: BoxFit.fill
-                                        ),
-                                        new Container(width: 8),
-                                        new Text(
-                                            "使用微信账号登陆",
-                                            maxLines: 1,
-                                            style: CTextStyle.PLargeWhite
-                                        )
-                                    }
-                                )
-                            )
-                        ),
+                        WechatButton(),
                         new Container(height: 16),
                         new CustomButton(
-                            onPressed: () => loginRouterPushToUnityBind(),
+                            onPressed: () => actionModel.loginRouterPushToUnityBind(),
                             padding: EdgeInsets.zero,
                             child: new Container(
                                 height: 48,
@@ -196,6 +171,52 @@ namespace ConnectApp.screens {
                     }
                 )
             );
+        }
+
+        private Widget WechatButton()
+        {
+            if (WechatPlugin.instance().inInstalled())
+            {
+                return new CustomButton(
+                    onPressed: () =>
+                    {
+                        CustomDialogUtils.showCustomDialog(
+                            child: new CustomDialog()
+                        );
+                        WechatPlugin.instance(code => actionModel.loginByWechatAction(code))
+                            .login(Guid.NewGuid().ToString());
+                    },
+                    padding: EdgeInsets.zero,
+                    child: new Container(
+                        height: 48,
+                        decoration: new BoxDecoration(
+                            CColors.PrimaryBlue,
+                            borderRadius: BorderRadius.all(24)
+                        ),
+                        child: new Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: new List<Widget>
+                            {
+                                Image.asset(
+                                    "icon-wechat",
+                                    width: 24,
+                                    height: 24,
+                                    fit: BoxFit.fill
+                                ),
+                                new Container(width: 8),
+                                new Text(
+                                    "使用微信账号登陆",
+                                    maxLines: 1,
+                                    style: CTextStyle.PLargeWhite
+                                )
+                            }
+                        )
+                    )
+                );
+            }
+
+            return new Container();
+
         }
     }
 }

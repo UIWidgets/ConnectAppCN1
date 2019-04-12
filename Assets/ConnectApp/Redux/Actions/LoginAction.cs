@@ -72,6 +72,28 @@ namespace ConnectApp.redux.actions {
                     });
             });
         }
+        
+        public static object loginByWechat(string code) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return LoginApi.LoginByWechat(code)
+                    .Then(loginInfo => {
+                        var user = new User {
+                            id = loginInfo.userId,
+                            fullName = loginInfo.userFullName,
+                            avatar = loginInfo.userAvatar
+                        };
+                        var dict = new Dictionary<string, User> {
+                            {user.id, user}
+                        };
+                        dispatcher.dispatch(new UserMapAction {userMap = dict});
+                        dispatcher.dispatch(new LoginByWechatSuccessAction() {
+                            loginInfo = loginInfo
+                        });
+                        dispatcher.dispatch(new MainNavigatorPopAction());
+                        dispatcher.dispatch<IPromise>(fetchReviewUrl());
+                    });
+            });
+        }
 
         public static object openCreateUnityIdUrl() {
             return new ThunkAction<AppState>((dispatcher, getState) => {

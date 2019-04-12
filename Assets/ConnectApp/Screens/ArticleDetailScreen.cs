@@ -16,6 +16,7 @@ using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Config = ConnectApp.constants.Config;
 
 namespace ConnectApp.screens {
     public class ArticleDetailScreenConnector : StatelessWidget {
@@ -60,7 +61,9 @@ namespace ConnectApp.screens {
                         likeComment = (id) => dispatcher.dispatch<IPromise>(Actions.likeComment(id)),
                         removeLikeComment = (id) => dispatcher.dispatch<IPromise>(Actions.removeLikeComment(id)),
                         sendComment = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
-                            Actions.sendComment(channelId, content, nonce, parentMessageId))
+                            Actions.sendComment(channelId, content, nonce, parentMessageId)),
+                        shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
+                            Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
                     };
 
                     return new ArticleDetailScreen(viewModel, actionModel);
@@ -201,7 +204,20 @@ namespace ConnectApp.screens {
                                         widget.actionModel.likeArticle(_article.id);
                                 }
                             },
-                            shareCallback: () => { ShareUtils.showShareView(new ShareView()); }
+                            shareCallback: () =>
+                            {
+                                ShareUtils.showShareView(new ShareView(
+                                    onPressed: type => {
+                                        CustomDialogUtils.showCustomDialog(
+                                            child: new CustomDialog()
+                                        );
+                                        string linkUrl =
+                                            $"{Config.apiAddress}/events/{_article.id}";
+                                        string imageUrl = $"{_article.thumbnail.url}.200x0x1.jpg";
+                                        widget.actionModel.shareToWechat(type, _article.title, _article.description, linkUrl,
+                                            imageUrl).Then(CustomDialogUtils.hiddenCustomDialog).Catch(_ => CustomDialogUtils.hiddenCustomDialog());
+                                    }));
+                            }
                         )
                     }
                 )
@@ -369,7 +385,20 @@ namespace ConnectApp.screens {
                             }
                         }),
                         new Container(width: 16),
-                        new ActionCard(Icons.share, "分享", false, () => { ShareUtils.showShareView(new ShareView()); })
+                        new ActionCard(Icons.share, "分享", false, () =>
+                        {
+                            ShareUtils.showShareView(new ShareView(
+                                onPressed: type => {
+                                    CustomDialogUtils.showCustomDialog(
+                                        child: new CustomDialog()
+                                    );
+                                    string linkUrl =
+                                        $"{Config.apiAddress}/events/{_article.id}";
+                                    string imageUrl = $"{_article.thumbnail.url}.200x0x1.jpg";
+                                    widget.actionModel.shareToWechat(type, _article.title, _article.description, linkUrl,
+                                        imageUrl).Then(CustomDialogUtils.hiddenCustomDialog).Catch(_ => CustomDialogUtils.hiddenCustomDialog());
+                                }));
+                        })
                     }
                 )
             );

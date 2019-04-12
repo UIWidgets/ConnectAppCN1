@@ -7,7 +7,6 @@ using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
-using ConnectApp.utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -65,15 +64,16 @@ namespace ConnectApp.screens {
     }
 
 
-    public class _ArticlesScreenState : State<ArticlesScreen> {
-        private const int firstPageNumber = 0;
+    public class _ArticlesScreenState :State<ArticlesScreen> {
+        private const int firstPageNumber = 1;
         private const float headerHeight = 140;
         private float _offsetY;
-        private int _pageNumber = firstPageNumber;
+        private int pageNumber = firstPageNumber;
         private RefreshController _refreshController;
+
 //        protected override bool wantKeepAlive
 //        {
-//            get => true;
+//            get => false;
 //        }
         public override void initState() {
             base.initState();
@@ -137,7 +137,7 @@ namespace ConnectApp.screens {
                     enablePullUp: widget.viewModel.articleList.Count < widget.viewModel.articleTotal,
                     headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
                     footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
-                    onRefresh: _onRefresh,
+                    onRefresh: onRefresh,
                     child: ListView.builder(
                         physics: new AlwaysScrollableScrollPhysics(),
                         itemCount: widget.viewModel.articleList.Count,
@@ -160,21 +160,22 @@ namespace ConnectApp.screens {
                                     },
                                     new ObjectKey(article.id), _user);
                             }
-                            var _team = new Team();
-                            if (widget.viewModel.teamDict.ContainsKey(article.teamId))
-                                _team = widget.viewModel.teamDict[article.teamId];
-                            return ArticleCard.Team(article,
-                                () => widget.actionModel.pushToArticleDetail(articleId),
-                                () => {
-                                    ActionSheetUtils.showModalActionSheet(new ActionSheet(
-                                        items: new List<ActionSheetItem> {
-                                            new ActionSheetItem("举报", ActionType.destructive, () => { }),
-                                            new ActionSheetItem("取消", ActionType.cancel)
-                                        }
-                                    ));
-                                },
-                                new ObjectKey(article.id), _team
-                            );
+                            else {
+                                var _team = new Team();
+                                if (widget.viewModel.teamDict.ContainsKey(article.teamId))
+                                    _team = widget.viewModel.teamDict[article.teamId];
+                                return ArticleCard.Team(article,
+                                    () => widget.actionModel.pushToArticleDetail(articleId),
+                                    () => {
+                                        ActionSheetUtils.showModalActionSheet(new ActionSheet(
+                                            items: new List<ActionSheetItem> {
+                                                new ActionSheetItem("举报", ActionType.destructive, () => { }),
+                                                new ActionSheetItem("取消", ActionType.cancel)
+                                            }
+                                        ));
+                                    },
+                                    new ObjectKey(article.id), _team);
+                            }
                         }
                     )
                 );
@@ -188,20 +189,21 @@ namespace ConnectApp.screens {
             );
         }
 
-        private void _onRefresh(bool up) {
+        private void onRefresh(bool up) {
             if (up)
-                _pageNumber = firstPageNumber;
+                pageNumber = firstPageNumber;
             else
-                _pageNumber++;
-            widget.actionModel.fetchArticles(_pageNumber)
+                pageNumber++;
+            widget.actionModel.fetchArticles(pageNumber)
                 .Then(() => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
         }
 
         private bool _onNotification(ScrollNotification notification) {
 //            var pixels = notification.metrics.pixels;
+//            Debug.Log($"pixels: {pixels}");
 //            if (pixels >= 0) {
-//                if (pixels <= headerHeight) setState(() => { _offsetY = pixels / 2.8f; });
+//                if (pixels <= headerHeight) setState(() => { _offsetY = pixels / 2.0f; });
 //            }
 //            else {
 //                if (_offsetY != 0) setState(() => { _offsetY = 0; });
