@@ -30,7 +30,7 @@ namespace ConnectApp.components {
         public override Widget build(BuildContext context) {
             if (duration != null)
                 Promise.Delayed((TimeSpan) duration)
-                    .Then(() => CustomDialogUtils.hiddenCustomDialog());
+                    .Then(CustomDialogUtils.hiddenCustomDialog);
             return new GestureDetector(
                 onTap: () => { },
                 child: new Container(

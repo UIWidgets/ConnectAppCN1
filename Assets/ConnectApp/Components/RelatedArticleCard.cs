@@ -15,7 +15,6 @@ namespace ConnectApp.components {
             Article article,
             User user = null,
             Team team = null,
-            OwnerType type = OwnerType.user,
             GestureTapCallback onTap = null,
             Key key = null
         ) : base(key) {
@@ -33,7 +32,7 @@ namespace ConnectApp.components {
             Key key = null
         ) {
             return new RelatedArticleCard(
-                article, user, null, OwnerType.user, onTap, key
+                article, user, null, onTap, key
             );
         }
 
@@ -44,7 +43,7 @@ namespace ConnectApp.components {
             Key key = null
         ) {
             return new RelatedArticleCard(
-                article, null, team, OwnerType.team, onTap, key
+                article, null, team, onTap, key
             );
         }
 
@@ -88,12 +87,14 @@ namespace ConnectApp.components {
                         ),
                         new Container(
                             margin: EdgeInsets.only(8),
+                            width: 114,
+                            height: 76,
                             child: new PlaceholderImage(
                                 article.thumbnail.url,
                                 114,
                                 76,
                                 4,
-                                BoxFit.fill
+                                BoxFit.cover
                             )
                         )
                     }
