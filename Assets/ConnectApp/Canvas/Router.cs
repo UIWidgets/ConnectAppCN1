@@ -46,7 +46,6 @@ namespace ConnectApp.canvas {
         };
 
         public override Widget build(BuildContext context) {
-            WechatPlugin.instance().context = context;
             return new Navigator(
                 globalKey,
                 onGenerateRoute: settings => {

@@ -309,19 +309,22 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     action.eventsResponse.events.items.ForEach(eventObj => {
-                        if (action.tab == "ongoing") {
-                            if (!state.eventState.ongoingEvents.Contains(eventObj.id))
-                                state.eventState.ongoingEvents.Add(eventObj.id);
-                        }
-                        else {
-                            if (!state.eventState.completedEvents.Contains(eventObj.id))
-                                state.eventState.completedEvents.Add(eventObj.id);
-                        }
+                        if (eventObj.mode!="online")
+                        {
+                            if (action.tab == "ongoing") {
+                                if (!state.eventState.ongoingEvents.Contains(eventObj.id))
+                                    state.eventState.ongoingEvents.Add(eventObj.id);
+                            }
+                            else {
+                                if (!state.eventState.completedEvents.Contains(eventObj.id))
+                                    state.eventState.completedEvents.Add(eventObj.id);
+                            }
 
-                        if (state.eventState.eventsDict.ContainsKey(eventObj.id))
-                            state.eventState.eventsDict[eventObj.id] = eventObj;
-                        else
-                            state.eventState.eventsDict.Add(eventObj.id, eventObj);
+                            if (state.eventState.eventsDict.ContainsKey(eventObj.id))
+                                state.eventState.eventsDict[eventObj.id] = eventObj;
+                            else
+                                state.eventState.eventsDict.Add(eventObj.id, eventObj); 
+                        }
                     });
                     break;
                 }

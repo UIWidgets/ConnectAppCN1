@@ -52,10 +52,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    public class _HistoryEventScreenState : AutomaticKeepAliveClientMixin<HistoryEventScreen> {
-        protected override bool wantKeepAlive {
-            get => true;
-        }
+    public class _HistoryEventScreenState : State<HistoryEventScreen> {
 
         public override Widget build(BuildContext context) {
             if (widget.viewModel.eventHistory.Count == 0) return new BlankView("暂无浏览活动记录");

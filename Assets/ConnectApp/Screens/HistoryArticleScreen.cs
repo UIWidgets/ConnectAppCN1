@@ -57,11 +57,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    public class _HistoryArticleScreenState : AutomaticKeepAliveClientMixin<HistoryArticleScreen> {
-        protected override bool wantKeepAlive
-        {
-            get => true;
-        }
+    public class _HistoryArticleScreenState : State<HistoryArticleScreen> {
 
         public override Widget build(BuildContext context) {
             if (widget.viewModel.articleHistory.Count == 0) return new BlankView("暂无浏览文章记录");

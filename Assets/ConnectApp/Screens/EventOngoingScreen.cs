@@ -55,13 +55,10 @@ namespace ConnectApp.screens {
         }
     }
 
-    public class _EventOngoingScreenState : AutomaticKeepAliveClientMixin<EventOngoingScreen> {
+    public class _EventOngoingScreenState : State<EventOngoingScreen> {
         private const int firstPageNumber = 1;
         private RefreshController _ongoingRefreshController;
         private int pageNumber = firstPageNumber;
-        protected override bool wantKeepAlive {
-            get => false;
-        }
 
         public override void initState() {
             base.initState();

@@ -66,8 +66,13 @@ namespace ConnectApp.screens {
                         likeArticle = id => dispatcher.dispatch<IPromise>(Actions.likeArticle(id)),
                         likeComment = id => dispatcher.dispatch<IPromise>(Actions.likeComment(id)),
                         removeLikeComment = id => dispatcher.dispatch<IPromise>(Actions.removeLikeComment(id)),
-                        sendComment = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
-                            Actions.sendComment(channelId, content, nonce, parentMessageId)),
+                        sendComment = (channelId, content, nonce, parentMessageId) => {
+                            CustomDialogUtils.showCustomDialog(child:new CustomDialog());
+                            return dispatcher.dispatch<IPromise>(
+                                Actions.sendComment(channelId, content, nonce, parentMessageId))
+                                .Then(CustomDialogUtils.hiddenCustomDialog)
+                                .Catch(_=>CustomDialogUtils.hiddenCustomDialog());
+                        },
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
                             Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
                     };
