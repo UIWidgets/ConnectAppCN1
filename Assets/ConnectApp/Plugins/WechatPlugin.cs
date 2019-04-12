@@ -157,6 +157,7 @@ namespace ConnectApp.plugins {
         }
 #else
         public void init(string appId) {}
+        public bool isInstallWechat() {return true;}
         public void login(string stateId) {}
         public void shareToFriend(string title, string description, string url,byte[] imageBytes) {}
         public void shareToTimeline(string title, string description, string url,byte[] imageBytes) {}

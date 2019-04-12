@@ -88,6 +88,7 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case LogoutAction _: {
+                    HttpManager.clearCookie();
                     state.loginState.loginInfo = new LoginInfo();
                     state.loginState.isLoggedIn = false;
                     break;

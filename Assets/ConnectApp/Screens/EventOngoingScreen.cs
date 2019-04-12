@@ -17,7 +17,7 @@ namespace ConnectApp.screens
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, EventsScreenViewModel>(
                 converter: state => new EventsScreenViewModel {
-                    eventOngoingLoading = state.eventState.eventsCompletedLoading,
+                    eventOngoingLoading = state.eventState.eventsOngoingLoading,
                     ongoingEvents = state.eventState.ongoingEvents,
                     ongoingEventTotal = state.eventState.ongoingEventTotal,
                     eventsDict = state.eventState.eventsDict,

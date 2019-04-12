@@ -147,8 +147,8 @@ namespace ConnectApp.screens {
             );
         }
         public override void dispose() {
-            base.dispose();
             _pageController.dispose();
+            base.dispose();
         }
     }
 }

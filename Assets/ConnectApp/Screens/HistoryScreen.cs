@@ -53,8 +53,8 @@ namespace ConnectApp.screens {
         }
 
         public override void dispose() {
-            base.dispose();
             _pageController.dispose();
+            base.dispose();
         }
 
         public override Widget build(BuildContext context) {
