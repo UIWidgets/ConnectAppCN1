@@ -2,6 +2,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.components {
     public class PlaceholderImage : StatelessWidget {
@@ -37,18 +38,19 @@ namespace ConnectApp.components {
                     color: new Color(0xFFD8D8D8)
                 );
             else
-                child = new CachedNetworkImage(
-                    imageUrl,
-                    new Container(
-                        color: new Color(0xFFD8D8D8)
-                    ),
-                    new Container(
-                        color: new Color(0xFFD8D8D8)
-                    ),
-                    width: width,
-                    height: height,
-                    fit: fit
-                );
+//                child = new CachedNetworkImage(
+//                    imageUrl,
+//                    new Container(
+//                        color: new Color(0xFFD8D8D8)
+//                    ),
+//                    new Container(
+//                        color: new Color(0xFFD8D8D8)
+//                    ),
+//                    width: width,
+//                    height: height,
+//                    fit: fit
+//                );
+            child = Image.network(imageUrl,width:width,height:height,fit:fit);
 
             return new ClipRRect(
                 borderRadius: BorderRadius.all(borderRadius == null ? 0 : (float) borderRadius),
