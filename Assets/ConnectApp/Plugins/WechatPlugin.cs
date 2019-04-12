@@ -96,7 +96,6 @@ namespace ConnectApp.plugins {
                 addListener();
                 return isInstallWechat();
             }
-
             return false;
         }
 #if UNITY_IOS
