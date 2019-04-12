@@ -54,12 +54,8 @@ namespace ConnectApp.screens
         }
     }
 
-    public class _HistoryArticleScreenState : AutomaticKeepAliveClientMixin<HistoryArticleScreen>
+    public class _HistoryArticleScreenState : State<HistoryArticleScreen>
     {
-        protected override bool wantKeepAlive
-        {
-            get => true;
-        }
 
         public override Widget build(BuildContext context)
         {

@@ -58,15 +58,11 @@ namespace ConnectApp.screens
         }
     }
 
-    public class _EventCompletedScreenState : AutomaticKeepAliveClientMixin<EventCompletedScreen>
+    public class _EventCompletedScreenState : State<EventCompletedScreen>
     {
         private const int firstPageNumber = 1;
         private RefreshController _completedRefreshController;
         private int pageNumber = firstPageNumber;
-        protected override bool wantKeepAlive
-        {
-            get => false;
-        }
 
         public override void initState()
         {

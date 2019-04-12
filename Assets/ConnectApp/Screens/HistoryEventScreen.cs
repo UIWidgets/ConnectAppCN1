@@ -54,12 +54,8 @@ namespace ConnectApp.screens
         }
     }
 
-    public class _HistoryEventScreenState : AutomaticKeepAliveClientMixin<HistoryEventScreen>
+    public class _HistoryEventScreenState : State<HistoryEventScreen>
     {
-        protected override bool wantKeepAlive
-        {
-            get => true;
-        }
 
         public override Widget build(BuildContext context)
         {
