@@ -28,7 +28,7 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ArticleDetailScreenViewModel>(
-                converter: (state) => new ArticleDetailScreenViewModel {
+                converter: state => new ArticleDetailScreenViewModel {
                     articleId = articleId,
                     loginUserId = state.loginState.loginInfo.userId,
                     isLoggedIn = state.loginState.isLoggedIn,
@@ -46,20 +46,26 @@ namespace ConnectApp.screens {
                             routeName = MainNavigatorRoutes.Login
                         }),
                         openUrl = url => dispatcher.dispatch(new OpenUrlAction {url = url}),
-                        pushToArticleDetail = (id) => dispatcher.dispatch(
+                        pushToArticleDetail = id => dispatcher.dispatch(
                             new MainNavigatorPushToArticleDetailAction {
                                 articleId = id
                             }),
+                        pushToReport = (reportId, reportType) => dispatcher.dispatch(
+                            new MainNavigatorPushToReportAction {
+                                reportId = reportId,
+                                reportType = reportType
+                            }
+                        ),
                         startFetchArticleDetail = () => dispatcher.dispatch(new StartFetchArticleDetailAction()),
-                        fetchArticleDetail = (id) =>
+                        fetchArticleDetail = id =>
                             dispatcher.dispatch<IPromise>(Actions.FetchArticleDetail(id)),
                         fetchArticleComments = (channelId, currOldestMessageId) =>
                             dispatcher.dispatch<IPromise>(
                                 Actions.fetchArticleComments(channelId, currOldestMessageId)
                             ),
-                        likeArticle = (id) => dispatcher.dispatch<IPromise>(Actions.likeArticle(id)),
-                        likeComment = (id) => dispatcher.dispatch<IPromise>(Actions.likeComment(id)),
-                        removeLikeComment = (id) => dispatcher.dispatch<IPromise>(Actions.removeLikeComment(id)),
+                        likeArticle = id => dispatcher.dispatch<IPromise>(Actions.likeArticle(id)),
+                        likeComment = id => dispatcher.dispatch<IPromise>(Actions.likeComment(id)),
+                        removeLikeComment = id => dispatcher.dispatch<IPromise>(Actions.removeLikeComment(id)),
                         sendComment = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
                             Actions.sendComment(channelId, content, nonce, parentMessageId)),
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
@@ -254,32 +260,37 @@ namespace ConnectApp.screens {
                     )
                 ),
                 child: new CustomNavigationBar(
-                    new GestureDetector(
-                        onTap: () => widget.actionModel.mainRouterPop(),
+                    new CustomButton(
+                        onPressed: () => widget.actionModel.mainRouterPop(),
+                        padding: EdgeInsets.only(0, 8, 8, 8),
                         child: new Icon(Icons.arrow_back, size: 24, color: CColors.icon3)
-                    ), new List<Widget> {
-                        new CustomButton(
-                            padding: EdgeInsets.zero,
-                            onPressed: () => { },
-                            child: new Container(
-                                width: 88,
-                                height: 28,
-                                alignment: Alignment.center,
-                                decoration: new BoxDecoration(
-                                    border: Border.all(CColors.PrimaryBlue),
-                                    borderRadius: BorderRadius.all(14)
-                                ),
-                                child: new Text(
-                                    "说点想法",
-                                    style: new TextStyle(
-                                        fontSize: 14,
-                                        fontFamily: "Roboto-Medium",
-                                        color: CColors.PrimaryBlue
-                                    )
-                                )
-                            )
-                        )
-                    }, CColors.White, 52
+                    ), 
+//                    new List<Widget> {
+//                        new CustomButton(
+//                            padding: EdgeInsets.zero,
+//                            onPressed: () => { },
+//                            child: new Container(
+//                                width: 88,
+//                                height: 28,
+//                                alignment: Alignment.center,
+//                                decoration: new BoxDecoration(
+//                                    border: Border.all(CColors.PrimaryBlue),
+//                                    borderRadius: BorderRadius.all(14)
+//                                ),
+//                                child: new Text(
+//                                    "说点想法",
+//                                    style: new TextStyle(
+//                                        fontSize: 14,
+//                                        fontFamily: "Roboto-Medium",
+//                                        color: CColors.PrimaryBlue
+//                                    )
+//                                )
+//                            )
+//                        )
+//                    }, 
+                    null,
+                    CColors.White, 
+                    52
                 )
             );
         }
@@ -473,7 +484,11 @@ namespace ConnectApp.screens {
                     () => {
                         ActionSheetUtils.showModalActionSheet(new ActionSheet(
                             items: new List<ActionSheetItem> {
-                                new ActionSheetItem("举报", ActionType.destructive, () => { }),
+                                new ActionSheetItem(
+                                    "举报", 
+                                    ActionType.destructive,
+                                    () => widget.actionModel.pushToReport(commentId, ReportType.comment)
+                                ),
                                 new ActionSheetItem("取消", ActionType.cancel)
                             }
                         ));

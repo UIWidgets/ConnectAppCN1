@@ -3,6 +3,7 @@ using ConnectApp.api;
 using ConnectApp.models;
 using Unity.UIWidgets.Redux;
 using UnityEngine;
+using EventType = ConnectApp.models.EventType;
 
 namespace ConnectApp.redux.actions {
     public class StartFetchEventOngoingAction : RequestAction {
@@ -14,6 +15,9 @@ namespace ConnectApp.redux.actions {
         public FetchEventsResponse eventsResponse;
         public int pageNumber = 0;
         public string tab;
+    }
+    
+    public class FetchEventsFailureAction : BaseAction {
     }
 
     public class StartFetchEventDetailAction : RequestAction {
@@ -38,7 +42,6 @@ namespace ConnectApp.redux.actions {
     }
 
     public class StartJoinEventAction : RequestAction {
-        public string eventId;
     }
 
     public class JoinEventSuccessAction : BaseAction {
@@ -64,10 +67,6 @@ namespace ConnectApp.redux.actions {
     }
 
     public class StartSendMessageAction : RequestAction {
-        public string channelId;
-        public string content;
-        public string nonce;
-        public string parentMessageId = "";
     }
 
     public class SendMessageSuccessAction : BaseAction {
@@ -94,16 +93,21 @@ namespace ConnectApp.redux.actions {
                             }
                         );
                     })
-                    .Catch(Debug.Log);
+                    .Catch(error => {
+                        dispatcher.dispatch(new FetchEventsFailureAction());
+                        Debug.Log(error);
+                    });
             });
         }
 
-        public static object fetchEventDetail(string eventId) {
+        public static object fetchEventDetail(string eventId, EventType eventType) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return EventApi.FetchEventDetail(eventId)
                     .Then(eventObj => {
-                        if (getState().loginState.isLoggedIn)
+                        if (getState().loginState.isLoggedIn && eventType == EventType.online) {
+                            dispatcher.dispatch(new StartFetchMessagesAction());
                             dispatcher.dispatch(fetchMessages(eventObj.channelId, "", true));
+                        }
                         var userMap = new Dictionary<string, User> {
                             {eventObj.user.id, eventObj.user}
                         };
@@ -193,7 +197,10 @@ namespace ConnectApp.redux.actions {
                             nonce = nonce
                         });
                     })
-                    .Catch(error => { Debug.Log(error); });
+                    .Catch(error => {
+                        dispatcher.dispatch(new SendMessageFailureAction());
+                        Debug.Log(error);
+                    });
             });
         }
     }

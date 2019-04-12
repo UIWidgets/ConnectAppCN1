@@ -22,6 +22,7 @@ namespace ConnectApp.components {
             FocusNode focusNode = null,
             bool obscureText = false,
             bool autocorrect = true,
+            bool enabled = true,
             TextStyle style = null,
             TextAlign textAlign = TextAlign.left,
             int maxLines = 1,
@@ -44,6 +45,7 @@ namespace ConnectApp.components {
             this.focusNode = focusNode;
             this.obscureText = obscureText;
             this.autocorrect = autocorrect;
+            this.enabled = enabled;
             this.style = style;
             this.textAlign = textAlign;
             this.maxLines = maxLines;
@@ -66,6 +68,7 @@ namespace ConnectApp.components {
         public readonly FocusNode focusNode;
         public readonly bool obscureText;
         public readonly bool autocorrect;
+        public readonly bool enabled;
         public readonly TextStyle style;
         public readonly TextAlign textAlign;
         public readonly int maxLines;
@@ -124,16 +127,19 @@ namespace ConnectApp.components {
         }
 
         public override Widget build(BuildContext context) {
-            return new Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: new List<Widget> {
-                    _buildLabelText(),
-                    new Stack(
-                        children: new List<Widget> {
-                            _buildEditableText(context), _buildHintText()
-                        }
-                    )
-                }
+            return new IgnorePointer(
+                ignoring: !widget.enabled,
+                child: new Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: new List<Widget> {
+                        _buildLabelText(),
+                        new Stack(
+                            children: new List<Widget> {
+                                _buildEditableText(context), _buildHintText()
+                            }
+                        )
+                    }
+                )
             );
         }
 

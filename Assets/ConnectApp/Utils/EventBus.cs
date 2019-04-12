@@ -18,6 +18,7 @@ namespace ConnectApp.utils {
         }
         
         public static bool unSubscribe(string sName, string id) {
+            if (id == null || id.Length <= 0) return false;
             if (_globalSubscription.ContainsKey(sName) &&
                 _globalSubscription[sName].ContainsKey(id)) {
                 _globalSubscription[sName].Remove(id);

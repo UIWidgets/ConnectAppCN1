@@ -20,7 +20,7 @@ namespace ConnectApp.screens {
     public class MyEventsScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, MyEventsScreenViewModel>(
-                converter: (state) => new MyEventsScreenViewModel {
+                converter: state => new MyEventsScreenViewModel {
                     futureEventsList = state.mineState.futureEventsList,
                     pastEventsList = state.mineState.pastEventsList,
                     futureListLoading = state.mineState.futureListLoading,
@@ -36,10 +36,10 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new MainNavigatorPushToEventDetailAction
                                 {eventId = id, eventType = type}),
                         startFetchMyFutureEvents = () => dispatcher.dispatch(new StartFetchMyFutureEventsAction()),
-                        fetchMyFutureEvents = (pageNumber) =>
+                        fetchMyFutureEvents = pageNumber =>
                             dispatcher.dispatch<IPromise>(Actions.fetchMyFutureEvents(pageNumber)),
                         startFetchMyPastEvents = () => dispatcher.dispatch(new StartFetchMyPastEventsAction()),
-                        fetchMyPastEvents = (pageNumber) =>
+                        fetchMyPastEvents = pageNumber =>
                             dispatcher.dispatch<IPromise>(Actions.fetchMyPastEvents(pageNumber))
                     };
                     return new MyEventsScreen(viewModel, actionModel);
@@ -83,7 +83,7 @@ namespace ConnectApp.screens {
             _refreshController = new RefreshController();
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 widget.actionModel.startFetchMyFutureEvents();
-                widget.actionModel.fetchMyFutureEvents(_myFuturePageNumber);
+                widget.actionModel.fetchMyFutureEvents(firstPageNumber);
             });
         }
 
@@ -239,7 +239,7 @@ namespace ConnectApp.screens {
                     itemCount: data.Count,
                     itemBuilder: (cxt, idx) => {
                         var model = data[idx];
-                        var eventType = model.mode == "online" ? EventType.onLine : EventType.offline;
+                        var eventType = model.mode == "online" ? EventType.online : EventType.offline;
                         var place = widget.viewModel.placeDict[model.placeId];
                         return new EventCard(
                             model,

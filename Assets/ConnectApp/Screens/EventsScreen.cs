@@ -1,19 +1,10 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.components;
-using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
-using ConnectApp.models;
-using ConnectApp.Models.ActionModel;
-using ConnectApp.Models.ViewModel;
-using ConnectApp.redux.actions;
-using RSG;
 using Unity.UIWidgets.animation;
-using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.Redux;
-using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -26,10 +17,8 @@ namespace ConnectApp.screens {
     }
 
     internal class _EventsScreenState : State<EventsScreen> {
-        private const float headerHeight = 80;
         private PageController _pageController;
         private int _selectedIndex;
-        private float _offsetY;
 
 //        protected override bool wantKeepAlive {
 //            get => false;
@@ -50,7 +39,7 @@ namespace ConnectApp.screens {
                             new Text("活动", style: CTextStyle.H2),
                             null,
                             CColors.White,
-                            _offsetY
+                            0
                         ),
                         _buildSelectView(),
                         _buildContentView()

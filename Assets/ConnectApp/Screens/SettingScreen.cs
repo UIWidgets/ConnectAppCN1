@@ -6,11 +6,13 @@ using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
@@ -25,6 +27,7 @@ namespace ConnectApp.screens {
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new SettingScreenActionModel {
+                        fetchReviewUrl = () => dispatcher.dispatch<IPromise>(Actions.fetchReviewUrl()),
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         openUrl = url => dispatcher.dispatch(new OpenUrlAction {url = url}),
                         clearCache = () => dispatcher.dispatch(new SettingClearCacheAction()),
@@ -39,7 +42,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    public class SettingScreen : StatelessWidget {
+    public class SettingScreen : StatefulWidget {
         public SettingScreen(
             SettingScreenViewModel viewModel = null,
             SettingScreenActionModel actionModel = null,
@@ -49,8 +52,20 @@ namespace ConnectApp.screens {
             this.actionModel = actionModel;
         }
 
-        private readonly SettingScreenViewModel viewModel;
-        private readonly SettingScreenActionModel actionModel;
+        public readonly SettingScreenViewModel viewModel;
+        public readonly SettingScreenActionModel actionModel;
+
+        public override State createState() => new _SettingScreenState();
+    }
+
+    public class _SettingScreenState : State<SettingScreen> {
+        
+        public override void initState() {
+            base.initState();
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                widget.actionModel.fetchReviewUrl();
+            });
+        }
 
         public override Widget build(BuildContext context) {
             return new Container(
@@ -83,7 +98,7 @@ namespace ConnectApp.screens {
                         new Container(height: 44,
                             child: new CustomButton(
                                 padding: EdgeInsets.only(16),
-                                onPressed: () => actionModel.mainRouterPop(),
+                                onPressed: () => widget.actionModel.mainRouterPop(),
                                 child: new Icon(
                                     Icons.arrow_back,
                                     size: 24,
@@ -114,9 +129,9 @@ namespace ConnectApp.screens {
                         physics: new AlwaysScrollableScrollPhysics(),
                         children: new List<Widget> {
                             _buildGapView(),
-                            viewModel.hasReviewUrl
+                            widget.viewModel.hasReviewUrl
                                 ? _buildCellView("评分",
-                                    () => actionModel.openUrl(viewModel.reviewUrl))
+                                    () => widget.actionModel.openUrl(widget.viewModel.reviewUrl))
                                 : new Container(),
                             _buildCellView("意见反馈", () => { }),
                             _buildCellView("关于我们", () => { }),
@@ -127,7 +142,7 @@ namespace ConnectApp.screens {
                                         message: "正在清理缓存"
                                     )
                                 );
-                                actionModel.clearCache();
+                                widget.actionModel.clearCache();
                                 Window.instance.run(TimeSpan.FromSeconds(2), CustomDialogUtils.hiddenCustomDialog);
                             }),
                             _buildGapView(),
@@ -152,7 +167,7 @@ namespace ConnectApp.screens {
                         title: "确定退出当前账号吗？",
                         items: new List<ActionSheetItem> {
                             new ActionSheetItem("退出", ActionType.destructive,
-                                () => actionModel.logout()),
+                                () => widget.actionModel.logout()),
                             new ActionSheetItem("取消", ActionType.cancel)
                         }
                     ));

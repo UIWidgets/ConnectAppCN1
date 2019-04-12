@@ -20,7 +20,7 @@ namespace ConnectApp.screens {
     }
 
     public class LoginScreen : StatelessWidget {
-        private static readonly GlobalKey globalKey = GlobalKey.key(debugLabel: "login-router");
+        private static readonly GlobalKey globalKey = GlobalKey.key("login-router");
         public static NavigatorState navigator => globalKey.currentState as NavigatorState;
 
         private static Dictionary<string, WidgetBuilder> loginRoutes => new Dictionary<string, WidgetBuilder> {
@@ -31,7 +31,7 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new Navigator(
                 globalKey,
-                onGenerateRoute: (RouteSettings settings) => {
+                onGenerateRoute: settings => {
                     return new PageRouteBuilder(
                         settings,
                         (context1, animation, secondaryAnimation) => loginRoutes[settings.name](context1),
@@ -50,9 +50,9 @@ namespace ConnectApp.screens {
                 converter: state => null,
                 builder: (context1, _, dispatcher) => {
                     var actionModel = new LoginSwitchScreenActionModel {
-                        mainRouterPop =() => dispatcher.dispatch(new MainNavigatorPopAction()),
-                        loginByWechatAction =code=>dispatcher.dispatch<IPromise>(Actions.loginByWechat(code)),
-                        loginRouterPushToUnityBind=() => dispatcher.dispatch(new LoginNavigatorPushToBindUnityAction())
+                        mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
+                        loginByWechatAction = code => dispatcher.dispatch<IPromise>(Actions.loginByWechat(code)),
+                        loginRouterPushToUnityBind= () => dispatcher.dispatch(new LoginNavigatorPushToBindUnityAction())
 
                     };
                     return new LoginSwitchScreen(actionModel);
@@ -68,7 +68,7 @@ namespace ConnectApp.screens {
             this.actionModel = actionModel;
         }
 
-        public readonly LoginSwitchScreenActionModel actionModel;
+        private readonly LoginSwitchScreenActionModel actionModel;
 
         public override Widget build(BuildContext context) {
             return new Container(

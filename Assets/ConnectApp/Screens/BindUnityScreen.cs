@@ -40,20 +40,20 @@ namespace ConnectApp.screens {
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new BindUnityScreenActionModel {
                         mainRouterPop = () => {
-                            dispatcher.dispatch(new MainNavigatorPopAction());
+                            dispatcher.dispatch(new MainNavigatorPopAction{index = 1});
                             dispatcher.dispatch(new CleanEmailAndPasswordAction());
                         },
                         loginRouterPop = () => {
-                            dispatcher.dispatch(new LoginNavigatorPopAction());
+                            dispatcher.dispatch(new LoginNavigatorPopAction{index = 1});
                             dispatcher.dispatch(new CleanEmailAndPasswordAction());
                         },
                         openUrl = url =>
                             dispatcher.dispatch(new OpenUrlAction {url = url}),
                         openCreateUnityIdUrl = () =>
                             dispatcher.dispatch<IPromise>(Actions.openCreateUnityIdUrl()),
-                        changeEmail = (text) =>
+                        changeEmail = text =>
                             dispatcher.dispatch(new LoginChangeEmailAction {changeText = text}),
-                        changePassword = (text) =>
+                        changePassword = text =>
                             dispatcher.dispatch(new LoginChangePasswordAction {changeText = text}),
                         startLoginByEmail = () => dispatcher.dispatch(new StartLoginByEmailAction()),
                         loginByEmailFailure = () => dispatcher.dispatch(new LoginByEmailFailureAction()),
@@ -247,22 +247,20 @@ namespace ConnectApp.screens {
                                 )
                             ),
                             alignment: Alignment.center,
-                            child: new IgnorePointer(
-                                ignoring: widget.viewModel.loginLoading,
-                                child: new InputField(
-                                    focusNode: _emailFocusNode,
-                                    maxLines: 1,
-                                    autofocus: true,
-                                    style: CTextStyle.PLargeBody,
-                                    cursorColor: CColors.PrimaryBlue,
-                                    clearButtonMode: InputFieldClearButtonMode.whileEditing,
-                                    keyboardType: TextInputType.emailAddress,
-                                    onChanged: text => widget.actionModel.changeEmail(text),
-                                    onSubmitted: _ => {
-                                        _emailFocusNode.unfocus();
-                                        FocusScope.of(context).requestFocus(_passwordFocusNode);
-                                    }
-                                )
+                            child: new InputField(
+                                focusNode: _emailFocusNode,
+                                maxLines: 1,
+                                autofocus: true,
+                                enabled: !widget.viewModel.loginLoading,
+                                style: CTextStyle.PLargeBody,
+                                cursorColor: CColors.PrimaryBlue,
+                                clearButtonMode: InputFieldClearButtonMode.whileEditing,
+                                keyboardType: TextInputType.emailAddress,
+                                onChanged: text => widget.actionModel.changeEmail(text),
+                                onSubmitted: _ => {
+                                    _emailFocusNode.unfocus();
+                                    FocusScope.of(context).requestFocus(_passwordFocusNode);
+                                }
                             )
                         ),
                         new Container(height: 16),
@@ -284,19 +282,17 @@ namespace ConnectApp.screens {
                                 )
                             ),
                             alignment: Alignment.center,
-                            child: new IgnorePointer(
-                                ignoring: widget.viewModel.loginLoading,
-                                child: new InputField(
-                                    focusNode: _passwordFocusNode,
-                                    maxLines: 1,
-                                    autofocus: false,
-                                    obscureText: true,
-                                    style: CTextStyle.PLargeBody,
-                                    cursorColor: CColors.PrimaryBlue,
-                                    clearButtonMode: InputFieldClearButtonMode.whileEditing,
-                                    onChanged: text => widget.actionModel.changePassword(text),
-                                    onSubmitted: _ => _login()
-                                )
+                            child: new InputField(
+                                focusNode: _passwordFocusNode,
+                                maxLines: 1,
+                                autofocus: false,
+                                obscureText: true,
+                                enabled: !widget.viewModel.loginLoading,
+                                style: CTextStyle.PLargeBody,
+                                cursorColor: CColors.PrimaryBlue,
+                                clearButtonMode: InputFieldClearButtonMode.whileEditing,
+                                onChanged: text => widget.actionModel.changePassword(text),
+                                onSubmitted: _ => _login()
                             )
                         )
                     }

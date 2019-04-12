@@ -11,6 +11,9 @@ namespace ConnectApp.redux.actions {
         public FetchEventsResponse eventsResponse;
         public int pageNumber;
     }
+    
+    public class FetchMyFutureEventsFailureAction : BaseAction {
+    }
 
     public class StartFetchMyPastEventsAction : RequestAction {
     }
@@ -21,8 +24,6 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchMyPastEventsFailureAction : BaseAction {
-        public FetchEventsResponse eventsResponse;
-        public int pageNumber;
     }
 
     public static partial class Actions {
@@ -35,7 +36,10 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new FetchMyFutureEventsSuccessAction
                             {eventsResponse = eventsResponse, pageNumber = pageNumber});
                     })
-                    .Catch(Debug.Log);
+                    .Catch(error => {
+                        dispatcher.dispatch(new FetchMyFutureEventsFailureAction());
+                        Debug.Log(error);
+                    });
             });
         }
 
@@ -50,7 +54,10 @@ namespace ConnectApp.redux.actions {
                             pageNumber = pageNumber
                         });
                     })
-                    .Catch(Debug.Log);
+                    .Catch(error => {
+                        dispatcher.dispatch(new FetchMyPastEventsFailureAction());
+                        Debug.Log(error);
+                    });
             });
         }
     }

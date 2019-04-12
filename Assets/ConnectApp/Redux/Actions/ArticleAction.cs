@@ -6,7 +6,6 @@ using UnityEngine;
 
 namespace ConnectApp.redux.actions {
     public class StartFetchArticlesAction : RequestAction {
-        public int pageNumber = 0;
     }
 
     public class FetchArticleSuccessAction : BaseAction {
@@ -40,8 +39,6 @@ namespace ConnectApp.redux.actions {
     }
 
     public class StartFetchArticleCommentsAction : RequestAction {
-        public string channelId;
-        public string currOldestMessageId = "";
     }
 
     public class FetchArticleCommentsSuccessAction : BaseAction {
@@ -62,7 +59,6 @@ namespace ConnectApp.redux.actions {
     }
 
     public class StartLikeCommentAction : RequestAction {
-        public string messageId;
     }
 
     public class LikeCommentSuccessAction : BaseAction {
@@ -76,7 +72,7 @@ namespace ConnectApp.redux.actions {
         public string messageId;
     }
 
-    public class RemoveLikeSuccessAction : BaseAction {
+    public class RemoveLikeCommentSuccessAction : BaseAction {
         public Message message;
     }
 
@@ -167,7 +163,9 @@ namespace ConnectApp.redux.actions {
                                 channelId = articleDetailResponse.project.channelId,
                                 itemIds = itemIds,
                                 messageItems = messageItems,
-                                isRefreshList = true
+                                isRefreshList = true,
+                                hasMore = articleDetailResponse.project.comments.hasMore,
+                                currOldestMessageId = articleDetailResponse.project.comments.currOldestMessageId
                             });
                         }
 
@@ -202,15 +200,18 @@ namespace ConnectApp.redux.actions {
         public static object likeComment(string messageId) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ArticleApi.LikeComment(messageId)
-                    .Then((message) => { dispatcher.dispatch(new LikeCommentSuccessAction {message = message}); })
-                    .Catch(error => { Debug.Log(error); });
+                    .Then(message => { dispatcher.dispatch(new LikeCommentSuccessAction {message = message}); })
+                    .Catch(error => {
+                        dispatcher.dispatch(new LikeCommentFailureAction());
+                        Debug.Log(error);
+                    });
             });
         }
 
         public static object removeLikeComment(string messageId) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ArticleApi.RemoveLikeComment(messageId)
-                    .Then((message) => { dispatcher.dispatch(new RemoveLikeSuccessAction() {message = message}); })
+                    .Then(message => { dispatcher.dispatch(new RemoveLikeCommentSuccessAction {message = message}); })
                     .Catch(error => { Debug.Log(error); });
             });
         }
@@ -218,7 +219,7 @@ namespace ConnectApp.redux.actions {
         public static object sendComment(string channelId, string content, string nonce, string parentMessageId) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ArticleApi.SendComment(channelId, content, nonce, parentMessageId)
-                    .Then((message) => {
+                    .Then(message => {
                         dispatcher.dispatch(new SendCommentSuccessAction {
                             message = message
                         });
