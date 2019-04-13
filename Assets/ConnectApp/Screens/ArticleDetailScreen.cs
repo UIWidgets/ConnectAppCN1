@@ -216,7 +216,7 @@ namespace ConnectApp.screens {
                                             child: new CustomDialog()
                                         );
                                         string linkUrl =
-                                            $"{Config.apiAddress}/events/{_article.id}";
+                                            $"{Config.apiAddress}/p/{_article.id}";
                                         string imageUrl = $"{_article.thumbnail.url}.200x0x1.jpg";
                                         widget.actionModel.shareToWechat(type, _article.title, _article.description, linkUrl,
                                             imageUrl).Then(CustomDialogUtils.hiddenCustomDialog).Catch(_ => CustomDialogUtils.hiddenCustomDialog());
@@ -260,11 +260,19 @@ namespace ConnectApp.screens {
                 child: new CustomNavigationBar(
                     new GestureDetector(
                         onTap: () => widget.actionModel.mainRouterPop(),
-                        child: new Icon(Icons.arrow_back, size: 24, color: CColors.icon3)
+                        child:new Icon(Icons.arrow_back, size: 24, color: CColors.icon3)
+//                        child: new Container(
+//                            width:64,
+//                            height:64,
+//                            color:CColors.Red,
+//                            child:new Icon(Icons.arrow_back, size: 24, color: CColors.icon3)) 
                     ), new List<Widget> {
                         new CustomButton(
                             padding: EdgeInsets.zero,
-                            onPressed: () => { },
+                            onPressed: () =>
+                            {
+                                
+                            },
                             child: new Container(
                                 width: 88,
                                 height: 28,
@@ -397,7 +405,7 @@ namespace ConnectApp.screens {
                                         child: new CustomDialog()
                                     );
                                     string linkUrl =
-                                        $"{Config.apiAddress}/events/{_article.id}";
+                                        $"{Config.apiAddress}/p/{_article.id}";
                                     string imageUrl = $"{_article.thumbnail.url}.200x0x1.jpg";
                                     widget.actionModel.shareToWechat(type, _article.title, _article.description, linkUrl,
                                         imageUrl).Then(CustomDialogUtils.hiddenCustomDialog).Catch(_ => CustomDialogUtils.hiddenCustomDialog());

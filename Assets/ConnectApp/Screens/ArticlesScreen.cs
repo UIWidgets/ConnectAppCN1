@@ -71,10 +71,6 @@ namespace ConnectApp.screens {
         private int pageNumber = firstPageNumber;
         private RefreshController _refreshController;
 
-//        protected override bool wantKeepAlive
-//        {
-//            get => false;
-//        }
         public override void initState() {
             base.initState();
             _refreshController = new RefreshController();

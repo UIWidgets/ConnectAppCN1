@@ -91,6 +91,7 @@ namespace ConnectApp.redux.reducers {
                     HttpManager.clearCookie();
                     state.loginState.loginInfo = new LoginInfo();
                     state.loginState.isLoggedIn = false;
+                    UserInfoManager.clearUserInfo();
                     break;
                 }
                 case CleanEmailAndPasswordAction action: {
