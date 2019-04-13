@@ -33,7 +33,10 @@ namespace ConnectApp.screens {
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new SearchScreenActionModel {
-                        mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
+                        mainRouterPop = () => {
+                            dispatcher.dispatch(new MainNavigatorPopAction());
+                            dispatcher.dispatch(new ClearSearchArticleResultAction());
+                        },
                         pushToArticleDetail = articleId => dispatcher.dispatch(
                             new MainNavigatorPushToArticleDetailAction {articleId = articleId}),
                         startSearchArticle = () => dispatcher.dispatch(new StartSearchArticleAction()),
@@ -81,11 +84,12 @@ namespace ConnectApp.screens {
             base.initState();
             _pageNumber = 0;
             _refreshController = new RefreshController();
-            SchedulerBinding.instance.addPostFrameCallback(_ => { widget.actionModel.fetchPopularSearch(); });
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                widget.actionModel.fetchPopularSearch();
+            });
         }
 
         public override void dispose() {
-            widget.actionModel.clearSearchArticleResult();
             base.dispose();
         }
 
