@@ -127,7 +127,7 @@ namespace ConnectApp.components {
                                                         margin: EdgeInsets.only(10, 6.5f, 8, 6.5f),
                                                         decoration: new BoxDecoration(
                                                             CColors.Separator2,
-                                                            borderRadius: BorderRadius.circular(22)
+                                                            borderRadius: BorderRadius.circular((_inputFieldHeight+13)/2)
                                                         ),
                                                         child: new Container(
                                                             padding: _inputFieldPadding,
