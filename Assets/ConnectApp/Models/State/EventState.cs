@@ -11,7 +11,6 @@ namespace ConnectApp.models {
     public class EventState {
         public bool eventsOngoingLoading { get; set; }
         public bool eventsCompletedLoading { get; set; }
-
         public List<string> ongoingEvents { get; set; }
         public int ongoingEventTotal { get; set; }
         public List<string> completedEvents { get; set; }

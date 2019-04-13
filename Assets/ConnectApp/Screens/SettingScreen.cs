@@ -133,7 +133,6 @@ namespace ConnectApp.screens {
                                 ? _buildCellView("评分",
                                     () => widget.actionModel.openUrl(widget.viewModel.reviewUrl))
                                 : new Container(),
-                            _buildCellView("意见反馈", () => { }),
                             _buildCellView("关于我们", () => { }),
                             _buildGapView(),
                             _buildCellView("清理缓存", () => {
