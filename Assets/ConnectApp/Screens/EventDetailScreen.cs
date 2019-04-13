@@ -219,12 +219,8 @@ namespace ConnectApp.screens {
         private Widget _buildHeadTop(bool isShowShare, IEvent eventObj) {
             Widget shareWidget = new Container();
             if (isShowShare)
+            {
                 shareWidget = new CustomButton(
-                    child: new Icon(
-                        Icons.share,
-                        size: 28,
-                        color: CColors.White
-                    ),
                     onPressed: () => ShareUtils.showShareView(new ShareView(
                         onPressed: type => {
                             string linkUrl =
@@ -235,8 +231,15 @@ namespace ConnectApp.screens {
                             );
                             widget.actionModel.shareToWechat(type, eventObj.title, eventObj.shortDescription, linkUrl,
                                 imageUrl).Then(CustomDialogUtils.hiddenCustomDialog).Catch(_ => CustomDialogUtils.hiddenCustomDialog());
-                        }))
+                        })),
+                    child: new Container(
+                        alignment: Alignment.topRight,
+                        width: 64,
+                        height: 64,
+                        color: CColors.Transparent,
+                        child: new Icon(Icons.share, size: 28, color: CColors.White))
                 );
+            }
             return new Container(
                 height: 44,
                 padding: EdgeInsets.symmetric(horizontal: 8),

@@ -265,10 +265,14 @@ namespace ConnectApp.screens {
                     )
                 ),
                 child: new CustomNavigationBar(
-                    new CustomButton(
-                        onPressed: () => widget.actionModel.mainRouterPop(),
-                        padding: EdgeInsets.only(0, 8, 8, 8),
-                        child: new Icon(Icons.arrow_back, size: 24, color: CColors.icon3)
+                    new GestureDetector(
+                        onTap: () => widget.actionModel.mainRouterPop(),
+                        child:new Container(
+                            alignment:Alignment.bottomLeft,
+                            width:64,
+                            height:64,
+                            color:CColors.Transparent,
+                            child: new Icon(Icons.arrow_back, size: 24, color: CColors.icon3))
                     ), 
 //                    new List<Widget> {
 //                        new CustomButton(
@@ -424,15 +428,20 @@ namespace ConnectApp.screens {
             if (_relArticles.Count == 0) return new Container();
             var widgets = new List<Widget>();
             _relArticles.ForEach(article => {
-                Widget card;
-                if (article.ownerType == OwnerType.user.ToString())
-                    card = RelatedArticleCard.User(article, _user,
-                        () => { widget.actionModel.pushToArticleDetail(article.id); }, new ObjectKey(article.id));
-                else
-                    card = RelatedArticleCard.Team(article, _team,
-                        () => { widget.actionModel.pushToArticleDetail(article.id); }, new ObjectKey(article.id));
-
-                widgets.Add(card);
+                //对文章进行过滤
+                if (article.id!=_article.id)
+                {
+                    Widget card;
+                    if (article.ownerType == OwnerType.user.ToString())
+                        card = RelatedArticleCard.User(article, _user,
+                            () => { widget.actionModel.pushToArticleDetail(article.id); }, new ObjectKey(article.id));
+                    else
+                        card = RelatedArticleCard.Team(article, _team,
+                            () => { widget.actionModel.pushToArticleDetail(article.id); }, new ObjectKey(article.id));
+                
+                    widgets.Add(card); 
+                }
+                
             });
             return new Container(
                 color: CColors.White,
