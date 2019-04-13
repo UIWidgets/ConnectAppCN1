@@ -1,4 +1,9 @@
+using System;
+using System.Collections;
+using RSG;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.ui;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -11,7 +16,7 @@ namespace ConnectApp.utils {
     public static class HttpManager {
         private const string COOKIE = "Cookie";
 
-        public static UnityWebRequest initRequest(
+        internal static UnityWebRequest initRequest(
             string url,
             string method) {
             var request = new UnityWebRequest(url, method);
@@ -23,6 +28,39 @@ namespace ConnectApp.utils {
 
         public static UnityWebRequest GET(string uri) {
             return initRequest(uri, Method.GET);
+        }
+
+
+        public static Promise<string> resume(UnityWebRequest request)
+        {
+            
+            var promise = new Promise<string>();
+            Window.instance.startCoroutine(sendRequest(promise,request));
+            return promise;
+        }
+
+        private static IEnumerator sendRequest(Promise<string> promise,UnityWebRequest request)
+        {
+            yield return request.SendWebRequest();
+            if (request.isNetworkError) {
+                promise.Reject(new Exception(request.error));
+            }
+            else if (request.responseCode == 403) {
+                
+                promise.Reject(new Exception(request.downloadHandler.text));
+            }
+            else if (request.responseCode != 200) {
+                promise.Reject(new Exception(request.downloadHandler.text));
+            }
+            else
+            {
+                if (request.GetResponseHeaders().ContainsKey("SET-COOKIE")) {
+                    var cookie = request.GetResponseHeaders()["SET-COOKIE"];
+                    updateCookie(cookie);
+                }
+                promise.Resolve(request.downloadHandler.text);
+            }
+            
         }
 
 

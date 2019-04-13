@@ -31,6 +31,8 @@ namespace ConnectApp.constants {
         public static readonly IconData expand_less = new IconData(0xe5ce, "Material Icons");
         public static readonly IconData expand_more = new IconData(0xe5cf, "Material Icons");
         public static readonly IconData error_outline = new IconData(0xe001, "Material Icons");
+        public static readonly IconData mode = new IconData(0xe7f2, "Material Icons");
+        public static readonly IconData mode_bad = new IconData(0xe7f3, "Material Icons");
     }
 
     public static class CTextStyle {
