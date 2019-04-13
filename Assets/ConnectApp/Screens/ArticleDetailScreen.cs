@@ -63,15 +63,32 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch<IPromise>(
                                 Actions.fetchArticleComments(channelId, currOldestMessageId)
                             ),
-                        likeArticle = id => dispatcher.dispatch<IPromise>(Actions.likeArticle(id)),
-                        likeComment = id => dispatcher.dispatch<IPromise>(Actions.likeComment(id)),
-                        removeLikeComment = id => dispatcher.dispatch<IPromise>(Actions.removeLikeComment(id)),
+                        likeArticle = id => dispatcher.dispatch<IPromise>(Actions.likeArticle(id)).Then(() =>
+                        {
+                            CustomDialogUtils.showToast("点赞成功",Icons.mode);
+                        }).Catch(_=>CustomDialogUtils.showToast("点赞失败",Icons.mode_bad)),
+                        likeComment = id => dispatcher.dispatch<IPromise>(Actions.likeComment(id)).Then(() =>
+                        {
+                            CustomDialogUtils.showToast("点赞成功",Icons.mode);
+                        }).Catch(_=>CustomDialogUtils.showToast("点赞失败",Icons.mode_bad)),
+                        removeLikeComment = id => dispatcher.dispatch<IPromise>(Actions.removeLikeComment(id)).Then(() =>
+                        {
+                            CustomDialogUtils.showToast("已取消点赞",Icons.mode);
+                        }).Catch(_=>CustomDialogUtils.showToast("取消点赞失败",Icons.mode_bad)),
                         sendComment = (channelId, content, nonce, parentMessageId) => {
                             CustomDialogUtils.showCustomDialog(child:new CustomDialog());
                             return dispatcher.dispatch<IPromise>(
                                 Actions.sendComment(channelId, content, nonce, parentMessageId))
-                                .Then(CustomDialogUtils.hiddenCustomDialog)
-                                .Catch(_=>CustomDialogUtils.hiddenCustomDialog());
+                                .Then(() =>
+                                {
+                                    CustomDialogUtils.hiddenCustomDialog();
+                                    CustomDialogUtils.showToast("发送成功",Icons.mode);
+                                })
+                                .Catch(_ =>
+                                {
+                                    CustomDialogUtils.hiddenCustomDialog();
+                                    CustomDialogUtils.showToast("发送失败",Icons.mode_bad);
+                                });
                         },
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
                             Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
@@ -265,10 +282,14 @@ namespace ConnectApp.screens {
                     )
                 ),
                 child: new CustomNavigationBar(
-                    new CustomButton(
-                        onPressed: () => widget.actionModel.mainRouterPop(),
-                        padding: EdgeInsets.only(0, 8, 8, 8),
-                        child: new Icon(Icons.arrow_back, size: 24, color: CColors.icon3)
+                    new GestureDetector(
+                        onTap: () => widget.actionModel.mainRouterPop(),
+                        child:new Container(
+                            alignment:Alignment.bottomLeft,
+                            width:64,
+                            height:64,
+                            color:CColors.Transparent,
+                            child: new Icon(Icons.arrow_back, size: 24, color: CColors.icon3))
                     ), 
 //                    new List<Widget> {
 //                        new CustomButton(
@@ -424,15 +445,20 @@ namespace ConnectApp.screens {
             if (_relArticles.Count == 0) return new Container();
             var widgets = new List<Widget>();
             _relArticles.ForEach(article => {
-                Widget card;
-                if (article.ownerType == OwnerType.user.ToString())
-                    card = RelatedArticleCard.User(article, _user,
-                        () => { widget.actionModel.pushToArticleDetail(article.id); }, new ObjectKey(article.id));
-                else
-                    card = RelatedArticleCard.Team(article, _team,
-                        () => { widget.actionModel.pushToArticleDetail(article.id); }, new ObjectKey(article.id));
-
-                widgets.Add(card);
+                //对文章进行过滤
+                if (article.id!=_article.id)
+                {
+                    Widget card;
+                    if (article.ownerType == OwnerType.user.ToString())
+                        card = RelatedArticleCard.User(article, _user,
+                            () => { widget.actionModel.pushToArticleDetail(article.id); }, new ObjectKey(article.id));
+                    else
+                        card = RelatedArticleCard.Team(article, _team,
+                            () => { widget.actionModel.pushToArticleDetail(article.id); }, new ObjectKey(article.id));
+                
+                    widgets.Add(card); 
+                }
+                
             });
             return new Container(
                 color: CColors.White,

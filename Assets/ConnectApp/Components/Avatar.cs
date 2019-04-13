@@ -72,7 +72,7 @@ namespace ConnectApp.components {
         public override Widget build(BuildContext context) {
             if (type == OwnerType.team) return _buildTeamAvatar();
             var avatarUrl = user.avatar ?? "";
-            var fullName = user.fullName;
+            var fullName = user.fullName??user.name;
             var result = _extractName(fullName) ?? "";
             return new ClipRRect(
                 borderRadius: BorderRadius.circular(size / 2),

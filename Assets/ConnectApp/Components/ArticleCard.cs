@@ -95,7 +95,7 @@ namespace ConnectApp.components {
                                                 width: 100,
                                                 height: 66,
                                                 child: new PlaceholderImage(
-                                                    $"{article.thumbnail.url}.600x0x1.jpg",
+                                                    $"{article.thumbnail.url}.300x0x1.jpg",
                                                     100,
                                                     66,
                                                     4,

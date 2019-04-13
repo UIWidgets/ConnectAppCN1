@@ -45,7 +45,7 @@ namespace ConnectApp.components {
                                             child: leftWidget
                                         ),
                                         new Container(
-                                            height: 40,
+                                            height: 44,
                                             child: new Row(
                                                 mainAxisAlignment: MainAxisAlignment.end,
                                                 crossAxisAlignment: CrossAxisAlignment.center,
