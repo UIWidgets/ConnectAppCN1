@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.canvas;
 using ConnectApp.components;
@@ -10,10 +11,12 @@ using ConnectApp.redux.actions;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Color = Unity.UIWidgets.ui.Color;
+using Icons = ConnectApp.constants.Icons;
 
 namespace ConnectApp.screens {
     public class ArticlesScreenConnector : StatelessWidget {
@@ -72,15 +75,18 @@ namespace ConnectApp.screens {
 
     public class _ArticlesScreenState : State<ArticlesScreen> {
         private const int firstPageNumber = 0;
-        private static readonly float headerHeight = CustomNavigationBar.height;
-        private float _offsetY;
         private int pageNumber = firstPageNumber;
         private RefreshController _refreshController;
+        private TextStyle titleStyle;
+        const float maxNavBarHeight = 96; 
+        const float minNavBarHeight = 44; 
+        private float navBarHeight;
 
         public override void initState() {
             base.initState();
             _refreshController = new RefreshController();
-            _offsetY = 0;
+            navBarHeight = maxNavBarHeight;
+            titleStyle = CTextStyle.H2;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 widget.actionModel.startFetchArticles();
                 widget.actionModel.fetchArticles(firstPageNumber);
@@ -92,39 +98,46 @@ namespace ConnectApp.screens {
                 color: CColors.BgGrey,
                 child: new Column(
                     children: new List<Widget> {
-                        _buildNavigationBar(context),
+                        _buildNavigationBar(),
                         new Flexible(
-                            child: _buildArticleList(context)
+                            child: _buildArticleList()
                         )
                     }
                 )
             );
         }
 
-        private Widget _buildNavigationBar(BuildContext context) {
-            return new CustomNavigationBar(
-                new Text("文章", style: new TextStyle(
-                    height: 1.25f,
-                    fontSize: 32 / headerHeight * (headerHeight - _offsetY),
-                    fontFamily: "Roboto-Bold",
-                    color: CColors.TextTitle
-                )),
-                new List<Widget> {
-                    new CustomButton(
-                        onPressed: () => widget.actionModel.pushToSearch(),
-                        child: new Icon(
-                            Icons.search,
-                            size: 28,
-                            color: Color.fromRGBO(181, 181, 181, 1)
+        private Widget _buildNavigationBar() {
+            return new AnimatedContainer(
+                height: navBarHeight,
+                duration: new TimeSpan(0, 0, 0, 0, 0),
+                child: new Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: new List<Widget> {
+                        new Container(
+                            padding: EdgeInsets.only(16, bottom: 8),
+                            child: new AnimatedDefaultTextStyle(
+                                child: new Text("文章"),
+                                style: titleStyle, 
+                                duration: new TimeSpan(0, 0, 0, 0, 100)
+                            )
+                        ),
+                        new CustomButton(
+                            padding: EdgeInsets.only(16, 8, 16, 8),
+                            onPressed: () => widget.actionModel.pushToSearch(),
+                            child: new Icon(
+                                Icons.search,
+                                size: 28,
+                                color: Color.fromRGBO(181, 181, 181, 1)
+                            )
                         )
-                    )
-                },
-                CColors.White,
-                _offsetY
+                    }
+                )   
             );
         }
 
-        private Widget _buildArticleList(BuildContext context) {
+        private Widget _buildArticleList() {
             Widget content = new Container();
 
             if (widget.viewModel.articlesLoading && widget.viewModel.articleList.isEmpty())
@@ -214,14 +227,28 @@ namespace ConnectApp.screens {
         }
 
         private bool _onNotification(ScrollNotification notification) {
-//            var pixels = notification.metrics.pixels;
-//            Debug.Log($"pixels: {pixels}");
-//            if (pixels >= 0) {
-//                if (pixels <= headerHeight && _offsetY != pixels / 2.8f) setState(() => { _offsetY = pixels / 2.8f; });
-//            }
-//            else {
-//                if (_offsetY != 0) setState(() => { _offsetY = 0; });
-//            }
+            var pixels = notification.metrics.pixels;
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                if (pixels > 0 && pixels <= 52) {
+                    titleStyle = CTextStyle.H5;
+                    navBarHeight = maxNavBarHeight - pixels;
+                    setState(() => {});
+                }
+                else if (pixels <= 0) {
+                    if (navBarHeight <= maxNavBarHeight) {
+                        titleStyle = CTextStyle.H2;
+                        navBarHeight = maxNavBarHeight;
+                        setState(() => {});
+                    }
+                }
+                else if (pixels > 52) {
+                    if (!(navBarHeight <= minNavBarHeight)) {
+                        titleStyle = CTextStyle.H5;
+                        navBarHeight = minNavBarHeight;
+                        setState(() => {});
+                    }
+                }
+            });
             return true;
         }
     }
