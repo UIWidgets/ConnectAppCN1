@@ -1,6 +1,5 @@
 using System;
-using BestHTTP.WebSocket;
-using BestHTTP.WebSocket.Frames;
+using System.Net.WebSockets;
 using ConnectApp.api;
 using UnityEngine;
 
@@ -20,11 +19,11 @@ namespace ConnectApp.utils {
         ) {
             SocketApi.FetchSocketUrl()
                 .Then(socketUrl => {
-                    _webSocket = new WebSocket(new Uri($"{socketUrl}/v1"));
-                    _webSocket.OnOpen += OnWebSocketOpen;
-                    _webSocket.OnMessage += OnMessageReceived;
-                    _webSocket.OnIncompleteFrame += OnIncompleteFrame;
-                    _webSocket.Open();
+//                    _webSocket = new WebSocket(new Uri($"{socketUrl}/v1"));
+//                    _webSocket.OnOpen += OnWebSocketOpen;
+//                    _webSocket.OnMessage += OnMessageReceived;
+//                    _webSocket.OnIncompleteFrame += OnIncompleteFrame;
+//                    _webSocket.Open();
                 });
         }
 
@@ -36,9 +35,9 @@ namespace ConnectApp.utils {
             Debug.Log("Text Message received from server: " + message);
         }
 
-        private static void OnIncompleteFrame(WebSocket webSocket, WebSocketFrameReader frame) {
-            Debug.Log("Frame received from server: " + frame);
-        }
+//        private static void OnIncompleteFrame(WebSocket webSocket, WebSocketFrameReader frame) {
+//            Debug.Log("Frame received from server: " + frame);
+//        }
 
 //        void Add(object frame /*String|List<int>|Frame*/) {
 //            if (frame is WebSocketFrameReader) {
