@@ -223,7 +223,7 @@ namespace ConnectApp.screens {
                                             child: new CustomDialog()
                                         );
                                         string linkUrl =
-                                            $"{Config.apiAddress}/events/{_article.id}";
+                                            $"{Config.apiAddress}/p/{_article.id}";
                                         string imageUrl = $"{_article.thumbnail.url}.200x0x1.jpg";
                                         widget.actionModel.shareToWechat(type, _article.title, _article.description, linkUrl,
                                             imageUrl).Then(CustomDialogUtils.hiddenCustomDialog).Catch(_ => CustomDialogUtils.hiddenCustomDialog());
@@ -409,7 +409,7 @@ namespace ConnectApp.screens {
                                         child: new CustomDialog()
                                     );
                                     string linkUrl =
-                                        $"{Config.apiAddress}/events/{_article.id}";
+                                        $"{Config.apiAddress}/p/{_article.id}";
                                     string imageUrl = $"{_article.thumbnail.url}.200x0x1.jpg";
                                     widget.actionModel.shareToWechat(type, _article.title, _article.description, linkUrl,
                                         imageUrl).Then(CustomDialogUtils.hiddenCustomDialog).Catch(_ => CustomDialogUtils.hiddenCustomDialog());

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.utils;
 using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
@@ -22,28 +23,17 @@ namespace ConnectApp.models {
         public SettingState settingState { get; set; }
 
         public static AppState initialState() {
-            var searchHistory = PlayerPrefs.GetString("searchHistoryKey");
-            var searchHistoryList = new List<string>();
-            if (searchHistory.isNotEmpty())
-                searchHistoryList = JsonConvert.DeserializeObject<List<string>>(searchHistory);
+            
 
-            var articleHistory = PlayerPrefs.GetString("articleHistoryKey");
-            var articleHistoryList = new List<Article>();
-            if (articleHistory.isNotEmpty())
-                articleHistoryList = JsonConvert.DeserializeObject<List<Article>>(articleHistory);
-
-            var eventHistory = PlayerPrefs.GetString("eventHistoryKey");
-            var eventHistoryList = new List<IEvent>();
-            if (eventHistory.isNotEmpty())
-                eventHistoryList = JsonConvert.DeserializeObject<List<IEvent>>(eventHistory);
-
+            
+            
             return new AppState {
                 Count = PlayerPrefs.GetInt("count", 0),
                 loginState = new LoginState {
                     email = "",
                     password = "",
-                    loginInfo = new LoginInfo(),
-                    isLoggedIn = false,
+                    loginInfo = UserInfoManager.initUserInfo(),
+                    isLoggedIn = UserInfoManager.isLogin(),
                     loading = false
                 },
                 articleState = new ArticleState {
@@ -53,7 +43,7 @@ namespace ConnectApp.models {
                     articleDetailLoading = false,
                     articleTotal = 0,
                     pageNumber = 0,
-                    articleHistory = articleHistoryList
+                    articleHistory = HistoryManager.articleHistoryList()
                 },
                 eventState = new EventState {
                     ongoingEvents = new List<string>(),
@@ -65,7 +55,7 @@ namespace ConnectApp.models {
                     completedPageNumber = 1,
                     eventsOngoingLoading = false,
                     eventsCompletedLoading = false,
-                    eventHistory = eventHistoryList,
+                    eventHistory = HistoryManager.eventHistoryList(),
                     channelId = ""
                 },
                 popularSearchState = new PopularSearchState {
@@ -77,14 +67,14 @@ namespace ConnectApp.models {
                     searchArticles = new List<Article>(),
                     currentPage = 0,
                     pages = new List<int>(),
-                    searchHistoryList = searchHistoryList,
+                    searchHistoryList = HistoryManager.searchHistoryList(),
                 },
                 notificationState = new NotificationState {
                     loading = false,
                     notifications = new List<Notification>()
                 },
                 userState = new UserState {
-                    userDict = new Dictionary<string, User>()
+                    userDict = UserInfoManager.initUserDict()
                 },
                 teamState = new TeamState {
                     teamDict = new Dictionary<string, Team>()
