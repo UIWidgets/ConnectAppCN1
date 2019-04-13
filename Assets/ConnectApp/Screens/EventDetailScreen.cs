@@ -33,7 +33,7 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, EventDetailScreenViewModel>(
-                converter: (state) => {
+                converter: state => {
                     var channelId = state.eventState.channelId;
                     var channelMessageList = state.messageState.channelMessageList;
                     var messageList = new List<string>();
@@ -51,6 +51,7 @@ namespace ConnectApp.screens {
                         messageList = messageList,
                         messageLoading = state.messageState.messageLoading,
                         hasMore = state.messageState.hasMore,
+                        sendMessageLoading = state.messageState.sendMessageLoading,
                         channelMessageDict = state.messageState.channelMessageDict,
                         eventsDict = state.eventState.eventsDict
                     };
@@ -63,13 +64,15 @@ namespace ConnectApp.screens {
                         }),
                         openUrl = url => dispatcher.dispatch(new OpenUrlAction {url = url}),
                         startFetchEventDetail = () => dispatcher.dispatch(new StartFetchEventDetailAction()),
-                        fetchEventDetail = (id) =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchEventDetail(id)),
+                        fetchEventDetail = (id, eventType) =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchEventDetail(id, eventType)),
                         startJoinEvent = () => dispatcher.dispatch(new StartJoinEventAction()),
-                        joinEvent = (id) => dispatcher.dispatch<IPromise>(Actions.joinEvent(id)),
+                        joinEvent = id => dispatcher.dispatch<IPromise>(Actions.joinEvent(id)),
+                        startSendMessage = () => dispatcher.dispatch(new StartSendMessageAction()),
                         sendMessage = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
                             Actions.sendMessage(channelId, content, nonce, parentMessageId)),
-                        showChatWindow = (show) => dispatcher.dispatch(new ShowChatWindowAction {show = show}),
+                        showChatWindow = show => dispatcher.dispatch(new ShowChatWindowAction {show = show}),
+                        startFetchMessages = () => dispatcher.dispatch(new StartFetchMessagesAction()),
                         fetchMessages = (channelId, currOldestMessageId, isFirstLoad) =>
                             dispatcher.dispatch<IPromise>(
                                 Actions.fetchMessages(channelId, currOldestMessageId, isFirstLoad)
@@ -78,7 +81,8 @@ namespace ConnectApp.screens {
                             Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
                     };
                     return new EventDetailScreen(viewModel, actionModel);
-                });
+                }
+            );
         }
     }
 
@@ -106,6 +110,7 @@ namespace ConnectApp.screens {
         private readonly TextEditingController _textController = new TextEditingController("");
         private readonly FocusNode _focusNode = new FocusNode();
         private readonly RefreshController _refreshController = new RefreshController();
+        private string _loginSubId;
 
         public override void initState() {
             base.initState();
@@ -116,8 +121,15 @@ namespace ConnectApp.screens {
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 widget.actionModel.showChatWindow(false);
                 widget.actionModel.startFetchEventDetail();
-                widget.actionModel.fetchEventDetail(widget.viewModel.eventId);
+                widget.actionModel.fetchEventDetail(widget.viewModel.eventId, widget.viewModel.eventType);
             });
+            if (widget.viewModel.eventType == EventType.online) {
+                _loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
+                    widget.actionModel.startFetchMessages();
+                    widget.actionModel
+                        .fetchMessages(widget.viewModel.channelId, "", true);
+                });
+            }
         }
 
         public override Widget build(BuildContext context) {
@@ -149,6 +161,9 @@ namespace ConnectApp.screens {
         }
 
         public override void dispose() {
+            EventBus.unSubscribe(EventBusConstant.login_success, _loginSubId);
+            if (widget.viewModel.showChatWindow)
+                widget.actionModel.showChatWindow(false);
             _textController.dispose();
             _controller.dispose();
             base.dispose();
@@ -183,7 +198,21 @@ namespace ConnectApp.screens {
         }
 
         private void _handleSubmitted(string text) {
-            widget.actionModel.sendMessage(widget.viewModel.channelId, text, Snowflake.CreateNonce(), "");
+            widget.actionModel.startSendMessage();
+            widget.actionModel.sendMessage(widget.viewModel.channelId, text, Snowflake.CreateNonce(), "")
+                .Catch(_ => {
+                    CustomDialogUtils.showCustomDialog(
+                        child: new CustomDialog(
+                            widget: new Icon(
+                                Icons.error_outline,
+                                color: Color.fromRGBO(199, 203, 207, 1),
+                                size: 32
+                            ),
+                            message: "消息发送失败",
+                            duration: new TimeSpan(0,0,2)
+                        )
+                    );
+                });
             _refreshController.scrollTo(0);
         }
 
@@ -200,7 +229,7 @@ namespace ConnectApp.screens {
                         onPressed: type => {
                             string linkUrl =
                                 $"{Config.apiAddress}/events/{eventObj.id}";
-                            string imageUrl = $"{eventObj.background}.200x0x1.jpg";
+                            string imageUrl = $"{eventObj.avatar}.200x0x1.jpg";
                             CustomDialogUtils.showCustomDialog(
                                 child: new CustomDialog()
                             );
@@ -255,7 +284,7 @@ namespace ConnectApp.screens {
 
         private Widget _buildEventDetail(IEvent eventObj, EventType eventType, EventStatus eventStatus,
             bool isLoggedIn) {
-            if (eventStatus != EventStatus.future && eventType == EventType.onLine && isLoggedIn)
+            if (eventStatus != EventStatus.future && eventType == EventType.online && isLoggedIn)
                 return new Expanded(
                     child: new Stack(
                         fit: StackFit.expand,
@@ -284,7 +313,7 @@ namespace ConnectApp.screens {
         private Widget _buildEventBottom(IEvent eventObj, EventType eventType, EventStatus eventStatus,
             bool isLoggedIn) {
             if (eventType == EventType.offline) return _buildOfflineRegisterNow(eventObj, isLoggedIn);
-            if (eventStatus != EventStatus.future && eventType == EventType.onLine && isLoggedIn)
+            if (eventStatus != EventStatus.future && eventType == EventType.online && isLoggedIn)
                 return new Container();
 
             var onlineCount = eventObj.onlineMemberCount;
@@ -520,7 +549,7 @@ namespace ConnectApp.screens {
         }
 
         private Widget _buildTextField() {
-            var sendMessageLoading = false;
+            var sendMessageLoading = widget.viewModel.sendMessageLoading;
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.symmetric(horizontal: 16),
@@ -532,6 +561,7 @@ namespace ConnectApp.screens {
                                 // key: _textFieldKey,
                                 controller: _textController,
                                 focusNode: _focusNode,
+                                enabled: !sendMessageLoading,
                                 height: 40,
                                 style: new TextStyle(
                                     color: sendMessageLoading

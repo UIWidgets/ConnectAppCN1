@@ -84,6 +84,11 @@ namespace ConnectApp.screens {
             SchedulerBinding.instance.addPostFrameCallback(_ => { widget.actionModel.fetchPopularSearch(); });
         }
 
+        public override void dispose() {
+            widget.actionModel.clearSearchArticleResult();
+            base.dispose();
+        }
+
         private void _searchArticle(string text) {
             if (text.isEmpty()) return;
             widget.actionModel.saveSearchHistory(text);
@@ -128,11 +133,9 @@ namespace ConnectApp.screens {
                                     return RelatedArticleCard.User(searchArticle, user,
                                         () => { widget.actionModel.pushToArticleDetail(searchArticle.id); });
                                 }
-                                else {
-                                    var team = widget.viewModel.teamDict[searchArticle.teamId];
-                                    return RelatedArticleCard.Team(searchArticle, team,
-                                        () => { widget.actionModel.pushToArticleDetail(searchArticle.id); });
-                                }
+                                var team = widget.viewModel.teamDict[searchArticle.teamId];
+                                return RelatedArticleCard.Team(searchArticle, team,
+                                    () => { widget.actionModel.pushToArticleDetail(searchArticle.id); });
                             }
                         )
                     );
@@ -180,7 +183,6 @@ namespace ConnectApp.screens {
                             padding: EdgeInsets.only(8, 8, 0, 8),
                             onPressed: () => {
                                 widget.actionModel.mainRouterPop();
-                                widget.actionModel.clearSearchArticleResult();
                             },
                             child: new Text(
                                 "取消",

@@ -4,11 +4,6 @@ using ConnectApp.models;
 using Unity.UIWidgets.Redux;
 
 namespace ConnectApp.redux.actions {
-    public class FetchReviewUrlAction : RequestAction {
-        public string platform;
-        public string store;
-    }
-
     public class FetchReviewUrlSuccessAction : BaseAction {
         public string url;
     }

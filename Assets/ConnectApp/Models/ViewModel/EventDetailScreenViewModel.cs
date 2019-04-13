@@ -14,6 +14,7 @@ namespace ConnectApp.Models.ViewModel {
         public List<string> messageList;
         public bool messageLoading;
         public bool hasMore;
+        public bool sendMessageLoading;
         public Dictionary<string, Dictionary<string, Message>> channelMessageDict;
         public Dictionary<string, IEvent> eventsDict;
     }

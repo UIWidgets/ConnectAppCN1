@@ -10,9 +10,7 @@ using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.screens
-{
-    
+namespace ConnectApp.screens {
     public class EventOngoingScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, EventsScreenViewModel>(
@@ -29,18 +27,18 @@ namespace ConnectApp.screens
                             new MainNavigatorPushToEventDetailAction {
                                 eventId = eventId, eventType = eventType
                             }),
-                        StartFetchEventOngoingAction = () => dispatcher.dispatch(new StartFetchEventOngoingAction()),
+                        startFetchEventOngoing = () => dispatcher.dispatch(new StartFetchEventOngoingAction()),
                         fetchEvents = (pageNumber, tab) =>
                             dispatcher.dispatch<IPromise>(Actions.fetchEvents(pageNumber, tab))
                     };
                     return new EventOngoingScreen(viewModel, actionModel);
-                });
+                }
+            );
         }
     }
     
     
-    public class EventOngoingScreen : StatefulWidget
-    {
+    public class EventOngoingScreen : StatefulWidget {
         public EventOngoingScreen(
             EventsScreenViewModel viewModel = null,
             EventsScreenActionModel actionModel = null,
@@ -52,35 +50,28 @@ namespace ConnectApp.screens
         public readonly EventsScreenViewModel viewModel;
         public readonly EventsScreenActionModel actionModel;
         
-        public override State createState()
-        {
+        public override State createState() {
             return new _EventOngoingScreenState();
         }
     }
 
-    public class _EventOngoingScreenState : State<EventOngoingScreen>
-    {
+    public class _EventOngoingScreenState : State<EventOngoingScreen> {
         private const int firstPageNumber = 1;
         private RefreshController _ongoingRefreshController;
         private int pageNumber = firstPageNumber;
 
-        public override void initState()
-        {
+        public override void initState() {
             base.initState();
             _ongoingRefreshController = new RefreshController();
             SchedulerBinding.instance.addPostFrameCallback(_ => {
-                widget.actionModel.StartFetchEventOngoingAction();
-                widget.actionModel.fetchEvents(pageNumber, "ongoing");
+                widget.actionModel.startFetchEventOngoing();
+                widget.actionModel.fetchEvents(firstPageNumber, "ongoing");
             });
         }
 
-        public override Widget build(BuildContext context)
-        {
-            if (widget.viewModel.eventOngoingLoading) return new GlobalLoading();
-            if (widget.viewModel.ongoingEvents.isEmpty())
-            {
-                return new BlankView("暂无即将开始的活动");
-            }
+        public override Widget build(BuildContext context) {
+            if (widget.viewModel.eventOngoingLoading && widget.viewModel.ongoingEvents.isEmpty()) return new GlobalLoading();
+            if (widget.viewModel.ongoingEvents.Count <= 0) return new BlankView("暂无即将开始活动");
             return new SmartRefresher(
                 controller: _ongoingRefreshController,
                 enablePullDown: true,
@@ -89,7 +80,7 @@ namespace ConnectApp.screens
                 footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
                 onRefresh: _ongoingRefresh,
                 child: ListView.builder(
-                    itemExtent:108,
+                    itemExtent: 108,
                     physics: new AlwaysScrollableScrollPhysics(),
                     itemCount: widget.viewModel.ongoingEvents.Count,
                     itemBuilder: (cxt, index) => {
@@ -101,7 +92,7 @@ namespace ConnectApp.screens
                             place,
                             () => widget.actionModel.pushToEventDetail(
                                 model.id,
-                                model.mode == "online" ? EventType.onLine : EventType.offline
+                                model.mode == "online" ? EventType.online : EventType.offline
                             ),
                             new ObjectKey(model.id)
                         );
@@ -111,7 +102,7 @@ namespace ConnectApp.screens
         }
         private void _ongoingRefresh(bool up) {
             if (up)
-                pageNumber = 1;
+                pageNumber = firstPageNumber;
             else
                 pageNumber++;
             widget.actionModel.fetchEvents(pageNumber, "ongoing")

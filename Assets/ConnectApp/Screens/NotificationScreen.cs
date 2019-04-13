@@ -152,7 +152,7 @@ namespace ConnectApp.screens {
         private bool _onNotification(ScrollNotification notification) {
 //            var pixels = notification.metrics.pixels;
 //            if (pixels >= 0) {
-//                if (pixels <= headerHeight) setState(() => { _offsetY = pixels / 2.8f; });
+//                if (pixels <= headerHeight && _offsetY != pixels / 2.8f) setState(() => { _offsetY = pixels / 2.8f; });
 //            }
 //            else {
 //                if (_offsetY != 0) setState(() => { _offsetY = 0; });
