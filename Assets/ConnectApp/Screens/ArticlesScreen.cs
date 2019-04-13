@@ -19,7 +19,7 @@ namespace ConnectApp.screens {
     public class ArticlesScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ArticlesScreenViewModel>(
-                converter: (state) => new ArticlesScreenViewModel {
+                converter: state => new ArticlesScreenViewModel {
                     articlesLoading = state.articleState.articlesLoading,
                     articleList = state.articleState.articleList,
                     articleDict = state.articleState.articleDict,
@@ -35,6 +35,12 @@ namespace ConnectApp.screens {
                         pushToArticleDetail = id => dispatcher.dispatch(
                             new MainNavigatorPushToArticleDetailAction {
                                 articleId = id
+                            }
+                        ),
+                        pushToReport = (reportId, reportType) => dispatcher.dispatch(
+                            new MainNavigatorPushToReportAction {
+                                reportId = reportId,
+                                reportType = reportType
                             }
                         ),
                         startFetchArticles = () => dispatcher.dispatch(new StartFetchArticlesAction()),
@@ -64,9 +70,9 @@ namespace ConnectApp.screens {
     }
 
 
-    public class _ArticlesScreenState :State<ArticlesScreen> {
-        private const int firstPageNumber = 1;
-        private const float headerHeight = 140;
+    public class _ArticlesScreenState : State<ArticlesScreen> {
+        private const int firstPageNumber = 0;
+        private static readonly float headerHeight = CustomNavigationBar.height;
         private float _offsetY;
         private int pageNumber = firstPageNumber;
         private RefreshController _refreshController;
@@ -109,15 +115,17 @@ namespace ConnectApp.screens {
                         child: new Icon(
                             Icons.search,
                             size: 28,
-                            color: Color.fromRGBO(181, 181, 181, 1))
+                            color: Color.fromRGBO(181, 181, 181, 1)
+                        )
                     )
                 },
                 CColors.White,
-                _offsetY);
+                _offsetY
+            );
         }
 
         private Widget _buildArticleList(BuildContext context) {
-            object content = new Container();
+            Widget content = new Container();
 
             if (widget.viewModel.articlesLoading && widget.viewModel.articleList.isEmpty())
                 content = ListView.builder(
@@ -149,29 +157,39 @@ namespace ConnectApp.screens {
                                     () => {
                                         ActionSheetUtils.showModalActionSheet(new ActionSheet(
                                             items: new List<ActionSheetItem> {
-                                                new ActionSheetItem("举报", ActionType.destructive, () => { }),
+                                                new ActionSheetItem(
+                                                    "举报",
+                                                    ActionType.destructive,
+                                                    () => widget.actionModel.pushToReport(articleId, ReportType.article)
+                                                ),
                                                 new ActionSheetItem("取消", ActionType.cancel)
                                             }
                                         ));
                                     },
-                                    new ObjectKey(article.id), _user);
+                                    new ObjectKey(article.id),
+                                    _user
+                                );
                             }
-                            else {
-                                var _team = new Team();
-                                if (widget.viewModel.teamDict.ContainsKey(article.teamId))
-                                    _team = widget.viewModel.teamDict[article.teamId];
-                                return ArticleCard.Team(article,
-                                    () => widget.actionModel.pushToArticleDetail(articleId),
-                                    () => {
-                                        ActionSheetUtils.showModalActionSheet(new ActionSheet(
-                                            items: new List<ActionSheetItem> {
-                                                new ActionSheetItem("举报", ActionType.destructive, () => { }),
-                                                new ActionSheetItem("取消", ActionType.cancel)
-                                            }
-                                        ));
-                                    },
-                                    new ObjectKey(article.id), _team);
-                            }
+                            var _team = new Team();
+                            if (widget.viewModel.teamDict.ContainsKey(article.teamId))
+                                _team = widget.viewModel.teamDict[article.teamId];
+                            return ArticleCard.Team(article,
+                                () => widget.actionModel.pushToArticleDetail(articleId),
+                                () => {
+                                    ActionSheetUtils.showModalActionSheet(new ActionSheet(
+                                        items: new List<ActionSheetItem> {
+                                            new ActionSheetItem(
+                                                "举报",
+                                                ActionType.destructive,
+                                                () => widget.actionModel.pushToReport(articleId, ReportType.article)
+                                            ),
+                                            new ActionSheetItem("取消", ActionType.cancel)
+                                        }
+                                    ));
+                                },
+                                new ObjectKey(article.id),
+                                _team
+                            );
                         }
                     )
                 );
@@ -180,7 +198,7 @@ namespace ConnectApp.screens {
                 onNotification: _onNotification,
                 child: new Container(
                     margin: EdgeInsets.only(bottom: 49),
-                    child: (Widget) content
+                    child: content
                 )
             );
         }
@@ -199,7 +217,7 @@ namespace ConnectApp.screens {
 //            var pixels = notification.metrics.pixels;
 //            Debug.Log($"pixels: {pixels}");
 //            if (pixels >= 0) {
-//                if (pixels <= headerHeight) setState(() => { _offsetY = pixels / 2.0f; });
+//                if (pixels <= headerHeight && _offsetY != pixels / 2.8f) setState(() => { _offsetY = pixels / 2.8f; });
 //            }
 //            else {
 //                if (_offsetY != 0) setState(() => { _offsetY = 0; });

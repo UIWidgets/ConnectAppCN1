@@ -24,7 +24,7 @@ namespace ConnectApp.components {
         private readonly List<Widget> rightWidgets;
         private readonly Color backgroundColor;
         private readonly float offset;
-        private readonly float height = 140;
+        public static readonly float height = 140;
 
 
         public override Widget build(BuildContext context) {

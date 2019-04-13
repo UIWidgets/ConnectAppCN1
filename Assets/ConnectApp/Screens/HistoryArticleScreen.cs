@@ -11,12 +11,11 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.screens
-{
+namespace ConnectApp.screens {
     public class HistoryArticleScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, HistoryScreenViewModel>(
-                converter: (state) => new HistoryScreenViewModel {
+                converter: state => new HistoryScreenViewModel {
                     articleHistory = state.articleState.articleHistory,
                     userDict = state.userState.userDict,
                     teamDict = state.teamState.teamDict,
@@ -24,18 +23,23 @@ namespace ConnectApp.screens
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new HistoryScreenActionModel {
-                        pushToArticleDetail = (id) =>
+                        pushToArticleDetail = id =>
                             dispatcher.dispatch(new MainNavigatorPushToArticleDetailAction {articleId = id}),
-                        deleteArticleHistory = (id) =>
-                            dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = id}),
+                        pushToReport = (reportId, reportType) => dispatcher.dispatch(
+                            new MainNavigatorPushToReportAction {
+                                reportId = reportId,
+                                reportType = reportType
+                            }
+                        ),
+                        deleteArticleHistory = id =>
+                            dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = id})
                     };
                     return new HistoryArticleScreen(viewModel, actionModel);
                 }
             );
         }
     }
-    public class HistoryArticleScreen : StatefulWidget
-    {
+    public class HistoryArticleScreen : StatefulWidget {
         public HistoryArticleScreen(
             HistoryScreenViewModel viewModel = null,
             HistoryScreenActionModel actionModel = null,
@@ -48,17 +52,14 @@ namespace ConnectApp.screens
         public readonly HistoryScreenViewModel viewModel;
         public readonly HistoryScreenActionModel actionModel;
 
-        public override State createState()
-        {
+        public override State createState() {
             return new _HistoryArticleScreenState();
         }
     }
 
-    public class _HistoryArticleScreenState : State<HistoryArticleScreen>
-    {
+    public class _HistoryArticleScreenState : State<HistoryArticleScreen> {
 
-        public override Widget build(BuildContext context)
-        {
+        public override Widget build(BuildContext context) {
             if (widget.viewModel.articleHistory.Count == 0) return new BlankView("暂无浏览文章记录");
 
             return ListView.builder(
@@ -73,9 +74,19 @@ namespace ConnectApp.screens
                             _user = widget.viewModel.userDict[model.userId];
                         child = ArticleCard.User(
                             model,
-                            onTap: () =>
-                                widget.actionModel.pushToArticleDetail(model.id),
-                            moreCallBack: () => { },
+                            () => widget.actionModel.pushToArticleDetail(model.id),
+                            () => {
+                                ActionSheetUtils.showModalActionSheet(new ActionSheet(
+                                    items: new List<ActionSheetItem> {
+                                        new ActionSheetItem(
+                                            "举报",
+                                            ActionType.destructive,
+                                            () => widget.actionModel.pushToReport(model.id, ReportType.article)
+                                        ),
+                                        new ActionSheetItem("取消", ActionType.cancel)
+                                    }
+                                ));
+                            },
                             new ObjectKey(model.id),
                             _user
                         );
@@ -86,9 +97,20 @@ namespace ConnectApp.screens
                             _team = widget.viewModel.teamDict[model.teamId];
                         child = ArticleCard.Team(
                             model,
-                            onTap: () =>
+                            () =>
                                 widget.actionModel.pushToArticleDetail(model.id),
-                            moreCallBack: () => { },
+                            () => {
+                                ActionSheetUtils.showModalActionSheet(new ActionSheet(
+                                    items: new List<ActionSheetItem> {
+                                        new ActionSheetItem(
+                                            "举报",
+                                            ActionType.destructive,
+                                            () => widget.actionModel.pushToReport(model.id, ReportType.article)
+                                        ),
+                                        new ActionSheetItem("取消", ActionType.cancel)
+                                    }
+                                ));
+                            },
                             new ObjectKey(model.id),
                             _team
                         );

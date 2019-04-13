@@ -14,9 +14,6 @@ namespace ConnectApp.redux.actions {
 
     public class FetchNotificationsFailureAction : BaseAction {
     }
-    
-    public class FetchMakeAllSeenAction : RequestAction {
-    }
 
     public static partial class Actions {
         public static object fetchNotifications(int pageNumber) {

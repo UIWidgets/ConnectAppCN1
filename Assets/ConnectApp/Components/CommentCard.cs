@@ -36,9 +36,10 @@ namespace ConnectApp.components {
 
 
         public override Widget build(BuildContext context) {
-            Widget _content = null;
+            if (message == null) return new Container();
+            
             var content = MessageUtils.AnalyzeMessage(message.content, message.mentions, message.mentionEveryone);
-            _content = parentName.isEmpty()
+            Widget _content = parentName.isEmpty()
                 ? new Container(
                     child: new Text(
                         content,
@@ -64,7 +65,6 @@ namespace ConnectApp.components {
                     )
                 );
 
-
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(16, 16, 16),
@@ -84,10 +84,10 @@ namespace ConnectApp.components {
                                                 new Expanded(
                                                     child: new Text(message.author.fullName,
                                                         style: CTextStyle.PMediumBody3)),
-                                                new GestureDetector(
-                                                    onTap: moreCallBack,
-                                                    child: new Icon(Icons.ellipsis, size: 20, color: CColors.BrownGrey)
-                                                )
+//                                                new GestureDetector(
+//                                                    onTap: moreCallBack,
+//                                                    child: new Icon(Icons.ellipsis, size: 20, color: CColors.BrownGrey)
+//                                                )
                                             }
                                         ),
                                         new Container(

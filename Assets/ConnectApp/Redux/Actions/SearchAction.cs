@@ -5,9 +5,6 @@ using Unity.UIWidgets.Redux;
 using UnityEngine;
 
 namespace ConnectApp.redux.actions {
-    public class StartPopularSearchAction : RequestAction {
-    }
-
     public class PopularSearchSuccessAction : RequestAction {
         public List<PopularSearch> popularSearch;
     }
@@ -26,9 +23,6 @@ namespace ConnectApp.redux.actions {
     }
 
     public class ClearSearchArticleResultAction : BaseAction {
-    }
-
-    public class GetSearchHistoryAction : BaseAction {
     }
 
     public class SaveSearchHistoryAction : BaseAction {
@@ -55,7 +49,10 @@ namespace ConnectApp.redux.actions {
                             searchResponse = searchResponse
                         });
                     })
-                    .Catch(Debug.Log);
+                    .Catch(error => {
+                        dispatcher.dispatch(new SearchArticleFailureAction {keyword = keyword});
+                        Debug.Log(error);
+                    });
             });
         }
 

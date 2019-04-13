@@ -1,4 +1,5 @@
 using System;
+using RSG;
 
 namespace ConnectApp.Models.ActionModel {
     public class SettingScreenActionModel {
@@ -6,5 +7,6 @@ namespace ConnectApp.Models.ActionModel {
         public Action<string> openUrl;
         public Action clearCache;
         public Action logout;
+        public Func<IPromise> fetchReviewUrl;
     }
 }

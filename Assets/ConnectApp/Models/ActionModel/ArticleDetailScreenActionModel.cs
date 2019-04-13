@@ -1,5 +1,6 @@
 using System;
 using ConnectApp.components;
+using ConnectApp.screens;
 using RSG;
 
 namespace ConnectApp.Models.ActionModel {
@@ -8,6 +9,7 @@ namespace ConnectApp.Models.ActionModel {
         public Action pushToLogin;
         public Action<string> openUrl;
         public Action<string> pushToArticleDetail;
+        public Action<string, ReportType> pushToReport;
         public Action startFetchArticleDetail;
         public Func<string, IPromise> fetchArticleDetail;
         public Func<string, string, IPromise> fetchArticleComments;

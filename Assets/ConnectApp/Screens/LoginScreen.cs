@@ -20,7 +20,7 @@ namespace ConnectApp.screens {
     }
 
     public class LoginScreen : StatelessWidget {
-        private static readonly GlobalKey globalKey = GlobalKey.key(debugLabel: "login-router");
+        private static readonly GlobalKey globalKey = GlobalKey.key("login-router");
         public static NavigatorState navigator => globalKey.currentState as NavigatorState;
 
         private static Dictionary<string, WidgetBuilder> loginRoutes => new Dictionary<string, WidgetBuilder> {
@@ -31,7 +31,7 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new Navigator(
                 globalKey,
-                onGenerateRoute: (RouteSettings settings) => {
+                onGenerateRoute: settings => {
                     return new PageRouteBuilder(
                         settings,
                         (context1, animation, secondaryAnimation) => loginRoutes[settings.name](context1),
@@ -50,15 +50,14 @@ namespace ConnectApp.screens {
                 converter: state => null,
                 builder: (context1, _, dispatcher) => {
                     var actionModel = new LoginSwitchScreenActionModel {
-                        mainRouterPop =() => dispatcher.dispatch(new MainNavigatorPopAction()),
-                        loginByWechatAction = code =>
-                        {
+                        mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
+                        loginByWechatAction = code => {
                             CustomDialogUtils.showCustomDialog(
                                 child: new CustomDialog()
                             );
                             dispatcher.dispatch<IPromise>(Actions.loginByWechat(code));
                         },
-                        loginRouterPushToUnityBind=() => dispatcher.dispatch(new LoginNavigatorPushToBindUnityAction())
+                        loginRouterPushToUnityBind= () => dispatcher.dispatch(new LoginNavigatorPushToBindUnityAction())
 
                     };
                     return new LoginSwitchScreen(actionModel);
@@ -74,7 +73,7 @@ namespace ConnectApp.screens {
             this.actionModel = actionModel;
         }
 
-        public readonly LoginSwitchScreenActionModel actionModel;
+        private readonly LoginSwitchScreenActionModel actionModel;
 
         public override Widget build(BuildContext context) {
             return new Container(
@@ -147,7 +146,7 @@ namespace ConnectApp.screens {
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
                     children: new List<Widget> {
-                        WechatButton(context),
+                        _buildWechatButton(context),
                         new Container(height: 16),
                         new CustomButton(
                             onPressed: () => actionModel.loginRouterPushToUnityBind(),
@@ -179,12 +178,10 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget WechatButton(BuildContext context)
-        {
+        private Widget _buildWechatButton(BuildContext context) {
             WechatPlugin.instance().context = context;
             return new CustomButton(
-                onPressed: () =>
-                {
+                onPressed: () => {
                     WechatPlugin.instance(code => actionModel.loginByWechatAction(code))
                         .login(Guid.NewGuid().ToString());
                 },
@@ -197,8 +194,7 @@ namespace ConnectApp.screens {
                     ),
                     child: new Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: new List<Widget>
-                        {
+                        children: new List<Widget> {
                             Image.asset(
                                 "icon-wechat",
                                 width: 24,
@@ -215,9 +211,6 @@ namespace ConnectApp.screens {
                     )
                 )
             );
-
-//            return new Container();
-
         }
     }
 }

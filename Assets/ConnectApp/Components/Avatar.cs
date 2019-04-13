@@ -25,8 +25,8 @@ namespace ConnectApp.components {
         ) : base(key) {
             D.assert(id != null);
             this.id = id;
-            this.user = user;
-            this.team = team;
+            this.user = user ?? new User();
+            this.team = team ?? new Team();
             this.size = size;
             this.type = type;
         }
