@@ -1,11 +1,9 @@
 using System;
 using System.Collections;
-using ConnectApp.models;
-using ConnectApp.redux.actions;
+using System.Collections.Generic;
 using RSG;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -43,8 +41,7 @@ namespace ConnectApp.utils {
             return promise;
         }
 
-        private static IEnumerator sendRequest(Promise<string> promise,UnityWebRequest request)
-        {
+        private static IEnumerator sendRequest(Promise<string> promise,UnityWebRequest request) {
             yield return request.SendWebRequest();
             if (request.isNetworkError) {
                 promise.Reject(new Exception(request.error));
@@ -59,10 +56,10 @@ namespace ConnectApp.utils {
             }
             else
             {
-                if (request.GetResponseHeaders().ContainsKey("Set-Cookie")) {
-                    var cookie = request.GetResponseHeaders()["Set-Cookie"];
-                    updateCookie(cookie);
-                }
+//                if (request.GetResponseHeaders().ContainsKey("Set-Cookie")) {
+//                    var cookie = request.GetResponseHeaders()["Set-Cookie"];
+//                    updateCookie(cookie);
+//                }
                 promise.Resolve(request.downloadHandler.text);
             }
             
@@ -71,18 +68,45 @@ namespace ConnectApp.utils {
 
         private static string _cookieHeader() {
             if (PlayerPrefs.GetString(COOKIE).isNotEmpty()) return PlayerPrefs.GetString(COOKIE);
-
             return "";
         }
 
         public static void clearCookie() {
+            UnityWebRequest.ClearCookieCache();
             PlayerPrefs.DeleteKey(COOKIE);
         }
 
         public static void updateCookie(string newCookie) {
-            var oldCookie = PlayerPrefs.GetString(COOKIE);
-            if (oldCookie.isEmpty() || !oldCookie.Equals(newCookie)) {
-                PlayerPrefs.SetString(COOKIE, newCookie);
+            var cookie = PlayerPrefs.GetString(COOKIE);
+            Debug.Log($"update before cookie: {cookie}");
+            Debug.Log($"new cookie: {newCookie}");
+            var cookieDict = new Dictionary<string, string>();
+            var updateCookie = "";
+            if (cookie.isNotEmpty()) {
+                var cookieArr = cookie.Split(',');
+                foreach (var c in cookieArr) {
+                    var name = c.Split('=').first();
+                    cookieDict.Add(name, c);
+                }
+            }
+            if (newCookie.isNotEmpty()) {
+                var newCookieArr = newCookie.Split(',');
+                foreach (var c in newCookieArr) {
+                    var name = c.Split('=').first();
+                    if (cookieDict.ContainsKey(name)) {
+                        cookieDict[name] = c;
+                    }
+                    else {
+                        cookieDict.Add(name, c);
+                    }
+                }
+                var updateCookieArr = cookieDict.Values;
+                updateCookie = string.Join(",", updateCookieArr);
+            }
+            Debug.Log($"update after cookie dict: {cookieDict}");
+            Debug.Log($"update after cookie: {updateCookie}");
+            if (updateCookie.isNotEmpty()) {
+                PlayerPrefs.SetString(COOKIE, updateCookie);
                 PlayerPrefs.Save();
             }
         }
