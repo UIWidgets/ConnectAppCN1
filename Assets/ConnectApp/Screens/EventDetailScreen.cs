@@ -124,13 +124,11 @@ namespace ConnectApp.screens {
                 widget.actionModel.startFetchEventDetail();
                 widget.actionModel.fetchEventDetail(widget.viewModel.eventId, widget.viewModel.eventType);
             });
-            if (widget.viewModel.eventType == EventType.online) {
-                _loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
-                    widget.actionModel.startFetchMessages();
-                    widget.actionModel
-                        .fetchMessages(widget.viewModel.channelId, "", true);
-                });
-            }
+            _loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
+                widget.actionModel.startFetchMessages();
+                widget.actionModel
+                    .fetchMessages(widget.viewModel.channelId, "", true);
+            });
         }
 
         public override Widget build(BuildContext context) {
@@ -163,8 +161,6 @@ namespace ConnectApp.screens {
 
         public override void dispose() {
             EventBus.unSubscribe(EventBusConstant.login_success, _loginSubId);
-            if (widget.viewModel.showChatWindow)
-                widget.actionModel.showChatWindow(false);
             _textController.dispose();
             _controller.dispose();
             base.dispose();

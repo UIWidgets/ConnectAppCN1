@@ -84,7 +84,7 @@ namespace ConnectApp.screens {
             return new Container(
                 color: CColors.White,
                 width: MediaQuery.of(context).size.width,
-                height: 240,
+                height: 196,
                 padding: EdgeInsets.only(16, right: 16, bottom: 16),
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.end,

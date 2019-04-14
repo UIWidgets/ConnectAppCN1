@@ -82,7 +82,7 @@ namespace ConnectApp.components {
         }
 
         public override Widget build(BuildContext context) {
-            Debug.Log($"MediaQuery.of(context).viewInsets.bottom==== {MediaQuery.of(context).viewInsets.bottom}");
+//            Debug.Log($"MediaQuery.of(context).viewInsets.bottom==== {MediaQuery.of(context).viewInsets.bottom}");
             var reply = new Container();
             if (!widget.replyUserName.isEmpty())
                 reply = new Container(

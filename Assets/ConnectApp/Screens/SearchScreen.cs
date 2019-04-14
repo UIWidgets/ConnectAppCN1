@@ -79,22 +79,29 @@ namespace ConnectApp.screens {
         private readonly TextEditingController _controller = new TextEditingController("");
         private int _pageNumber;
         private RefreshController _refreshController;
+        private FocusNode _focusNode; 
 
         public override void initState() {
             base.initState();
             _pageNumber = 0;
             _refreshController = new RefreshController();
+            _focusNode = new FocusNode();
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 widget.actionModel.fetchPopularSearch();
             });
         }
 
         public override void dispose() {
+            _controller.dispose();
+            _focusNode.dispose();
             base.dispose();
         }
 
         private void _searchArticle(string text) {
             if (text.isEmpty()) return;
+            if (_focusNode.hasFocus) {
+                _focusNode.unfocus();
+            }
             widget.actionModel.saveSearchHistory(text);
             _controller.text = text;
             widget.actionModel.startSearchArticle();
@@ -176,7 +183,7 @@ namespace ConnectApp.screens {
 
         private Widget _buildSearchBar(BuildContext context) {
             return new Container(
-                height: 140,
+                height: 94,
                 padding: EdgeInsets.only(16, 0, 16, 12),
                 color: CColors.White,
                 child: new Column(
@@ -195,6 +202,7 @@ namespace ConnectApp.screens {
                         ),
                         new InputField(
                             controller: _controller,
+                            focusNode: _focusNode,
                             style: CTextStyle.H2,
                             autofocus: true,
                             hintText: "搜索",

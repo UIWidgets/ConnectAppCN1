@@ -110,6 +110,7 @@ namespace ConnectApp.screens {
         private Widget _buildNavigationBar() {
             return new AnimatedContainer(
                 height: navBarHeight,
+                color: CColors.White,
                 duration: new TimeSpan(0, 0, 0, 0, 0),
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

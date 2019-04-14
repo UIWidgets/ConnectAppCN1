@@ -59,27 +59,13 @@ namespace ConnectApp.redux.reducers {
                 }
                 case LoginByWechatAction action: {
                     state.loginState.loading = true;
-                    CustomDialogUtils.showCustomDialog(
-                        child: new CustomDialog()
-                    );
                     break;
                 }
                 case LoginByWechatSuccessAction action: {
                     state.loginState.loading = false;
                     state.loginState.loginInfo = action.loginInfo;
-                    var user = new User {
-                        id = state.loginState.loginInfo.userId,
-                        fullName = state.loginState.loginInfo.userFullName,
-                        avatar = state.loginState.loginInfo.userAvatar
-                    };
-                    var dict = new Dictionary<string, User> {
-                        {user.id, user}
-                    };
-//                    StoreProvider.store.dispatcher.dispatch(new UserMapAction {userMap = dict});
                     state.loginState.isLoggedIn = true;
-//                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPopAction());
-//                    StoreProvider.store.dispatcher.dispatch(new CleanEmailAndPasswordAction());
-                    CustomDialogUtils.hiddenCustomDialog();
+                    EventBus.publish(EventBusConstant.login_success, new List<object>());
                     break;
                 }
                 case LoginByWechatFailureAction action: {
@@ -425,12 +411,13 @@ namespace ConnectApp.redux.reducers {
                 case FetchMyFutureEventsSuccessAction action: {
                     state.mineState.futureListLoading = false;
                     state.mineState.futureEventTotal = action.eventsResponse.events.total;
+                    var offlineItems = action.eventsResponse.events.items.FindAll(item => item.mode != "online");
                     if (action.pageNumber == 1) {
-                        state.mineState.futureEventsList = action.eventsResponse.events.items;
+                        state.mineState.futureEventsList = offlineItems;
                     }
                     else {
                         var results = state.mineState.futureEventsList;
-                        results.AddRange(action.eventsResponse.events.items);
+                        results.AddRange(offlineItems);
                         state.mineState.futureEventsList = results;
                     }
 
@@ -447,12 +434,13 @@ namespace ConnectApp.redux.reducers {
                 case FetchMyPastEventsSuccessAction action: {
                     state.mineState.pastListLoading = false;
                     state.mineState.pastEventTotal = action.eventsResponse.events.total;
+                    var offlineItems = action.eventsResponse.events.items;
                     if (action.pageNumber == 1) {
-                        state.mineState.pastEventsList = action.eventsResponse.events.items;
+                        state.mineState.pastEventsList = offlineItems;
                     }
                     else {
                         var results = state.mineState.pastEventsList;
-                        results.AddRange(action.eventsResponse.events.items);
+                        results.AddRange(offlineItems);
                         state.mineState.pastEventsList = results;
                     }
 
