@@ -153,8 +153,6 @@ namespace ConnectApp.screens {
                     controller: _refreshController,
                     enablePullDown: true,
                     enablePullUp: widget.viewModel.articleList.Count < widget.viewModel.articleTotal,
-                    headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
-                    footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
                     onRefresh: onRefresh,
                     child: ListView.builder(
                         physics: new AlwaysScrollableScrollPhysics(),

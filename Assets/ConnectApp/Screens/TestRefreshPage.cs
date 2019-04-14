@@ -61,10 +61,6 @@ namespace ConnectApp.screens {
                         controller: _refreshController,
                         enablePullDown: true,
                         enablePullUp: true,
-                        headerBuilder: (cxt, mode) =>
-                            new SmartRefreshHeader(mode),
-                        footerBuilder: (cxt, mode) =>
-                            new SmartRefreshHeader(mode),
                         onOffsetChange: _onOffsetCallback,
                         onRefresh: up => {
                             if (up)

@@ -190,7 +190,6 @@ namespace ConnectApp.screens {
                                 controller: _refreshController,
                                 enablePullDown: false,
                                 enablePullUp: _hasMore,
-                                footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
                                 onRefresh: _onRefresh,
                                 child: ListView.builder(
                                     physics: new AlwaysScrollableScrollPhysics(),
