@@ -151,42 +151,42 @@ namespace ConnectApp.constants {
         );
 
         public static readonly TextStyle PLargeMediumBlue = new TextStyle(
-            height: 1.09f,
+            height: 1.33f,
             fontSize: 16,
             fontFamily: "Roboto-Medium",
             color: CColors.PrimaryBlue
         );
 
         public static readonly TextStyle PLargeWhite = new TextStyle(
-            height: 1.09f,
+            height: 1.33f,
             fontSize: 16,
             fontFamily: "Roboto-Regular",
             color: CColors.White
         );
 
         public static readonly TextStyle PLargeMediumWhite = new TextStyle(
-            height: 1.09f,
+            height: 1.33f,
             fontSize: 16,
             fontFamily: "Roboto-Medium",
             color: CColors.White
         );
 
         public static readonly TextStyle PLargeError = new TextStyle(
-            height: 1.09f,
+            height: 1.33f,
             fontSize: 16,
             fontFamily: "Roboto-Regular",
             color: CColors.Error
         );
 
         public static readonly TextStyle PLargeBody = new TextStyle(
-            height: 1.09f,
+            height: 1.33f,
             fontSize: 16,
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody
         );
 
         public static readonly TextStyle PLargeBody2 = new TextStyle(
-            height: 1.09f,
+            height: 1.33f,
             fontSize: 16,
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody2

@@ -173,6 +173,10 @@ namespace ConnectApp.screens {
         }
 
         private Widget _buildWechatButton(BuildContext context) {
+            if (!WechatPlugin.instance().inInstalled())
+            {
+                return new Container();
+            }
             WechatPlugin.instance().context = context;
             return new CustomButton(
                 onPressed: () => {

@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using ConnectApp.api;
+using ConnectApp.components;
+using ConnectApp.constants;
 using ConnectApp.models;
 using Unity.UIWidgets.Redux;
 using UnityEngine;
@@ -192,18 +194,27 @@ namespace ConnectApp.redux.actions {
         public static object likeArticle(string articleId) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ArticleApi.LikeArticle(articleId)
-                    .Then(() => { dispatcher.dispatch(new LikeArticleSuccessAction {articleId = articleId}); })
-                    .Catch(Debug.Log);
+                    .Then(() =>
+                    {
+                        CustomDialogUtils.showToast("点赞成功",Icons.mode);
+                        dispatcher.dispatch(new LikeArticleSuccessAction {articleId = articleId});
+                    })
+                    .Catch(_=>CustomDialogUtils.showToast("点赞失败",Icons.mode_bad));
             });
         }
 
         public static object likeComment(string messageId) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ArticleApi.LikeComment(messageId)
-                    .Then(message => { dispatcher.dispatch(new LikeCommentSuccessAction {message = message}); })
-                    .Catch(error => {
+                    .Then(message =>
+                    {
+                        CustomDialogUtils.showToast("点赞成功",Icons.mode);
+                        dispatcher.dispatch(new LikeCommentSuccessAction {message = message});
+                    })
+                    .Catch(error =>
+                    {
+                        CustomDialogUtils.showToast("点赞失败", Icons.mode_bad);
                         dispatcher.dispatch(new LikeCommentFailureAction());
-                        Debug.Log(error);
                     });
             });
         }
@@ -211,8 +222,16 @@ namespace ConnectApp.redux.actions {
         public static object removeLikeComment(string messageId) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ArticleApi.RemoveLikeComment(messageId)
-                    .Then(message => { dispatcher.dispatch(new RemoveLikeCommentSuccessAction {message = message}); })
-                    .Catch(error => { Debug.Log(error); });
+                    .Then(message =>
+                    {
+                        CustomDialogUtils.showToast("已取消点赞",Icons.mode);
+                        dispatcher.dispatch(new RemoveLikeCommentSuccessAction {message = message});
+                    })
+                    .Catch(error =>
+                    {
+                        CustomDialogUtils.showToast("取消点赞失败", Icons.mode_bad);
+                        Debug.Log(error);
+                    });
             });
         }
 
@@ -220,11 +239,17 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ArticleApi.SendComment(channelId, content, nonce, parentMessageId)
                     .Then(message => {
+                        CustomDialogUtils.hiddenCustomDialog();
+                        CustomDialogUtils.showToast("发送成功",Icons.mode);
                         dispatcher.dispatch(new SendCommentSuccessAction {
                             message = message
                         });
                     })
-                    .Catch(error => { Debug.Log(error); });
+                    .Catch(error =>
+                    {
+                        CustomDialogUtils.hiddenCustomDialog();
+                        CustomDialogUtils.showToast("发送失败",Icons.mode_bad);
+                    });
             });
         }
     }
