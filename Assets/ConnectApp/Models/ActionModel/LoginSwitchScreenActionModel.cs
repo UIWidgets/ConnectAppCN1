@@ -1,11 +1,12 @@
 using System;
+using RSG;
 
 namespace ConnectApp.Models.ActionModel
 {
     public class LoginSwitchScreenActionModel
     {
         public Action mainRouterPop;
-        public Action<string> loginByWechatAction;
+        public Func<string, IPromise> loginByWechatAction;
         public Action loginRouterPushToUnityBind;
     }
 }

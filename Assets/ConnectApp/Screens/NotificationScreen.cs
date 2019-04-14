@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.components;
 using ConnectApp.components.pull_to_refresh;
@@ -9,8 +10,10 @@ using ConnectApp.redux.actions;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -60,19 +63,22 @@ namespace ConnectApp.screens {
     }
 
     public class _NotificationScreenState : State<NotificationScreen> {
-        private const float headerHeight = 140;
         private const int firstPageNumber = 1;
-        private float _offsetY;
         private int _pageNumber = firstPageNumber;
         private RefreshController _refreshController;
+        private TextStyle titleStyle;
+        const float maxNavBarHeight = 96; 
+        const float minNavBarHeight = 44; 
+        private float navBarHeight;
 
 //        protected override bool wantKeepAlive {
 //            get => false;
 //        }
         public override void initState() {
             base.initState();
-            _offsetY = 0;
             _refreshController = new RefreshController();
+            navBarHeight = maxNavBarHeight;
+            titleStyle = CTextStyle.H2;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 widget.actionModel.startFetchNotifications();
                 widget.actionModel.fetchNotifications(_pageNumber);
@@ -118,19 +124,22 @@ namespace ConnectApp.screens {
                 color: CColors.White,
                 child: new Column(
                     children: new List<Widget> {
-                        new CustomNavigationBar(
-                            new Text(
-                                "通知",
-                                style: new TextStyle(
-                                    height: 1.25f,
-                                    fontSize: 32 / headerHeight * (headerHeight - _offsetY),
-                                    fontFamily: "Roboto-Bold",
-                                    color: CColors.TextTitle
-                                )
-                            ),
-                            null,
-                            CColors.White,
-                            _offsetY
+                        new AnimatedContainer(
+                            height: navBarHeight,
+                            duration: new TimeSpan(0, 0, 0, 0, 0),
+                            child: new Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: new List<Widget> {
+                                    new Container(
+                                        padding: EdgeInsets.only(16, bottom: 8),
+                                        child: new AnimatedDefaultTextStyle(
+                                            child: new Text("通知"),
+                                            style: titleStyle, 
+                                            duration: new TimeSpan(0, 0, 0, 0, 100)
+                                        )
+                                    )
+                            })
                         ),
                         new CustomDivider(
                             color: CColors.Separator2,
@@ -148,13 +157,28 @@ namespace ConnectApp.screens {
         }
 
         private bool _onNotification(ScrollNotification notification) {
-//            var pixels = notification.metrics.pixels;
-//            if (pixels >= 0) {
-//                if (pixels <= headerHeight && _offsetY != pixels / 2.8f) setState(() => { _offsetY = pixels / 2.8f; });
-//            }
-//            else {
-//                if (_offsetY != 0) setState(() => { _offsetY = 0; });
-//            }
+            var pixels = notification.metrics.pixels;
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                if (pixels > 0 && pixels <= 52) {
+                    titleStyle = CTextStyle.H5;
+                    navBarHeight = maxNavBarHeight - pixels;
+                    setState(() => {});
+                }
+                else if (pixels <= 0) {
+                    if (navBarHeight <= maxNavBarHeight) {
+                        titleStyle = CTextStyle.H2;
+                        navBarHeight = maxNavBarHeight;
+                        setState(() => {});
+                    }
+                }
+                else if (pixels > 52) {
+                    if (!(navBarHeight <= minNavBarHeight)) {
+                        titleStyle = CTextStyle.H5;
+                        navBarHeight = minNavBarHeight;
+                        setState(() => {});
+                    }
+                }
+            });
             return true;
         }
 

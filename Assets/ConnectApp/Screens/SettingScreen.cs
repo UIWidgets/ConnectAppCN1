@@ -6,6 +6,7 @@ using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -90,7 +91,7 @@ namespace ConnectApp.screens {
                     border: new Border(bottom: new BorderSide(CColors.Separator2))
                 ),
                 width: MediaQuery.of(context).size.width,
-                height: 140,
+                height: 94,
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,7 +134,6 @@ namespace ConnectApp.screens {
                                 ? _buildCellView("评分",
                                     () => widget.actionModel.openUrl(widget.viewModel.reviewUrl))
                                 : new Container(),
-                            _buildCellView("意见反馈", () => { }),
                             _buildCellView("关于我们", () => { }),
                             _buildGapView(),
                             _buildCellView("清理缓存", () => {

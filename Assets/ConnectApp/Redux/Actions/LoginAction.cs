@@ -69,7 +69,7 @@ namespace ConnectApp.redux.actions {
                         });
                         dispatcher.dispatch(new MainNavigatorPopAction());
                         dispatcher.dispatch(new CleanEmailAndPasswordAction());
-                        dispatcher.dispatch<IPromise>(fetchReviewUrl());
+//                        dispatcher.dispatch<IPromise>(fetchReviewUrl());
                         UserInfoManager.saveUserInfo(loginInfo);
                     });
             });
@@ -88,12 +88,12 @@ namespace ConnectApp.redux.actions {
                             {user.id, user}
                         };
                         dispatcher.dispatch(new UserMapAction {userMap = dict});
-                        dispatcher.dispatch(new LoginByWechatSuccessAction() {
+                        dispatcher.dispatch(new LoginByWechatSuccessAction {
                             loginInfo = loginInfo
                         });
-                        dispatcher.dispatch(new MainNavigatorPopAction());
-                        dispatcher.dispatch<IPromise>(fetchReviewUrl());
                         UserInfoManager.saveUserInfo(loginInfo);
+//                        dispatcher.dispatch(new MainNavigatorPopAction());
+//                        dispatcher.dispatch<IPromise>(fetchReviewUrl());
                     });
             });
         }

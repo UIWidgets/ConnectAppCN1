@@ -78,7 +78,7 @@ namespace ConnectApp.screens {
             return new Container(
                 decoration: new BoxDecoration(CColors.White),
                 width: MediaQuery.of(context).size.width,
-                height: 140,
+                height: 96,
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,

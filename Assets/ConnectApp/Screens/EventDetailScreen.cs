@@ -20,6 +20,7 @@ using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using Config = ConnectApp.constants.Config;
+using Icons = ConnectApp.constants.Icons;
 
 namespace ConnectApp.screens {
     public class EventDetailScreenConnector : StatelessWidget {
@@ -123,13 +124,11 @@ namespace ConnectApp.screens {
                 widget.actionModel.startFetchEventDetail();
                 widget.actionModel.fetchEventDetail(widget.viewModel.eventId, widget.viewModel.eventType);
             });
-            if (widget.viewModel.eventType == EventType.online) {
-                _loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
-                    widget.actionModel.startFetchMessages();
-                    widget.actionModel
-                        .fetchMessages(widget.viewModel.channelId, "", true);
-                });
-            }
+            _loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
+                widget.actionModel.startFetchMessages();
+                widget.actionModel
+                    .fetchMessages(widget.viewModel.channelId, "", true);
+            });
         }
 
         public override Widget build(BuildContext context) {
@@ -162,8 +161,6 @@ namespace ConnectApp.screens {
 
         public override void dispose() {
             EventBus.unSubscribe(EventBusConstant.login_success, _loginSubId);
-            if (widget.viewModel.showChatWindow)
-                widget.actionModel.showChatWindow(false);
             _textController.dispose();
             _controller.dispose();
             base.dispose();
@@ -315,10 +312,10 @@ namespace ConnectApp.screens {
 
         private Widget _buildEventBottom(IEvent eventObj, EventType eventType, EventStatus eventStatus,
             bool isLoggedIn) {
-            if (eventType == EventType.offline) return _buildOfflineRegisterNow(eventObj, isLoggedIn);
+            if (eventType == EventType.offline) return _buildOfflineRegisterNow(eventObj, isLoggedIn, eventStatus);
             if (eventStatus != EventStatus.future && eventType == EventType.online && isLoggedIn)
                 return new Container();
-
+            
             var onlineCount = eventObj.onlineMemberCount;
             var recordWatchCount = eventObj.recordWatchCount;
             var userIsCheckedIn = eventObj.userIsCheckedIn;
@@ -354,6 +351,7 @@ namespace ConnectApp.screens {
                 joinInText,
                 style: textStyle
             );
+            
             if (widget.viewModel.joinEventLoading)
                 child = new CustomActivityIndicator(
                     animationImage: AnimationImage.white
@@ -593,12 +591,17 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildOfflineRegisterNow(IEvent eventObj, bool isLoggedIn) {
+        private Widget _buildOfflineRegisterNow(IEvent eventObj, bool isLoggedIn, EventStatus eventStatus) {
             var buttonText = "立即报名";
             var backgroundColor = CColors.PrimaryBlue;
             var isEnabled = false;
             if (eventObj.userIsCheckedIn && isLoggedIn) {
                 buttonText = "已报名";
+                backgroundColor = CColors.Disable;
+                isEnabled = true;
+            }
+            if (eventStatus == EventStatus.past) {
+                buttonText = "已结束";
                 backgroundColor = CColors.Disable;
                 isEnabled = true;
             }

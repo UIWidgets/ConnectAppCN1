@@ -128,6 +128,7 @@ namespace ConnectApp.screens {
         private string _lastCommentId = "";
         private bool _hasMore = false;
         private RefreshController _refreshController;
+        private string _loginSubId;
 
         public override void initState() {
             base.initState();
@@ -136,6 +137,15 @@ namespace ConnectApp.screens {
                 widget.actionModel.startFetchArticleDetail();
                 widget.actionModel.fetchArticleDetail(widget.viewModel.articleId);
             });
+            _loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
+                widget.actionModel.startFetchArticleDetail();
+                widget.actionModel.fetchArticleDetail(widget.viewModel.articleId);
+            });
+        }
+
+        public override void dispose() {
+            EventBus.unSubscribe(EventBusConstant.login_success, _loginSubId);
+            base.dispose();
         }
 
         public override Widget build(BuildContext context) {
@@ -273,24 +283,19 @@ namespace ConnectApp.screens {
 
         private Widget _buildNavigationBar() {
             return new Container(
-                decoration: new BoxDecoration(
-                    border: new Border(
-                        bottom: new BorderSide(
-                            CColors.Separator2
+                height: 44,
+                color: CColors.White,
+                child: new Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: new List<Widget> {
+                        new GestureDetector(
+                            onTap: () => widget.actionModel.mainRouterPop(),
+                            child:new Container(
+                                padding: EdgeInsets.all(10),
+                                color:CColors.Transparent,
+                                child: new Icon(Icons.arrow_back, size: 24, color: CColors.icon3))
                         )
-                    )
-                ),
-                child: new CustomNavigationBar(
-                    new GestureDetector(
-                        onTap: () => widget.actionModel.mainRouterPop(),
-                        child:new Container(
-                            alignment:Alignment.bottomLeft,
-                            width:64,
-                            height:64,
-                            color:CColors.Transparent,
-                            child: new Icon(Icons.arrow_back, size: 24, color: CColors.icon3))
-                    ), 
-//                    new List<Widget> {
 //                        new CustomButton(
 //                            padding: EdgeInsets.zero,
 //                            onPressed: () => { },
@@ -312,10 +317,7 @@ namespace ConnectApp.screens {
 //                                )
 //                            )
 //                        )
-//                    }, 
-                    null,
-                    CColors.White, 
-                    52
+                    }
                 )
             );
         }

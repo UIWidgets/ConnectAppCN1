@@ -135,7 +135,8 @@ namespace ConnectApp.components {
                         _buildLabelText(),
                         new Stack(
                             children: new List<Widget> {
-                                _buildEditableText(context), _buildHintText()
+                                _buildEditableText(context), 
+                                _buildHintText()
                             }
                         )
                     }
@@ -162,16 +163,11 @@ namespace ConnectApp.components {
                 top: 0,
                 left: 0,
                 bottom: 0,
-                child: new GestureDetector(
-                    onTap: () => {
-                        var focusNode = widget.focusNode ?? _focusNode;
-                        FocusScope.of(context).requestFocus(focusNode);
-                    },
-                    child: new Container(
+                child: new IgnorePointer(
+                    ignoring: true,
+                    child:  new Container(
                         alignment: Alignment.center,
-                        child: new Text(widget.hintText,
-                            style: widget.hintStyle
-                        )
+                        child: new Text(widget.hintText, style: widget.hintStyle)
                     )
                 )
             );

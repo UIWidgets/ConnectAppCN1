@@ -40,7 +40,6 @@ namespace ConnectApp.screens {
             return new Container(
                 color: CColors.White,
                 child: new SafeArea(
-                    top: false,
                     child: new CustomTabBar(
                         new List<Widget> {
                             new ArticlesScreenConnector(),
