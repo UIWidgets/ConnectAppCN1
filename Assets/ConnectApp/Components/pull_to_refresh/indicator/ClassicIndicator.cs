@@ -41,11 +41,11 @@ namespace ConnectApp.components.pull_to_refresh {
             this.completeText = completeText ?? "";
             this.failedText = failedText ?? "";
             this.noDataText = noDataText ?? "";
-            this.releaseIcon = releaseIcon ?? new Icon(Icons.settings);
-            this.idleIcon = idleIcon ?? new Icon(Icons.close);
-            this.noMoreIcon = noMoreIcon ?? new Icon(Icons.ellipsis);
+            this.releaseIcon = releaseIcon ?? new CustomActivityIndicator();
+            this.idleIcon = idleIcon ?? new Icon(new IconData(1,"23"));
+            this.noMoreIcon = noMoreIcon ?? new CustomActivityIndicator();
             this.refreshingIcon = refreshingIcon ?? new CustomActivityIndicator();
-            this.completeIcon = completeIcon ?? new Icon(Icons.favorite);
+            this.completeIcon = completeIcon ?? new CustomActivityIndicator();
             this.failedIcon = failedIcon;
             this.height = height;
             this.spacing = spacing;

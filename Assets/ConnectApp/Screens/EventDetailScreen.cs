@@ -517,7 +517,6 @@ namespace ConnectApp.screens {
                         controller: _refreshController,
                         enablePullDown: widget.viewModel.hasMore,
                         enablePullUp: false,
-                        headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
                         onRefresh: _onRefresh,
                         child: ListView.builder(
                             padding: EdgeInsets.only(16, right: 16, bottom: 10),
