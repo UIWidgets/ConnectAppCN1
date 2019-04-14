@@ -1,8 +1,11 @@
 using System;
 using System.Collections;
+using ConnectApp.models;
+using ConnectApp.redux.actions;
 using RSG;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.ui;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -14,6 +17,7 @@ namespace ConnectApp.utils {
     }
 
     public static class HttpManager {
+        
         private const string COOKIE = "Cookie";
 
         internal static UnityWebRequest initRequest(
@@ -45,7 +49,8 @@ namespace ConnectApp.utils {
             if (request.isNetworkError) {
                 promise.Reject(new Exception(request.error));
             }
-            else if (request.responseCode == 403) {
+            else if (request.responseCode == 403)
+            {
                 
                 promise.Reject(new Exception(request.downloadHandler.text));
             }
@@ -54,8 +59,8 @@ namespace ConnectApp.utils {
             }
             else
             {
-                if (request.GetResponseHeaders().ContainsKey("SET-COOKIE")) {
-                    var cookie = request.GetResponseHeaders()["SET-COOKIE"];
+                if (request.GetResponseHeaders().ContainsKey("Set-Cookie")) {
+                    var cookie = request.GetResponseHeaders()["Set-Cookie"];
                     updateCookie(cookie);
                 }
                 promise.Resolve(request.downloadHandler.text);

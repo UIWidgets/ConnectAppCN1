@@ -75,8 +75,6 @@ namespace ConnectApp.screens {
                 controller: _completedRefreshController,
                 enablePullDown: true,
                 enablePullUp: widget.viewModel.completedEvents.Count < widget.viewModel.completedEventTotal,
-                headerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
-                footerBuilder: (cxt, mode) => new SmartRefreshHeader(mode),
                 onRefresh: _completedRefresh,
                 child: ListView.builder(
                     itemExtent: 108,
