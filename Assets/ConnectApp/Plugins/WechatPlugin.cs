@@ -137,7 +137,7 @@ namespace ConnectApp.plugins {
                 using (
                     AndroidJavaObject managerInstance = managerClass.CallStatic<AndroidJavaObject>("getInstance")
                 ) {
-                    managerInstance.Call("isInstallWechat");
+                   return managerInstance.Call<bool>("isInstallWechat");
                 }
             }
         }
