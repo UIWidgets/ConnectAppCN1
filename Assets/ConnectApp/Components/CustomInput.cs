@@ -51,16 +51,17 @@ namespace ConnectApp.components {
         }
 
         private void _controllerListener() {
-            var text = _controller.text;
+            var text = _controller.text??"友好的评论是交流的起点…";
             if (!mounted) return;
             var inputFieldHeight = 22.0f;
-            if (text.isNotEmpty()) {
-                var inputFieldWidth = _inputFieldKey.currentContext.size.width;
-                inputFieldHeight = _calculateTextHeight(text, inputFieldWidth);
-            }
+            var inputFieldWidth = _inputFieldKey.currentContext.size.width;
+            inputFieldHeight = _calculateTextHeight(text, inputFieldWidth);    
 
             if (_inputFieldHeight != inputFieldHeight)
-                setState(() => { _inputFieldHeight = inputFieldHeight; });
+                setState(() =>
+                {
+                    _inputFieldHeight = inputFieldHeight;
+                });
         }
 
         private float _calculateTextHeight(string text, float textWidth) {
@@ -73,6 +74,7 @@ namespace ConnectApp.components {
                 maxLines: 2
             );
             textPainter.layout(maxWidth: textWidth);
+            
             return textPainter.height;
         }
 
@@ -82,7 +84,6 @@ namespace ConnectApp.components {
         }
 
         public override Widget build(BuildContext context) {
-//            Debug.Log($"MediaQuery.of(context).viewInsets.bottom==== {MediaQuery.of(context).viewInsets.bottom}");
             var reply = new Container();
             if (!widget.replyUserName.isEmpty())
                 reply = new Container(

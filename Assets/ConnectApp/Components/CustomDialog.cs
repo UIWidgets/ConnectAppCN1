@@ -34,7 +34,6 @@ namespace ConnectApp.components {
             return new GestureDetector(
                 onTap: () => { },
                 child: new Container(
-                    color: Color.fromRGBO(0, 0, 0, 0.1f),
                     child: new Center(
                         child: new Container(
                             width: 132,
@@ -80,7 +79,7 @@ namespace ConnectApp.components {
             var route = new _DialogRoute(
                 (context, animation, secondaryAnimation) => child,
                 barrierDismissible,
-                new Color(0x8A000000),
+                Color.clear,
                 new TimeSpan(0, 0, 0, 0, 150),
                 _transitionBuilder
             );

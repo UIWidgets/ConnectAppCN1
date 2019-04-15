@@ -143,7 +143,12 @@ namespace ConnectApp.screens {
                                     )
                                 );
                                 widget.actionModel.clearCache();
-                                Window.instance.run(TimeSpan.FromSeconds(2), CustomDialogUtils.hiddenCustomDialog);
+                                Window.instance.run(TimeSpan.FromSeconds(2), () =>
+                                    {
+                                        CustomDialogUtils.hiddenCustomDialog();
+                                        CustomDialogUtils.showToast("缓存已清除",Icons.check_circle_outline);
+                                    }
+                                );
                             }),
                             _buildGapView(),
                             _buildLogoutBtn(context)
