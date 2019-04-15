@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
@@ -30,6 +31,9 @@ namespace ConnectApp.screens {
                     var actionModel = new SettingScreenActionModel {
                         fetchReviewUrl = () => dispatcher.dispatch<IPromise>(Actions.fetchReviewUrl()),
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
+                        pushToAboutUs = () => dispatcher.dispatch(new MainNavigatorPushToAction {
+                            routeName = MainNavigatorRoutes.AboutUs
+                        }),
                         openUrl = url => dispatcher.dispatch(new OpenUrlAction {url = url}),
                         clearCache = () => dispatcher.dispatch(new SettingClearCacheAction()),
                         logout = () => {
@@ -134,7 +138,7 @@ namespace ConnectApp.screens {
                                 ? _buildCellView("评分",
                                     () => widget.actionModel.openUrl(widget.viewModel.reviewUrl))
                                 : new Container(),
-                            _buildCellView("关于我们", () => { }),
+                            _buildCellView("关于我们", () => widget.actionModel.pushToAboutUs()),
                             _buildGapView(),
                             _buildCellView("清理缓存", () => {
                                 CustomDialogUtils.showCustomDialog(
@@ -143,8 +147,7 @@ namespace ConnectApp.screens {
                                     )
                                 );
                                 widget.actionModel.clearCache();
-                                Window.instance.run(TimeSpan.FromSeconds(2), () =>
-                                    {
+                                Window.instance.run(TimeSpan.FromSeconds(2), () => {
                                         CustomDialogUtils.hiddenCustomDialog();
                                         CustomDialogUtils.showToast("缓存已清除",Icons.check_circle_outline);
                                     }

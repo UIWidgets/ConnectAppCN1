@@ -21,11 +21,9 @@ namespace ConnectApp.models {
         public MineState mineState { get; set; }
         public MessageState messageState { get; set; }
         public SettingState settingState { get; set; }
+        public ReportState reportState { get; set; }
 
-        public static AppState initialState()
-        {
-
-
+        public static AppState initialState() {
             var loginInfo = UserInfoManager.initUserInfo();
             var isLogin = UserInfoManager.isLogin();
             
@@ -99,6 +97,9 @@ namespace ConnectApp.models {
                 settingState = new SettingState {
                     hasReviewUrl = false,
                     reviewUrl = ""
+                },
+                reportState = new ReportState {
+                    loading = false
                 }
             };
         }

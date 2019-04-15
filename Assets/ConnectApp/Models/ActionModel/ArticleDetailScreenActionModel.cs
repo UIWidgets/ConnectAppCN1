@@ -4,9 +4,7 @@ using ConnectApp.screens;
 using RSG;
 
 namespace ConnectApp.Models.ActionModel {
-    public class ArticleDetailScreenActionModel {
-        public Action mainRouterPop;
-        public Action pushToLogin;
+    public class ArticleDetailScreenActionModel : BaseActionModel {
         public Action<string> openUrl;
         public Action<string> pushToArticleDetail;
         public Action<string, ReportType> pushToReport;

@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using ConnectApp.constants;
@@ -7,9 +5,6 @@ using ConnectApp.models;
 using ConnectApp.utils;
 using Newtonsoft.Json;
 using RSG;
-using Unity.UIWidgets.async;
-using Unity.UIWidgets.ui;
-using UnityEngine;
 using UnityEngine.Networking;
 
 namespace ConnectApp.api {
@@ -26,12 +21,10 @@ namespace ConnectApp.api {
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.SetRequestHeader("Content-Type", "application/json");
-            HttpManager.resume(request).Then(responseText =>
-            {  
+            HttpManager.resume(request).Then(responseText => {
                 promise.Resolve();
-            }).Catch(exception =>
-            {
-                promise.Reject(exception);  
+            }).Catch(exception => {
+                promise.Reject(exception);
             });
             return promise;
         }

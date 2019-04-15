@@ -1,4 +1,6 @@
 using ConnectApp.api;
+using ConnectApp.components;
+using ConnectApp.constants;
 using ConnectApp.models;
 using Unity.UIWidgets.Redux;
 using UnityEngine;
@@ -12,13 +14,24 @@ namespace ConnectApp.redux.actions {
 
     public class ReportItemSuccessAction : BaseAction {
     }
+    
+    public class ReportItemFailureAction : BaseAction {
+    }
 
     public static partial class Actions {
         public static object reportItem(string itemId, string itemType, string reportContext) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ReportApi.ReportItem(itemId, itemType, reportContext)
-                    .Then(() => dispatcher.dispatch(new ReportItemSuccessAction()))
-                    .Catch(Debug.Log);
+                    .Then(() => {
+                        dispatcher.dispatch(new MainNavigatorPopAction());
+                        CustomDialogUtils.showToast("举报成功", Icons.mode);
+                        dispatcher.dispatch(new ReportItemSuccessAction());
+                    })
+                    .Catch(error => {
+                        CustomDialogUtils.showToast("举报失败", Icons.mode_bad);
+                        dispatcher.dispatch(new ReportItemFailureAction());
+                        Debug.Log(error);
+                    });
             });
         }
     }

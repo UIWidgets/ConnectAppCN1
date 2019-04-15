@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
@@ -9,6 +10,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -19,10 +21,14 @@ namespace ConnectApp.screens {
                     articleHistory = state.articleState.articleHistory,
                     userDict = state.userState.userDict,
                     teamDict = state.teamState.teamDict,
-                    placeDict = state.placeState.placeDict
+                    placeDict = state.placeState.placeDict,
+                    isLoggedIn = state.loginState.isLoggedIn
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new HistoryScreenActionModel {
+                        pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
+                            routeName = MainNavigatorRoutes.Login
+                        }),
                         pushToArticleDetail = id =>
                             dispatcher.dispatch(new MainNavigatorPushToArticleDetailAction {articleId = id}),
                         pushToReport = (reportId, reportType) => dispatcher.dispatch(
@@ -76,11 +82,15 @@ namespace ConnectApp.screens {
                             model,
                             () => widget.actionModel.pushToArticleDetail(model.id),
                             () => {
+                                if (!widget.viewModel.isLoggedIn) {
+                                    widget.actionModel.pushToLogin();
+                                    return;
+                                }
                                 ActionSheetUtils.showModalActionSheet(new ActionSheet(
                                     items: new List<ActionSheetItem> {
                                         new ActionSheetItem(
                                             "举报",
-                                            ActionType.destructive,
+                                            ActionType.normal,
                                             () => widget.actionModel.pushToReport(model.id, ReportType.article)
                                         ),
                                         new ActionSheetItem("取消", ActionType.cancel)
@@ -100,11 +110,15 @@ namespace ConnectApp.screens {
                             () =>
                                 widget.actionModel.pushToArticleDetail(model.id),
                             () => {
+                                if (!widget.viewModel.isLoggedIn) {
+                                    widget.actionModel.pushToLogin();
+                                    return;
+                                }
                                 ActionSheetUtils.showModalActionSheet(new ActionSheet(
                                     items: new List<ActionSheetItem> {
                                         new ActionSheetItem(
                                             "举报",
-                                            ActionType.destructive,
+                                            ActionType.normal,
                                             () => widget.actionModel.pushToReport(model.id, ReportType.article)
                                         ),
                                         new ActionSheetItem("取消", ActionType.cancel)

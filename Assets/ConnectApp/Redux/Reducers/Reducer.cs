@@ -379,9 +379,15 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case StartReportItemAction _: {
+                    state.reportState.loading = true;
                     break;
                 }
                 case ReportItemSuccessAction _: {
+                    state.reportState.loading = false;
+                    break;
+                }
+                case ReportItemFailureAction _: {
+                    state.reportState.loading = false;
                     break;
                 }
                 case StartFetchMyFutureEventsAction _: {
@@ -670,7 +676,8 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case OpenUrlAction action: {
-                    Application.OpenURL(action.url);
+                    if (action.url != null || action.url.Length > 0)
+                        Application.OpenURL(action.url);
                     break;
                 }
                 case FetchReviewUrlSuccessAction action: {

@@ -2,8 +2,7 @@ using System;
 using RSG;
 
 namespace ConnectApp.Models.ActionModel {
-    public class BindUnityScreenActionModel {
-        public Action mainRouterPop;
+    public class BindUnityScreenActionModel : BaseActionModel {
         public Action loginRouterPop;
         public Action<string> openUrl;
         public Func<IPromise> openCreateUnityIdUrl;
