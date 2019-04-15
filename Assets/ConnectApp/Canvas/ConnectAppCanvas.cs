@@ -12,6 +12,7 @@ namespace ConnectApp.canvas {
     public sealed class ConnectAppCanvas : UIWidgetsPanel {
         protected override void OnEnable() {
             base.OnEnable();
+            Screen.fullScreen = false;
             Application.targetFrameRate = 60;
             FontManager.instance.addFont(Resources.Load<Font>("Material Icons"), "Material Icons");
             FontManager.instance.addFont(Resources.Load<Font>("Roboto-Regular"), "Roboto-Regular");

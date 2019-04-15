@@ -62,18 +62,18 @@ namespace ConnectApp.components {
                             )
                         ),
                         //评论
-                        new GestureDetector(
-                            onTap: commentCallback,
+                        new CustomButton(
+                            onPressed: commentCallback,
                             child: new Icon(Icons.comment, size: 24, color: CColors.icon3)
                         ),
                         //点赞
-                        new GestureDetector(
-                            onTap: favorCallback,
+                        new CustomButton(
+                            onPressed: favorCallback,
                             child: new Icon(Icons.favorite, size: 24, color: like ? CColors.PrimaryBlue : CColors.icon3)
                         ),
                         //分享
-                        new GestureDetector(
-                            onTap: shareCallback,
+                        new CustomButton(
+                            onPressed: shareCallback,
                             child: new Icon(Icons.share, size: 24, color: CColors.icon3)
                         )
                     }
