@@ -261,7 +261,7 @@ namespace ConnectApp.constants {
             height: 1.46f,
             fontSize: 14,
             fontFamily: "Menlo",
-            color: CColors.TextBody
+            color: CColors.TextBody3
         );
 
         public static readonly TextStyle PRegularTitle = new TextStyle(
