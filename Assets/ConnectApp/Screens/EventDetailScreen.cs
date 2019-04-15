@@ -222,12 +222,21 @@ namespace ConnectApp.screens {
                         onPressed: type => {
                             string linkUrl =
                                 $"{Config.apiAddress}/events/{eventObj.id}";
-                            string imageUrl = $"{eventObj.avatar}.200x0x1.jpg";
-                            CustomDialogUtils.showCustomDialog(
-                                child: new CustomDialog()
-                            );
-                            widget.actionModel.shareToWechat(type, eventObj.title, eventObj.shortDescription, linkUrl,
-                                imageUrl).Then(CustomDialogUtils.hiddenCustomDialog).Catch(_ => CustomDialogUtils.hiddenCustomDialog());
+                            if (type == ShareType.clipBoard)
+                            {
+                                Clipboard.setData(new ClipboardData(linkUrl));
+                                CustomDialogUtils.showToast("复制链接成功",Icons.check_circle_outline);
+                            }
+                            else
+                            {
+                               string imageUrl = $"{eventObj.avatar}.200x0x1.jpg";
+                                CustomDialogUtils.showCustomDialog(
+                                    child: new CustomDialog()
+                                );
+                                widget.actionModel.shareToWechat(type, eventObj.title, eventObj.shortDescription, linkUrl,
+                                    imageUrl).Then(CustomDialogUtils.hiddenCustomDialog).Catch(_ => CustomDialogUtils.hiddenCustomDialog());
+                            }
+                            
                         })),
                     child: new Container(
                         alignment: Alignment.topRight,

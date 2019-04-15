@@ -1,16 +1,19 @@
 using System.Collections.Generic;
 using ConnectApp.canvas;
 using ConnectApp.constants;
+using ConnectApp.plugins;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.components {
     public enum ShareType {
         friends,
-        moments
+        moments,
+        clipBoard
     }
 
     public delegate void OnPressed(ShareType type);
@@ -62,12 +65,7 @@ namespace ConnectApp.components {
                                     ),
                                     child: new Row(
                                         mainAxisAlignment: MainAxisAlignment.start,
-                                        children: new List<Widget> {
-                                            _buildShareItem("shareWeChat", "微信好友",
-                                                () => { onPressed(ShareType.friends); }),
-                                            _buildShareItem("shareFriends", "朋友圈",
-                                                () => { onPressed(ShareType.moments); })
-                                        }
+                                        children: shareItems()
                                     )
                                 ),
                                 new GestureDetector(
@@ -91,6 +89,27 @@ namespace ConnectApp.components {
             );
         }
 
+        private List<Widget> shareItems()
+        {
+            if (WechatPlugin.instance().inInstalled())
+            {
+                return new List<Widget>
+                {
+                    _buildShareItem("shareWeChat", "微信好友",
+                        () => { onPressed(ShareType.friends); }),
+                    _buildShareItem("shareFriends", "朋友圈",
+                        () => { onPressed(ShareType.moments); }),
+                    _buildClipBoardItem("复制链接", () => { onPressed(ShareType.clipBoard); })
+                };
+            }
+            return new List<Widget>
+            {
+                _buildClipBoardItem("复制链接", () => { onPressed(ShareType.clipBoard); })
+            };
+        }
+
+
+
         private static Widget _buildShareItem(string assetName, string title, GestureTapCallback onTap) {
             return new GestureDetector(
                 onTap: onTap,
@@ -106,6 +125,40 @@ namespace ConnectApp.components {
                             decoration: new BoxDecoration(
                                 borderRadius: BorderRadius.circular(24),
                                 image: new DecorationImage(new AssetImage(assetName))
+                            )
+                        ),
+                        new Container(
+                            margin: EdgeInsets.only(top: 8),
+                            height: 20,
+                            child: new Text(
+                                title,
+                                style: CTextStyle.PSmallBody4
+                            )
+                        )
+                    })
+                )
+            );
+        }
+        
+        
+        private static Widget _buildClipBoardItem(string title, GestureTapCallback onTap) {
+            return new GestureDetector(
+                onTap: onTap,
+                child: new Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    decoration: new BoxDecoration(
+                        CColors.White
+                    ),
+                    child: new Column(children: new List<Widget> {
+                        new Container(
+                            width: 48,
+                            height: 48,
+                            child: new ClipRRect(
+                                borderRadius: BorderRadius.all(Radius.circular(24)),
+                                child: new Container(
+                                    color:CColors.PrimaryBlue,
+                                    child:new Icon(Icons.insert_link,size:24,color:CColors.White)
+                                )
                             )
                         ),
                         new Container(

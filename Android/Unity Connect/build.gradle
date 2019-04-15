@@ -27,7 +27,7 @@ apply plugin: 'com.android.application'
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation(name: 'UnityAds', ext:'aar')
-    implementation "com.tencent.mm.opensdk:wechat-sdk-android-with-mta:+"
+    implementation "com.tencent.mm.opensdk:wechat-sdk-android-without-mta:+"
     implementation 'com.google.code.gson:gson:2.8.5'
 
 }
