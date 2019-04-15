@@ -79,7 +79,7 @@ namespace ConnectApp.components {
             var route = new _DialogRoute(
                 (context, animation, secondaryAnimation) => child,
                 barrierDismissible,
-                Color.clear,
+                Color.fromRGBO(0,0,0,0.01f),
                 new TimeSpan(0, 0, 0, 0, 150),
                 _transitionBuilder
             );
