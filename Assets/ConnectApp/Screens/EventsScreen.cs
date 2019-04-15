@@ -19,11 +19,7 @@ namespace ConnectApp.screens {
     internal class _EventsScreenState : State<EventsScreen> {
         private PageController _pageController;
         private int _selectedIndex;
-
-//        protected override bool wantKeepAlive {
-//            get => false;
-//        }
-
+        
         public override void initState() {
             base.initState();
             _pageController = new PageController();
