@@ -4,9 +4,7 @@ using ConnectApp.models;
 using RSG;
 
 namespace ConnectApp.Models.ActionModel {
-    public class EventDetailScreenActionModel {
-        public Action mainRouterPop;
-        public Action pushToLogin;
+    public class EventDetailScreenActionModel : BaseActionModel {
         public Action<string> openUrl;
         public Action startFetchEventDetail;
         public Func<string, EventType, IPromise> fetchEventDetail;

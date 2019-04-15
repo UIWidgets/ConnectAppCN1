@@ -21,11 +21,9 @@ namespace ConnectApp.models {
         public MineState mineState { get; set; }
         public MessageState messageState { get; set; }
         public SettingState settingState { get; set; }
+        public ReportState reportState { get; set; }
 
         public static AppState initialState() {
-            
-
-            
             
             return new AppState {
                 Count = PlayerPrefs.GetInt("count", 0),
@@ -97,6 +95,9 @@ namespace ConnectApp.models {
                 settingState = new SettingState {
                     hasReviewUrl = false,
                     reviewUrl = ""
+                },
+                reportState = new ReportState {
+                    loading = false
                 }
             };
         }

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
@@ -12,6 +11,7 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
+using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.screens {
     public enum ReportType {
@@ -34,7 +34,8 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, ReportScreenViewModel>(
                 converter: state => new ReportScreenViewModel {
                     reportId = reportId,
-                    reportType = reportType
+                    reportType = reportType,
+                    loading = state.reportState.loading
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var itemType = "";
@@ -56,7 +57,8 @@ namespace ConnectApp.screens {
                         )
                     };
                     return new ReportScreen(viewModel, actionModel, key);
-                });
+                }
+            );
         }
     }
     
@@ -77,6 +79,19 @@ namespace ConnectApp.screens {
     }
 
     internal class _ReportScreenState : State<ReportScreen> {
+
+        private readonly List<string> _reportItems = new List<string> {
+            "垃圾信息",
+            "涉嫌侵权",
+            "不友善行为",
+            "有害信息"
+        };
+        private int _selectedIndex;
+        public override void initState() {
+            base.initState();
+            _selectedIndex = 0;
+        }
+
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
@@ -84,7 +99,7 @@ namespace ConnectApp.screens {
                     child: new Container(
                         child: new Column(
                             children: new List<Widget> {
-                                _buildNavigationBar(context),
+                                _buildNavigationBar(),
                                 _buildContent()
                             }
                         )
@@ -93,32 +108,38 @@ namespace ConnectApp.screens {
             );
         }
         
-        private Widget _buildNavigationBar(BuildContext context) {
+        private Widget _buildNavigationBar() {
             return new Container(
-                decoration: new BoxDecoration(CColors.White),
-                height: 94,
-                child: new Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                decoration: new BoxDecoration(
+                    CColors.White,
+                    border: new Border(
+                        bottom: new BorderSide(
+                            CColors.Separator2
+                        )
+                    )
+                ),
+                height: 44,
+                child: new Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: new List<Widget> {
-                        new Container(
-                            child: new CustomButton(
-                                padding: EdgeInsets.only(16, 10, 16),
-                                onPressed: () => widget.actionModel.mainRouterPop(),
-                                child: new Icon(
-                                    Icons.arrow_back,
-                                    size: 24,
-                                    color: CColors.icon3
-                                )
-                            ),
-                            height: 44
+                        new CustomButton(
+                            padding: EdgeInsets.only(16, 0, 16),
+                            onPressed: () => widget.actionModel.mainRouterPop(),
+                            child: new Icon(
+                                Icons.arrow_back,
+                                size: 24,
+                                color: CColors.icon3
+                            )
                         ),
                         new Container(
-                            margin: EdgeInsets.only(16, bottom: 12),
                             child: new Text(
                                 "举报",
-                                style: CTextStyle.H2
+                                style: CTextStyle.H5
                             )
+                        ),
+                        new Container(
+                            width: 56
                         )
                     }
                 )
@@ -126,19 +147,15 @@ namespace ConnectApp.screens {
         }
 
         private Widget _buildContent() {
-            var reportItems = new List<string> {
-                "垃圾信息",
-                "涉嫌侵权",
-                "不友善行为",
-                "有害信息"
-            };
             var widgets = new List<Widget>();
-            reportItems.ForEach(item => {
-                var index = reportItems.IndexOf(item);
+            _reportItems.ForEach(item => {
+                var index = _reportItems.IndexOf(item);
                 var widget = _buildReportItem(item, index);
                 widgets.Add(widget);
             });
+            widgets.Add(_buildReportButton());
             return new Container(
+                margin: EdgeInsets.only(top: 15),
                 child: new Column(
                     children: widgets
                 )
@@ -146,13 +163,104 @@ namespace ConnectApp.screens {
         }
 
         private Widget _buildReportItem(string title, int index) {
+            return new GestureDetector(
+                onTap: () => {
+                    if (_selectedIndex != index) setState(() => { _selectedIndex = index; });
+                },
+                child: new Container(
+                    height: 44,
+                    color: CColors.White,
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: new Row(
+                        children: new List<Widget> {
+                            index == _selectedIndex ? _buildCheckBox() : _buildUnCheckBox(),
+                            new Container(
+                                margin: EdgeInsets.only(12),
+                                child: new Text(
+                                    title,
+                                    style: CTextStyle.PLargeBody
+                                )
+                            )
+                        }
+                    )
+                )
+            );
+        }
+        
+        private static Widget _buildUnCheckBox() {
             return new Container(
-                height: 60,
-                color: CColors.White,
-                child: new Row(
-                    children: new List<Widget> {
-                        new Text(title)
-                    }
+                width: 20,
+                height: 20,
+                decoration: new BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(Color.fromRGBO(216, 216, 216, 1))
+                )
+            );
+        }
+        
+        private static Widget _buildCheckBox() {
+            return new Container(
+                width: 20,
+                height: 20,
+                decoration: new BoxDecoration(
+                    CColors.PrimaryBlue,
+                    borderRadius: BorderRadius.circular(10)
+                ),
+                alignment: Alignment.center,
+                child: new Container(
+                    width: 10,
+                    height: 10,
+                    decoration: new BoxDecoration(
+                        CColors.White,
+                        borderRadius: BorderRadius.circular(5)
+                    )
+                )
+            );
+        }
+        
+        private Widget _buildReportButton() {
+            Widget right = new Container();
+            if (widget.viewModel.loading)
+                right = new Padding(
+                    padding: EdgeInsets.only(right: 24),
+                    child: new CustomActivityIndicator(
+                        animationImage: AnimationImage.white
+                    )
+                );
+            return new Container(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                margin: EdgeInsets.only(top: 16),
+                child: new CustomButton(
+                    onPressed: () => {
+                        if (widget.viewModel.loading) return;
+                        widget.actionModel.startReportItem();
+                        widget.actionModel.reportItem(_reportItems[_selectedIndex]);
+                    },
+                    padding: EdgeInsets.zero,
+                    child: new Container(
+                        height: 40,
+                        decoration: new BoxDecoration(
+                            widget.viewModel.loading
+                                ? CColors.Disable
+                                : CColors.PrimaryBlue,
+                            borderRadius: BorderRadius.all(4)
+                        ),
+                        child: new Stack(
+                            children: new List<Widget> {
+                                new Align(
+                                    alignment: Alignment.center,
+                                    child: new Text(
+                                        "举报",
+                                        style: CTextStyle.PLargeMediumWhite
+                                    )
+                                ),
+                                new Align(
+                                    alignment: Alignment.centerRight,
+                                    child: right
+                                )
+                            }
+                        )
+                    )
                 )
             );
         }

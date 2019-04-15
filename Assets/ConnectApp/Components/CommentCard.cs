@@ -84,10 +84,11 @@ namespace ConnectApp.components {
                                                 new Expanded(
                                                     child: new Text(message.author.fullName,
                                                         style: CTextStyle.PMediumBody3)),
-//                                                new GestureDetector(
-//                                                    onTap: moreCallBack,
-//                                                    child: new Icon(Icons.ellipsis, size: 20, color: CColors.BrownGrey)
-//                                                )
+                                                new CustomButton(
+                                                    padding: EdgeInsets.only(8,0,0,8),
+                                                    onPressed: moreCallBack,
+                                                    child: new Icon(Icons.ellipsis, size: 20, color: CColors.BrownGrey)
+                                                )
                                             }
                                         ),
                                         new Container(

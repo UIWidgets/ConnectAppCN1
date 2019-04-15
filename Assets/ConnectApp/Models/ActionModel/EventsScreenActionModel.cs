@@ -3,7 +3,7 @@ using ConnectApp.models;
 using RSG;
 
 namespace ConnectApp.Models.ActionModel {
-    public class EventsScreenActionModel {
+    public class EventsScreenActionModel : BaseActionModel {
         public Action<string, EventType> pushToEventDetail;
         public Action startFetchEventOngoing;
         public Action startFetchEventCompleted;

@@ -28,12 +28,16 @@ namespace ConnectApp.screens {
                     articleDict = state.articleState.articleDict,
                     articleTotal = state.articleState.articleTotal,
                     userDict = state.userState.userDict,
-                    teamDict = state.teamState.teamDict
+                    teamDict = state.teamState.teamDict,
+                    isLoggedIn = state.loginState.isLoggedIn
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ArticlesScreenActionModel {
                         pushToSearch = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Search
+                        }),
+                        pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
+                            routeName = MainNavigatorRoutes.Login
                         }),
                         pushToArticleDetail = id => dispatcher.dispatch(
                             new MainNavigatorPushToArticleDetailAction {
@@ -168,11 +172,15 @@ namespace ConnectApp.screens {
                                 return ArticleCard.User(article,
                                     () => widget.actionModel.pushToArticleDetail(articleId),
                                     () => {
+                                        if (!widget.viewModel.isLoggedIn) {
+                                            widget.actionModel.pushToLogin();
+                                            return;
+                                        } 
                                         ActionSheetUtils.showModalActionSheet(new ActionSheet(
                                             items: new List<ActionSheetItem> {
                                                 new ActionSheetItem(
                                                     "举报",
-                                                    ActionType.destructive,
+                                                    ActionType.normal,
                                                     () => widget.actionModel.pushToReport(articleId, ReportType.article)
                                                 ),
                                                 new ActionSheetItem("取消", ActionType.cancel)
@@ -189,11 +197,15 @@ namespace ConnectApp.screens {
                             return ArticleCard.Team(article,
                                 () => widget.actionModel.pushToArticleDetail(articleId),
                                 () => {
+                                    if (!widget.viewModel.isLoggedIn) {
+                                        widget.actionModel.pushToLogin();
+                                        return;
+                                    } 
                                     ActionSheetUtils.showModalActionSheet(new ActionSheet(
                                         items: new List<ActionSheetItem> {
                                             new ActionSheetItem(
                                                 "举报",
-                                                ActionType.destructive,
+                                                ActionType.normal,
                                                 () => widget.actionModel.pushToReport(articleId, ReportType.article)
                                             ),
                                             new ActionSheetItem("取消", ActionType.cancel)
