@@ -64,7 +64,7 @@ namespace ConnectApp.components {
                         )
                     )
                 );
-            var reply = message.parentMessageId.isNotEmpty()?new GestureDetector(
+            var reply = message.parentMessageId.isEmpty()?new GestureDetector(
                 onTap: replyCallBack,
                 child: new Container(
                     margin:EdgeInsets.only(left:10),

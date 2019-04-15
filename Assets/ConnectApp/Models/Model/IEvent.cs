@@ -10,6 +10,7 @@ namespace ConnectApp.models {
         public string title;
         public string avatar;
         public string background;
+        public string type;
         public string mode;
         public TimeMap begin;
         public string placeId;

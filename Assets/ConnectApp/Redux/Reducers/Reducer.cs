@@ -320,6 +320,7 @@ namespace ConnectApp.redux.reducers {
                         eventObj.placeId = oldEventObj.placeId;
                         eventObj.mode = oldEventObj.mode;
                         eventObj.avatar = oldEventObj.background;
+                        eventObj.type = oldEventObj.type;
                         state.eventState.eventsDict[action.eventObj.id] = eventObj;
                     }
                     else

@@ -203,7 +203,7 @@ namespace ConnectApp.screens {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: new List<Widget> {
                             Image.asset(
-                                "wechat",
+                                "wechat-icon",
                                 width: 24,
                                 height: 24,
                                 fit: BoxFit.cover
