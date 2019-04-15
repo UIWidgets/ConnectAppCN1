@@ -1,6 +1,8 @@
 package com.unity3d.unityconnect.plugins;
 
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 
 import com.google.gson.Gson;
@@ -32,6 +34,7 @@ public final class WechatPlugin{
     }
 
     public IWXAPI iwxapi;
+    public Context context;
 
     private void loginWechat(String id) {
         final SendAuth.Req req = new SendAuth.Req();
@@ -46,6 +49,21 @@ public final class WechatPlugin{
 
     private void shareToTimeline(String title, String description, String url, byte[] imageBytes) {
         shareTo(SendMessageToWX.Req.WXSceneTimeline, title, description, url, imageBytes);
+    }
+
+    private boolean isInstallWechat() {
+        final PackageManager packageManager = context.getPackageManager();// 获取packagemanager
+        List<PackageInfo> pinfo = packageManager.getInstalledPackages(0);// 获取所有已安装程序的包信息
+        if (pinfo != null) {
+            for (int i = 0; i < pinfo.size(); i++) {
+                String pn = pinfo.get(i).packageName;
+                if (pn.equals("com.tencent.mm")) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private void shareTo(final int scene, String title, String description, String url, byte[] imageBytes) {

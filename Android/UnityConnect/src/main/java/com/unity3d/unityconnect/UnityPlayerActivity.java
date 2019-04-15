@@ -31,6 +31,7 @@ public class UnityPlayerActivity extends Activity
         final String APP_ID = "wx0ab79f0c7db7ca52";
         WechatPlugin.getInstance().iwxapi = WXAPIFactory.createWXAPI(this, APP_ID, true);
         WechatPlugin.getInstance().iwxapi.registerApp(APP_ID);
+
     }
 
     @Override protected void onNewIntent(Intent intent)

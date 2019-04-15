@@ -131,7 +131,15 @@ namespace ConnectApp.plugins {
         }
         static bool isInstallWechat()
         {
-            return true;
+            using (
+                AndroidJavaClass managerClass = new AndroidJavaClass("com.unity3d.unityconnect.plugins.WechatPlugin")
+            ) {
+                using (
+                    AndroidJavaObject managerInstance = managerClass.CallStatic<AndroidJavaObject>("getInstance")
+                ) {
+                    managerInstance.Call("isInstallWechat");
+                }
+            }
         }
         static void toFriends(string title, string description, string url,byte[] imageBytes) {
             using (
