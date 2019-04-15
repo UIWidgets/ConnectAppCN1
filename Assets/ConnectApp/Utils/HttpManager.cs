@@ -56,10 +56,10 @@ namespace ConnectApp.utils {
             }
             else
             {
-//                if (request.GetResponseHeaders().ContainsKey("Set-Cookie")) {
-//                    var cookie = request.GetResponseHeaders()["Set-Cookie"];
-//                    updateCookie(cookie);
-//                }
+                if (request.GetResponseHeaders().ContainsKey("Set-Cookie")) {
+                    var cookie = request.GetResponseHeaders()["Set-Cookie"];
+                    updateCookie(cookie);
+                }
                 promise.Resolve(request.downloadHandler.text);
             }
             
@@ -76,10 +76,8 @@ namespace ConnectApp.utils {
             PlayerPrefs.DeleteKey(COOKIE);
         }
 
-        public static void updateCookie(string newCookie) {
+        private static void updateCookie(string newCookie) {
             var cookie = PlayerPrefs.GetString(COOKIE);
-            Debug.Log($"update before cookie: {cookie}");
-            Debug.Log($"new cookie: {newCookie}");
             var cookieDict = new Dictionary<string, string>();
             var updateCookie = "";
             if (cookie.isNotEmpty()) {
@@ -103,8 +101,6 @@ namespace ConnectApp.utils {
                 var updateCookieArr = cookieDict.Values;
                 updateCookie = string.Join(",", updateCookieArr);
             }
-            Debug.Log($"update after cookie dict: {cookieDict}");
-            Debug.Log($"update after cookie: {updateCookie}");
             if (updateCookie.isNotEmpty()) {
                 PlayerPrefs.SetString(COOKIE, updateCookie);
                 PlayerPrefs.Save();
