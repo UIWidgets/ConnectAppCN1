@@ -114,18 +114,18 @@ namespace ConnectApp.components {
                                                     $"{userName} · {DateConvert.DateStringFromNow(time)} · 阅读 {article.viewCount}",
                                                     style: CTextStyle.PSmallBody3
                                                 )
+                                            ),
+                                            new CustomButton(
+                                                child: new Container(
+                                                    height: 28,
+                                                    child: new Icon(
+                                                        Icons.ellipsis,
+                                                        size: 20,
+                                                        color: CColors.BrownGrey
+                                                    )
+                                                ),
+                                                onPressed: moreCallBack
                                             )
-//                                            new CustomButton(
-//                                                child: new Container(
-//                                                    height: 28,
-//                                                    child: new Icon(
-//                                                        Icons.ellipsis,
-//                                                        size: 20,
-//                                                        color: CColors.BrownGrey
-//                                                    )
-//                                                ),
-//                                                onPressed: moreCallBack
-//                                            )
                                         }
                                     )
                                 )

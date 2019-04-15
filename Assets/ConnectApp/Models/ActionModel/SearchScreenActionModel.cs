@@ -2,8 +2,7 @@ using System;
 using RSG;
 
 namespace ConnectApp.Models.ActionModel {
-    public class SearchScreenActionModel {
-        public Action mainRouterPop;
+    public class SearchScreenActionModel : BaseActionModel {
         public Action<string> pushToArticleDetail;
         public Action startSearchArticle;
         public Func<string, int, IPromise> searchArticle;

@@ -9,5 +9,6 @@ namespace ConnectApp.Models.ViewModel {
         public Dictionary<string, User> userDict;
         public Dictionary<string, Team> teamDict;
         public int articleTotal;
+        public bool isLoggedIn;
     }
 }

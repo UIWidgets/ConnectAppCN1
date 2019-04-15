@@ -1,49 +1,36 @@
-using System;
-using System.Collections;
 using System.Text;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.utils;
 using Newtonsoft.Json;
 using RSG;
-using Unity.UIWidgets.async;
-using Unity.UIWidgets.ui;
-using UnityEngine;
 using UnityEngine.Networking;
 
 namespace ConnectApp.api {
     public static class ArticleApi {
-        // Article Api
         public static Promise<FetchArticlesResponse> FetchArticles(int pageNumber) {
             
             var promise = new Promise<FetchArticlesResponse>();
             var request = HttpManager.GET(Config.apiAddress + "/api/p?orderBy=trending:w&projectType=article&t=projects&page=" + pageNumber);
-            HttpManager.resume(request).Then(responseText =>
-            {
+            HttpManager.resume(request).Then(responseText => {
                var articlesResponse = JsonConvert.DeserializeObject<FetchArticlesResponse>(responseText);
                promise.Resolve(articlesResponse);
-            }).Catch(exception =>
-            {
+            }).Catch(exception => {
                promise.Reject(exception);
             });
             return promise;
         }
 
-
         public static Promise<FetchArticleDetailResponse> FetchArticleDetail(string articleId) {
             
             var promise = new Promise<FetchArticleDetailResponse>();
-            
             var request = HttpManager.GET(Config.apiAddress + "/api/p/" + articleId + "?view=true");
-            HttpManager.resume(request).Then(responseText =>
-            {
+            HttpManager.resume(request).Then(responseText => {
                 var articleDetailResponse = JsonConvert.DeserializeObject<FetchArticleDetailResponse>(responseText);
                 promise.Resolve(articleDetailResponse);
-            }).Catch(exception =>
-            {
+            }).Catch(exception => {
               promise.Reject(exception);  
             });
-            
             return promise;
         }
 
@@ -54,12 +41,10 @@ namespace ConnectApp.api {
             var url = Config.apiAddress + "/api/channels/" + channelId + "/messages?limit=5";
             if (currOldestMessageId.Length > 0) url += "&before=" + currOldestMessageId;
             var request = HttpManager.GET(url);
-            HttpManager.resume(request).Then(responseText =>
-            {
+            HttpManager.resume(request).Then(responseText => {
                 var responseComments = JsonConvert.DeserializeObject<FetchCommentsResponse>(responseText);   
                 promise.Resolve(responseComments);
-            }).Catch(exception =>
-            {
+            }).Catch(exception => {
                 promise.Reject(exception);  
             });
             return promise;
@@ -77,11 +62,9 @@ namespace ConnectApp.api {
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.SetRequestHeader("Content-Type", "application/json");
-            HttpManager.resume(request).Then(responseText =>
-            {  
+            HttpManager.resume(request).Then(responseText => {  
                 promise.Resolve();
-            }).Catch(exception =>
-            {
+            }).Catch(exception => {
                 promise.Reject(exception);  
             });
             return promise;
@@ -99,12 +82,10 @@ namespace ConnectApp.api {
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.SetRequestHeader("Content-Type", "application/json");
-            HttpManager.resume(request).Then(responseText =>
-            {  
+            HttpManager.resume(request).Then(responseText => {  
                 var message = JsonConvert.DeserializeObject<Message>(responseText);
                 promise.Resolve(message);
-            }).Catch(exception =>
-            {
+            }).Catch(exception => {
                 promise.Reject(exception);  
             });
             return promise;
@@ -122,12 +103,10 @@ namespace ConnectApp.api {
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.SetRequestHeader("Content-Type", "application/json");
-            HttpManager.resume(request).Then(responseText =>
-            {  
+            HttpManager.resume(request).Then(responseText => {  
                 var message = JsonConvert.DeserializeObject<Message>(responseText);
                 promise.Resolve(message);
-            }).Catch(exception =>
-            {
+            }).Catch(exception => {
                 promise.Reject(exception);  
             });
             return promise;
@@ -149,12 +128,10 @@ namespace ConnectApp.api {
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.SetRequestHeader("Content-Type", "application/json");
-            HttpManager.resume(request).Then(responseText =>
-            {  
+            HttpManager.resume(request).Then(responseText => {  
                 var message = JsonConvert.DeserializeObject<Message>(responseText);
                 promise.Resolve(message);
-            }).Catch(exception =>
-            {
+            }).Catch(exception => {
                 promise.Reject(exception);  
             });
             return promise;

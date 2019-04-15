@@ -470,11 +470,15 @@ namespace ConnectApp.screens {
                     isPraised,
                     parentName,
                     () => {
+                        if (!widget.viewModel.isLoggedIn) {
+                            widget.actionModel.pushToLogin();
+                            return;
+                        }
                         ActionSheetUtils.showModalActionSheet(new ActionSheet(
                             items: new List<ActionSheetItem> {
                                 new ActionSheetItem(
                                     "举报", 
-                                    ActionType.destructive,
+                                    ActionType.normal,
                                     () => widget.actionModel.pushToReport(commentId, ReportType.comment)
                                 ),
                                 new ActionSheetItem("取消", ActionType.cancel)

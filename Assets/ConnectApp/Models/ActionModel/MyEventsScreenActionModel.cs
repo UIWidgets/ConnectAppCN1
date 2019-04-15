@@ -3,8 +3,7 @@ using ConnectApp.models;
 using RSG;
 
 namespace ConnectApp.Models.ActionModel {
-    public class MyEventsScreenActionModel {
-        public Action mainRouterPop;
+    public class MyEventsScreenActionModel : BaseActionModel {
         public Action<string, EventType> pushToEventDetail;
         public Action startFetchMyFutureEvents;
         public Func<int, IPromise> fetchMyFutureEvents;

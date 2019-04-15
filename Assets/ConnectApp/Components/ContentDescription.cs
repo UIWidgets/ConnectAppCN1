@@ -235,11 +235,7 @@ namespace ConnectApp.components {
                         child: new CustomButton(
                             onPressed: () => {
                                 if (url == null || url.Length <= 0) return;
-                                if (url.ToLower().Contains("youtube"))
-                                    openUrl(url);
-                                else
-                                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToVideoPlayerAction
-                                        {videoUrl = url});
+                                openUrl(url);
                             },
                             child: new Container(
                                 width: 80,
