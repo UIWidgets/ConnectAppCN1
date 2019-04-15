@@ -191,7 +191,7 @@ namespace ConnectApp.components {
                         padding: EdgeInsets.all(16),
                         child: new Text(
                             text,
-                            style: CTextStyle.PRegularBody
+                            style: CTextStyle.PCodeStyle
                         )
                     )
                 )

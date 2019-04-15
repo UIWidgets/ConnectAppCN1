@@ -256,6 +256,13 @@ namespace ConnectApp.constants {
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody
         );
+        
+        public static readonly TextStyle PCodeStyle = new TextStyle(
+            height: 1.46f,
+            fontSize: 14,
+            fontFamily: "Menlo",
+            color: CColors.TextBody
+        );
 
         public static readonly TextStyle PRegularTitle = new TextStyle(
             height: 1.46f,
