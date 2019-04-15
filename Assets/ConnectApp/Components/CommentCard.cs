@@ -64,8 +64,19 @@ namespace ConnectApp.components {
                         )
                     )
                 );
-
+            var reply = message.parentMessageId.isNotEmpty()?new GestureDetector(
+                onTap: replyCallBack,
+                child: new Container(
+                    margin:EdgeInsets.only(left:10),
+                    child:new Text(
+                        $"回复 {message.replyMessageIds.Count}",
+                        style: CTextStyle.PRegularBody4
+                    )) 
+            ):new GestureDetector(
+                child:new Container()
+            );
             return new Container(
+                
                 color: CColors.White,
                 padding: EdgeInsets.only(16, 16, 16),
                 child: new Row(
@@ -94,6 +105,7 @@ namespace ConnectApp.components {
                                             margin: EdgeInsets.only(top: 3, bottom: 5),
                                             child: _content
                                         ),
+                                       
                                         new Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: new List<Widget> {
@@ -104,21 +116,16 @@ namespace ConnectApp.components {
                                                         children: new List<Widget> {
                                                             new GestureDetector(
                                                                 onTap: praiseCallBack,
-                                                                child: new Text(
-                                                                    $"点赞 {message.reactions.Count}",
-                                                                    style: isPraised
-                                                                        ? CTextStyle.PRegularBlue
-                                                                        : CTextStyle.PRegularBody4
-                                                                )
-                                                            ),
-                                                            new Container(width: 10),
-                                                            new GestureDetector(
-                                                                onTap: replyCallBack,
-                                                                child: new Text(
-                                                                    $"回复 {message.replyMessageIds.Count}",
-                                                                    style: CTextStyle.PRegularBody4
-                                                                )
-                                                            )
+                                                                child: new Container(
+                                                                    child:new Text(
+                                                                        $"点赞 {message.reactions.Count}",
+                                                                        style: isPraised
+                                                                            ? CTextStyle.PRegularBlue
+                                                                            : CTextStyle.PRegularBody4
+                                                                    )
+                                                                )),
+                                                            reply
+                                                            
                                                         }
                                                     )
                                                 )
