@@ -14,6 +14,7 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using Config = ConnectApp.constants.Config;
@@ -222,20 +223,7 @@ namespace ConnectApp.screens {
                                         widget.actionModel.likeArticle(_article.id);
                                 }
                             },
-                            shareCallback: () =>
-                            {
-                                ShareUtils.showShareView(new ShareView(
-                                    onPressed: type => {
-                                        CustomDialogUtils.showCustomDialog(
-                                            child: new CustomDialog()
-                                        );
-                                        string linkUrl =
-                                            $"{Config.apiAddress}/p/{_article.id}";
-                                        string imageUrl = $"{_article.thumbnail.url}.200x0x1.jpg";
-                                        widget.actionModel.shareToWechat(type, _article.title, _article.description, linkUrl,
-                                            imageUrl).Then(CustomDialogUtils.hiddenCustomDialog).Catch(_ => CustomDialogUtils.hiddenCustomDialog());
-                                    }));
-                            }
+                            shareCallback: share
                         )
                     }
                 )
@@ -404,20 +392,7 @@ namespace ConnectApp.screens {
                             }
                         }),
                         new Container(width: 16),
-                        new ActionCard(Icons.share, "分享", false, () =>
-                        {
-                            ShareUtils.showShareView(new ShareView(
-                                onPressed: type => {
-                                    CustomDialogUtils.showCustomDialog(
-                                        child: new CustomDialog()
-                                    );
-                                    string linkUrl =
-                                        $"{Config.apiAddress}/p/{_article.id}";
-                                    string imageUrl = $"{_article.thumbnail.url}.200x0x1.jpg";
-                                    widget.actionModel.shareToWechat(type, _article.title, _article.description, linkUrl,
-                                        imageUrl).Then(CustomDialogUtils.hiddenCustomDialog).Catch(_ => CustomDialogUtils.hiddenCustomDialog());
-                                }));
-                        })
+                        new ActionCard(Icons.share, "分享", false, share)
                     }
                 )
             );
@@ -561,5 +536,30 @@ namespace ConnectApp.screens {
                 )
             );
         }
+
+        private void share()
+        {
+            ShareUtils.showShareView(new ShareView(
+                onPressed: type => {
+                    string linkUrl =
+                        $"{Config.apiAddress}/p/{_article.id}";
+                    if (type == ShareType.clipBoard)
+                    {
+                        Clipboard.setData(new ClipboardData(linkUrl));
+                        CustomDialogUtils.showToast("复制链接成功",Icons.check_circle_outline);
+                    }
+                    else
+                    {
+                        CustomDialogUtils.showCustomDialog(
+                            child: new CustomDialog()
+                        );
+                        string imageUrl = $"{_article.thumbnail.url}.200x0x1.jpg";
+                        widget.actionModel.shareToWechat(type, _article.title, _article.description, linkUrl,
+                            imageUrl).Then(CustomDialogUtils.hiddenCustomDialog).Catch(_ => CustomDialogUtils.hiddenCustomDialog()); 
+                    }
+                }));
+        }
+
+
     }
 }

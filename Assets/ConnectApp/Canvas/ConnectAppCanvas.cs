@@ -2,6 +2,8 @@ using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.plugins;
 using ConnectApp.redux;
+using ConnectApp.redux.actions;
+using RSG;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.ui;
@@ -29,7 +31,13 @@ namespace ConnectApp.canvas {
             return new StoreProvider<AppState>(
                 StoreProvider.store,
                 new WidgetsApp(
-                    home: new Router(),
+                    home: new WillPopScope(
+                        onWillPop: () =>
+                        {
+                            StoreProvider.store.dispatcher.dispatch(new MainNavigatorPopAction());
+                            return Promise<bool>.Resolved(true);
+                        },
+                        child:new Router()),
                     pageRouteBuilder: pageRouteBuilder
                 )
             );

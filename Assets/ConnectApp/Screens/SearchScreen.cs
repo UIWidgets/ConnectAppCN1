@@ -129,7 +129,7 @@ namespace ConnectApp.screens {
                     var pages = widget.viewModel.pages;
                     child = new SmartRefresher(
                         controller: _refreshController,
-                        enablePullDown: true,
+                        enablePullDown: false,
                         enablePullUp: currentPage != pages.Count - 1,
                         onRefresh: _onRefresh,
                         footerConfig: new RefreshConfig(),

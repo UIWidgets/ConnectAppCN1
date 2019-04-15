@@ -691,6 +691,9 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case SettingClearCacheAction _: {
+                    state.articleState.articleHistory = new List<Article>();
+                    state.eventState.eventHistory = new List<IEvent>();
+                    state.searchState.searchHistoryList = new List<string>();
                     HistoryManager.deleteAllArticleHistory(state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
                     HistoryManager.deleteAllEventHistory(state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
                     HistoryManager.deleteAllSearchHistory(state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
