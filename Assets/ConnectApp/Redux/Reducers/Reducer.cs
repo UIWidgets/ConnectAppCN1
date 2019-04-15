@@ -12,9 +12,7 @@ using UnityEngine;
 
 namespace ConnectApp.redux.reducers {
     public static class AppReducer {
-        private const string _searchHistoryKey = "searchHistoryKey";
-        private const string _articleHistoryKey = "articleHistoryKey";
-        private const string _eventHistoryKey = "eventHistoryKey";
+        
 
         private static List<string> _nonce = new List<string>();
 
@@ -50,6 +48,9 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.loading = false;
                     state.loginState.loginInfo = action.loginInfo;
                     state.loginState.isLoggedIn = true;
+                    state.articleState.articleHistory = HistoryManager.articleHistoryList(action.loginInfo.userId);
+                    state.eventState.eventHistory = HistoryManager.eventHistoryList(action.loginInfo.userId);
+                    state.searchState.searchHistoryList = HistoryManager.searchHistoryList(action.loginInfo.userId);
                     EventBus.publish(EventBusConstant.login_success, new List<object>());
                     break;
                 }
@@ -65,6 +66,9 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.loading = false;
                     state.loginState.loginInfo = action.loginInfo;
                     state.loginState.isLoggedIn = true;
+                    state.articleState.articleHistory = HistoryManager.articleHistoryList(action.loginInfo.userId);
+                    state.eventState.eventHistory = HistoryManager.eventHistoryList(action.loginInfo.userId);
+                    state.searchState.searchHistoryList = HistoryManager.searchHistoryList(action.loginInfo.userId);
                     EventBus.publish(EventBusConstant.login_success, new List<object>());
                     break;
                 }
@@ -77,6 +81,9 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.loginInfo = new LoginInfo();
                     state.loginState.isLoggedIn = false;
                     UserInfoManager.clearUserInfo();
+                    state.articleState.articleHistory = HistoryManager.articleHistoryList();
+                    state.eventState.eventHistory = HistoryManager.eventHistoryList();
+                    state.searchState.searchHistoryList = HistoryManager.searchHistoryList();
                     break;
                 }
                 case CleanEmailAndPasswordAction action: {
@@ -134,36 +141,22 @@ namespace ConnectApp.redux.reducers {
                     state.articleState.articleDetailLoading = false;
                     break;
                 }
-                case SaveArticleHistoryAction action: {
-                    var articleHistory = PlayerPrefs.GetString(_articleHistoryKey);
-                    var articleHistoryList = new List<Article>();
-                    if (articleHistory.isNotEmpty())
-                        articleHistoryList = JsonConvert.DeserializeObject<List<Article>>(articleHistory);
-                    articleHistoryList.RemoveAll(item => item.id == action.article.id);
-                    articleHistoryList.Insert(0, action.article);
-                    if (articleHistoryList.Count > 50) articleHistoryList.RemoveRange(50, articleHistoryList.Count - 50);
+                case SaveArticleHistoryAction action:
+                {
+                    var articleHistoryList = HistoryManager.saveArticleHistory(action.article,
+                        state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
                     state.articleState.articleHistory = articleHistoryList;
-                    var newArticleHistory = JsonConvert.SerializeObject(articleHistoryList);
-                    PlayerPrefs.SetString(_articleHistoryKey, newArticleHistory);
-                    PlayerPrefs.Save();
                     break;
                 }
                 case DeleteArticleHistoryAction action: {
-                    var articleHistory = PlayerPrefs.GetString(_articleHistoryKey);
-                    var articleHistoryList = new List<Article>();
-                    if (articleHistory.isNotEmpty())
-                        articleHistoryList = JsonConvert.DeserializeObject<List<Article>>(articleHistory);
-                    articleHistoryList.RemoveAll(item => item.id == action.articleId);
+                    var articleHistoryList = HistoryManager.deleteArticleHistory(action.articleId,
+                        state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
                     state.articleState.articleHistory = articleHistoryList;
-                    var newArticleHistory = JsonConvert.SerializeObject(articleHistoryList);
-                    PlayerPrefs.SetString(_articleHistoryKey, newArticleHistory);
-                    PlayerPrefs.Save();
                     break;
                 }
                 case DeleteAllArticleHistoryAction _: {
                     state.articleState.articleHistory = new List<Article>();
-                    if (PlayerPrefs.HasKey(_articleHistoryKey))
-                        PlayerPrefs.DeleteKey(_articleHistoryKey);
+                    HistoryManager.deleteAllArticleHistory(state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
                     break;
                 }
                 case LikeArticleAction _: {
@@ -337,36 +330,23 @@ namespace ConnectApp.redux.reducers {
                     state.eventState.eventDetailLoading = false;
                     break;
                 }
-                case SaveEventHistoryAction action: {
-                    var eventHistory = PlayerPrefs.GetString(_eventHistoryKey);
-                    var eventHistoryList = new List<IEvent>();
-                    if (eventHistory.isNotEmpty())
-                        eventHistoryList = JsonConvert.DeserializeObject<List<IEvent>>(eventHistory);
-                    eventHistoryList.RemoveAll(item => item.id == action.eventObj.id);
-                    eventHistoryList.Insert(0, action.eventObj);
-                    if (eventHistoryList.Count > 50) eventHistoryList.RemoveRange(50, eventHistoryList.Count - 50);
+                case SaveEventHistoryAction action:
+                {
+                    var eventHistoryList = HistoryManager.saveEventHistoryList(action.eventObj,
+                        state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
                     state.eventState.eventHistory = eventHistoryList;
-                    var newEventHistory = JsonConvert.SerializeObject(eventHistoryList);
-                    PlayerPrefs.SetString(_eventHistoryKey, newEventHistory);
-                    PlayerPrefs.Save();
                     break;
                 }
                 case DeleteEventHistoryAction action: {
-                    var eventHistory = PlayerPrefs.GetString(_eventHistoryKey);
-                    var eventHistoryList = new List<IEvent>();
-                    if (eventHistory.isNotEmpty())
-                        eventHistoryList = JsonConvert.DeserializeObject<List<IEvent>>(eventHistory);
-                    eventHistoryList.RemoveAll(item => item.id == action.eventId);
+                    var eventHistoryList = HistoryManager.deleteEventHistoryList(action.eventId,
+                        state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
                     state.eventState.eventHistory = eventHistoryList;
-                    var newEventHistory = JsonConvert.SerializeObject(eventHistoryList);
-                    PlayerPrefs.SetString(_eventHistoryKey, newEventHistory);
-                    PlayerPrefs.Save();
                     break;
                 }
                 case DeleteAllEventHistoryAction action: {
                     state.eventState.eventHistory = new List<IEvent>();
-                    if (PlayerPrefs.HasKey(_eventHistoryKey))
-                        PlayerPrefs.DeleteKey(_eventHistoryKey);
+                    HistoryManager.deleteAllEventHistory(
+                        state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
                     break;
                 }
                 case StartJoinEventAction _: {
@@ -593,35 +573,18 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case SaveSearchHistoryAction action: {
-                    var searchHistory = PlayerPrefs.GetString(_searchHistoryKey);
-                    var searchHistoryList = new List<string>();
-                    if (searchHistory.isNotEmpty())
-                        searchHistoryList = JsonConvert.DeserializeObject<List<string>>(searchHistory);
-                    if (searchHistoryList.Contains(action.keyword)) searchHistoryList.Remove(action.keyword);
-                    searchHistoryList.Insert(0, action.keyword);
-                    if (searchHistoryList.Count > 5) searchHistoryList.RemoveRange(5, searchHistoryList.Count - 5);
+                    var searchHistoryList = HistoryManager.saveSearchHistoryList(action.keyword,state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
                     state.searchState.searchHistoryList = searchHistoryList;
-                    var newSearchHistory = JsonConvert.SerializeObject(searchHistoryList);
-                    PlayerPrefs.SetString(_searchHistoryKey, newSearchHistory);
-                    PlayerPrefs.Save();
                     break;
                 }
                 case DeleteSearchHistoryAction action: {
-                    var searchHistory = PlayerPrefs.GetString(_searchHistoryKey);
-                    var searchHistoryList = new List<string>();
-                    if (searchHistory.isNotEmpty())
-                        searchHistoryList = JsonConvert.DeserializeObject<List<string>>(searchHistory);
-                    if (searchHistoryList.Contains(action.keyword)) searchHistoryList.Remove(action.keyword);
+                    var searchHistoryList = HistoryManager.deleteSearchHistoryList(action.keyword,state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
                     state.searchState.searchHistoryList = searchHistoryList;
-                    var newSearchHistory = JsonConvert.SerializeObject(searchHistoryList);
-                    PlayerPrefs.SetString(_searchHistoryKey, newSearchHistory);
-                    PlayerPrefs.Save();
                     break;
                 }
                 case DeleteAllSearchHistoryAction action: {
                     state.searchState.searchHistoryList = new List<string>();
-                    if (PlayerPrefs.HasKey(_searchHistoryKey))
-                        PlayerPrefs.DeleteKey(_searchHistoryKey);
+                    HistoryManager.deleteAllSearchHistory(state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
                     break;
                 }
                 case MainNavigatorPushToArticleDetailAction action: {
@@ -727,16 +690,10 @@ namespace ConnectApp.redux.reducers {
                     state.settingState.hasReviewUrl = false;
                     break;
                 }
-                case SettingClearCacheAction action: {
-                    state.searchState.searchHistoryList = new List<string>();
-                    if (PlayerPrefs.HasKey(_searchHistoryKey))
-                        PlayerPrefs.DeleteKey(_searchHistoryKey);
-                    state.articleState.articleHistory = new List<Article>();
-                    if (PlayerPrefs.HasKey(_articleHistoryKey))
-                        PlayerPrefs.DeleteKey(_articleHistoryKey);
-                    state.eventState.eventHistory = new List<IEvent>();
-                    if (PlayerPrefs.HasKey(_eventHistoryKey))
-                        PlayerPrefs.DeleteKey(_eventHistoryKey);
+                case SettingClearCacheAction _: {
+                    HistoryManager.deleteAllArticleHistory(state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
+                    HistoryManager.deleteAllEventHistory(state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
+                    HistoryManager.deleteAllSearchHistory(state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
                     break;
                 }
                 

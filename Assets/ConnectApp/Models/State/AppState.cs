@@ -24,14 +24,16 @@ namespace ConnectApp.models {
         public ReportState reportState { get; set; }
 
         public static AppState initialState() {
+            var loginInfo = UserInfoManager.initUserInfo();
+            var isLogin = UserInfoManager.isLogin();
             
             return new AppState {
                 Count = PlayerPrefs.GetInt("count", 0),
                 loginState = new LoginState {
                     email = "",
                     password = "",
-                    loginInfo = UserInfoManager.initUserInfo(),
-                    isLoggedIn = UserInfoManager.isLogin(),
+                    loginInfo = loginInfo,
+                    isLoggedIn = isLogin,
                     loading = false
                 },
                 articleState = new ArticleState {
@@ -41,7 +43,7 @@ namespace ConnectApp.models {
                     articleDetailLoading = false,
                     articleTotal = 0,
                     pageNumber = 0,
-                    articleHistory = HistoryManager.articleHistoryList()
+                    articleHistory = HistoryManager.articleHistoryList(isLogin?loginInfo.userId:null)
                 },
                 eventState = new EventState {
                     ongoingEvents = new List<string>(),
@@ -53,7 +55,7 @@ namespace ConnectApp.models {
                     completedPageNumber = 1,
                     eventsOngoingLoading = false,
                     eventsCompletedLoading = false,
-                    eventHistory = HistoryManager.eventHistoryList(),
+                    eventHistory = HistoryManager.eventHistoryList(isLogin?loginInfo.userId:null),
                     channelId = ""
                 },
                 popularSearchState = new PopularSearchState {
@@ -65,7 +67,7 @@ namespace ConnectApp.models {
                     searchArticles = new List<Article>(),
                     currentPage = 0,
                     pages = new List<int>(),
-                    searchHistoryList = HistoryManager.searchHistoryList(),
+                    searchHistoryList = HistoryManager.searchHistoryList(isLogin?loginInfo.userId:null),
                 },
                 notificationState = new NotificationState {
                     loading = false,

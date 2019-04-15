@@ -182,16 +182,20 @@ namespace ConnectApp.components {
         private static Widget _CodeBlock(BuildContext context, string text) {
             if (text == null) return new Container();
             return new Container(
-                color: Color.fromRGBO(110, 198, 255, 0.12f),
-                width: MediaQuery.of(context).size.width,
-                child: new Container(
-                    padding: EdgeInsets.all(16),
-                    child: new Text(
-                        text,
-                        style: CTextStyle.PRegularBody
+                color:CColors.White,
+                padding:EdgeInsets.only(bottom:24),
+                child:new Container(
+                    color: Color.fromRGBO(110, 198, 255, 0.12f),
+                    width: MediaQuery.of(context).size.width,
+                    child: new Container(
+                        padding: EdgeInsets.all(16),
+                        child: new Text(
+                            text,
+                            style: CTextStyle.PCodeStyle
+                        )
                     )
                 )
-            );
+            ); 
         }
 
 
