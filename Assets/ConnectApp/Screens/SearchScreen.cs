@@ -200,6 +200,7 @@ namespace ConnectApp.screens {
                             )
                         ),
                         new InputField(
+                            height: 40,
                             controller: _controller,
                             focusNode: _focusNode,
                             style: CTextStyle.H2,

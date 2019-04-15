@@ -93,7 +93,10 @@ namespace ConnectApp.screens {
             }
             else {
                 if (widget.viewModel.notifications.Count <= 0) {
-                    content = new BlankView("暂无通知消息");
+                    content = new Container(
+                        padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 49),
+                        child: new BlankView("暂无通知消息")
+                    );
                 }
                 else {
                     var isLoadMore = widget.viewModel.notifications.Count == widget.viewModel.total;
