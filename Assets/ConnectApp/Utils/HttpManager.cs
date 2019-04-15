@@ -24,6 +24,7 @@ namespace ConnectApp.utils {
             var request = new UnityWebRequest(url, method);
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
+            UnityWebRequest.ClearCookieCache();
             request.SetRequestHeader(COOKIE, _cookieHeader());
             return request;
         }
@@ -72,16 +73,16 @@ namespace ConnectApp.utils {
         }
 
         public static void clearCookie() {
-            UnityWebRequest.ClearCookieCache();
             PlayerPrefs.DeleteKey(COOKIE);
         }
 
+        
         private static void updateCookie(string newCookie) {
             var cookie = PlayerPrefs.GetString(COOKIE);
             var cookieDict = new Dictionary<string, string>();
             var updateCookie = "";
             if (cookie.isNotEmpty()) {
-                var cookieArr = cookie.Split(',');
+                var cookieArr = cookie.Split(';');
                 foreach (var c in cookieArr) {
                     var name = c.Split('=').first();
                     cookieDict.Add(name, c);
@@ -90,16 +91,18 @@ namespace ConnectApp.utils {
             if (newCookie.isNotEmpty()) {
                 var newCookieArr = newCookie.Split(',');
                 foreach (var c in newCookieArr) {
-                    var name = c.Split('=').first();
+                    var item = c.Split(';').first();
+                    var name = item.Split('=').first();
                     if (cookieDict.ContainsKey(name)) {
-                        cookieDict[name] = c;
+                        cookieDict[name] = item;
                     }
                     else {
-                        cookieDict.Add(name, c);
+                        cookieDict.Add(name, item);
                     }
                 }
+                
                 var updateCookieArr = cookieDict.Values;
-                updateCookie = string.Join(",", updateCookieArr);
+                updateCookie = string.Join(";", updateCookieArr);
             }
             if (updateCookie.isNotEmpty()) {
                 PlayerPrefs.SetString(COOKIE, updateCookie);
