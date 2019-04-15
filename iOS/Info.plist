@@ -5,7 +5,7 @@
 	<key>CADisableMinimumFrameDuration</key>
 	<false/>
 	<key>CFBundleDisplayName</key>
-	<string>UnityConnect</string>
+	<string>Unity Connect</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.3</string>
+	<string>0.5</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -28,7 +28,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>3</string>
+	<string>5</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<string>weixin</string>
 	<key>NSAppTransportSecurity</key>
@@ -59,10 +59,15 @@
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
 	<key>UnityCloudProjectID</key>
-	<string>f63ab662-2914-4da1-9c2f-db53e7e6b2d3</string>
+	<string></string>
 	<key>UnityCrashSubmissionURL</key>
 	<string>https://a:b@perf-events.cloud.unity3d.com/symbolicate</string>
 	<key>Unity_LoadingActivityIndicatorStyle</key>
 	<integer>-1</integer>
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+        <string>weixin</string>
+        <string>wechat</string>
+    </array>
 </dict>
 </plist>
