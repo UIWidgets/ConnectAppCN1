@@ -8,9 +8,7 @@ using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
-using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -45,7 +43,7 @@ namespace ConnectApp.screens {
             );
         }
     }
-    public class HistoryArticleScreen : StatefulWidget {
+    public class HistoryArticleScreen : StatelessWidget {
         public HistoryArticleScreen(
             HistoryScreenViewModel viewModel = null,
             HistoryScreenActionModel actionModel = null,
@@ -55,35 +53,30 @@ namespace ConnectApp.screens {
             this.actionModel = actionModel;
         }
 
-        public readonly HistoryScreenViewModel viewModel;
-        public readonly HistoryScreenActionModel actionModel;
-
-        public override State createState() {
-            return new _HistoryArticleScreenState();
-        }
-    }
-
-    public class _HistoryArticleScreenState : State<HistoryArticleScreen> {
+        private readonly HistoryScreenViewModel viewModel;
+        private readonly HistoryScreenActionModel actionModel;
+        
+        private readonly CustomDismissibleController _controller = new CustomDismissibleController();
 
         public override Widget build(BuildContext context) {
-            if (widget.viewModel.articleHistory.Count == 0) return new BlankView("暂无浏览文章记录");
+            if (viewModel.articleHistory.Count == 0) return new BlankView("暂无浏览文章记录");
 
             return ListView.builder(
                 physics: new AlwaysScrollableScrollPhysics(),
-                itemCount: widget.viewModel.articleHistory.Count,
+                itemCount: viewModel.articleHistory.Count,
                 itemBuilder: (cxt, index) => {
-                    var model = widget.viewModel.articleHistory[index];
+                    var model = viewModel.articleHistory[index];
                     Widget child;
                     if (model.ownerType == OwnerType.user.ToString()) {
                         var _user = new User();
-                        if (widget.viewModel.userDict.ContainsKey(model.userId))
-                            _user = widget.viewModel.userDict[model.userId];
+                        if (viewModel.userDict.ContainsKey(model.userId))
+                            _user = viewModel.userDict[model.userId];
                         child = ArticleCard.User(
                             model,
-                            () => widget.actionModel.pushToArticleDetail(model.id),
+                            () => actionModel.pushToArticleDetail(model.id),
                             () => {
-                                if (!widget.viewModel.isLoggedIn) {
-                                    widget.actionModel.pushToLogin();
+                                if (!viewModel.isLoggedIn) {
+                                    actionModel.pushToLogin();
                                     return;
                                 }
                                 ActionSheetUtils.showModalActionSheet(new ActionSheet(
@@ -91,7 +84,7 @@ namespace ConnectApp.screens {
                                         new ActionSheetItem(
                                             "举报",
                                             ActionType.normal,
-                                            () => widget.actionModel.pushToReport(model.id, ReportType.article)
+                                            () => actionModel.pushToReport(model.id, ReportType.article)
                                         ),
                                         new ActionSheetItem("取消", ActionType.cancel)
                                     }
@@ -103,15 +96,15 @@ namespace ConnectApp.screens {
                     }
                     else {
                         var _team = new Team();
-                        if (widget.viewModel.teamDict.ContainsKey(model.teamId))
-                            _team = widget.viewModel.teamDict[model.teamId];
+                        if (viewModel.teamDict.ContainsKey(model.teamId))
+                            _team = viewModel.teamDict[model.teamId];
                         child = ArticleCard.Team(
                             model,
                             () =>
-                                widget.actionModel.pushToArticleDetail(model.id),
+                                actionModel.pushToArticleDetail(model.id),
                             () => {
-                                if (!widget.viewModel.isLoggedIn) {
-                                    widget.actionModel.pushToLogin();
+                                if (!viewModel.isLoggedIn) {
+                                    actionModel.pushToLogin();
                                     return;
                                 }
                                 ActionSheetUtils.showModalActionSheet(new ActionSheet(
@@ -119,7 +112,7 @@ namespace ConnectApp.screens {
                                         new ActionSheetItem(
                                             "举报",
                                             ActionType.normal,
-                                            () => widget.actionModel.pushToReport(model.id, ReportType.article)
+                                            () => actionModel.pushToReport(model.id, ReportType.article)
                                         ),
                                         new ActionSheetItem("取消", ActionType.cancel)
                                     }
@@ -130,24 +123,31 @@ namespace ConnectApp.screens {
                         );
                     }
 
-                    return new Dismissible(
+                    return CustomDismissible.builder(
                         Key.key(model.id),
                         child,
-                        new Container(
-                            color: CColors.Error,
-                            padding: EdgeInsets.symmetric(horizontal: 16),
-                            child: new Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: new List<Widget> {
-                                    new Text(
-                                        "删除",
-                                        style: CTextStyle.PLargeWhite
+                        new CustomDismissibleDrawerDelegate(),
+                        secondaryActions: new List<Widget> {
+                            new GestureDetector(
+                                onTap: () => actionModel.deleteArticleHistory(model.id),
+                                child: new Container(
+                                    color: CColors.Separator2,
+                                    width: 80,
+                                    alignment: Alignment.center,
+                                    child: new Container(
+                                        width: 44,
+                                        height: 44,
+                                        alignment: Alignment.center,
+                                        decoration: new BoxDecoration(
+                                            CColors.White,
+                                            borderRadius: BorderRadius.circular(22)
+                                        ),
+                                        child: new Icon(Icons.delete_outline, size: 28, color: CColors.Error)
                                     )
-                                }
+                                )
                             )
-                        ),
-                        direction: DismissDirection.endToStart,
-                        onDismissed: direction => widget.actionModel.deleteArticleHistory(model.id)
+                        },
+                        controller: _controller
                     );
                 }
             );
