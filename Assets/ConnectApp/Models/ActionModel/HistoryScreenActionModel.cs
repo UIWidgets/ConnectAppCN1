@@ -9,5 +9,7 @@ namespace ConnectApp.Models.ActionModel {
         public Action<string, ReportType> pushToReport;
         public Action<string> deleteArticleHistory;
         public Action<string> deleteEventHistory;
+        public Action deleteAllArticleHistory;
+        public Action deleteAllEventHistory;
     }
 }
