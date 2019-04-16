@@ -10,9 +10,7 @@ using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.screens
-{
-    
+namespace ConnectApp.screens {
     public class MyPastEventsScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, MyEventsScreenViewModel>(
@@ -38,8 +36,7 @@ namespace ConnectApp.screens
         }
     }
     
-    public class MyPastEventsScreen: StatefulWidget
-    {
+    public class MyPastEventsScreen: StatefulWidget {
         public MyPastEventsScreen(
             MyEventsScreenViewModel viewModel = null,
             MyEventsScreenActionModel actionModel = null,
@@ -51,14 +48,12 @@ namespace ConnectApp.screens
 
         public readonly MyEventsScreenViewModel viewModel;
         public readonly MyEventsScreenActionModel actionModel;
-        public override State createState()
-        {
+        public override State createState() {
             return new _MyPastEventsScreenState();
         }
     }
 
-    public class _MyPastEventsScreenState : State<MyPastEventsScreen>
-    {
+    public class _MyPastEventsScreenState : State<MyPastEventsScreen> {
         private const int firstPageNumber = 1;
         private int _pageNumber;
         private RefreshController _refreshController;
@@ -72,14 +67,13 @@ namespace ConnectApp.screens
                 widget.actionModel.fetchMyPastEvents(firstPageNumber);
             });
         }
-        public override Widget build(BuildContext context)
-        {
+        public override Widget build(BuildContext context) {
             return _buildMyPastEvents();
         }
         
         private Widget _buildMyPastEvents() {
             var data = widget.viewModel.pastEventsList;
-            if (widget.viewModel.pastListLoading) return new GlobalLoading();
+            if (widget.viewModel.pastListLoading && data.isEmpty()) return new GlobalLoading();
             if (data.Count <= 0) return new BlankView("暂无我的往期活动");
             var pastEventTotal = widget.viewModel.pastEventTotal;
             var hasMore = pastEventTotal == data.Count;
@@ -117,6 +111,4 @@ namespace ConnectApp.screens
                     .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
         }
     }
-    
-    
 }

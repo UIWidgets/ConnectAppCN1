@@ -6,6 +6,7 @@ using RSG;
 namespace ConnectApp.Models.ActionModel {
     public class EventDetailScreenActionModel : BaseActionModel {
         public Action<string> openUrl;
+        public Action<string> copyText;
         public Action startFetchEventDetail;
         public Func<string, EventType, IPromise> fetchEventDetail;
         public Action startJoinEvent;

@@ -65,7 +65,7 @@ namespace ConnectApp.components {
                                     ),
                                     child: new Row(
                                         mainAxisAlignment: MainAxisAlignment.start,
-                                        children: shareItems()
+                                        children: _buildShareItems()
                                     )
                                 ),
                                 new GestureDetector(
@@ -89,12 +89,9 @@ namespace ConnectApp.components {
             );
         }
 
-        private List<Widget> shareItems()
-        {
-            if (WechatPlugin.instance().inInstalled())
-            {
-                return new List<Widget>
-                {
+        private List<Widget> _buildShareItems() {
+            if (WechatPlugin.instance().inInstalled()) {
+                return new List<Widget> {
                     _buildShareItem("wechat-share", "微信好友",
                         () => { onPressed(ShareType.friends); }),
                     _buildShareItem("wechat-moment", "朋友圈",
@@ -102,17 +99,17 @@ namespace ConnectApp.components {
                     _buildClipBoardItem("复制链接", () => { onPressed(ShareType.clipBoard); })
                 };
             }
-            return new List<Widget>
-            {
+            return new List<Widget> {
                 _buildClipBoardItem("复制链接", () => { onPressed(ShareType.clipBoard); })
             };
         }
 
-
-
         private static Widget _buildShareItem(string assetName, string title, GestureTapCallback onTap) {
             return new GestureDetector(
-                onTap: onTap,
+                onTap: () => {
+                    if (Router.navigator.canPop()) Router.navigator.pop();
+                    onTap();
+                },
                 child: new Container(
                     padding: EdgeInsets.symmetric(horizontal: 16),
                     decoration: new BoxDecoration(
@@ -140,10 +137,12 @@ namespace ConnectApp.components {
             );
         }
         
-        
         private static Widget _buildClipBoardItem(string title, GestureTapCallback onTap) {
             return new GestureDetector(
-                onTap: onTap,
+                onTap:() => {
+                    if (Router.navigator.canPop()) Router.navigator.pop();
+                    onTap();
+                },
                 child: new Container(
                     padding: EdgeInsets.symmetric(horizontal: 16),
                     decoration: new BoxDecoration(

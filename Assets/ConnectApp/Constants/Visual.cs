@@ -36,6 +36,7 @@ namespace ConnectApp.constants {
         public static readonly IconData check_circle_outline = new IconData(0xe92d, "Material Icons");
         public static readonly IconData insert_link = new IconData(0xe250, "Material Icons");
         public static readonly IconData delete_outline = new IconData(0xe92e, "Material Icons");
+        public static readonly IconData clear = new IconData(0xe14c, "Material Icons");
 
     }
 
@@ -370,6 +371,7 @@ namespace ConnectApp.constants {
         public static readonly Color Red = new Color(0xFFFF0000);
         public static readonly Color Green = new Color(0xFF00FF00);
         public static readonly Color Blue = new Color(0xFF0000FF);
+        public static readonly Color Grey = new Color(0xFF9E9E9E);
 
         public static readonly Color secondary1 = new Color(0xFF00BCD4);
         public static readonly Color background1 = new Color(0xFF292929);
