@@ -95,9 +95,9 @@ namespace ConnectApp.components {
             {
                 return new List<Widget>
                 {
-                    _buildShareItem("shareWeChat", "微信好友",
+                    _buildShareItem("wechat-share", "微信好友",
                         () => { onPressed(ShareType.friends); }),
-                    _buildShareItem("shareFriends", "朋友圈",
+                    _buildShareItem("wechat-moment", "朋友圈",
                         () => { onPressed(ShareType.moments); }),
                     _buildClipBoardItem("复制链接", () => { onPressed(ShareType.clipBoard); })
                 };

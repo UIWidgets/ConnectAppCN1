@@ -26,7 +26,6 @@ namespace ConnectApp.components {
         private readonly float offset;
         public static readonly float height = 96;
 
-
         public override Widget build(BuildContext context) {
             return new Container(
                 color: backgroundColor,
@@ -37,7 +36,7 @@ namespace ConnectApp.components {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: new List<Widget> {
                             new Padding(
-                                padding: EdgeInsets.only(bottom: 12, left: 16, right: 16),
+                                padding: EdgeInsets.only(bottom: 8, left: 16, right: 16),
                                 child: new Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: new List<Widget> {

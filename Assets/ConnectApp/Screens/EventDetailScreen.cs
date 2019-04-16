@@ -19,7 +19,10 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 using Config = ConnectApp.constants.Config;
+using EventType = ConnectApp.models.EventType;
 using Icons = ConnectApp.constants.Icons;
 
 namespace ConnectApp.screens {
@@ -626,8 +629,14 @@ namespace ConnectApp.screens {
                     onPressed: () => {
                         if (isEnabled) return;
                         if (isLoggedIn) {
-                            widget.actionModel.startJoinEvent();
-                            widget.actionModel.joinEvent(eventObj.id);
+                            if (eventObj.type.isNotEmpty() && eventObj.type == "bagevent") {
+                                widget.actionModel.openUrl(
+                                    $"{Config.apiAddress}/events/{eventObj.id}/purchase");
+                            }
+                            else {
+                                widget.actionModel.startJoinEvent();
+                                widget.actionModel.joinEvent(eventObj.id);
+                            }
                         }
                         else {
                             widget.actionModel.pushToLogin();
