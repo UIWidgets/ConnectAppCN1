@@ -13,10 +13,10 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.components {
     public class CustomDialog : StatelessWidget {
         public CustomDialog(
-            Key key = null,
             Widget widget = null,
             string message = null,
-            TimeSpan? duration = null
+            TimeSpan? duration = null,
+            Key key = null
         ) : base(key) {
             this.widget = widget;
             this.message = message;
@@ -90,12 +90,19 @@ namespace ConnectApp.components {
             if (Router.navigator.canPop()) Router.navigator.pop();
         }
 
-        public static void showToast(string message,IconData iconData)
-        {
-            showCustomDialog(child: new CustomDialog(null,new Icon(iconData,size:27,color:Color.fromRGBO(199,203,207,1)),message,TimeSpan.FromSeconds(2)));
+        public static void showToast(string message, IconData iconData) {
+            showCustomDialog(
+                child: new CustomDialog(
+                    new Icon(
+                        iconData,
+                        size: 27,
+                        color:Color.fromRGBO(199,203,207,1)
+                    ),
+                    message,
+                    TimeSpan.FromSeconds(2)
+                )
+            );
         }
-
-
 
         private static Widget _transitionBuilder(BuildContext context, Animation<float> animation,
             Animation<float> secondaryAnimation, Widget child) {

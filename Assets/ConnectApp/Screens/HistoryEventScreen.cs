@@ -7,7 +7,6 @@ using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
 
@@ -34,7 +33,7 @@ namespace ConnectApp.screens {
             );
         }
     }
-    public class HistoryEventScreen : StatefulWidget {
+    public class HistoryEventScreen : StatelessWidget {
         public HistoryEventScreen(
             HistoryScreenViewModel viewModel = null,
             HistoryScreenActionModel actionModel = null,
@@ -44,58 +43,57 @@ namespace ConnectApp.screens {
             this.actionModel = actionModel;
         }
 
-        public readonly HistoryScreenViewModel viewModel;
-        public readonly HistoryScreenActionModel actionModel;
-
-        public override State createState() {
-            return new _HistoryEventScreenState();
-        }
-    }
-
-    public class _HistoryEventScreenState : State<HistoryEventScreen> {
+        private readonly HistoryScreenViewModel viewModel;
+        private readonly HistoryScreenActionModel actionModel;
+        
+        private readonly CustomDismissibleController _controller = new CustomDismissibleController();
 
         public override Widget build(BuildContext context) {
-            if (widget.viewModel.eventHistory.Count == 0) return new BlankView("暂无浏览活动记录");
+            if (viewModel.eventHistory.Count == 0) return new BlankView("暂无浏览活动记录");
             return ListView.builder(
                 physics: new AlwaysScrollableScrollPhysics(),
-                itemCount: widget.viewModel.eventHistory.Count,
+                itemCount: viewModel.eventHistory.Count,
                 itemExtent: 108,
                 itemBuilder: (cxt, index) => {
-                    var model = widget.viewModel.eventHistory[index];
+                    var model = viewModel.eventHistory[index];
                     var eventType = model.mode == "online" ? EventType.online : EventType.offline;
                     var place = new Place();
-                    if (widget.viewModel.placeDict.isNotEmpty())
-                    {
-                        if (model.placeId.isNotEmpty())
-                        {
-                            if (widget.viewModel.placeDict.ContainsKey(model.placeId))
-                            {
-                                place = widget.viewModel.placeDict[model.placeId];
+                    if (viewModel.placeDict.isNotEmpty()) {
+                        if (model.placeId.isNotEmpty()) {
+                            if (viewModel.placeDict.ContainsKey(model.placeId)) {
+                                place = viewModel.placeDict[model.placeId];
                             }
                         }
                     }
-                    return new Dismissible(
+                    return CustomDismissible.builder(
                         Key.key(model.id),
                         new EventCard(
                             model,
                             place.id.isEmpty()?null:place,
-                            () => widget.actionModel.pushToEventDetail(model.id, eventType)
+                            () => actionModel.pushToEventDetail(model.id, eventType)
                         ),
-                        new Container(
-                            color: CColors.Error,
-                            padding: EdgeInsets.symmetric(horizontal: 16),
-                            child: new Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: new List<Widget> {
-                                    new Text(
-                                        "删除",
-                                        style: CTextStyle.PLargeWhite
+                        new CustomDismissibleDrawerDelegate(),
+                        secondaryActions: new List<Widget> {
+                            new GestureDetector(
+                                onTap: () => actionModel.deleteEventHistory(model.id),
+                                child: new Container(
+                                    color: CColors.Separator2,
+                                    width: 80,
+                                    alignment: Alignment.center,
+                                    child: new Container(
+                                        width: 44,
+                                        height: 44,
+                                        alignment: Alignment.center,
+                                        decoration: new BoxDecoration(
+                                            CColors.White,
+                                            borderRadius: BorderRadius.circular(22)
+                                        ),
+                                        child: new Icon(Icons.delete_outline, size: 28, color: CColors.Error)
                                     )
-                                }
+                                )
                             )
-                        ),
-                        direction: DismissDirection.endToStart,
-                        onDismissed: direction => widget.actionModel.deleteEventHistory(model.id)
+                        },
+                        controller: _controller
                     );
                 }
             );

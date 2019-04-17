@@ -1,22 +1,17 @@
 using System.Collections.Generic;
 using ConnectApp.models;
-using ConnectApp.redux.actions;
 using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
 
-namespace ConnectApp.utils
-{
-    
-    public class HistoryManager
-    {
+namespace ConnectApp.utils {
+    public static class HistoryManager {
         private const string _searchHistoryKey = "searchHistoryKey";
         private const string _articleHistoryKey = "articleHistoryKey";
         private const string _eventHistoryKey = "eventHistoryKey";
         private const string _visitorId = "visitor";
         
-        public static List<Article> articleHistoryList(string userId= _visitorId)
-        {
+        public static List<Article> articleHistoryList(string userId= _visitorId) {
             var articleHistory = PlayerPrefs.GetString(_articleHistoryKey+userId);
             var articleHistoryList = new List<Article>();
             if (articleHistory.isNotEmpty())
@@ -24,8 +19,7 @@ namespace ConnectApp.utils
             return articleHistoryList;
         }
 
-        public static List<Article> saveArticleHistory(Article article,string userId= _visitorId)
-        {
+        public static List<Article> saveArticleHistory(Article article,string userId= _visitorId) {
             var articleHistory = PlayerPrefs.GetString(_articleHistoryKey+userId);
             var articleHistoryList = new List<Article>();
             if (articleHistory.isNotEmpty())
@@ -38,8 +32,8 @@ namespace ConnectApp.utils
             PlayerPrefs.Save();
             return articleHistoryList;
         }
-        public static List<Article> deleteArticleHistory(string articleId,string userId= _visitorId)
-        {
+        
+        public static List<Article> deleteArticleHistory(string articleId,string userId= _visitorId) {
             var articleHistory = PlayerPrefs.GetString(_articleHistoryKey+userId);
             var articleHistoryList = new List<Article>();
             if (articleHistory.isNotEmpty())
@@ -51,14 +45,12 @@ namespace ConnectApp.utils
             return articleHistoryList;
         }
 
-        public static void deleteAllArticleHistory(string userId= _visitorId)
-        {
+        public static void deleteAllArticleHistory(string userId= _visitorId) {
             if (PlayerPrefs.HasKey(_articleHistoryKey+userId))
                 PlayerPrefs.DeleteKey(_articleHistoryKey+userId);
         }
 
-        public static List<IEvent> eventHistoryList(string userId= _visitorId)
-        {
+        public static List<IEvent> eventHistoryList(string userId= _visitorId) {
             var eventHistory = PlayerPrefs.GetString(_eventHistoryKey+userId);
             var eventHistoryList = new List<IEvent>();
             if (eventHistory.isNotEmpty())
@@ -66,8 +58,7 @@ namespace ConnectApp.utils
             return eventHistoryList;
         }
         
-        public static List<IEvent> saveEventHistoryList(IEvent eventObj,string userId= _visitorId)
-        {
+        public static List<IEvent> saveEventHistoryList(IEvent eventObj,string userId= _visitorId) {
             var eventHistory = PlayerPrefs.GetString(_eventHistoryKey+userId);
             var eventHistoryList = new List<IEvent>();
             if (eventHistory.isNotEmpty())
@@ -80,8 +71,8 @@ namespace ConnectApp.utils
             PlayerPrefs.Save();
             return eventHistoryList;
         }
-        public static List<IEvent> deleteEventHistoryList(string eventId,string userId= _visitorId)
-        {
+        
+        public static List<IEvent> deleteEventHistoryList(string eventId,string userId= _visitorId) {
             var eventHistory = PlayerPrefs.GetString(_eventHistoryKey+userId);
             var eventHistoryList = new List<IEvent>();
             if (eventHistory.isNotEmpty())
@@ -93,14 +84,12 @@ namespace ConnectApp.utils
             return eventHistoryList;
         }
         
-        public static void deleteAllEventHistory(string userId= _visitorId)
-        {
+        public static void deleteAllEventHistory(string userId= _visitorId) {
             if (PlayerPrefs.HasKey(_eventHistoryKey+userId))
                 PlayerPrefs.DeleteKey(_eventHistoryKey+userId);
         }
         
-        public static List<string> searchHistoryList(string userId= _visitorId)
-        {
+        public static List<string> searchHistoryList(string userId= _visitorId) {
             var searchHistory = PlayerPrefs.GetString(_searchHistoryKey+userId);
             var searchHistoryList = new List<string>();
             if (searchHistory.isNotEmpty())
@@ -108,8 +97,7 @@ namespace ConnectApp.utils
             return searchHistoryList;
         }
         
-        public static List<string> saveSearchHistoryList(string keyword,string userId= _visitorId)
-        {
+        public static List<string> saveSearchHistoryList(string keyword,string userId= _visitorId) {
             var searchHistory = PlayerPrefs.GetString(_searchHistoryKey+userId);
             var searchHistoryList = new List<string>();
             if (searchHistory.isNotEmpty())
@@ -122,8 +110,8 @@ namespace ConnectApp.utils
             PlayerPrefs.Save();
             return searchHistoryList;
         }
-        public static List<string> deleteSearchHistoryList(string keyword,string userId= _visitorId)
-        {
+        
+        public static List<string> deleteSearchHistoryList(string keyword,string userId= _visitorId) {
             var searchHistory = PlayerPrefs.GetString(_searchHistoryKey+userId);
             var searchHistoryList = new List<string>();
             if (searchHistory.isNotEmpty())
@@ -135,8 +123,7 @@ namespace ConnectApp.utils
             return searchHistoryList;
         }
         
-        public static void deleteAllSearchHistory(string userId= _visitorId)
-        {
+        public static void deleteAllSearchHistory(string userId= _visitorId) {
             if (PlayerPrefs.HasKey(_searchHistoryKey+userId))
                 PlayerPrefs.DeleteKey(_searchHistoryKey+userId);
         }
