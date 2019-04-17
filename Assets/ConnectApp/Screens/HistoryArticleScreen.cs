@@ -58,65 +58,71 @@ namespace ConnectApp.screens {
         
         private readonly CustomDismissibleController _controller = new CustomDismissibleController();
 
-        public override Widget build(BuildContext context) {
+        public override Widget build(BuildContext context)
+        {
             if (viewModel.articleHistory.Count == 0) return new BlankView("暂无浏览文章记录");
 
-            return ListView.builder(
-                physics: new AlwaysScrollableScrollPhysics(),
-                itemCount: viewModel.articleHistory.Count,
-                itemBuilder: (cxt, index) => {
-                    var model = viewModel.articleHistory[index];
-                    var child = new ArticleCard(
-                        model,
-                        () =>
-                            actionModel.pushToArticleDetail(model.id),
-                        () => {
-                            if (!viewModel.isLoggedIn) {
-                                actionModel.pushToLogin();
-                                return;
-                            }
-                            ActionSheetUtils.showModalActionSheet(new ActionSheet(
-                                items: new List<ActionSheetItem> {
-                                    new ActionSheetItem(
-                                        "举报",
-                                        ActionType.normal,
-                                        () => actionModel.pushToReport(model.id, ReportType.article)
-                                    ),
-                                    new ActionSheetItem("取消", ActionType.cancel)
+            return new Container(
+                color: CColors.background3,
+                child: ListView.builder(
+                    physics: new AlwaysScrollableScrollPhysics(),
+                    itemCount: viewModel.articleHistory.Count,
+                    itemBuilder: (cxt, index) =>
+                    {
+                        var model = viewModel.articleHistory[index];
+                        var child = new ArticleCard(
+                            model,
+                            () =>
+                                actionModel.pushToArticleDetail(model.id),
+                            () => {
+                                if (!viewModel.isLoggedIn) {
+                                    actionModel.pushToLogin();
+                                    return;
                                 }
-                            ));
-                        },
-                        model.fullName,
-                        new ObjectKey(model.id)
-                    );
-
-                    return CustomDismissible.builder(
-                        Key.key(model.id),
-                        child,
-                        new CustomDismissibleDrawerDelegate(),
-                        secondaryActions: new List<Widget> {
-                            new GestureDetector(
-                                onTap: () => actionModel.deleteArticleHistory(model.id),
-                                child: new Container(
-                                    color: CColors.Separator2,
-                                    width: 80,
-                                    alignment: Alignment.center,
-                                    child: new Container(
-                                        width: 44,
-                                        height: 44,
-                                        alignment: Alignment.center,
-                                        decoration: new BoxDecoration(
-                                            CColors.White,
-                                            borderRadius: BorderRadius.circular(22)
+                                ActionSheetUtils.showModalActionSheet(new ActionSheet(
+                                    items: new List<ActionSheetItem> {
+                                        new ActionSheetItem(
+                                            "举报",
+                                            ActionType.normal,
+                                            () => actionModel.pushToReport(model.id, ReportType.article)
                                         ),
-                                        child: new Icon(Icons.delete_outline, size: 28, color: CColors.Error)
+                                        new ActionSheetItem("取消", ActionType.cancel)
+                                    }
+                                ));
+                            },
+                            model.fullName,
+                            new ObjectKey(model.id)
+                        );
+
+                        return CustomDismissible.builder(
+                            Key.key(model.id),
+                            child,
+                            new CustomDismissibleDrawerDelegate(),
+                            secondaryActions: new List<Widget>
+                            {
+                                new GestureDetector(
+                                    onTap: () => actionModel.deleteArticleHistory(model.id),
+                                    child: new Container(
+                                        color: CColors.Separator2,
+                                        width: 80,
+                                        alignment: Alignment.center,
+                                        child: new Container(
+                                            width: 44,
+                                            height: 44,
+                                            alignment: Alignment.center,
+                                            decoration: new BoxDecoration(
+                                                CColors.White,
+                                                borderRadius: BorderRadius.circular(22)
+                                            ),
+                                            child: new Icon(Icons.delete_outline, size: 28, color: CColors.Error)
+                                        )
                                     )
                                 )
-                            )
-                        },
-                        controller: _controller
-                    );
-                }
+                            },
+                            controller: _controller
+                        );
+                    }
+                )
             );
         }
     }

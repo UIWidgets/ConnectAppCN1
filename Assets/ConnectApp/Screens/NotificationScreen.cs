@@ -62,7 +62,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    public class _NotificationScreenState : State<NotificationScreen> {
+    public class _NotificationScreenState : AutomaticKeepAliveClientMixin<NotificationScreen> {
         private const int firstPageNumber = 1;
         private int _pageNumber = firstPageNumber;
         private RefreshController _refreshController;
@@ -71,9 +71,9 @@ namespace ConnectApp.screens {
         const float minNavBarHeight = 44; 
         private float navBarHeight;
 
-//        protected override bool wantKeepAlive {
-//            get => false;
-//        }
+        protected override bool wantKeepAlive {
+            get => true;
+        }
         public override void initState() {
             base.initState();
             _refreshController = new RefreshController();
@@ -86,8 +86,9 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
+            base.build(context);
             object content = new Container();
-            if (widget.viewModel.notifationLoading) {
+            if (widget.viewModel.notifationLoading&&widget.viewModel.notifications.Count==0) {
                 content = new GlobalLoading();
             }
             else {
@@ -99,26 +100,28 @@ namespace ConnectApp.screens {
                 }
                 else {
                     var isLoadMore = widget.viewModel.notifications.Count == widget.viewModel.total;
-                    content = new SmartRefresher(
-                        controller: _refreshController,
-                        enablePullDown: true,
-                        enablePullUp: !isLoadMore,
-                        onRefresh: _onRefresh,
-                        child: ListView.builder(
-                            physics: new AlwaysScrollableScrollPhysics(),
-                            itemCount: widget.viewModel.notifications.Count,
-                            itemBuilder: (cxt, index) => {
-                                var notification = widget.viewModel.notifications[index];
-                                var user = widget.viewModel.userDict[notification.data.userId];
-                                return new NotificationCard(
-                                    notification,
-                                    user,
-                                    () => widget.actionModel.pushToArticleDetail(notification.data.projectId),
-                                    new ObjectKey(notification.id)
-                                );
-                            }
-                        )
-                    );
+                    content = new Container(
+                        color:CColors.background3,
+                        child:new SmartRefresher(
+                            controller: _refreshController,
+                            enablePullDown: true,
+                            enablePullUp: !isLoadMore,
+                            onRefresh: _onRefresh,
+                            child: ListView.builder(
+                                physics: new AlwaysScrollableScrollPhysics(),
+                                itemCount: widget.viewModel.notifications.Count,
+                                itemBuilder: (cxt, index) => {
+                                    var notification = widget.viewModel.notifications[index];
+                                    var user = widget.viewModel.userDict[notification.data.userId];
+                                    return new NotificationCard(
+                                        notification,
+                                        user,
+                                        () => widget.actionModel.pushToArticleDetail(notification.data.projectId),
+                                        new ObjectKey(notification.id)
+                                    );
+                                }
+                            )
+                        )); 
                 }
             }
 

@@ -127,27 +127,29 @@ namespace ConnectApp.screens {
                 if (widget.viewModel.searchArticles.Count > 0) {
                     var currentPage = widget.viewModel.currentPage;
                     var pages = widget.viewModel.pages;
-                    child = new SmartRefresher(
-                        controller: _refreshController,
-                        enablePullDown: false,
-                        enablePullUp: currentPage != pages.Count - 1,
-                        onRefresh: _onRefresh,
-                        child: ListView.builder(
-                            physics: new AlwaysScrollableScrollPhysics(),
-                            itemCount: widget.viewModel.searchArticles.Count,
-                            itemBuilder: (cxt, index) => {
-                                var searchArticle = widget.viewModel.searchArticles[index];
-                                if (searchArticle.ownerType == OwnerType.user.ToString()) {
-                                    var user = widget.viewModel.userDict[searchArticle.userId];
-                                    return RelatedArticleCard.User(searchArticle, user,
+                    child = new Container(
+                        color:CColors.background3,
+                        child:new SmartRefresher(
+                            controller: _refreshController,
+                            enablePullDown: false,
+                            enablePullUp: currentPage != pages.Count - 1,
+                            onRefresh: _onRefresh,
+                            child: ListView.builder(
+                                physics: new AlwaysScrollableScrollPhysics(),
+                                itemCount: widget.viewModel.searchArticles.Count,
+                                itemBuilder: (cxt, index) => {
+                                    var searchArticle = widget.viewModel.searchArticles[index];
+                                    if (searchArticle.ownerType == OwnerType.user.ToString()) {
+                                        var user = widget.viewModel.userDict[searchArticle.userId];
+                                        return RelatedArticleCard.User(searchArticle, user,
+                                            () => { widget.actionModel.pushToArticleDetail(searchArticle.id); });
+                                    }
+                                    var team = widget.viewModel.teamDict[searchArticle.teamId];
+                                    return RelatedArticleCard.Team(searchArticle, team,
                                         () => { widget.actionModel.pushToArticleDetail(searchArticle.id); });
                                 }
-                                var team = widget.viewModel.teamDict[searchArticle.teamId];
-                                return RelatedArticleCard.Team(searchArticle, team,
-                                    () => { widget.actionModel.pushToArticleDetail(searchArticle.id); });
-                            }
-                        )
-                    );
+                            )
+                        ));
                 }
                 else {
                     child = new BlankView("暂无搜索结果");
