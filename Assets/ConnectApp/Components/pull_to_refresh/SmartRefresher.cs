@@ -34,7 +34,7 @@ namespace ConnectApp.components.pull_to_refresh {
             this.headerBuilder = headerBuilder ?? ((context, mode) => new SmartRefreshHeader(mode));
             this.footerBuilder = footerBuilder ?? ((context, mode) => new SmartRefreshFooter(mode));
             this.headerConfig = headerConfig ?? new RefreshConfig();
-            this.footerConfig = footerConfig ?? new RefreshConfig();
+            this.footerConfig = footerConfig ?? new RefreshConfig(triggerDistance:0);
             this.enablePullUp = enablePullUp;
             this.enablePullDown = enablePullDown;
             this.enableOverScroll = enableOverScroll;
