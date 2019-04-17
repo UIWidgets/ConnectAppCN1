@@ -4,10 +4,17 @@ using System.Collections.Generic;
 namespace ConnectApp.models {
     [Serializable]
     public class FetchArticlesResponse {
-        public List<Article> items;
+        public List<hottestItem> hottests;
+        public Dictionary<string, Article> projectMap;
         public Dictionary<string, User> userMap;
         public Dictionary<string, Team> teamMap;
-        public int total;
+        public bool hottestHasMore;
+    }
+    
+    [Serializable]
+    public class hottestItem {
+        public string id;
+        public string itemId;
     }
 
     [Serializable]

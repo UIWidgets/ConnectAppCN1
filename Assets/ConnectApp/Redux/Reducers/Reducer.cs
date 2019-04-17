@@ -100,16 +100,14 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case FetchArticleSuccessAction action: {
-                    if (action.pageNumber == 0)
+                    if (action.offset == 0)
                         state.articleState.articleList.Clear();
                     foreach (var article in action.articleList) {
                         state.articleState.articleList.Add(article.id);
                         if (!state.articleState.articleDict.ContainsKey(article.id))
                             state.articleState.articleDict.Add(article.id, article);
                     }
-
-                    state.articleState.pageNumber = action.pageNumber;
-                    state.articleState.articleTotal = action.total;
+                    state.articleState.hottestHasMore = action.hottestHasMore;
                     state.articleState.articlesLoading = false;
                     break;
                 }

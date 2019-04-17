@@ -132,6 +132,10 @@ namespace ConnectApp.screens {
                         enablePullDown: false,
                         enablePullUp: currentPage != pages.Count - 1,
                         onRefresh: _onRefresh,
+                        headerBuilder: (cxt, mode) =>
+                            new SmartRefreshHeader(mode),
+                        footerBuilder: (cxt, mode) =>
+                            new SmartRefreshFooter(mode),
                         footerConfig: new RefreshConfig(),
                         child: ListView.builder(
                             physics: new AlwaysScrollableScrollPhysics(),

@@ -514,6 +514,11 @@ namespace ConnectApp.screens {
                         enablePullDown: widget.viewModel.hasMore,
                         enablePullUp: false,
                         onRefresh: _onRefresh,
+                        headerBuilder: (context, mode) =>
+                            new SmartRefreshHeader(mode),
+                        footerBuilder: (context, mode) =>
+                            new SmartRefreshFooter(mode),
+                        footerConfig: new RefreshConfig(),
                         child: ListView.builder(
                             padding: EdgeInsets.only(16, right: 16, bottom: 10),
                             physics: new AlwaysScrollableScrollPhysics(),

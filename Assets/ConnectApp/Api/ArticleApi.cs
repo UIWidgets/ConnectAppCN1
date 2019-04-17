@@ -11,7 +11,7 @@ namespace ConnectApp.api {
         public static Promise<FetchArticlesResponse> FetchArticles(int pageNumber) {
             
             var promise = new Promise<FetchArticlesResponse>();
-            var request = HttpManager.GET(Config.apiAddress + "/api/p?orderBy=trending:w&projectType=article&t=projects&page=" + pageNumber);
+            var request = HttpManager.GET(Config.apiAddress + "/api/getFeedList?language=zh_CN&hottestHasMore=true&feedHasMore=false&hottestOffset=" + pageNumber);
             HttpManager.resume(request).Then(responseText => {
                var articlesResponse = JsonConvert.DeserializeObject<FetchArticlesResponse>(responseText);
                promise.Resolve(articlesResponse);
