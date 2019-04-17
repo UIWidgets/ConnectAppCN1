@@ -82,7 +82,6 @@ namespace ConnectApp.screens {
                 enablePullDown: true,
                 enablePullUp: hasMore,
                 onRefresh: _onRefresh,
-                footerConfig: new RefreshConfig(),
                 child: ListView.builder(
                     physics: new AlwaysScrollableScrollPhysics(),
                     itemCount: data.Count,

@@ -9,8 +9,7 @@ namespace ConnectApp.models {
 
         public List<string> articleList { get; set; }
 
-        public int articleTotal { get; set; }
-        public int pageNumber { get; set; }
+        public bool hottestHasMore { get; set; }
         public Dictionary<string, Article> articleDict { get; set; }
 
         public List<Article> articleHistory { get; set; }

@@ -41,8 +41,7 @@ namespace ConnectApp.models {
                     articleDict = new Dictionary<string, Article>(),
                     articlesLoading = false,
                     articleDetailLoading = false,
-                    articleTotal = 0,
-                    pageNumber = 0,
+                    hottestHasMore = true,
                     articleHistory = HistoryManager.articleHistoryList(isLogin?loginInfo.userId:null)
                 },
                 eventState = new EventState {

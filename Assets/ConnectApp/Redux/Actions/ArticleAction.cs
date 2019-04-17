@@ -11,9 +11,10 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchArticleSuccessAction : BaseAction {
-        public int pageNumber = 0;
         public List<Article> articleList;
-        public int total;
+        public bool hottestHasMore;
+        public int offset;
+
     }
     
     public class FetchArticleFailureAction : BaseAction {
@@ -90,16 +91,25 @@ namespace ConnectApp.redux.actions {
     }
 
     public static partial class Actions {
-        public static object fetchArticles(int pageNumber) {
+        public static object fetchArticles(int offset) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ArticleApi.FetchArticles(pageNumber)
+                return ArticleApi.FetchArticles(offset)
                     .Then(articlesResponse => {
+                        var articleList = new List<Article>();
+                        articlesResponse.hottests.ForEach(item =>
+                        {
+                            if (articlesResponse.projectMap.ContainsKey(item.itemId))
+                            {
+                                var article = articlesResponse.projectMap[item.itemId];
+                                articleList.Add(article); 
+                            }
+                        });
                         dispatcher.dispatch(new UserMapAction {userMap = articlesResponse.userMap});
                         dispatcher.dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
                         dispatcher.dispatch(new FetchArticleSuccessAction {
-                            pageNumber = pageNumber,
-                            articleList = articlesResponse.items,
-                            total = articlesResponse.total
+                            offset = offset,
+                            hottestHasMore = articlesResponse.hottestHasMore,
+                            articleList = articleList
                         });
                     })
                     .Catch(error => {

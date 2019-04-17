@@ -8,13 +8,13 @@ namespace ConnectApp.components.pull_to_refresh {
     public delegate Widget IndicatorBuilder(BuildContext context, int mode);
 
     public static class DefaultConstants {
-        public const int default_completeDuration = 800;
+        public const int default_completeDuration = 200;
 
-        public const float default_refresh_triggerDistance = 60.0f;
+        public const float default_refresh_triggerDistance = 56.0f;
 
         public const float default_load_triggerDistance = 5.0f;
 
-        public const float default_VisibleRange = 50.0f;
+        public const float default_VisibleRange = 56.0f;
 
         public const bool default_AutoLoad = true;
 

@@ -31,10 +31,10 @@ namespace ConnectApp.components.pull_to_refresh {
             Key key = null
         ) : base(key) {
             this.child = child;
-            this.headerBuilder = headerBuilder ?? ((context, mode) => new ClassicIndicator(mode, idleIcon: new CustomActivityIndicator(animating: AnimatingType.reset)));
-            this.footerBuilder = footerBuilder ?? ((context, mode) => new ClassicIndicator(mode));
+            this.headerBuilder = headerBuilder ?? ((context, mode) => new SmartRefreshHeader(mode));
+            this.footerBuilder = footerBuilder ?? ((context, mode) => new SmartRefreshFooter(mode));
             this.headerConfig = headerConfig ?? new RefreshConfig();
-            this.footerConfig = footerConfig ?? new LoadConfig();
+            this.footerConfig = footerConfig ?? new RefreshConfig(triggerDistance:0);
             this.enablePullUp = enablePullUp;
             this.enablePullDown = enablePullDown;
             this.enableOverScroll = enableOverScroll;

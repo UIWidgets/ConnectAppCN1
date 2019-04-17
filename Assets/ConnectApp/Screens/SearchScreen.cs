@@ -132,7 +132,6 @@ namespace ConnectApp.screens {
                         enablePullDown: false,
                         enablePullUp: currentPage != pages.Count - 1,
                         onRefresh: _onRefresh,
-                        footerConfig: new RefreshConfig(),
                         child: ListView.builder(
                             physics: new AlwaysScrollableScrollPhysics(),
                             itemCount: widget.viewModel.searchArticles.Count,

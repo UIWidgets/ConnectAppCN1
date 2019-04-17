@@ -26,10 +26,11 @@ namespace ConnectApp.screens {
                     articlesLoading = state.articleState.articlesLoading,
                     articleList = state.articleState.articleList,
                     articleDict = state.articleState.articleDict,
-                    articleTotal = state.articleState.articleTotal,
+                    hottestHasMore = state.articleState.hottestHasMore,
                     userDict = state.userState.userDict,
                     teamDict = state.teamState.teamDict,
-                    isLoggedIn = state.loginState.isLoggedIn
+                    isLoggedIn = state.loginState.isLoggedIn,
+                    hosttestOffset = state.articleState.articleList.Count
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ArticlesScreenActionModel {
@@ -51,7 +52,7 @@ namespace ConnectApp.screens {
                             }
                         ),
                         startFetchArticles = () => dispatcher.dispatch(new StartFetchArticlesAction()),
-                        fetchArticles = pageNumber => dispatcher.dispatch<IPromise>(Actions.fetchArticles(pageNumber))
+                        fetchArticles = offset => dispatcher.dispatch<IPromise>(Actions.fetchArticles(offset))
                     };
                     return new ArticlesScreen(viewModel, actionModel);
                 });
@@ -78,8 +79,8 @@ namespace ConnectApp.screens {
 
 
     public class _ArticlesScreenState : State<ArticlesScreen> {
-        private const int firstPageNumber = 0;
-        private int pageNumber = firstPageNumber;
+        private const int initOffset = 0;
+        private int offset = initOffset;
         private RefreshController _refreshController;
         private TextStyle titleStyle;
         const float maxNavBarHeight = 96; 
@@ -93,7 +94,7 @@ namespace ConnectApp.screens {
             titleStyle = CTextStyle.H2;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 widget.actionModel.startFetchArticles();
-                widget.actionModel.fetchArticles(firstPageNumber);
+                widget.actionModel.fetchArticles(initOffset);
             });
         }
 
@@ -156,9 +157,8 @@ namespace ConnectApp.screens {
                 content = new SmartRefresher(
                     controller: _refreshController,
                     enablePullDown: true,
-                    enablePullUp: widget.viewModel.articleList.Count < widget.viewModel.articleTotal,
+                    enablePullUp: widget.viewModel.hottestHasMore,
                     onRefresh: onRefresh,
-                    footerConfig: new RefreshConfig(),
                     child: ListView.builder(
                         physics: new AlwaysScrollableScrollPhysics(),
                         itemCount: widget.viewModel.articleList.Count,
@@ -230,10 +230,10 @@ namespace ConnectApp.screens {
 
         private void onRefresh(bool up) {
             if (up)
-                pageNumber = firstPageNumber;
+                offset = initOffset;
             else
-                pageNumber++;
-            widget.actionModel.fetchArticles(pageNumber)
+                offset = widget.viewModel.hosttestOffset;
+            widget.actionModel.fetchArticles(offset)
                 .Then(() => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
         }
