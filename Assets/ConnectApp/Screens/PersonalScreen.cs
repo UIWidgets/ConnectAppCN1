@@ -69,7 +69,6 @@ namespace ConnectApp.screens {
                         ),
                         new Flexible(
                             child: new Container(
-                                padding: EdgeInsets.only(bottom: 49),
                                 child: new ListView(
                                     children: _buildItems()
                                 )

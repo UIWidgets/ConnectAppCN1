@@ -19,10 +19,7 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Color = Unity.UIWidgets.ui.Color;
 using Config = ConnectApp.constants.Config;
-using EventType = ConnectApp.models.EventType;
-using Icons = ConnectApp.constants.Icons;
 
 namespace ConnectApp.screens {
     public class EventDetailScreenConnector : StatelessWidget {

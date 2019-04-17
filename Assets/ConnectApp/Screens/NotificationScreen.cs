@@ -13,14 +13,13 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
     public class NotificationScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, NotifcationScreenViewModel>(
-                converter: (state) => new NotifcationScreenViewModel {
+                converter: state => new NotifcationScreenViewModel {
                     notifationLoading = state.notificationState.loading,
                     total = state.notificationState.total,
                     notifications = state.notificationState.notifications,
@@ -71,9 +70,6 @@ namespace ConnectApp.screens {
         const float minNavBarHeight = 44; 
         private float navBarHeight;
 
-//        protected override bool wantKeepAlive {
-//            get => false;
-//        }
         public override void initState() {
             base.initState();
             _refreshController = new RefreshController();
@@ -81,19 +77,18 @@ namespace ConnectApp.screens {
             titleStyle = CTextStyle.H2;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 widget.actionModel.startFetchNotifications();
-                widget.actionModel.fetchNotifications(_pageNumber);
+                widget.actionModel.fetchNotifications(firstPageNumber);
             });
         }
 
         public override Widget build(BuildContext context) {
-            object content = new Container();
+            Widget content = new Container();
             if (widget.viewModel.notifationLoading) {
                 content = new GlobalLoading();
             }
             else {
                 if (widget.viewModel.notifications.Count <= 0) {
                     content = new Container(
-                        padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 49),
                         child: new BlankView("暂无通知消息")
                     );
                 }
@@ -150,7 +145,7 @@ namespace ConnectApp.screens {
                         new Flexible(
                             child: new NotificationListener<ScrollNotification>(
                                 onNotification: _onNotification,
-                                child: (Widget) content
+                                child: content
                             )
                         )
                     }
