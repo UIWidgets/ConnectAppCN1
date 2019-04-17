@@ -1,5 +1,6 @@
 using ConnectApp.components;
 using ConnectApp.components.pull_to_refresh;
+using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
@@ -54,10 +55,12 @@ namespace ConnectApp.screens {
         }
     }
 
-    public class _EventCompletedScreenState : State<EventCompletedScreen> {
+    public class _EventCompletedScreenState : AutomaticKeepAliveClientMixin<EventCompletedScreen> {
         private const int firstPageNumber = 1;
         private RefreshController _completedRefreshController;
         private int pageNumber = firstPageNumber;
+
+        protected override bool wantKeepAlive { get=>true; }
 
         public override void initState() {
             base.initState();
@@ -69,33 +72,37 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
+            base.build(context);
             if (widget.viewModel.eventCompletedLoading && widget.viewModel.completedEvents.isEmpty()) return new GlobalLoading();
             if (widget.viewModel.completedEvents.Count <= 0) return new BlankView("暂无往期活动");
-            return new SmartRefresher(
-                controller: _completedRefreshController,
-                enablePullDown: true,
-                enablePullUp: widget.viewModel.completedEvents.Count < widget.viewModel.completedEventTotal,
-                onRefresh: _completedRefresh,
-                child: ListView.builder(
-                    itemExtent: 108,
-                    physics: new AlwaysScrollableScrollPhysics(),
-                    itemCount: widget.viewModel.completedEvents.Count,
-                    itemBuilder: (cxt, index) => {
-                        var eventId = widget.viewModel.completedEvents[index];
-                        var model = widget.viewModel.eventsDict[eventId];
-                        var place = model.placeId.isEmpty() ? null : widget.viewModel.placeDict[model.placeId];
-                        return new EventCard(
-                            model,
-                            place,
-                            () => widget.actionModel.pushToEventDetail(
-                                model.id,
-                                model.mode == "online" ? EventType.online : EventType.offline
-                            ),
-                            new ObjectKey(model.id)
-                        );
-                    }
+            return new Container(
+                color:CColors.background3,
+                child: new SmartRefresher(
+                    controller: _completedRefreshController,
+                    enablePullDown: true,
+                    enablePullUp: widget.viewModel.completedEvents.Count < widget.viewModel.completedEventTotal,
+                    onRefresh: _completedRefresh,
+                    child: ListView.builder(
+                        itemExtent: 108,
+                        physics: new AlwaysScrollableScrollPhysics(),
+                        itemCount: widget.viewModel.completedEvents.Count,
+                        itemBuilder: (cxt, index) => {
+                            var eventId = widget.viewModel.completedEvents[index];
+                            var model = widget.viewModel.eventsDict[eventId];
+                            var place = model.placeId.isEmpty() ? null : widget.viewModel.placeDict[model.placeId];
+                            return new EventCard(
+                                model,
+                                place,
+                                () => widget.actionModel.pushToEventDetail(
+                                    model.id,
+                                    model.mode == "online" ? EventType.online : EventType.offline
+                                ),
+                                new ObjectKey(model.id)
+                            );
+                        }
+                    )
                 )
-            );
+            ); 
         }
         private void _completedRefresh(bool up) {
             if (up)

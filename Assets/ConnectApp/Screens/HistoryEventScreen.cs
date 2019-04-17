@@ -50,7 +50,8 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             if (viewModel.eventHistory.Count == 0) return new BlankView("暂无浏览活动记录");
-            return ListView.builder(
+            return new Container(color:CColors.background3,
+                child:ListView.builder(
                 physics: new AlwaysScrollableScrollPhysics(),
                 itemCount: viewModel.eventHistory.Count,
                 itemExtent: 108,
@@ -96,7 +97,7 @@ namespace ConnectApp.screens {
                         controller: _controller
                     );
                 }
-            );
+            )); 
         }
     }
 }

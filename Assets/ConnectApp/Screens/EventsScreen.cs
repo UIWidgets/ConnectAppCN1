@@ -16,10 +16,12 @@ namespace ConnectApp.screens {
         }
     }
 
-    internal class _EventsScreenState : State<EventsScreen> {
+    internal class _EventsScreenState : AutomaticKeepAliveClientMixin<EventsScreen> {
         private PageController _pageController;
         private int _selectedIndex;
         
+        protected override bool wantKeepAlive { get=>true; }
+
         public override void initState() {
             base.initState();
             _pageController = new PageController();
@@ -27,6 +29,7 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
+            base.build(context);
             return new Container(
                 color: CColors.White,
                 child: new Column(
