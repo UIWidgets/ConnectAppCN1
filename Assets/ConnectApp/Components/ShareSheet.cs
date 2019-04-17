@@ -92,52 +92,41 @@ namespace ConnectApp.components {
         private List<Widget> _buildShareItems() {
             if (WechatPlugin.instance().inInstalled()) {
                 return new List<Widget> {
-                    _buildShareItem("wechat-share", "微信好友",
-                        () => { onPressed(ShareType.friends); }),
-                    _buildShareItem("wechat-moment", "朋友圈",
-                        () => { onPressed(ShareType.moments); }),
-                    _buildClipBoardItem("复制链接", () => { onPressed(ShareType.clipBoard); })
+                    _buildShareItem(
+                        Icons.WechatIcon, 
+                       "微信好友",
+                        CColors.White,
+                        CColors.WechatGreen,
+                       () => onPressed(ShareType.friends)
+                    ),
+                    _buildShareItem(
+                        Icons.WechatMoment, 
+                        "朋友圈",
+                        CColors.White,
+                        CColors.WechatGreen,
+                        () => onPressed(ShareType.moments)
+                    ),
+                    _buildShareItem(
+                        Icons.insert_link,
+                        "复制链接", 
+                        CColors.White,
+                        CColors.PrimaryBlue,
+                        () => onPressed(ShareType.clipBoard)
+                    )
                 };
             }
             return new List<Widget> {
-                _buildClipBoardItem("复制链接", () => { onPressed(ShareType.clipBoard); })
+                _buildShareItem(
+                    Icons.insert_link,
+                    "复制链接",
+                    CColors.White,
+                    CColors.PrimaryBlue,
+                    () => onPressed(ShareType.clipBoard)
+                )
             };
         }
-
-        private static Widget _buildShareItem(string assetName, string title, GestureTapCallback onTap) {
-            return new GestureDetector(
-                onTap: () => {
-                    if (Router.navigator.canPop()) Router.navigator.pop();
-                    onTap();
-                },
-                child: new Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    decoration: new BoxDecoration(
-                        CColors.White
-                    ),
-                    child: new Column(children: new List<Widget> {
-                        new Container(
-                            width: 48,
-                            height: 48,
-                            decoration: new BoxDecoration(
-                                borderRadius: BorderRadius.circular(24),
-                                image: new DecorationImage(new AssetImage(assetName))
-                            )
-                        ),
-                        new Container(
-                            margin: EdgeInsets.only(top: 8),
-                            height: 20,
-                            child: new Text(
-                                title,
-                                style: CTextStyle.PSmallBody4
-                            )
-                        )
-                    })
-                )
-            );
-        }
         
-        private static Widget _buildClipBoardItem(string title, GestureTapCallback onTap) {
+        private Widget _buildShareItem(IconData icon, string title, Color color, Color background, GestureTapCallback onTap) {
             return new GestureDetector(
                 onTap:() => {
                     if (Router.navigator.canPop()) Router.navigator.pop();
@@ -155,8 +144,12 @@ namespace ConnectApp.components {
                             child: new ClipRRect(
                                 borderRadius: BorderRadius.all(Radius.circular(24)),
                                 child: new Container(
-                                    color:CColors.PrimaryBlue,
-                                    child:new Icon(Icons.insert_link,size:24,color:CColors.White)
+                                    color: background,
+                                    child:new Icon(
+                                        icon,
+                                        size: 30,
+                                        color: color
+                                    )
                                 )
                             )
                         ),
