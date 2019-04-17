@@ -77,7 +77,7 @@ namespace ConnectApp.screens {
     }
 
 
-    public class _ArticlesScreenState : State<ArticlesScreen> {
+    public class _ArticlesScreenState : AutomaticKeepAliveClientMixin<ArticlesScreen> {
         private const int initOffset = 0;
         private int offset = initOffset;
         private RefreshController _refreshController;
@@ -85,6 +85,8 @@ namespace ConnectApp.screens {
         const float maxNavBarHeight = 96; 
         const float minNavBarHeight = 44; 
         private float navBarHeight;
+
+        protected override bool wantKeepAlive { get=>true; }
 
         public override void initState() {
             base.initState();
@@ -98,6 +100,7 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
+            base.build(context);
             return new Container(
                 color: CColors.BgGrey,
                 child: new Column(
@@ -202,6 +205,7 @@ namespace ConnectApp.screens {
             return new NotificationListener<ScrollNotification>(
                 onNotification: _onNotification,
                 child: new Container(
+                    color: CColors.background3,
                     child: content
                 )
             );

@@ -1,5 +1,6 @@
 using ConnectApp.components;
 using ConnectApp.components.pull_to_refresh;
+using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
@@ -78,24 +79,27 @@ namespace ConnectApp.screens {
             var pastEventTotal = widget.viewModel.pastEventTotal;
             var hasMore = pastEventTotal == data.Count;
 
-            return new SmartRefresher(
-                controller: _refreshController,
-                enablePullDown: true,
-                enablePullUp: !hasMore,
-                onRefresh: _onRefresh,
-                child: ListView.builder(
-                    physics: new AlwaysScrollableScrollPhysics(),
-                    itemCount: data.Count,
-                    itemBuilder: (cxt, idx) => {
-                        var model = data[idx];
-                        var eventType = model.mode == "online" ? EventType.online : EventType.offline;
-                        var place = model.placeId.isEmpty() ? new Place() : widget.viewModel.placeDict[model.placeId];
-                        return new EventCard(
-                            model,
-                            place.name,
-                            () => widget.actionModel.pushToEventDetail(model.id, eventType)
-                        );
-                    }
+            return new Container(
+                color:CColors.background3,
+                child:new SmartRefresher(
+                    controller: _refreshController,
+                    enablePullDown: true,
+                    enablePullUp: !hasMore,
+                    onRefresh: _onRefresh,
+                    child: ListView.builder(
+                        physics: new AlwaysScrollableScrollPhysics(),
+                        itemCount: data.Count,
+                        itemBuilder: (cxt, idx) => {
+                            var model = data[idx];
+                            var eventType = model.mode == "online" ? EventType.online : EventType.offline;
+                            var place = model.placeId.isEmpty() ? null : widget.viewModel.placeDict[model.placeId];
+                            return new EventCard(
+                                model,
+                                place.name,
+                                () => widget.actionModel.pushToEventDetail(model.id, eventType)
+                            );
+                        }
+                    )
                 )
             );
         }

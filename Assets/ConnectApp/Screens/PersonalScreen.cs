@@ -52,8 +52,11 @@ namespace ConnectApp.screens {
         }
     }
 
-    public class _PersonalScreenState : State<PersonalScreen> {
+    public class _PersonalScreenState : AutomaticKeepAliveClientMixin<PersonalScreen> {
+        protected override bool wantKeepAlive { get=>true; }
+
         public override Widget build(BuildContext context) {
+            base.build(context);
             var navigationBar = widget.viewModel.isLoggedIn
                 ? _buildLoginInNavigationBar()
                 : _buildNotLoginInNavigationBar(context);

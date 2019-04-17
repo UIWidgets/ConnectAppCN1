@@ -1,5 +1,6 @@
 using ConnectApp.components;
 using ConnectApp.components.pull_to_refresh;
+using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
@@ -77,7 +78,9 @@ namespace ConnectApp.screens {
             var futureEventTotal = widget.viewModel.futureEventTotal;
             var hasMore = futureEventTotal != data.Count;
 
-            return new SmartRefresher(
+            return new Container(
+                color:CColors.background3,
+                child:new SmartRefresher(
                 controller: _refreshController,
                 enablePullDown: true,
                 enablePullUp: hasMore,
@@ -96,7 +99,7 @@ namespace ConnectApp.screens {
                         );
                     }
                 )
-            );
+            )); 
         }
         
         private void _onRefresh(bool up) {
