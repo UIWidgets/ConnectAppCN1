@@ -221,11 +221,9 @@ namespace ConnectApp.screens {
         private Widget _buildReportButton() {
             Widget right = new Container();
             if (widget.viewModel.loading)
-                right = new Padding(
-                    padding: EdgeInsets.only(right: 24),
-                    child: new CustomActivityIndicator(
-                        loadingColor: LoadingColor.white
-                    )
+                right = new CustomActivityIndicator(
+                    loadingColor: LoadingColor.white,
+                    size: LoadingSize.small
                 );
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
@@ -241,7 +239,7 @@ namespace ConnectApp.screens {
                         height: 40,
                         decoration: new BoxDecoration(
                             widget.viewModel.loading
-                                ? CColors.Disable
+                                ? CColors.BottonActive
                                 : CColors.PrimaryBlue,
                             borderRadius: BorderRadius.all(4)
                         ),
@@ -254,8 +252,9 @@ namespace ConnectApp.screens {
                                         style: CTextStyle.PLargeMediumWhite
                                     )
                                 ),
-                                new Align(
-                                    alignment: Alignment.centerRight,
+                                new Positioned(
+                                    right: 24,
+                                    height: 40,
                                     child: right
                                 )
                             }
