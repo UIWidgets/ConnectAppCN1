@@ -70,72 +70,29 @@ namespace ConnectApp.screens {
                     itemBuilder: (cxt, index) =>
                     {
                         var model = viewModel.articleHistory[index];
-                        Widget child;
-                        if (model.ownerType == OwnerType.user.ToString())
-                        {
-                            var _user = new User();
-                            if (viewModel.userDict.ContainsKey(model.userId))
-                                _user = viewModel.userDict[model.userId];
-                            child = ArticleCard.User(
-                                model,
-                                () => actionModel.pushToArticleDetail(model.id),
-                                () =>
-                                {
-                                    if (!viewModel.isLoggedIn)
-                                    {
-                                        actionModel.pushToLogin();
-                                        return;
+                        var child = new ArticleCard(
+                            model,
+                            () =>
+                                actionModel.pushToArticleDetail(model.id),
+                            () => {
+                                if (!viewModel.isLoggedIn) {
+                                    actionModel.pushToLogin();
+                                    return;
+                                }
+                                ActionSheetUtils.showModalActionSheet(new ActionSheet(
+                                    items: new List<ActionSheetItem> {
+                                        new ActionSheetItem(
+                                            "举报",
+                                            ActionType.normal,
+                                            () => actionModel.pushToReport(model.id, ReportType.article)
+                                        ),
+                                        new ActionSheetItem("取消", ActionType.cancel)
                                     }
-
-                                    ActionSheetUtils.showModalActionSheet(new ActionSheet(
-                                        items: new List<ActionSheetItem>
-                                        {
-                                            new ActionSheetItem(
-                                                "举报",
-                                                ActionType.normal,
-                                                () => actionModel.pushToReport(model.id, ReportType.article)
-                                            ),
-                                            new ActionSheetItem("取消", ActionType.cancel)
-                                        }
-                                    ));
-                                },
-                                new ObjectKey(model.id),
-                                _user
-                            );
-                        }
-                        else
-                        {
-                            var _team = new Team();
-                            if (viewModel.teamDict.ContainsKey(model.teamId))
-                                _team = viewModel.teamDict[model.teamId];
-                            child = ArticleCard.Team(
-                                model,
-                                () =>
-                                    actionModel.pushToArticleDetail(model.id),
-                                () =>
-                                {
-                                    if (!viewModel.isLoggedIn)
-                                    {
-                                        actionModel.pushToLogin();
-                                        return;
-                                    }
-
-                                    ActionSheetUtils.showModalActionSheet(new ActionSheet(
-                                        items: new List<ActionSheetItem>
-                                        {
-                                            new ActionSheetItem(
-                                                "举报",
-                                                ActionType.normal,
-                                                () => actionModel.pushToReport(model.id, ReportType.article)
-                                            ),
-                                            new ActionSheetItem("取消", ActionType.cancel)
-                                        }
-                                    ));
-                                },
-                                new ObjectKey(model.id),
-                                _team
-                            );
-                        }
+                                ));
+                            },
+                            model.fullName,
+                            new ObjectKey(model.id)
+                        );
 
                         return CustomDismissible.builder(
                             Key.key(model.id),

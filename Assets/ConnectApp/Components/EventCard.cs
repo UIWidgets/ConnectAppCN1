@@ -13,7 +13,7 @@ namespace ConnectApp.components {
     public class EventCard : StatelessWidget {
         public EventCard(
             IEvent model,
-            Place place = null,
+            string place = null,
             GestureTapCallback onTap = null,
             Key key = null
         ) : base(key) {
@@ -23,7 +23,7 @@ namespace ConnectApp.components {
         }
 
         private readonly IEvent model;
-        private readonly Place place;
+        private readonly string place;
         private readonly GestureTapCallback onTap;
 
         public override Widget build(BuildContext context) {
@@ -33,7 +33,7 @@ namespace ConnectApp.components {
             var hour = $"{time.Hour.ToString().PadLeft(2, '0')}";
             var minute = $"{time.Minute.ToString().PadLeft(2, '0')}";
             var hourMinute = $"{hour}:{minute}";
-            var address = place == null ? "" : place.name;
+            var address = place == null ? "" : place;
             var imageUrl = model.avatar != null ? model.avatar : model.background;
             var card = new Container(
                 padding: EdgeInsets.all(16),

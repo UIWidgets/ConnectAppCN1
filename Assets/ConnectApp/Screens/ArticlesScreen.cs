@@ -169,36 +169,17 @@ namespace ConnectApp.screens {
                         itemBuilder: (cxt, index) => {
                             var articleId = widget.viewModel.articleList[index];
                             var article = widget.viewModel.articleDict[articleId];
+                            var fullName = "";
                             if (article.ownerType == OwnerType.user.ToString()) {
-                                var _user = new User();
                                 if (widget.viewModel.userDict.ContainsKey(article.userId))
-                                    _user = widget.viewModel.userDict[article.userId];
-                                return ArticleCard.User(article,
-                                    () => widget.actionModel.pushToArticleDetail(articleId),
-                                    () => {
-                                        if (!widget.viewModel.isLoggedIn) {
-                                            widget.actionModel.pushToLogin();
-                                            return;
-                                        } 
-                                        ActionSheetUtils.showModalActionSheet(new ActionSheet(
-                                            items: new List<ActionSheetItem> {
-                                                new ActionSheetItem(
-                                                    "举报",
-                                                    ActionType.normal,
-                                                    () => widget.actionModel.pushToReport(articleId, ReportType.article)
-                                                ),
-                                                new ActionSheetItem("取消", ActionType.cancel)
-                                            }
-                                        ));
-                                    },
-                                    new ObjectKey(article.id),
-                                    _user
-                                );
+                                    fullName = widget.viewModel.userDict[article.userId].fullName;
                             }
-                            var _team = new Team();
-                            if (widget.viewModel.teamDict.ContainsKey(article.teamId))
-                                _team = widget.viewModel.teamDict[article.teamId];
-                            return ArticleCard.Team(article,
+                            if (article.ownerType == OwnerType.team.ToString()) {
+                                if (widget.viewModel.teamDict.ContainsKey(article.teamId))
+                                    fullName = widget.viewModel.teamDict[article.teamId].name;
+                            }
+                            return new ArticleCard(
+                                article,
                                 () => widget.actionModel.pushToArticleDetail(articleId),
                                 () => {
                                     if (!widget.viewModel.isLoggedIn) {
@@ -216,8 +197,8 @@ namespace ConnectApp.screens {
                                         }
                                     ));
                                 },
-                                new ObjectKey(article.id),
-                                _team
+                                fullName,
+                                new ObjectKey(article.id)
                             );
                         }
                     )

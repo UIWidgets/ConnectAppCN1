@@ -93,7 +93,7 @@ namespace ConnectApp.screens {
                             var place = model.placeId.isEmpty() ? null : widget.viewModel.placeDict[model.placeId];
                             return new EventCard(
                                 model,
-                                place,
+                                place.name,
                                 () => widget.actionModel.pushToEventDetail(
                                     model.id,
                                     model.mode == "online" ? EventType.online : EventType.offline

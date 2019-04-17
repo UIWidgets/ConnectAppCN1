@@ -44,6 +44,7 @@ namespace ConnectApp.canvas {
         };
 
         private static Dictionary<string, WidgetBuilder> fullScreenRoutes => new Dictionary<string, WidgetBuilder> {
+            {MainNavigatorRoutes.Search, context => new SearchScreenConnector()},
             {MainNavigatorRoutes.Login, context => new LoginScreen()}
         };
 
