@@ -26,7 +26,8 @@ namespace ConnectApp.redux.actions {
                                 var data = item.data;
                                 var user = new User {
                                     id = data.userId,
-                                    fullName = data.fullname
+                                    fullName = data.fullname,
+                                    avatar = data.avatarWithCDN
                                 };
                                 dispatcher.dispatch(new UserMapAction {
                                     userMap = new Dictionary<string, User> {

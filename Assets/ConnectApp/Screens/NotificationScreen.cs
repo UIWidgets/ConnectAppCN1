@@ -109,7 +109,7 @@ namespace ConnectApp.screens {
                             itemCount: widget.viewModel.notifications.Count,
                             itemBuilder: (cxt, index) => {
                                 var notification = widget.viewModel.notifications[index];
-                                var user = widget.viewModel.userDict[notification.userId];
+                                var user = widget.viewModel.userDict[notification.data.userId];
                                 return new NotificationCard(
                                     notification,
                                     user,
