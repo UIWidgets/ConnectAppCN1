@@ -48,6 +48,10 @@ namespace ConnectApp.redux.actions {
         public string url = "";
     }
 
+    public class CopyTextAction : BaseAction {
+        public string text = "";
+    }
+
     public static partial class Actions {
 //        public static object popFromBindUnityScreen() {
 //            return 

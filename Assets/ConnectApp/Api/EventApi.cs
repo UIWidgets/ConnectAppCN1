@@ -1,12 +1,8 @@
-using System;
-using System.Collections;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.utils;
 using Newtonsoft.Json;
 using RSG;
-using Unity.UIWidgets.async;
-using Unity.UIWidgets.ui;
 
 namespace ConnectApp.api {
     public static class EventApi {
@@ -14,12 +10,10 @@ namespace ConnectApp.api {
             
             var promise = new Promise<FetchEventsResponse>();
             var request = HttpManager.GET(Config.apiAddress + $"/api/events?tab={tab}&page={pageNumber}");
-            HttpManager.resume(request).Then(responseText =>
-            {  
+            HttpManager.resume(request).Then(responseText => {  
                 var eventsResponse = JsonConvert.DeserializeObject<FetchEventsResponse>(responseText);
                 promise.Resolve(eventsResponse);
-            }).Catch(exception =>
-            {
+            }).Catch(exception => {
                 promise.Reject(exception);  
             });
             return promise;
@@ -29,12 +23,10 @@ namespace ConnectApp.api {
 
             var promise = new Promise<IEvent>();
             var request = HttpManager.GET(Config.apiAddress + "/api/live/events/" + eventId);
-            HttpManager.resume(request).Then(responseText =>
-            {  
+            HttpManager.resume(request).Then(responseText => {  
                 var liveDetail = JsonConvert.DeserializeObject<IEvent>(responseText);
                 promise.Resolve(liveDetail);
-            }).Catch(exception =>
-            {
+            }).Catch(exception => {
                 promise.Reject(exception);  
             });
             return promise;
@@ -44,11 +36,9 @@ namespace ConnectApp.api {
 
             var promise = new Promise<string>();
             var request = HttpManager.initRequest(Config.apiAddress + $"/api/live/events/{eventId}/join", Method.POST);
-            HttpManager.resume(request).Then(responseText =>
-            {  
+            HttpManager.resume(request).Then(responseText => {  
                 promise.Resolve(eventId);
-            }).Catch(exception =>
-            {
+            }).Catch(exception => {
                 promise.Reject(exception);  
             });
             return promise;

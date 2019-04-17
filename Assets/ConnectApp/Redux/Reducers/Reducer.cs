@@ -7,6 +7,7 @@ using ConnectApp.screens;
 using ConnectApp.utils;
 using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
@@ -679,6 +680,10 @@ namespace ConnectApp.redux.reducers {
                 case OpenUrlAction action: {
                     if (action.url != null || action.url.Length > 0)
                         Application.OpenURL(action.url);
+                    break;
+                }
+                case CopyTextAction action: {
+                    Clipboard.setData(new ClipboardData(action.text));
                     break;
                 }
                 case FetchReviewUrlSuccessAction action: {

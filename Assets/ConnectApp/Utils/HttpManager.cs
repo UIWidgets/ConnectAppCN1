@@ -33,10 +33,7 @@ namespace ConnectApp.utils {
             return initRequest(uri, Method.GET);
         }
 
-
-        public static Promise<string> resume(UnityWebRequest request)
-        {
-            
+        public static Promise<string> resume(UnityWebRequest request) {
             var promise = new Promise<string>();
             Window.instance.startCoroutine(sendRequest(promise,request));
             return promise;
@@ -55,17 +52,14 @@ namespace ConnectApp.utils {
             else if (request.responseCode != 200) {
                 promise.Reject(new Exception(request.downloadHandler.text));
             }
-            else
-            {
+            else {
                 if (request.GetResponseHeaders().ContainsKey("Set-Cookie")) {
                     var cookie = request.GetResponseHeaders()["Set-Cookie"];
                     updateCookie(cookie);
                 }
                 promise.Resolve(request.downloadHandler.text);
             }
-            
         }
-
 
         private static string _cookieHeader() {
             if (PlayerPrefs.GetString(COOKIE).isNotEmpty()) return PlayerPrefs.GetString(COOKIE);
@@ -76,7 +70,6 @@ namespace ConnectApp.utils {
             PlayerPrefs.DeleteKey(COOKIE);
         }
 
-        
         private static void updateCookie(string newCookie) {
             var cookie = PlayerPrefs.GetString(COOKIE);
             var cookieDict = new Dictionary<string, string>();
