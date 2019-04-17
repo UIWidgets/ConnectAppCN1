@@ -6,10 +6,10 @@ using RSG;
 
 namespace ConnectApp.api {
     public static class EventApi {
-        public static IPromise<FetchEventsResponse> FetchEvents(int pageNumber, string tab) {
+        public static IPromise<FetchEventsResponse> FetchEvents(int pageNumber, string tab, string mode) {
             
             var promise = new Promise<FetchEventsResponse>();
-            var request = HttpManager.GET(Config.apiAddress + $"/api/events?tab={tab}&page={pageNumber}");
+            var request = HttpManager.GET(Config.apiAddress + $"/api/events?tab={tab}&page={pageNumber}&mode={mode}&isPublic=true");
             HttpManager.resume(request).Then(responseText => {  
                 var eventsResponse = JsonConvert.DeserializeObject<FetchEventsResponse>(responseText);
                 promise.Resolve(eventsResponse);

@@ -224,7 +224,7 @@ namespace ConnectApp.screens {
                 right = new Padding(
                     padding: EdgeInsets.only(right: 24),
                     child: new CustomActivityIndicator(
-                        animationImage: AnimationImage.white
+                        loadingColor: LoadingColor.white
                     )
                 );
             return new Container(

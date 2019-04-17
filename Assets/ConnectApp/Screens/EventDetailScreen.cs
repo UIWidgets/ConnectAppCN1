@@ -352,7 +352,7 @@ namespace ConnectApp.screens {
             
             if (widget.viewModel.joinEventLoading)
                 child = new CustomActivityIndicator(
-                    animationImage: AnimationImage.white
+                    loadingColor: LoadingColor.white
                 );
             return new Container(
                 height: 64,

@@ -13,32 +13,36 @@ namespace ConnectApp.components {
         reset
     }
 
-    public enum AnimationImage {
+    public enum LoadingColor {
         white,
         black
+    }
+
+    public enum LoadingSize {
+        normal,
+        small
     }
 
     public class CustomActivityIndicator : StatefulWidget {
         public CustomActivityIndicator(
             Key key = null,
             AnimatingType animating = AnimatingType.repeat,
-            AnimationImage animationImage = AnimationImage.black,
-            float size = 21
+            LoadingColor loadingColor = LoadingColor.black,
+            LoadingSize size = LoadingSize.normal
         ) : base(key) {
             this.animating = animating;
-            this.animationImage = animationImage;
+            this.loadingColor = loadingColor;
             this.size = size;
         }
 
         public readonly AnimatingType animating;
-        public readonly AnimationImage animationImage;
-        public readonly float size;
+        public readonly LoadingColor loadingColor;
+        public readonly LoadingSize size;
 
         public override State createState() {
             return new _CustomActivityIndicatorState();
         }
     }
-
 
     public class _CustomActivityIndicatorState : State<CustomActivityIndicator>, TickerProvider {
         private AnimationController _controller;
@@ -74,13 +78,24 @@ namespace ConnectApp.components {
         }
 
         public override Widget build(BuildContext context) {
-            var imageName = widget.animationImage == AnimationImage.white ? "white-loading" : "black-loading";
+            string imageName;
+            int sideLength;
+            if (widget.size == LoadingSize.normal) {
+                sideLength = 24;
+                imageName = widget.loadingColor == LoadingColor.white ? "white-loading24" : "black-loading24";
+            } else {
+                sideLength = 20;
+                imageName = widget.loadingColor == LoadingColor.white ? "white-loading20" : "black-loading20";
+            }
             return new RotationTransition(
                 turns: _controller,
-                child: new Column(mainAxisAlignment: MainAxisAlignment.center,
-                    children: new List<Widget> {
-                        Image.asset(imageName, width: widget.size, height: widget.size)
-                    })
+                child: new Center(
+                    child: Image.asset(
+                        imageName, 
+                        width: sideLength, 
+                        height: sideLength
+                    )
+                )
             );
         }
 
