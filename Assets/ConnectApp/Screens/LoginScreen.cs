@@ -17,6 +17,7 @@ namespace ConnectApp.screens {
     internal static class LoginNavigatorRoutes {
         public const string Root = "/";
         public const string BindUnity = "/bind-unity";
+        public const string WechatBindUnity= "/wachat-bind-unity";
     }
 
     public class LoginScreen : StatelessWidget {
@@ -25,7 +26,8 @@ namespace ConnectApp.screens {
 
         private static Dictionary<string, WidgetBuilder> loginRoutes => new Dictionary<string, WidgetBuilder> {
             {LoginNavigatorRoutes.Root, context => new LoginSwitchScreenConnector()},
-            {LoginNavigatorRoutes.BindUnity, context => new BindUnityScreenConnector(FromPage.login)}
+            {LoginNavigatorRoutes.BindUnity, context => new BindUnityScreenConnector(FromPage.login)},
+            {LoginNavigatorRoutes.WechatBindUnity, context => new BindUnityScreenConnector(FromPage.wechat)}
         };
 
         public override Widget build(BuildContext context) {
@@ -47,14 +49,17 @@ namespace ConnectApp.screens {
     public class LoginSwitchScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, object>(
-                converter: state => null,
-                builder: (context1, _, dispatcher) => {
+                converter: state => state.loginState.loginInfo.anonymous,
+                builder: (context1, anonymous, dispatcher) => {
                     var actionModel = new LoginSwitchScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         loginByWechatAction = code => dispatcher.dispatch<IPromise>(Actions.loginByWechat(code)),
-                        loginRouterPushToUnityBind= () => dispatcher.dispatch(new LoginNavigatorPushToBindUnityAction())
+                        loginRouterPushToBindUnity= () => dispatcher.dispatch(new LoginNavigatorPushToBindUnityAction())
                     };
-                    return new LoginSwitchScreen(actionModel);
+                    return new LoginSwitchScreen(
+                        (bool)anonymous,
+                        actionModel
+                    );
                 }
             );
         }
@@ -62,11 +67,14 @@ namespace ConnectApp.screens {
 
     public class LoginSwitchScreen : StatelessWidget {
         public LoginSwitchScreen(
+            bool anonymous,
             LoginSwitchScreenActionModel actionModel
         ) {
+            this.anonymous = anonymous;
             this.actionModel = actionModel;
         }
 
+        private readonly bool anonymous;
         private readonly LoginSwitchScreenActionModel actionModel;
 
         public override Widget build(BuildContext context) {
@@ -142,7 +150,7 @@ namespace ConnectApp.screens {
                         _buildWechatButton(context),
                         new Container(height: 16),
                         new CustomButton(
-                            onPressed: () => actionModel.loginRouterPushToUnityBind(),
+                            onPressed: () => actionModel.loginRouterPushToBindUnity(),
                             padding: EdgeInsets.zero,
                             child: new Container(
                                 height: 48,
@@ -185,7 +193,13 @@ namespace ConnectApp.screens {
                             );
                             actionModel.loginByWechatAction(code).Then(() => {
                                     CustomDialogUtils.hiddenCustomDialog();
-                                    actionModel.mainRouterPop();
+                                    if (anonymous) {
+                                        LoginScreen.navigator.pushReplacementNamed(LoginNavigatorRoutes
+                                            .WechatBindUnity);
+                                    }
+                                    else {
+                                        actionModel.mainRouterPop();
+                                    }
                                 })
                                 .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
                         })
