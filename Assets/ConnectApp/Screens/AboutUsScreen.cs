@@ -67,7 +67,7 @@ namespace ConnectApp.screens {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: new List<Widget> {
                         new CustomButton(
-                            padding: EdgeInsets.only(16, 0, 16),
+                            padding: EdgeInsets.symmetric(10,8),
                             onPressed: () => actionModel.mainRouterPop(),
                             child: new Icon(
                                 Icons.arrow_back,
@@ -82,7 +82,7 @@ namespace ConnectApp.screens {
                             )
                         ),
                         new Container(
-                            width: 56
+                            width: 40
                         )
                     }
                 )
@@ -96,21 +96,21 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new Container(
                             margin: EdgeInsets.only(bottom: 16),
-                            padding: EdgeInsets.all(20),
+                            alignment: Alignment.center,
+                            width: 120,
+                            height: 120,
                             decoration: new BoxDecoration(
-                                borderRadius: BorderRadius.all(13.3f),
+                                borderRadius: BorderRadius.all(14),
                                 border: Border.all(CColors.Separator)
                             ),
-                            child: Image.asset(
-                                "black-logo-unity",
-                                height: 75,
-                                width: 75,
-                                fit: BoxFit.cover
+                            child: new Icon(
+                                Icons.UnityLogo,
+                                size: 80
                             )
                         ),
                         new Text(
                             "Unity Connect",
-                            style: CTextStyle.H5
+                            style: CTextStyle.H4
                         )
                     }
                 )

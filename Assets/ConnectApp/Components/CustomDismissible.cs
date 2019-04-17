@@ -169,7 +169,7 @@ namespace ConnectApp.components {
         }
         
         private readonly SlideActionBuilder builder;
-        private int actionCount;
+        private new int actionCount;
 
         public override Widget build(BuildContext context, int index, Animation<float> animation, CustomDismissibleMode mode) =>
             builder(context, index, animation, mode);
