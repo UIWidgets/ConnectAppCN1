@@ -10,11 +10,11 @@ namespace ConnectApp.components.pull_to_refresh {
     public static class DefaultConstants {
         public const int default_completeDuration = 200;
 
-        public const float default_refresh_triggerDistance = 64.0f;
+        public const float default_refresh_triggerDistance = 56.0f;
 
         public const float default_load_triggerDistance = 5.0f;
 
-        public const float default_VisibleRange = 64.0f;
+        public const float default_VisibleRange = 56.0f;
 
         public const bool default_AutoLoad = true;
 

@@ -18,7 +18,7 @@ namespace ConnectApp.components.pull_to_refresh {
             if (mode == 3) animatingType = AnimatingType.stop;
             if (mode == 0) animatingType = AnimatingType.reset;
             return new Container(
-                height: 64.0f,
+                height: 56.0f,
                 child: new CustomActivityIndicator(
                     animating: animatingType
                 )

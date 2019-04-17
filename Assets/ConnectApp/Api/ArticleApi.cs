@@ -8,10 +8,10 @@ using UnityEngine.Networking;
 
 namespace ConnectApp.api {
     public static class ArticleApi {
-        public static Promise<FetchArticlesResponse> FetchArticles(int pageNumber) {
+        public static Promise<FetchArticlesResponse> FetchArticles(int offset) {
             
             var promise = new Promise<FetchArticlesResponse>();
-            var request = HttpManager.GET(Config.apiAddress + "/api/getFeedList?language=zh_CN&hottestHasMore=true&feedHasMore=false&hottestOffset=" + pageNumber);
+            var request = HttpManager.GET(Config.apiAddress + "/api/getFeedList?language=zh_CN&hottestHasMore=true&feedHasMore=false&hottestOffset=" + offset);
             HttpManager.resume(request).Then(responseText => {
                var articlesResponse = JsonConvert.DeserializeObject<FetchArticlesResponse>(responseText);
                promise.Resolve(articlesResponse);

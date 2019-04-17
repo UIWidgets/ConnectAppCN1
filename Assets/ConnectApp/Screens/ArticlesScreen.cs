@@ -159,11 +159,6 @@ namespace ConnectApp.screens {
                     enablePullDown: true,
                     enablePullUp: widget.viewModel.hottestHasMore,
                     onRefresh: onRefresh,
-                    headerBuilder: (context, mode) =>
-                        new SmartRefreshHeader(mode),
-                    footerBuilder: (context, mode) =>
-                        new SmartRefreshFooter(mode),
-                    footerConfig: new RefreshConfig(),
                     child: ListView.builder(
                         physics: new AlwaysScrollableScrollPhysics(),
                         itemCount: widget.viewModel.articleList.Count,

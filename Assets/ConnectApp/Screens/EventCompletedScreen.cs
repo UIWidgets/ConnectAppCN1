@@ -76,11 +76,6 @@ namespace ConnectApp.screens {
                 enablePullDown: true,
                 enablePullUp: widget.viewModel.completedEvents.Count < widget.viewModel.completedEventTotal,
                 onRefresh: _completedRefresh,
-                footerConfig: new RefreshConfig(),
-                headerBuilder: (cxt, mode) =>
-                    new SmartRefreshHeader(mode),
-                footerBuilder: (cxt, mode) =>
-                    new SmartRefreshFooter(mode),
                 child: ListView.builder(
                     itemExtent: 108,
                     physics: new AlwaysScrollableScrollPhysics(),

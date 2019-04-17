@@ -13,7 +13,7 @@ namespace ConnectApp.components.pull_to_refresh {
             Key key = null
         ) : base(key) {
             this.mode = mode;
-            this.padding = padding ?? EdgeInsets.symmetric(15.0f);
+            this.padding = padding ?? EdgeInsets.symmetric(16.0f);
         }
 
         public override Widget build(BuildContext context) {
