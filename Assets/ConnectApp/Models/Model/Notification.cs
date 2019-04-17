@@ -17,6 +17,7 @@ namespace ConnectApp.models {
     public class NotificationData {
         public string id;
         public string fullname;
+        public string avatarWithCDN;
         public string projectId;
         public string projectTitle;
         public string role;
