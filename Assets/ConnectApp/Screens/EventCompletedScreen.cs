@@ -83,10 +83,10 @@ namespace ConnectApp.screens {
                     itemBuilder: (cxt, index) => {
                         var eventId = widget.viewModel.completedEvents[index];
                         var model = widget.viewModel.eventsDict[eventId];
-                        var place = model.placeId.isEmpty() ? null : widget.viewModel.placeDict[model.placeId];
+                        var place = model.placeId.isEmpty() ? new Place() : widget.viewModel.placeDict[model.placeId];
                         return new EventCard(
                             model,
-                            place,
+                            place.name,
                             () => widget.actionModel.pushToEventDetail(
                                 model.id,
                                 model.mode == "online" ? EventType.online : EventType.offline

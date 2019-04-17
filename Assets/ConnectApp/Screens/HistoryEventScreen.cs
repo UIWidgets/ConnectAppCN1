@@ -57,19 +57,11 @@ namespace ConnectApp.screens {
                 itemBuilder: (cxt, index) => {
                     var model = viewModel.eventHistory[index];
                     var eventType = model.mode == "online" ? EventType.online : EventType.offline;
-                    var place = new Place();
-                    if (viewModel.placeDict.isNotEmpty()) {
-                        if (model.placeId.isNotEmpty()) {
-                            if (viewModel.placeDict.ContainsKey(model.placeId)) {
-                                place = viewModel.placeDict[model.placeId];
-                            }
-                        }
-                    }
                     return CustomDismissible.builder(
                         Key.key(model.id),
                         new EventCard(
                             model,
-                            place.id.isEmpty()?null:place,
+                            model.place,
                             () => actionModel.pushToEventDetail(model.id, eventType)
                         ),
                         new CustomDismissibleDrawerDelegate(),

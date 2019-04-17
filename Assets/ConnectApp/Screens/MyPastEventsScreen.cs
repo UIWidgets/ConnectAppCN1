@@ -89,10 +89,10 @@ namespace ConnectApp.screens {
                     itemBuilder: (cxt, idx) => {
                         var model = data[idx];
                         var eventType = model.mode == "online" ? EventType.online : EventType.offline;
-                        var place = model.placeId.isEmpty() ? null : widget.viewModel.placeDict[model.placeId];
+                        var place = model.placeId.isEmpty() ? new Place() : widget.viewModel.placeDict[model.placeId];
                         return new EventCard(
                             model,
-                            place,
+                            place.name,
                             () => widget.actionModel.pushToEventDetail(model.id, eventType)
                         );
                     }
