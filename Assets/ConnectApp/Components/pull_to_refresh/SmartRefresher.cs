@@ -31,7 +31,7 @@ namespace ConnectApp.components.pull_to_refresh {
             Key key = null
         ) : base(key) {
             this.child = child;
-            this.headerBuilder = headerBuilder ?? ((context, mode) => new ClassicIndicator(mode));
+            this.headerBuilder = headerBuilder ?? ((context, mode) => new ClassicIndicator(mode, idleIcon: new CustomActivityIndicator(animating: AnimatingType.reset)));
             this.footerBuilder = footerBuilder ?? ((context, mode) => new ClassicIndicator(mode));
             this.headerConfig = headerConfig ?? new RefreshConfig();
             this.footerConfig = footerConfig ?? new LoadConfig();
