@@ -125,9 +125,8 @@ namespace ConnectApp.screens {
                 widget.actionModel.fetchEventDetail(widget.viewModel.eventId, widget.viewModel.eventType);
             });
             _loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
-                widget.actionModel.startFetchMessages();
-                widget.actionModel
-                    .fetchMessages(widget.viewModel.channelId, "", true);
+                widget.actionModel.startFetchEventDetail();
+                widget.actionModel.fetchEventDetail(widget.viewModel.eventId, widget.viewModel.eventType);
             });
         }
 
