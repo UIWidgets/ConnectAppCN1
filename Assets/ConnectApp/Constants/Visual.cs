@@ -4,6 +4,10 @@ using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.constants {
     public static class Icons {
+        public static readonly IconData UnityLogo = new IconData(0xe601, "iconfont");
+        public static readonly IconData WechatMoment = new IconData(0xe602, "iconfont");
+        public static readonly IconData WechatIcon = new IconData(0xe603, "iconfont");
+        
         public static readonly IconData Description = new IconData(0xe873, "Material Icons");
         public static readonly IconData Notification = new IconData(0xe7f4, "Material Icons");
         public static readonly IconData Mood = new IconData(0xe7f2, "Material Icons");
@@ -362,6 +366,7 @@ namespace ConnectApp.constants {
         public static readonly Color BgGrey = new Color(0xFFFAFAFA);
         public static readonly Color BrownGrey = new Color(0xFFB5B5B5);
         public static readonly Color Disable = new Color(0xFFB2B2B2);
+        public static readonly Color WechatGreen = new Color(0xFF48B34F);
 
         public static readonly Color H5White = Color.fromRGBO(255, 255, 255, 0.8f);
 

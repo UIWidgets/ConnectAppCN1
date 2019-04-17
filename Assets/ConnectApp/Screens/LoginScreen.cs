@@ -84,8 +84,6 @@ namespace ConnectApp.screens {
                 child: new Column(
                     children: new List<Widget> {
                         _buildTopView(),
-                        _buildMiddleView(context),
-                        new Flexible(child: new Container()),
                         _buildBottomView(context)
                     }
                 )
@@ -93,45 +91,46 @@ namespace ConnectApp.screens {
         }
 
         private Widget _buildTopView() {
-            return new Container(
-                height: 44,
-                padding: EdgeInsets.only(8, 8),
-                child: new Row(
+            return new Flexible(
+                child: new Stack(
                     children: new List<Widget> {
-                        new CustomButton(
-                            onPressed: () => actionModel.mainRouterPop(),
-                            child: new Icon(
-                                Icons.close,
-                                size: 28,
-                                color: CColors.icon3
+                        new Positioned(
+                            top: 0,
+                            left: 0,
+                            child: new CustomButton(
+                                padding: EdgeInsets.symmetric(10, 16),
+                                onPressed: () => actionModel.mainRouterPop(),
+                                child: new Icon(
+                                    Icons.close,
+                                    size: 24,
+                                    color: CColors.icon3
+                                )
                             )
+                        ),
+                        new Align(
+                            alignment: Alignment.center,
+                            child: new Container(
+                                height: 144,
+                                child: new Column(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: new List<Widget> {
+                                        new Container(
+                                            child: new Icon(
+                                                Icons.UnityLogo,
+                                                size: 80
+                                            )
+                                        ),
+                                        new Text(
+                                            "欢迎来到 Unity Connect",
+                                            maxLines: 1,
+                                            style: CTextStyle.H4
+                                        )
+                                    }
+                                )
+                            ) 
                         )
                     }
                 )
-            );
-        }
-
-        private static Widget _buildMiddleView(BuildContext context) {
-            var mediaQuery = MediaQuery.of(context);
-            var height = mediaQuery.size.height - mediaQuery.padding.top + mediaQuery.padding.bottom;
-            return new Column(
-                children: new List<Widget> {
-                    new Container(
-                        margin: EdgeInsets.only(top: height * 0.25f - 44),
-                        child: Image.asset(
-                            "black-logo-unity",
-                            height: 75,
-                            width: 75,
-                            fit: BoxFit.cover
-                        )
-                    ),
-                    new Container(height: 40),
-                    new Text(
-                        "欢迎来到 Unity Connect",
-                        maxLines: 1,
-                        style: CTextStyle.H4
-                    )
-                }
             );
         }
 
@@ -202,11 +201,10 @@ namespace ConnectApp.screens {
                     child: new Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: new List<Widget> {
-                            Image.asset(
-                                "wechat-icon",
-                                width: 24,
-                                height: 24,
-                                fit: BoxFit.cover
+                            new Icon(
+                                Icons.WechatIcon,
+                                size: 24,
+                                color: CColors.White
                             ),
                             new Container(width: 8),
                             new Text(
