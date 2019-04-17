@@ -140,9 +140,21 @@ namespace ConnectApp.redux.reducers {
                     state.articleState.articleDetailLoading = false;
                     break;
                 }
-                case SaveArticleHistoryAction action:
-                {
-                    var articleHistoryList = HistoryManager.saveArticleHistory(action.article,
+                case SaveArticleHistoryAction action: {
+                    var article = action.article;
+                    var fullName = "";
+                    if (article.ownerType == "user") {
+                        var userDict = state.userState.userDict;
+                        if (article.userId != null && userDict.ContainsKey(article.userId))
+                            fullName = userDict[article.userId].fullName;
+                    }
+                    if (article.ownerType == "team") {
+                        var teamDict = state.teamState.teamDict;
+                        if (article.teamId != null && teamDict.ContainsKey(article.teamId))
+                            fullName = teamDict[article.teamId].name;
+                    }
+                    article.fullName = fullName;
+                    var articleHistoryList = HistoryManager.saveArticleHistory(article,
                         state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
                     state.articleState.articleHistory = articleHistoryList;
                     break;
@@ -318,7 +330,7 @@ namespace ConnectApp.redux.reducers {
                         eventObj.userId = action.eventObj.user.id;
                         eventObj.placeId = oldEventObj.placeId;
                         eventObj.mode = oldEventObj.mode;
-                        eventObj.avatar = oldEventObj.background;
+                        eventObj.avatar = oldEventObj.avatar;
                         eventObj.type = oldEventObj.type;
                         state.eventState.eventsDict[action.eventObj.id] = eventObj;
                     }
@@ -330,9 +342,16 @@ namespace ConnectApp.redux.reducers {
                     state.eventState.eventDetailLoading = false;
                     break;
                 }
-                case SaveEventHistoryAction action:
-                {
-                    var eventHistoryList = HistoryManager.saveEventHistoryList(action.eventObj,
+                case SaveEventHistoryAction action: {
+                    var eventObj = action.eventObj;
+                    var place = "";
+                    if (eventObj.mode == "offline") {
+                        var placeDict = state.placeState.placeDict;
+                        if (eventObj.placeId != null && placeDict.ContainsKey(eventObj.placeId))
+                            place = placeDict[eventObj.placeId].name;
+                    }
+                    eventObj.place = place;
+                    var eventHistoryList = HistoryManager.saveEventHistoryList(eventObj,
                         state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
                     state.eventState.eventHistory = eventHistoryList;
                     break;

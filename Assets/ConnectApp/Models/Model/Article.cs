@@ -10,6 +10,7 @@ namespace ConnectApp.models {
         public string ownerType;
         public string title;
         public string userId;
+        public string fullName;
         public string description;
         public string subTitle;
         public bool published;

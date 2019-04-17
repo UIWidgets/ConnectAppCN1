@@ -15,6 +15,7 @@ namespace ConnectApp.models {
         public string mode;
         public TimeMap begin;
         public string placeId;
+        public string place;
         public string address;
         public int participantsCount;
         public int onlineMemberCount;

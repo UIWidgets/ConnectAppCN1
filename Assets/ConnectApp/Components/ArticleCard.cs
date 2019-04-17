@@ -11,55 +11,27 @@ using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.components {
     public class ArticleCard : StatelessWidget {
-        private ArticleCard(
+        public ArticleCard(
             Article article,
             GestureTapCallback onTap = null,
             GestureTapCallback moreCallBack = null,
-            Key key = null,
-            User user = null,
-            Team team = null
+            string fullName = null,
+            Key key = null
         ) : base(key) {
             this.article = article;
-            this.user = user;
-            this.team = team;
+            this.fullName = fullName;
             this.onTap = onTap;
             this.moreCallBack = moreCallBack;
         }
 
         private readonly Article article;
-        private readonly User user;
-        private readonly Team team;
+        private readonly string fullName;
         private readonly GestureTapCallback onTap;
         private readonly GestureTapCallback moreCallBack;
-
-        public static ArticleCard User(
-            Article article,
-            GestureTapCallback onTap = null,
-            GestureTapCallback moreCallBack = null,
-            Key key = null,
-            User user = null
-        ) {
-            return new ArticleCard(
-                article, onTap, moreCallBack, key, user
-            );
-        }
-
-        public static ArticleCard Team(
-            Article article,
-            GestureTapCallback onTap = null,
-            GestureTapCallback moreCallBack = null,
-            Key key = null,
-            Team team = null
-        ) {
-            return new ArticleCard(
-                article, onTap, moreCallBack, key, null, team
-            );
-        }
 
         public override Widget build(BuildContext context) {
             if (article == null) return new Container();
             
-            var userName = article.ownerType == OwnerType.team.ToString() ? team.name : user.fullName;
             var time = article.lastPublishedTime == null ? article.publishedTime : article.lastPublishedTime;
             var card = new Container(
                 color: CColors.White,
@@ -111,7 +83,7 @@ namespace ConnectApp.components {
                                         children: new List<Widget> {
                                             new Expanded(
                                                 child: new Text(
-                                                    $"{userName} · {DateConvert.DateStringFromNow(time)} · 阅读 {article.viewCount}",
+                                                    $"{fullName} · {DateConvert.DateStringFromNow(time)} · 阅读 {article.viewCount}",
                                                     style: CTextStyle.PSmallBody3
                                                 )
                                             ),
