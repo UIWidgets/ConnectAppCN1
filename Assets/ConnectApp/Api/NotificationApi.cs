@@ -12,7 +12,7 @@ namespace ConnectApp.api {
     public static class NotificationApi {
         public static Promise<FetchNotificationResponse> FetchNotifications(int pageNumber) {
             var promise = new Promise<FetchNotificationResponse>();
-            var request = HttpManager.GET(Config.apiAddress + "/api/notifications?page=" + pageNumber);
+            var request = HttpManager.GET(Config.apiAddress + "/api/notifications/app?page=" + pageNumber);
             HttpManager.resume(request).Then(responseText =>
             {  
                 var notificationResponse = JsonConvert.DeserializeObject<FetchNotificationResponse>(responseText);

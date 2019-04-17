@@ -48,7 +48,7 @@ namespace ConnectApp.components {
                                 children: new List<Widget> {
                                     widget != null
                                         ? widget
-                                        : new CustomActivityIndicator(animationImage: AnimationImage.white),
+                                        : new CustomActivityIndicator(loadingColor: LoadingColor.white),
                                     _buildMessage(message)
                                 }
                             )
