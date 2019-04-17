@@ -1,15 +1,10 @@
-using System;
-using System.Collections;
 using System.Text;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.utils;
 using Newtonsoft.Json;
 using RSG;
-using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.ui;
-using UnityEngine;
 using UnityEngine.Networking;
 
 namespace ConnectApp.api {
@@ -20,12 +15,10 @@ namespace ConnectApp.api {
             var url = Config.apiAddress + "/api/channels/" + channelId + "/messages";
             if (currOldestMessageId.isNotEmpty()) url += "?before=" + currOldestMessageId;
             var request = HttpManager.GET(url);
-            HttpManager.resume(request).Then(responseText =>
-            {  
+            HttpManager.resume(request).Then(responseText => {  
                 var messagesResponse = JsonConvert.DeserializeObject<FetchCommentsResponse>(responseText);
                 promise.Resolve(messagesResponse);
-            }).Catch(exception =>
-            {
+            }).Catch(exception => {
                 promise.Reject(exception);  
             });
             return promise;
@@ -45,16 +38,14 @@ namespace ConnectApp.api {
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.SetRequestHeader("Content-Type", "application/json");
-            HttpManager.resume(request).Then(responseText =>
-            {  
+            HttpManager.resume(request).Then(responseText => {  
                 var sendMessageResponse = new FetchSendMessageResponse {
                     channelId = channelId,
                     content = content,
                     nonce = nonce
                 };    
                 promise.Resolve(sendMessageResponse);
-            }).Catch(exception =>
-            {
+            }).Catch(exception => {
                 promise.Reject(exception);  
             });
             return promise;

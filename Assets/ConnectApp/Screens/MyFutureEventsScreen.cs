@@ -10,9 +10,7 @@ using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.screens
-{
-    
+namespace ConnectApp.screens {
     public class MyFutureEventsScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, MyEventsScreenViewModel>(
@@ -38,8 +36,7 @@ namespace ConnectApp.screens
         }
     }
     
-    public class MyFutureEventsScreen: StatefulWidget
-    {
+    public class MyFutureEventsScreen: StatefulWidget {
         public MyFutureEventsScreen(
             MyEventsScreenViewModel viewModel = null,
             MyEventsScreenActionModel actionModel = null,
@@ -51,13 +48,11 @@ namespace ConnectApp.screens
 
         public readonly MyEventsScreenViewModel viewModel;
         public readonly MyEventsScreenActionModel actionModel;
-        public override State createState()
-        {
+        public override State createState() {
             return new _MyFutureEventsScreenState();
         }
     }
-    public class _MyFutureEventsScreenState : State<MyFutureEventsScreen>
-    {
+    public class _MyFutureEventsScreenState : State<MyFutureEventsScreen> {
         private const int firstPageNumber = 1;
         private int _pageNumber;
         private RefreshController _refreshController;
@@ -71,14 +66,13 @@ namespace ConnectApp.screens
                 widget.actionModel.fetchMyFutureEvents(firstPageNumber);
             });
         }
-        public override Widget build(BuildContext context)
-        {
+        public override Widget build(BuildContext context) {
             return _buildMyFutureEvents();
         }
         
         private Widget _buildMyFutureEvents() {
             var data = widget.viewModel.futureEventsList;
-            if (widget.viewModel.futureListLoading) return new GlobalLoading();
+            if (widget.viewModel.futureListLoading && data.isEmpty()) return new GlobalLoading();
             if (data.Count <= 0) return new BlankView("暂无我的即将开始活动");
             var futureEventTotal = widget.viewModel.futureEventTotal;
             var hasMore = futureEventTotal != data.Count;
@@ -116,6 +110,4 @@ namespace ConnectApp.screens
                     .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
         }
     }
-    
-    
 }

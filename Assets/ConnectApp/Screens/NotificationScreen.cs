@@ -82,7 +82,6 @@ namespace ConnectApp.screens {
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 widget.actionModel.startFetchNotifications();
                 widget.actionModel.fetchNotifications(_pageNumber);
-                widget.actionModel.fetchMakeAllSeen();
             });
         }
 

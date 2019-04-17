@@ -19,7 +19,6 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 using Config = ConnectApp.constants.Config;
 using EventType = ConnectApp.models.EventType;
@@ -67,6 +66,7 @@ namespace ConnectApp.screens {
                             routeName = MainNavigatorRoutes.Login
                         }),
                         openUrl = url => dispatcher.dispatch(new OpenUrlAction {url = url}),
+                        copyText = text => dispatcher.dispatch(new CopyTextAction {text = text}),
                         startFetchEventDetail = () => dispatcher.dispatch(new StartFetchEventDetailAction()),
                         fetchEventDetail = (id, eventType) =>
                             dispatcher.dispatch<IPromise>(Actions.fetchEventDetail(id, eventType)),
@@ -201,38 +201,24 @@ namespace ConnectApp.screens {
             widget.actionModel.startSendMessage();
             widget.actionModel.sendMessage(widget.viewModel.channelId, text, Snowflake.CreateNonce(), "")
                 .Catch(_ => {
-                    CustomDialogUtils.showCustomDialog(
-                        child: new CustomDialog(
-                            widget: new Icon(
-                                Icons.error_outline,
-                                color: Color.fromRGBO(199, 203, 207, 1),
-                                size: 32
-                            ),
-                            message: "消息发送失败",
-                            duration: new TimeSpan(0,0,2)
-                        )
-                    );
+                    CustomDialogUtils.showToast("消息发送失败", Icons.error_outline);
                 });
             _refreshController.scrollTo(0);
         }
 
         private Widget _buildHeadTop(bool isShowShare, IEvent eventObj) {
             Widget shareWidget = new Container();
-            if (isShowShare)
-            {
+            if (isShowShare) {
                 shareWidget = new CustomButton(
                     onPressed: () => ShareUtils.showShareView(new ShareView(
                         onPressed: type => {
-                            string linkUrl =
+                            var linkUrl =
                                 $"{Config.apiAddress}/events/{eventObj.id}";
-                            if (type == ShareType.clipBoard)
-                            {
-                                Clipboard.setData(new ClipboardData(linkUrl));
+                            if (type == ShareType.clipBoard) {
+                                widget.actionModel.copyText(linkUrl);
                                 CustomDialogUtils.showToast("复制链接成功",Icons.check_circle_outline);
-                            }
-                            else
-                            {
-                               string imageUrl = $"{eventObj.avatar}.200x0x1.jpg";
+                            } else {
+                               var imageUrl = $"{eventObj.avatar}.200x0x1.jpg";
                                 CustomDialogUtils.showCustomDialog(
                                     child: new CustomDialog()
                                 );
@@ -366,7 +352,7 @@ namespace ConnectApp.screens {
             
             if (widget.viewModel.joinEventLoading)
                 child = new CustomActivityIndicator(
-                    animationImage: AnimationImage.white
+                    loadingColor: LoadingColor.white
                 );
             return new Container(
                 height: 64,

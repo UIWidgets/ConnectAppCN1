@@ -6,7 +6,7 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.components.pull_to_refresh {
-    public class RefreshStatus {
+    public static class RefreshStatus {
         public const int idle = 0;
         public const int canRefresh = 1;
         public const int refreshing = 2;
@@ -31,7 +31,7 @@ namespace ConnectApp.components.pull_to_refresh {
             Key key = null
         ) : base(key) {
             this.child = child;
-            this.headerBuilder = headerBuilder ?? ((context, mode) => new ClassicIndicator(mode,idleIcon:new CustomActivityIndicator()));
+            this.headerBuilder = headerBuilder ?? ((context, mode) => new ClassicIndicator(mode, idleIcon: new CustomActivityIndicator(animating: AnimatingType.reset)));
             this.footerBuilder = footerBuilder ?? ((context, mode) => new ClassicIndicator(mode));
             this.headerConfig = headerConfig ?? new RefreshConfig();
             this.footerConfig = footerConfig ?? new LoadConfig();
@@ -339,7 +339,7 @@ namespace ConnectApp.components.pull_to_refresh {
     public abstract class Indicator : StatefulWidget {
         public readonly int mode;
 
-        public Indicator(
+        protected Indicator(
             int mode,
             Key key = null
         ) : base(key) {
