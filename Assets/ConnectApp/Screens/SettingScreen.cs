@@ -31,8 +31,8 @@ namespace ConnectApp.screens {
                     var actionModel = new SettingScreenActionModel {
                         fetchReviewUrl = () => dispatcher.dispatch<IPromise>(Actions.fetchReviewUrl()),
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
-                        pushToAboutUs = () => dispatcher.dispatch(new MainNavigatorPushToAction {
-                            routeName = MainNavigatorRoutes.AboutUs
+                        mainRouterPushTo = (routeName) => dispatcher.dispatch(new MainNavigatorPushToAction {
+                            routeName = routeName
                         }),
                         openUrl = url => dispatcher.dispatch(new OpenUrlAction {url = url}),
                         clearCache = () => dispatcher.dispatch(new SettingClearCacheAction()),
@@ -135,7 +135,11 @@ namespace ConnectApp.screens {
                                 ? _buildCellView("评分",
                                     () => widget.actionModel.openUrl(widget.viewModel.reviewUrl))
                                 : new Container(),
-                            _buildCellView("关于我们", () => widget.actionModel.pushToAboutUs()),
+                            widget.viewModel.anonymous
+                                ? _buildCellView("绑定 Unity ID",
+                                    () => widget.actionModel.mainRouterPushTo(MainNavigatorRoutes.BindUnity))
+                                : new Container(),
+                            _buildCellView("关于我们", () => widget.actionModel.mainRouterPushTo(MainNavigatorRoutes.AboutUs)),
                             _buildGapView(),
                             _buildCellView("清理缓存", () => {
                                 CustomDialogUtils.showCustomDialog(
@@ -144,7 +148,7 @@ namespace ConnectApp.screens {
                                     )
                                 );
                                 widget.actionModel.clearCache();
-                                Window.instance.run(TimeSpan.FromSeconds(2), () => {
+                                Window.instance.run(TimeSpan.FromSeconds(1), () => {
                                         CustomDialogUtils.hiddenCustomDialog();
                                         CustomDialogUtils.showToast("缓存已清除",Icons.check_circle_outline);
                                     }
