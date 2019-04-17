@@ -153,7 +153,7 @@ namespace ConnectApp.screens {
                 if (_article.teamId != null && widget.viewModel.teamDict.TryGetValue(_article.teamId, out _team))
                     _team = widget.viewModel.teamDict[_article.teamId];
             _channelId = _article.channelId;
-            _relArticles = _article.projects;
+            _relArticles = _article.projects.FindAll(item => item.type == "article");
             if (widget.viewModel.channelMessageList.ContainsKey(_article.channelId))
                 _channelComments = widget.viewModel.channelMessageList[_article.channelId];
             _contentMap = _article.contentMap;

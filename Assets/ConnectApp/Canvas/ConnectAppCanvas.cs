@@ -32,17 +32,12 @@ namespace ConnectApp.canvas {
             return new StoreProvider<AppState>(
                 StoreProvider.store,
                 new WidgetsApp(
-                    home: new WillPopScope(
-                        onWillPop: () =>
-                        {
-                            StoreProvider.store.dispatcher.dispatch(new MainNavigatorPopAction());
-                            return Promise<bool>.Resolved(true);
-                        },
-                        child:new Router()),
+                    home: new Router(),
                     pageRouteBuilder: pageRouteBuilder
                 )
             );
         }
+        
 
         private static PageRouteFactory pageRouteBuilder {
             get {
