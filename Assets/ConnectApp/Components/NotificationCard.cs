@@ -39,7 +39,7 @@ namespace ConnectApp.components {
             return new GestureDetector(
                 onTap: () => onTap(),
                 child: new Container(
-                    color: CColors.Transparent,
+                    color: CColors.White,
                     child: new Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: new List<Widget> {

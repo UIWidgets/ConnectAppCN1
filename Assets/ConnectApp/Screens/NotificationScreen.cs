@@ -7,6 +7,7 @@ using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -69,6 +70,7 @@ namespace ConnectApp.screens {
         const float maxNavBarHeight = 96; 
         const float minNavBarHeight = 44; 
         private float navBarHeight;
+        private string _loginSubId;
 
         protected override bool wantKeepAlive {
             get => true;
@@ -82,6 +84,18 @@ namespace ConnectApp.screens {
                 widget.actionModel.startFetchNotifications();
                 widget.actionModel.fetchNotifications(firstPageNumber);
             });
+            _loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
+                navBarHeight = maxNavBarHeight;
+                titleStyle = CTextStyle.H2;
+                widget.actionModel.startFetchNotifications();
+                widget.actionModel.fetchNotifications(firstPageNumber);
+            });
+            
+        }
+
+        public override void dispose() {
+            EventBus.unSubscribe(EventBusConstant.login_success, _loginSubId);
+            base.dispose();
         }
 
         public override Widget build(BuildContext context) {
