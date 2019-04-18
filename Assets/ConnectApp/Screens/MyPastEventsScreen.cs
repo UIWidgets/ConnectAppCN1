@@ -54,10 +54,12 @@ namespace ConnectApp.screens {
         }
     }
 
-    public class _MyPastEventsScreenState : State<MyPastEventsScreen> {
+    public class _MyPastEventsScreenState : AutomaticKeepAliveClientMixin<MyPastEventsScreen> {
         private const int firstPageNumber = 1;
         private int _pageNumber;
         private RefreshController _refreshController;
+
+        protected override bool wantKeepAlive { get=>true; }
 
         public override void initState() {
             base.initState();
