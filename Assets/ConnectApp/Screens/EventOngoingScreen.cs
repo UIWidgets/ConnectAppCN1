@@ -5,6 +5,7 @@ using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
@@ -60,6 +61,7 @@ namespace ConnectApp.screens {
         private const int firstPageNumber = 1;
         private RefreshController _ongoingRefreshController;
         private int pageNumber = firstPageNumber;
+        private string _loginSubId;
 
         protected override bool wantKeepAlive { get=>true; }
 
@@ -70,6 +72,15 @@ namespace ConnectApp.screens {
                 widget.actionModel.startFetchEventOngoing();
                 widget.actionModel.fetchEvents(firstPageNumber, "ongoing");
             });
+            _loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
+                widget.actionModel.startFetchEventOngoing();
+                widget.actionModel.fetchEvents(firstPageNumber, "ongoing");
+            });
+        }
+
+        public override void dispose() {
+            EventBus.unSubscribe(EventBusConstant.login_success, _loginSubId);
+            base.dispose();
         }
 
         public override Widget build(BuildContext context) {
