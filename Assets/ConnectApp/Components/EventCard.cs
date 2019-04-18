@@ -94,7 +94,7 @@ namespace ConnectApp.components {
                             child: new Stack(
                                 children: new List<Widget> {
                                     new PlaceholderImage(
-                                        $"{imageUrl}.300x0x1.jpg",
+                                        imageUrl.EndsWith(".gif")?imageUrl:$"{imageUrl}.300x0x1.jpg",
                                         114,
                                         76,
                                         4,
