@@ -53,10 +53,12 @@ namespace ConnectApp.screens {
             return new _MyFutureEventsScreenState();
         }
     }
-    public class _MyFutureEventsScreenState : State<MyFutureEventsScreen> {
+    public class _MyFutureEventsScreenState : AutomaticKeepAliveClientMixin<MyFutureEventsScreen> {
         private const int firstPageNumber = 1;
         private int _pageNumber;
         private RefreshController _refreshController;
+
+        protected override bool wantKeepAlive { get=>true; }
 
         public override void initState() {
             base.initState();
