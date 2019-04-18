@@ -41,7 +41,7 @@ namespace ConnectApp.constants {
         public static readonly IconData delete_outline = new IconData(0xe608, "iconfont");
         public static readonly IconData complaints = new IconData(0xe616, "iconfont");//投诉
         public static readonly IconData block = new IconData(0xe60e, "iconfont");
-
+        public static readonly IconData report = new IconData(0xe616, "iconfont");
 
     }
 

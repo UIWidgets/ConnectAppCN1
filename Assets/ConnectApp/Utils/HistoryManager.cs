@@ -9,6 +9,7 @@ namespace ConnectApp.utils {
         private const string _searchHistoryKey = "searchHistoryKey";
         private const string _articleHistoryKey = "articleHistoryKey";
         private const string _eventHistoryKey = "eventHistoryKey";
+        private const string _blockArticleKey = "blockArticleKey";
         private const string _visitorId = "visitor";
         
         public static List<Article> articleHistoryList(string userId= _visitorId) {
@@ -16,6 +17,13 @@ namespace ConnectApp.utils {
             var articleHistoryList = new List<Article>();
             if (articleHistory.isNotEmpty())
                 articleHistoryList = JsonConvert.DeserializeObject<List<Article>>(articleHistory);
+            var blockArticleList = new List<string>();
+            if (userId != _visitorId) {
+                blockArticleList = HistoryManager.blockArticleList(userId);
+            }
+            blockArticleList.ForEach(articleId => {
+                articleHistoryList.RemoveAll(article => article.id == articleId);
+            });
             return articleHistoryList;
         }
 
@@ -126,6 +134,28 @@ namespace ConnectApp.utils {
         public static void deleteAllSearchHistory(string userId= _visitorId) {
             if (PlayerPrefs.HasKey(_searchHistoryKey+userId))
                 PlayerPrefs.DeleteKey(_searchHistoryKey+userId);
+        }
+        
+        public static List<string> blockArticleList(string userId = null) {
+            if (userId == null) return new List<string>();
+            
+            var blockArticle = PlayerPrefs.GetString(_blockArticleKey + userId);
+            var blockArticleList = new List<string>();
+            if (blockArticle.isNotEmpty())
+                blockArticleList = JsonConvert.DeserializeObject<List<string>>(blockArticle);
+            return blockArticleList;
+        }
+        
+        public static List<string> saveBlockArticleList(string articleId, string userId) {
+            var blockArticle = PlayerPrefs.GetString(_blockArticleKey + userId);
+            var blockArticleList = new List<string>();
+            if (blockArticle.isNotEmpty())
+                blockArticleList = JsonConvert.DeserializeObject<List<string>>(blockArticle);
+            blockArticleList.Insert(0, articleId);
+            var newBlockArticle = JsonConvert.SerializeObject(blockArticleList);
+            PlayerPrefs.SetString(_blockArticleKey + userId, newBlockArticle);
+            PlayerPrefs.Save();
+            return blockArticleList;
         }
     }
 }

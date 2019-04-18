@@ -7,6 +7,7 @@ namespace ConnectApp.Models.ActionModel {
         public Action<string> pushToArticleDetail;
         public Action<string, EventType> pushToEventDetail;
         public Action<string, ReportType> pushToReport;
+        public Action<string> pushToBlock;
         public Action<string> deleteArticleHistory;
         public Action<string> deleteEventHistory;
         public Action deleteAllArticleHistory;

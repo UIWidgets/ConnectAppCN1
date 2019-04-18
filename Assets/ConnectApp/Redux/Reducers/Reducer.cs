@@ -14,7 +14,6 @@ using UnityEngine;
 namespace ConnectApp.redux.reducers {
     public static class AppReducer {
         
-
         private static List<string> _nonce = new List<string>();
 
         public static AppState Reduce(AppState state, object bAction) {
@@ -52,6 +51,7 @@ namespace ConnectApp.redux.reducers {
                     state.articleState.articleHistory = HistoryManager.articleHistoryList(action.loginInfo.userId);
                     state.eventState.eventHistory = HistoryManager.eventHistoryList(action.loginInfo.userId);
                     state.searchState.searchHistoryList = HistoryManager.searchHistoryList(action.loginInfo.userId);
+                    state.articleState.blockArticleList = HistoryManager.blockArticleList(action.loginInfo.userId);
                     EventBus.publish(EventBusConstant.login_success, new List<object>());
                     break;
                 }
@@ -85,6 +85,7 @@ namespace ConnectApp.redux.reducers {
                     state.articleState.articleHistory = HistoryManager.articleHistoryList();
                     state.eventState.eventHistory = HistoryManager.eventHistoryList();
                     state.searchState.searchHistoryList = HistoryManager.searchHistoryList();
+                    state.articleState.blockArticleList = HistoryManager.blockArticleList();
                     break;
                 }
                 case CleanEmailAndPasswordAction action: {
@@ -176,7 +177,11 @@ namespace ConnectApp.redux.reducers {
                 case LikeArticleSuccessAction action: {
                     if (state.articleState.articleDict.ContainsKey(action.articleId))
                         state.articleState.articleDict[action.articleId].like = true;
-
+                    break;
+                }
+                case BlockArticleAction action: {
+                    var blockArticleList = HistoryManager.saveBlockArticleList(action.articleId, state.loginState.loginInfo.userId);
+                    state.articleState.blockArticleList = blockArticleList;
                     break;
                 }
                 case StartFetchArticleCommentsAction _: {

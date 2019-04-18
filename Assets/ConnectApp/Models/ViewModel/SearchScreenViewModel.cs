@@ -12,5 +12,6 @@ namespace ConnectApp.Models.ViewModel {
         public Dictionary<string, User> userDict;
         public Dictionary<string, Team> teamDict;
         public List<PopularSearch> popularSearchs;
+        public List<string> blockArticleList;
     }
 }

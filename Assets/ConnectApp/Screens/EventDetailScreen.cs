@@ -207,6 +207,7 @@ namespace ConnectApp.screens {
             if (isShowShare) {
                 shareWidget = new CustomButton(
                     onPressed: () => ShareUtils.showShareView(new ShareView(
+                        projectType: ProjectType.iEvent,
                         onPressed: type => {
                             var linkUrl =
                                 $"{Config.apiAddress}/events/{eventObj.id}";
