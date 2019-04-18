@@ -124,6 +124,7 @@ namespace ConnectApp.components {
                        "微信好友",
                         CColors.White,
                         CColors.WechatGreen,
+                        false,
                        () => onPressed(ShareType.friends)
                     ),
                     _buildShareItem(
@@ -131,6 +132,7 @@ namespace ConnectApp.components {
                         "朋友圈",
                         CColors.White,
                         CColors.WechatGreen,
+                        false,
                         () => onPressed(ShareType.moments)
                     ),
                     _buildShareItem(
@@ -138,6 +140,7 @@ namespace ConnectApp.components {
                         "复制链接", 
                         CColors.White,
                         CColors.PrimaryBlue,
+                        false,
                         () => onPressed(ShareType.clipBoard)
                     )
                 };
@@ -148,6 +151,7 @@ namespace ConnectApp.components {
                     "复制链接",
                     CColors.White,
                     CColors.PrimaryBlue,
+                    false,
                     () => onPressed(ShareType.clipBoard)
                 )
             };
@@ -160,6 +164,7 @@ namespace ConnectApp.components {
                     "屏蔽",
                     Color.fromRGBO(181, 181, 181, 1),
                     CColors.White,
+                    true,
                     () => onPressed(ShareType.block)
                 ),
                 _buildShareItem(
@@ -167,12 +172,13 @@ namespace ConnectApp.components {
                     "投诉",
                     Color.fromRGBO(181, 181, 181, 1),
                     CColors.White,
+                    true,
                     () => onPressed(ShareType.report)
                 )
             };
         }
         
-        private static Widget _buildShareItem(IconData icon, string title, Color color, Color background, GestureTapCallback onTap) {
+        private static Widget _buildShareItem(IconData icon, string title, Color color, Color background, bool hasBorder, GestureTapCallback onTap) {
             return new GestureDetector(
                 onTap:() => {
                     if (Router.navigator.canPop()) Router.navigator.pop();
@@ -190,9 +196,9 @@ namespace ConnectApp.components {
                             decoration: new BoxDecoration(
                                 background,
                                 borderRadius: BorderRadius.all(24),
-                                border: Border.all(
+                                border: hasBorder ? Border.all(
                                     Color.fromRGBO(216, 216, 216, 1)
-                                )
+                                ) : null
                             ),
                             child: new Icon(
                                 icon,

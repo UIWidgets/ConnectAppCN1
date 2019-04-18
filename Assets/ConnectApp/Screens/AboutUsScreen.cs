@@ -67,7 +67,7 @@ namespace ConnectApp.screens {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: new List<Widget> {
                         new CustomButton(
-                            padding: EdgeInsets.symmetric(10,8),
+                            padding: EdgeInsets.symmetric(10,16),
                             onPressed: () => actionModel.mainRouterPop(),
                             child: new Icon(
                                 Icons.arrow_back,

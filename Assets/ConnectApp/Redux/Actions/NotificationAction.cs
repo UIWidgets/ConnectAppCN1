@@ -35,15 +35,15 @@ namespace ConnectApp.redux.actions {
                                     }
                                 });
                             });
-                        var notifications = new List<Notification>();
+                        var notifications = getState().notificationState.notifications;
                         if (pageNumber == 1) {
                             notifications = notificationResponse.results;
                         }
                         else {
-                            notifications = getState().notificationState.notifications;
-                            notifications.AddRange(notificationResponse.results);
+                            if (pageNumber <= notificationResponse.pageTotal) {
+                                notifications.AddRange(notificationResponse.results);
+                            }
                         }
-
                         dispatcher.dispatch(new FetchNotificationsSuccessAction
                             {total = notificationResponse.total, notifications = notifications});
                     })

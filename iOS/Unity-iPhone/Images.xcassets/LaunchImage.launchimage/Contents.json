@@ -83,66 +83,6 @@
 			"orientation" : "landscape",
 			"scale" : "3x",
 			"subtype" : "2436h"
-		},
-		{
-			"extent" : "full-screen",
-			"filename" : "Default-Portrait.png",
-			"idiom" : "ipad",
-			"orientation" : "portrait",
-			"scale" : "1x"
-		},
-		{
-			"extent" : "full-screen",
-			"filename" : "Default-Portrait.png",
-			"idiom" : "ipad",
-			"minimum-system-version" : "7.0",
-			"orientation" : "portrait",
-			"scale" : "1x"
-		},
-		{
-			"extent" : "full-screen",
-			"filename" : "Default-Landscape.png",
-			"idiom" : "ipad",
-			"orientation" : "landscape",
-			"scale" : "1x"
-		},
-		{
-			"extent" : "full-screen",
-			"filename" : "Default-Landscape.png",
-			"idiom" : "ipad",
-			"minimum-system-version" : "7.0",
-			"orientation" : "landscape",
-			"scale" : "1x"
-		},
-		{
-			"extent" : "full-screen",
-			"filename" : "Default-Portrait@2x.png",
-			"idiom" : "ipad",
-			"orientation" : "portrait",
-			"scale" : "2x"
-		},
-		{
-			"extent" : "full-screen",
-			"filename" : "Default-Portrait@2x.png",
-			"idiom" : "ipad",
-			"minimum-system-version" : "7.0",
-			"orientation" : "portrait",
-			"scale" : "2x"
-		},
-		{
-			"extent" : "full-screen",
-			"filename" : "Default-Landscape@2x.png",
-			"idiom" : "ipad",
-			"orientation" : "landscape",
-			"scale" : "2x"
-		},
-		{
-			"extent" : "full-screen",
-			"filename" : "Default-Landscape@2x.png",
-			"idiom" : "ipad",
-			"minimum-system-version" : "7.0",
-			"orientation" : "landscape",
-			"scale" : "2x"
 		}
 	],
 	"info" : {
