@@ -13,7 +13,14 @@ namespace ConnectApp.components {
     public enum ShareType {
         friends,
         moments,
-        clipBoard
+        clipBoard,
+        block,
+        report
+    }
+
+    public enum ProjectType {
+        article,
+        iEvent
     }
 
     public delegate void OnPressed(ShareType type);
@@ -29,12 +36,15 @@ namespace ConnectApp.components {
     public class ShareView : StatelessWidget {
         public ShareView(
             Key key = null,
-            OnPressed onPressed = null
+            OnPressed onPressed = null,
+            ProjectType projectType = ProjectType.article
         ) : base(key) {
             this.onPressed = onPressed;
+            this.projectType = projectType;
         }
 
         private readonly OnPressed onPressed;
+        private readonly ProjectType projectType;
 
         public override Widget build(BuildContext context) {
             var mediaQueryData = MediaQuery.of(context);
@@ -44,7 +54,7 @@ namespace ConnectApp.components {
                     new Container(
                         color: CColors.White,
                         width: mediaQueryData.size.width,
-                        height: 211 + mediaQueryData.padding.bottom,
+                        height: 319 + mediaQueryData.padding.bottom,
                         child: new Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,6 +78,23 @@ namespace ConnectApp.components {
                                         children: _buildShareItems()
                                     )
                                 ),
+                                projectType == ProjectType.article 
+                                    ?
+                                    new Container(
+                                        height: 108,
+                                        padding: EdgeInsets.only(top: 16),
+                                        decoration: new BoxDecoration(
+                                            border: new Border(
+                                                bottom: new BorderSide(CColors.Separator2)
+                                            )
+                                        ),
+                                        child: new Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            children: _buildOtherItems()
+                                        )
+                                    ) 
+                                    :
+                                    new Container(),
                                 new GestureDetector(
                                     onTap: () => {
                                         if (Router.navigator.canPop()) Router.navigator.pop();
@@ -126,7 +153,26 @@ namespace ConnectApp.components {
             };
         }
         
-        private Widget _buildShareItem(IconData icon, string title, Color color, Color background, GestureTapCallback onTap) {
+        private List<Widget> _buildOtherItems() {
+            return new List<Widget> {
+                _buildShareItem(
+                    Icons.block,
+                    "屏蔽",
+                    Color.fromRGBO(181, 181, 181, 1),
+                    CColors.White,
+                    () => onPressed(ShareType.block)
+                ),
+                _buildShareItem(
+                    Icons.report,
+                    "投诉",
+                    Color.fromRGBO(181, 181, 181, 1),
+                    CColors.White,
+                    () => onPressed(ShareType.report)
+                )
+            };
+        }
+        
+        private static Widget _buildShareItem(IconData icon, string title, Color color, Color background, GestureTapCallback onTap) {
             return new GestureDetector(
                 onTap:() => {
                     if (Router.navigator.canPop()) Router.navigator.pop();
@@ -141,16 +187,17 @@ namespace ConnectApp.components {
                         new Container(
                             width: 48,
                             height: 48,
-                            child: new ClipRRect(
-                                borderRadius: BorderRadius.all(Radius.circular(24)),
-                                child: new Container(
-                                    color: background,
-                                    child:new Icon(
-                                        icon,
-                                        size: 30,
-                                        color: color
-                                    )
+                            decoration: new BoxDecoration(
+                                background,
+                                borderRadius: BorderRadius.all(24),
+                                border: Border.all(
+                                    Color.fromRGBO(216, 216, 216, 1)
                                 )
+                            ),
+                            child: new Icon(
+                                icon,
+                                size: 30,
+                                color: color
                             )
                         ),
                         new Container(

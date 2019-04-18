@@ -37,10 +37,13 @@ namespace ConnectApp.constants {
         public static readonly IconData error_outline = new IconData(0xe001, "Material Icons");
         public static readonly IconData mode = new IconData(0xe7f2, "Material Icons");
         public static readonly IconData mode_bad = new IconData(0xe7f3, "Material Icons");
+        public static readonly IconData check = new IconData(0xe5ca, "Material Icons");
         public static readonly IconData check_circle_outline = new IconData(0xe92d, "Material Icons");
         public static readonly IconData insert_link = new IconData(0xe250, "Material Icons");
         public static readonly IconData delete_outline = new IconData(0xe92e, "Material Icons");
         public static readonly IconData clear = new IconData(0xe14c, "Material Icons");
+        public static readonly IconData block = new IconData(0xe14b, "Material Icons");
+        public static readonly IconData report = new IconData(0xe160, "Material Icons");
 
     }
 

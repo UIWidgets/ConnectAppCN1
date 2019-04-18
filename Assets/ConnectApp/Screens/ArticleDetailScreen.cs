@@ -57,6 +57,10 @@ namespace ConnectApp.screens {
                                 reportType = reportType
                             }
                         ),
+                        pushToBlock = articleId => {
+                            dispatcher.dispatch(new BlockArticleAction { articleId = articleId });
+                            dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = articleId});
+                        },
                         startFetchArticleDetail = () => dispatcher.dispatch(new StartFetchArticleDetailAction()),
                         fetchArticleDetail = id =>
                             dispatcher.dispatch<IPromise>(Actions.FetchArticleDetail(id)),
@@ -469,22 +473,13 @@ namespace ConnectApp.screens {
                     message,
                     isPraised,
                     parentName,
-                    () => {
-                        if (!widget.viewModel.isLoggedIn) {
-                            widget.actionModel.pushToLogin();
-                            return;
-                        }
-                        ActionSheetUtils.showModalActionSheet(new ActionSheet(
-                            items: new List<ActionSheetItem> {
-                                new ActionSheetItem(
-                                    "举报", 
-                                    ActionType.normal,
-                                    () => widget.actionModel.pushToReport(commentId, ReportType.comment)
-                                ),
-                                new ActionSheetItem("取消", ActionType.cancel)
-                            }
-                        ));
-                    },
+                    () => ReportManager.showReportView(
+                        widget.viewModel.isLoggedIn,
+                        commentId,
+                        ReportType.comment,
+                        widget.actionModel.pushToLogin,
+                        widget.actionModel.pushToReport
+                    ),
                     replyCallBack: () => {
                         if (!widget.viewModel.isLoggedIn)
                             widget.actionModel.pushToLogin();
@@ -537,19 +532,31 @@ namespace ConnectApp.screens {
             );
         }
 
-        private void share()
-        {
+        private void share() {
             ShareUtils.showShareView(new ShareView(
+                projectType: ProjectType.article,
                 onPressed: type => {
-                    string linkUrl =
-                        $"{Config.apiAddress}/p/{_article.id}";
-                    if (type == ShareType.clipBoard)
-                    {
+                    string linkUrl = $"{Config.apiAddress}/p/{_article.id}";
+                    if (type == ShareType.clipBoard) {
                         Clipboard.setData(new ClipboardData(linkUrl));
                         CustomDialogUtils.showToast("复制链接成功",Icons.check_circle_outline);
-                    }
-                    else
-                    {
+                    } else if (type == ShareType.block) {
+                        ReportManager.block(
+                            widget.viewModel.isLoggedIn,
+                            _article.id,
+                            widget.actionModel.pushToLogin,
+                            widget.actionModel.pushToBlock,
+                            widget.actionModel.mainRouterPop
+                        );
+                    } else if (type == ShareType.report) {
+                        ReportManager.report(
+                            widget.viewModel.isLoggedIn,
+                            _article.id,
+                            ReportType.article,
+                            widget.actionModel.pushToLogin,
+                            widget.actionModel.pushToReport
+                        );
+                    } else {
                         CustomDialogUtils.showCustomDialog(
                             child: new CustomDialog()
                         );
@@ -557,9 +564,8 @@ namespace ConnectApp.screens {
                         widget.actionModel.shareToWechat(type, _article.title, _article.description, linkUrl,
                             imageUrl).Then(CustomDialogUtils.hiddenCustomDialog).Catch(_ => CustomDialogUtils.hiddenCustomDialog()); 
                     }
-                }));
+                }
+            ));
         }
-
-
     }
 }

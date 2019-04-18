@@ -8,6 +8,7 @@ namespace ConnectApp.Models.ActionModel {
         public Action<string> openUrl;
         public Action<string> pushToArticleDetail;
         public Action<string, ReportType> pushToReport;
+        public Action<string> pushToBlock;
         public Action startFetchArticleDetail;
         public Func<string, IPromise> fetchArticleDetail;
         public Func<string, string, IPromise> fetchArticleComments;

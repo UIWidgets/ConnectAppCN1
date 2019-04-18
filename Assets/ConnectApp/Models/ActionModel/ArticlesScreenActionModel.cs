@@ -7,6 +7,7 @@ namespace ConnectApp.Models.ActionModel {
         public Action pushToSearch;
         public Action<string> pushToArticleDetail;
         public Action<string, ReportType> pushToReport;
+        public Action<string> pushToBlock;
         public Action startFetchArticles;
         public Func<int, IPromise> fetchArticles;
     }

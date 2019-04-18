@@ -42,7 +42,8 @@ namespace ConnectApp.models {
                     articlesLoading = false,
                     articleDetailLoading = false,
                     hottestHasMore = true,
-                    articleHistory = HistoryManager.articleHistoryList(isLogin?loginInfo.userId:null)
+                    articleHistory = HistoryManager.articleHistoryList(isLogin?loginInfo.userId:null),
+                    blockArticleList = HistoryManager.blockArticleList(isLogin ? loginInfo.userId : null)
                 },
                 eventState = new EventState {
                     ongoingEvents = new List<string>(),

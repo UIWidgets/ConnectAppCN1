@@ -61,6 +61,10 @@ namespace ConnectApp.redux.actions {
         public string articleId;
     }
 
+    public class BlockArticleAction : RequestAction {
+        public string articleId;
+    }
+
     public class StartLikeCommentAction : RequestAction {
     }
 

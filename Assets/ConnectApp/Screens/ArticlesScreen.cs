@@ -8,6 +8,7 @@ using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -25,6 +26,7 @@ namespace ConnectApp.screens {
                     articlesLoading = state.articleState.articlesLoading,
                     articleList = state.articleState.articleList,
                     articleDict = state.articleState.articleDict,
+                    blockArticleList = state.articleState.blockArticleList,
                     hottestHasMore = state.articleState.hottestHasMore,
                     userDict = state.userState.userDict,
                     teamDict = state.teamState.teamDict,
@@ -50,6 +52,10 @@ namespace ConnectApp.screens {
                                 reportType = reportType
                             }
                         ),
+                        pushToBlock = articleId => {
+                            dispatcher.dispatch(new BlockArticleAction { articleId = articleId });
+                            dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = articleId});
+                        },
                         startFetchArticles = () => dispatcher.dispatch(new StartFetchArticlesAction()),
                         fetchArticles = offset => dispatcher.dispatch<IPromise>(Actions.fetchArticles(offset))
                     };
@@ -166,6 +172,8 @@ namespace ConnectApp.screens {
                         itemCount: widget.viewModel.articleList.Count,
                         itemBuilder: (cxt, index) => {
                             var articleId = widget.viewModel.articleList[index];
+                            if (widget.viewModel.blockArticleList.Contains(articleId))
+                                return new Container();
                             var article = widget.viewModel.articleDict[articleId];
                             var fullName = "";
                             if (article.ownerType == OwnerType.user.ToString()) {
@@ -179,22 +187,14 @@ namespace ConnectApp.screens {
                             return new ArticleCard(
                                 article,
                                 () => widget.actionModel.pushToArticleDetail(articleId),
-                                () => {
-                                    if (!widget.viewModel.isLoggedIn) {
-                                        widget.actionModel.pushToLogin();
-                                        return;
-                                    } 
-                                    ActionSheetUtils.showModalActionSheet(new ActionSheet(
-                                        items: new List<ActionSheetItem> {
-                                            new ActionSheetItem(
-                                                "举报",
-                                                ActionType.normal,
-                                                () => widget.actionModel.pushToReport(articleId, ReportType.article)
-                                            ),
-                                            new ActionSheetItem("取消", ActionType.cancel)
-                                        }
-                                    ));
-                                },
+                                () => ReportManager.showReportView(
+                                    widget.viewModel.isLoggedIn,
+                                    articleId,
+                                    ReportType.article,
+                                    widget.actionModel.pushToLogin,
+                                    widget.actionModel.pushToReport,
+                                    widget.actionModel.pushToBlock
+                                ),
                                 fullName,
                                 new ObjectKey(article.id)
                             );

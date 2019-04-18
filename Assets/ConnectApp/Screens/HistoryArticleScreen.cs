@@ -6,6 +6,7 @@ using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
@@ -17,9 +18,6 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, HistoryScreenViewModel>(
                 converter: state => new HistoryScreenViewModel {
                     articleHistory = state.articleState.articleHistory,
-                    userDict = state.userState.userDict,
-                    teamDict = state.teamState.teamDict,
-                    placeDict = state.placeState.placeDict,
                     isLoggedIn = state.loginState.isLoggedIn
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -35,6 +33,10 @@ namespace ConnectApp.screens {
                                 reportType = reportType
                             }
                         ),
+                        pushToBlock = articleId => {
+                            dispatcher.dispatch(new BlockArticleAction { articleId = articleId });
+                            dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = articleId});
+                        },
                         deleteArticleHistory = id =>
                             dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = id})
                     };
@@ -58,8 +60,7 @@ namespace ConnectApp.screens {
         
         private readonly CustomDismissibleController _controller = new CustomDismissibleController();
 
-        public override Widget build(BuildContext context)
-        {
+        public override Widget build(BuildContext context) {
             if (viewModel.articleHistory.Count == 0) return new BlankView("暂无浏览文章记录");
 
             return new Container(
@@ -67,29 +68,19 @@ namespace ConnectApp.screens {
                 child: ListView.builder(
                     physics: new AlwaysScrollableScrollPhysics(),
                     itemCount: viewModel.articleHistory.Count,
-                    itemBuilder: (cxt, index) =>
-                    {
+                    itemBuilder: (cxt, index) => {
                         var model = viewModel.articleHistory[index];
                         var child = new ArticleCard(
                             model,
-                            () =>
-                                actionModel.pushToArticleDetail(model.id),
-                            () => {
-                                if (!viewModel.isLoggedIn) {
-                                    actionModel.pushToLogin();
-                                    return;
-                                }
-                                ActionSheetUtils.showModalActionSheet(new ActionSheet(
-                                    items: new List<ActionSheetItem> {
-                                        new ActionSheetItem(
-                                            "举报",
-                                            ActionType.normal,
-                                            () => actionModel.pushToReport(model.id, ReportType.article)
-                                        ),
-                                        new ActionSheetItem("取消", ActionType.cancel)
-                                    }
-                                ));
-                            },
+                            () => actionModel.pushToArticleDetail(model.id),
+                            () => ReportManager.showReportView(
+                                viewModel.isLoggedIn,
+                                model.id,
+                                ReportType.article,
+                                actionModel.pushToLogin,
+                                actionModel.pushToReport,
+                                actionModel.pushToBlock
+                            ),
                             model.fullName,
                             new ObjectKey(model.id)
                         );
@@ -98,8 +89,7 @@ namespace ConnectApp.screens {
                             Key.key(model.id),
                             child,
                             new CustomDismissibleDrawerDelegate(),
-                            secondaryActions: new List<Widget>
-                            {
+                            secondaryActions: new List<Widget> {
                                 new GestureDetector(
                                     onTap: () => actionModel.deleteArticleHistory(model.id),
                                     child: new Container(

@@ -11,6 +11,7 @@ using RSG;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -48,7 +49,7 @@ namespace ConnectApp.screens {
 
     public class LoginSwitchScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
-            return new StoreConnector<AppState, object>(
+            return new StoreConnector<AppState, bool>(
                 converter: state => state.loginState.loginInfo.anonymous,
                 builder: (context1, anonymous, dispatcher) => {
                     var actionModel = new LoginSwitchScreenActionModel {
@@ -56,10 +57,7 @@ namespace ConnectApp.screens {
                         loginByWechatAction = code => dispatcher.dispatch<IPromise>(Actions.loginByWechat(code)),
                         loginRouterPushToBindUnity= () => dispatcher.dispatch(new LoginNavigatorPushToBindUnityAction())
                     };
-                    return new LoginSwitchScreen(
-                        (bool)anonymous,
-                        actionModel
-                    );
+                    return new LoginSwitchScreen(anonymous, actionModel);
                 }
             );
         }
@@ -172,7 +170,44 @@ namespace ConnectApp.screens {
                             )
                         ),
                         new Container(
-                            height: 65 + MediaQuery.of(context).padding.bottom
+                            margin: EdgeInsets.only(top: 16),
+                            child: new RichText(
+                                text: new TextSpan(
+                                    children: new List<TextSpan> {
+                                        new TextSpan(
+                                            "登录代表您已经同意",
+                                            CTextStyle.PSmallBody4
+                                        ),
+                                        new TextSpan(
+                                            " 用户协议",
+                                            new TextStyle(
+                                                height: 1.53f,
+                                                fontSize: 12,
+                                                fontFamily: "Roboto-Regular",
+                                                color: CColors.TextBody4,
+                                                decoration: TextDecoration.underline
+                                            )
+                                        ),
+                                        new TextSpan(
+                                            "和",
+                                            CTextStyle.PSmallBody4
+                                        ),
+                                        new TextSpan(
+                                            " 隐私政策",
+                                            new TextStyle(
+                                                height: 1.53f,
+                                                fontSize: 12,
+                                                fontFamily: "Roboto-Regular",
+                                                color: CColors.TextBody4,
+                                                decoration: TextDecoration.underline
+                                            )
+                                        )
+                                    }
+                                )
+                            )
+                        ),
+                        new Container(
+                            height: 16 + MediaQuery.of(context).padding.bottom
                         )
                     }
                 )
@@ -180,8 +215,7 @@ namespace ConnectApp.screens {
         }
 
         private Widget _buildWechatButton(BuildContext context) {
-            if (!WechatPlugin.instance().inInstalled())
-            {
+            if (!WechatPlugin.instance().inInstalled()) {
                 return new Container();
             }
             WechatPlugin.instance().context = context;

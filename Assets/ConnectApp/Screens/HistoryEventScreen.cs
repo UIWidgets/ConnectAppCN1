@@ -15,10 +15,7 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, HistoryScreenViewModel>(
                 converter: state => new HistoryScreenViewModel {
-                    eventHistory = state.eventState.eventHistory,
-                    userDict = state.userState.userDict,
-                    teamDict = state.teamState.teamDict,
-                    placeDict = state.placeState.placeDict
+                    eventHistory = state.eventState.eventHistory
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new HistoryScreenActionModel {

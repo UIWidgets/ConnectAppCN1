@@ -69,7 +69,6 @@ namespace ConnectApp.redux.actions {
                         });
                         dispatcher.dispatch(new MainNavigatorPopAction());
                         dispatcher.dispatch(new CleanEmailAndPasswordAction());
-//                        dispatcher.dispatch<IPromise>(fetchReviewUrl());
                         UserInfoManager.saveUserInfo(loginInfo);
                     });
             });
@@ -93,24 +92,15 @@ namespace ConnectApp.redux.actions {
                         });
                         UserInfoManager.saveUserInfo(loginInfo);
 //                        dispatcher.dispatch(new MainNavigatorPopAction());
-//                        dispatcher.dispatch<IPromise>(fetchReviewUrl());
                     });
             });
         }
 
         public static object openCreateUnityIdUrl() {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-//                CustomDialogUtils.showCustomDialog(
-//                    child: new CustomDialog()
-//                );
                 return LoginApi.FetchCreateUnityIdUrl()
                     .Then(url => {
-//                        CustomDialogUtils.hiddenCustomDialog();
                         dispatcher.dispatch(new OpenUrlAction {url = url});
-                    })
-                    .Catch(error => {
-//                        Debug.Log(error);
-//                        CustomDialogUtils.hiddenCustomDialog();
                     });
             });
         }
