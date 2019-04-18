@@ -104,11 +104,9 @@ namespace ConnectApp.redux.reducers {
                     if (action.offset == 0)
                         state.articleState.articleList.Clear();
                     foreach (var article in action.articleList) {
-                        if (!state.articleState.blockArticleList.Contains(article.id)) {
-                            state.articleState.articleList.Add(article.id);
-                            if (!state.articleState.articleDict.ContainsKey(article.id))
-                                state.articleState.articleDict.Add(article.id, article);
-                        }
+                        state.articleState.articleList.Add(article.id);
+                        if (!state.articleState.articleDict.ContainsKey(article.id))
+                            state.articleState.articleDict.Add(article.id, article);
                     }
                     state.articleState.hottestHasMore = action.hottestHasMore;
                     state.articleState.articlesLoading = false;

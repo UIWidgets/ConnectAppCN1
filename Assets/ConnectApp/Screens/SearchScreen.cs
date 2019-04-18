@@ -29,7 +29,8 @@ namespace ConnectApp.screens {
                     searchHistoryList = state.searchState.searchHistoryList,
                     popularSearchs = state.popularSearchState.popularSearchs,
                     userDict = state.userState.userDict,
-                    teamDict = state.teamState.teamDict
+                    teamDict = state.teamState.teamDict,
+                    blockArticleList = state.articleState.blockArticleList
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new SearchScreenActionModel {
@@ -119,7 +120,7 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            object child = new Container();
+            Widget child = new Container();
             if (widget.viewModel.searchLoading) {
                 child = new GlobalLoading();
             }
@@ -128,8 +129,8 @@ namespace ConnectApp.screens {
                     var currentPage = widget.viewModel.currentPage;
                     var pages = widget.viewModel.pages;
                     child = new Container(
-                        color:CColors.background3,
-                        child:new SmartRefresher(
+                        color: CColors.background3,
+                        child: new SmartRefresher(
                             controller: _refreshController,
                             enablePullDown: false,
                             enablePullUp: currentPage != pages.Count - 1,
@@ -139,6 +140,8 @@ namespace ConnectApp.screens {
                                 itemCount: widget.viewModel.searchArticles.Count,
                                 itemBuilder: (cxt, index) => {
                                     var searchArticle = widget.viewModel.searchArticles[index];
+                                    if (widget.viewModel.blockArticleList.Contains(searchArticle.id))
+                                        return new Container();
                                     if (searchArticle.ownerType == OwnerType.user.ToString()) {
                                         var user = widget.viewModel.userDict[searchArticle.userId];
                                         return RelatedArticleCard.User(searchArticle, user,
@@ -172,7 +175,7 @@ namespace ConnectApp.screens {
                             children: new List<Widget> {
                                 _buildSearchBar(context),
                                 new Flexible(
-                                    child: (Widget) child
+                                    child: child
                                 )
                             }
                         )
