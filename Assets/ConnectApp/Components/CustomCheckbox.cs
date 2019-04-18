@@ -70,7 +70,7 @@ namespace ConnectApp.components {
                 height: widget.size,
                 color: widget.activeColor,
                 child: new Icon(
-                    Icons.check,
+                    Icons.check_box,
                     size: widget.size,
                     color: CColors.White
                 )

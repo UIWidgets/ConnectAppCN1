@@ -24,11 +24,11 @@ namespace ConnectApp.redux.actions {
                 return ReportApi.ReportItem(itemId, itemType, reportContext)
                     .Then(() => {
                         dispatcher.dispatch(new MainNavigatorPopAction());
-                        CustomDialogUtils.showToast("举报成功", Icons.mode);
+                        CustomDialogUtils.showToast("举报成功", Icons.sentiment_satisfied);
                         dispatcher.dispatch(new ReportItemSuccessAction());
                     })
                     .Catch(error => {
-                        CustomDialogUtils.showToast("举报失败", Icons.mode_bad);
+                        CustomDialogUtils.showToast("举报失败", Icons.sentiment_dissatisfied);
                         dispatcher.dispatch(new ReportItemFailureAction());
                         Debug.Log(error);
                     });

@@ -31,7 +31,7 @@ namespace ConnectApp.screens {
                             ),
                             new CustomTabBarItem(
                                 1,
-                                Icons.ievent,
+                                Icons.Ievent,
                                 "活动"
                             ),
                             new CustomTabBarItem(

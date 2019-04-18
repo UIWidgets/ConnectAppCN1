@@ -69,7 +69,7 @@ namespace ConnectApp.components {
                         //点赞
                         new CustomButton(
                             onPressed: favorCallback,
-                            child: new Icon(Icons.favorite, size: 24, color: like ? CColors.PrimaryBlue : CColors.icon3)
+                            child: new Icon(like ? Icons.favorite : Icons.favorite_border, size: 24, color: like ? CColors.PrimaryBlue : CColors.icon3)
                         ),
                         //分享
                         new CustomButton(
