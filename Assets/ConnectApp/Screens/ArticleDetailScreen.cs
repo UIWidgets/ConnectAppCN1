@@ -382,7 +382,7 @@ namespace ConnectApp.screens {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: new List<Widget> {
-                        new ActionCard(Icons.favorite, like ? "已赞" : "点赞", like, () => {
+                        new ActionCard(like ? Icons.favorite : Icons.favorite_border, like ? "已赞" : "点赞", like, () => {
                             if (!widget.viewModel.isLoggedIn) {
                                 widget.actionModel.pushToLogin();
                             }

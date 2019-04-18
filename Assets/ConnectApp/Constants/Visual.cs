@@ -4,43 +4,44 @@ using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.constants {
     public static class Icons {
-        public static readonly IconData UnityLogo = new IconData(0xe601, "iconfont");
-        public static readonly IconData WechatMoment = new IconData(0xe602, "iconfont");
-        public static readonly IconData WechatIcon = new IconData(0xe603, "iconfont");
+        public static readonly IconData UnityLogo = new IconData(0xe61d, "iconfont");
+        public static readonly IconData WechatMoment = new IconData(0xe61e, "iconfont");
+        public static readonly IconData WechatIcon = new IconData(0xe61f, "iconfont");
         
-        public static readonly IconData Description = new IconData(0xe873, "Material Icons");
-        public static readonly IconData Notification = new IconData(0xe7f4, "Material Icons");
-        public static readonly IconData Mood = new IconData(0xe7f2, "Material Icons");
-
-        public static readonly IconData account_circle = new IconData(0xe853, "Material Icons");
-        public static readonly IconData search = new IconData(0xe8b6, "Material Icons");
-        public static readonly IconData keyboard_arrow_down = new IconData(0xe313, "Material Icons");
-        public static readonly IconData more_vert = new IconData(0xe5d4, "Material Icons");
-        public static readonly IconData close = new IconData(0xe5cd, "Material Icons");
+        public static readonly IconData Description = new IconData(0xe607, "iconfont");
+        public static readonly IconData Notification = new IconData(0xe611, "iconfont");
+        public static readonly IconData search = new IconData(0xe612, "iconfont");
+        public static readonly IconData close = new IconData(0xe605, "iconfont");
         public static readonly IconData chevron_right = new IconData(0xe5cc, "Material Icons");
-        public static readonly IconData arrow_back = new IconData(0xe5e0, "Material Icons");
-        public static readonly IconData share = new IconData(0xe80d, "Material Icons");
-        public static readonly IconData settings = new IconData(0xe8b8, "Material Icons");
-        public static readonly IconData ellipsis = new IconData(0xe5d3, "Material Icons");
-        public static readonly IconData ievent = new IconData(0xe878, "Material Icons");
-        public static readonly IconData book = new IconData(0xe865, "Material Icons");
-        public static readonly IconData eye = new IconData(0xe417, "Material Icons");
-        public static readonly IconData arrow_downward = new IconData(0xe5db, "Material Icons");
-        public static readonly IconData arrow_upward = new IconData(0xe5d8, "Material Icons");
-        public static readonly IconData bookmark = new IconData(0xe866, "Material Icons");
-        public static readonly IconData favorite = new IconData(0xe87d, "Material Icons");
-        public static readonly IconData comment = new IconData(0xe0b9, "Material Icons");
+        public static readonly IconData arrow_forward = new IconData(0xe601, "iconfont");
+        public static readonly IconData arrow_back = new IconData(0xe600, "iconfont");
+        public static readonly IconData share = new IconData(0xe61a, "iconfont");
+        public static readonly IconData settings = new IconData(0xe61c, "iconfont");
+        public static readonly IconData ellipsis = new IconData(0xe60c, "iconfont");
+        public static readonly IconData myEvent = new IconData(0xe614, "iconfont");
+        public static readonly IconData Ievent = new IconData(0xe60b, "iconfont");
+        public static readonly IconData book = new IconData(0xe613, "iconfont");
+        public static readonly IconData eye = new IconData(0xe61b, "iconfont");
+        public static readonly IconData bookmark = new IconData(0xe603, "iconfont");
+        public static readonly IconData favorite = new IconData(0xe60a, "iconfont");
+        public static readonly IconData favorite_border = new IconData(0xe610, "iconfont");
+        public static readonly IconData comment = new IconData(0xe618, "iconfont");
         public static readonly IconData play_arrow = new IconData(0xe037, "Material Icons");
         public static readonly IconData replay = new IconData(0xe042, "Material Icons");
         public static readonly IconData expand_less = new IconData(0xe5ce, "Material Icons");
         public static readonly IconData expand_more = new IconData(0xe5cf, "Material Icons");
-        public static readonly IconData error_outline = new IconData(0xe001, "Material Icons");
-        public static readonly IconData mode = new IconData(0xe7f2, "Material Icons");
-        public static readonly IconData mode_bad = new IconData(0xe7f3, "Material Icons");
-        public static readonly IconData check_circle_outline = new IconData(0xe92d, "Material Icons");
-        public static readonly IconData insert_link = new IconData(0xe250, "Material Icons");
-        public static readonly IconData delete_outline = new IconData(0xe92e, "Material Icons");
-        public static readonly IconData clear = new IconData(0xe14c, "Material Icons");
+        public static readonly IconData error_outline = new IconData(0xe609, "iconfont");
+        public static readonly IconData Mood = new IconData(0xe60f, "iconfont");
+        public static readonly IconData sentiment_satisfied = new IconData(0xe617, "iconfont");
+        public static readonly IconData sentiment_dissatisfied = new IconData(0xe619, "iconfont");
+        public static readonly IconData cancel = new IconData(0xe602, "iconfont");
+        public static readonly IconData check_box = new IconData(0xe604, "iconfont");
+        public static readonly IconData check_circle_outline = new IconData(0xe606, "iconfont");
+        public static readonly IconData insert_link = new IconData(0xe60d, "iconfont");
+        public static readonly IconData delete_outline = new IconData(0xe608, "iconfont");
+        public static readonly IconData complaints = new IconData(0xe616, "iconfont");//投诉
+        public static readonly IconData block = new IconData(0xe60e, "iconfont");
+
 
     }
 

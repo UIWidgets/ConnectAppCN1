@@ -206,10 +206,10 @@ namespace ConnectApp.redux.actions {
                 return ArticleApi.LikeArticle(articleId)
                     .Then(() =>
                     {
-                        CustomDialogUtils.showToast("点赞成功",Icons.mode);
+                        CustomDialogUtils.showToast("点赞成功",Icons.sentiment_satisfied);
                         dispatcher.dispatch(new LikeArticleSuccessAction {articleId = articleId});
                     })
-                    .Catch(_=>CustomDialogUtils.showToast("点赞失败",Icons.mode_bad));
+                    .Catch(_=>CustomDialogUtils.showToast("点赞失败",Icons.sentiment_dissatisfied));
             });
         }
 
@@ -218,12 +218,12 @@ namespace ConnectApp.redux.actions {
                 return ArticleApi.LikeComment(messageId)
                     .Then(message =>
                     {
-                        CustomDialogUtils.showToast("点赞成功",Icons.mode);
+                        CustomDialogUtils.showToast("点赞成功",Icons.sentiment_satisfied);
                         dispatcher.dispatch(new LikeCommentSuccessAction {message = message});
                     })
                     .Catch(error =>
                     {
-                        CustomDialogUtils.showToast("点赞失败", Icons.mode_bad);
+                        CustomDialogUtils.showToast("点赞失败", Icons.sentiment_dissatisfied);
                         dispatcher.dispatch(new LikeCommentFailureAction());
                     });
             });
@@ -234,12 +234,12 @@ namespace ConnectApp.redux.actions {
                 return ArticleApi.RemoveLikeComment(messageId)
                     .Then(message =>
                     {
-                        CustomDialogUtils.showToast("已取消点赞",Icons.mode);
+                        CustomDialogUtils.showToast("已取消点赞",Icons.sentiment_satisfied);
                         dispatcher.dispatch(new RemoveLikeCommentSuccessAction {message = message});
                     })
                     .Catch(error =>
                     {
-                        CustomDialogUtils.showToast("取消点赞失败", Icons.mode_bad);
+                        CustomDialogUtils.showToast("取消点赞失败", Icons.sentiment_dissatisfied);
                         Debug.Log(error);
                     });
             });
@@ -250,7 +250,7 @@ namespace ConnectApp.redux.actions {
                 return ArticleApi.SendComment(channelId, content, nonce, parentMessageId)
                     .Then(message => {
                         CustomDialogUtils.hiddenCustomDialog();
-                        CustomDialogUtils.showToast("发送成功",Icons.mode);
+                        CustomDialogUtils.showToast("发送成功",Icons.sentiment_satisfied);
                         dispatcher.dispatch(new SendCommentSuccessAction {
                             message = message
                         });
@@ -258,7 +258,7 @@ namespace ConnectApp.redux.actions {
                     .Catch(error =>
                     {
                         CustomDialogUtils.hiddenCustomDialog();
-                        CustomDialogUtils.showToast("发送失败",Icons.mode_bad);
+                        CustomDialogUtils.showToast("发送失败",Icons.sentiment_dissatisfied);
                     });
             });
         }

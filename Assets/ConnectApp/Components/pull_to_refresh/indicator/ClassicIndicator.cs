@@ -43,10 +43,10 @@ namespace ConnectApp.components.pull_to_refresh {
             this.noDataText = noDataText ?? "";
             this.releaseIcon = releaseIcon ?? new CustomActivityIndicator(animating: AnimatingType.reset);
             this.idleIcon = idleIcon ?? new Icon(new IconData(1,"23"));
-            this.noMoreIcon = noMoreIcon ?? new Icon(Icons.clear, color: CColors.Grey);
+            this.noMoreIcon = noMoreIcon ?? new Icon(Icons.close, color: CColors.Grey);
             this.refreshingIcon = refreshingIcon ?? new CustomActivityIndicator();
             this.completeIcon = completeIcon ?? new CustomActivityIndicator(animating: AnimatingType.stop);
-            this.failedIcon = failedIcon ?? new Icon(Icons.clear, color: CColors.Grey);
+            this.failedIcon = failedIcon ?? new Icon(Icons.close, color: CColors.Grey);
             this.height = height;
             this.spacing = spacing;
             this.iconPos = iconPos;
