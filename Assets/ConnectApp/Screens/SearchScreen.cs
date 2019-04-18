@@ -258,11 +258,12 @@ namespace ConnectApp.screens {
                             borderRadius: BorderRadius.circular(16)
                         ),
                         height: 32,
-                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                        child: new Text(
+                        padding:EdgeInsets.only(left:16,right:16),
+                        child: new Container(
+                            child:new Text(
                             item.keyword,
                             style: CTextStyle.PLargeBody
-                        )
+                        )) 
                     )
                 );
                 widgets.Add(widget);
