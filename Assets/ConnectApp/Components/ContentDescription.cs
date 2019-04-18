@@ -257,11 +257,16 @@ namespace ConnectApp.components {
                 ? originalImage.width
                 : MediaQuery.of(context).size.width - 32;
             var height = width * originalImage.height / originalImage.width;
+            var imageUrl = originalImage.url;
+            if (imageUrl.isNotEmpty())
+            {
+                imageUrl = imageUrl.EndsWith(".gif") ? imageUrl :$"{originalImage.url}.600x0x1.jpg";
+            }
             var nodes = new List<Widget> {
                 new Stack(
                     children: new List<Widget> {
                         new PlaceholderImage(
-                            originalImage.url ?? "",
+                            imageUrl,
                             width,
                             height,
                             fit: BoxFit.cover
