@@ -173,72 +173,17 @@ namespace ConnectApp.screens {
         }
 
         private Widget _buildSelectView() {
-            return new Container(
-                child: new Container(
-                    decoration: new BoxDecoration(
-                        border: new Border(bottom: new BorderSide(CColors.Separator2))
-                    ),
-                    height: 44,
-                    child: new Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: new List<Widget> {
-                            _buildSelectItem("文章", 0),
-                            _buildSelectItem("活动", 1)
-                        }
-                    )
-                )
-            );
-        }
-        
-        private Widget _buildSelectItem(string title, int index) {
-            Widget lineView = new Positioned(new Container());
-            if (index == _selectedIndex)
-                lineView = new Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: new Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: new List<Widget> {
-                            new Container(
-                                width: 80,
-                                height: 2,
-                                decoration: new BoxDecoration(
-                                    CColors.PrimaryBlue
-                                )
-                            )
-                        }
-                    )
-                );
-
-            return new Container(
-                child: new Stack(
-                    children: new List<Widget> {
-                        new CustomButton(
-                            onPressed: () => {
-                                if (_selectedIndex != index) setState(() => _selectedIndex = index);
-                                _pageController.animateToPage(
-                                    index,
-                                    new TimeSpan(0, 0,
-                                        0, 0, 250),
-                                    Curves.ease
-                                );
-                            },
-                            child: new Container(
-                                height: 44,
-                                width: 96,
-                                alignment: Alignment.center,
-                                child: new Text(
-                                    title,
-                                    style: index == _selectedIndex
-                                        ? CTextStyle.PLargeMediumBlue
-                                        : CTextStyle.PLargeTitle
-                                )
-                            )
-                        ),
-                        lineView
-                    }
-                )
+            return new CustomSegmentedControl(
+                new List<string> {"文章", "活动"},
+                newValue => {
+                    setState(() => _selectedIndex = newValue);
+                    _pageController.animateToPage(
+                        newValue,
+                        new TimeSpan(0, 0, 0, 0, 250),
+                        Curves.ease
+                    );
+                },
+                _selectedIndex
             );
         }
 

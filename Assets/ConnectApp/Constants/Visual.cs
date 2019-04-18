@@ -19,7 +19,7 @@ namespace ConnectApp.constants {
         public static readonly IconData settings = new IconData(0xe61c, "iconfont");
         public static readonly IconData ellipsis = new IconData(0xe60c, "iconfont");
         public static readonly IconData myEvent = new IconData(0xe614, "iconfont");
-        public static readonly IconData Ievent = new IconData(0xe60b, "iconfont");
+        public static readonly IconData IEvent = new IconData(0xe60b, "iconfont");
         public static readonly IconData book = new IconData(0xe613, "iconfont");
         public static readonly IconData eye = new IconData(0xe61b, "iconfont");
         public static readonly IconData bookmark = new IconData(0xe603, "iconfont");
@@ -39,7 +39,6 @@ namespace ConnectApp.constants {
         public static readonly IconData check_circle_outline = new IconData(0xe606, "iconfont");
         public static readonly IconData insert_link = new IconData(0xe60d, "iconfont");
         public static readonly IconData delete_outline = new IconData(0xe608, "iconfont");
-        public static readonly IconData complaints = new IconData(0xe616, "iconfont");//投诉
         public static readonly IconData block = new IconData(0xe60e, "iconfont");
         public static readonly IconData report = new IconData(0xe616, "iconfont");
 

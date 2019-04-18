@@ -214,7 +214,7 @@ namespace ConnectApp.screens {
                     new Container(
                         padding: EdgeInsets.symmetric(horizontal: 16),
                         child: new Text(
-                            widget.viewModel.fromPage == FromPage.login ? "登陆你的Unity账号" : "绑定你的Unity账号",
+                            widget.viewModel.fromPage == FromPage.login ? "登录你的Unity账号" : "绑定你的Unity账号",
                             style: CTextStyle.H2
                         )
                     )

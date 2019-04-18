@@ -67,7 +67,6 @@ namespace ConnectApp.components {
                             child: new Container(
                                 margin: EdgeInsets.only(right: 8),
                                 child: new Column(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: new List<Widget> {
                                         new Container(

@@ -57,6 +57,9 @@ namespace ConnectApp.components {
         public override Widget build(BuildContext context) {
             return new Container(
                 child: new Container(
+                    decoration: new BoxDecoration(
+                        border: new Border(bottom: new BorderSide(CColors.Separator2))
+                    ),
                     height: 44,
                     child: new Row(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -78,53 +81,55 @@ namespace ConnectApp.components {
 
         private Widget _buildSelectItem(string title, int index) {
             var textColor = widget.unselectedColor;
-            Widget lineView = new Positioned(new Container());
+            var fontFamily = "Roboto-Regular";
+            Widget lineView = new Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: new Container(height: 2)
+            );
             if (index == _selectedIndex) {
                 textColor = widget.selectedColor;
+                fontFamily = "Roboto-Medium";
                 lineView = new Positioned(
                     bottom: 0,
                     left: 0,
                     right: 0,
-                    child: new Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: new List<Widget> {
-                            new Container(
-                                width: 80,
-                                height: 2,
-                                color: widget.selectedColor
-                            )
-                        }
+                    child: new Container(
+                        height: 2,
+                        color: widget.selectedColor
                     )
                 );
             }
 
-            return new Expanded(
-                child: new Stack(
-                    fit: StackFit.expand,
-                    children: new List<Widget> {
-                        new CustomButton(
-                            onPressed: () => {
-                                if (_selectedIndex != index) {
-                                    if (widget.onValueChanged != null)
-                                        widget.onValueChanged(index);
-                                    else
-                                        setState(() => _selectedIndex = index);
-                                }
-                            },
-                            child: new Container(
-                                alignment: Alignment.center,
+            return new CustomButton(
+                onPressed: () => {
+                    if (_selectedIndex != index) {
+                        if (widget.onValueChanged != null)
+                            widget.onValueChanged(index);
+                        else
+                            setState(() => _selectedIndex = index);
+                    }
+                },
+                padding: EdgeInsets.zero,
+                child: new Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: new Stack(
+                        children: new List<Widget> {
+                            new Container(
+                                padding: EdgeInsets.symmetric(10),
                                 child: new Text(
                                     title,
                                     style: new TextStyle(
                                         fontSize: 16,
-                                        fontFamily: "Roboto-Regular",
+                                        fontFamily: fontFamily,
                                         color: textColor
                                     )
                                 )
-                            )
-                        ),
-                        lineView
-                    }
+                            ),
+                            lineView
+                        }
+                    )
                 )
             );
         }
