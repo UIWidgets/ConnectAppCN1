@@ -80,7 +80,7 @@ namespace ConnectApp.components.pull_to_refresh {
         private ScrollController _scrollController;
         private readonly GlobalKey _headerKey = GlobalKey.key();
         private readonly GlobalKey _footerKey = GlobalKey.key();
-        private float _headerHeight = 0.0f;
+        private float _headerHeight = DefaultConstants.default_VisibleRange;
         private float _footerHeight = 0.0f;
         private readonly ValueNotifier<float> offsetLis = new ValueNotifier<float>(0.0f);
         private readonly ValueNotifier<int> topModeLis = new ValueNotifier<int>(0);
