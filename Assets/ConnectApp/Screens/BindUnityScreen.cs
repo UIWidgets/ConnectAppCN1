@@ -145,7 +145,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         _buildTopView(),
                         _buildMiddleView(context),
-                        _buildBottomView(context)
+                        _buildBottomView()
                     }
                 )
             );
@@ -300,14 +300,12 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildBottomView(BuildContext context) {
+        private Widget _buildBottomView() {
             Widget right = new Container();
             if (widget.viewModel.loginLoading)
-                right = new Padding(
-                    padding: EdgeInsets.only(right: 24),
-                    child: new CustomActivityIndicator(
-                        loadingColor: LoadingColor.white
-                    )
+                right = new CustomActivityIndicator(
+                    loadingColor: LoadingColor.white,
+                    size: LoadingSize.small
                 );
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
@@ -322,7 +320,9 @@ namespace ConnectApp.screens {
                                 height: 48,
                                 decoration: new BoxDecoration(
                                     widget.viewModel.loginBtnEnable
-                                        ? CColors.PrimaryBlue
+                                        ? widget.viewModel.loginLoading
+                                            ? CColors.BottonActive
+                                            : CColors.PrimaryBlue
                                         : CColors.Disable,
                                     borderRadius: BorderRadius.all(24)
                                 ),
@@ -336,8 +336,9 @@ namespace ConnectApp.screens {
                                                 style: CTextStyle.PLargeWhite
                                             )
                                         ),
-                                        new Align(
-                                            alignment: Alignment.centerRight,
+                                        new Positioned(
+                                            right: 24,
+                                            height: 48,
                                             child: right
                                         )
                                     }

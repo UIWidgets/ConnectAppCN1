@@ -16,7 +16,6 @@ using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 using Color = Unity.UIWidgets.ui.Color;
-using Icons = ConnectApp.constants.Icons;
 
 namespace ConnectApp.screens {
     public class ArticlesScreenConnector : StatelessWidget {
@@ -100,8 +99,7 @@ namespace ConnectApp.screens {
             });
         }
 
-        public override Widget build(BuildContext context)
-        {
+        public override Widget build(BuildContext context) {
             base.build(context);
             return new Container(
                 color: CColors.BgGrey,
@@ -207,8 +205,7 @@ namespace ConnectApp.screens {
             return new NotificationListener<ScrollNotification>(
                 onNotification: _onNotification,
                 child: new Container(
-                    color:CColors.background3,
-                    margin: EdgeInsets.only(bottom: 49),
+                    color: CColors.background3,
                     child: content
                 )
             );

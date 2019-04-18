@@ -69,7 +69,6 @@ namespace ConnectApp.screens {
         private Widget _buildContentView() {
             return new Flexible(
                 child: new Container(
-                    padding: EdgeInsets.only(bottom: 49),
                     child: new PageView(
                         physics: new BouncingScrollPhysics(),
                         controller: _pageController,
