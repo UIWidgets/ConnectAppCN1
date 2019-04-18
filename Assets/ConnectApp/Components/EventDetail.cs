@@ -117,7 +117,7 @@ namespace ConnectApp.components {
                             children: new List<Widget> {
                                 new Container(
                                     margin: EdgeInsets.only(right: 8),
-                                    child: Avatar.User(host.id, host, 32)
+                                    child: Avatar.User(host.id, host, 48)
                                 ),
                                 new Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -133,14 +133,18 @@ namespace ConnectApp.components {
                                                 )
                                             )
                                         ),
-                                        new Container(
-                                            child: new Text(
-                                                host.title ?? "title",
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: CTextStyle.PRegularBody3
+                                        host.title.isNotEmpty()
+                                            ?
+                                            new Container(
+                                                child: new Text(
+                                                    host.title,
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                    style: CTextStyle.PRegularBody3
+                                                )
                                             )
-                                        )
+                                            :
+                                            new Container()
                                     }
                                 )
                             }

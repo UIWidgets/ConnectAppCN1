@@ -31,7 +31,7 @@ namespace ConnectApp.screens {
                             ),
                             new CustomTabBarItem(
                                 1,
-                                Icons.Ievent,
+                                Icons.IEvent,
                                 "活动"
                             ),
                             new CustomTabBarItem(
@@ -43,13 +43,12 @@ namespace ConnectApp.screens {
                                 3,
                                 Icons.Mood,
                                 "我的"
-                            ),
+                            )
                         },
                         CColors.White,
                         index => {
                             if (index == 2)
-                                if (!StoreProvider.store.getState().loginState.isLoggedIn)
-                                {
+                                if (!StoreProvider.store.getState().loginState.isLoggedIn) {
                                     Navigator.pushNamed(context,MainNavigatorRoutes.Login);
                                     return false;
                                 }

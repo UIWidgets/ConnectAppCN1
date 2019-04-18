@@ -264,7 +264,7 @@ namespace ConnectApp.screens {
                             ),
                             new Container(width: 8),
                             new Text(
-                                "使用微信账号登陆",
+                                "使用微信账号登录",
                                 maxLines: 1,
                                 style: CTextStyle.PLargeWhite
                             )

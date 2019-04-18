@@ -235,16 +235,10 @@ namespace ConnectApp.components {
                     FocusScope.of(context).requestFocus(_focusNode);
                 },
                 child: new Container(
-                    width: 20,
-                    height: 20,
-                    decoration: new BoxDecoration(
-                        new Color(0xFFCCCCCC),
-                        borderRadius: BorderRadius.all(10)
-                    ),
                     child: new Icon(
-                        Icons.close,
+                        Icons.cancel,
                         size: 20,
-                        color: CColors.White
+                        color: new Color(0xFFCCCCCC)
                     )
                 )
             );
