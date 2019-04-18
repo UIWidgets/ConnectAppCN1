@@ -238,15 +238,15 @@ namespace ConnectApp.components {
                                 openUrl(url);
                             },
                             child: new Container(
-                                width: 80,
-                                height: 80,
+                                width: 60,
+                                height: 60,
                                 decoration: new BoxDecoration(
-                                    CColors.White,
+                                    Color.fromRGBO(255,255,255,0.9f),
                                     borderRadius: BorderRadius.all(40)
                                 ),
                                 child: new Icon(
                                     Icons.play_arrow,
-                                    size: 64,
+                                    size: 45,
                                     color: CColors.icon3
                                 )
                             )

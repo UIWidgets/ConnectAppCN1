@@ -83,6 +83,7 @@ namespace ConnectApp.components {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
                         new Container(
+                            height:24,
                             margin: EdgeInsets.only(right: 8),
                             child: Avatar.User(message.author.id, message.author, 24)
                         ),
@@ -90,18 +91,25 @@ namespace ConnectApp.components {
                             child: new Container(
                                 child: new Column(
                                     children: new List<Widget> {
-                                        new Row(
-                                            children: new List<Widget> {
-                                                new Expanded(
-                                                    child: new Text(message.author.fullName,
-                                                        style: CTextStyle.PMediumBody3)),
-                                                new CustomButton(
-                                                    padding: EdgeInsets.only(8,0,0,8),
-                                                    onPressed: moreCallBack,
-                                                    child: new Icon(Icons.ellipsis, size: 20, color: CColors.BrownGrey)
-                                                )
-                                            }
-                                        ),
+                                        new Container(
+                                            height:24,
+                                            child:new Row(
+                                                children: new List<Widget> {
+                                                    new Expanded(
+                                                        child:new Container(
+                                                            alignment:Alignment.centerLeft,
+                                                            child: new Text(message.author.fullName,
+                                                    style: CTextStyle.PMediumBody3))),
+                                                        
+                                                    new CustomButton(
+                                                        padding: EdgeInsets.only(8,0,0,8),
+                                                        onPressed: moreCallBack,
+                                                        child: new Icon(Icons.ellipsis, size: 20, color: CColors.BrownGrey)
+                                                    )
+                                                }
+                                            )
+                                         ),
+                                        
                                         new Container(
                                             margin: EdgeInsets.only(top: 3, bottom: 5),
                                             child: _content
