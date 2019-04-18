@@ -238,15 +238,15 @@ namespace ConnectApp.components {
                                 openUrl(url);
                             },
                             child: new Container(
-                                width: 80,
-                                height: 80,
+                                width: 60,
+                                height: 60,
                                 decoration: new BoxDecoration(
-                                    CColors.White,
+                                    Color.fromRGBO(255,255,255,0.9f),
                                     borderRadius: BorderRadius.all(40)
                                 ),
                                 child: new Icon(
                                     Icons.play_arrow,
-                                    size: 64,
+                                    size: 45,
                                     color: CColors.icon3
                                 )
                             )
@@ -257,11 +257,16 @@ namespace ConnectApp.components {
                 ? originalImage.width
                 : MediaQuery.of(context).size.width - 32;
             var height = width * originalImage.height / originalImage.width;
+            var imageUrl = originalImage.url;
+            if (imageUrl.isNotEmpty())
+            {
+                imageUrl = imageUrl.EndsWith(".gif") ? imageUrl :$"{originalImage.url}.600x0x1.jpg";
+            }
             var nodes = new List<Widget> {
                 new Stack(
                     children: new List<Widget> {
                         new PlaceholderImage(
-                            originalImage.url ?? "",
+                            imageUrl,
                             width,
                             height,
                             fit: BoxFit.cover
