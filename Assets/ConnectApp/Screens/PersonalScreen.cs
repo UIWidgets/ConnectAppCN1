@@ -133,7 +133,7 @@ namespace ConnectApp.screens {
         private List<Widget> _buildItems() {
             var personalCardItems = new List<PersonalCardItem> {
                 new PersonalCardItem(
-                    Icons.ievent,
+                    Icons.myEvent,
                     "我的活动",
                     () => {
                         var routeName = widget.viewModel.isLoggedIn
