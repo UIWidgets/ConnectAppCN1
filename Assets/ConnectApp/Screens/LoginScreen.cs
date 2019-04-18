@@ -8,6 +8,7 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.plugins;
 using ConnectApp.redux.actions;
 using RSG;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
@@ -55,7 +56,8 @@ namespace ConnectApp.screens {
                     var actionModel = new LoginSwitchScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         loginByWechatAction = code => dispatcher.dispatch<IPromise>(Actions.loginByWechat(code)),
-                        loginRouterPushToBindUnity= () => dispatcher.dispatch(new LoginNavigatorPushToBindUnityAction())
+                        loginRouterPushToBindUnity= () => dispatcher.dispatch(new LoginNavigatorPushToBindUnityAction()),
+                        openUrl = url => dispatcher.dispatch(new OpenUrlAction {url = url})
                     };
                     return new LoginSwitchScreen(anonymous, actionModel);
                 }
@@ -186,7 +188,10 @@ namespace ConnectApp.screens {
                                                 fontFamily: "Roboto-Regular",
                                                 color: CColors.TextBody4,
                                                 decoration: TextDecoration.underline
-                                            )
+                                            ),
+                                            recognizer: new TapGestureRecognizer {
+                                                onTap = () => actionModel.openUrl("https://unity3d.com/legal/terms-of-service")
+                                            }
                                         ),
                                         new TextSpan(
                                             "和",
@@ -200,7 +205,10 @@ namespace ConnectApp.screens {
                                                 fontFamily: "Roboto-Regular",
                                                 color: CColors.TextBody4,
                                                 decoration: TextDecoration.underline
-                                            )
+                                            ),
+                                            recognizer: new TapGestureRecognizer {
+                                                onTap = () => actionModel.openUrl("https://unity3d.com/legal/privacy-policy")
+                                            }
                                         )
                                     }
                                 )

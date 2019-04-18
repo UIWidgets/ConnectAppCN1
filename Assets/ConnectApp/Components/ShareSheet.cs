@@ -54,7 +54,7 @@ namespace ConnectApp.components {
                     new Container(
                         color: CColors.White,
                         width: mediaQueryData.size.width,
-                        height: 319 + mediaQueryData.padding.bottom,
+                        height: projectType == ProjectType.article ? 319 : 211 + mediaQueryData.padding.bottom,
                         child: new Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
