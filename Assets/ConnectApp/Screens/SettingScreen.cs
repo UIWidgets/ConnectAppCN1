@@ -67,9 +67,9 @@ namespace ConnectApp.screens {
         
         public override void initState() {
             base.initState();
-            SchedulerBinding.instance.addPostFrameCallback(_ => {
-                widget.actionModel.fetchReviewUrl();
-            });
+//            SchedulerBinding.instance.addPostFrameCallback(_ => {
+//                widget.actionModel.fetchReviewUrl();
+//            });
         }
 
         public override Widget build(BuildContext context) {
