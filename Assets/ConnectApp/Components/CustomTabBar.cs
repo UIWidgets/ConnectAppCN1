@@ -53,12 +53,15 @@ namespace ConnectApp.components {
 
         public override Widget build(BuildContext context) {
             return new Container(
-                child: new Column(
+                child: new Stack(
                     children: new List<Widget> {
-                        new Flexible(
-                            child: _buildContentView(context)
-                        ),
-                        _buildBottomTabBar()
+                        _buildContentView(context),
+                        new Positioned(
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            child: _buildBottomTabBar()
+                        )
                     }
                 )
             );
