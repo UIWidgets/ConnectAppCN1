@@ -56,7 +56,7 @@ namespace ConnectApp.components {
                 child: new Column(
                     children: new List<Widget> {
                         new Flexible(
-                            child: _buildContentView(context)
+                            child: _buildContentView()
                         ),
                         _buildBottomTabBar()
                     }
@@ -64,7 +64,7 @@ namespace ConnectApp.components {
             );
         }
 
-        private Widget _buildContentView(BuildContext context) {
+        private Widget _buildContentView() {
             return new Container(
                 child: new Container(
                     height: Screen.safeArea.height,
