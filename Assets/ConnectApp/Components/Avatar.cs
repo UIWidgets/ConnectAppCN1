@@ -149,7 +149,7 @@ namespace ConnectApp.components {
                         title.ToUpper(),
                         textAlign:TextAlign.center,
                         style: new TextStyle(
-                            height: 0.85f,
+                            height: 1.30f,
                             color: CColors.White,
                             fontFamily: "Roboto-Medium",
                             fontSize: size * 0.45f
