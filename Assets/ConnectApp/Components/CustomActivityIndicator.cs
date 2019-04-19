@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
@@ -83,16 +81,18 @@ namespace ConnectApp.components {
             if (widget.size == LoadingSize.normal) {
                 sideLength = 24;
                 imageName = widget.loadingColor == LoadingColor.white ? "white-loading24" : "black-loading24";
-            } else {
+            }
+            else {
                 sideLength = 20;
                 imageName = widget.loadingColor == LoadingColor.white ? "white-loading20" : "black-loading20";
             }
+
             return new RotationTransition(
                 turns: _controller,
                 child: new Center(
                     child: Image.asset(
-                        imageName, 
-                        width: sideLength, 
+                        imageName,
+                        width: sideLength,
                         height: sideLength
                     )
                 )

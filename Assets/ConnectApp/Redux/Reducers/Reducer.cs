@@ -1,11 +1,9 @@
 using System.Collections.Generic;
 using ConnectApp.canvas;
-using ConnectApp.components;
 using ConnectApp.models;
 using ConnectApp.redux.actions;
 using ConnectApp.screens;
 using ConnectApp.utils;
-using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
@@ -13,7 +11,6 @@ using UnityEngine;
 
 namespace ConnectApp.redux.reducers {
     public static class AppReducer {
-        
         private static List<string> _nonce = new List<string>();
 
         public static AppState Reduce(AppState state, object bAction) {
@@ -108,6 +105,7 @@ namespace ConnectApp.redux.reducers {
                         if (!state.articleState.articleDict.ContainsKey(article.id))
                             state.articleState.articleDict.Add(article.id, article);
                     }
+
                     state.articleState.hottestHasMore = action.hottestHasMore;
                     state.articleState.articlesLoading = false;
                     break;
@@ -149,11 +147,13 @@ namespace ConnectApp.redux.reducers {
                         if (article.userId != null && userDict.ContainsKey(article.userId))
                             fullName = userDict[article.userId].fullName;
                     }
+
                     if (article.ownerType == "team") {
                         var teamDict = state.teamState.teamDict;
                         if (article.teamId != null && teamDict.ContainsKey(article.teamId))
                             fullName = teamDict[article.teamId].name;
                     }
+
                     article.fullName = fullName;
                     var articleHistoryList = HistoryManager.saveArticleHistory(article,
                         state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
@@ -168,7 +168,9 @@ namespace ConnectApp.redux.reducers {
                 }
                 case DeleteAllArticleHistoryAction _: {
                     state.articleState.articleHistory = new List<Article>();
-                    HistoryManager.deleteAllArticleHistory(state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
+                    HistoryManager.deleteAllArticleHistory(state.loginState.isLoggedIn
+                        ? state.loginState.loginInfo.userId
+                        : null);
                     break;
                 }
                 case LikeArticleAction _: {
@@ -180,7 +182,8 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case BlockArticleAction action: {
-                    var blockArticleList = HistoryManager.saveBlockArticleList(action.articleId, state.loginState.loginInfo.userId);
+                    var blockArticleList =
+                        HistoryManager.saveBlockArticleList(action.articleId, state.loginState.loginInfo.userId);
                     state.articleState.blockArticleList = blockArticleList;
                     break;
                 }
@@ -339,8 +342,10 @@ namespace ConnectApp.redux.reducers {
                         eventObj.type = oldEventObj.type;
                         state.eventState.eventsDict[action.eventObj.id] = eventObj;
                     }
-                    else
+                    else {
                         state.eventState.eventsDict.Add(action.eventObj.id, action.eventObj);
+                    }
+
                     break;
                 }
                 case FetchEventDetailFailedAction _: {
@@ -355,6 +360,7 @@ namespace ConnectApp.redux.reducers {
                         if (eventObj.placeId != null && placeDict.ContainsKey(eventObj.placeId))
                             place = placeDict[eventObj.placeId].name;
                     }
+
                     eventObj.place = place;
                     var eventHistoryList = HistoryManager.saveEventHistoryList(eventObj,
                         state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
@@ -584,6 +590,7 @@ namespace ConnectApp.redux.reducers {
                         searchArticles.AddRange(action.searchResponse.projects);
                         state.searchState.searchArticles = searchArticles;
                     }
+
                     break;
                 }
                 case SearchArticleFailureAction action: {
@@ -597,18 +604,22 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case SaveSearchHistoryAction action: {
-                    var searchHistoryList = HistoryManager.saveSearchHistoryList(action.keyword,state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
+                    var searchHistoryList = HistoryManager.saveSearchHistoryList(action.keyword,
+                        state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
                     state.searchState.searchHistoryList = searchHistoryList;
                     break;
                 }
                 case DeleteSearchHistoryAction action: {
-                    var searchHistoryList = HistoryManager.deleteSearchHistoryList(action.keyword,state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
+                    var searchHistoryList = HistoryManager.deleteSearchHistoryList(action.keyword,
+                        state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
                     state.searchState.searchHistoryList = searchHistoryList;
                     break;
                 }
                 case DeleteAllSearchHistoryAction action: {
                     state.searchState.searchHistoryList = new List<string>();
-                    HistoryManager.deleteAllSearchHistory(state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
+                    HistoryManager.deleteAllSearchHistory(state.loginState.isLoggedIn
+                        ? state.loginState.loginInfo.userId
+                        : null);
                     break;
                 }
                 case MainNavigatorPushToArticleDetailAction action: {
@@ -652,16 +663,16 @@ namespace ConnectApp.redux.reducers {
                 }
                 case MainNavigatorPushToReportAction action: {
                     Router.navigator.push(new PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            new ReportScreenConnector(action.reportId, action.reportType),
-                        transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                            new PushPageTransition(
-                                routeAnimation: animation,
-                                child: child
-                            )
+                            pageBuilder: (context, animation, secondaryAnimation) =>
+                                new ReportScreenConnector(action.reportId, action.reportType),
+                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
+                                new PushPageTransition(
+                                    routeAnimation: animation,
+                                    child: child
+                                )
                         )
                     );
-                        
+
                     break;
                 }
                 case MainNavigatorPushToAction action: {
@@ -722,12 +733,17 @@ namespace ConnectApp.redux.reducers {
                     state.articleState.articleHistory = new List<Article>();
                     state.eventState.eventHistory = new List<IEvent>();
                     state.searchState.searchHistoryList = new List<string>();
-                    HistoryManager.deleteAllArticleHistory(state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
-                    HistoryManager.deleteAllEventHistory(state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
-                    HistoryManager.deleteAllSearchHistory(state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
+                    HistoryManager.deleteAllArticleHistory(state.loginState.isLoggedIn
+                        ? state.loginState.loginInfo.userId
+                        : null);
+                    HistoryManager.deleteAllEventHistory(state.loginState.isLoggedIn
+                        ? state.loginState.loginInfo.userId
+                        : null);
+                    HistoryManager.deleteAllSearchHistory(state.loginState.isLoggedIn
+                        ? state.loginState.loginInfo.userId
+                        : null);
                     break;
                 }
-                
             }
 
             return state;

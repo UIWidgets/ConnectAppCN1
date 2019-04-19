@@ -19,7 +19,7 @@ namespace ConnectApp.screens {
     internal static class LoginNavigatorRoutes {
         public const string Root = "/";
         public const string BindUnity = "/bind-unity";
-        public const string WechatBindUnity= "/wachat-bind-unity";
+        public const string WechatBindUnity = "/wachat-bind-unity";
     }
 
     public class LoginScreen : StatelessWidget {
@@ -56,7 +56,8 @@ namespace ConnectApp.screens {
                     var actionModel = new LoginSwitchScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         loginByWechatAction = code => dispatcher.dispatch<IPromise>(Actions.loginByWechat(code)),
-                        loginRouterPushToBindUnity= () => dispatcher.dispatch(new LoginNavigatorPushToBindUnityAction()),
+                        loginRouterPushToBindUnity =
+                            () => dispatcher.dispatch(new LoginNavigatorPushToBindUnityAction()),
                         openUrl = url => dispatcher.dispatch(new OpenUrlAction {url = url})
                     };
                     return new LoginSwitchScreen(anonymous, actionModel);
@@ -135,7 +136,7 @@ namespace ConnectApp.screens {
                                         )
                                     }
                                 )
-                            ) 
+                            )
                         )
                     }
                 )
@@ -190,7 +191,8 @@ namespace ConnectApp.screens {
                                                 decoration: TextDecoration.underline
                                             ),
                                             recognizer: new TapGestureRecognizer {
-                                                onTap = () => actionModel.openUrl("https://unity3d.com/legal/terms-of-service")
+                                                onTap = () =>
+                                                    actionModel.openUrl("https://unity3d.com/legal/terms-of-service")
                                             }
                                         ),
                                         new TextSpan(
@@ -207,7 +209,8 @@ namespace ConnectApp.screens {
                                                 decoration: TextDecoration.underline
                                             ),
                                             recognizer: new TapGestureRecognizer {
-                                                onTap = () => actionModel.openUrl("https://unity3d.com/legal/privacy-policy")
+                                                onTap = () =>
+                                                    actionModel.openUrl("https://unity3d.com/legal/privacy-policy")
                                             }
                                         )
                                     }
@@ -223,9 +226,7 @@ namespace ConnectApp.screens {
         }
 
         private Widget _buildWechatButton(BuildContext context) {
-            if (!WechatPlugin.instance().inInstalled()) {
-                return new Container();
-            }
+            if (!WechatPlugin.instance().inInstalled()) return new Container();
             WechatPlugin.instance().context = context;
             return new CustomButton(
                 onPressed: () => {
@@ -235,13 +236,11 @@ namespace ConnectApp.screens {
                             );
                             actionModel.loginByWechatAction(code).Then(() => {
                                     CustomDialogUtils.hiddenCustomDialog();
-                                    if (anonymous) {
+                                    if (anonymous)
                                         LoginScreen.navigator.pushReplacementNamed(LoginNavigatorRoutes
                                             .WechatBindUnity);
-                                    }
-                                    else {
+                                    else
                                         actionModel.mainRouterPop();
-                                    }
                                 })
                                 .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
                         })

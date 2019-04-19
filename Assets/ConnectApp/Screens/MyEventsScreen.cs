@@ -34,6 +34,7 @@ namespace ConnectApp.screens {
         ) : base(key) {
             this.actionModel = actionModel;
         }
+
         public readonly MyEventsScreenActionModel actionModel;
 
         public override State createState() {
@@ -124,9 +125,7 @@ namespace ConnectApp.screens {
                     child: new PageView(
                         physics: new BouncingScrollPhysics(),
                         controller: _pageController,
-                        onPageChanged: index => {
-                            setState(() => { _selectedIndex = index; });
-                        },
+                        onPageChanged: index => { setState(() => { _selectedIndex = index; }); },
                         children: new List<Widget> {
                             new MyFutureEventsScreenConnector(),
                             new MyPastEventsScreenConnector()

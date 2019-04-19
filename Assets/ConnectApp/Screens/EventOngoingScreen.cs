@@ -38,8 +38,8 @@ namespace ConnectApp.screens {
             );
         }
     }
-    
-    
+
+
     public class EventOngoingScreen : StatefulWidget {
         public EventOngoingScreen(
             EventsScreenViewModel viewModel = null,
@@ -49,9 +49,10 @@ namespace ConnectApp.screens {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
+
         public readonly EventsScreenViewModel viewModel;
         public readonly EventsScreenActionModel actionModel;
-        
+
         public override State createState() {
             return new _EventOngoingScreenState();
         }
@@ -63,7 +64,7 @@ namespace ConnectApp.screens {
         private int pageNumber = firstPageNumber;
         private string _loginSubId;
 
-        protected override bool wantKeepAlive { get=>true; }
+        protected override bool wantKeepAlive => true;
 
         public override void initState() {
             base.initState();
@@ -85,11 +86,12 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             base.build(context);
-            if (widget.viewModel.eventOngoingLoading && widget.viewModel.ongoingEvents.isEmpty()) return new GlobalLoading();
+            if (widget.viewModel.eventOngoingLoading && widget.viewModel.ongoingEvents.isEmpty())
+                return new GlobalLoading();
             if (widget.viewModel.ongoingEvents.Count <= 0) return new BlankView("暂无即将开始活动");
             return new Container(
-                color:CColors.background3,
-                child:new SmartRefresher(
+                color: CColors.background3,
+                child: new SmartRefresher(
                     controller: _ongoingRefreshController,
                     enablePullDown: true,
                     enablePullUp: widget.viewModel.ongoingEvents.Count < widget.viewModel.ongoingEventTotal,
@@ -114,8 +116,9 @@ namespace ConnectApp.screens {
                         }
                     )
                 )
-            ); 
+            );
         }
+
         private void _ongoingRefresh(bool up) {
             if (up)
                 pageNumber = firstPageNumber;

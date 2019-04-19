@@ -3,14 +3,10 @@ using System.Collections.Generic;
 using ConnectApp.components;
 using ConnectApp.constants;
 using Unity.UIWidgets.animation;
-using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
-
     public class EventsScreen : StatefulWidget {
-
         public override State createState() {
             return new _EventsScreenState();
         }
@@ -19,8 +15,8 @@ namespace ConnectApp.screens {
     internal class _EventsScreenState : AutomaticKeepAliveClientMixin<EventsScreen> {
         private PageController _pageController;
         private int _selectedIndex;
-        
-        protected override bool wantKeepAlive { get=>true; }
+
+        protected override bool wantKeepAlive => true;
 
         public override void initState() {
             base.initState();

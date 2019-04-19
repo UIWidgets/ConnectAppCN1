@@ -1,4 +1,3 @@
-using System;
 using System.Net.WebSockets;
 using ConnectApp.api;
 using UnityEngine;

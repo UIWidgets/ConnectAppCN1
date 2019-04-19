@@ -34,7 +34,7 @@ namespace ConnectApp.screens {
                             }
                         ),
                         pushToBlock = articleId => {
-                            dispatcher.dispatch(new BlockArticleAction { articleId = articleId });
+                            dispatcher.dispatch(new BlockArticleAction {articleId = articleId});
                             dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = articleId});
                         },
                         deleteArticleHistory = id =>
@@ -45,6 +45,7 @@ namespace ConnectApp.screens {
             );
         }
     }
+
     public class HistoryArticleScreen : StatelessWidget {
         public HistoryArticleScreen(
             HistoryScreenViewModel viewModel = null,
@@ -57,7 +58,7 @@ namespace ConnectApp.screens {
 
         private readonly HistoryScreenViewModel viewModel;
         private readonly HistoryScreenActionModel actionModel;
-        
+
         private readonly CustomDismissibleController _controller = new CustomDismissibleController();
 
         public override Widget build(BuildContext context) {

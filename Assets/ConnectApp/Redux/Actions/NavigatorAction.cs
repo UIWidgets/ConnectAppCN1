@@ -23,7 +23,7 @@ namespace ConnectApp.redux.actions {
     public class MainNavigatorPushToVideoPlayerAction : BaseAction {
         public string videoUrl;
     }
-    
+
     public class MainNavigatorPushToReportAction : BaseAction {
         public string reportId;
         public ReportType reportType;

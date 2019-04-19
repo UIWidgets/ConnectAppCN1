@@ -58,7 +58,7 @@ namespace ConnectApp.screens {
                             }
                         ),
                         pushToBlock = articleId => {
-                            dispatcher.dispatch(new BlockArticleAction { articleId = articleId });
+                            dispatcher.dispatch(new BlockArticleAction {articleId = articleId});
                             dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = articleId});
                         },
                         startFetchArticleDetail = () => dispatcher.dispatch(new StartFetchArticleDetailAction()),
@@ -72,7 +72,7 @@ namespace ConnectApp.screens {
                         likeComment = id => dispatcher.dispatch<IPromise>(Actions.likeComment(id)),
                         removeLikeComment = id => dispatcher.dispatch<IPromise>(Actions.removeLikeComment(id)),
                         sendComment = (channelId, content, nonce, parentMessageId) => {
-                            CustomDialogUtils.showCustomDialog(child:new CustomDialog());
+                            CustomDialogUtils.showCustomDialog(child: new CustomDialog());
                             return dispatcher.dispatch<IPromise>(
                                 Actions.sendComment(channelId, content, nonce, parentMessageId));
                         },
@@ -264,9 +264,9 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new GestureDetector(
                             onTap: () => widget.actionModel.mainRouterPop(),
-                            child:new Container(
-                                padding: EdgeInsets.all(10),
-                                color:CColors.Transparent,
+                            child: new Container(
+                                padding: EdgeInsets.symmetric(10, 16),
+                                color: CColors.Transparent,
                                 child: new Icon(Icons.arrow_back, size: 24, color: CColors.icon3))
                         )
 //                        new CustomButton(
@@ -407,8 +407,7 @@ namespace ConnectApp.screens {
             var widgets = new List<Widget>();
             _relArticles.ForEach(article => {
                 //对文章进行过滤
-                if (article.id!=_article.id)
-                {
+                if (article.id != _article.id) {
                     Widget card;
                     if (article.ownerType == OwnerType.user.ToString())
                         card = RelatedArticleCard.User(article, _user,
@@ -416,10 +415,9 @@ namespace ConnectApp.screens {
                     else
                         card = RelatedArticleCard.Team(article, _team,
                             () => { widget.actionModel.pushToArticleDetail(article.id); }, new ObjectKey(article.id));
-                
-                    widgets.Add(card); 
+
+                    widgets.Add(card);
                 }
-                
             });
             return new Container(
                 color: CColors.White,
@@ -539,8 +537,9 @@ namespace ConnectApp.screens {
                     string linkUrl = $"{Config.apiAddress}/p/{_article.id}";
                     if (type == ShareType.clipBoard) {
                         Clipboard.setData(new ClipboardData(linkUrl));
-                        CustomDialogUtils.showToast("复制链接成功",Icons.check_circle_outline);
-                    } else if (type == ShareType.block) {
+                        CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
+                    }
+                    else if (type == ShareType.block) {
                         ReportManager.block(
                             widget.viewModel.isLoggedIn,
                             _article.id,
@@ -548,7 +547,8 @@ namespace ConnectApp.screens {
                             widget.actionModel.pushToBlock,
                             widget.actionModel.mainRouterPop
                         );
-                    } else if (type == ShareType.report) {
+                    }
+                    else if (type == ShareType.report) {
                         ReportManager.report(
                             widget.viewModel.isLoggedIn,
                             _article.id,
@@ -556,13 +556,15 @@ namespace ConnectApp.screens {
                             widget.actionModel.pushToLogin,
                             widget.actionModel.pushToReport
                         );
-                    } else {
+                    }
+                    else {
                         CustomDialogUtils.showCustomDialog(
                             child: new CustomDialog()
                         );
                         string imageUrl = $"{_article.thumbnail.url}.200x0x1.jpg";
                         widget.actionModel.shareToWechat(type, _article.title, _article.description, linkUrl,
-                            imageUrl).Then(CustomDialogUtils.hiddenCustomDialog).Catch(_ => CustomDialogUtils.hiddenCustomDialog()); 
+                                imageUrl).Then(CustomDialogUtils.hiddenCustomDialog)
+                            .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
                     }
                 }
             ));

@@ -21,13 +21,12 @@ namespace ConnectApp.utils {
                 ),
                 new ActionSheetItem("取消", ActionType.cancel)
             };
-            if (reportType == ReportType.article) {
+            if (reportType == ReportType.article)
                 items.Insert(0, new ActionSheetItem(
                     "屏蔽",
                     ActionType.normal,
                     () => block(isLoggedIn, reportId, pushToLogin, pushToBlock)
                 ));
-            }
             ActionSheetUtils.showModalActionSheet(new ActionSheet(
                 items: items
             ));
@@ -44,9 +43,10 @@ namespace ConnectApp.utils {
                 pushToLogin();
                 return;
             }
+
             pushToReport(reportId, reportType);
         }
-        
+
         public static void block(
             bool isLoggedIn,
             string reportId,
@@ -58,6 +58,7 @@ namespace ConnectApp.utils {
                 pushToLogin();
                 return;
             }
+
             ActionSheetUtils.showModalActionSheet(new ActionSheet(
                 title: "确定屏蔽当前内容吗？",
                 items: new List<ActionSheetItem> {

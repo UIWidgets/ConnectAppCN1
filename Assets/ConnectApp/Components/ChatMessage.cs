@@ -20,7 +20,7 @@ namespace ConnectApp.components {
 
         public override Widget build(BuildContext context) {
             if (message == null) return new Container();
-            
+
             var author = message.author != null ? message.author : new User();
 
             var messageContent =

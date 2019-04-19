@@ -1,5 +1,4 @@
 using System;
-using ConnectApp.components;
 using RSG;
 
 namespace ConnectApp.Models.ActionModel {

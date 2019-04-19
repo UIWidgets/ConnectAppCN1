@@ -67,14 +67,13 @@ namespace ConnectApp.screens {
         private int _pageNumber = firstPageNumber;
         private RefreshController _refreshController;
         private TextStyle titleStyle;
-        const float maxNavBarHeight = 96; 
-        const float minNavBarHeight = 44; 
+        private const float maxNavBarHeight = 96;
+        private const float minNavBarHeight = 44;
         private float navBarHeight;
         private string _loginSubId;
 
-        protected override bool wantKeepAlive {
-            get => true;
-        }
+        protected override bool wantKeepAlive => true;
+
         public override void initState() {
             base.initState();
             _refreshController = new RefreshController();
@@ -90,7 +89,6 @@ namespace ConnectApp.screens {
                 widget.actionModel.startFetchNotifications();
                 widget.actionModel.fetchNotifications(firstPageNumber);
             });
-            
         }
 
         public override void dispose() {
@@ -105,12 +103,11 @@ namespace ConnectApp.screens {
                 content = new GlobalLoading();
             }
             else {
-                if (widget.viewModel.notifications.Count <= 0) {
+                if (widget.viewModel.notifications.Count <= 0)
                     content = new Container(
                         child: new BlankView("暂无通知消息")
                     );
-                }
-                else {
+                else
                     content = new Container(
                         color: CColors.background3,
                         child: new SmartRefresher(
@@ -132,8 +129,7 @@ namespace ConnectApp.screens {
                                     );
                                 }
                             )
-                        )); 
-                }
+                        ));
             }
 
             return new Container(
@@ -151,11 +147,11 @@ namespace ConnectApp.screens {
                                         padding: EdgeInsets.only(16, bottom: 8),
                                         child: new AnimatedDefaultTextStyle(
                                             child: new Text("通知"),
-                                            style: titleStyle, 
+                                            style: titleStyle,
                                             duration: new TimeSpan(0, 0, 0, 0, 100)
                                         )
                                     )
-                            })
+                                })
                         ),
                         new CustomDivider(
                             color: CColors.Separator2,
@@ -178,20 +174,20 @@ namespace ConnectApp.screens {
                 if (pixels > 0 && pixels <= 52) {
                     titleStyle = CTextStyle.H5;
                     navBarHeight = maxNavBarHeight - pixels;
-                    setState(() => {});
+                    setState(() => { });
                 }
                 else if (pixels <= 0) {
                     if (navBarHeight <= maxNavBarHeight) {
                         titleStyle = CTextStyle.H2;
                         navBarHeight = maxNavBarHeight;
-                        setState(() => {});
+                        setState(() => { });
                     }
                 }
                 else if (pixels > 52) {
                     if (!(navBarHeight <= minNavBarHeight)) {
                         titleStyle = CTextStyle.H5;
                         navBarHeight = minNavBarHeight;
-                        setState(() => {});
+                        setState(() => { });
                     }
                 }
             });

@@ -30,6 +30,7 @@ namespace ConnectApp.screens {
             );
         }
     }
+
     public class HistoryEventScreen : StatelessWidget {
         public HistoryEventScreen(
             HistoryScreenViewModel viewModel = null,
@@ -42,51 +43,51 @@ namespace ConnectApp.screens {
 
         private readonly HistoryScreenViewModel viewModel;
         private readonly HistoryScreenActionModel actionModel;
-        
+
         private readonly CustomDismissibleController _controller = new CustomDismissibleController();
 
         public override Widget build(BuildContext context) {
             if (viewModel.eventHistory.Count == 0) return new BlankView("暂无浏览活动记录");
-            return new Container(color:CColors.background3,
-                child:ListView.builder(
-                physics: new AlwaysScrollableScrollPhysics(),
-                itemCount: viewModel.eventHistory.Count,
-                itemExtent: 108,
-                itemBuilder: (cxt, index) => {
-                    var model = viewModel.eventHistory[index];
-                    var eventType = model.mode == "online" ? EventType.online : EventType.offline;
-                    return CustomDismissible.builder(
-                        Key.key(model.id),
-                        new EventCard(
-                            model,
-                            model.place,
-                            () => actionModel.pushToEventDetail(model.id, eventType)
-                        ),
-                        new CustomDismissibleDrawerDelegate(),
-                        secondaryActions: new List<Widget> {
-                            new GestureDetector(
-                                onTap: () => actionModel.deleteEventHistory(model.id),
-                                child: new Container(
-                                    color: CColors.Separator2,
-                                    width: 80,
-                                    alignment: Alignment.center,
+            return new Container(color: CColors.background3,
+                child: ListView.builder(
+                    physics: new AlwaysScrollableScrollPhysics(),
+                    itemCount: viewModel.eventHistory.Count,
+                    itemExtent: 108,
+                    itemBuilder: (cxt, index) => {
+                        var model = viewModel.eventHistory[index];
+                        var eventType = model.mode == "online" ? EventType.online : EventType.offline;
+                        return CustomDismissible.builder(
+                            Key.key(model.id),
+                            new EventCard(
+                                model,
+                                model.place,
+                                () => actionModel.pushToEventDetail(model.id, eventType)
+                            ),
+                            new CustomDismissibleDrawerDelegate(),
+                            secondaryActions: new List<Widget> {
+                                new GestureDetector(
+                                    onTap: () => actionModel.deleteEventHistory(model.id),
                                     child: new Container(
-                                        width: 44,
-                                        height: 44,
+                                        color: CColors.Separator2,
+                                        width: 80,
                                         alignment: Alignment.center,
-                                        decoration: new BoxDecoration(
-                                            CColors.White,
-                                            borderRadius: BorderRadius.circular(22)
-                                        ),
-                                        child: new Icon(Icons.delete_outline, size: 28, color: CColors.Error)
+                                        child: new Container(
+                                            width: 44,
+                                            height: 44,
+                                            alignment: Alignment.center,
+                                            decoration: new BoxDecoration(
+                                                CColors.White,
+                                                borderRadius: BorderRadius.circular(22)
+                                            ),
+                                            child: new Icon(Icons.delete_outline, size: 28, color: CColors.Error)
+                                        )
                                     )
                                 )
-                            )
-                        },
-                        controller: _controller
-                    );
-                }
-            )); 
+                            },
+                            controller: _controller
+                        );
+                    }
+                ));
         }
     }
 }

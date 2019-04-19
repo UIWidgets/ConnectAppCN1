@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using ConnectApp.api;
 using ConnectApp.models;
 using ConnectApp.utils;
-using RSG;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
 
@@ -73,7 +72,7 @@ namespace ConnectApp.redux.actions {
                     });
             });
         }
-        
+
         public static object loginByWechat(string code) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return LoginApi.LoginByWechat(code)
@@ -99,9 +98,7 @@ namespace ConnectApp.redux.actions {
         public static object openCreateUnityIdUrl() {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return LoginApi.FetchCreateUnityIdUrl()
-                    .Then(url => {
-                        dispatcher.dispatch(new OpenUrlAction {url = url});
-                    });
+                    .Then(url => { dispatcher.dispatch(new OpenUrlAction {url = url}); });
             });
         }
     }

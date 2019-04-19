@@ -40,17 +40,17 @@ namespace ConnectApp.redux.actions {
                             notifications = notificationResponse.results;
                         }
                         else {
-                            if (pageNumber <= notificationResponse.pageTotal) {
+                            if (pageNumber <= notificationResponse.pageTotal)
                                 notifications.AddRange(notificationResponse.results);
-                            }
                         }
+
                         dispatcher.dispatch(new FetchNotificationsSuccessAction
                             {total = notificationResponse.total, notifications = notifications});
                     })
                     .Catch(err => { dispatcher.dispatch(new FetchNotificationsFailureAction()); });
             });
         }
-        
+
         public static object fetchMakeAllSeen() {
             return new ThunkAction<AppState>((dispatcher, getState) => NotificationApi.FetchMakeAllSeen());
         }

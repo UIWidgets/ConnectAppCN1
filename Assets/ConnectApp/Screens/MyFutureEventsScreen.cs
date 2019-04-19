@@ -36,8 +36,8 @@ namespace ConnectApp.screens {
             );
         }
     }
-    
-    public class MyFutureEventsScreen: StatefulWidget {
+
+    public class MyFutureEventsScreen : StatefulWidget {
         public MyFutureEventsScreen(
             MyEventsScreenViewModel viewModel = null,
             MyEventsScreenActionModel actionModel = null,
@@ -49,16 +49,18 @@ namespace ConnectApp.screens {
 
         public readonly MyEventsScreenViewModel viewModel;
         public readonly MyEventsScreenActionModel actionModel;
+
         public override State createState() {
             return new _MyFutureEventsScreenState();
         }
     }
+
     public class _MyFutureEventsScreenState : AutomaticKeepAliveClientMixin<MyFutureEventsScreen> {
         private const int firstPageNumber = 1;
         private int _pageNumber;
         private RefreshController _refreshController;
 
-        protected override bool wantKeepAlive { get=>true; }
+        protected override bool wantKeepAlive => true;
 
         public override void initState() {
             base.initState();
@@ -69,10 +71,11 @@ namespace ConnectApp.screens {
                 widget.actionModel.fetchMyFutureEvents(firstPageNumber);
             });
         }
+
         public override Widget build(BuildContext context) {
             return _buildMyFutureEvents();
         }
-        
+
         private Widget _buildMyFutureEvents() {
             var data = widget.viewModel.futureEventsList;
             if (widget.viewModel.futureListLoading && data.isEmpty()) return new GlobalLoading();
@@ -81,37 +84,39 @@ namespace ConnectApp.screens {
             var hasMore = futureEventTotal != data.Count;
 
             return new Container(
-                color:CColors.background3,
-                child:new SmartRefresher(
-                controller: _refreshController,
-                enablePullDown: true,
-                enablePullUp: hasMore,
-                onRefresh: _onRefresh,
-                child: ListView.builder(
-                    physics: new AlwaysScrollableScrollPhysics(),
-                    itemCount: data.Count,
-                    itemBuilder: (cxt, idx) => {
-                        var model = data[idx];
-                        var eventType = model.mode == "online" ? EventType.online : EventType.offline;
-                        var place = model.placeId.isEmpty() ? new Place() : widget.viewModel.placeDict[model.placeId];
-                        return new EventCard(
-                            model,
-                            place.name,
-                            () => widget.actionModel.pushToEventDetail(model.id, eventType)
-                        );
-                    }
-                )
-            )); 
+                color: CColors.background3,
+                child: new SmartRefresher(
+                    controller: _refreshController,
+                    enablePullDown: true,
+                    enablePullUp: hasMore,
+                    onRefresh: _onRefresh,
+                    child: ListView.builder(
+                        physics: new AlwaysScrollableScrollPhysics(),
+                        itemCount: data.Count,
+                        itemBuilder: (cxt, idx) => {
+                            var model = data[idx];
+                            var eventType = model.mode == "online" ? EventType.online : EventType.offline;
+                            var place = model.placeId.isEmpty()
+                                ? new Place()
+                                : widget.viewModel.placeDict[model.placeId];
+                            return new EventCard(
+                                model,
+                                place.name,
+                                () => widget.actionModel.pushToEventDetail(model.id, eventType)
+                            );
+                        }
+                    )
+                ));
         }
-        
+
         private void _onRefresh(bool up) {
             if (up)
                 _pageNumber = firstPageNumber;
             else
                 _pageNumber++;
-                widget.actionModel.fetchMyFutureEvents(_pageNumber)
-                    .Then(() => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
-                    .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
+            widget.actionModel.fetchMyFutureEvents(_pageNumber)
+                .Then(() => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
         }
     }
 }

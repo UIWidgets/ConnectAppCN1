@@ -10,7 +10,7 @@ namespace ConnectApp.models {
         public Dictionary<string, Team> teamMap;
         public bool hottestHasMore;
     }
-    
+
     [Serializable]
     public class hottestItem {
         public string id;

@@ -21,11 +21,8 @@ namespace ConnectApp.api {
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.SetRequestHeader("Content-Type", "application/json");
-            HttpManager.resume(request).Then(responseText => {
-                promise.Resolve();
-            }).Catch(exception => {
-                promise.Reject(exception);
-            });
+            HttpManager.resume(request).Then(responseText => { promise.Resolve(); })
+                .Catch(exception => { promise.Reject(exception); });
             return promise;
         }
     }

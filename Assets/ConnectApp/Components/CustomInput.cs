@@ -49,17 +49,14 @@ namespace ConnectApp.components {
         }
 
         private void _controllerListener() {
-            var text = _controller.text??"友好的评论是交流的起点…";
+            var text = _controller.text ?? "友好的评论是交流的起点…";
             if (!mounted) return;
             var inputFieldHeight = 22.0f;
             var inputFieldWidth = _inputFieldKey.currentContext.size.width;
-            inputFieldHeight = _calculateTextHeight(text, inputFieldWidth);    
+            inputFieldHeight = _calculateTextHeight(text, inputFieldWidth);
 
             if (_inputFieldHeight != inputFieldHeight)
-                setState(() =>
-                {
-                    _inputFieldHeight = inputFieldHeight;
-                });
+                setState(() => { _inputFieldHeight = inputFieldHeight; });
         }
 
         private float _calculateTextHeight(string text, float textWidth) {
@@ -72,7 +69,7 @@ namespace ConnectApp.components {
                 maxLines: 2
             );
             textPainter.layout(maxWidth: textWidth);
-            
+
             return textPainter.height;
         }
 
@@ -126,7 +123,8 @@ namespace ConnectApp.components {
                                                         margin: EdgeInsets.only(10, 6.5f, 8, 6.5f),
                                                         decoration: new BoxDecoration(
                                                             CColors.Separator2,
-                                                            borderRadius: BorderRadius.circular((_inputFieldHeight+13)/2)
+                                                            borderRadius: BorderRadius.circular(
+                                                                (_inputFieldHeight + 13) / 2)
                                                         ),
                                                         child: new Container(
                                                             padding: _inputFieldPadding,
