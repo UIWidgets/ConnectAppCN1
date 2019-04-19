@@ -113,6 +113,7 @@ namespace ConnectApp.components {
                 },
                 padding: EdgeInsets.zero,
                 child: new Container(
+                    height: 44,
                     padding: EdgeInsets.symmetric(horizontal: 16),
                     child: new Stack(
                         children: new List<Widget> {
