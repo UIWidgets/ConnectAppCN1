@@ -291,6 +291,12 @@ namespace ConnectApp.constants {
             color: CColors.TextBody4
         );
 
+        public static readonly TextStyle PKeyboardTextStyle = new TextStyle(
+            fontSize: 14,
+            fontFamily: "Roboto-Regular",
+            color: CColors.TextBody3
+        );
+
         public static readonly TextStyle PRegularBlue = new TextStyle(
             height: 1.46f,
             fontSize: 14,
@@ -327,13 +333,6 @@ namespace ConnectApp.constants {
             fontSize: 12,
             fontFamily: "Roboto-Regular",
             color: CColors.TextTitle
-        );
-
-        public static readonly TextStyle PSmallBody = new TextStyle(
-            height: 1.53f,
-            fontSize: 12,
-            fontFamily: "Roboto-Regular",
-            color: CColors.TextBody
         );
 
         public static readonly TextStyle PSmallBody3 = new TextStyle(
