@@ -1,16 +1,11 @@
-using System;
 using System.Collections.Generic;
 using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
-using ConnectApp.models;
 using ConnectApp.redux;
-using ConnectApp.redux.actions;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
-
     public class MainScreen : StatelessWidget {
         public override Widget build(BuildContext context) {
             return new Container(
@@ -49,7 +44,7 @@ namespace ConnectApp.screens {
                         index => {
                             if (index == 2)
                                 if (!StoreProvider.store.getState().loginState.isLoggedIn) {
-                                    Navigator.pushNamed(context,MainNavigatorRoutes.Login);
+                                    Navigator.pushNamed(context, MainNavigatorRoutes.Login);
                                     return false;
                                 }
 

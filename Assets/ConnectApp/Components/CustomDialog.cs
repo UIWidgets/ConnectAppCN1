@@ -79,7 +79,7 @@ namespace ConnectApp.components {
             var route = new _DialogRoute(
                 (context, animation, secondaryAnimation) => child,
                 barrierDismissible,
-                Color.fromRGBO(0,0,0,0.01f),
+                Color.fromRGBO(0, 0, 0, 0.01f),
                 new TimeSpan(0, 0, 0, 0, 150),
                 _transitionBuilder
             );
@@ -96,7 +96,7 @@ namespace ConnectApp.components {
                     new Icon(
                         iconData,
                         size: 27,
-                        color:Color.fromRGBO(199,203,207,1)
+                        color: Color.fromRGBO(199, 203, 207, 1)
                     ),
                     message,
                     TimeSpan.FromSeconds(1)

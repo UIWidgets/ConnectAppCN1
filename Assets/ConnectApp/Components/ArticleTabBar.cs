@@ -71,7 +71,8 @@ namespace ConnectApp.components {
                         new CustomButton(
                             padding: EdgeInsets.symmetric(12, 10),
                             onPressed: favorCallback,
-                            child: new Icon(like ? Icons.favorite : Icons.favorite_border, size: 24, color: like ? CColors.PrimaryBlue : CColors.icon3)
+                            child: new Icon(like ? Icons.favorite : Icons.favorite_border, size: 24,
+                                color: like ? CColors.PrimaryBlue : CColors.icon3)
                         ),
                         //分享
                         new CustomButton(

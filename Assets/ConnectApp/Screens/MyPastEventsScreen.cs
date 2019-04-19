@@ -36,8 +36,8 @@ namespace ConnectApp.screens {
             );
         }
     }
-    
-    public class MyPastEventsScreen: StatefulWidget {
+
+    public class MyPastEventsScreen : StatefulWidget {
         public MyPastEventsScreen(
             MyEventsScreenViewModel viewModel = null,
             MyEventsScreenActionModel actionModel = null,
@@ -49,6 +49,7 @@ namespace ConnectApp.screens {
 
         public readonly MyEventsScreenViewModel viewModel;
         public readonly MyEventsScreenActionModel actionModel;
+
         public override State createState() {
             return new _MyPastEventsScreenState();
         }
@@ -59,7 +60,7 @@ namespace ConnectApp.screens {
         private int _pageNumber;
         private RefreshController _refreshController;
 
-        protected override bool wantKeepAlive { get=>true; }
+        protected override bool wantKeepAlive => true;
 
         public override void initState() {
             base.initState();
@@ -70,10 +71,11 @@ namespace ConnectApp.screens {
                 widget.actionModel.fetchMyPastEvents(firstPageNumber);
             });
         }
+
         public override Widget build(BuildContext context) {
             return _buildMyPastEvents();
         }
-        
+
         private Widget _buildMyPastEvents() {
             var data = widget.viewModel.pastEventsList;
             if (widget.viewModel.pastListLoading && data.isEmpty()) return new GlobalLoading();
@@ -82,8 +84,8 @@ namespace ConnectApp.screens {
             var hasMore = pastEventTotal == data.Count;
 
             return new Container(
-                color:CColors.background3,
-                child:new SmartRefresher(
+                color: CColors.background3,
+                child: new SmartRefresher(
                     controller: _refreshController,
                     enablePullDown: true,
                     enablePullUp: !hasMore,
@@ -105,15 +107,15 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         private void _onRefresh(bool up) {
             if (up)
                 _pageNumber = firstPageNumber;
             else
                 _pageNumber++;
-                widget.actionModel.fetchMyPastEvents(_pageNumber)
-                    .Then(() => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
-                    .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
+            widget.actionModel.fetchMyPastEvents(_pageNumber)
+                .Then(() => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
         }
     }
 }

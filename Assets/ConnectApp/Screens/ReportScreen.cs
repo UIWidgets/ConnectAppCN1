@@ -10,14 +10,15 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.screens {
     public enum ReportType {
         article,
         comment
     }
+
     public class ReportScreenConnector : StatelessWidget {
         public ReportScreenConnector(
             string reportId,
@@ -30,6 +31,7 @@ namespace ConnectApp.screens {
 
         private readonly string reportId;
         private readonly ReportType reportType;
+
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ReportScreenViewModel>(
                 converter: state => new ReportScreenViewModel {
@@ -39,12 +41,8 @@ namespace ConnectApp.screens {
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var itemType = "";
-                    if (reportType == ReportType.article) {
-                        itemType = "project";
-                    }
-                    if (reportType == ReportType.comment) {
-                        itemType = "comment";
-                    }
+                    if (reportType == ReportType.article) itemType = "project";
+                    if (reportType == ReportType.comment) itemType = "comment";
                     var actionModel = new ReportScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         startReportItem = () => dispatcher.dispatch(new StartReportItemAction()),
@@ -61,7 +59,7 @@ namespace ConnectApp.screens {
             );
         }
     }
-    
+
     public class ReportScreen : StatefulWidget {
         public ReportScreen(
             ReportScreenViewModel viewModel = null,
@@ -75,18 +73,21 @@ namespace ConnectApp.screens {
         public readonly ReportScreenViewModel viewModel;
         public readonly ReportScreenActionModel actionModel;
 
-        public override State createState() => new _ReportScreenState();
+        public override State createState() {
+            return new _ReportScreenState();
+        }
     }
 
     internal class _ReportScreenState : State<ReportScreen> {
-
         private readonly List<string> _reportItems = new List<string> {
             "垃圾信息",
             "涉嫌侵权",
             "不友善行为",
             "有害信息"
         };
+
         private int _selectedIndex;
+
         public override void initState() {
             base.initState();
             _selectedIndex = 0;
@@ -107,7 +108,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         private Widget _buildNavigationBar() {
             return new Container(
                 decoration: new BoxDecoration(
@@ -186,7 +187,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         private static Widget _buildUnCheckBox() {
             return new Container(
                 width: 20,
@@ -197,7 +198,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         private static Widget _buildCheckBox() {
             return new Container(
                 width: 20,
@@ -217,7 +218,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         private Widget _buildReportButton() {
             Widget right = new Container();
             if (widget.viewModel.loading)

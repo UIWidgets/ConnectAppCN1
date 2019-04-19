@@ -10,12 +10,10 @@ namespace ConnectApp.api {
             var promise = new Promise<string>();
             var request =
                 HttpManager.GET(Config.apiAddress + $"/api/live/reviewUrl?platform={platform}&store={store}");
-            HttpManager.resume(request).Then(responseText => {  
+            HttpManager.resume(request).Then(responseText => {
                 var urlDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseText);
                 promise.Resolve(urlDictionary["url"]);
-            }).Catch(exception => {
-                promise.Reject(exception);
-            });
+            }).Catch(exception => { promise.Reject(exception); });
             return promise;
         }
     }

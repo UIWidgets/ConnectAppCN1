@@ -9,34 +9,34 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.components {
-    
     public enum CustomDismissibleMode {
         none,
         slide,
         dismiss,
         resize
     }
-    
+
     public enum CustomDismissibleActionType {
         primary,
         secondary
     }
-    
+
     public delegate void DismissSlideActionCallback(CustomDismissibleActionType actionType);
-    
+
     public delegate bool SlideActionWillBeDismissed(CustomDismissibleActionType actionType);
-    
-    public delegate Widget SlideActionBuilder(BuildContext context, int index, Animation<float> animation, CustomDismissibleMode mode);
+
+    public delegate Widget SlideActionBuilder(BuildContext context, int index, Animation<float> animation,
+        CustomDismissibleMode mode);
 
     public static class CustomDismissibleUtil {
         public static readonly float ActionsExtentRatio = 0.25f;
         public static readonly float FastThreshold = 2500;
         public static readonly float DismissThreshold = 0.75f;
-        public static readonly Curve ResizeTimeCurve = new Interval(0.4f, 1.0f,Curves.ease);
-        public static readonly TimeSpan ResizeDuration = new TimeSpan(0,0,0,0,300);
-        public static readonly TimeSpan MovementDuration = new TimeSpan(0,0,0,0,200);
+        public static readonly Curve ResizeTimeCurve = new Interval(0.4f, 1.0f, Curves.ease);
+        public static readonly TimeSpan ResizeDuration = new TimeSpan(0, 0, 0, 0, 300);
+        public static readonly TimeSpan MovementDuration = new TimeSpan(0, 0, 0, 0, 200);
     }
-    
+
     public abstract class SlideToDismissDelegate {
         protected SlideToDismissDelegate(
             Dictionary<CustomDismissibleActionType, float?> dismissThresholds = null,
@@ -53,23 +53,25 @@ namespace ConnectApp.components {
             this.onWillDismiss = onWillDismiss;
             this.closeOnCanceled = closeOnCanceled;
         }
-        
+
         public readonly Dictionary<CustomDismissibleActionType, float?> dismissThresholds;
         public readonly VoidCallback onResize;
         public readonly DismissSlideActionCallback onDismissed;
         public readonly TimeSpan? resizeDuration;
         public readonly SlideActionWillBeDismissed onWillDismiss;
         public readonly bool closeOnCanceled;
-  
-        public Widget buildActions(BuildContext context, CustomDismissibleDelegateContext ctx, CustomDismissibleDelegate dismissibleDelegate) {
-            if (ctx.state.overallMoveAnimation.value > ctx.state.totalActionsExtent) {
-              return buildActionsWhileDismissing(context, ctx);
-            }
+
+        public Widget buildActions(BuildContext context, CustomDismissibleDelegateContext ctx,
+            CustomDismissibleDelegate dismissibleDelegate) {
+            if (ctx.state.overallMoveAnimation.value > ctx.state.totalActionsExtent)
+                return buildActionsWhileDismissing(context, ctx);
             return dismissibleDelegate.buildActions(context, ctx);
         }
-        protected abstract Widget buildActionsWhileDismissing(BuildContext context, CustomDismissibleDelegateContext ctx);
+
+        protected abstract Widget buildActionsWhileDismissing(BuildContext context,
+            CustomDismissibleDelegateContext ctx);
     }
-    
+
     public class SlideToDismissDrawerDelegate : SlideToDismissDelegate {
         public SlideToDismissDrawerDelegate(
             Dictionary<CustomDismissibleActionType, float?> dismissThresholds = null,
@@ -79,14 +81,16 @@ namespace ConnectApp.components {
             SlideActionWillBeDismissed onWillDismiss = null,
             bool closeOnCanceled = false
         ) : base(dismissThresholds,
-                 onResize,
-                 onDismissed,
-                 resizeDuration,
-                 onWillDismiss,
-                 closeOnCanceled
-        ) { }
+            onResize,
+            onDismissed,
+            resizeDuration,
+            onWillDismiss,
+            closeOnCanceled
+        ) {
+        }
 
-        protected override Widget buildActionsWhileDismissing(BuildContext context, CustomDismissibleDelegateContext ctx) {
+        protected override Widget buildActionsWhileDismissing(BuildContext context,
+            CustomDismissibleDelegateContext ctx) {
             var animation = new OffsetTween(
                 Offset.zero,
                 ctx.createOffset(ctx.state.dragSign)
@@ -96,69 +100,74 @@ namespace ConnectApp.components {
                     children: new List<Widget> {
                         Positioned.fill(
                             new LayoutBuilder(builder: (_context, constraints) => {
-                                var count = ctx.state.actionCount;
-                                var actionExtent = ctx.getMaxExtent(constraints) * ctx.state.widget.actionExtentRatio;
-                                var totalExtent = ctx.getMaxExtent(constraints);
+                                    var count = ctx.state.actionCount;
+                                    var actionExtent =
+                                        ctx.getMaxExtent(constraints) * ctx.state.widget.actionExtentRatio;
+                                    var totalExtent = ctx.getMaxExtent(constraints);
 
-                                var extentAnimations = new List<Animation<float>>();
-                                for (var index = 0; index < count; index++) {
-                                    var extentAnimation = new FloatTween(
-                                        (float)actionExtent,
-                                        totalExtent - (float)actionExtent * (ctx.state.actionCount - index - 1)
-                                    ).animate(
-                                        new CurvedAnimation(
-                                            ctx.state.overallMoveAnimation,
-                                            new Interval(ctx.state.totalActionsExtent, 1)
-                                        )
-                                    );
-                                    extentAnimations.Add(extentAnimation);
-                                }
-
-                                return new AnimatedBuilder(
-                                    animation: ctx.state.overallMoveAnimation,
-                                    builder: (cxt, child) => {
-                                        var widgets = new List<Widget>();
-                                        for (var index = 0; index < ctx.state.actionCount; index++) {
-                                            var displayIndex = ctx.showActions
-                                                ? ctx.state.actionCount - index - 1
-                                                : index;
-                                            var widget = ctx.createPositioned(
-                                                position: (float)actionExtent * (ctx.state.actionCount - index - 1),
-                                                extent: extentAnimations[index].value,
-                                                child: ctx.state.actionDelegate.build(
-                                                    context,
-                                                    displayIndex,
-                                                    ctx.state.overallMoveAnimation,
-                                                    ctx.state.renderingMode
-                                                )
-                                            );
-                                            widgets.Add(widget);
-                                        }
-                                        return new Stack(
-                                            children: widgets
+                                    var extentAnimations = new List<Animation<float>>();
+                                    for (var index = 0; index < count; index++) {
+                                        var extentAnimation = new FloatTween(
+                                            (float) actionExtent,
+                                            totalExtent - (float) actionExtent * (ctx.state.actionCount - index - 1)
+                                        ).animate(
+                                            new CurvedAnimation(
+                                                ctx.state.overallMoveAnimation,
+                                                new Interval(ctx.state.totalActionsExtent, 1)
+                                            )
                                         );
+                                        extentAnimations.Add(extentAnimation);
                                     }
-                                );
-                            }
+
+                                    return new AnimatedBuilder(
+                                        animation: ctx.state.overallMoveAnimation,
+                                        builder: (cxt, child) => {
+                                            var widgets = new List<Widget>();
+                                            for (var index = 0; index < ctx.state.actionCount; index++) {
+                                                var displayIndex = ctx.showActions
+                                                    ? ctx.state.actionCount - index - 1
+                                                    : index;
+                                                var widget = ctx.createPositioned(
+                                                    position: (float) actionExtent *
+                                                              (ctx.state.actionCount - index - 1),
+                                                    extent: extentAnimations[index].value,
+                                                    child: ctx.state.actionDelegate.build(
+                                                        context,
+                                                        displayIndex,
+                                                        ctx.state.overallMoveAnimation,
+                                                        ctx.state.renderingMode
+                                                    )
+                                                );
+                                                widgets.Add(widget);
+                                            }
+
+                                            return new Stack(
+                                                children: widgets
+                                            );
+                                        }
+                                    );
+                                }
+                            )
+                        ),
+                        new SlideTransition(
+                            position: animation,
+                            child: ctx.state.widget.child
                         )
-                    ),
-                    new SlideTransition(
-                        position: animation,
-                        child: ctx.state.widget.child
-                    )
-                }
-            ));
+                    }
+                ));
         }
     }
-    
-    public abstract class SlideActionDelegate {
-        protected SlideActionDelegate() { }
 
-        public abstract Widget build(BuildContext context, int index, Animation<float> animation, CustomDismissibleMode mode);
+    public abstract class SlideActionDelegate {
+        protected SlideActionDelegate() {
+        }
+
+        public abstract Widget build(BuildContext context, int index, Animation<float> animation,
+            CustomDismissibleMode mode);
 
         public virtual int actionCount { get; }
     }
-    
+
     public class SlideActionBuilderDelegate : SlideActionDelegate {
         public SlideActionBuilderDelegate(
             SlideActionBuilder builder,
@@ -167,31 +176,33 @@ namespace ConnectApp.components {
             this.builder = builder;
             this.actionCount = actionCount;
         }
-        
+
         private readonly SlideActionBuilder builder;
         private new int actionCount;
 
-        public override Widget build(BuildContext context, int index, Animation<float> animation, CustomDismissibleMode mode) =>
-            builder(context, index, animation, mode);
+        public override Widget build(BuildContext context, int index, Animation<float> animation,
+            CustomDismissibleMode mode) {
+            return builder(context, index, animation, mode);
+        }
     }
-    
+
     public class SlideActionListDelegate : SlideActionDelegate {
         public SlideActionListDelegate(
             List<Widget> actions
         ) {
             this.actions = actions;
         }
-        
+
         private readonly List<Widget> actions;
 
-        public override int actionCount {
-            get { return actions?.Count ?? 0; }
-        }
+        public override int actionCount => actions?.Count ?? 0;
 
-        public override Widget build(BuildContext context, int index, Animation<float> animation, CustomDismissibleMode mode) =>
-            actions[index];
+        public override Widget build(BuildContext context, int index, Animation<float> animation,
+            CustomDismissibleMode mode) {
+            return actions[index];
+        }
     }
-    
+
     public class CustomDismissibleDelegateContext {
         public CustomDismissibleDelegateContext(
             CustomDismissibleStateView state
@@ -201,9 +212,7 @@ namespace ConnectApp.components {
 
         public readonly CustomDismissibleStateView state;
 
-        public bool showActions {
-            get { return state.actionType == CustomDismissibleActionType.primary; }
-        }
+        public bool showActions => state.actionType == CustomDismissibleActionType.primary;
 
         public List<Widget> buildActions(BuildContext context) {
             var widgets = new List<Widget>();
@@ -212,6 +221,7 @@ namespace ConnectApp.components {
                     state.actionsMoveAnimation, CustomDismissibleMode.slide);
                 widgets.Add(widget);
             }
+
             return widgets;
         }
 
@@ -236,6 +246,7 @@ namespace ConnectApp.components {
                 top = position;
                 bottom = null;
             }
+
             float? width = null;
             float? height = extent;
             if (state.directionIsXAxis) {
@@ -245,11 +256,13 @@ namespace ConnectApp.components {
                     left = position;
                     right = null;
                 }
+
                 top = 0;
                 bottom = 0;
                 width = extent;
                 height = null;
             }
+
             return new Positioned(
                 left: left,
                 right: right,
@@ -271,25 +284,26 @@ namespace ConnectApp.components {
         }
 
         public readonly float fastThreshold;
-        
+
         public abstract Widget buildActions(BuildContext context, CustomDismissibleDelegateContext ctx);
     }
-    
+
     public abstract class CustomDismissibleStackDelegate : CustomDismissibleDelegate {
         protected CustomDismissibleStackDelegate(
             float? fastThreshold = null
-        ) : base(fastThreshold) { }
+        ) : base(fastThreshold) {
+        }
 
         public override Widget buildActions(BuildContext context, CustomDismissibleDelegateContext ctx) {
             var animation = new OffsetTween(
-                    Offset.zero,
-                    ctx.createOffset(ctx.state.totalActionsExtent * ctx.state.dragSign)
-                ).animate(ctx.state.actionsMoveAnimation);
+                Offset.zero,
+                ctx.createOffset(ctx.state.totalActionsExtent * ctx.state.dragSign)
+            ).animate(ctx.state.actionsMoveAnimation);
 
-            if (ctx.state.actionsMoveAnimation.value != 0.0f) {
+            if (ctx.state.actionsMoveAnimation.value != 0.0f)
                 return new Container(
                     child: new Stack(
-                        children: new List<Widget>{
+                        children: new List<Widget> {
                             buildStackActions(context, ctx),
                             new SlideTransition(
                                 position: animation,
@@ -298,22 +312,22 @@ namespace ConnectApp.components {
                         }
                     )
                 );
-            }
             return ctx.state.widget.child;
         }
 
         protected abstract Widget buildStackActions(BuildContext context, CustomDismissibleDelegateContext ctx);
     }
-    
+
     public class CustomDismissibleStretchDelegate : CustomDismissibleStackDelegate {
         public CustomDismissibleStretchDelegate(
             float? fastThreshold = null
-        ) : base(fastThreshold) { }
+        ) : base(fastThreshold) {
+        }
 
         protected override Widget buildStackActions(BuildContext context, CustomDismissibleDelegateContext ctx) {
             var animation = new FloatTween(0, ctx.state.totalActionsExtent * ctx.state.dragSign
-                ).animate(ctx.state.actionsMoveAnimation);
-            
+            ).animate(ctx.state.actionsMoveAnimation);
+
             return Positioned.fill(
                 new LayoutBuilder(builder: (_context, constraints) => {
                     return new AnimatedBuilder(
@@ -325,7 +339,7 @@ namespace ConnectApp.components {
                                 widgets.Add(widget);
                             });
                             return new Stack(
-                                children: new List<Widget>{
+                                children: new List<Widget> {
                                     ctx.createPositioned(
                                         position: 0,
                                         extent:
@@ -343,11 +357,12 @@ namespace ConnectApp.components {
             );
         }
     }
-    
+
     public class CustomDismissibleBehindDelegate : CustomDismissibleStackDelegate {
         public CustomDismissibleBehindDelegate(
             float? fastThreshold = null
-        ) : base(fastThreshold) { }
+        ) : base(fastThreshold) {
+        }
 
         protected override Widget buildStackActions(BuildContext context, CustomDismissibleDelegateContext ctx) {
             return Positioned.fill(
@@ -358,7 +373,7 @@ namespace ConnectApp.components {
                         widgets.Add(widget);
                     });
                     return new Stack(
-                        children: new List<Widget>{
+                        children: new List<Widget> {
                             ctx.createPositioned(
                                 position: 0,
                                 extent:
@@ -374,11 +389,12 @@ namespace ConnectApp.components {
             );
         }
     }
-    
+
     public class CustomDismissibleScrollDelegate : CustomDismissibleStackDelegate {
         public CustomDismissibleScrollDelegate(
             float? fastThreshold = null
-        ) : base(fastThreshold) { }
+        ) : base(fastThreshold) {
+        }
 
         protected override Widget buildStackActions(BuildContext context, CustomDismissibleDelegateContext ctx) {
             return Positioned.fill(
@@ -395,13 +411,13 @@ namespace ConnectApp.components {
                                 widgets.Add(widget);
                             });
                             return new Stack(
-                                children: new List <Widget>{
+                                children: new List<Widget> {
                                     ctx.createPositioned(
                                         position: animation.value,
                                         extent: totalExtent,
                                         child: new Flex(
-                                          ctx.state.widget.direction,
-                                          children: widgets
+                                            ctx.state.widget.direction,
+                                            children: widgets
                                         )
                                     )
                                 }
@@ -416,8 +432,9 @@ namespace ConnectApp.components {
     public class CustomDismissibleDrawerDelegate : CustomDismissibleStackDelegate {
         public CustomDismissibleDrawerDelegate(
             float? fastThreshold = null
-        ) : base(fastThreshold) { }
-    
+        ) : base(fastThreshold) {
+        }
+
         protected override Widget buildStackActions(BuildContext context, CustomDismissibleDelegateContext ctx) {
             return Positioned.fill(
                 new LayoutBuilder(builder: (_context, constraints) => {
@@ -427,16 +444,16 @@ namespace ConnectApp.components {
                     var actionsMoveAnimation = state.actionsMoveAnimation;
                     var actionExtent = ctx.getMaxExtent(constraints) * state.widget.actionExtentRatio;
                     var actionDelegate = state.actionDelegate;
-    
+
                     var animations = new List<Animation<float>>();
                     for (var index = 0; index < count; index++) {
                         var animation = new FloatTween(
-                            -(float)actionExtent,
-                            (count - index - 1) * (float)actionExtent
+                            -(float) actionExtent,
+                            (count - index - 1) * (float) actionExtent
                         ).animate(actionsMoveAnimation);
                         animations.Add(animation);
                     }
-            
+
                     return new AnimatedBuilder(
                         animation: actionsMoveAnimation,
                         builder: (cxt, child) => {
@@ -445,7 +462,7 @@ namespace ConnectApp.components {
                                 var displayIndex = showActions ? count - index - 1 : index;
                                 var widget = ctx.createPositioned(
                                     position: animations[index].value,
-                                    extent: (float)actionExtent,
+                                    extent: (float) actionExtent,
                                     child: actionDelegate.build(
                                         context,
                                         displayIndex,
@@ -455,6 +472,7 @@ namespace ConnectApp.components {
                                 );
                                 widgets.Add(widget);
                             }
+
                             return new Stack(
                                 children: widgets
                             );
@@ -464,7 +482,7 @@ namespace ConnectApp.components {
             );
         }
     }
-    
+
     public class CustomDismissibleController {
         public CustomDismissibleController(
             ValueChanged<Animation<float>> onSlideAnimationChanged = null,
@@ -481,12 +499,13 @@ namespace ConnectApp.components {
         private Animation<float> _slideAnimation;
 
         private CustomDismissibleState _activeState;
+
         public void _setActiveState(CustomDismissibleState newValue) {
             _activeState = newValue;
         }
-        public CustomDismissibleState activeState {
-            get { return _activeState; }
-        }
+
+        public CustomDismissibleState activeState => _activeState;
+
         public void setActiveState(CustomDismissibleState newValue) {
             _activeState?._flingAnimationControllers();
             _activeState = newValue;
@@ -500,6 +519,7 @@ namespace ConnectApp.components {
                         onSlideIsOpenChanged(_isSlideOpen);
                     }
                 }
+
                 onSlideAnimationChanged(newValue?.overallMoveAnimation);
             }
         }
@@ -514,7 +534,7 @@ namespace ConnectApp.components {
             }
         }
     }
-    
+
     public interface CustomDismissibleStateView {
         Animation<float> overallMoveAnimation { get; }
         Animation<float> actionsMoveAnimation { get; }
@@ -527,7 +547,7 @@ namespace ConnectApp.components {
         CustomDismissible widget { get; }
         CustomDismissibleMode renderingMode { get; }
     }
-    
+
     public class CustomDismissible : StatefulWidget {
         private CustomDismissible(
             Key key,
@@ -603,85 +623,63 @@ namespace ConnectApp.components {
         public readonly bool enabled;
         public readonly SlideToDismissDelegate slideToDismissDelegate;
         public readonly CustomDismissibleController controller;
-        
-        static CustomDismissibleState of(BuildContext context) {
+
+        private static CustomDismissibleState of(BuildContext context) {
             return (CustomDismissibleState) context.ancestorStateOfType(new TypeMatcher<CustomDismissibleState>());
         }
 
-        public override State createState() => new CustomDismissibleState();
+        public override State createState() {
+            return new CustomDismissibleState();
+        }
     }
 
-    public class CustomDismissibleState : AutomaticKeepAliveClientWithTickerProviderStateMixin<CustomDismissible>, CustomDismissibleStateView {
-        
+    public class CustomDismissibleState : AutomaticKeepAliveClientWithTickerProviderStateMixin<CustomDismissible>,
+        CustomDismissibleStateView {
         private AnimationController _overallMoveController;
-        public Animation<float> overallMoveAnimation {
-            get { return _overallMoveController.view; }
-        }
+        public Animation<float> overallMoveAnimation => _overallMoveController.view;
 
         private AnimationController _actionsMoveController;
-        public Animation<float> actionsMoveAnimation {
-            get { return _actionsMoveController.view; }
-        }
+        public Animation<float> actionsMoveAnimation => _actionsMoveController.view;
 
         private AnimationController _resizeController;
         private Animation<float> _resizeAnimation;
-        
+
         private float _dragExtent;
-        public float dragSign {
-            get { return _dragExtent.sign() == 0 ? 1.0f : _dragExtent.sign(); }
-        }
-        
+        public float dragSign => _dragExtent.sign() == 0 ? 1.0f : _dragExtent.sign();
+
         private CustomDismissibleMode _renderingMode = CustomDismissibleMode.none;
-        public CustomDismissibleMode renderingMode {
-            get { return _renderingMode; }
-        }
-        
+        public CustomDismissibleMode renderingMode => _renderingMode;
+
         private ScrollPosition _scrollPosition;
         private bool _dragUnderway = false;
         private Size _sizePriorToCollapse;
         private bool _dismissing = false;
 
-        public CustomDismissibleActionType actionType {
-            get { return dragSign > 0 ? CustomDismissibleActionType.primary : CustomDismissibleActionType.secondary; }
-        }
+        public CustomDismissibleActionType actionType =>
+            dragSign > 0 ? CustomDismissibleActionType.primary : CustomDismissibleActionType.secondary;
 
-        public int actionCount {
-            get { return actionDelegate?.actionCount ?? 0; }
-        }
+        public int actionCount => actionDelegate?.actionCount ?? 0;
 
-        public float totalActionsExtent {
-            get { return (float)widget.actionExtentRatio * actionCount; }
-        }
+        public float totalActionsExtent => (float) widget.actionExtentRatio * actionCount;
 
-        public float dismissThreshold {
-            get { return widget.slideToDismissDelegate.dismissThresholds[actionType] ?? CustomDismissibleUtil.DismissThreshold; }
-        }
+        public float dismissThreshold => widget.slideToDismissDelegate.dismissThresholds[actionType] ??
+                                         CustomDismissibleUtil.DismissThreshold;
 
-        public bool dismissible {
-            get { return widget.slideToDismissDelegate != null && dismissThreshold < 1.0; }
-        }
-        
-        protected override bool wantKeepAlive {
-            get {
-                return !widget.closeOnScroll &&
-                       (_overallMoveController?.isAnimating == true ||
-                        _actionsMoveController?.isAnimating == true ||
-                        _resizeController?.isAnimating == true);
-            }
-        }
+        public bool dismissible => widget.slideToDismissDelegate != null && dismissThreshold < 1.0;
 
-        public SlideActionDelegate actionDelegate {
-            get {
-                return actionType == CustomDismissibleActionType.primary
+        protected override bool wantKeepAlive =>
+            !widget.closeOnScroll &&
+            (_overallMoveController?.isAnimating == true ||
+             _actionsMoveController?.isAnimating == true ||
+             _resizeController?.isAnimating == true);
+
+        public SlideActionDelegate actionDelegate =>
+            actionType == CustomDismissibleActionType.primary
                 ? widget.actionDelegate
                 : widget.secondaryActionDelegate;
-            }
-        }
 
-        public bool directionIsXAxis {
-            get { return widget.direction == Axis.horizontal; }
-        }
-        
+        public bool directionIsXAxis => widget.direction == Axis.horizontal;
+
         private float _overallDragAxisExtent {
             get {
                 var size = context.size;
@@ -689,10 +687,8 @@ namespace ConnectApp.components {
             }
         }
 
-        private float _actionsDragAxisExtent {
-            get { return _overallDragAxisExtent * totalActionsExtent; }
-        }
-        
+        private float _actionsDragAxisExtent => _overallDragAxisExtent * totalActionsExtent;
+
         public override void initState() {
             base.initState();
             _overallMoveController = new AnimationController(duration: widget.movementDuration, vsync: this);
@@ -707,15 +703,14 @@ namespace ConnectApp.components {
             _removeScrollingNotifierListener();
             _addScrollingNotifierListener();
         }
-        
+
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
-            if (oldWidget is CustomDismissible customDismissible) {
+            if (oldWidget is CustomDismissible customDismissible)
                 if (widget.closeOnScroll != customDismissible.closeOnScroll) {
                     _removeScrollingNotifierListener();
                     _addScrollingNotifierListener();
                 }
-            }
         }
 
         public override void dispose() {
@@ -726,7 +721,7 @@ namespace ConnectApp.components {
             widget.controller?._setActiveState(null);
             base.dispose();
         }
-        
+
         private void _addScrollingNotifierListener() {
             if (widget.closeOnScroll) {
                 _scrollPosition = Scrollable.of(context)?.position;
@@ -736,11 +731,9 @@ namespace ConnectApp.components {
         }
 
         private void _removeScrollingNotifierListener() {
-            if (_scrollPosition != null) {
-                _scrollPosition.isScrollingNotifier.removeListener(_isScrollingListener);
-            }
+            if (_scrollPosition != null) _scrollPosition.isScrollingNotifier.removeListener(_isScrollingListener);
         }
-        
+
         public void open() {
             _actionsMoveController.fling();
             _overallMoveController.animateTo(
@@ -754,58 +747,47 @@ namespace ConnectApp.components {
             _flingAnimationControllers();
             widget.controller?.setActiveState(null);
         }
-        
+
         public void _flingAnimationControllers() {
             if (!_dismissing) {
                 _actionsMoveController.fling(-1);
                 _overallMoveController.fling(-1);
             }
         }
-        
+
         public void dismiss(CustomDismissibleActionType? actionType) {
             if (dismissible) {
                 _dismissing = true;
                 if (actionType == null)
                     actionType = this.actionType;
-                if (actionType != this.actionType) {
-                    setState(() => {
-                        _dragExtent = actionType == CustomDismissibleActionType.primary ? 1 : -1;
-                    });
-                }
+                if (actionType != this.actionType)
+                    setState(() => { _dragExtent = actionType == CustomDismissibleActionType.primary ? 1 : -1; });
                 _overallMoveController.fling();
             }
         }
-        
+
         private void _isScrollingListener() {
             if (!widget.closeOnScroll || _scrollPosition == null) return;
-            if (_scrollPosition.isScrollingNotifier.value) {
-                close();
-            }
+            if (_scrollPosition.isScrollingNotifier.value) close();
         }
-        
+
         private void _handleDragStart(DragStartDetails details) {
             _dragUnderway = true;
             widget.controller?.setActiveState(this);
             _dragExtent = _actionsMoveController.value *
                           _actionsDragAxisExtent *
                           _dragExtent.sign();
-            if (_overallMoveController.isAnimating) {
-                _overallMoveController.stop();
-            }
+            if (_overallMoveController.isAnimating) _overallMoveController.stop();
 
-            if (_actionsMoveController.isAnimating) {
-                _actionsMoveController.stop();
-            }
+            if (_actionsMoveController.isAnimating) _actionsMoveController.stop();
         }
-        
+
         private void _handleDragUpdate(DragUpdateDetails details) {
-            if (widget.controller != null && widget.controller.activeState != this) {
-                return;
-            }
+            if (widget.controller != null && widget.controller.activeState != this) return;
 
             var delta = details.primaryDelta;
             if (delta != null)
-                _dragExtent += (float)delta;
+                _dragExtent += (float) delta;
             setState(() => {
                 _overallMoveController.setValue(_dragExtent.abs() / _overallDragAxisExtent);
                 _actionsMoveController.setValue(_dragExtent.abs() / _actionsDragAxisExtent);
@@ -814,38 +796,35 @@ namespace ConnectApp.components {
                     : CustomDismissibleMode.slide;
             });
         }
-        
+
         private void _handleDragEnd(DragEndDetails details) {
-            if (widget.controller != null && widget.controller.activeState != this) {
-                return;
-            }
-            
+            if (widget.controller != null && widget.controller.activeState != this) return;
+
             _dragUnderway = false;
-            var velocity = (float)details.primaryVelocity;
+            var velocity = (float) details.primaryVelocity;
             var shouldOpen = velocity.sign() == _dragExtent.sign();
             var fast = velocity.abs() > widget.dismissibleDelegate.fastThreshold;
 
             if (dismissible && overallMoveAnimation.value > totalActionsExtent) {
                 // We are in a dismiss state.
-                if (overallMoveAnimation.value >= dismissThreshold) {
+                if (overallMoveAnimation.value >= dismissThreshold)
                     dismiss(null);
-                } else {
+                else
                     open();
-                }
-            } else if (actionsMoveAnimation.value >= widget.showAllActionsThreshold || (shouldOpen && fast)) {
+            }
+            else if (actionsMoveAnimation.value >= widget.showAllActionsThreshold || (shouldOpen && fast)) {
                 open();
-            } else {
+            }
+            else {
                 close();
             }
         }
-        
+
         private void _handleShowAllActionsStatusChanged(AnimationStatus status) {
-            if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
-                setState(() => {});
-            }
-            this.updateKeepAlive();
+            if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) setState(() => { });
+            updateKeepAlive();
         }
-        
+
         private void _handleDismissStatusChanged(AnimationStatus status) {
             if (dismissible) {
                 if (status == AnimationStatus.completed &&
@@ -854,27 +833,26 @@ namespace ConnectApp.components {
                     if (widget.slideToDismissDelegate.onWillDismiss == null ||
                         widget.slideToDismissDelegate.onWillDismiss(actionType)) {
                         _startResizeAnimation();
-                    } else {
+                    }
+                    else {
                         _dismissing = false;
-                        if (widget.slideToDismissDelegate?.closeOnCanceled == true) {
+                        if (widget.slideToDismissDelegate?.closeOnCanceled == true)
                             close();
-                        } else {
+                        else
                             open();
-                        }
                     }
                 }
-                this.updateKeepAlive();
+
+                updateKeepAlive();
             }
         }
-        
+
         private void _handleDismiss() {
             widget.controller?.setActiveState(null);
             var slideToDismissDelegate = widget.slideToDismissDelegate;
-            if (slideToDismissDelegate.onDismissed != null) {
-                slideToDismissDelegate.onDismissed(actionType);
-            }
+            if (slideToDismissDelegate.onDismissed != null) slideToDismissDelegate.onDismissed(actionType);
         }
-        
+
         private void _startResizeAnimation() {
             D.assert(_overallMoveController != null);
             D.assert(_overallMoveController.isCompleted);
@@ -883,25 +861,28 @@ namespace ConnectApp.components {
             var slideToDismissDelegate = widget.slideToDismissDelegate;
             if (slideToDismissDelegate.resizeDuration == null) {
                 _handleDismiss();
-            } else {
-                _resizeController = new AnimationController(duration: slideToDismissDelegate.resizeDuration, vsync: this);
+            }
+            else {
+                _resizeController =
+                    new AnimationController(duration: slideToDismissDelegate.resizeDuration, vsync: this);
                 _resizeController.addListener(_handleResizeProgressChanged);
-                _resizeController.addStatusListener(status => this.updateKeepAlive());
+                _resizeController.addStatusListener(status => updateKeepAlive());
                 _resizeController.forward();
                 setState(() => {
                     _renderingMode = CustomDismissibleMode.resize;
                     _sizePriorToCollapse = context.size;
                     _resizeAnimation = new FloatTween(1, 0).animate(
-                        new CurvedAnimation( _resizeController, CustomDismissibleUtil.ResizeTimeCurve));
+                        new CurvedAnimation(_resizeController, CustomDismissibleUtil.ResizeTimeCurve));
                 });
             }
         }
-        
+
         private void _handleResizeProgressChanged() {
             var slideToDismissDelegate = widget.slideToDismissDelegate;
             if (_resizeController.isCompleted) {
                 _handleDismiss();
-            } else {
+            }
+            else {
                 if (slideToDismissDelegate.onResize != null)
                     slideToDismissDelegate.onResize();
             }
@@ -909,14 +890,13 @@ namespace ConnectApp.components {
 
         public override Widget build(BuildContext context) {
             base.build(context); // See AutomaticKeepAliveClientMixin.
-            if (!widget.enabled || 
+            if (!widget.enabled ||
                 (widget.actionDelegate == null || widget.actionDelegate.actionCount == 0) &&
-                (widget.secondaryActionDelegate == null || widget.secondaryActionDelegate.actionCount == 0)) {
+                (widget.secondaryActionDelegate == null || widget.secondaryActionDelegate.actionCount == 0))
                 return widget.child;
-            }
 
             var content = widget.child;
-            
+
             if (actionType == CustomDismissibleActionType.primary &&
                 widget.actionDelegate != null &&
                 widget.actionDelegate.actionCount > 0 ||
@@ -929,12 +909,11 @@ namespace ConnectApp.components {
                         new CustomDismissibleDelegateContext(this),
                         widget.dismissibleDelegate
                     );
-                
+
                     if (_resizeAnimation != null) {
                         D.assert(() => {
-                            if (_resizeAnimation.status != AnimationStatus.forward) {
+                            if (_resizeAnimation.status != AnimationStatus.forward)
                                 D.assert(_resizeAnimation.status == AnimationStatus.completed);
-                            }
                             return true;
                         });
                         return new SizeTransition(
@@ -947,7 +926,8 @@ namespace ConnectApp.components {
                             )
                         );
                     }
-                } else {
+                }
+                else {
                     content = widget.dismissibleDelegate.buildActions(
                         context,
                         new CustomDismissibleDelegateContext(this)
@@ -969,6 +949,7 @@ namespace ConnectApp.components {
                 onVerticalDragUpdate = null;
                 onVerticalDragEnd = null;
             }
+
             return new GestureDetector(
                 onHorizontalDragStart: onHorizontalDragStart,
                 onHorizontalDragUpdate: onHorizontalDragUpdate,

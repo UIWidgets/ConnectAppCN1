@@ -7,7 +7,7 @@ namespace ConnectApp.constants {
         public static readonly IconData UnityLogo = new IconData(0xe61d, "iconfont");
         public static readonly IconData WechatMoment = new IconData(0xe61e, "iconfont");
         public static readonly IconData WechatIcon = new IconData(0xe61f, "iconfont");
-        
+
         public static readonly IconData Description = new IconData(0xe607, "iconfont");
         public static readonly IconData Notification = new IconData(0xe611, "iconfont");
         public static readonly IconData search = new IconData(0xe612, "iconfont");
@@ -41,7 +41,6 @@ namespace ConnectApp.constants {
         public static readonly IconData delete_outline = new IconData(0xe608, "iconfont");
         public static readonly IconData block = new IconData(0xe60e, "iconfont");
         public static readonly IconData report = new IconData(0xe616, "iconfont");
-
     }
 
     public static class CTextStyle {
@@ -263,7 +262,7 @@ namespace ConnectApp.constants {
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody
         );
-        
+
         public static readonly TextStyle PCodeStyle = new TextStyle(
             height: 1.46f,
             fontSize: 14,

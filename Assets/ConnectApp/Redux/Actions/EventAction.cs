@@ -8,6 +8,7 @@ using EventType = ConnectApp.models.EventType;
 namespace ConnectApp.redux.actions {
     public class StartFetchEventOngoingAction : RequestAction {
     }
+
     public class StartFetchEventCompletedAction : RequestAction {
     }
 
@@ -16,7 +17,7 @@ namespace ConnectApp.redux.actions {
         public int pageNumber = 0;
         public string tab;
     }
-    
+
     public class FetchEventsFailureAction : BaseAction {
     }
 
@@ -108,6 +109,7 @@ namespace ConnectApp.redux.actions {
                             dispatcher.dispatch(new StartFetchMessagesAction());
                             dispatcher.dispatch(fetchMessages(eventObj.channelId, "", true));
                         }
+
                         var userMap = new Dictionary<string, User> {
                             {eventObj.user.id, eventObj.user}
                         };

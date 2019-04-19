@@ -196,15 +196,13 @@ namespace ConnectApp.screens {
         private void _handleSubmitted(string text) {
             widget.actionModel.startSendMessage();
             widget.actionModel.sendMessage(widget.viewModel.channelId, text, Snowflake.CreateNonce(), "")
-                .Catch(_ => {
-                    CustomDialogUtils.showToast("消息发送失败", Icons.error_outline);
-                });
+                .Catch(_ => { CustomDialogUtils.showToast("消息发送失败", Icons.error_outline); });
             _refreshController.scrollTo(0);
         }
 
         private Widget _buildHeadTop(bool isShowShare, IEvent eventObj) {
             Widget shareWidget = new Container();
-            if (isShowShare) {
+            if (isShowShare)
                 shareWidget = new CustomButton(
                     onPressed: () => ShareUtils.showShareView(new ShareView(
                         projectType: ProjectType.iEvent,
@@ -213,16 +211,18 @@ namespace ConnectApp.screens {
                                 $"{Config.apiAddress}/events/{eventObj.id}";
                             if (type == ShareType.clipBoard) {
                                 widget.actionModel.copyText(linkUrl);
-                                CustomDialogUtils.showToast("复制链接成功",Icons.check_circle_outline);
-                            } else {
-                               var imageUrl = $"{eventObj.avatar}.200x0x1.jpg";
+                                CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
+                            }
+                            else {
+                                var imageUrl = $"{eventObj.avatar}.200x0x1.jpg";
                                 CustomDialogUtils.showCustomDialog(
                                     child: new CustomDialog()
                                 );
-                                widget.actionModel.shareToWechat(type, eventObj.title, eventObj.shortDescription, linkUrl,
-                                    imageUrl).Then(CustomDialogUtils.hiddenCustomDialog).Catch(_ => CustomDialogUtils.hiddenCustomDialog());
+                                widget.actionModel.shareToWechat(type, eventObj.title, eventObj.shortDescription,
+                                        linkUrl,
+                                        imageUrl).Then(CustomDialogUtils.hiddenCustomDialog)
+                                    .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
                             }
-                            
                         })),
                     child: new Container(
                         alignment: Alignment.topRight,
@@ -231,7 +231,6 @@ namespace ConnectApp.screens {
                         color: CColors.Transparent,
                         child: new Icon(Icons.share, size: 28, color: CColors.White))
                 );
-            }
             return new Container(
                 height: 44,
                 padding: EdgeInsets.symmetric(horizontal: 8),
@@ -310,7 +309,7 @@ namespace ConnectApp.screens {
             if (eventType == EventType.offline) return _buildOfflineRegisterNow(eventObj, isLoggedIn, eventStatus);
             if (eventStatus != EventStatus.future && eventType == EventType.online && isLoggedIn)
                 return new Container();
-            
+
             var onlineCount = eventObj.onlineMemberCount;
             var recordWatchCount = eventObj.recordWatchCount;
             var userIsCheckedIn = eventObj.userIsCheckedIn;
@@ -346,7 +345,7 @@ namespace ConnectApp.screens {
                 joinInText,
                 style: textStyle
             );
-            
+
             if (widget.viewModel.joinEventLoading)
                 child = new CustomActivityIndicator(
                     loadingColor: LoadingColor.white
@@ -595,6 +594,7 @@ namespace ConnectApp.screens {
                 backgroundColor = CColors.Disable;
                 isEnabled = true;
             }
+
             if (eventStatus == EventStatus.past) {
                 buttonText = "已结束";
                 backgroundColor = CColors.Disable;

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using ConnectApp.models;
-using ConnectApp.plugins;
 using ConnectApp.screens;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;

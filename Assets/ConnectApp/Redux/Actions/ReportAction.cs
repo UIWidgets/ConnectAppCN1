@@ -14,7 +14,7 @@ namespace ConnectApp.redux.actions {
 
     public class ReportItemSuccessAction : BaseAction {
     }
-    
+
     public class ReportItemFailureAction : BaseAction {
     }
 

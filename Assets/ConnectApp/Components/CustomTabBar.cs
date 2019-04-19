@@ -108,7 +108,7 @@ namespace ConnectApp.components {
                                                 setState(() => {
                                                     _selectedIndex = item.index;
                                                     _pageController.animateToPage(item.index,
-                                                        new TimeSpan(0, 0, 0, 0,1),
+                                                        new TimeSpan(0, 0, 0, 0, 1),
                                                         Curves.ease);
                                                 });
                                 },

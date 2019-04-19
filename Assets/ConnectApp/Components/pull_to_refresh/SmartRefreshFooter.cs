@@ -17,15 +17,15 @@ namespace ConnectApp.components.pull_to_refresh {
         }
 
         public override Widget build(BuildContext context) {
-            if (mode == 0) return new Container(height:DefaultConstants.default_VisibleRange);
+            if (mode == 0) return new Container(height: DefaultConstants.default_VisibleRange);
             AnimatingType animatingType = AnimatingType.stop;
             if (mode == 2) animatingType = AnimatingType.repeat;
             if (mode == 3) animatingType = AnimatingType.stop;
             if (mode == 0) animatingType = AnimatingType.reset;
-            
+
             return new Container(
                 padding: padding,
-                child:  new CustomActivityIndicator(
+                child: new CustomActivityIndicator(
                     animating: animatingType
                 )
             );

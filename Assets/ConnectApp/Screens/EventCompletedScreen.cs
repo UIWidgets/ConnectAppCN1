@@ -37,7 +37,7 @@ namespace ConnectApp.screens {
             );
         }
     }
-    
+
     public class EventCompletedScreen : StatefulWidget {
         public EventCompletedScreen(
             EventsScreenViewModel viewModel = null,
@@ -47,9 +47,10 @@ namespace ConnectApp.screens {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
+
         public readonly EventsScreenViewModel viewModel;
         public readonly EventsScreenActionModel actionModel;
-        
+
         public override State createState() {
             return new _EventCompletedScreenState();
         }
@@ -60,7 +61,7 @@ namespace ConnectApp.screens {
         private RefreshController _completedRefreshController;
         private int pageNumber = firstPageNumber;
 
-        protected override bool wantKeepAlive { get=>true; }
+        protected override bool wantKeepAlive => true;
 
         public override void initState() {
             base.initState();
@@ -73,10 +74,11 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             base.build(context);
-            if (widget.viewModel.eventCompletedLoading && widget.viewModel.completedEvents.isEmpty()) return new GlobalLoading();
+            if (widget.viewModel.eventCompletedLoading && widget.viewModel.completedEvents.isEmpty())
+                return new GlobalLoading();
             if (widget.viewModel.completedEvents.Count <= 0) return new BlankView("暂无往期活动");
             return new Container(
-                color:CColors.background3,
+                color: CColors.background3,
                 child: new SmartRefresher(
                     controller: _completedRefreshController,
                     enablePullDown: true,
@@ -102,8 +104,9 @@ namespace ConnectApp.screens {
                         }
                     )
                 )
-            ); 
+            );
         }
+
         private void _completedRefresh(bool up) {
             if (up)
                 pageNumber = firstPageNumber;

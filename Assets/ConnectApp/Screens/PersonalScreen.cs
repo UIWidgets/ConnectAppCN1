@@ -53,7 +53,7 @@ namespace ConnectApp.screens {
     }
 
     public class _PersonalScreenState : AutomaticKeepAliveClientMixin<PersonalScreen> {
-        protected override bool wantKeepAlive { get=>true; }
+        protected override bool wantKeepAlive => true;
 
         public override Widget build(BuildContext context) {
             base.build(context);

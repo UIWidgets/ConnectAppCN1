@@ -78,9 +78,8 @@ namespace ConnectApp.components {
                                         children: _buildShareItems()
                                     )
                                 ),
-                                projectType == ProjectType.article 
-                                    ?
-                                    new Container(
+                                projectType == ProjectType.article
+                                    ? new Container(
                                         height: 108,
                                         padding: EdgeInsets.only(top: 16),
                                         decoration: new BoxDecoration(
@@ -92,9 +91,8 @@ namespace ConnectApp.components {
                                             mainAxisAlignment: MainAxisAlignment.start,
                                             children: _buildOtherItems()
                                         )
-                                    ) 
-                                    :
-                                    new Container(),
+                                    )
+                                    : new Container(),
                                 new GestureDetector(
                                     onTap: () => {
                                         if (Router.navigator.canPop()) Router.navigator.pop();
@@ -117,18 +115,18 @@ namespace ConnectApp.components {
         }
 
         private List<Widget> _buildShareItems() {
-            if (WechatPlugin.instance().inInstalled()) {
+            if (WechatPlugin.instance().inInstalled())
                 return new List<Widget> {
                     _buildShareItem(
-                        Icons.WechatIcon, 
-                       "微信好友",
+                        Icons.WechatIcon,
+                        "微信好友",
                         CColors.White,
                         CColors.WechatGreen,
                         false,
-                       () => onPressed(ShareType.friends)
+                        () => onPressed(ShareType.friends)
                     ),
                     _buildShareItem(
-                        Icons.WechatMoment, 
+                        Icons.WechatMoment,
                         "朋友圈",
                         CColors.White,
                         CColors.WechatGreen,
@@ -137,14 +135,13 @@ namespace ConnectApp.components {
                     ),
                     _buildShareItem(
                         Icons.insert_link,
-                        "复制链接", 
+                        "复制链接",
                         CColors.White,
                         CColors.PrimaryBlue,
                         false,
                         () => onPressed(ShareType.clipBoard)
                     )
                 };
-            }
             return new List<Widget> {
                 _buildShareItem(
                     Icons.insert_link,
@@ -156,7 +153,7 @@ namespace ConnectApp.components {
                 )
             };
         }
-        
+
         private List<Widget> _buildOtherItems() {
             return new List<Widget> {
                 _buildShareItem(
@@ -177,10 +174,11 @@ namespace ConnectApp.components {
                 )
             };
         }
-        
-        private static Widget _buildShareItem(IconData icon, string title, Color color, Color background, bool hasBorder, GestureTapCallback onTap) {
+
+        private static Widget _buildShareItem(IconData icon, string title, Color color, Color background,
+            bool hasBorder, GestureTapCallback onTap) {
             return new GestureDetector(
-                onTap:() => {
+                onTap: () => {
                     if (Router.navigator.canPop()) Router.navigator.pop();
                     onTap();
                 },
@@ -196,9 +194,11 @@ namespace ConnectApp.components {
                             decoration: new BoxDecoration(
                                 background,
                                 borderRadius: BorderRadius.all(24),
-                                border: hasBorder ? Border.all(
-                                    Color.fromRGBO(216, 216, 216, 1)
-                                ) : null
+                                border: hasBorder
+                                    ? Border.all(
+                                        Color.fromRGBO(216, 216, 216, 1)
+                                    )
+                                    : null
                             ),
                             child: new Icon(
                                 icon,

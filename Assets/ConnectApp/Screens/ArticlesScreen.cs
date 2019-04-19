@@ -15,8 +15,8 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.screens {
     public class ArticlesScreenConnector : StatelessWidget {
@@ -53,7 +53,7 @@ namespace ConnectApp.screens {
                             }
                         ),
                         pushToBlock = articleId => {
-                            dispatcher.dispatch(new BlockArticleAction { articleId = articleId });
+                            dispatcher.dispatch(new BlockArticleAction {articleId = articleId});
                             dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = articleId});
                         },
                         startFetchArticles = () => dispatcher.dispatch(new StartFetchArticlesAction()),
@@ -88,11 +88,11 @@ namespace ConnectApp.screens {
         private int offset = initOffset;
         private RefreshController _refreshController;
         private TextStyle titleStyle;
-        const float maxNavBarHeight = 96; 
-        const float minNavBarHeight = 44; 
+        private const float maxNavBarHeight = 96;
+        private const float minNavBarHeight = 44;
         private float navBarHeight;
 
-        protected override bool wantKeepAlive { get=>true; }
+        protected override bool wantKeepAlive => true;
 
         public override void initState() {
             base.initState();
@@ -133,7 +133,7 @@ namespace ConnectApp.screens {
                             padding: EdgeInsets.only(16, bottom: 8),
                             child: new AnimatedDefaultTextStyle(
                                 child: new Text("文章"),
-                                style: titleStyle, 
+                                style: titleStyle,
                                 duration: new TimeSpan(0, 0, 0, 0, 100)
                             )
                         ),
@@ -147,7 +147,7 @@ namespace ConnectApp.screens {
                             )
                         )
                     }
-                )   
+                )
             );
         }
 
@@ -176,14 +176,12 @@ namespace ConnectApp.screens {
                                 return new Container();
                             var article = widget.viewModel.articleDict[articleId];
                             var fullName = "";
-                            if (article.ownerType == OwnerType.user.ToString()) {
+                            if (article.ownerType == OwnerType.user.ToString())
                                 if (widget.viewModel.userDict.ContainsKey(article.userId))
                                     fullName = widget.viewModel.userDict[article.userId].fullName;
-                            }
-                            if (article.ownerType == OwnerType.team.ToString()) {
+                            if (article.ownerType == OwnerType.team.ToString())
                                 if (widget.viewModel.teamDict.ContainsKey(article.teamId))
                                     fullName = widget.viewModel.teamDict[article.teamId].name;
-                            }
                             return new ArticleCard(
                                 article,
                                 () => widget.actionModel.pushToArticleDetail(articleId),
@@ -227,20 +225,20 @@ namespace ConnectApp.screens {
                 if (pixels > 0 && pixels <= 52) {
                     titleStyle = CTextStyle.H5;
                     navBarHeight = maxNavBarHeight - pixels;
-                    setState(() => {});
+                    setState(() => { });
                 }
                 else if (pixels <= 0) {
                     if (navBarHeight <= maxNavBarHeight) {
                         titleStyle = CTextStyle.H2;
                         navBarHeight = maxNavBarHeight;
-                        setState(() => {});
+                        setState(() => { });
                     }
                 }
                 else if (pixels > 52) {
                     if (!(navBarHeight <= minNavBarHeight)) {
                         titleStyle = CTextStyle.H5;
                         navBarHeight = minNavBarHeight;
-                        setState(() => {});
+                        setState(() => { });
                     }
                 }
             });

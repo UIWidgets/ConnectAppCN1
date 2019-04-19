@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.utils;
-using Newtonsoft.Json;
-using Unity.UIWidgets.foundation;
 using UnityEngine;
 
 namespace ConnectApp.models {
@@ -26,7 +24,7 @@ namespace ConnectApp.models {
         public static AppState initialState() {
             var loginInfo = UserInfoManager.initUserInfo();
             var isLogin = UserInfoManager.isLogin();
-            
+
             return new AppState {
                 Count = PlayerPrefs.GetInt("count", 0),
                 loginState = new LoginState {
@@ -42,7 +40,7 @@ namespace ConnectApp.models {
                     articlesLoading = false,
                     articleDetailLoading = false,
                     hottestHasMore = true,
-                    articleHistory = HistoryManager.articleHistoryList(isLogin?loginInfo.userId:null),
+                    articleHistory = HistoryManager.articleHistoryList(isLogin ? loginInfo.userId : null),
                     blockArticleList = HistoryManager.blockArticleList(isLogin ? loginInfo.userId : null)
                 },
                 eventState = new EventState {
@@ -55,7 +53,7 @@ namespace ConnectApp.models {
                     completedPageNumber = 1,
                     eventsOngoingLoading = false,
                     eventsCompletedLoading = false,
-                    eventHistory = HistoryManager.eventHistoryList(isLogin?loginInfo.userId:null),
+                    eventHistory = HistoryManager.eventHistoryList(isLogin ? loginInfo.userId : null),
                     channelId = ""
                 },
                 popularSearchState = new PopularSearchState {
@@ -67,7 +65,7 @@ namespace ConnectApp.models {
                     searchArticles = new List<Article>(),
                     currentPage = 0,
                     pages = new List<int>(),
-                    searchHistoryList = HistoryManager.searchHistoryList(isLogin?loginInfo.userId:null),
+                    searchHistoryList = HistoryManager.searchHistoryList(isLogin ? loginInfo.userId : null),
                 },
                 notificationState = new NotificationState {
                     loading = false,

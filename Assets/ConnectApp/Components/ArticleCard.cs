@@ -31,9 +31,11 @@ namespace ConnectApp.components {
 
         public override Widget build(BuildContext context) {
             if (article == null) return new Container();
-            
+
             var time = article.lastPublishedTime == null ? article.publishedTime : article.lastPublishedTime;
-            var imageUrl = article.thumbnail.url.EndsWith(".gif") ? article.thumbnail.url : $"{article.thumbnail.url}.300x0x1.jpg";
+            var imageUrl = article.thumbnail.url.EndsWith(".gif")
+                ? article.thumbnail.url
+                : $"{article.thumbnail.url}.300x0x1.jpg";
             var card = new Container(
                 color: CColors.White,
                 child: new Padding(

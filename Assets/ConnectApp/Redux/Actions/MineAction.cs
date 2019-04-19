@@ -11,7 +11,7 @@ namespace ConnectApp.redux.actions {
         public FetchEventsResponse eventsResponse;
         public int pageNumber;
     }
-    
+
     public class FetchMyFutureEventsFailureAction : BaseAction {
     }
 

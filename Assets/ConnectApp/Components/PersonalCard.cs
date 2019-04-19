@@ -19,12 +19,10 @@ namespace ConnectApp.components {
 
         public override Widget build(BuildContext context) {
             if (personalItem == null) return new Container();
-            
+
             return new GestureDetector(
                 onTap: () => {
-                    if (personalItem.onTap != null) {
-                        personalItem.onTap();
-                    }
+                    if (personalItem.onTap != null) personalItem.onTap();
                 },
                 child: new Container(
                     padding: EdgeInsets.only(16, right: 16),

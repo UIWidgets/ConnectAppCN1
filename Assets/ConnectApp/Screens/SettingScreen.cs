@@ -7,14 +7,12 @@ using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
-using ConnectApp.utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
-using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
@@ -60,11 +58,12 @@ namespace ConnectApp.screens {
         public readonly SettingScreenViewModel viewModel;
         public readonly SettingScreenActionModel actionModel;
 
-        public override State createState() => new _SettingScreenState();
+        public override State createState() {
+            return new _SettingScreenState();
+        }
     }
 
     public class _SettingScreenState : State<SettingScreen> {
-        
         public override void initState() {
             base.initState();
 //            SchedulerBinding.instance.addPostFrameCallback(_ => {
@@ -139,7 +138,8 @@ namespace ConnectApp.screens {
                                 ? _buildCellView("绑定 Unity ID",
                                     () => widget.actionModel.mainRouterPushTo(MainNavigatorRoutes.BindUnity))
                                 : new Container(),
-                            _buildCellView("关于我们", () => widget.actionModel.mainRouterPushTo(MainNavigatorRoutes.AboutUs)),
+                            _buildCellView("关于我们",
+                                () => widget.actionModel.mainRouterPushTo(MainNavigatorRoutes.AboutUs)),
                             _buildGapView(),
                             _buildCellView("清理缓存", () => {
                                 CustomDialogUtils.showCustomDialog(
@@ -150,7 +150,7 @@ namespace ConnectApp.screens {
                                 widget.actionModel.clearCache();
                                 Window.instance.run(TimeSpan.FromSeconds(1), () => {
                                         CustomDialogUtils.hiddenCustomDialog();
-                                        CustomDialogUtils.showToast("缓存已清除",Icons.check_circle_outline);
+                                        CustomDialogUtils.showToast("缓存已清除", Icons.check_circle_outline);
                                     }
                                 );
                             }),

@@ -1,11 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using RSG;
-using Unity.UIWidgets;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
@@ -19,7 +17,6 @@ namespace ConnectApp.utils {
     }
 
     public static class HttpManager {
-        
         private const string COOKIE = "Cookie";
 
         internal static UnityWebRequest initRequest(
@@ -39,11 +36,11 @@ namespace ConnectApp.utils {
 
         public static Promise<string> resume(UnityWebRequest request) {
             var promise = new Promise<string>();
-            Window.instance.startCoroutine(sendRequest(promise,request));
+            Window.instance.startCoroutine(sendRequest(promise, request));
             return promise;
         }
 
-        private static IEnumerator sendRequest(Promise<string> promise,UnityWebRequest request) {
+        private static IEnumerator sendRequest(Promise<string> promise, UnityWebRequest request) {
             yield return request.SendWebRequest();
             if (request.isNetworkError) {
                 promise.Reject(new Exception(request.error));
@@ -60,6 +57,7 @@ namespace ConnectApp.utils {
                     var cookie = request.GetResponseHeaders()["Set-Cookie"];
                     updateCookie(cookie);
                 }
+
                 promise.Resolve(request.downloadHandler.text);
             }
         }
@@ -84,22 +82,22 @@ namespace ConnectApp.utils {
                     cookieDict.Add(name, c);
                 }
             }
+
             if (newCookie.isNotEmpty()) {
                 var newCookieArr = newCookie.Split(',');
                 foreach (var c in newCookieArr) {
                     var item = c.Split(';').first();
                     var name = item.Split('=').first();
-                    if (cookieDict.ContainsKey(name)) {
+                    if (cookieDict.ContainsKey(name))
                         cookieDict[name] = item;
-                    }
-                    else {
+                    else
                         cookieDict.Add(name, item);
-                    }
                 }
-                
+
                 var updateCookieArr = cookieDict.Values;
                 updateCookie = string.Join(";", updateCookieArr);
             }
+
             if (updateCookie.isNotEmpty()) {
                 PlayerPrefs.SetString(COOKIE, updateCookie);
                 PlayerPrefs.Save();
