@@ -1,7 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using ConnectApp.redux;
+using ConnectApp.redux.actions;
 using RSG;
+using Unity.UIWidgets;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
@@ -44,9 +48,8 @@ namespace ConnectApp.utils {
             if (request.isNetworkError) {
                 promise.Reject(new Exception(request.error));
             }
-            else if (request.responseCode == 403)
-            {
-                
+            else if (request.responseCode == 401) {
+                StoreProvider.store.dispatcher.dispatch(new LogoutAction());
                 promise.Reject(new Exception(request.downloadHandler.text));
             }
             else if (request.responseCode != 200) {
