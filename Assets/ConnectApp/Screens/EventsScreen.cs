@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using ConnectApp.components;
 using ConnectApp.constants;
 using Unity.UIWidgets.animation;
-using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {

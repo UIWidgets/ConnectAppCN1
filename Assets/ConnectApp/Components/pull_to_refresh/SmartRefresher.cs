@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
@@ -365,6 +366,14 @@ namespace ConnectApp.components.pull_to_refresh {
 
         public void scrollTo(float offset) {
             scrollController.jumpTo(offset);
+        }
+        
+        public void animateTo(float to, TimeSpan duration, Curve curve) {
+            scrollController.animateTo(to, duration, curve);
+        }
+        
+        public float offset {
+            get { return scrollController.offset; }
         }
 
         public void sendBack(bool up, int mode) {

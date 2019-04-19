@@ -101,7 +101,7 @@ namespace ConnectApp.screens {
                         itemBuilder: (cxt, index) => {
                             var eventId = widget.viewModel.ongoingEvents[index];
                             var model = widget.viewModel.eventsDict[eventId];
-                            var place = model.placeId.isEmpty() ? null : widget.viewModel.placeDict[model.placeId];
+                            var place = model.placeId.isEmpty() ? new Place() : widget.viewModel.placeDict[model.placeId];
                             return new EventCard(
                                 model,
                                 place.name,

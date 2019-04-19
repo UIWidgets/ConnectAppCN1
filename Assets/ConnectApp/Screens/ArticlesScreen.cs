@@ -10,13 +10,13 @@ using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using ConnectApp.utils;
 using RSG;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
-using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.screens {
     public class ArticlesScreenConnector : StatelessWidget {
@@ -91,6 +91,7 @@ namespace ConnectApp.screens {
         const float maxNavBarHeight = 96; 
         const float minNavBarHeight = 44; 
         private float navBarHeight;
+        private string _tabSelectedSubId;
 
         protected override bool wantKeepAlive { get=>true; }
 
@@ -103,6 +104,25 @@ namespace ConnectApp.screens {
                 widget.actionModel.startFetchArticles();
                 widget.actionModel.fetchArticles(initOffset);
             });
+            _tabSelectedSubId = EventBus.subscribe(EventBusConstant.tab_selected, args => {
+                if (args != null && args.Count > 0) {
+                    if (args[0] is int) {
+                        var index = (int)args[0];
+                        if (index == 0 && _refreshController.offset != 0.0f) {
+                            _refreshController.animateTo(
+                                0,
+                                new TimeSpan(0, 0, 0, 0, 250),
+                                Curves.ease
+                            );
+                        }
+                    }
+                }
+            });
+        }
+        
+        public override void dispose() {
+            EventBus.unSubscribe(EventBusConstant.tab_selected, _tabSelectedSubId);
+            base.dispose();
         }
 
         public override Widget build(BuildContext context) {
@@ -143,7 +163,7 @@ namespace ConnectApp.screens {
                             child: new Icon(
                                 Icons.search,
                                 size: 28,
-                                color: Color.fromRGBO(181, 181, 181, 1)
+                                color: CColors.BrownGrey
                             )
                         )
                     }
