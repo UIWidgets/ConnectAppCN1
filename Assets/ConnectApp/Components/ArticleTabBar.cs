@@ -55,10 +55,11 @@ namespace ConnectApp.components {
                                     borderRadius: BorderRadius.all(16)
                                 ),
                                 alignment: Alignment.centerLeft,
-                                child: new Text(
+                                child: new Container(
+                                    child:new Text(
                                     "说点想法...",
-                                    style: CTextStyle.PRegularBody3
-                                )
+                                    style: CTextStyle.PKeyboardTextStyle
+                                )) 
                             )
                         ),
                         //评论
