@@ -265,7 +265,7 @@ namespace ConnectApp.screens {
                         new GestureDetector(
                             onTap: () => widget.actionModel.mainRouterPop(),
                             child:new Container(
-                                padding: EdgeInsets.all(10),
+                                padding: EdgeInsets.symmetric(10, 16),
                                 color:CColors.Transparent,
                                 child: new Icon(Icons.arrow_back, size: 24, color: CColors.icon3))
                         )

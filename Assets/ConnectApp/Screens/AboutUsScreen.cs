@@ -82,7 +82,7 @@ namespace ConnectApp.screens {
                             )
                         ),
                         new Container(
-                            width: 40
+                            width: 56
                         )
                     }
                 )
