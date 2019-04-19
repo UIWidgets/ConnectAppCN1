@@ -143,15 +143,18 @@ namespace ConnectApp.components {
                         end: Alignment.bottomRight
                     )
                 ),
-                child: new Text(
-                    title.ToUpper(),
-                    style: new TextStyle(
-                        height: 0.9f,
-                        color: CColors.White,
-                        fontFamily: "Roboto-Medium",
-                        fontSize: size * 0.45f
-                    )
-                )
+                child: new Container(
+                    alignment:Alignment.center,
+                    child:new Text(
+                        title.ToUpper(),
+                        textAlign:TextAlign.center,
+                        style: new TextStyle(
+                            height: 1.30f,
+                            color: CColors.White,
+                            fontFamily: "Roboto-Medium",
+                            fontSize: size * 0.45f
+                        )
+                    )) 
             );
         }
     }
