@@ -35,7 +35,7 @@ namespace ConnectApp.components {
         public override Widget build(BuildContext context) {
             return new Container(
                 height: 49,
-                padding: EdgeInsets.only(16, right: 16),
+                padding: EdgeInsets.only(16, right: 8),
                 decoration: new BoxDecoration(
                     border: new Border(new BorderSide(CColors.Separator)),
                     color: CColors.White
@@ -55,24 +55,28 @@ namespace ConnectApp.components {
                                     borderRadius: BorderRadius.all(16)
                                 ),
                                 alignment: Alignment.centerLeft,
-                                child: new Text(
+                                child: new Container(
+                                    child:new Text(
                                     "说点想法...",
-                                    style: CTextStyle.PRegularBody3
-                                )
+                                    style: CTextStyle.PKeyboardTextStyle
+                                )) 
                             )
                         ),
                         //评论
                         new CustomButton(
+                            padding: EdgeInsets.symmetric(12, 10),
                             onPressed: commentCallback,
                             child: new Icon(Icons.comment, size: 24, color: CColors.icon3)
                         ),
                         //点赞
                         new CustomButton(
+                            padding: EdgeInsets.symmetric(12, 10),
                             onPressed: favorCallback,
                             child: new Icon(like ? Icons.favorite : Icons.favorite_border, size: 24, color: like ? CColors.PrimaryBlue : CColors.icon3)
                         ),
                         //分享
                         new CustomButton(
+                            padding: EdgeInsets.symmetric(12, 10),
                             onPressed: shareCallback,
                             child: new Icon(Icons.share, size: 24, color: CColors.icon3)
                         )

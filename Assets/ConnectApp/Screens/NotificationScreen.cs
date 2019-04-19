@@ -101,7 +101,7 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             base.build(context);
             Widget content = new Container();
-            if (widget.viewModel.notifationLoading&&widget.viewModel.notifications.Count==0) {
+            if (widget.viewModel.notifationLoading && widget.viewModel.notifications.Count == 0) {
                 content = new GlobalLoading();
             }
             else {
@@ -111,13 +111,12 @@ namespace ConnectApp.screens {
                     );
                 }
                 else {
-                    var isLoadMore = widget.viewModel.notifications.Count == widget.viewModel.total;
                     content = new Container(
                         color: CColors.background3,
                         child: new SmartRefresher(
                             controller: _refreshController,
                             enablePullDown: true,
-                            enablePullUp: !isLoadMore,
+                            enablePullUp: widget.viewModel.notifications.Count < widget.viewModel.total,
                             onRefresh: _onRefresh,
                             child: ListView.builder(
                                 physics: new AlwaysScrollableScrollPhysics(),
