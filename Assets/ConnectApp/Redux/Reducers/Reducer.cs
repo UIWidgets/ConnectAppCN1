@@ -127,6 +127,7 @@ namespace ConnectApp.redux.reducers {
                     article.channelId = action.articleDetail.channelId;
                     article.contentMap = action.articleDetail.contentMap;
                     article.hasMore = action.articleDetail.comments.hasMore;
+                    article.isNotFirst = true;
                     article.currOldestMessageId = action.articleDetail.comments.currOldestMessageId;
                     var dict = state.articleState.articleDict;
                     if (dict.ContainsKey(article.id))
