@@ -225,8 +225,8 @@ namespace ConnectApp.components {
                                 width: 60,
                                 height: 60,
                                 decoration: new BoxDecoration(
-                                    Color.fromRGBO(255, 255, 255, 0.9f),
-                                    borderRadius: BorderRadius.all(40)
+                                    CColors.H5White,
+                                    borderRadius: BorderRadius.all(30)
                                 ),
                                 child: new Icon(
                                     Icons.play_arrow,
