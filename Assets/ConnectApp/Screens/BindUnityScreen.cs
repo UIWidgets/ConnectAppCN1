@@ -321,7 +321,7 @@ namespace ConnectApp.screens {
                                 decoration: new BoxDecoration(
                                     widget.viewModel.loginBtnEnable
                                         ? widget.viewModel.loginLoading
-                                            ? CColors.BottonActive
+                                            ? CColors.ButtonActive
                                             : CColors.PrimaryBlue
                                         : CColors.Disable,
                                     borderRadius: BorderRadius.all(24)

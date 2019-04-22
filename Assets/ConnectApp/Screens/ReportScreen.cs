@@ -240,7 +240,7 @@ namespace ConnectApp.screens {
                         height: 40,
                         decoration: new BoxDecoration(
                             widget.viewModel.loading
-                                ? CColors.BottonActive
+                                ? CColors.ButtonActive
                                 : CColors.PrimaryBlue,
                             borderRadius: BorderRadius.all(4)
                         ),

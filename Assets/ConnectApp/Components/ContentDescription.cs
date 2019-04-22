@@ -45,6 +45,7 @@ namespace ConnectApp.components {
                                     text,
                                     content.entityMap,
                                     block.entityRanges,
+                                    block.inlineStyleRanges,
                                     openUrl
                                 )
                             );
@@ -58,14 +59,30 @@ namespace ConnectApp.components {
 
                         var afterBlock = blocks[i + 1];
                         var isLast = afterBlock.type != "unordered-list-item";
-                        widgets.Add(_UnorderedList(block.text, isFirst, isLast));
+                        widgets.Add(
+                            _UnorderedList(
+                                block.text,
+                                isFirst,
+                                isLast,
+                                content.entityMap,
+                                block.entityRanges,
+                                block.inlineStyleRanges,
+                                openUrl
+                            )
+                        );
                     }
                         break;
                     case "ordered-list-item": {
                         if (_isFirstOrderedListItem) break;
-                        var items = new List<string>();
+                        var items = new List<OrderedListModel>();
                         var orderedItem = blocks.FindAll(item => item.type == "ordered-list-item");
-                        orderedItem.ForEach(item => items.Add(item.text));
+                        orderedItem.ForEach(item => items.Add(new OrderedListModel {
+                            text = item.text,
+                            entityMap = content.entityMap,
+                            entityRanges = item.entityRanges,
+                            inlineStyleRanges = item.inlineStyleRanges,
+                            openUrl = openUrl
+                        }));
 
                         widgets.Add(_OrderedList(items));
                         _isFirstOrderedListItem = true;
@@ -123,57 +140,26 @@ namespace ConnectApp.components {
             string text,
             Dictionary<string, _EventContentEntity> entityMap,
             List<_EntityRange> entityRanges,
+            List<_InlineStyleRange> inlineStyleRanges,
             Action<string> openUrl
         ) {
             if (text == null) return new Container();
-            if (entityRanges != null && entityRanges.Count > 0) {
-                var entityRange = entityRanges.first();
-                var key = entityRange.key.ToString();
-                if (entityMap.ContainsKey(key)) {
-                    var data = entityMap[key];
-                    if (data.type == "LINK") {
-                        var offset = entityRange.offset;
-                        var length = entityRange.length;
-                        var leftText = text.Substring(0, offset);
-                        var currentText = text.Substring(offset, length);
-                        var rightText = text.Substring(length + offset, text.Length - length - offset);
-                        var recognizer = new TapGestureRecognizer {
-                            onTap = () => openUrl(data.data.url)
-                        };
-                        return new Container(
-                            color: CColors.White,
-                            padding: EdgeInsets.only(16, right: 16, bottom: 24),
-                            child: new RichText(
-                                text: new TextSpan(
-                                    children: new List<TextSpan> {
-                                        new TextSpan(
-                                            leftText,
-                                            CTextStyle.PXLarge
-                                        ),
-                                        new TextSpan(
-                                            currentText,
-                                            CTextStyle.PXLargeBlue,
-                                            recognizer: recognizer
-                                        ),
-                                        new TextSpan(
-                                            rightText,
-                                            CTextStyle.PXLarge
-                                        )
-                                    }
-                                )
-                            )
-                        );
-                    }
-                }
-            }
+            Widget child = new Text(
+                text,
+                style: CTextStyle.PXLarge
+            );
+            var inlineSpans = _RichStyle(text, entityMap, entityRanges, inlineStyleRanges, openUrl);
+            if (inlineSpans != null)
+                child = new RichText(
+                    text: new TextSpan(
+                        children: inlineSpans
+                    )
+                );
 
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(16, right: 16, bottom: 24),
-                child: new Text(
-                    text,
-                    style: CTextStyle.PXLarge
-                )
+                child: child
             );
         }
 
@@ -239,8 +225,8 @@ namespace ConnectApp.components {
                                 width: 60,
                                 height: 60,
                                 decoration: new BoxDecoration(
-                                    Color.fromRGBO(255, 255, 255, 0.9f),
-                                    borderRadius: BorderRadius.all(40)
+                                    CColors.H5White,
+                                    borderRadius: BorderRadius.all(30)
                                 ),
                                 child: new Icon(
                                     Icons.play_arrow,
@@ -306,20 +292,22 @@ namespace ConnectApp.components {
         }
 
 
-        private static Widget _OrderedList(List<string> items) {
+        private static Widget _OrderedList(List<OrderedListModel> items) {
             var widgets = new List<Widget>();
 
             for (var i = 0; i < items.Count; i++) {
+                var item = items[i];
                 var spans = new List<TextSpan> {
                     new TextSpan(
                         $"{i + 1}. ",
                         CTextStyle.PXLarge
-                    ),
-                    new TextSpan(
-                        items[i],
-                        CTextStyle.PXLarge
                     )
                 };
+                var linkSpans = _RichStyle(item.text, item.entityMap, item.entityRanges, item.inlineStyleRanges, item.openUrl);
+                if (linkSpans != null)
+                    spans.AddRange(linkSpans);
+                else
+                    spans.Add(new TextSpan(item.text, CTextStyle.PXLarge));
                 widgets.Add(
                     new Container(
                         padding: EdgeInsets.only(16, right: 16),
@@ -344,22 +332,38 @@ namespace ConnectApp.components {
             );
         }
 
-        private static Widget _UnorderedList(string text, bool isFirst, bool isLast) {
+        private static Widget _UnorderedList(
+            string text,
+            bool isFirst,
+            bool isLast,
+            Dictionary<string, _EventContentEntity> entityMap,
+            List<_EntityRange> entityRanges,
+            List<_InlineStyleRange> inlineStyleRanges,
+            Action<string> openUrl
+        ) {
+            Widget child = new Text(
+                text,
+                style: CTextStyle.PXLarge
+            );
+            var inlineSpans = _RichStyle(text, entityMap, entityRanges, inlineStyleRanges, openUrl);
+            if (inlineSpans != null)
+                child = new RichText(
+                    text: new TextSpan(
+                        children: inlineSpans
+                    )
+                );
             var spans = new List<Widget> {
                 new Container(
                     width: 8,
                     height: 8,
-                    margin: EdgeInsets.only(top: 12, right: 8),
+                    margin: EdgeInsets.only(top: 14, right: 8),
                     decoration: new BoxDecoration(
                         CColors.Black,
                         borderRadius: BorderRadius.all(4)
                     )
                 ),
                 new Expanded(
-                    child: new Text(
-                        text,
-                        style: CTextStyle.PXLarge
-                    )
+                    child: child
                 )
             };
 
@@ -371,6 +375,139 @@ namespace ConnectApp.components {
                     children: spans
                 )
             );
+        }
+
+        private static List<TextSpan> _RichStyle(
+            string text,
+            Dictionary<string, _EventContentEntity> entityMap,
+            List<_EntityRange> entityRanges,
+            List<_InlineStyleRange> inlineStyleRanges,
+            Action<string> openUrl
+        ) {
+            if (entityRanges == null 
+                && entityRanges.Count <= 0
+                && inlineStyleRanges == null 
+                && inlineStyleRanges.Count <= 0) return null;
+            
+            if (inlineStyleRanges.Count <= 0) return _LinkSpans(text, entityMap, entityRanges, openUrl);
+            
+            if (entityRanges.Count <= 0) return _InlineStyle(text, inlineStyleRanges);
+
+            var inlineStyleRange = inlineStyleRanges.first();
+            var inlineOffset = inlineStyleRange.offset;
+            var inlineLength = inlineStyleRange.length;
+            var inlineStyle = inlineStyleRange.style;
+            
+            var entityRange = entityRanges.first();
+            var key = entityRange.key.ToString();
+            var data = entityMap[key];
+            var entityOffset = entityRange.offset;
+            var entityLength = entityRange.length;
+            var textStyle = CTextStyle.PXLarge.merge(
+                new TextStyle(
+                    fontWeight: inlineStyle == "BOLD" ? FontWeight.bold : FontWeight.normal,
+                    fontStyle: inlineStyle == "ITALIC" ? FontStyle.italic : FontStyle.normal,
+                    decoration: inlineStyle == "UNDERLINE" ? TextDecoration.underline : TextDecoration.none
+                )
+            );
+            var recognizer = new TapGestureRecognizer {
+                onTap = () => openUrl(data.data.url)
+            };
+            if (entityOffset >= inlineOffset + inlineLength) {
+                var spans = new List<TextSpan> {
+                    new TextSpan(text.Substring(0, inlineOffset), CTextStyle.PXLarge),
+                    new TextSpan(text.Substring(inlineOffset, inlineLength), textStyle),
+                    new TextSpan(text.Substring(inlineOffset + inlineLength, entityOffset - inlineOffset - inlineLength), CTextStyle.PXLarge),
+                    new TextSpan(text.Substring(entityOffset, entityLength), CTextStyle.PXLargeBlue, recognizer: recognizer),
+                    new TextSpan(text.Substring(entityOffset + entityLength, text.Length - entityOffset - entityLength), CTextStyle.PXLarge)
+                };
+                return spans;
+            }
+            if (inlineOffset >= entityOffset + entityLength) {
+                var spans = new List<TextSpan> {
+                    new TextSpan(text.Substring(0, entityOffset), CTextStyle.PXLarge),
+                    new TextSpan(text.Substring(entityOffset, entityLength), CTextStyle.PXLargeBlue, recognizer: recognizer),
+                    new TextSpan(text.Substring(entityOffset + entityLength, inlineOffset - entityOffset - entityLength), CTextStyle.PXLarge),
+                    new TextSpan(text.Substring(inlineOffset, inlineLength), textStyle),
+                    new TextSpan(text.Substring(inlineOffset + inlineLength, text.Length - inlineOffset - inlineLength), CTextStyle.PXLarge)
+                };
+                return spans;
+            }
+            return null;
+        }
+        
+        private static List<TextSpan> _InlineStyle(string text, List<_InlineStyleRange> inlineStyleRanges) {
+            if (inlineStyleRanges == null && inlineStyleRanges.Count <= 0) return null;
+
+            var inlineStyleRange = inlineStyleRanges.first();
+            var offset = inlineStyleRange.offset;
+            var length = inlineStyleRange.length;
+            var style = inlineStyleRange.style;
+            var leftText = text.Substring(0, offset);
+            var currentText = text.Substring(offset, length);
+            var rightText = text.Substring(length + offset, text.Length - length - offset);
+            var textStyle = CTextStyle.PXLarge.merge(
+                new TextStyle(
+                    fontWeight: style == "BOLD" ? FontWeight.bold : FontWeight.normal,
+                    fontStyle: style == "ITALIC" ? FontStyle.italic : FontStyle.normal,
+                    decoration: style == "UNDERLINE" ? TextDecoration.underline : TextDecoration.none
+                )
+            );
+            return new List<TextSpan> {
+                new TextSpan(
+                    leftText,
+                    CTextStyle.PXLarge
+                ),
+                new TextSpan(
+                    currentText,
+                    textStyle
+                ),
+                new TextSpan(
+                    rightText,
+                    CTextStyle.PXLarge
+                )
+            };
+        }
+
+        private static List<TextSpan> _LinkSpans(
+            string text,
+            Dictionary<string, _EventContentEntity> entityMap,
+            List<_EntityRange> entityRanges,
+            Action<string> openUrl
+        ) {
+            if (entityRanges != null && entityRanges.Count > 0) {
+                var entityRange = entityRanges.first();
+                var key = entityRange.key.ToString();
+                if (entityMap.ContainsKey(key)) {
+                    var data = entityMap[key];
+                    if (data.type == "LINK") {
+                        var offset = entityRange.offset;
+                        var length = entityRange.length;
+                        var leftText = text.Substring(0, offset);
+                        var currentText = text.Substring(offset, length);
+                        var rightText = text.Substring(length + offset, text.Length - length - offset);
+                        var recognizer = new TapGestureRecognizer {
+                            onTap = () => openUrl(data.data.url)
+                        };
+                        return new List<TextSpan> {
+                            new TextSpan(
+                                leftText,
+                                CTextStyle.PXLarge
+                            ),
+                            new TextSpan(
+                                currentText,
+                                CTextStyle.PXLargeBlue,
+                                recognizer: recognizer
+                            ),
+                            new TextSpan(
+                                rightText,
+                                CTextStyle.PXLarge
+                            )
+                        };
+                    }
+                }
+            }
+            return null;
         }
     }
 }
