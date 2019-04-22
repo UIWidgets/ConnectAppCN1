@@ -40,11 +40,11 @@ namespace ConnectApp.screens {
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new BindUnityScreenActionModel {
                         mainRouterPop = () => {
-                            dispatcher.dispatch(new MainNavigatorPopAction{index = 1});
+                            dispatcher.dispatch(new MainNavigatorPopAction {index = 1});
                             dispatcher.dispatch(new CleanEmailAndPasswordAction());
                         },
                         loginRouterPop = () => {
-                            dispatcher.dispatch(new LoginNavigatorPopAction{index = 1});
+                            dispatcher.dispatch(new LoginNavigatorPopAction {index = 1});
                             dispatcher.dispatch(new CleanEmailAndPasswordAction());
                         },
                         openUrl = url =>

@@ -134,8 +134,7 @@ namespace ConnectApp.components {
                                             )
                                         ),
                                         host.title.isNotEmpty()
-                                            ?
-                                            new Container(
+                                            ? new Container(
                                                 child: new Text(
                                                     host.title,
                                                     maxLines: 1,
@@ -143,8 +142,7 @@ namespace ConnectApp.components {
                                                     style: CTextStyle.PRegularBody3
                                                 )
                                             )
-                                            :
-                                            new Container()
+                                            : new Container()
                                     }
                                 )
                             }

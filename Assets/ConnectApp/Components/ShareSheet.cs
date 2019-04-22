@@ -78,9 +78,8 @@ namespace ConnectApp.components {
                                         children: _buildShareItems()
                                     )
                                 ),
-                                projectType == ProjectType.article 
-                                    ?
-                                    new Container(
+                                projectType == ProjectType.article
+                                    ? new Container(
                                         height: 108,
                                         padding: EdgeInsets.only(top: 16),
                                         decoration: new BoxDecoration(
@@ -92,9 +91,8 @@ namespace ConnectApp.components {
                                             mainAxisAlignment: MainAxisAlignment.start,
                                             children: _buildOtherItems()
                                         )
-                                    ) 
-                                    :
-                                    new Container(),
+                                    )
+                                    : new Container(),
                                 new GestureDetector(
                                     onTap: () => {
                                         if (Router.navigator.canPop()) Router.navigator.pop();
@@ -130,7 +128,7 @@ namespace ConnectApp.components {
                 );
                 shareItems.Add(
                     _buildShareItem(
-                        Icons.WechatMoment, 
+                        Icons.WechatMoment,
                         "朋友圈",
                         CColors.White,
                         CColors.WechatGreen,
@@ -149,7 +147,7 @@ namespace ConnectApp.components {
             );
             return shareItems;
         }
-        
+
         private List<Widget> _buildOtherItems() {
             return new List<Widget> {
                 _buildShareItem(
@@ -176,9 +174,9 @@ namespace ConnectApp.components {
                 ? Border.all(
                     Color.fromRGBO(216, 216, 216, 1)
                 )
-                : new Border();
+                : null;
             return new GestureDetector(
-                onTap:() => {
+                onTap: () => {
                     if (Router.navigator.canPop()) Router.navigator.pop();
                     onTap();
                 },

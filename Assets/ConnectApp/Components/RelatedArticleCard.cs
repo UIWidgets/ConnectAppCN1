@@ -55,7 +55,7 @@ namespace ConnectApp.components {
 
         public override Widget build(BuildContext context) {
             if (article == null) return new Container();
-            
+
             var username = user == null ? team.name : user.fullName;
             var time = article.lastPublishedTime == null ? article.publishedTime : article.lastPublishedTime;
             var child = new Container(
@@ -90,7 +90,9 @@ namespace ConnectApp.components {
                             width: 114,
                             height: 76,
                             child: new PlaceholderImage(
-                                article.thumbnail.url.EndsWith(".gif")? article.thumbnail.url:$"{article.thumbnail.url}.300x0x1.jpg",
+                                article.thumbnail.url.EndsWith(".gif")
+                                    ? article.thumbnail.url
+                                    : $"{article.thumbnail.url}.300x0x1.jpg",
                                 114,
                                 76,
                                 4,

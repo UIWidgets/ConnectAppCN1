@@ -10,7 +10,6 @@ using UnityEngine.Networking;
 namespace ConnectApp.api {
     public static class LoginApi {
         public static IPromise<LoginInfo> LoginByEmail(string email, string password) {
-            
             var promise = new Promise<LoginInfo>();
             var para = new LoginParameter {
                 email = email,
@@ -21,17 +20,14 @@ namespace ConnectApp.api {
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.SetRequestHeader("Content-Type", "application/json");
-            HttpManager.resume(request).Then(responseText => {  
+            HttpManager.resume(request).Then(responseText => {
                 var loginInfo = JsonConvert.DeserializeObject<LoginInfo>(responseText);
                 promise.Resolve(loginInfo);
-            }).Catch(exception => {
-                promise.Reject(exception);  
-            });
+            }).Catch(exception => { promise.Reject(exception); });
             return promise;
         }
 
         public static IPromise<LoginInfo> LoginByWechat(string code) {
-            
             var promise = new Promise<LoginInfo>();
             var para = new WechatLoginParameter {
                 code = code
@@ -41,29 +37,23 @@ namespace ConnectApp.api {
             var bodyRaw = Encoding.UTF8.GetBytes(body);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
             request.SetRequestHeader("Content-Type", "application/json");
-            HttpManager.resume(request).Then(responseText => {  
+            HttpManager.resume(request).Then(responseText => {
                 var loginInfo = JsonConvert.DeserializeObject<LoginInfo>(responseText);
                 promise.Resolve(loginInfo);
-            }).Catch(exception => {
-                promise.Reject(exception);  
-            });
+            }).Catch(exception => { promise.Reject(exception); });
             return promise;
         }
-        
+
 
         public static IPromise<string> FetchCreateUnityIdUrl() {
-            
             var promise = new Promise<string>();
             var request =
                 HttpManager.GET(Config.apiAddress + "/api/authUrl?redirect_to=%2F&locale=zh_CN&is_reg=true");
-            HttpManager.resume(request).Then(responseText => {  
+            HttpManager.resume(request).Then(responseText => {
                 var urlDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseText);
                 promise.Resolve(urlDictionary["url"]);
-            }).Catch(exception => {
-                promise.Reject(exception);  
-            });
+            }).Catch(exception => { promise.Reject(exception); });
             return promise;
         }
-       
     }
 }

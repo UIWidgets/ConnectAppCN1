@@ -1,29 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using ConnectApp.redux;
-using ConnectApp.redux.actions;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
 namespace ConnectApp.plugins {
-    
-
     public class WechatPlugin {
+        public static WechatPlugin instance(Action<string> codeCallBack = null) {
+            if (plugin == null) plugin = new WechatPlugin();
 
-        public static WechatPlugin instance(Action<string> codeCallBack=null)
-        {
-            if (plugin==null)
-            {
-                plugin = new WechatPlugin();
-            }
-
-            if (codeCallBack!=null)
-            {
-                plugin.codeCallBack = codeCallBack;
-            }
+            if (codeCallBack != null) plugin.codeCallBack = codeCallBack;
             return plugin;
         }
 
@@ -53,10 +41,7 @@ namespace ConnectApp.plugins {
                         var type = dict["type"];
                         if (type == "code") {
                             var code = dict["code"];
-                            if (codeCallBack!=null)
-                            {
-                                codeCallBack(code);
-                            }
+                            if (codeCallBack != null) codeCallBack(code);
                         }
                     }
                         break;
@@ -96,6 +81,7 @@ namespace ConnectApp.plugins {
                 addListener();
                 return isInstallWechat();
             }
+
             return false;
         }
 #if UNITY_IOS

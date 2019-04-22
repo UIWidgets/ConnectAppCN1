@@ -42,6 +42,7 @@ namespace ConnectApp.screens {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
+
         public readonly HistoryScreenViewModel viewModel;
         public readonly HistoryScreenActionModel actionModel;
 
@@ -73,11 +74,10 @@ namespace ConnectApp.screens {
                         "删除",
                         ActionType.destructive,
                         () => {
-                            if (_selectedIndex == 0) {
+                            if (_selectedIndex == 0)
                                 widget.actionModel.deleteAllArticleHistory();
-                            } else {
+                            else
                                 widget.actionModel.deleteAllEventHistory();
-                            }
                         }),
                     new ActionSheetItem("取消", ActionType.cancel)
                 }
@@ -143,7 +143,7 @@ namespace ConnectApp.screens {
         private Widget _buildDeleteButton() {
             if (_selectedIndex == 0) {
                 var articleHistory = widget.viewModel.articleHistory;
-                if (articleHistory.Count > 0) {
+                if (articleHistory.Count > 0)
                     return new CustomButton(
                         padding: EdgeInsets.symmetric(12, 16),
                         onPressed: _deleteAllHistory,
@@ -153,11 +153,11 @@ namespace ConnectApp.screens {
                             color: CColors.icon3
                         )
                     );
-                }
             }
+
             if (_selectedIndex == 1) {
                 var eventHistory = widget.viewModel.eventHistory;
-                if (eventHistory.Count > 0) {
+                if (eventHistory.Count > 0)
                     return new CustomButton(
                         padding: EdgeInsets.symmetric(12, 16),
                         onPressed: _deleteAllHistory,
@@ -167,8 +167,8 @@ namespace ConnectApp.screens {
                             color: CColors.icon3
                         )
                     );
-                }
             }
+
             return new Container();
         }
 

@@ -211,9 +211,7 @@ namespace ConnectApp.screens {
                     ),
                     new Container(height: 10),
                     new GestureDetector(
-                        onTap: () => {
-                            StoreProvider.store.dispatcher.dispatch(new StartLikeCommentAction());
-                        },
+                        onTap: () => { StoreProvider.store.dispatcher.dispatch(new StartLikeCommentAction()); },
                         child: new Container(
                             color: CColors.White,
                             child: new Text(
@@ -317,9 +315,7 @@ namespace ConnectApp.screens {
                     ),
                     new Container(height: 10),
                     new GestureDetector(
-                        onTap: () => {
-                            StoreProvider.store.dispatcher.dispatch(new StartJoinEventAction());
-                        },
+                        onTap: () => { StoreProvider.store.dispatcher.dispatch(new StartJoinEventAction()); },
                         child: new Container(
                             color: CColors.White,
                             child: new Text(
@@ -380,9 +376,7 @@ namespace ConnectApp.screens {
                     ),
                     new Container(height: 10),
                     new GestureDetector(
-                        onTap: () => {
-                            StoreProvider.store.dispatcher.dispatch(new StartSendMessageAction());
-                        },
+                        onTap: () => { StoreProvider.store.dispatcher.dispatch(new StartSendMessageAction()); },
                         child: new Container(
                             color: CColors.White,
                             child: new Text(

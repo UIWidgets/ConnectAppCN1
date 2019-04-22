@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
-using ConnectApp.redux;
-using ConnectApp.redux.actions;
 using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -182,9 +180,9 @@ namespace ConnectApp.components {
         private static Widget _CodeBlock(BuildContext context, string text) {
             if (text == null) return new Container();
             return new Container(
-                color:CColors.White,
-                padding:EdgeInsets.only(bottom:24),
-                child:new Container(
+                color: CColors.White,
+                padding: EdgeInsets.only(bottom: 24),
+                child: new Container(
                     color: Color.fromRGBO(110, 198, 255, 0.12f),
                     width: MediaQuery.of(context).size.width,
                     child: new Container(
@@ -195,7 +193,7 @@ namespace ConnectApp.components {
                         )
                     )
                 )
-            ); 
+            );
         }
 
 
@@ -241,7 +239,7 @@ namespace ConnectApp.components {
                                 width: 60,
                                 height: 60,
                                 decoration: new BoxDecoration(
-                                    Color.fromRGBO(255,255,255,0.9f),
+                                    Color.fromRGBO(255, 255, 255, 0.9f),
                                     borderRadius: BorderRadius.all(40)
                                 ),
                                 child: new Icon(
@@ -259,9 +257,7 @@ namespace ConnectApp.components {
             var height = width * originalImage.height / originalImage.width;
             var imageUrl = originalImage.url;
             if (imageUrl.isNotEmpty())
-            {
-                imageUrl = imageUrl.EndsWith(".gif") ? imageUrl :$"{originalImage.url}.600x0x1.jpg";
-            }
+                imageUrl = imageUrl.EndsWith(".gif") ? imageUrl : $"{originalImage.url}.600x0x1.jpg";
             var nodes = new List<Widget> {
                 new Stack(
                     children: new List<Widget> {

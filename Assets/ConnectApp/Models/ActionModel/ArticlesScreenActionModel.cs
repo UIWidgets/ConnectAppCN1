@@ -1,6 +1,6 @@
 using System;
-using RSG;
 using ConnectApp.screens;
+using RSG;
 
 namespace ConnectApp.Models.ActionModel {
     public class ArticlesScreenActionModel : BaseActionModel {

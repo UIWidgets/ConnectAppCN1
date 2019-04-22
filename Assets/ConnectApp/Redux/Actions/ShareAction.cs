@@ -1,4 +1,3 @@
-using System;
 using ConnectApp.api;
 using ConnectApp.components;
 using ConnectApp.models;
@@ -6,7 +5,6 @@ using ConnectApp.plugins;
 using Unity.UIWidgets.Redux;
 
 namespace ConnectApp.redux.actions {
-
     public static partial class Actions {
         public static object shareToWechat(ShareType type, string title, string description, string linkUrl,
             string imageUrl) {
@@ -18,13 +16,12 @@ namespace ConnectApp.redux.actions {
                             WechatPlugin.instance().shareToFriend(title, description, linkUrl, imageBytes);
                         else if (type == ShareType.moments)
                             WechatPlugin.instance().shareToTimeline(title, description, linkUrl, imageBytes);
-                }).Catch(error=>{
-                    
-                    if (type == ShareType.friends)
-                        WechatPlugin.instance().shareToFriend(title, description, linkUrl, null);
-                    else if (type == ShareType.moments)
-                        WechatPlugin.instance().shareToTimeline(title, description, linkUrl, null);
-                });
+                    }).Catch(error => {
+                        if (type == ShareType.friends)
+                            WechatPlugin.instance().shareToFriend(title, description, linkUrl, null);
+                        else if (type == ShareType.moments)
+                            WechatPlugin.instance().shareToTimeline(title, description, linkUrl, null);
+                    });
             });
         }
     }

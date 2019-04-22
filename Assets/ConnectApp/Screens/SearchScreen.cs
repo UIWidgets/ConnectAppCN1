@@ -80,16 +80,14 @@ namespace ConnectApp.screens {
         private readonly TextEditingController _controller = new TextEditingController("");
         private int _pageNumber;
         private RefreshController _refreshController;
-        private FocusNode _focusNode; 
+        private FocusNode _focusNode;
 
         public override void initState() {
             base.initState();
             _pageNumber = 0;
             _refreshController = new RefreshController();
             _focusNode = new FocusNode();
-            SchedulerBinding.instance.addPostFrameCallback(_ => {
-                widget.actionModel.fetchPopularSearch();
-            });
+            SchedulerBinding.instance.addPostFrameCallback(_ => { widget.actionModel.fetchPopularSearch(); });
         }
 
         public override void dispose() {
@@ -100,9 +98,7 @@ namespace ConnectApp.screens {
 
         private void _searchArticle(string text) {
             if (text.isEmpty()) return;
-            if (_focusNode.hasFocus) {
-                _focusNode.unfocus();
-            }
+            if (_focusNode.hasFocus) _focusNode.unfocus();
             widget.actionModel.saveSearchHistory(text);
             _controller.text = text;
             widget.actionModel.startSearchArticle();
@@ -147,6 +143,7 @@ namespace ConnectApp.screens {
                                         return RelatedArticleCard.User(searchArticle, user,
                                             () => { widget.actionModel.pushToArticleDetail(searchArticle.id); });
                                     }
+
                                     var team = widget.viewModel.teamDict[searchArticle.teamId];
                                     return RelatedArticleCard.Team(searchArticle, team,
                                         () => { widget.actionModel.pushToArticleDetail(searchArticle.id); });
@@ -195,9 +192,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new CustomButton(
                             padding: EdgeInsets.only(8, 8, 0, 8),
-                            onPressed: () => {
-                                widget.actionModel.mainRouterPop();
-                            },
+                            onPressed: () => { widget.actionModel.mainRouterPop(); },
                             child: new Text(
                                 "取消",
                                 style: CTextStyle.PLargeBlue
@@ -261,12 +256,12 @@ namespace ConnectApp.screens {
                             borderRadius: BorderRadius.circular(16)
                         ),
                         height: 32,
-                        padding:EdgeInsets.only(left:16,right:16),
+                        padding: EdgeInsets.only(left: 16, right: 16),
                         child: new Container(
-                            child:new Text(
-                            item.keyword,
-                            style: CTextStyle.PLargeBody
-                        )) 
+                            child: new Text(
+                                item.keyword,
+                                style: CTextStyle.PLargeBody
+                            ))
                     )
                 );
                 widgets.Add(widget);

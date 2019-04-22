@@ -50,7 +50,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         private Widget _buildNavigationBar() {
             return new Container(
                 decoration: new BoxDecoration(
@@ -67,7 +67,7 @@ namespace ConnectApp.screens {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: new List<Widget> {
                         new CustomButton(
-                            padding: EdgeInsets.symmetric(10,16),
+                            padding: EdgeInsets.symmetric(10, 16),
                             onPressed: () => actionModel.mainRouterPop(),
                             child: new Icon(
                                 Icons.arrow_back,
@@ -82,7 +82,7 @@ namespace ConnectApp.screens {
                             )
                         ),
                         new Container(
-                            width: 40
+                            width: 56
                         )
                     }
                 )

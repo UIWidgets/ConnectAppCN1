@@ -135,7 +135,7 @@ namespace ConnectApp.components {
                         _buildLabelText(),
                         new Stack(
                             children: new List<Widget> {
-                                _buildEditableText(context), 
+                                _buildEditableText(context),
                                 _buildHintText()
                             }
                         )
@@ -165,7 +165,7 @@ namespace ConnectApp.components {
                 bottom: 0,
                 child: new IgnorePointer(
                     ignoring: true,
-                    child:  new Container(
+                    child: new Container(
                         alignment: Alignment.center,
                         child: new Text(widget.hintText, style: widget.hintStyle)
                     )
