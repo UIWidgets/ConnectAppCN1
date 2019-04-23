@@ -136,7 +136,7 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             widget.viewModel.articleDict.TryGetValue(widget.viewModel.articleId, out _article);
-            if (widget.viewModel.articleDetailLoading&&!_article.isNotFirst)
+            if (widget.viewModel.articleDetailLoading&&(_article==null||!_article.isNotFirst))
                 return new Container(
                     color: CColors.White,
                     child: new CustomSafeArea(
