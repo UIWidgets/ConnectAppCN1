@@ -14,7 +14,8 @@ bin/
 gen/
 out/
 src/main/assets/bin/
-src/main/assets/jniLibs/
+src/main/jniLibs/
+src/main/AndroidManifest.xml
 libs/unity-classes.jar
 libs/UnityAds.arr
 
