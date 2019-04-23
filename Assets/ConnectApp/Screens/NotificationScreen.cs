@@ -19,9 +19,9 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.screens {
     public class NotificationScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
-            return new StoreConnector<AppState, NotifcationScreenViewModel>(
-                converter: state => new NotifcationScreenViewModel {
-                    notifationLoading = state.notificationState.loading,
+            return new StoreConnector<AppState, NotificationScreenViewModel>(
+                converter: state => new NotificationScreenViewModel {
+                    notificationLoading = state.notificationState.loading,
                     total = state.notificationState.total,
                     notifications = state.notificationState.notifications,
                     userDict = state.userState.userDict
@@ -46,7 +46,7 @@ namespace ConnectApp.screens {
 
     public class NotificationScreen : StatefulWidget {
         public NotificationScreen(
-            NotifcationScreenViewModel viewModel = null,
+            NotificationScreenViewModel viewModel = null,
             NotificationScreenActionModel actionModel = null,
             Key key = null
         ) : base(key) {
@@ -54,7 +54,7 @@ namespace ConnectApp.screens {
             this.actionModel = actionModel;
         }
 
-        public readonly NotifcationScreenViewModel viewModel;
+        public readonly NotificationScreenViewModel viewModel;
         public readonly NotificationScreenActionModel actionModel;
 
         public override State createState() {
@@ -99,7 +99,7 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             base.build(context);
             Widget content = new Container();
-            if (widget.viewModel.notifationLoading && widget.viewModel.notifications.Count == 0) {
+            if (widget.viewModel.notificationLoading && widget.viewModel.notifications.Count == 0) {
                 content = new GlobalLoading();
             }
             else {

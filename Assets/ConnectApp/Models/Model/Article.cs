@@ -34,6 +34,7 @@ namespace ConnectApp.models {
         public Dictionary<string, ContentMap> contentMap;
         public string currOldestMessageId;
         public bool hasMore;
+        public bool isNotFirst;    //加载详情后置位true
     }
 
     [Serializable]

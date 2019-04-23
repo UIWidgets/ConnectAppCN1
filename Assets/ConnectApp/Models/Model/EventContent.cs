@@ -62,4 +62,13 @@ namespace ConnectApp.models {
         public int width;
         public int height;
     }
+
+    [Serializable]
+    public class OrderedListModel {
+        public string text;
+        public Dictionary<string, _EventContentEntity> entityMap;
+        public List<_EntityRange> entityRanges;
+        public List<_InlineStyleRange> inlineStyleRanges;
+        public Action<string> openUrl;
+    }
 }

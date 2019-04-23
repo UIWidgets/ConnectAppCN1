@@ -15,7 +15,6 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -143,7 +142,7 @@ namespace ConnectApp.screens {
                             child: new Icon(
                                 Icons.search,
                                 size: 28,
-                                color: Color.fromRGBO(181, 181, 181, 1)
+                                color: CColors.BrownGrey
                             )
                         )
                     }

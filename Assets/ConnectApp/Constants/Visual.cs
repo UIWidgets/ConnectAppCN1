@@ -99,13 +99,6 @@ namespace ConnectApp.constants {
             color: CColors.TextTitle
         );
 
-        public static readonly TextStyle H5White = new TextStyle(
-            height: 1.27f,
-            fontSize: 20,
-            fontFamily: "Roboto-Medium",
-            color: CColors.H5White
-        );
-
         public static readonly TextStyle H5Body = new TextStyle(
             height: 1.27f,
             fontSize: 20,
@@ -365,7 +358,7 @@ namespace ConnectApp.constants {
         public static readonly Color BrownGrey = new Color(0xFFB5B5B5);
         public static readonly Color Disable = new Color(0xFFB2B2B2);
         public static readonly Color WechatGreen = new Color(0xFF48B34F);
-        public static readonly Color BottonActive = new Color(0xFF227ABF);
+        public static readonly Color ButtonActive = new Color(0xFF227ABF);
 
         public static readonly Color H5White = Color.fromRGBO(255, 255, 255, 0.8f);
 
@@ -377,7 +370,6 @@ namespace ConnectApp.constants {
         public static readonly Color Blue = new Color(0xFF0000FF);
         public static readonly Color Grey = new Color(0xFF9E9E9E);
 
-        public static readonly Color secondary1 = new Color(0xFF00BCD4);
         public static readonly Color background1 = new Color(0xFF292929);
         public static readonly Color background2 = new Color(0xFF383838);
         public static readonly Color background3 = new Color(0xFFF5F5F5);
@@ -386,6 +378,5 @@ namespace ConnectApp.constants {
         public static readonly Color icon3 = new Color(0xFF979A9E);
         public static readonly Color text1 = new Color(0xFFFFFFFF);
         public static readonly Color text2 = new Color(0xFFD8D8D8);
-        public static readonly Color text3 = new Color(0xFF959595);
     }
 }

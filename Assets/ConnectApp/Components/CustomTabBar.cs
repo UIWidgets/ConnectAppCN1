@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
+using ConnectApp.utils;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -102,7 +103,7 @@ namespace ConnectApp.components {
                         children: new List<Widget> {
                             new GestureDetector(
                                 onTap: () => {
-                                    if (_selectedIndex != item.index)
+                                    if (_selectedIndex != item.index) {
                                         if (widget.tapCallBack != null)
                                             if (widget.tapCallBack(item.index))
                                                 setState(() => {
@@ -111,6 +112,7 @@ namespace ConnectApp.components {
                                                         new TimeSpan(0, 0, 0, 0, 1),
                                                         Curves.ease);
                                                 });
+                                    }
                                 },
                                 child: new Container(
                                     decoration: new BoxDecoration(

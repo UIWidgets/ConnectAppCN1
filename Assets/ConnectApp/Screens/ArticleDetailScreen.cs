@@ -135,7 +135,8 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            if (widget.viewModel.articleDetailLoading)
+            widget.viewModel.articleDict.TryGetValue(widget.viewModel.articleId, out _article);
+            if (widget.viewModel.articleDetailLoading&&!_article.isNotFirst)
                 return new Container(
                     color: CColors.White,
                     child: new CustomSafeArea(
@@ -147,7 +148,6 @@ namespace ConnectApp.screens {
                         )
                     )
                 );
-            widget.viewModel.articleDict.TryGetValue(widget.viewModel.articleId, out _article);
             if (_article == null || _article.channelId == null) return new Container();
             if (_article.ownerType == "user")
                 if (_article.userId != null && widget.viewModel.userDict.TryGetValue(_article.userId, out _user))

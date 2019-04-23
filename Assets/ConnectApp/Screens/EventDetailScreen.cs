@@ -487,7 +487,7 @@ namespace ConnectApp.screens {
                             ),
                             new Icon(
                                 iconData,
-                                color: CColors.text3,
+                                color: CColors.BrownGrey,
                                 size: 28
                             )
                         }

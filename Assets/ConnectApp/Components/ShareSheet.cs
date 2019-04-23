@@ -115,43 +115,37 @@ namespace ConnectApp.components {
         }
 
         private List<Widget> _buildShareItems() {
-            if (WechatPlugin.instance().inInstalled())
-                return new List<Widget> {
+            var shareItems = new List<Widget>();
+            if (WechatPlugin.instance().inInstalled()) {
+                shareItems.Add(
                     _buildShareItem(
-                        Icons.WechatIcon,
+                        Icons.WechatIcon, 
                         "微信好友",
                         CColors.White,
                         CColors.WechatGreen,
-                        false,
                         () => onPressed(ShareType.friends)
-                    ),
+                    )
+                );
+                shareItems.Add(
                     _buildShareItem(
                         Icons.WechatMoment,
                         "朋友圈",
                         CColors.White,
                         CColors.WechatGreen,
-                        false,
                         () => onPressed(ShareType.moments)
-                    ),
-                    _buildShareItem(
-                        Icons.insert_link,
-                        "复制链接",
-                        CColors.White,
-                        CColors.PrimaryBlue,
-                        false,
-                        () => onPressed(ShareType.clipBoard)
                     )
-                };
-            return new List<Widget> {
+                );
+            }
+            shareItems.Add(
                 _buildShareItem(
                     Icons.insert_link,
                     "复制链接",
                     CColors.White,
                     CColors.PrimaryBlue,
-                    false,
                     () => onPressed(ShareType.clipBoard)
                 )
-            };
+            );
+            return shareItems;
         }
 
         private List<Widget> _buildOtherItems() {
@@ -159,24 +153,28 @@ namespace ConnectApp.components {
                 _buildShareItem(
                     Icons.block,
                     "屏蔽",
-                    Color.fromRGBO(181, 181, 181, 1),
+                    CColors.BrownGrey,
                     CColors.White,
-                    true,
-                    () => onPressed(ShareType.block)
+                    () => onPressed(ShareType.block),
+                    true
                 ),
                 _buildShareItem(
                     Icons.report,
                     "投诉",
-                    Color.fromRGBO(181, 181, 181, 1),
+                    CColors.BrownGrey,
                     CColors.White,
-                    true,
-                    () => onPressed(ShareType.report)
+                    () => onPressed(ShareType.report),
+                    true
                 )
             };
         }
-
-        private static Widget _buildShareItem(IconData icon, string title, Color color, Color background,
-            bool hasBorder, GestureTapCallback onTap) {
+        
+        private static Widget _buildShareItem(IconData icon, string title, Color color, Color background, GestureTapCallback onTap, bool isBorder = false) {
+            var border = isBorder
+                ? Border.all(
+                    Color.fromRGBO(216, 216, 216, 1)
+                )
+                : null;
             return new GestureDetector(
                 onTap: () => {
                     if (Router.navigator.canPop()) Router.navigator.pop();
@@ -194,11 +192,7 @@ namespace ConnectApp.components {
                             decoration: new BoxDecoration(
                                 background,
                                 borderRadius: BorderRadius.all(24),
-                                border: hasBorder
-                                    ? Border.all(
-                                        Color.fromRGBO(216, 216, 216, 1)
-                                    )
-                                    : null
+                                border: border
                             ),
                             child: new Icon(
                                 icon,
