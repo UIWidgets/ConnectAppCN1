@@ -140,7 +140,7 @@ namespace ConnectApp.screens {
             var eventStatus = DateConvert.GetEventStatus(eventObj.begin);
             return new Container(
                 color: CColors.White,
-                child: new SafeArea(
+                child: new CustomSafeArea(
                     child: new Container(
                         color: CColors.White,
                         child: new Column(

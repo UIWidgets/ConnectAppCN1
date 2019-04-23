@@ -166,7 +166,7 @@ namespace ConnectApp.screens {
 
             return new Container(
                 color: CColors.White,
-                child: new SafeArea(
+                child: new CustomSafeArea(
                     child: new Container(
                         child: new Column(
                             children: new List<Widget> {

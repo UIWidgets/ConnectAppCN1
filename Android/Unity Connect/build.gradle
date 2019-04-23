@@ -41,14 +41,14 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 28
         applicationId 'com.unity3d.unityconnect'
         ndk {
             abiFilters 'armeabi-v7a', 'x86'
         }
-        versionCode 3
-        versionName '0.7.1'
+        versionCode 11
+        versionName '0.7.4'
     }
 
     lintOptions {

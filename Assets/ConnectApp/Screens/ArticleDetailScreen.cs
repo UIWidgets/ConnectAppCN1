@@ -139,7 +139,7 @@ namespace ConnectApp.screens {
             if (widget.viewModel.articleDetailLoading&&!_article.isNotFirst)
                 return new Container(
                     color: CColors.White,
-                    child: new SafeArea(
+                    child: new CustomSafeArea(
                         child: new Column(
                             children: new List<Widget> {
                                 _buildNavigationBar(),
@@ -234,7 +234,7 @@ namespace ConnectApp.screens {
             );
             return new Container(
                 color: CColors.White,
-                child: new SafeArea(
+                child: new CustomSafeArea(
                     child: child
                 )
             );
