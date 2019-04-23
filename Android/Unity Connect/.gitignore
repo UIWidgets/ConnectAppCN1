@@ -17,7 +17,7 @@ src/main/assets/bin/
 src/main/jniLibs/
 src/main/AndroidManifest.xml
 libs/unity-classes.jar
-libs/UnityAds.arr
+libs/UnityAds.aar
 
 # Gradle files
 .gradle/
