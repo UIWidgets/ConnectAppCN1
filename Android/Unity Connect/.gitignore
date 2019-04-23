@@ -14,7 +14,7 @@ bin/
 gen/
 out/
 src/main/assets/bin/
-src/main/assets/jnLibs/
+src/main/assets/jniLibs/
 libs/unity-classes.jar
 libs/UnityAds.arr
 
