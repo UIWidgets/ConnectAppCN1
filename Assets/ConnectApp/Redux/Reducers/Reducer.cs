@@ -334,21 +334,11 @@ namespace ConnectApp.redux.reducers {
                     state.eventState.eventDetailLoading = false;
                     state.eventState.channelId = action.eventObj.channelId;
                     if (state.eventState.eventsDict.ContainsKey(action.eventObj.id)) {
-                        var oldEventObj = state.eventState.eventsDict[action.eventObj.id];
-                        var eventObj = action.eventObj;
-                        eventObj.userId = action.eventObj.user.id;
-                        eventObj.placeId = oldEventObj.placeId;
-                        eventObj.mode = oldEventObj.mode;
-                        eventObj.avatar = oldEventObj.avatar;
-                        eventObj.type = oldEventObj.type;
-                        eventObj.typeParam = oldEventObj.typeParam;
-                        eventObj.isNotFirst = true;
-                        state.eventState.eventsDict[action.eventObj.id] = eventObj;
+                        state.eventState.eventsDict[action.eventObj.id] = action.eventObj;
                     }
                     else {
                         state.eventState.eventsDict.Add(action.eventObj.id, action.eventObj);
                     }
-
                     break;
                 }
                 case FetchEventDetailFailedAction _: {

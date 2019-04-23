@@ -120,6 +120,18 @@ namespace ConnectApp.redux.actions {
                                 userMap.Add(host.id, host);
                         });
                         dispatcher.dispatch(new UserMapAction {userMap = userMap});
+                        if (getState().eventState.eventsDict.ContainsKey(eventObj.id)) {
+                            var oldEventObj = getState().eventState.eventsDict[eventObj.id];
+                            var newEventObj = eventObj;
+                            newEventObj.userId = eventObj.user.id;
+                            newEventObj.placeId = oldEventObj.placeId;
+                            newEventObj.mode = oldEventObj.mode;
+                            newEventObj.avatar = oldEventObj.avatar;
+                            newEventObj.type = oldEventObj.type;
+                            newEventObj.typeParam = oldEventObj.typeParam;
+                            newEventObj.isNotFirst = true;
+                            eventObj = newEventObj;
+                        }
                         dispatcher.dispatch(new FetchEventDetailSuccessAction {eventObj = eventObj});
                         dispatcher.dispatch(new SaveEventHistoryAction {eventObj = eventObj});
                     })
