@@ -342,6 +342,7 @@ namespace ConnectApp.redux.reducers {
                         eventObj.avatar = oldEventObj.avatar;
                         eventObj.type = oldEventObj.type;
                         eventObj.typeParam = oldEventObj.typeParam;
+                        eventObj.isNotFirst = true;
                         state.eventState.eventsDict[action.eventObj.id] = eventObj;
                     }
                     else {

@@ -138,7 +138,7 @@ namespace ConnectApp.screens {
             var eventObj = new IEvent();
             if (widget.viewModel.eventsDict.ContainsKey(widget.viewModel.eventId))
                 eventObj = widget.viewModel.eventsDict[widget.viewModel.eventId];
-            if (widget.viewModel.eventDetailLoading || eventObj?.user == null)
+            if ((widget.viewModel.eventDetailLoading || eventObj?.user == null)&&!eventObj.isNotFirst)
                 return new EventDetailLoading(mainRouterPop: widget.actionModel.mainRouterPop);
             var eventStatus = DateConvert.GetEventStatus(eventObj.begin);
             return new Container(
