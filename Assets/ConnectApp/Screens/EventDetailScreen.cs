@@ -590,8 +590,6 @@ namespace ConnectApp.screens {
 
         private Widget _buildOfflineRegisterNow(IEvent eventObj, bool isLoggedIn, EventStatus eventStatus) {
 
-            Debug.Log(eventObj.type);
-            Debug.Log(eventObj.typeParam);
             if (eventObj.type.isNotEmpty() && !(eventObj.type == "bagevent" || eventObj.type == "customize")) {
                 return new Container();
             }
