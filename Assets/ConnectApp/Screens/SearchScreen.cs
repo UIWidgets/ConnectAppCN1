@@ -255,13 +255,16 @@ namespace ConnectApp.screens {
                             CColors.Separator2,
                             borderRadius: BorderRadius.circular(16)
                         ),
-                        height: 32,
-                        padding: EdgeInsets.only(left: 16, right: 16),
-                        child: new Container(
-                            child: new Text(
-                                item.keyword,
-                                style: CTextStyle.PLargeBody
-                            ))
+                        height:32,
+                        padding: EdgeInsets.only(left: 16, right: 16,top:7),
+                        child: new Text(
+                            item.keyword,
+                            style: new TextStyle(
+                                fontSize: 16,
+                                fontFamily: "Roboto-Regular",
+                                color: CColors.TextBody
+                            )
+                        ) 
                     )
                 );
                 widgets.Add(widget);
