@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.unity3d.unityconnect" xmlns:tools="http://schemas.android.com/tools" android:installLocation="preferExternal">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.connectapp.app" xmlns:tools="http://schemas.android.com/tools" android:installLocation="preferExternal">
   <supports-screens android:smallScreens="true" android:normalScreens="true" android:largeScreens="true" android:xlargeScreens="true" android:anyDensity="true" />
   <application android:theme="@style/UnityThemeSelector" android:icon="@mipmap/app_icon" android:label="@string/app_name" android:isGame="true" android:banner="@drawable/app_banner">
-    <activity android:label="@string/app_name" android:name="com.unity3d.unityconnect.UnityPlayerActivityStatusBar" android:screenOrientation="sensorPortrait" android:launchMode="singleTask" android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale|layoutDirection|density" android:hardwareAccelerated="false">
+    <activity android:label="@string/app_name"
+        android:screenOrientation="fullSensor"
+        android:launchMode="singleTask"
+        android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale|layoutDirection|density"
+        android:hardwareAccelerated="false"
+        android:name="com.unity3d.unityconnect.UnityPlayerActivityStatusBar">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
@@ -10,9 +15,14 @@
       </intent-filter>
       <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
     </activity>
-    <activity android:name=".wxapi.WXEntryActivity" android:label="@string/app_name" android:theme="@android:style/Theme.Translucent.NoTitleBar" android:exported="true" android:launchMode="singleTask">
+    <activity
+        android:name=".wxapi.WXEntryActivity"
+        android:label="@string/app_name"
+        android:theme="@android:style/Theme.Translucent.NoTitleBar"
+        android:exported="true"
+        android:launchMode="singleTask">
     </activity>
-    <meta-data android:name="unity.build-id" android:value="bea291f6-77d7-4244-b3dd-e45d766428d2" />
+    <meta-data android:name="unity.build-id" android:value="6570c591-a287-4fce-9b9d-25f2851a9497" />
     <meta-data android:name="unity.splash-mode" android:value="0" />
     <meta-data android:name="unity.splash-enable" android:value="True" />
   </application>

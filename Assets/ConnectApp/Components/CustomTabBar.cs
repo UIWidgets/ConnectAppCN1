@@ -56,7 +56,7 @@ namespace ConnectApp.components {
                 child: new Column(
                     children: new List<Widget> {
                         new Flexible(
-                            child: _buildContentView()
+                            child: _buildContentView(context)
                         ),
                         _buildBottomTabBar()
                     }
@@ -64,10 +64,10 @@ namespace ConnectApp.components {
             );
         }
 
-        private Widget _buildContentView() {
+        private Widget _buildContentView(BuildContext context) {
             return new Container(
                 child: new Container(
-                    height: Screen.safeArea.height,
+                    height: MediaQuery.of(context).size.height,
                     color: CColors.background1,
                     child: new PageView(
                         physics: new NeverScrollableScrollPhysics(),

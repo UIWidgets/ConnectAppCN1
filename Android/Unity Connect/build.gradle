@@ -27,8 +27,6 @@ apply plugin: 'com.android.application'
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation(name: 'UnityAds', ext:'aar')
-    implementation 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:+'
-    implementation 'com.google.code.gson:gson:2.8.5'
 }
 
 android {
@@ -41,14 +39,14 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 28
         applicationId 'com.unity3d.unityconnect'
         ndk {
             abiFilters 'armeabi-v7a', 'x86'
         }
-        versionCode 3
-        versionName '0.7.1'
+        versionCode 11
+        versionName '0.7.4'
     }
 
     lintOptions {
@@ -59,27 +57,18 @@ android {
         noCompress = ['.unity3d', '.ress', '.resource', '.obb']
     }
 
-    signingConfigs {
-        sign {
-            storeFile file('./connect_live.keystore')
-            storePassword 'PbeE6b5N7a*u@V4fKzSP'
-            keyAlias 'connect_live'
-            keyPassword '2bKZ#3Cf5pUHaAc3HXn@'
-        }
-    }
-
     buildTypes {
         debug {
             minifyEnabled false
             useProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-unity.txt'
-            signingConfig signingConfigs.sign
+            jniDebuggable true
         }
         release {
             minifyEnabled false
             useProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-unity.txt'
-            signingConfig signingConfigs.sign
+            signingConfig signingConfigs.debug
         }
     }
 

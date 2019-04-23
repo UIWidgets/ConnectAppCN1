@@ -132,7 +132,7 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
-                child: new SafeArea(
+                child: new CustomSafeArea(
                     child: _buildContent(context)
                 )
             );
