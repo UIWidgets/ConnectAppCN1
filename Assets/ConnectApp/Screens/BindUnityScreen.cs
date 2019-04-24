@@ -56,7 +56,8 @@ namespace ConnectApp.screens {
                         changePassword = text =>
                             dispatcher.dispatch(new LoginChangePasswordAction {changeText = text}),
                         startLoginByEmail = () => dispatcher.dispatch(new StartLoginByEmailAction()),
-                        loginByEmailFailure = () => dispatcher.dispatch(new LoginByEmailFailureAction()),
+                        clearEmailAndPassword = () => dispatcher.dispatch(new StartLoginByEmailAction()),
+                        loginByEmailFailure = () => dispatcher.dispatch(new CleanEmailAndPasswordAction()),
                         loginByEmail = () => dispatcher.dispatch<IPromise>(Actions.loginByEmail())
                     };
                     return new BindUnityScreen(viewModel, actionModel);
@@ -101,6 +102,7 @@ namespace ConnectApp.screens {
         public override void dispose() {
             _emailFocusNode.removeListener(_emailFocusNodeListener);
             _passwordFocusNode.removeListener(_passwordFocusNodeListener);
+            widget.actionModel.clearEmailAndPassword();
             base.dispose();
         }
 

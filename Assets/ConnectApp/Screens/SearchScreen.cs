@@ -34,10 +34,7 @@ namespace ConnectApp.screens {
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new SearchScreenActionModel {
-                        mainRouterPop = () => {
-                            dispatcher.dispatch(new MainNavigatorPopAction());
-                            dispatcher.dispatch(new ClearSearchArticleResultAction());
-                        },
+                        mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         pushToArticleDetail = articleId => dispatcher.dispatch(
                             new MainNavigatorPushToArticleDetailAction {articleId = articleId}),
                         startSearchArticle = () => dispatcher.dispatch(new StartSearchArticleAction()),
@@ -87,12 +84,17 @@ namespace ConnectApp.screens {
             _pageNumber = 0;
             _refreshController = new RefreshController();
             _focusNode = new FocusNode();
-            SchedulerBinding.instance.addPostFrameCallback(_ => { widget.actionModel.fetchPopularSearch(); });
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                if (widget.viewModel.searchKeyword.Length > 0 || widget.viewModel.searchArticles.Count > 0)
+                    widget.actionModel.clearSearchArticleResult();
+                widget.actionModel.fetchPopularSearch();
+            });
         }
 
         public override void dispose() {
             _controller.dispose();
             _focusNode.dispose();
+            widget.actionModel.clearSearchArticleResult();
             base.dispose();
         }
 
@@ -134,6 +136,7 @@ namespace ConnectApp.screens {
                             child: ListView.builder(
                                 physics: new AlwaysScrollableScrollPhysics(),
                                 itemCount: widget.viewModel.searchArticles.Count,
+                                itemExtent: 108,
                                 itemBuilder: (cxt, index) => {
                                     var searchArticle = widget.viewModel.searchArticles[index];
                                     if (widget.viewModel.blockArticleList.Contains(searchArticle.id))

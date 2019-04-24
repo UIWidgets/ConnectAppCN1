@@ -83,6 +83,7 @@ namespace ConnectApp.components {
                     : new Container(
                         width: size,
                         height: size,
+                        color: new Color(0xFFD8D8D8),
                         child: Image.network(avatarUrl, fit: BoxFit.cover)
                     )
             );
@@ -96,6 +97,7 @@ namespace ConnectApp.components {
             return new Container(
                 width: size,
                 height: size,
+                color: new Color(0xFFD8D8D8),
                 child: Image.network(avatarUrl)
             );
         }
