@@ -196,7 +196,7 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => {
-                        dispatcher.dispatch(new FetchArticleDetailFailureAction());
+//                        dispatcher.dispatch(new FetchArticleDetailFailureAction());
                         Debug.Log(error);
                     });
             });

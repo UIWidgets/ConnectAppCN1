@@ -289,6 +289,20 @@ namespace ConnectApp.redux.reducers {
                     state.eventState.eventsCompletedLoading = true;
                     break;
                 }
+                case FetchEventsFailureAction action: {
+                    if (action.pageNumber==1)
+                    {
+                        if (action.tab == "ongoing") {
+                            state.eventState.eventsOngoingLoading = false;
+                            state.eventState.pageNumber = action.pageNumber;
+                        }
+                        else {
+                            state.eventState.eventsCompletedLoading = false;
+                            state.eventState.completedPageNumber = action.pageNumber;
+                        } 
+                    }
+                    break;
+                }
                 case FetchEventsSuccessAction action: {
                     if (action.tab == "ongoing") {
                         state.eventState.eventsOngoingLoading = false;

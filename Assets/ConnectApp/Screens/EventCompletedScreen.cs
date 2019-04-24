@@ -76,7 +76,11 @@ namespace ConnectApp.screens {
             base.build(context);
             if (widget.viewModel.eventCompletedLoading && widget.viewModel.completedEvents.isEmpty())
                 return new GlobalLoading();
-            if (widget.viewModel.completedEvents.Count <= 0) return new BlankView("暂无往期活动");
+            if (widget.viewModel.completedEvents.Count <= 0) return new BlankView("暂无往期活动",true,tapCallback: () =>
+            {
+                widget.actionModel.startFetchEventCompleted();
+                widget.actionModel.fetchEvents(firstPageNumber, "completed");
+            });
             return new Container(
                 color: CColors.background3,
                 child: new SmartRefresher(

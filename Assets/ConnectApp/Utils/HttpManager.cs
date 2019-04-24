@@ -43,7 +43,7 @@ namespace ConnectApp.utils {
         private static IEnumerator sendRequest(Promise<string> promise, UnityWebRequest request) {
             yield return request.SendWebRequest();
             if (request.isNetworkError) {
-                promise.Reject(new Exception(request.error));
+                promise.Reject(new Exception("NetworkError"));
             }
             else if (request.responseCode == 401) {
                 StoreProvider.store.dispatcher.dispatch(new LogoutAction());

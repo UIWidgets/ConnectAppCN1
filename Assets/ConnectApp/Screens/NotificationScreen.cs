@@ -105,7 +105,11 @@ namespace ConnectApp.screens {
             else {
                 if (widget.viewModel.notifications.Count <= 0)
                     content = new Container(
-                        child: new BlankView("暂无通知消息")
+                        child: new BlankView("暂无通知消息",true,tapCallback: () =>
+                        {
+                            widget.actionModel.startFetchNotifications();
+                            widget.actionModel.fetchNotifications(firstPageNumber);
+                        })
                     );
                 else
                     content = new Container(

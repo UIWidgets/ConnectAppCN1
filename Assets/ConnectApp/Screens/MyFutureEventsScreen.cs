@@ -79,7 +79,11 @@ namespace ConnectApp.screens {
         private Widget _buildMyFutureEvents() {
             var data = widget.viewModel.futureEventsList;
             if (widget.viewModel.futureListLoading && data.isEmpty()) return new GlobalLoading();
-            if (data.Count <= 0) return new BlankView("暂无我的即将开始活动");
+            if (data.Count <= 0) return new BlankView("暂无我的即将开始活动",true,tapCallback: () =>
+            {
+                widget.actionModel.startFetchMyFutureEvents();
+                widget.actionModel.fetchMyFutureEvents(firstPageNumber);
+            });
             var futureEventTotal = widget.viewModel.futureEventTotal;
             var hasMore = futureEventTotal != data.Count;
 
