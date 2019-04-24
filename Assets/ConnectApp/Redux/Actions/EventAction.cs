@@ -19,6 +19,8 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchEventsFailureAction : BaseAction {
+        public string tab;
+        public int pageNumber = 0;
     }
 
     public class StartFetchEventDetailAction : RequestAction {
@@ -95,7 +97,11 @@ namespace ConnectApp.redux.actions {
                         );
                     })
                     .Catch(error => {
-                        dispatcher.dispatch(new FetchEventsFailureAction());
+                        dispatcher.dispatch(new FetchEventsFailureAction()
+                        {
+                            tab = tab,
+                            pageNumber = pageNumber
+                        });
                         Debug.Log(error);
                     });
             });

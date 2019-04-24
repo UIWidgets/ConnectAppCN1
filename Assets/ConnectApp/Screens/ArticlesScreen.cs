@@ -159,7 +159,11 @@ namespace ConnectApp.screens {
                     itemBuilder: (cxt, index) => new ArticleLoading()
                 );
             else if (widget.viewModel.articleList.Count <= 0)
-                content = new BlankView("暂无文章");
+                content = new BlankView("暂无文章",true,tapCallback: () =>
+                {
+                    widget.actionModel.startFetchArticles();
+                    widget.actionModel.fetchArticles(initOffset);
+                });
             else
                 content = new SmartRefresher(
                     controller: _refreshController,
