@@ -128,6 +128,7 @@ namespace ConnectApp.components {
                                                             new GestureDetector(
                                                                 onTap: praiseCallBack,
                                                                 child: new Container(
+                                                                    color:CColors.White,
                                                                     child: new Text(
                                                                         $"点赞 {message.reactions.Count}",
                                                                         style: isPraised
