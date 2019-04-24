@@ -19,7 +19,10 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 using Config = ConnectApp.constants.Config;
+using EventType = ConnectApp.models.EventType;
 
 namespace ConnectApp.screens {
     public class EventDetailScreenConnector : StatelessWidget {
@@ -586,19 +589,19 @@ namespace ConnectApp.screens {
         }
 
         private Widget _buildOfflineRegisterNow(IEvent eventObj, bool isLoggedIn, EventStatus eventStatus) {
+
+            if (eventObj.type.isNotEmpty() && !(eventObj.type == "bagevent" || eventObj.type == "customize")) {
+                return new Container();
+            }
+            
             var buttonText = "立即报名";
             var backgroundColor = CColors.PrimaryBlue;
-            var isEnabled = false;
-            if (eventObj.userIsCheckedIn && isLoggedIn) {
-                buttonText = "已报名";
-                backgroundColor = CColors.Disable;
-                isEnabled = true;
-            }
+            var isEnabled = true;
 
             if (eventStatus == EventStatus.past) {
                 buttonText = "已结束";
                 backgroundColor = CColors.Disable;
-                isEnabled = true;
+                isEnabled = false;
             }
 
             return new Container(
@@ -610,15 +613,14 @@ namespace ConnectApp.screens {
                 ),
                 child: new CustomButton(
                     onPressed: () => {
-                        if (isEnabled) return;
-                        if (isLoggedIn) {
-                            if (eventObj.type.isNotEmpty() && eventObj.type == "bagevent") {
+                        if (!isEnabled) return;
+                        if (isLoggedIn && eventObj.type.isNotEmpty()) {
+                            if (eventObj.type == "bagevent") {
                                 widget.actionModel.openUrl(
                                     $"{Config.apiAddress}/events/{eventObj.id}/purchase");
                             }
-                            else {
-                                widget.actionModel.startJoinEvent();
-                                widget.actionModel.joinEvent(eventObj.id);
+                            else if (eventObj.type == "customize" && eventObj.typeParam.isNotEmpty()) {
+                                widget.actionModel.openUrl(eventObj.typeParam);
                             }
                         }
                         else {

@@ -11,6 +11,7 @@ namespace ConnectApp.models {
         public string avatar;
         public string background;
         public string type;
+        public string typeParam;
         public bool isPublic;
         public string mode;
         public TimeMap begin;
