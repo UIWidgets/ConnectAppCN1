@@ -79,7 +79,11 @@ namespace ConnectApp.screens {
         private Widget _buildMyPastEvents() {
             var data = widget.viewModel.pastEventsList;
             if (widget.viewModel.pastListLoading && data.isEmpty()) return new GlobalLoading();
-            if (data.Count <= 0) return new BlankView("暂无我的往期活动");
+            if (data.Count <= 0) return new BlankView("暂无我的往期活动",true,tapCallback: () =>
+            {
+                widget.actionModel.startFetchMyPastEvents();
+                widget.actionModel.fetchMyPastEvents(firstPageNumber);
+            });
             var pastEventTotal = widget.viewModel.pastEventTotal;
             var hasMore = pastEventTotal == data.Count;
 

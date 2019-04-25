@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using ConnectApp.models;
 using ConnectApp.screens;
+using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
@@ -48,26 +49,42 @@ namespace ConnectApp.canvas {
         };
 
         public override Widget build(BuildContext context) {
-            return new Navigator(
-                globalKey,
-                onGenerateRoute: settings => {
-                    return new PageRouteBuilder(
-                        settings,
-                        (context1, animation, secondaryAnimation) => mainRoutes[settings.name](context1),
-                        (context1, animation, secondaryAnimation, child) => {
-                            if (fullScreenRoutes.ContainsKey(settings.name))
-                                return new ModalPageTransition(
+            return new WillPopScope(
+                onWillPop: () =>
+                {
+                    var promise = new Promise<bool>();
+                    if (LoginScreen.navigator?.canPop() ?? false) {
+                        LoginScreen.navigator.pop();
+                        promise.Resolve(false);
+                    } else if (navigator.canPop()) {
+                        navigator.pop();
+                        promise.Resolve(false);
+                    } else {
+                        promise.Resolve(true);
+                    }
+                    return promise;
+                },
+                child:new Navigator(
+                    globalKey,
+                    onGenerateRoute: settings => {
+                        return new PageRouteBuilder(
+                            settings,
+                            (context1, animation, secondaryAnimation) => mainRoutes[settings.name](context1),
+                            (context1, animation, secondaryAnimation, child) => {
+                                if (fullScreenRoutes.ContainsKey(settings.name))
+                                    return new ModalPageTransition(
+                                        routeAnimation: animation,
+                                        child: child
+                                    );
+                                return new PushPageTransition(
                                     routeAnimation: animation,
                                     child: child
                                 );
-                            return new PushPageTransition(
-                                routeAnimation: animation,
-                                child: child
-                            );
-                        }
-                    );
-                }
-            );
+                            }
+                        );
+                    }
+                )
+           ); 
         }
     }
 
