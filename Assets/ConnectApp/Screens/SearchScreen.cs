@@ -94,7 +94,6 @@ namespace ConnectApp.screens {
         public override void dispose() {
             _controller.dispose();
             _focusNode.dispose();
-            widget.actionModel.clearSearchArticleResult();
             base.dispose();
         }
 
