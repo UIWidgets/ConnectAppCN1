@@ -118,7 +118,7 @@ PlayerSettings:
     16:10: 1
     16:9: 1
     Others: 1
-  bundleVersion: 0.7.6
+  bundleVersion: 0.7.7
   preloadedAssets: []
   metroInputSource: 0
   wsaTransparentSwapchain: 0
@@ -156,7 +156,7 @@ PlayerSettings:
     Android: com.unity3d.unityconnect
     iOS: com.unity3d.unityconnect
   buildNumber:
-    iOS: 13
+    iOS: 14
   AndroidBundleVersionCode: 11
   AndroidMinSdkVersion: 21
   AndroidTargetSdkVersion: 0
