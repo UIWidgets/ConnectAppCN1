@@ -26,29 +26,32 @@ namespace ConnectApp.components {
                 var type = block.type;
                 var text = block.text;
                 switch (type) {
-                    case "header-one":
-                        widgets.Add(_H1(text));
+                    case "header-one": {
+                        var inlineSpans = _RichStyle(text, content.entityMap, block.entityRanges, block.inlineStyleRanges, openUrl, CTextStyle.H4);
+                        widgets.Add(_H1(text, inlineSpans));
+                    }
                         break;
-                    case "header-two":
-                        widgets.Add(_H2(text));
+                    case "header-two": {
+                        var inlineSpans = _RichStyle(text, content.entityMap, block.entityRanges, block.inlineStyleRanges, openUrl, CTextStyle.H5);
+                        widgets.Add(_H2(text, inlineSpans));
+                    }
                         break;
-                    case "blockquote":
-                        widgets.Add(_QuoteBlock(text));
+                    case "blockquote": {
+                        var inlineSpans = _RichStyle(text, content.entityMap, block.entityRanges, block.inlineStyleRanges, openUrl, CTextStyle.PXLargeBody4);
+                        widgets.Add(_QuoteBlock(text, inlineSpans));
+                    }
                         break;
-                    case "code-block":
-                        widgets.Add(_CodeBlock(context, text));
+                    case "code-block": {
+                        var inlineSpans = _RichStyle(text, content.entityMap, block.entityRanges, block.inlineStyleRanges, openUrl, CTextStyle.PCodeStyle);
+                        widgets.Add(_CodeBlock(context, text, inlineSpans));
+                    }
                         break;
-                    case "unstyled":
-                        if (text != null || text.Length > 0)
-                            widgets.Add(
-                                _Unstyled(
-                                    text,
-                                    content.entityMap,
-                                    block.entityRanges,
-                                    block.inlineStyleRanges,
-                                    openUrl
-                                )
-                            );
+                    case "unstyled": {
+                        if (text != null || text.Length > 0) {
+                            var inlineSpans = _RichStyle(text, content.entityMap, block.entityRanges, block.inlineStyleRanges, openUrl);
+                            widgets.Add(_Unstyled(text, inlineSpans));
+                        }
+                    }
                         break;
                     case "unordered-list-item": {
                         var isFirst = true;
@@ -59,15 +62,13 @@ namespace ConnectApp.components {
 
                         var afterBlock = blocks[i + 1];
                         var isLast = afterBlock.type != "unordered-list-item";
+                        var inlineSpans = _RichStyle(text, content.entityMap, block.entityRanges, block.inlineStyleRanges, openUrl);
                         widgets.Add(
                             _UnorderedList(
                                 block.text,
                                 isFirst,
                                 isLast,
-                                content.entityMap,
-                                block.entityRanges,
-                                block.inlineStyleRanges,
-                                openUrl
+                                inlineSpans
                             )
                         );
                     }
@@ -112,43 +113,52 @@ namespace ConnectApp.components {
             return widgets;
         }
 
-        private static Widget _H1(string text) {
+        private static Widget _H1(string text, List<TextSpan>inlineSpans) {
             if (text == null) return new Container();
+            
+            Widget child = new Text(
+                text,
+                style: CTextStyle.H4
+            );
+            if (inlineSpans != null)
+                child = new RichText(
+                    text: new TextSpan(
+                        children: inlineSpans
+                    )
+                );
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(16, 16, 16, 24),
-                child: new Text(
-                    text,
-                    style: CTextStyle.H4
-                )
+                child: child
             );
         }
 
-        private static Widget _H2(string text) {
+        private static Widget _H2(string text, List<TextSpan>inlineSpans) {
             if (text == null) return new Container();
+            
+            Widget child = new Text(
+                text,
+                style: CTextStyle.H5
+            );
+            if (inlineSpans != null)
+                child = new RichText(
+                    text: new TextSpan(
+                        children: inlineSpans
+                    )
+                );
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(16, 16, 16, 24),
-                child: new Text(
-                    text,
-                    style: CTextStyle.H5
-                )
+                child: child
             );
         }
 
-        private static Widget _Unstyled(
-            string text,
-            Dictionary<string, _EventContentEntity> entityMap,
-            List<_EntityRange> entityRanges,
-            List<_InlineStyleRange> inlineStyleRanges,
-            Action<string> openUrl
-        ) {
+        private static Widget _Unstyled(string text, List<TextSpan>inlineSpans) {
             if (text == null) return new Container();
             Widget child = new Text(
                 text,
                 style: CTextStyle.PXLarge
             );
-            var inlineSpans = _RichStyle(text, entityMap, entityRanges, inlineStyleRanges, openUrl);
             if (inlineSpans != null)
                 child = new RichText(
                     text: new TextSpan(
@@ -163,8 +173,20 @@ namespace ConnectApp.components {
             );
         }
 
-        private static Widget _CodeBlock(BuildContext context, string text) {
+        private static Widget _CodeBlock(BuildContext context, string text, List<TextSpan> inlineSpans) {
             if (text == null) return new Container();
+            
+            Widget child = new Text(
+                text,
+                style: CTextStyle.PCodeStyle
+            );
+            if (inlineSpans != null)
+                child = new RichText(
+                    text: new TextSpan(
+                        children: inlineSpans
+                    )
+                );
+            
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(bottom: 24),
@@ -173,17 +195,25 @@ namespace ConnectApp.components {
                     width: MediaQuery.of(context).size.width,
                     child: new Container(
                         padding: EdgeInsets.all(16),
-                        child: new Text(
-                            text,
-                            style: CTextStyle.PCodeStyle
-                        )
+                        child: child
                     )
                 )
             );
         }
 
 
-        private static Widget _QuoteBlock(string text) {
+        private static Widget _QuoteBlock(string text, List<TextSpan>inlineSpans) {
+            Widget child = new Text(
+                text,
+                style: CTextStyle.PXLargeBody4
+            );
+            if (inlineSpans != null)
+                child = new RichText(
+                    text: new TextSpan(
+                        children: inlineSpans
+                    )
+                );
+            
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(16, right: 16, bottom: 24),
@@ -198,10 +228,7 @@ namespace ConnectApp.components {
                         )
                     ),
                     padding: EdgeInsets.only(16),
-                    child: new Text(
-                        text,
-                        style: CTextStyle.PXLargeBody4
-                    )
+                    child: child
                 )
             );
         }
@@ -336,16 +363,12 @@ namespace ConnectApp.components {
             string text,
             bool isFirst,
             bool isLast,
-            Dictionary<string, _EventContentEntity> entityMap,
-            List<_EntityRange> entityRanges,
-            List<_InlineStyleRange> inlineStyleRanges,
-            Action<string> openUrl
+            List<TextSpan> inlineSpans
         ) {
             Widget child = new Text(
                 text,
                 style: CTextStyle.PXLarge
             );
-            var inlineSpans = _RichStyle(text, entityMap, entityRanges, inlineStyleRanges, openUrl);
             if (inlineSpans != null)
                 child = new RichText(
                     text: new TextSpan(
@@ -382,16 +405,20 @@ namespace ConnectApp.components {
             Dictionary<string, _EventContentEntity> entityMap,
             List<_EntityRange> entityRanges,
             List<_InlineStyleRange> inlineStyleRanges,
-            Action<string> openUrl
+            Action<string> openUrl,
+            TextStyle style = null
         ) {
+            if (text == null) return null;
+            
             if (entityRanges == null 
                 && entityRanges.Count <= 0
                 && inlineStyleRanges == null 
                 && inlineStyleRanges.Count <= 0) return null;
             
-            if (inlineStyleRanges.Count <= 0) return _LinkSpans(text, entityMap, entityRanges, openUrl);
+            var newStyle = style != null ? style : CTextStyle.PXLarge;
+            if (inlineStyleRanges.Count <= 0) return _LinkSpans(text, entityMap, entityRanges, openUrl, newStyle);
             
-            if (entityRanges.Count <= 0) return _InlineStyle(text, inlineStyleRanges);
+            if (entityRanges.Count <= 0) return _InlineStyle(text, inlineStyleRanges, newStyle);
 
             var inlineStyleRange = inlineStyleRanges.first();
             var inlineOffset = inlineStyleRange.offset;
@@ -403,11 +430,19 @@ namespace ConnectApp.components {
             var data = entityMap[key];
             var entityOffset = entityRange.offset;
             var entityLength = entityRange.length;
-            var textStyle = CTextStyle.PXLarge.merge(
+            var textStyle = newStyle.merge(
                 new TextStyle(
                     fontWeight: inlineStyle == "BOLD" ? FontWeight.bold : FontWeight.normal,
                     fontStyle: inlineStyle == "ITALIC" ? FontStyle.italic : FontStyle.normal,
                     decoration: inlineStyle == "UNDERLINE" ? TextDecoration.underline : TextDecoration.none
+                )
+            );
+            var textBlueStyle = newStyle.merge(
+                new TextStyle(
+                    fontWeight: inlineStyle == "BOLD" ? FontWeight.bold : FontWeight.normal,
+                    fontStyle: inlineStyle == "ITALIC" ? FontStyle.italic : FontStyle.normal,
+                    decoration: inlineStyle == "UNDERLINE" ? TextDecoration.underline : TextDecoration.none,
+                    color: CColors.PrimaryBlue
                 )
             );
             var recognizer = new TapGestureRecognizer {
@@ -415,48 +450,60 @@ namespace ConnectApp.components {
             };
             if (entityOffset >= inlineOffset + inlineLength) {
                 var spans = new List<TextSpan> {
-                    new TextSpan(text.Substring(0, inlineOffset), CTextStyle.PXLarge),
+                    new TextSpan(text.Substring(0, inlineOffset), newStyle),
                     new TextSpan(text.Substring(inlineOffset, inlineLength), textStyle),
-                    new TextSpan(text.Substring(inlineOffset + inlineLength, entityOffset - inlineOffset - inlineLength), CTextStyle.PXLarge),
-                    new TextSpan(text.Substring(entityOffset, entityLength), CTextStyle.PXLargeBlue, recognizer: recognizer),
-                    new TextSpan(text.Substring(entityOffset + entityLength, text.Length - entityOffset - entityLength), CTextStyle.PXLarge)
+                    new TextSpan(text.Substring(inlineOffset + inlineLength, entityOffset - inlineOffset - inlineLength), newStyle),
+                    new TextSpan(text.Substring(entityOffset, entityLength), newStyle.copyWith(CColors.PrimaryBlue), recognizer: recognizer),
+                    new TextSpan(text.Substring(entityOffset + entityLength, text.Length - entityOffset - entityLength), newStyle)
                 };
                 return spans;
             }
             if (inlineOffset >= entityOffset + entityLength) {
                 var spans = new List<TextSpan> {
-                    new TextSpan(text.Substring(0, entityOffset), CTextStyle.PXLarge),
-                    new TextSpan(text.Substring(entityOffset, entityLength), CTextStyle.PXLargeBlue, recognizer: recognizer),
-                    new TextSpan(text.Substring(entityOffset + entityLength, inlineOffset - entityOffset - entityLength), CTextStyle.PXLarge),
+                    new TextSpan(text.Substring(0, entityOffset), newStyle),
+                    new TextSpan(text.Substring(entityOffset, entityLength), newStyle.copyWith(CColors.PrimaryBlue), recognizer: recognizer),
+                    new TextSpan(text.Substring(entityOffset + entityLength, inlineOffset - entityOffset - entityLength), newStyle),
                     new TextSpan(text.Substring(inlineOffset, inlineLength), textStyle),
-                    new TextSpan(text.Substring(inlineOffset + inlineLength, text.Length - inlineOffset - inlineLength), CTextStyle.PXLarge)
+                    new TextSpan(text.Substring(inlineOffset + inlineLength, text.Length - inlineOffset - inlineLength), newStyle)
                 };
                 return spans;
+            }
+            if (entityOffset >= inlineOffset) {
+                if (entityOffset + entityLength <= inlineOffset + inlineLength) {
+                    var lastLength = inlineOffset + inlineLength - entityOffset - entityLength;
+                    var spans = new List<TextSpan> {
+                        new TextSpan(text.Substring(0, inlineOffset), newStyle),
+                        new TextSpan(text.Substring(inlineOffset, entityOffset - inlineOffset), textStyle),
+                        new TextSpan(text.Substring(entityOffset, entityLength), textBlueStyle, recognizer: recognizer),
+                        new TextSpan(text.Substring(entityOffset + entityLength, lastLength), textStyle)
+                    };
+                    return spans;
+                }
             }
             return null;
         }
         
-        private static List<TextSpan> _InlineStyle(string text, List<_InlineStyleRange> inlineStyleRanges) {
+        private static List<TextSpan> _InlineStyle(string text, List<_InlineStyleRange> inlineStyleRanges, TextStyle style) {
             if (inlineStyleRanges == null && inlineStyleRanges.Count <= 0) return null;
 
             var inlineStyleRange = inlineStyleRanges.first();
             var offset = inlineStyleRange.offset;
             var length = inlineStyleRange.length;
-            var style = inlineStyleRange.style;
+            var inlineStyle = inlineStyleRange.style;
             var leftText = text.Substring(0, offset);
             var currentText = text.Substring(offset, length);
             var rightText = text.Substring(length + offset, text.Length - length - offset);
-            var textStyle = CTextStyle.PXLarge.merge(
+            var textStyle = style.merge(
                 new TextStyle(
-                    fontWeight: style == "BOLD" ? FontWeight.bold : FontWeight.normal,
-                    fontStyle: style == "ITALIC" ? FontStyle.italic : FontStyle.normal,
-                    decoration: style == "UNDERLINE" ? TextDecoration.underline : TextDecoration.none
+                    fontWeight: inlineStyle == "BOLD" ? FontWeight.bold : FontWeight.normal,
+                    fontStyle: inlineStyle == "ITALIC" ? FontStyle.italic : FontStyle.normal,
+                    decoration: inlineStyle == "UNDERLINE" ? TextDecoration.underline : TextDecoration.none
                 )
             );
             return new List<TextSpan> {
                 new TextSpan(
                     leftText,
-                    CTextStyle.PXLarge
+                    style
                 ),
                 new TextSpan(
                     currentText,
@@ -464,7 +511,7 @@ namespace ConnectApp.components {
                 ),
                 new TextSpan(
                     rightText,
-                    CTextStyle.PXLarge
+                    style
                 )
             };
         }
@@ -473,7 +520,8 @@ namespace ConnectApp.components {
             string text,
             Dictionary<string, _EventContentEntity> entityMap,
             List<_EntityRange> entityRanges,
-            Action<string> openUrl
+            Action<string> openUrl,
+            TextStyle style
         ) {
             if (entityRanges != null && entityRanges.Count > 0) {
                 var entityRange = entityRanges.first();
@@ -492,16 +540,16 @@ namespace ConnectApp.components {
                         return new List<TextSpan> {
                             new TextSpan(
                                 leftText,
-                                CTextStyle.PXLarge
+                                style
                             ),
                             new TextSpan(
                                 currentText,
-                                CTextStyle.PXLargeBlue,
+                                style.copyWith(CColors.PrimaryBlue),
                                 recognizer: recognizer
                             ),
                             new TextSpan(
                                 rightText,
-                                CTextStyle.PXLarge
+                                style
                             )
                         };
                     }

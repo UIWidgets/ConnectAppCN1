@@ -11,6 +11,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
 
@@ -30,7 +31,7 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, BindUnityScreenViewModel>(
-                converter: (state) => new BindUnityScreenViewModel {
+                converter: state => new BindUnityScreenViewModel {
                     fromPage = fromPage,
                     loginLoading = state.loginState.loading,
                     loginEmail = state.loginState.email,
@@ -56,6 +57,7 @@ namespace ConnectApp.screens {
                         changePassword = text =>
                             dispatcher.dispatch(new LoginChangePasswordAction {changeText = text}),
                         startLoginByEmail = () => dispatcher.dispatch(new StartLoginByEmailAction()),
+                        clearEmailAndPassword = () => dispatcher.dispatch(new CleanEmailAndPasswordAction()),
                         loginByEmailFailure = () => dispatcher.dispatch(new LoginByEmailFailureAction()),
                         loginByEmail = () => dispatcher.dispatch<IPromise>(Actions.loginByEmail())
                     };
@@ -96,6 +98,10 @@ namespace ConnectApp.screens {
             _isPasswordFocus = false;
             _emailFocusNode.addListener(_emailFocusNodeListener);
             _passwordFocusNode.addListener(_passwordFocusNodeListener);
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                if (widget.viewModel.loginEmail.Length > 0 || widget.viewModel.loginPassword.Length > 0)
+                    widget.actionModel.clearEmailAndPassword();
+            });
         }
 
         public override void dispose() {
