@@ -1,20 +1,14 @@
 package com.unity3d.unityconnect;
 
-import com.tencent.mm.opensdk.openapi.IWXAPI;
-import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 import com.unity3d.player.*;
-import com.unity3d.unityconnect.plugins.WechatPlugin;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
 
 public class UnityPlayerActivity extends Activity
 {
@@ -29,9 +23,7 @@ public class UnityPlayerActivity extends Activity
         mUnityPlayer = new UnityPlayer(this);
         setContentView(mUnityPlayer);
         mUnityPlayer.requestFocus();
-        IWXAPI iwxapi = WXAPIFactory.createWXAPI(this, "wx0ab79f0c7db7ca52", true);
-        WechatPlugin.getInstance().iwxapi = iwxapi;
-        iwxapi.registerApp("wx0ab79f0c7db7ca52");
+
     }
 
     @Override protected void onNewIntent(Intent intent)

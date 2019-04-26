@@ -4,11 +4,11 @@ using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.redux;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 
 namespace ConnectApp.screens {
     public class MainScreen : StatelessWidget {
-        public override Widget build(BuildContext context) {
+        public override Widget build(BuildContext context)
+        {
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(

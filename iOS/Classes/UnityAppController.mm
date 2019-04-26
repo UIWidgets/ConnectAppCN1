@@ -12,8 +12,6 @@
 #import <OpenGLES/EAGLDrawable.h>
 #import <OpenGLES/ES2/gl.h>
 #import <OpenGLES/ES2/glext.h>
-#import "WechatPlugin.h"
-
 
 #include <mach/mach_time.h>
 
@@ -40,7 +38,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/sysctl.h>
-#include "WXApi.h"
 
 // we assume that app delegate is never changed and we can cache it, instead of re-query UIApplication every time
 UnityAppController* _UnityAppController = nil;
@@ -81,8 +78,6 @@ bool    _supportsMSAA           = false;
 // Required to enable specific orientation for some presentation controllers: see supportedInterfaceOrientationsForWindow below for details
 NSInteger _forceInterfaceOrientationMask = 0;
 #endif
-@interface UnityAppController() <WXApiDelegate>
-@end
 
 @implementation UnityAppController
 
@@ -190,7 +185,6 @@ extern "C" void UnityRequestQuit()
     UnitySendLocalNotification(notification);
 }
 
-
 #endif
 
 #if UNITY_USES_REMOTE_NOTIFICATIONS
@@ -238,17 +232,9 @@ extern "C" void UnityRequestQuit()
     if (url) notifData[@"url"] = url;
     if (sourceApplication) notifData[@"sourceApplication"] = sourceApplication;
     if (annotation) notifData[@"annotation"] = annotation;
-    
+
     AppController_SendNotificationWithArg(kUnityOnOpenURL, notifData);
-    return [WXApi handleOpenURL:url delegate:self];
-}
-
-
-- (void)onResp:(BaseResp *)resp {
-    if ([resp isKindOfClass:[SendAuthResp class]]) {
-        SendAuthResp *sendAuthResp = (SendAuthResp *) resp;
-        [[WechatPlugin instance]sendCodeEvent:sendAuthResp.code stateId:sendAuthResp.state];
-    }
+    return YES;
 }
 
 - (BOOL)application:(UIApplication*)application willFinishLaunchingWithOptions:(NSDictionary*)launchOptions
@@ -284,15 +270,17 @@ extern "C" void UnityRequestQuit()
 
     [self createUI];
     [self preStartUnity];
-    
+
     // if you wont use keyboard you may comment it out at save some memory
     [KeyboardDelegate Initialize];
+
 #if !PLATFORM_TVOS && DISABLE_TOUCH_DELAYS
     for (UIGestureRecognizer *g in _window.gestureRecognizers)
     {
         g.delaysTouchesBegan = false;
     }
 #endif
+
     return YES;
 }
 
