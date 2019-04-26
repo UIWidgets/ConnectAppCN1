@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.models;
+using ConnectApp.plugins;
 using ConnectApp.screens;
 using RSG;
 using Unity.UIWidgets.animation;
@@ -49,6 +50,7 @@ namespace ConnectApp.canvas {
         };
 
         public override Widget build(BuildContext context) {
+            JPushPlugin.context = context;
             return new WillPopScope(
                 onWillPop: () =>
                 {

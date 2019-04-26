@@ -99,7 +99,7 @@ namespace ConnectApp.components {
                         color: Color.fromRGBO(199, 203, 207, 1)
                     ),
                     message,
-                    TimeSpan.FromSeconds(1)
+                    TimeSpan.FromSeconds(10)
                 )
             );
         }

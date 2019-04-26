@@ -23,8 +23,14 @@ namespace ConnectApp.canvas {
             FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Semibold"), "PingFangSC-Semibold");
             FontManager.instance.addFont(Resources.Load<Font>("Menlo-Regular"), "Menlo");
             FontManager.instance.addFont(Resources.Load<Font>("iconFont"), "iconfont");
-            WechatPlugin.instance().init(Config.wechatAppId);
         }
+
+        private void Update()
+        {
+            base.Update();
+            if (!Application.isEditor) JPushPlugin.addListener();
+        }
+
 
         protected override Widget createWidget() {
             return new StoreProvider<AppState>(

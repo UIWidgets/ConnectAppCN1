@@ -1,8 +1,6 @@
 package com.unity3d.unityconnect.plugins;
 
 import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 
 import com.google.gson.Gson;
@@ -12,11 +10,9 @@ import com.tencent.mm.opensdk.modelmsg.WXMediaMessage;
 import com.tencent.mm.opensdk.modelmsg.WXWebpageObject;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
 import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
-import com.unity3d.player.UnityPlayer;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 
 //singleton
 public final class WechatPlugin{

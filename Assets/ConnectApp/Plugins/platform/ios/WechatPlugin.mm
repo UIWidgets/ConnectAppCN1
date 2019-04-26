@@ -19,9 +19,6 @@
     });
     return _shared;
 }
-- (void)initialize:(nonnull NSString*) appId {
-    [WXApi registerApp:appId];
-}
 - (void)tryWechatLogin:(nonnull NSString*) stateId {
     SendAuthReq* request = [[SendAuthReq alloc]init];
     request.scope = @"snsapi_userinfo";
@@ -97,11 +94,6 @@
 @end
 
 extern "C" {
-
-    void initWechat(const char * appId){
-            NSString *app=[NSString stringWithUTF8String:appId];
-            [[WechatPlugin instance] initialize:app];
-        }
         
     void loginWechat(const char * stateId){
         NSString *state=[NSString stringWithUTF8String:stateId];
