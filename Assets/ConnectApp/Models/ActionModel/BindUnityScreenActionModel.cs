@@ -10,6 +10,7 @@ namespace ConnectApp.Models.ActionModel {
         public Action<string> changePassword;
         public Action startLoginByEmail;
         public Action loginByEmailFailure;
+        public Action clearEmailAndPassword;
         public Func<IPromise> loginByEmail;
     }
 }
