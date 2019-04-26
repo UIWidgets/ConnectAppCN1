@@ -26,7 +26,6 @@ apply plugin: 'com.android.application'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation(name: 'UnityAds', ext:'aar')
     implementation 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:+'
     implementation 'com.google.code.gson:gson:2.8.5'
 }
@@ -47,8 +46,8 @@ android {
         ndk {
             abiFilters 'armeabi-v7a', 'x86'
         }
-        versionCode 11
-        versionName '0.7.4'
+        versionCode 15
+        versionName '0.7.8'
     }
 
     lintOptions {
