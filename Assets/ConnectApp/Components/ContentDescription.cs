@@ -47,7 +47,7 @@ namespace ConnectApp.components {
                     }
                         break;
                     case "unstyled": {
-                        if (text != null || text.Length > 0) {
+                        if (text.isNotEmpty()) {
                             var inlineSpans = _RichStyle(text, content.entityMap, block.entityRanges, block.inlineStyleRanges, openUrl);
                             widgets.Add(_Unstyled(text, inlineSpans));
                         }
