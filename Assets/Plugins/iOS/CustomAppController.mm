@@ -11,6 +11,7 @@
 #import "JPUSHService.h"
 #import "JPushEventCache.h"
 #import <UserNotifications/UserNotifications.h>
+#include "UIWidgetsMessageManager.h"
 
 @interface CustomAppController : UnityAppController<WXApiDelegate>
 @end
@@ -22,6 +23,9 @@ IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
 {
     [super application:application didFinishLaunchingWithOptions:launchOptions];
     
+    [application setApplicationIconBadgeNumber:0];
+    [JPUSHService setBadge:0];
+    
     [WXApi registerApp: @"wx0ab79f0c7db7ca52"];
     
     [[JPushEventCache sharedInstance] handFinishLaunchOption:launchOptions];
@@ -29,7 +33,6 @@ IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
     
     return YES;
 }
-
 
 #pragma mark- JPUSHRegisterDelegate
 

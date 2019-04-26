@@ -6,6 +6,7 @@
 //
 #import <UserNotifications/UserNotifications.h>
 #import "JPushEventCache.h"
+#include "UIWidgetsMessageManager.h"
 
 @interface JPushEventCache()
 @property(strong, nonatomic) NSMutableDictionary *eventCache;
@@ -107,21 +108,24 @@
   
   UNNotification *notification = response.notification;
   NSMutableDictionary *userInfo = @{}.mutableCopy;
-  
+
   if ([notification.request.trigger isKindOfClass:[UNPushNotificationTrigger class]]) {
-    userInfo = [NSMutableDictionary dictionaryWithDictionary: notification.request.content.userInfo];
-    [JPUSHService handleRemoteNotification:userInfo];
+      userInfo = [NSMutableDictionary dictionaryWithDictionary: notification.request.content.userInfo];
+      NSError *error = nil;
+      NSData *data = [NSJSONSerialization dataWithJSONObject:userInfo options:0 error:&error];
+      NSString *jsonStr = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
+      UIWidgetsMethodMessage(@"jpush", @"OnOpenNotification", @[jsonStr]);
+      [JPUSHService handleRemoteNotification:userInfo];
   } else {
     UNNotificationContent *content = notification.request.content;
     
     userInfo[@"content"] = content.body;
     userInfo[@"badge"] = content.badge;
     userInfo[@"extras"] = content.userInfo;
-
     userInfo[@"identifier"] = notification.request.identifier;
   }
-
-  [JPushEventCache.sharedInstance sendEvent:userInfo withKey:@"JPushPluginOpenNotification"];
+    
+//  [JPushEventCache.sharedInstance sendEvent:userInfo withKey:@"JPushPluginOpenNotification"];
   completionHandler();
 }
 @end
