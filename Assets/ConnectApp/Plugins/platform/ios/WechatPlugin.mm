@@ -33,7 +33,7 @@
     WXMediaMessage *message = [WXMediaMessage message];
     message.title = title;
     message.description = description;
-//    message.thumbData = imageBytes;
+    message.thumbData = imageBytes;
     
     WXWebpageObject *webpage = [WXWebpageObject object];
     webpage.webpageUrl = url;
@@ -69,28 +69,6 @@
                       @"id": stateId}];
   }
 }
-
-- (NSData *)dataWithReverse:(NSData *)srcData
-{
-    //    NSMutableData *dstData = [[NSMutableData alloc] init];
-    //    for (NSUInteger i=0; i<srcData.length; i++) {
-    //        [dstData appendData:[srcData subdataWithRange:NSMakeRange(srcData.length-1-i, 1)]];
-    //    }//for
-    
-    NSUInteger byteCount = srcData.length;
-    NSMutableData *dstData = [[NSMutableData alloc] initWithData:srcData];
-    NSUInteger halfLength = byteCount / 2;
-    for (NSUInteger i=0; i<halfLength; i++) {
-        NSRange begin = NSMakeRange(i, 1);
-        NSRange end = NSMakeRange(byteCount - i - 1, 1);
-        NSData *beginData = [srcData subdataWithRange:begin];
-        NSData *endData = [srcData subdataWithRange:end];
-        [dstData replaceBytesInRange:begin withBytes:endData.bytes];
-        [dstData replaceBytesInRange:end withBytes:beginData.bytes];
-    }//for
-    
-    return dstData;
-}
 @end
 
 extern "C" {
@@ -100,20 +78,22 @@ extern "C" {
         [[WechatPlugin instance]tryWechatLogin:state];
     }
     
-    void toFriends(const char * title,const char * description,const char * url,const uint8_t * imageBytes){
-        NSMutableData *valData = [[NSMutableData alloc] init];
-        unsigned char valChar[1];
-//        valChar[0] = 0xff & val;
-        [valData appendBytes:valChar length:1];
-        NSData *data= [WechatPlugin.instance dataWithReverse:valData];
+    void toFriends(const char * title,const char * description,const char * url,const char * imageStr){
+        if (imageStr==NULL) {
+            [[WechatPlugin instance]shareTo:WXSceneSession title:[NSString stringWithUTF8String:title] description:[NSString stringWithUTF8String:description] url:[NSString stringWithUTF8String:url] imageBytes:nil];
+            return;
+        }
+        NSString *base64String=[NSString stringWithUTF8String:imageStr];
+        NSData *data = [[NSData alloc]initWithBase64EncodedString:base64String options:0];
         [[WechatPlugin instance]shareTo:WXSceneSession title:[NSString stringWithUTF8String:title] description:[NSString stringWithUTF8String:description] url:[NSString stringWithUTF8String:url] imageBytes:data];
     }
-    void toTimeline(const char * title,const char * description,const char * url,const uint8_t * imageBytes){
-            NSMutableData *valData = [[NSMutableData alloc] init];
-            unsigned char valChar[1];
-            //        valChar[0] = 0xff & val;
-            [valData appendBytes:valChar length:1];
-            NSData *data= [WechatPlugin.instance dataWithReverse:valData];
+    void toTimeline(const char * title,const char * description,const char * url,const char * imageStr){
+        if (imageStr==NULL) {
+             [[WechatPlugin instance]shareTo:WXSceneTimeline title:[NSString stringWithUTF8String:title] description:[NSString stringWithUTF8String:description] url:[NSString stringWithUTF8String:url] imageBytes:nil];
+            return;
+        }
+        NSString *base64String=[NSString stringWithUTF8String:imageStr];
+        NSData *data = [[NSData alloc]initWithBase64EncodedString:base64String options:0];
         [[WechatPlugin instance]shareTo:WXSceneTimeline title:[NSString stringWithUTF8String:title] description:[NSString stringWithUTF8String:description] url:[NSString stringWithUTF8String:url] imageBytes:data];
     }
     BOOL isInstallWechat(){

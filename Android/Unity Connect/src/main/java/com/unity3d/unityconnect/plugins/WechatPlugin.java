@@ -2,6 +2,7 @@ package com.unity3d.unityconnect.plugins;
 
 import android.content.Context;
 import android.graphics.BitmapFactory;
+import android.util.Base64;
 
 import com.google.gson.Gson;
 import com.tencent.mm.opensdk.modelmsg.SendAuth;
@@ -39,11 +40,13 @@ public final class WechatPlugin{
         iwxapi.sendReq(req);
     }
 
-    private void shareToFriends(String title, String description, String url, byte[] imageBytes) {
+    private void shareToFriends(String title, String description, String url, String imageStr) {
+        byte[] imageBytes = Base64.decode(imageStr, Base64.DEFAULT);
         shareTo(SendMessageToWX.Req.WXSceneSession,title,description,url,imageBytes);
     }
 
-    private void shareToTimeline(String title, String description, String url, byte[] imageBytes) {
+    private void shareToTimeline(String title, String description, String url, String imageStr) {
+        byte[] imageBytes = Base64.decode(imageStr, Base64.DEFAULT);
         shareTo(SendMessageToWX.Req.WXSceneTimeline, title, description, url, imageBytes);
     }
 

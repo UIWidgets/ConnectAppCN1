@@ -3,6 +3,7 @@ using System.Collections;
 using RSG;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.ui;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace ConnectApp.api {
@@ -28,12 +29,29 @@ namespace ConnectApp.api {
                 // or the response is not OK
                 promise.Reject(new Exception(request.downloadHandler.text));
             }
-            else {
-                var data = ((DownloadHandlerTexture) request.downloadHandler).texture.GetRawTextureData();
-                if (data != null)
-                    promise.Resolve(data);
+            else
+            {
+                if (url.EndsWith(".jpg"))
+                {
+                    var data = ((DownloadHandlerTexture) request.downloadHandler).texture.EncodeToJPG();
+                    if (data != null)
+                        promise.Resolve(data);
+                    else
+                        promise.Reject(new Exception("No user under this username found!"));
+                }
+                else if(url.EndsWith(".png"))
+                {
+                    var data = ((DownloadHandlerTexture) request.downloadHandler).texture.EncodeToPNG();
+                    if (data != null)
+                        promise.Resolve(data);
+                    else
+                        promise.Reject(new Exception("No user under this username found!"));
+                }
                 else
-                    promise.Reject(new Exception("No user under this username found!"));
+                {
+                    promise.Reject(new Exception("no picture"));
+                }
+
             }
         }
     }
