@@ -17,11 +17,13 @@
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string></string>
+			<string>weixin</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>weixin</string>
+				<string>wx0ab79f0c7db7ca52</string>
 			</array>
 		</dict>
 	</array>
@@ -41,10 +43,6 @@
 	</dict>
 	<key>UIApplicationExitsOnSuspend</key>
 	<false/>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>remote-notification</string>
-	</array>
 	<key>UILaunchStoryboardName~iphone</key>
 	<string>LaunchScreen-iPhone</string>
 	<key>UILaunchStoryboardName~ipod</key>

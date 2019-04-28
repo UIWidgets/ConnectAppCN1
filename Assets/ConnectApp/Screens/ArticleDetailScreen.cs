@@ -562,7 +562,7 @@ namespace ConnectApp.screens {
                             child: new CustomDialog()
                         );
                         string imageUrl = $"{_article.thumbnail.url}.200x0x1.jpg";
-                        widget.actionModel.shareToWechat(type, _article.title, _article.description, linkUrl,
+                        widget.actionModel.shareToWechat(type, _article.title, _article.subTitle, linkUrl,
                                 imageUrl).Then(CustomDialogUtils.hiddenCustomDialog)
                             .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
                     }
