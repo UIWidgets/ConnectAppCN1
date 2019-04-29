@@ -32,7 +32,6 @@ namespace ConnectApp.canvas {
         private static Dictionary<string, WidgetBuilder> mainRoutes => new Dictionary<string, WidgetBuilder> {
             {MainNavigatorRoutes.Root, context => new MainScreen()},
             {MainNavigatorRoutes.Search, context => new SearchScreenConnector()},
-            {MainNavigatorRoutes.EventDetail, context => new EventDetailScreenConnector("", EventType.offline)},
             {MainNavigatorRoutes.ArticleDetail, context => new ArticleDetailScreenConnector("")},
             {MainNavigatorRoutes.Setting, context => new SettingScreenConnector()},
             {MainNavigatorRoutes.MyEvent, context => new MyEventsScreenConnector()},

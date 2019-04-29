@@ -11,15 +11,18 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.components {
     public class EventDetail : StatelessWidget {
         public EventDetail(
+            bool isShowImage,
             IEvent eventObj = null,
             Action<string> openUrl = null,
             Key key = null
         ) : base(key) {
             this.eventObj = eventObj;
             this.openUrl = openUrl;
+            this.isShowImage = isShowImage;
         }
-
+        
         private readonly IEvent eventObj;
+        private readonly bool isShowImage;
         private readonly Action<string> openUrl;
 
         public override Widget build(BuildContext context) {
@@ -43,6 +46,7 @@ namespace ConnectApp.components {
         }
         
         private Widget _buildHeadImage() {
+            if (!isShowImage) return new Container();
             var imageUrl = eventObj.avatar ?? "";
             return new Container(
                 color: CColors.text2,
