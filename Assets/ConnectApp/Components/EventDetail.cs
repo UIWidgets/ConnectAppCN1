@@ -27,8 +27,10 @@ namespace ConnectApp.components {
         }
 
         private Widget _buildContent(BuildContext context) {
-            var items = new List<Widget>();
-            items.Add(_buildContentHead());
+            var items = new List<Widget> {
+                _buildHeadImage(), 
+                _buildContentHead()
+            };
             items.AddRange(ContentDescription.map(context, eventObj.content, eventObj.contentMap, openUrl));
             items.Add(_buildContentLecturerList());
             return new Container(
@@ -36,6 +38,25 @@ namespace ConnectApp.components {
                     physics: new AlwaysScrollableScrollPhysics(),
                     itemCount: items.Count,
                     itemBuilder: (cxt, index) => items[index]
+                )
+            );
+        }
+        
+        private Widget _buildHeadImage() {
+            var imageUrl = eventObj.avatar ?? "";
+            return new Container(
+                color: CColors.text2,
+                child: new AspectRatio(
+                    aspectRatio: 16.0f / 9.0f,
+                    child: new Stack(
+                        fit: StackFit.expand,
+                        children: new List<Widget> {
+                            new PlaceholderImage(
+                                imageUrl.EndsWith(".gif") ? imageUrl : $"{imageUrl}.1400x0x1.jpg",
+                                fit: BoxFit.cover
+                            )
+                        }
+                    )
                 )
             );
         }
