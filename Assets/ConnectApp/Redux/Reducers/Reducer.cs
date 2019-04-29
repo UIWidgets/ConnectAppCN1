@@ -323,7 +323,6 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     action.eventsResponse.events.items.ForEach(eventObj => {
-                        if (eventObj.mode == "online") return;
                         if (action.tab == "ongoing") {
                             if (!state.eventState.ongoingEvents.Contains(eventObj.id))
                                 state.eventState.ongoingEvents.Add(eventObj.id);
@@ -724,6 +723,19 @@ namespace ConnectApp.redux.reducers {
                 }
                 case CopyTextAction action: {
                     Clipboard.setData(new ClipboardData(action.text));
+                    break;
+                }
+                case MainNavigatorPushToWebViewAction action: {
+                    if (action.url != null)
+                        Router.navigator.push(new PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) =>
+                                new WebViewScreen(action.url), 
+                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
+                                new PushPageTransition(
+                                    routeAnimation: animation,
+                                    child: child
+                                ))
+                        );
                     break;
                 }
                 case FetchReviewUrlSuccessAction action: {
