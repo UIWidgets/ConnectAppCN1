@@ -5,11 +5,12 @@ using ConnectApp.redux.actions;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 using EventType = ConnectApp.models.EventType;
 
 namespace ConnectApp.plugins
 {
-    public class JPushPlugin
+    public static class JPushPlugin
     {
         public static BuildContext context;
         public static bool isListen;

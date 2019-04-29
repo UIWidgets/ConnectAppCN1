@@ -1,5 +1,4 @@
 using ConnectApp.components;
-using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.plugins;
 using ConnectApp.redux;
@@ -30,12 +29,10 @@ namespace ConnectApp.canvas {
 
         }
 
-        private void Update()
-        {
+        protected override void Update() {
             base.Update();
             if (!Application.isEditor) JPushPlugin.addListener();
         }
-
 
         protected override Widget createWidget() {
             return new StoreProvider<AppState>(
@@ -46,7 +43,6 @@ namespace ConnectApp.canvas {
                 )
             );
         }
-
 
         private static PageRouteFactory pageRouteBuilder {
             get {
