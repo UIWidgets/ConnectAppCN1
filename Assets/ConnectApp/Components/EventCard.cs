@@ -33,8 +33,8 @@ namespace ConnectApp.components {
             var hour = $"{time.Hour.ToString().PadLeft(2, '0')}";
             var minute = $"{time.Minute.ToString().PadLeft(2, '0')}";
             var hourMinute = $"{hour}:{minute}";
-            var address = place == null ? "" : place;
-            var imageUrl = model.avatar != null ? model.avatar : model.background;
+            var address = place ?? "";
+            var imageUrl = model.avatar ?? model.background;
             var card = new Container(
                 padding: EdgeInsets.all(16),
                 color: CColors.White,
@@ -93,7 +93,7 @@ namespace ConnectApp.components {
                             child: new Stack(
                                 children: new List<Widget> {
                                     new PlaceholderImage(
-                                        imageUrl.EndsWith(".gif") ? imageUrl : $"{imageUrl}.300x0x1.jpg",
+                                        imageUrl.EndsWith(".gif") ? imageUrl : $"{imageUrl}.600x0x1.jpg",
                                         114,
                                         76,
                                         4,

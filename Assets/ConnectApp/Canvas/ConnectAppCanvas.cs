@@ -1,3 +1,4 @@
+using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.plugins;
@@ -7,6 +8,7 @@ using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+using UnityEngine.Video;
 
 namespace ConnectApp.canvas {
     public sealed class ConnectAppCanvas : UIWidgetsPanel {
@@ -23,6 +25,9 @@ namespace ConnectApp.canvas {
             FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Semibold"), "PingFangSC-Semibold");
             FontManager.instance.addFont(Resources.Load<Font>("Menlo-Regular"), "Menlo");
             FontManager.instance.addFont(Resources.Load<Font>("iconFont"), "iconfont");
+            VideoPlayerManager.instance.initPlayer(gameObject);
+            WebViewManager.instance.initWebView(gameObject);
+
         }
 
         private void Update()

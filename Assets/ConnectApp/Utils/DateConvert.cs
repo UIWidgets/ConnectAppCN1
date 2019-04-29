@@ -61,5 +61,13 @@ namespace ConnectApp.utils {
             if (subEndTime > 0.0) return EventStatus.past;
             return EventStatus.future;
         }
+
+
+        public static string formatTime(float time)
+        {
+            var hour = (int)time / 60;
+            var mint = (int)time % 60;
+            return string.Format("{0:00}:{0:00}", hour, mint);
+        }
     }
 }

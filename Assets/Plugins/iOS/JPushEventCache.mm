@@ -6,6 +6,7 @@
 //
 #import <UserNotifications/UserNotifications.h>
 #import "JPushEventCache.h"
+#import "JPushPlugin.h"
 #include "UIWidgetsMessageManager.h"
 
 @interface JPushEventCache()
@@ -114,11 +115,11 @@
       NSError *error = nil;
       NSData *data = [NSJSONSerialization dataWithJSONObject:userInfo options:0 error:&error];
       NSString *jsonStr = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
+      [JPushPlugin instance].pushJson = jsonStr;
       UIWidgetsMethodMessage(@"jpush", @"OnOpenNotification", @[jsonStr]);
       [JPUSHService handleRemoteNotification:userInfo];
   } else {
     UNNotificationContent *content = notification.request.content;
-    
     userInfo[@"content"] = content.body;
     userInfo[@"badge"] = content.badge;
     userInfo[@"extras"] = content.userInfo;

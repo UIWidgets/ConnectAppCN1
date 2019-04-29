@@ -726,6 +726,19 @@ namespace ConnectApp.redux.reducers {
                     Clipboard.setData(new ClipboardData(action.text));
                     break;
                 }
+                case MainNavigatorPushToWebViewAction action: {
+                    if (action.url != null)
+                        Router.navigator.push(new PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) =>
+                                new WebViewScreen(action.url), 
+                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
+                                new PushPageTransition(
+                                    routeAnimation: animation,
+                                    child: child
+                                ))
+                        );
+                    break;
+                }
                 case FetchReviewUrlSuccessAction action: {
                     state.settingState.reviewUrl = action.url;
                     state.settingState.hasReviewUrl = true;
