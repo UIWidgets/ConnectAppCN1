@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.screens;
 using ConnectApp.utils;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
@@ -229,14 +230,9 @@ namespace ConnectApp.components {
             );
         }
 
-        private Widget _buildPastView() {
-            return _buildHeadImage(
-                new Positioned(
-                    left: 16,
-                    bottom: 16,
-                    child: _buildVideoTimeCard()
-                )
-            );
+        private Widget _buildPastView()
+        {
+            return new VideoPlayerScreen();
         }
     }
 }

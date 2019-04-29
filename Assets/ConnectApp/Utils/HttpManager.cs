@@ -7,6 +7,7 @@ using RSG;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
+using Unity.UIWidgets.widgets;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -69,6 +70,11 @@ namespace ConnectApp.utils {
 
         public static void clearCookie() {
             PlayerPrefs.DeleteKey(COOKIE);
+        }
+
+        public static string getCookie()
+        {
+            return _cookieHeader();
         }
 
         private static void updateCookie(string newCookie) {

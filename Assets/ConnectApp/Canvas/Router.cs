@@ -22,6 +22,7 @@ namespace ConnectApp.canvas {
         public const string VideoPlayer = "/video-player";
         public const string Report = "/report";
         public const string AboutUs = "/aboutUs";
+        public const string WebView = "/web-view";
     }
 
     internal class Router : StatelessWidget {
@@ -30,7 +31,6 @@ namespace ConnectApp.canvas {
 
         private static Dictionary<string, WidgetBuilder> mainRoutes => new Dictionary<string, WidgetBuilder> {
             {MainNavigatorRoutes.Root, context => new MainScreen()},
-//            {MainNavigatorRoutes.Root, context => new TestScreen()},
             {MainNavigatorRoutes.Search, context => new SearchScreenConnector()},
             {MainNavigatorRoutes.EventDetail, context => new EventDetailScreenConnector("", EventType.offline)},
             {MainNavigatorRoutes.ArticleDetail, context => new ArticleDetailScreenConnector("")},
@@ -41,7 +41,8 @@ namespace ConnectApp.canvas {
             {MainNavigatorRoutes.BindUnity, context => new BindUnityScreenConnector(FromPage.setting)},
             {MainNavigatorRoutes.VideoPlayer, context => new VideoPlayerScreen()},
             {MainNavigatorRoutes.Report, context => new ReportScreenConnector("", ReportType.article)},
-            {MainNavigatorRoutes.AboutUs, context => new AboutUsScreenConnector()}
+            {MainNavigatorRoutes.AboutUs, context => new AboutUsScreenConnector()},
+            {MainNavigatorRoutes.WebView, context => new WebViewScreen()}
         };
 
         private static Dictionary<string, WidgetBuilder> fullScreenRoutes => new Dictionary<string, WidgetBuilder> {
