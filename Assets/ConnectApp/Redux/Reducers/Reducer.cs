@@ -324,7 +324,7 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     action.eventsResponse.events.items.ForEach(eventObj => {
-//                        if (eventObj.mode == "online") return;
+                        if (eventObj.mode == "online") return;
                         if (action.tab == "ongoing") {
                             if (!state.eventState.ongoingEvents.Contains(eventObj.id))
                                 state.eventState.ongoingEvents.Add(eventObj.id);
