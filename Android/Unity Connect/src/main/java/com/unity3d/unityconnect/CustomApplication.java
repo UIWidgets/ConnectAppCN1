@@ -4,6 +4,7 @@ import android.app.Application;
 
 import com.tencent.mm.opensdk.openapi.IWXAPI;
 import com.tencent.mm.opensdk.openapi.WXAPIFactory;
+import com.unity3d.unityconnect.plugins.JPushPlugin;
 import com.unity3d.unityconnect.plugins.WechatPlugin;
 import cn.jpush.android.api.JPushInterface;
 

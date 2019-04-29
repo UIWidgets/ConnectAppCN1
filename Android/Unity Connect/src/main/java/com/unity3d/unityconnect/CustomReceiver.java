@@ -8,11 +8,11 @@ import android.os.Bundle;
 import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
 
 import java.util.Arrays;
-import java.util.HashMap;
 
 import cn.jpush.android.api.JPushInterface;
 
 import com.google.gson.Gson;
+import com.unity3d.unityconnect.plugins.JPushPlugin;
 
 /**
  * 自定义接收器
@@ -35,6 +35,7 @@ public class CustomReceiver extends BroadcastReceiver {
                 //获取接收到推送的消息数据
                 Bundle bundle = intent.getExtras();
                 String JSON = bundle.getString(JPushInterface.EXTRA_EXTRA);//得到的是服务器返回的json串,需要解析才能得到消息内容
+                JPushPlugin.getInstance().pushJson = JSON;
                 UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenNotification", Arrays.asList(JSON));
 
             }
