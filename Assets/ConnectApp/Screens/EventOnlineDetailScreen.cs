@@ -25,8 +25,8 @@ using Config = ConnectApp.constants.Config;
 using EventType = ConnectApp.models.EventType;
 
 namespace ConnectApp.screens {
-    public class EventDetailScreenConnector : StatelessWidget {
-        public EventDetailScreenConnector(string eventId, EventType eventType) {
+    public class EventOnlineDetailScreenConnector : StatelessWidget {
+        public EventOnlineDetailScreenConnector(string eventId) {
             this.eventId = eventId;
         }
 
@@ -81,14 +81,14 @@ namespace ConnectApp.screens {
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
                             Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
                     };
-                    return new EventDetailScreen(viewModel, actionModel);
+                    return new EventOnlineDetailScreen(viewModel, actionModel);
                 }
             );
         }
     }
 
-    public class EventDetailScreen : StatefulWidget {
-        public EventDetailScreen(
+    public class EventOnlineDetailScreen : StatefulWidget {
+        public EventOnlineDetailScreen(
             EventDetailScreenViewModel viewModel = null,
             EventDetailScreenActionModel actionModel = null,
             Key key = null
@@ -105,7 +105,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    internal class _EventDetailScreenState : State<EventDetailScreen>, TickerProvider {
+    internal class _EventDetailScreenState : State<EventOnlineDetailScreen>, TickerProvider {
         private AnimationController _controller;
         private Animation<Offset> _position;
         private readonly TextEditingController _textController = new TextEditingController("");

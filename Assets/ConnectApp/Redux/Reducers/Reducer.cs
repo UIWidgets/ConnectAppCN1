@@ -652,7 +652,7 @@ namespace ConnectApp.redux.reducers {
                                 {
                                     return new EventOfflineDetailScreenConnector(action.eventId); 
                                 }
-                                return new EventDetailScreenConnector(action.eventId,action.eventType);
+                                return new EventOnlineDetailScreenConnector(action.eventId);
                             },
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new PushPageTransition(
