@@ -92,29 +92,6 @@ namespace ConnectApp.components {
             );
         }
 
-        private static Widget _buildHeadBottom(Widget child) {
-            return new Container(
-                height: 44,
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                decoration: new BoxDecoration(
-                    gradient: new LinearGradient(
-                        colors: new List<Color> {
-                            new Color(0x0),
-                            new Color(0x80000000)
-                        },
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter
-                    )
-                ),
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: new List<Widget> {
-                        child
-                    }
-                )
-            );
-        }
-
         private static Widget _buildFutureCard() {
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),

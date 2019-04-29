@@ -34,7 +34,7 @@ namespace ConnectApp.components {
         public override void initState() {
             base.initState();
 
-            _texture = new RenderTexture(Screen.width,Screen.height*9/16,24);
+            _texture = Resources.Load<RenderTexture>("ConnectAppRT");
             _player = _videoPlayer(widget.url);
 
             isPaused = false;

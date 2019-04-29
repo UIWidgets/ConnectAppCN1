@@ -8,6 +8,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+using EventType = ConnectApp.models.EventType;
 
 namespace ConnectApp.redux.reducers {
     public static class AppReducer {
@@ -646,7 +647,13 @@ namespace ConnectApp.redux.reducers {
                     if (action.eventId != null)
                         Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                                new EventDetailScreenConnector(action.eventId, action.eventType),
+                            {
+                                if (action.eventType == EventType.offline)
+                                {
+                                    return new EventOfflineDetailScreenConnector(action.eventId); 
+                                }
+                                return new EventOnlineDetailScreenConnector(action.eventId);
+                            },
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new PushPageTransition(
                                     routeAnimation: animation,
