@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using ConnectApp.constants;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Icons = ConnectApp.constants.Icons;
 
 namespace ConnectApp.components {
     public enum InputFieldClearButtonMode {
@@ -36,6 +38,8 @@ namespace ConnectApp.components {
             TextInputType keyboardType = null,
             float height = 44.0f,
             InputFieldClearButtonMode clearButtonMode = InputFieldClearButtonMode.never,
+            bool enableInteractiveSelection = true,
+            Color selectionColor = null,
             ValueChanged<string> onChanged = null,
             ValueChanged<string> onSubmitted = null,
             EdgeInsets scrollPadding = null
@@ -56,6 +60,8 @@ namespace ConnectApp.components {
             this.labelStyle = labelStyle;
             this.height = height;
             this.clearButtonMode = clearButtonMode;
+            this.enableInteractiveSelection = enableInteractiveSelection;
+            this.selectionColor = selectionColor ?? CColors.PrimaryBlue;
             this.cursorColor = cursorColor;
             this.textInputAction = textInputAction;
             this.keyboardType = keyboardType;
@@ -82,11 +88,12 @@ namespace ConnectApp.components {
         public readonly TextInputType keyboardType;
         public readonly float height;
         public readonly InputFieldClearButtonMode clearButtonMode;
+        public readonly bool enableInteractiveSelection;
+        public readonly Color selectionColor;
         public readonly ValueChanged<string> onChanged;
         public readonly ValueChanged<string> onSubmitted;
 
         public readonly EdgeInsets scrollPadding;
-//        public readonly Brightness keyboardAppearance;
 
         public override State createState() {
             return new _InputFieldState();
@@ -210,6 +217,11 @@ namespace ConnectApp.components {
                                     keyboardType: widget.keyboardType,
                                     textAlign: widget.textAlign,
                                     scrollPadding: widget.scrollPadding,
+                                    selectionControls: widget.enableInteractiveSelection 
+                                        ? MaterialUtils.materialTextSelectionControls
+                                        : null,
+                                    enableInteractiveSelection: widget.enableInteractiveSelection,
+                                    selectionColor: widget.selectionColor,
                                     onChanged: text => {
                                         var isTextEmpty = text.Length > 0;
                                         if (_isHintTextHidden != isTextEmpty)
