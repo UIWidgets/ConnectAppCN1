@@ -115,9 +115,11 @@ namespace ConnectApp.screens {
         private readonly FocusNode _focusNode = new FocusNode();
         private readonly RefreshController _refreshController = new RefreshController();
         private string _loginSubId;
+        private bool _showNavBarShadow;
 
         public override void initState() {
             base.initState();
+            _showNavBarShadow = true;
             _controller = new AnimationController(
                 duration: new TimeSpan(0, 0, 0, 0, 300),
                 vsync: this
@@ -146,21 +148,31 @@ namespace ConnectApp.screens {
                 child: new CustomSafeArea(
                     child: new Container(
                         color: CColors.White,
-                        child: new Column(
-                            children: new List<Widget> {
-                                _buildEventHeader(eventObj, widget.viewModel.eventType, eventStatus,
-                                    widget.viewModel.isLoggedIn),
-                                _buildEventDetail(eventObj, widget.viewModel.eventType, eventStatus,
-                                    widget.viewModel.isLoggedIn),
-                                _buildEventBottom(eventObj, widget.viewModel.eventType, eventStatus,
-                                    widget.viewModel.isLoggedIn)
-                            }
+                        child: new NotificationListener<ScrollNotification>(
+                            onNotification: _onNotification,
+                            child: new Column(
+                                children: new List<Widget> {
+                                    widget.viewModel.eventType == EventType.online ? _buildEventHeader(eventObj, widget.viewModel.eventType, eventStatus,
+                                        widget.viewModel.isLoggedIn) : new Container(),
+                                    _buildEventDetail(context, eventObj, widget.viewModel.eventType, eventStatus,
+                                        widget.viewModel.isLoggedIn),
+                                    _buildEventBottom(eventObj, widget.viewModel.eventType, eventStatus,
+                                        widget.viewModel.isLoggedIn)
+                                }
+                            )
                         )
                     )
                 )
             );
         }
-
+        
+        private bool _onNotification(ScrollNotification notification) {
+            var pixels = notification.metrics.pixels;
+            _showNavBarShadow = !(pixels >= 44);
+            setState(() => { });
+            return true;
+        }
+      
         public override void dispose() {
             EventBus.unSubscribe(EventBusConstant.login_success, _loginSubId);
             _textController.dispose();
@@ -232,20 +244,22 @@ namespace ConnectApp.screens {
                         width: 64,
                         height: 64,
                         color: CColors.Transparent,
-                        child: new Icon(Icons.share, size: 28, color: CColors.White))
+                        child: new Icon(Icons.share, size: 28, color: _showNavBarShadow ? CColors.White : CColors.icon3))
                 );
-            return new Container(
+            return new AnimatedContainer(
                 height: 44,
+                duration: new TimeSpan(0, 0, 0, 0, 0),
                 padding: EdgeInsets.symmetric(horizontal: 8),
                 decoration: new BoxDecoration(
-                    gradient: new LinearGradient(
+                    CColors.White,
+                    gradient: _showNavBarShadow ? new LinearGradient(
                         colors: new List<Color> {
                             new Color(0x80000000),
                             new Color(0x0)
                         },
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter
-                    )
+                    ) : null 
                 ),
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -255,7 +269,7 @@ namespace ConnectApp.screens {
                             child: new Icon(
                                 Icons.arrow_back,
                                 size: 28,
-                                color: CColors.White
+                                color: _showNavBarShadow ? CColors.White : CColors.icon3
                             )
                         ),
                         shareWidget
@@ -279,7 +293,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildEventDetail(IEvent eventObj, EventType eventType, EventStatus eventStatus,
+        private Widget _buildEventDetail(BuildContext context, IEvent eventObj, EventType eventType, EventStatus eventStatus,
             bool isLoggedIn) {
             if (eventStatus != EventStatus.future && eventType == EventType.online && isLoggedIn)
                 return new Expanded(
@@ -303,7 +317,17 @@ namespace ConnectApp.screens {
                     )
                 );
             return new Expanded(
-                child: new EventDetail(eventObj, widget.actionModel.openUrl)
+                child: new Stack(
+                    children: new List<Widget> {
+                        new EventDetail(eventObj, widget.actionModel.openUrl),
+                        new Positioned(
+                            left: 0,
+                            top: 0,
+                            right: 0,
+                            child: _buildHeadTop(true, eventObj)
+                        )
+                    }
+                )
             );
         }
 

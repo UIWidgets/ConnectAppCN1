@@ -50,7 +50,7 @@ namespace ConnectApp.screens
             {
                 var top = (int) MediaQuery.of(context).padding.top + 44;
                 var bottom = (int) MediaQuery.of(context).padding.bottom;
-                _webViewObject.SetMargins(0,top,0,bottom);
+                _webViewObject.SetMargins(0, top,0, bottom);
             }
             var child = new Container(
                 color: CColors.background3,

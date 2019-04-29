@@ -1,4 +1,5 @@
 package com.unity3d.unityconnect;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -11,6 +12,9 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity
         super.onCreate(savedInstanceState);
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         // Clear low profile flags to apply non-fullscreen mode before splash screen
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(Color.WHITE);
+        }
         showSystemUi();
         addUiVisibilityChangeListener();
     }

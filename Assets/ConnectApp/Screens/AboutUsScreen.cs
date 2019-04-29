@@ -111,6 +111,15 @@ namespace ConnectApp.screens {
                         new Text(
                             "Unity Connect",
                             style: CTextStyle.H4
+                        ),
+                        new Container(height: 20),
+                        new Text(
+                            $"版本号：{Config.versionCode}",
+                            style: new TextStyle(
+                                fontSize: 16,
+                                fontFamily: "Roboto-Regular",
+                                color: CColors.TextBody4
+                            )
                         )
                     }
                 )
