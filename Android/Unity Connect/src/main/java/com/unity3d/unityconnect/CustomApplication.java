@@ -18,5 +18,6 @@ public class CustomApplication extends Application {
 
         JPushInterface.init(this);     		// 初始化 JPush
 
+        JPushPlugin.getInstance().context = this;
     }
 }
