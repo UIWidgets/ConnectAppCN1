@@ -28,11 +28,9 @@ namespace ConnectApp.screens {
     public class EventDetailScreenConnector : StatelessWidget {
         public EventDetailScreenConnector(string eventId, EventType eventType) {
             this.eventId = eventId;
-            this.eventType = eventType;
         }
 
         private readonly string eventId;
-        private readonly EventType eventType;
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, EventDetailScreenViewModel>(
@@ -44,7 +42,6 @@ namespace ConnectApp.screens {
                         messageList = channelMessageList[channelId];
                     return new EventDetailScreenViewModel {
                         eventId = eventId,
-                        eventType = eventType,
                         currOldestMessageId = state.messageState.currOldestMessageId,
                         isLoggedIn = state.loginState.isLoggedIn,
                         eventDetailLoading = state.eventState.eventDetailLoading,
@@ -148,29 +145,19 @@ namespace ConnectApp.screens {
                 child: new CustomSafeArea(
                     child: new Container(
                         color: CColors.White,
-                        child: new NotificationListener<ScrollNotification>(
-                            onNotification: _onNotification,
-                            child: new Column(
-                                children: new List<Widget> {
-                                    widget.viewModel.eventType == EventType.online ? _buildEventHeader(eventObj, widget.viewModel.eventType, eventStatus,
-                                        widget.viewModel.isLoggedIn) : new Container(),
-                                    _buildEventDetail(context, eventObj, widget.viewModel.eventType, eventStatus,
-                                        widget.viewModel.isLoggedIn),
-                                    _buildEventBottom(eventObj, widget.viewModel.eventType, eventStatus,
-                                        widget.viewModel.isLoggedIn)
-                                }
-                            )
+                        child: new Column(
+                            children: new List<Widget> {
+                                _buildEventHeader(eventObj, widget.viewModel.eventType, eventStatus,
+                                    widget.viewModel.isLoggedIn),
+                                _buildEventDetail(context, eventObj, widget.viewModel.eventType, eventStatus,
+                                    widget.viewModel.isLoggedIn),
+                                _buildEventBottom(eventObj, widget.viewModel.eventType, eventStatus,
+                                    widget.viewModel.isLoggedIn)
+                            }
                         )
                     )
                 )
             );
-        }
-        
-        private bool _onNotification(ScrollNotification notification) {
-            var pixels = notification.metrics.pixels;
-            _showNavBarShadow = !(pixels >= 44);
-            setState(() => { });
-            return true;
         }
       
         public override void dispose() {
@@ -303,7 +290,7 @@ namespace ConnectApp.screens {
                             new Container(
                                 margin: EdgeInsets.only(bottom: 64),
                                 color: CColors.White,
-                                child: new EventDetail(eventObj, widget.actionModel.openUrl)
+                                child: new EventDetail(false,eventObj, widget.actionModel.openUrl)
                             ),
                             Positioned.fill(
                                 new Container(
@@ -319,13 +306,7 @@ namespace ConnectApp.screens {
             return new Expanded(
                 child: new Stack(
                     children: new List<Widget> {
-                        new EventDetail(eventObj, widget.actionModel.openUrl),
-                        new Positioned(
-                            left: 0,
-                            top: 0,
-                            right: 0,
-                            child: _buildHeadTop(true, eventObj)
-                        )
+                        new EventDetail(false,eventObj,widget.actionModel.openUrl)
                     }
                 )
             );
@@ -333,7 +314,6 @@ namespace ConnectApp.screens {
 
         private Widget _buildEventBottom(IEvent eventObj, EventType eventType, EventStatus eventStatus,
             bool isLoggedIn) {
-            if (eventType == EventType.offline) return _buildOfflineRegisterNow(eventObj, isLoggedIn, eventStatus);
             if (eventStatus != EventStatus.future && eventType == EventType.online && isLoggedIn)
                 return new Container();
 
@@ -608,65 +588,6 @@ namespace ConnectApp.screens {
                             )
                             : new Container()
                     }
-                )
-            );
-        }
-
-        private Widget _buildOfflineRegisterNow(IEvent eventObj, bool isLoggedIn, EventStatus eventStatus) {
-
-            if (eventObj.type.isNotEmpty() && !(eventObj.type == "bagevent" || eventObj.type == "customize")) {
-                return new Container();
-            }
-            
-            var buttonText = "立即报名";
-            var backgroundColor = CColors.PrimaryBlue;
-            var isEnabled = true;
-
-            if (eventStatus == EventStatus.past) {
-                buttonText = "已结束";
-                backgroundColor = CColors.Disable;
-                isEnabled = false;
-            }
-
-            return new Container(
-                height: 64,
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: new BoxDecoration(
-                    CColors.White,
-                    border: new Border(new BorderSide(CColors.Separator))
-                ),
-                child: new CustomButton(
-                    onPressed: () => {
-                        if (!isEnabled) return;
-                        if (isLoggedIn && eventObj.type.isNotEmpty()) {
-                            if (eventObj.type == "bagevent") {
-                                widget.actionModel.openUrl(
-                                    $"{Config.apiAddress}/events/{eventObj.id}/purchase");
-                            }
-                            else if (eventObj.type == "customize" && eventObj.typeParam.isNotEmpty()) {
-                                widget.actionModel.openUrl(eventObj.typeParam);
-                            }
-                        }
-                        else {
-                            widget.actionModel.pushToLogin();
-                        }
-                    },
-                    padding: EdgeInsets.zero,
-                    child: new Container(
-                        decoration: new BoxDecoration(
-                            backgroundColor,
-                            borderRadius: BorderRadius.all(4)
-                        ),
-                        child: new Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: new List<Widget> {
-                                new Text(
-                                    buttonText,
-                                    style: CTextStyle.PLargeMediumWhite
-                                )
-                            }
-                        )
-                    )
                 )
             );
         }

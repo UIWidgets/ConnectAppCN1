@@ -141,7 +141,7 @@ namespace ConnectApp.screens
             return new Expanded(
                 child: new Stack(
                     children: new List<Widget> {
-                        new EventDetail(eventObj, widget.actionModel.openUrl),
+                        new EventDetail(true,eventObj, widget.actionModel.openUrl),
                         new Positioned(
                             left: 0,
                             top: 0,
