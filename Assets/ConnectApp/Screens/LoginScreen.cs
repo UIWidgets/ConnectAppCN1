@@ -178,11 +178,11 @@ namespace ConnectApp.screens {
                                 text: new TextSpan(
                                     children: new List<TextSpan> {
                                         new TextSpan(
-                                            "登录代表您已经同意",
+                                            "登录代表您已经同意 ",
                                             CTextStyle.PSmallBody4
                                         ),
                                         new TextSpan(
-                                            " 用户协议",
+                                            "用户协议",
                                             new TextStyle(
                                                 height: 1.53f,
                                                 fontSize: 12,
@@ -196,11 +196,11 @@ namespace ConnectApp.screens {
                                             }
                                         ),
                                         new TextSpan(
-                                            "和",
+                                            " 和 ",
                                             CTextStyle.PSmallBody4
                                         ),
                                         new TextSpan(
-                                            " 隐私政策",
+                                            "隐私政策",
                                             new TextStyle(
                                                 height: 1.53f,
                                                 fontSize: 12,
