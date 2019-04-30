@@ -31,7 +31,7 @@ public class JPushPlugin {
         }
     }
     public void setChannel(String channel){
-        JPushInterface.setChannel(context,channel);
+        JPushInterface.setChannel(context, channel);
     }
 
 }
