@@ -32,4 +32,7 @@ extern "C" {
     void listenCompleted(){
         [[JPushPlugin instance]listenCompleted];
     }
+    
+    void setChannel(const char * channel){
+    }
 }

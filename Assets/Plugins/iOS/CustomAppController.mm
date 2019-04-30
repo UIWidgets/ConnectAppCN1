@@ -22,15 +22,14 @@ IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions
 {
     [super application:application didFinishLaunchingWithOptions:launchOptions];
-    
+
     [application setApplicationIconBadgeNumber:0];
-    [JPUSHService setBadge:0];
-    
     [WXApi registerApp: @"wx0ab79f0c7db7ca52"];
-    
     [[JPushEventCache sharedInstance] handFinishLaunchOption:launchOptions];
-    [JPUSHService setupWithOption:launchOptions appKey:@"a50eff2d99416a0495f02766" channel:@"iOS" apsForProduction:NO];
-    
+    [JPUSHService setupWithOption:launchOptions appKey:@"a50eff2d99416a0495f02766" channel:@"appstore" apsForProduction:YES];
+    [JPUSHService setBadge:0];
+    [JPUSHService setLogOFF];
+
     return YES;
 }
 

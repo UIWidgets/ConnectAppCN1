@@ -82,7 +82,7 @@
 		55624A33953957A4B566D262 /* Bulk_ConnectApp_5.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B17D47AE901D0B7CD453D5E5 /* Bulk_ConnectApp_5.cpp */; };
 		5623C57617FDCB0800090B9E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
 		5623C57717FDCB0800090B9E /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 830B5C100E5ED4C100C7819F /* UIKit.framework */; };
-		5623C57D17FDCB0900090B9E = {isa = PBXBuildFile; fileRef = 5623C57B17FDCB0900090B9E /* InfoPlist.strings */; };
+		5623C57D17FDCB0900090B9E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5623C57B17FDCB0900090B9E /* InfoPlist.strings */; };
 		5623C57F17FDCB0900090B9E /* Unity_iPhone_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 5623C57E17FDCB0900090B9E /* Unity_iPhone_Tests.m */; };
 		5688407489F2BBF3CC2621B6 /* Bulk_Mono.Security_0.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 088749DBAB3D7AB036D55B8E /* Bulk_Mono.Security_0.cpp */; };
 		56A9450CB1EEE70A87DE00AA /* Bulk_Unity.UIWidgets_10.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D14C44798CEBE0705B20E30C /* Bulk_Unity.UIWidgets_10.cpp */; };
@@ -1322,7 +1322,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5623C57D17FDCB0900090B9E,
+				5623C57D17FDCB0900090B9E /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1625,7 +1625,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CODE_SIGN_ENTITLEMENTS = "Unity-iPhone/unityconnect.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Developer: shuang wang (9BU8RHX47W)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Unity Software (Shanghai) Co., Ltd. (76Q3QH5MFC)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEVELOPMENT_TEAM = 76Q3QH5MFC;
@@ -1699,7 +1699,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CODE_SIGN_ENTITLEMENTS = "Unity-iPhone/unityconnect.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Developer: shuang wang (9BU8RHX47W)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Unity Software (Shanghai) Co., Ltd. (76Q3QH5MFC)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				DEVELOPMENT_TEAM = 76Q3QH5MFC;
@@ -1893,7 +1893,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CODE_SIGN_ENTITLEMENTS = "Unity-iPhone/unityconnect.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Developer: shuang wang (9BU8RHX47W)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Unity Software (Shanghai) Co., Ltd. (76Q3QH5MFC)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
@@ -2033,7 +2033,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CODE_SIGN_ENTITLEMENTS = "Unity-iPhone/unityconnect.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Developer: shuang wang (9BU8RHX47W)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Unity Software (Shanghai) Co., Ltd. (76Q3QH5MFC)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				DEVELOPMENT_TEAM = 76Q3QH5MFC;

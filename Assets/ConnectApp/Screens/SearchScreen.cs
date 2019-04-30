@@ -135,7 +135,6 @@ namespace ConnectApp.screens {
                             child: ListView.builder(
                                 physics: new AlwaysScrollableScrollPhysics(),
                                 itemCount: widget.viewModel.searchArticles.Count,
-                                itemExtent: 108,
                                 itemBuilder: (cxt, index) => {
                                     var searchArticle = widget.viewModel.searchArticles[index];
                                     if (widget.viewModel.blockArticleList.Contains(searchArticle.id))
@@ -145,7 +144,6 @@ namespace ConnectApp.screens {
                                         return RelatedArticleCard.User(searchArticle, user,
                                             () => { widget.actionModel.pushToArticleDetail(searchArticle.id); });
                                     }
-
                                     var team = widget.viewModel.teamDict[searchArticle.teamId];
                                     return RelatedArticleCard.Team(searchArticle, team,
                                         () => { widget.actionModel.pushToArticleDetail(searchArticle.id); });
@@ -261,6 +259,7 @@ namespace ConnectApp.screens {
                         padding: EdgeInsets.only(left: 16, right: 16,top:7),
                         child: new Text(
                             item.keyword,
+                            maxLines: 1,
                             style: new TextStyle(
                                 fontSize: 16,
                                 fontFamily: "Roboto-Regular",

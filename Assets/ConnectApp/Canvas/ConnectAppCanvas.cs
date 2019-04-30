@@ -26,7 +26,6 @@ namespace ConnectApp.canvas {
             FontManager.instance.addFont(Resources.Load<Font>("iconFont"), "iconfont");
             VideoPlayerManager.instance.initPlayer(gameObject);
             WebViewManager.instance.initWebView(gameObject);
-
         }
 
         protected override void Update() {

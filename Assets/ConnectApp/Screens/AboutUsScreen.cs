@@ -114,7 +114,7 @@ namespace ConnectApp.screens {
                         ),
                         new Container(height: 20),
                         new Text(
-                            $"版本号：{Config.versionCode}",
+                            $"版本号：{Config.versionNumber}",
                             style: new TextStyle(
                                 fontSize: 16,
                                 fontFamily: "Roboto-Regular",
