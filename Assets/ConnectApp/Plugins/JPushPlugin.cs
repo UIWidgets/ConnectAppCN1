@@ -11,7 +11,7 @@ using EventType = ConnectApp.models.EventType;
 
 namespace ConnectApp.plugins
 {
-    public class JPushPlugin
+    public static class JPushPlugin
     {
         public static BuildContext context;
         public static bool isListen;

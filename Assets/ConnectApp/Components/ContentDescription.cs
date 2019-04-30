@@ -475,7 +475,8 @@ namespace ConnectApp.components {
                         new TextSpan(text.Substring(0, inlineOffset), newStyle),
                         new TextSpan(text.Substring(inlineOffset, entityOffset - inlineOffset), textStyle),
                         new TextSpan(text.Substring(entityOffset, entityLength), textBlueStyle, recognizer: recognizer),
-                        new TextSpan(text.Substring(entityOffset + entityLength, lastLength), textStyle)
+                        new TextSpan(text.Substring(entityOffset + entityLength, lastLength), textStyle),
+                        new TextSpan(text.Substring(inlineOffset + inlineLength, text.Length - inlineOffset - inlineLength), newStyle)
                     };
                     return spans;
                 }
