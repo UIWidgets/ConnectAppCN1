@@ -29,29 +29,22 @@ namespace ConnectApp.api {
                 // or the response is not OK
                 promise.Reject(new Exception(request.downloadHandler.text));
             }
-            else
-            {
-                if (url.EndsWith(".jpg"))
-                {
-                    var data = ((DownloadHandlerTexture) request.downloadHandler).texture.EncodeToJPG();
+            else {
+                if (url.EndsWith(".jpg") || url.EndsWith(".png")) {
+                    var quality = 75;
+                    var texture = ((DownloadHandlerTexture) request.downloadHandler).texture;
+                    var data = texture.EncodeToJPG(quality);
+                    while (data.Length > 32 * 1024) {
+                        quality -= 1;
+                        data = texture.EncodeToJPG(quality);
+                    }
                     if (data != null)
                         promise.Resolve(data);
                     else
                         promise.Reject(new Exception("No user under this username found!"));
-                }
-                else if(url.EndsWith(".png"))
-                {
-                    var data = ((DownloadHandlerTexture) request.downloadHandler).texture.EncodeToPNG();
-                    if (data != null)
-                        promise.Resolve(data);
-                    else
-                        promise.Reject(new Exception("No user under this username found!"));
-                }
-                else
-                {
+                } else {
                     promise.Reject(new Exception("no picture"));
                 }
-
             }
         }
     }
