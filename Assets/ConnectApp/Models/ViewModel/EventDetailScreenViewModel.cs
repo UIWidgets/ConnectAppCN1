@@ -4,7 +4,6 @@ using ConnectApp.models;
 namespace ConnectApp.Models.ViewModel {
     public class EventDetailScreenViewModel {
         public string eventId;
-        public EventType eventType;
         public string currOldestMessageId;
         public bool isLoggedIn;
         public bool eventDetailLoading;

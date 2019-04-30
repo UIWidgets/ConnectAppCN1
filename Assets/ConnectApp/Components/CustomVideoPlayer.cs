@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.utils;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.material;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using UnityEngine.Video;
 using Color = Unity.UIWidgets.ui.Color;
 using Icons = ConnectApp.constants.Icons;
-using RawImage = UnityEngine.UI.RawImage;
 using Texture = Unity.UIWidgets.widgets.Texture;
 
 namespace ConnectApp.components {
@@ -33,9 +32,8 @@ namespace ConnectApp.components {
     public class _CustomVideoPlayerState : State<CustomVideoPlayer> {
         private VideoPlayer _player = null;
         private RenderTexture _texture = null;
-        
-        private RawImage image;
         private bool isPaused = false;
+        private bool isEnd = false;
 
         public override void initState() {
             base.initState();
@@ -48,6 +46,7 @@ namespace ConnectApp.components {
 
         public override void dispose() {
             _player.Stop();
+            
             base.dispose();
         }
 
@@ -70,10 +69,10 @@ namespace ConnectApp.components {
                                     new GestureDetector(
                                         child:new Container(
                                             color:CColors.Transparent,
-                                            child:new Icon(Icons.replay,size:20,color:CColors.White)
+                                            child:new Icon(isEnd?Icons.sentiment_dissatisfied:Icons.sentiment_satisfied,size:20,color:CColors.White)
                                         )
                                     ),
-                                    new Text($"{DateConvert.formatTime((float)_player.time)}",style:CTextStyle.CaptionWhite),
+                                    new Text($"{DateConvert.formatTime(_player.frame/ _player.frameRate)}",style:CTextStyle.CaptionWhite),
                                     
                                     new Text($"{DateConvert.formatTime(_player.frameCount / _player.frameRate)}",style:CTextStyle.CaptionWhite),
                                     new GestureDetector(
@@ -100,15 +99,21 @@ namespace ConnectApp.components {
             player.playOnAwake = true;
             player.aspectRatio = VideoAspectRatio.FitOutside;
             player.sendFrameReadyEvents = true;
-            player.prepareCompleted += Prepared;
+            player.frameReady += (_, __) => Texture.textureFrameAvailable(Window.instance);
+            player.prepareCompleted += OnPrepareFinished;
+            player.loopPointReached += (_player)=>
+            {
+                setState(() => { this.isEnd = true; });
+            };
             player.Prepare();
+            Application.targetFrameRate = 300;
             return player;
         }
-
-        void Prepared(VideoPlayer player)
+        void OnPrepareFinished(VideoPlayer player)
         {
             player.Play();
         }
+        
 
     }
 }
