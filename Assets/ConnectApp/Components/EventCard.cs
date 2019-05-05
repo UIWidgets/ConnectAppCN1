@@ -74,7 +74,8 @@ namespace ConnectApp.components {
                                             child: new Text(
                                                 model.title,
                                                 style: CTextStyle.PLargeMedium,
-                                                maxLines: 2
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis
                                             )
                                         ),
                                         new Text(

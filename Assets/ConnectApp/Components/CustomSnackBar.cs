@@ -77,22 +77,20 @@ namespace ConnectApp.components {
 
         protected override void install(OverlayEntry insertionPoint) {
             _controller = createAnimationController();
-            D.assert(_controller != null, $"runtimeType.createAnimationController() returned null.");
+            D.assert(_controller != null);
             _animation = createAnimation();
-            D.assert(_animation != null, "runtimeType.createAnimation() returned null.");
+            D.assert(_animation != null);
             base.install(insertionPoint);
         }
 
         protected override TickerFuture didPush() {
-            D.assert(_controller != null,
-                "runtimeType.didPush called before calling install() or after calling dispose().");
+            D.assert(_controller != null);
             _configureTimer();
             return _controller.forward();
         }
 
         protected override bool didPop(object result) {
-            D.assert(_controller != null,
-                "runtimeType.didPop called before calling install() or after calling dispose().");
+            D.assert(_controller != null);
 
             _cancelTimer();
             _controller.reverse();
