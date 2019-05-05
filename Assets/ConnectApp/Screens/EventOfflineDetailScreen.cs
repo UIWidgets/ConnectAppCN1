@@ -166,7 +166,7 @@ namespace ConnectApp.screens
         }
 
         public Ticker createTicker(TickerCallback onTick) {
-            return new Ticker(onTick, $"created by {this}");
+            return new Ticker(onTick);
         }
 
         private void _setAnimationPosition(BuildContext context) {
