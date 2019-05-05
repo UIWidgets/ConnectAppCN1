@@ -50,7 +50,8 @@ namespace ConnectApp.components {
                                         article.title,
                                         style: CTextStyle.H5,
                                         maxLines: 2,
-                                        textAlign: TextAlign.left
+                                        textAlign: TextAlign.left,
+                                        overflow: TextOverflow.ellipsis
                                     )
                                 ),
                                 new Container(
