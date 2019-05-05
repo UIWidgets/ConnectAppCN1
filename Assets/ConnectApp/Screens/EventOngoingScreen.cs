@@ -88,11 +88,15 @@ namespace ConnectApp.screens {
             base.build(context);
             if (widget.viewModel.eventOngoingLoading && widget.viewModel.ongoingEvents.isEmpty())
                 return new GlobalLoading();
-            if (widget.viewModel.ongoingEvents.Count <= 0) return new BlankView("暂无即将开始活动",true,tapCallback: () =>
-            {
-                widget.actionModel.startFetchEventOngoing();
-                widget.actionModel.fetchEvents(firstPageNumber, "ongoing");
-            });
+            if (widget.viewModel.ongoingEvents.Count <= 0) 
+                return new BlankView(
+                    "暂无即将开始活动",
+                    true, 
+                    () => {
+                        widget.actionModel.startFetchEventOngoing();
+                        widget.actionModel.fetchEvents(firstPageNumber, "ongoing");
+                    }
+                );
             return new Container(
                 color: CColors.background3,
                 child: new SmartRefresher(

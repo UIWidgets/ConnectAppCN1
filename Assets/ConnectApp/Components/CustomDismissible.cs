@@ -279,7 +279,7 @@ namespace ConnectApp.components {
         protected CustomDismissibleDelegate(
             float? fastThreshold = null
         ) {
-            D.assert(fastThreshold == null || fastThreshold >= 0.0, "fastThreshold must be positive");
+            D.assert(fastThreshold == null || fastThreshold >= 0.0, () => "fastThreshold must be positive");
             this.fastThreshold = fastThreshold ?? CustomDismissibleUtil.FastThreshold;
         }
 

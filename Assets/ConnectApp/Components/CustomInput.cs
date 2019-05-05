@@ -51,9 +51,8 @@ namespace ConnectApp.components {
         private void _controllerListener() {
             var text = _controller.text ?? "友好的评论是交流的起点…";
             if (!mounted) return;
-            var inputFieldHeight = 22.0f;
             var inputFieldWidth = _inputFieldKey.currentContext.size.width;
-            inputFieldHeight = _calculateTextHeight(text, inputFieldWidth);
+            var inputFieldHeight = _calculateTextHeight(text, inputFieldWidth);
 
             if (_inputFieldHeight != inputFieldHeight)
                 setState(() => { _inputFieldHeight = inputFieldHeight; });

@@ -137,7 +137,7 @@ namespace ConnectApp.components.pull_to_refresh {
         }
 
         public Ticker createTicker(TickerCallback onTick) {
-            return new Ticker(onTick, $"created by {this}");
+            return new Ticker(onTick, () => $"created by {this}");
         }
 
         public void onDragStart(ScrollStartNotification notification) {
