@@ -17,7 +17,6 @@ public class CustomApplication extends Application {
         iwxapi.registerApp("wx0ab79f0c7db7ca52");
 
         JPushInterface.init(this);     		// 初始化 JPush
-
         JPushPlugin.getInstance().context = this;
     }
 }

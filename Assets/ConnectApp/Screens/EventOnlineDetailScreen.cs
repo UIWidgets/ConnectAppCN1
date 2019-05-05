@@ -121,11 +121,11 @@ namespace ConnectApp.screens {
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 widget.actionModel.showChatWindow(false);
                 widget.actionModel.startFetchEventDetail();
-                widget.actionModel.fetchEventDetail(widget.viewModel.eventId, widget.viewModel.eventType);
+                widget.actionModel.fetchEventDetail(widget.viewModel.eventId, EventType.online);
             });
             _loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
                 widget.actionModel.startFetchEventDetail();
-                widget.actionModel.fetchEventDetail(widget.viewModel.eventId, widget.viewModel.eventType);
+                widget.actionModel.fetchEventDetail(widget.viewModel.eventId, EventType.online);
             });
         }
 
@@ -144,11 +144,11 @@ namespace ConnectApp.screens {
                         color: CColors.White,
                         child: new Column(
                             children: new List<Widget> {
-                                _buildEventHeader(eventObj, widget.viewModel.eventType, eventStatus,
+                                _buildEventHeader(eventObj, EventType.online, eventStatus,
                                     widget.viewModel.isLoggedIn),
-                                _buildEventDetail(context, eventObj, widget.viewModel.eventType, eventStatus,
+                                _buildEventDetail(context, eventObj, EventType.online, eventStatus,
                                     widget.viewModel.isLoggedIn),
-                                _buildEventBottom(eventObj, widget.viewModel.eventType, eventStatus,
+                                _buildEventBottom(eventObj, EventType.online, eventStatus,
                                     widget.viewModel.isLoggedIn)
                             }
                         )

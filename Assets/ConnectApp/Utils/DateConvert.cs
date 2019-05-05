@@ -65,9 +65,21 @@ namespace ConnectApp.utils {
 
         public static string formatTime(float time)
         {
-            var hour = (int)time / 60;
-            var mint = (int)time % 60;
-            return string.Format("{0:00}:{0:00}", hour, mint);
+            if (time<0)
+            {
+                return "00:00";
+            }
+            if (time>3600)
+            {
+                var currentHour = (int)time / 3600;
+                var currentMinute = (int)(time - currentHour * 3600) / 60;
+                var currentSecond = (int)(time - currentHour * 3600 - currentMinute * 60);
+                return string.Format("{0:00}:{1:00}:{2:00}",
+                            currentHour, currentMinute, currentSecond);
+            }
+            var min = (int)time / 60;
+            var sec = (int)time % 60;
+            return string.Format("{0:00}:{1:00}", min, sec);
         }
     }
 }

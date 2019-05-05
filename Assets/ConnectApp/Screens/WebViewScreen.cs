@@ -5,6 +5,7 @@ using ConnectApp.utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
@@ -48,8 +49,13 @@ namespace ConnectApp.screens
         {
             if (!Application.isEditor)
             {
-                var top = (int) MediaQuery.of(context).padding.top + 44;
-                var bottom = (int) MediaQuery.of(context).padding.bottom;
+                var ratio = Window.instance.devicePixelRatio;
+                var top = (int) ( 44 * ratio);
+                if (Application.platform != RuntimePlatform.Android)
+                {
+                    top = (int) ((MediaQuery.of(context).padding.top + 44) * ratio);
+                }
+                var bottom = (int) (MediaQuery.of(context).padding.bottom * ratio);
                 _webViewObject.SetMargins(0, top,0, bottom);
             }
             var child = new Container(

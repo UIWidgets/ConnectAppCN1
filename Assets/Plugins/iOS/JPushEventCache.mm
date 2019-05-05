@@ -70,7 +70,7 @@
 - (void)handFinishLaunchOption:(NSDictionary *)launchOptons {
   
   JPUSHRegisterEntity * entity = [[JPUSHRegisterEntity alloc] init];
-  entity.types = JPAuthorizationOptionAlert|JPAuthorizationOptionBadge|JPAuthorizationOptionSound;
+  entity.types = JPAuthorizationOptionAlert | JPAuthorizationOptionSound;
   [JPUSHService registerForRemoteNotificationConfig:entity delegate:[JPushEventCache sharedInstance]];
   
   if ([[UIDevice currentDevice].systemVersion floatValue] >= 10.0) {
@@ -101,7 +101,7 @@
 
   
   // 需要执行这个方法，选择是否提醒用户，有 Badge、Sound、Alert 三种类型可以选择设置
-  completionHandler(UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionBadge | UNNotificationPresentationOptionSound);
+  completionHandler(UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionSound);
 }
 
 // iOS 10 Support

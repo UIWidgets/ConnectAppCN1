@@ -225,6 +225,7 @@
 		C460456BA72FFBDE0A59352A /* Bulk_UnityEngine.VideoModule_0.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C1B24DD8A2CBC0BD011E283A /* Bulk_UnityEngine.VideoModule_0.cpp */; };
 		C5864AD69F334E1E1B27AC10 /* Bulk_mscorlib_2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 14ED423FBCF1D9CCB11F02F4 /* Bulk_mscorlib_2.cpp */; };
 		C6C24A06AFDEF5189B904DDD /* Il2CppGenericClassTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 51EE428C8E9603A6DA6FCC48 /* Il2CppGenericClassTable.cpp */; };
+		C73147FB9B03C5EF62A82340 /* JPushPlugin.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1324403688CC33F99E5F216B /* JPushPlugin.mm */; };
 		C8D84A8483A357E64BE7635A /* Bulk_Generics_19.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B0924FD28433C7B7D3FBB031 /* Bulk_Generics_19.cpp */; };
 		CB6E40E0809D454F36DEC86E /* Il2CppInteropDataTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B4F47998D9164F913956D1C /* Il2CppInteropDataTable.cpp */; };
 		CE0A475C9744B3E3348F2608 /* Bulk_System.Xml_2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2D8346539BCDEAE26824D118 /* Bulk_System.Xml_2.cpp */; };
@@ -317,9 +318,11 @@
 		0B064446946844155226AB18 /* Bulk_ConnectApp_1.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Bulk_ConnectApp_1.cpp; path = Classes/Native/Bulk_ConnectApp_1.cpp; sourceTree = SOURCE_ROOT; };
 		0BCB4A6AB14E486A758EF40F /* Bulk_System.Xml_4.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Bulk_System.Xml_4.cpp; path = Classes/Native/Bulk_System.Xml_4.cpp; sourceTree = SOURCE_ROOT; };
 		0F284604A45C199DC102A2EA /* Bulk_UnityEngine.SharedInternalsModule_0.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Bulk_UnityEngine.SharedInternalsModule_0.cpp; path = Classes/Native/Bulk_UnityEngine.SharedInternalsModule_0.cpp; sourceTree = SOURCE_ROOT; };
+		1324403688CC33F99E5F216B /* JPushPlugin.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = JPushPlugin.mm; path = Libraries/ConnectApp/Plugins/platform/ios/JPushPlugin.mm; sourceTree = SOURCE_ROOT; };
 		13CC48528B20931F1371EAEB /* Bulk_System.Xml_5.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Bulk_System.Xml_5.cpp; path = Classes/Native/Bulk_System.Xml_5.cpp; sourceTree = SOURCE_ROOT; };
 		144F4FDF908E746214BD79CC /* Il2CppCompilerCalculateTypeValues_11Table.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Il2CppCompilerCalculateTypeValues_11Table.cpp; path = Classes/Native/Il2CppCompilerCalculateTypeValues_11Table.cpp; sourceTree = SOURCE_ROOT; };
 		14ED423FBCF1D9CCB11F02F4 /* Bulk_mscorlib_2.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Bulk_mscorlib_2.cpp; path = Classes/Native/Bulk_mscorlib_2.cpp; sourceTree = SOURCE_ROOT; };
+		150E42CE8B896CF0370C8951 /* JPushPlugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JPushPlugin.h; path = Libraries/ConnectApp/Plugins/platform/ios/JPushPlugin.h; sourceTree = SOURCE_ROOT; };
 		15954A4BB7E0EEB4C1E9D442 /* Bulk_mscorlib_6.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Bulk_mscorlib_6.cpp; path = Classes/Native/Bulk_mscorlib_6.cpp; sourceTree = SOURCE_ROOT; };
 		160A4A7B92096A69A503CDB3 /* Il2CppCompilerCalculateTypeValues_44Table.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Il2CppCompilerCalculateTypeValues_44Table.cpp; path = Classes/Native/Il2CppCompilerCalculateTypeValues_44Table.cpp; sourceTree = SOURCE_ROOT; };
 		181441B8BF9B7CFD0FC5DC13 /* UIWidgetsMessageManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = UIWidgetsMessageManager.h; path = Libraries/com.unity.uiwidgets/Runtime/Plugins/platform/ios/UIWidgetsMessageManager.h; sourceTree = SOURCE_ROOT; };
@@ -978,6 +981,8 @@
 			children = (
 				D02E4C268D10748669F11F41 /* WechatPlugin.h */,
 				DDBE4987B1F43B3F130ED358 /* WechatPlugin.mm */,
+				1324403688CC33F99E5F216B /* JPushPlugin.mm */,
+				150E42CE8B896CF0370C8951 /* JPushPlugin.h */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -1574,6 +1579,7 @@
 				BF2746AC8425DA9A50C7D94E /* JPushEventCache.mm in Sources */,
 				E5B148B5BA45A87EB8B0D034 /* JPushUnityManager.mm in Sources */,
 				77174E0A8915D881A7311704 /* WebView.mm in Sources */,
+				C73147FB9B03C5EF62A82340 /* JPushPlugin.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1619,7 +1625,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CODE_SIGN_ENTITLEMENTS = "Unity-iPhone/unityconnect.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Developer: shuang wang (9BU8RHX47W)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Unity Software (Shanghai) Co., Ltd. (76Q3QH5MFC)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEVELOPMENT_TEAM = 76Q3QH5MFC;
@@ -1693,7 +1699,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CODE_SIGN_ENTITLEMENTS = "Unity-iPhone/unityconnect.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Developer: shuang wang (9BU8RHX47W)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Unity Software (Shanghai) Co., Ltd. (76Q3QH5MFC)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				DEVELOPMENT_TEAM = 76Q3QH5MFC;
@@ -1887,7 +1893,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CODE_SIGN_ENTITLEMENTS = "Unity-iPhone/unityconnect.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Developer: shuang wang (9BU8RHX47W)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Unity Software (Shanghai) Co., Ltd. (76Q3QH5MFC)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
@@ -2027,7 +2033,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CODE_SIGN_ENTITLEMENTS = "Unity-iPhone/unityconnect.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Developer: shuang wang (9BU8RHX47W)";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Unity Software (Shanghai) Co., Ltd. (76Q3QH5MFC)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				DEVELOPMENT_TEAM = 76Q3QH5MFC;
