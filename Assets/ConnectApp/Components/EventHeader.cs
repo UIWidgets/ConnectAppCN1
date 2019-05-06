@@ -55,7 +55,7 @@ namespace ConnectApp.components {
         }
 
         public Ticker createTicker(TickerCallback onTick) {
-            return new Ticker(onTick);
+            return new Ticker(onTick, () => $"created by {this}");
         }
 
         public override Widget build(BuildContext context) {

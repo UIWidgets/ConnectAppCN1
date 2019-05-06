@@ -57,7 +57,7 @@ namespace ConnectApp.components {
         }
 
         public Ticker createTicker(TickerCallback onTick) {
-            Ticker _ticker = new Ticker(onTick);
+            Ticker _ticker = new Ticker(onTick, () => $"created by {this}");
             return _ticker;
         }
 

@@ -5,6 +5,7 @@ using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
@@ -60,6 +61,7 @@ namespace ConnectApp.screens {
         private const int firstPageNumber = 1;
         private RefreshController _completedRefreshController;
         private int pageNumber = firstPageNumber;
+        private string _loginSubId;
 
         protected override bool wantKeepAlive => true;
 
@@ -70,17 +72,30 @@ namespace ConnectApp.screens {
                 widget.actionModel.startFetchEventCompleted();
                 widget.actionModel.fetchEvents(firstPageNumber, "completed");
             });
+            _loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
+                widget.actionModel.startFetchEventCompleted();
+                widget.actionModel.fetchEvents(firstPageNumber, "completed");
+            });
+        }
+        
+        public override void dispose() {
+            EventBus.unSubscribe(EventBusConstant.login_success, _loginSubId);
+            base.dispose();
         }
 
         public override Widget build(BuildContext context) {
             base.build(context);
             if (widget.viewModel.eventCompletedLoading && widget.viewModel.completedEvents.isEmpty())
                 return new GlobalLoading();
-            if (widget.viewModel.completedEvents.Count <= 0) return new BlankView("暂无往期活动",true,tapCallback: () =>
-            {
-                widget.actionModel.startFetchEventCompleted();
-                widget.actionModel.fetchEvents(firstPageNumber, "completed");
-            });
+            if (widget.viewModel.completedEvents.Count <= 0) 
+                return new BlankView(
+                    "暂无往期活动",
+                    true,
+                    () => {
+                        widget.actionModel.startFetchEventCompleted();
+                        widget.actionModel.fetchEvents(firstPageNumber, "completed");
+                     }
+                );
             return new Container(
                 color: CColors.background3,
                 child: new SmartRefresher(
