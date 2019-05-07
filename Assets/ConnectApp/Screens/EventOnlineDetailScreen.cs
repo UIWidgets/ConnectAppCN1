@@ -271,7 +271,7 @@ namespace ConnectApp.screens {
             bool isLoggedIn)
         {
 
-            if (eventStatus == EventStatus.past&&eventObj.record.isNotEmpty())
+            if (widget.viewModel.isLoggedIn&&eventStatus == EventStatus.past&&eventObj.record.isNotEmpty())
             {
                 return new CustomVideoPlayer(
                     eventObj.record,
