@@ -9,7 +9,6 @@ using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using ConnectApp.utils;
 using RSG;
-using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -29,20 +28,13 @@ namespace ConnectApp.screens
         private readonly string eventId;
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, EventDetailScreenViewModel>(
-                converter: state => {
-                    var channelId = state.eventState.channelId;
-                    var channelMessageList = state.messageState.channelMessageList;
-                    var messageList = new List<string>();
-                    if (channelMessageList.ContainsKey(channelId))
-                        messageList = channelMessageList[channelId];
-                    return new EventDetailScreenViewModel {
-                        eventId = eventId,
-                        isLoggedIn = state.loginState.isLoggedIn,
-                        eventDetailLoading = state.eventState.eventDetailLoading,
-                        joinEventLoading = state.eventState.joinEventLoading,
-                        channelId = state.eventState.channelId,
-                        eventsDict = state.eventState.eventsDict
-                    };
+                converter: state => new EventDetailScreenViewModel {
+                    eventId = eventId,
+                    isLoggedIn = state.loginState.isLoggedIn,
+                    eventDetailLoading = state.eventState.eventDetailLoading,
+                    joinEventLoading = state.eventState.joinEventLoading,
+                    channelId = state.eventState.channelId,
+                    eventsDict = state.eventState.eventsDict
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new EventDetailScreenActionModel {
@@ -86,20 +78,14 @@ namespace ConnectApp.screens
         }
     }
 
-    internal class _EventOfflineDetailScreenState : State<EventOfflineDetailScreen>, TickerProvider
+    internal class _EventOfflineDetailScreenState : State<EventOfflineDetailScreen>
     {
-        private AnimationController _controller;
-        private Animation<Offset> _position;
         private string _loginSubId;
         private bool _showNavBarShadow;
 
         public override void initState() {
             base.initState();
             _showNavBarShadow = true;
-            _controller = new AnimationController(
-                duration: new TimeSpan(0, 0, 0, 0, 300),
-                vsync: this
-            );
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 widget.actionModel.startFetchEventDetail();
                 widget.actionModel.fetchEventDetail(widget.viewModel.eventId, EventType.offline);
@@ -111,7 +97,6 @@ namespace ConnectApp.screens
         }
 
         public override Widget build(BuildContext context) {
-            _setAnimationPosition(context);
             var eventObj = new IEvent();
             if (widget.viewModel.eventsDict.ContainsKey(widget.viewModel.eventId))
                 eventObj = widget.viewModel.eventsDict[widget.viewModel.eventId];
@@ -161,27 +146,7 @@ namespace ConnectApp.screens
       
         public override void dispose() {
             EventBus.unSubscribe(EventBusConstant.login_success, _loginSubId);
-            _controller.dispose();
             base.dispose();
-        }
-
-        public Ticker createTicker(TickerCallback onTick) {
-            return new Ticker(onTick);
-        }
-
-        private void _setAnimationPosition(BuildContext context) {
-            if (_position != null) return;
-            var screenHeight = MediaQuery.of(context).size.height;
-            var screenWidth = MediaQuery.of(context).size.width;
-            var ratio = 1.0f - 64.0f / (screenHeight - screenWidth * 9.0f / 16.0f);
-
-            _position = new OffsetTween(
-                new Offset(0, ratio),
-                new Offset(0, 0)
-            ).animate(new CurvedAnimation(
-                _controller,
-                Curves.easeInOut
-            ));
         }
 
         private Widget _buildHeadTop(bool isShowShare, IEvent eventObj) {

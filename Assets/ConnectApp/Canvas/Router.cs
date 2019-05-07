@@ -40,7 +40,7 @@ namespace ConnectApp.canvas {
             {MainNavigatorRoutes.BindUnity, context => new BindUnityScreenConnector(FromPage.setting)},
             {MainNavigatorRoutes.Report, context => new ReportScreenConnector("", ReportType.article)},
             {MainNavigatorRoutes.AboutUs, context => new AboutUsScreenConnector()},
-            {MainNavigatorRoutes.WebView, context => new WebViewScreen()}
+            {MainNavigatorRoutes.WebView, context => new WebViewScreenConnector()}
         };
 
         private static Dictionary<string, WidgetBuilder> fullScreenRoutes => new Dictionary<string, WidgetBuilder> {

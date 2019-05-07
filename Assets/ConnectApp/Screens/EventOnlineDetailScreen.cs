@@ -21,7 +21,6 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using Color = Unity.UIWidgets.ui.Color;
 using Config = ConnectApp.constants.Config;
-using EventType = ConnectApp.models.EventType;
 
 namespace ConnectApp.screens {
     public class EventOnlineDetailScreenConnector : StatelessWidget {
@@ -168,7 +167,7 @@ namespace ConnectApp.screens {
         }
 
         public Ticker createTicker(TickerCallback onTick) {
-            return new Ticker(onTick);
+            return new Ticker(onTick, () => $"created by {this}");
         }
 
         private void _setAnimationPosition(BuildContext context) {

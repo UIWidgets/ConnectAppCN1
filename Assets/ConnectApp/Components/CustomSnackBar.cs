@@ -77,20 +77,22 @@ namespace ConnectApp.components {
 
         protected override void install(OverlayEntry insertionPoint) {
             _controller = createAnimationController();
-            D.assert(_controller != null);
+            D.assert(_controller != null, () => $"{this.GetType()}.createAnimationController() returned null.");
             _animation = createAnimation();
-            D.assert(_animation != null);
+            D.assert(_animation != null, () => $"{this.GetType()}.createAnimation() returned null.");
             base.install(insertionPoint);
         }
 
         protected override TickerFuture didPush() {
-            D.assert(_controller != null);
+            D.assert(_controller != null,
+                () => $"{this.GetType()}.didPush called before calling install() or after calling dispose().");
             _configureTimer();
             return _controller.forward();
         }
 
         protected override bool didPop(object result) {
-            D.assert(_controller != null);
+            D.assert(_controller != null,
+                () => $"{this.GetType()}.didPop called before calling install() or after calling dispose().");
 
             _cancelTimer();
             _controller.reverse();
@@ -106,7 +108,7 @@ namespace ConnectApp.components {
             if (_timer != null) _timer.cancel();
         }
 
-        public static string debugLabel => "runtimeType";
+        public string debugLabel => $"{this.GetType()}";
     }
 
     public class CustomSnackBar : StatefulWidget {
