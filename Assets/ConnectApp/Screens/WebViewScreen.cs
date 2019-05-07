@@ -67,8 +67,11 @@ namespace ConnectApp.screens {
                         _progress = 1.0f;
                     });
                 });
-                _webViewObject.EvaluateJS(@"document.cookie = '" + HttpManager.getCookie() + "';");
                 _webViewObject.LoadURL(widget.url);
+                _webViewObject.ClearCookies();
+                if (HttpManager.getCookie().isNotEmpty()) {
+                    _webViewObject.AddCustomHeader("Cookie", HttpManager.getCookie());
+                }
                 _webViewObject.SetVisibility(true);
             }
             _progress = 0;
