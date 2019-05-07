@@ -67,15 +67,19 @@ namespace ConnectApp.components
                 onHorizontalDragStart: (DragStartDetails details) => { widget.onDragStart(); },
                 onHorizontalDragUpdate:(DragUpdateDetails details) =>
                 {
-                    var relative = seekToRelativePosition(details.globalPosition);
-                    widget.changeCallback(relative);
+                    widget.relative = seekToRelativePosition(details.globalPosition);
+                    setState(() => { });
+                    widget.changeCallback(widget.relative);
+                },
+                onHorizontalDragEnd: (DragEndDetails details) =>
+                {
                     setState(() => { });
                 },
                 onTapDown: (TapDownDetails details) =>
                 {
-                    var relative = seekToRelativePosition(details.globalPosition);
+                    widget.relative = seekToRelativePosition(details.globalPosition);
                     setState(() => { });
-                    widget.changeCallback(relative);
+                    widget.changeCallback(widget.relative);
                 }
                 
             );
