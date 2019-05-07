@@ -67,7 +67,6 @@ namespace ConnectApp.utils {
             if (PlayerPrefs.GetString(COOKIE).isNotEmpty()) return PlayerPrefs.GetString(COOKIE);
             return "";
         }
-
         public static void clearCookie() {
             PlayerPrefs.DeleteKey(COOKIE);
         }

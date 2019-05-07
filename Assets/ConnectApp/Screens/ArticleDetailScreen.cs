@@ -46,11 +46,11 @@ namespace ConnectApp.screens {
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
-                        openUrl = url => dispatcher.dispatch(new OpenUrlAction {url = url}),
-//                        openUrl = url => dispatcher.dispatch(new MainNavigatorPushToWebViewAction
-//                        {
-//                            url = url
-//                        }),
+//                        openUrl = url => dispatcher.dispatch(new OpenUrlAction {url = url}),
+                        openUrl = url => dispatcher.dispatch(new MainNavigatorPushToWebViewAction
+                        {
+                            url = url
+                        }),
                         pushToArticleDetail = id => dispatcher.dispatch(
                             new MainNavigatorPushToArticleDetailAction {
                                 articleId = id
