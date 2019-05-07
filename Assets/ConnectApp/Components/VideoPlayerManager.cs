@@ -4,15 +4,16 @@ using UnityEngine.Video;
 
 namespace ConnectApp.components {
     public class VideoPlayerManager {
-        private VideoPlayerManager() {
+        internal VideoPlayerManager() {
         }
 
         public static readonly VideoPlayerManager instance = new VideoPlayerManager();
 
-        public VideoPlayer player { get; set; }
+        private VideoPlayer player { get; set; }
 
+        private GameObject gameObject { get; set; }
 
-        public void initPlayer(GameObject gameObject)
+        public VideoPlayer getPlayer()
         {
             if (gameObject.GetComponent<VideoPlayer>())
             {
@@ -22,6 +23,18 @@ namespace ConnectApp.components {
             {
                 instance.player = gameObject.AddComponent<VideoPlayer>();
             }
+
+            return instance.player;
+        }
+
+        public void destroyPlayer()
+        {
+            VideoPlayer.Destroy(instance.player);
+        }
+
+        public void initPlayer(GameObject gameObject)
+        {
+            this.gameObject = gameObject;
         }
 
     }

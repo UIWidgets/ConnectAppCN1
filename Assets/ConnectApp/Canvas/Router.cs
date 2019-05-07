@@ -38,7 +38,6 @@ namespace ConnectApp.canvas {
             {MainNavigatorRoutes.History, context => new HistoryScreenConnector()},
             {MainNavigatorRoutes.Login, context => new LoginScreen()},
             {MainNavigatorRoutes.BindUnity, context => new BindUnityScreenConnector(FromPage.setting)},
-            {MainNavigatorRoutes.VideoPlayer, context => new VideoPlayerScreen()},
             {MainNavigatorRoutes.Report, context => new ReportScreenConnector("", ReportType.article)},
             {MainNavigatorRoutes.AboutUs, context => new AboutUsScreenConnector()},
             {MainNavigatorRoutes.WebView, context => new WebViewScreenConnector()}

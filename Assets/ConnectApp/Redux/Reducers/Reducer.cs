@@ -662,19 +662,6 @@ namespace ConnectApp.redux.reducers {
                         );
                     break;
                 }
-                case MainNavigatorPushToVideoPlayerAction action: {
-                    if (action.videoUrl != null)
-                        Router.navigator.push(new PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) =>
-                                new VideoPlayerScreen(action.videoUrl),
-                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                new PushPageTransition(
-                                    routeAnimation: animation,
-                                    child: child
-                                ))
-                        );
-                    break;
-                }
                 case MainNavigatorPushToReportAction action: {
                     Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>

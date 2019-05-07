@@ -209,7 +209,9 @@ namespace ConnectApp.components {
 
         private Widget _buildPastView()
         {
-            return new VideoPlayerScreen();
+            return _buildHeadImage(
+                new Container()
+            );
         }
     }
 }
