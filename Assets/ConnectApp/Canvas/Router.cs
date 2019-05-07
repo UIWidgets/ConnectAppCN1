@@ -41,7 +41,7 @@ namespace ConnectApp.canvas {
             {MainNavigatorRoutes.VideoPlayer, context => new VideoPlayerScreen()},
             {MainNavigatorRoutes.Report, context => new ReportScreenConnector("", ReportType.article)},
             {MainNavigatorRoutes.AboutUs, context => new AboutUsScreenConnector()},
-            {MainNavigatorRoutes.WebView, context => new WebViewScreen()}
+            {MainNavigatorRoutes.WebView, context => new WebViewScreenConnector()}
         };
 
         private static Dictionary<string, WidgetBuilder> fullScreenRoutes => new Dictionary<string, WidgetBuilder> {

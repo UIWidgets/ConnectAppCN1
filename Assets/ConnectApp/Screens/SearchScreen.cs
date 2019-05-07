@@ -255,8 +255,8 @@ namespace ConnectApp.screens {
                             CColors.Separator2,
                             borderRadius: BorderRadius.circular(16)
                         ),
-                        height:32,
-                        padding: EdgeInsets.only(left: 16, right: 16,top:7),
+                        height: 32,
+                        padding: EdgeInsets.only(16, 7, 16),
                         child: new Text(
                             item.keyword,
                             maxLines: 1,
@@ -264,7 +264,8 @@ namespace ConnectApp.screens {
                                 fontSize: 16,
                                 fontFamily: "Roboto-Regular",
                                 color: CColors.TextBody
-                            )
+                            ),
+                            overflow: TextOverflow.ellipsis
                         ) 
                     )
                 );
