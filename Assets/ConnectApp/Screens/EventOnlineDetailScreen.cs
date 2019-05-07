@@ -19,7 +19,6 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 using Config = ConnectApp.constants.Config;
 using EventType = ConnectApp.models.EventType;
@@ -141,7 +140,6 @@ namespace ConnectApp.screens {
                 return new EventDetailLoading(mainRouterPop: widget.actionModel.mainRouterPop);
             var eventStatus = DateConvert.GetEventStatus(eventObj.begin);
             return new Container(
-                color: CColors.White,
                 child: new CustomSafeArea(
                     child: new Container(
                         color: CColors.White,
@@ -154,10 +152,12 @@ namespace ConnectApp.screens {
                                 _buildEventBottom(eventObj, EventType.online, eventStatus,
                                     widget.viewModel.isLoggedIn)
                             }
+                            
                         )
                     )
                 )
             );
+            
         }
       
         public override void dispose() {
@@ -252,7 +252,10 @@ namespace ConnectApp.screens {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: new List<Widget> {
                         new CustomButton(
-                            onPressed: () => widget.actionModel.mainRouterPop(),
+                            onPressed: () =>
+                            {
+                                widget.actionModel.mainRouterPop();
+                            },
                             child: new Icon(
                                 Icons.arrow_back,
                                 size: 28,
@@ -266,7 +269,17 @@ namespace ConnectApp.screens {
         }
 
         private Widget _buildEventHeader(IEvent eventObj, EventType eventType, EventStatus eventStatus,
-            bool isLoggedIn) {
+            bool isLoggedIn)
+        {
+
+            if (eventStatus == EventStatus.past&&eventObj.record.isNotEmpty())
+            {
+                return new CustomVideoPlayer(
+                    eventObj.record,
+                    context,
+                    _buildHeadTop(true,eventObj)
+                ); 
+            }
             return new Stack(
                 children: new List<Widget> {
                     new EventHeader(eventObj, eventType, eventStatus, isLoggedIn),
@@ -274,10 +287,11 @@ namespace ConnectApp.screens {
                         left: 0,
                         top: 0,
                         right: 0,
-                        child: _buildHeadTop(true, eventObj)
+                        child: _buildHeadTop(true, eventObj)  
                     )
                 }
-            );
+            ); 
+            
         }
 
         private Widget _buildEventDetail(BuildContext context, IEvent eventObj, EventType eventType, EventStatus eventStatus,
@@ -288,6 +302,7 @@ namespace ConnectApp.screens {
                         fit: StackFit.expand,
                         children: new List<Widget> {
                             new Container(
+                                
                                 margin: EdgeInsets.only(bottom: 64),
                                 color: CColors.White,
                                 child: new EventDetail(false,eventObj, widget.actionModel.openUrl)
