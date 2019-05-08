@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.utils;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
+using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
@@ -16,6 +18,8 @@ using Transform = Unity.UIWidgets.widgets.Transform;
 
 namespace ConnectApp.components {
 
+    public delegate void FullScreenCallback(bool isFullScreen);
+    
     enum PlayState
     {
         play,
@@ -29,6 +33,7 @@ namespace ConnectApp.components {
             float recordDuration,
             BuildContext context,
             Widget topWidget,
+            FullScreenCallback fullScreenCallback,
             Key key = null
         ) : base(key) {
             D.assert(url != null);
@@ -36,34 +41,43 @@ namespace ConnectApp.components {
             this.recordDuration = recordDuration;
             this.context = context;
             this.topWidget = topWidget;
+            this.fullScreenCallback = fullScreenCallback;
         }
         public readonly string url;
         public readonly float recordDuration;
         public readonly Widget topWidget;
         public readonly BuildContext context;
+        public readonly FullScreenCallback fullScreenCallback;
+
 
         public override State createState() {
             return new _CustomVideoPlayerState();
         }
     }
 
-    public class _CustomVideoPlayerState : State<CustomVideoPlayer> {
+    public class _CustomVideoPlayerState : SingleTickerProviderStateMixin<CustomVideoPlayer>{
+        AnimationController _controller;
         private VideoPlayer _player = null;
         private RenderTexture _texture = null;
-        private PlayState _playState;
+        private PlayState _playState = PlayState.pause;
         private float _relative;
         private bool _isFullScreen;
         private bool _isHiddenBar;
+        
+
 
         public override void initState() {
             base.initState();
 
+            _controller = new AnimationController(
+                duration: TimeSpan.FromSeconds(4), vsync: this);
             _texture = Resources.Load<RenderTexture>("ConnectAppRT");
             _player = _videoPlayer(widget.url);
         }
 
         public override void dispose()
         {
+            _controller.dispose();
             _player.Stop();
             VideoPlayerManager.instance.destroyPlayer();
             base.dispose();
@@ -83,7 +97,6 @@ namespace ConnectApp.components {
             }
             var content = new Container(
                 child: new Stack(children: new List<Widget> {
-                    
                     new GestureDetector(
                         onTap: () =>
                         {
@@ -95,14 +108,16 @@ namespace ConnectApp.components {
                         new Positioned(top:0,left:0,right:0,child:_isFullScreen? new Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: new List<Widget> {
-                                new CustomButton(
-                                    backgroundColor:Color.fromRGBO(0,0,0,0.5f),
-                                    onPressed: fullScreen,
-                                    child: new Icon(
-                                        Icons.arrow_back,
-                                        size: 28,
-                                        color:  CColors.White
-                                    )
+                                new GestureDetector(
+                                    onTap: fullScreen,
+                                    child: new Container(
+                                        margin:EdgeInsets.only(left:8,top:8),
+                                        child:new Icon(
+                                            Icons.arrow_back,
+                                            size: 28,
+                                            color:  CColors.White
+                                        )
+                                    ) 
                                 )
                             }
                         ):widget.topWidget),
@@ -167,19 +182,10 @@ namespace ConnectApp.components {
                         )
                 })
             );
-            if (_isFullScreen)
-            {
-                return new Container(
-                    width: Screen.safeArea.height,
-                    height: Screen.safeArea.height,
-                    child: content
-                );
-            }
-            return new CustomSafeArea(
-                child:new Container(
-                    height:MediaQuery.of(context).size.width*9/16,
-                    child:content
-                )
+            return new Container(
+                width: _isFullScreen?MediaQuery.of(context).size.height*16/9:MediaQuery.of(context).size.width,
+                height:_isFullScreen?MediaQuery.of(context).size.height:MediaQuery.of(context).size.width*9/16,
+                child:content
             ); 
             
         }
@@ -198,7 +204,6 @@ namespace ConnectApp.components {
             player.isLooping = false;
             player.sendFrameReadyEvents = true;
             player.aspectRatio = VideoAspectRatio.Stretch;
-            player.prepareCompleted += OnPrepareFinished;
             player.frameReady += (source, frameIndex) =>
             {
                 using (WindowProvider.of(widget.context).getScope())
@@ -220,13 +225,8 @@ namespace ConnectApp.components {
                 
             };
             player.Prepare();
+            player.Pause();
             return player;
-        }
-        void OnPrepareFinished(VideoPlayer player)
-        {
-            
-            _playState = PlayState.play;
-            player.Play();
         }
 
         void playOrPause()
@@ -256,6 +256,10 @@ namespace ConnectApp.components {
                 Screen.orientation = ScreenOrientation.Portrait;
             }
 
+            if (widget.fullScreenCallback != null)
+            {
+                widget.fullScreenCallback(_isFullScreen);
+            }
             setState(() => { });
         }
 

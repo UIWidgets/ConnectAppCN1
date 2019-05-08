@@ -12,6 +12,7 @@ using ConnectApp.utils;
 using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
@@ -21,6 +22,7 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using Color = Unity.UIWidgets.ui.Color;
 using Config = ConnectApp.constants.Config;
+using Icons = ConnectApp.constants.Icons;
 
 namespace ConnectApp.screens {
     public class EventOnlineDetailScreenConnector : StatelessWidget {
@@ -111,6 +113,8 @@ namespace ConnectApp.screens {
         private readonly RefreshController _refreshController = new RefreshController();
         private string _loginSubId;
         private bool _showNavBarShadow;
+        private bool _isFullScreen;
+
 
         public override void initState() {
             base.initState();
@@ -139,9 +143,12 @@ namespace ConnectApp.screens {
                 return new EventDetailLoading(mainRouterPop: widget.actionModel.mainRouterPop);
             var eventStatus = DateConvert.GetEventStatus(eventObj.begin);
             return new Container(
+                color:Colors.white,
                 child: new CustomSafeArea(
+                    top:!_isFullScreen,
+                    bottom:!_isFullScreen,
                     child: new Container(
-                        color: CColors.White,
+                        color: _isFullScreen?CColors.Black:CColors.White,
                         child: new Column(
                             children: new List<Widget> {
                                 _buildEventHeader(eventObj, EventType.online, eventStatus,
@@ -277,7 +284,11 @@ namespace ConnectApp.screens {
                     eventObj.record,
                     eventObj.recordDuration,
                     context,
-                    _buildHeadTop(true,eventObj)
+                    _buildHeadTop(true,eventObj),
+                    fullScreenCallback: isFullScreen =>
+                    {
+                        setState(() => { _isFullScreen = isFullScreen; });
+                    }
                 ); 
             }
             return new Stack(
@@ -296,28 +307,28 @@ namespace ConnectApp.screens {
 
         private Widget _buildEventDetail(BuildContext context, IEvent eventObj, EventType eventType, EventStatus eventStatus,
             bool isLoggedIn) {
-            if (eventStatus != EventStatus.future && eventType == EventType.online && isLoggedIn)
-                return new Expanded(
-                    child: new Stack(
-                        fit: StackFit.expand,
-                        children: new List<Widget> {
-                            new Container(
-                                
-                                margin: EdgeInsets.only(bottom: 64),
-                                color: CColors.White,
-                                child: new EventDetail(false,eventObj, widget.actionModel.openUrl)
-                            ),
-                            Positioned.fill(
-                                new Container(
-                                    child: new SlideTransition(
-                                        position: _position,
-                                        child: _buildChatWindow()
-                                    )
-                                )
-                            )
-                        }
-                    )
-                );
+//            if (eventStatus != EventStatus.future && eventType == EventType.online && isLoggedIn)
+//                return new Expanded(
+//                    child: new Stack(
+//                        fit: StackFit.expand,
+//                        children: new List<Widget> {
+//                            new Container(
+//                                
+//                                margin: EdgeInsets.only(bottom: 64),
+//                                color: CColors.White,
+//                                child: new EventDetail(false,eventObj, widget.actionModel.openUrl)
+//                            ),
+//                            Positioned.fill(
+//                                new Container(
+//                                    child: new SlideTransition(
+//                                        position: _position,
+//                                        child: _buildChatWindow()
+//                                    )
+//                                )
+//                            )
+//                        }
+//                    )
+//                );
             return new Expanded(
                 child: new Stack(
                     children: new List<Widget> {

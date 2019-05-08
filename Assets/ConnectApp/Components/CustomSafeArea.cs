@@ -7,17 +7,32 @@ namespace ConnectApp.components {
         
         public CustomSafeArea(
             Key key = null,
+            bool top = true,
+            bool bottom = true,
             Widget child = null
         ) : base(key: key) {
             D.assert(child != null);
             this.child = child;
+            this.top = top;
+            this.bottom = bottom;
         }
 
-        private readonly Widget child;
         
-        public override Widget build(BuildContext context) {
+        private readonly Widget child;
+        private readonly bool top;
+        private readonly bool bottom;
+
+        
+        public override Widget build(BuildContext context)
+        {
+            bool topValue = Application.platform != RuntimePlatform.Android;
+            if (top==false)
+            {
+                topValue = false;
+            }
             return new SafeArea(
-                top: Application.platform != RuntimePlatform.Android,
+                top: topValue,
+                bottom: bottom,
                 child: child
             );
         }
