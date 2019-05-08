@@ -1,7 +1,7 @@
 ## Get Project
 
 ```shell
-$ git clone git@gitlab.cds.internal.unity3d.com:upm-packages/ui-widgets/com.unity.connectapp.git
+$ git clone git@github.com:UnityTech/ConnectAppCN.git
 $ cd com.unity.connectapp/
 $ git submodule init
 $ git submodule update
