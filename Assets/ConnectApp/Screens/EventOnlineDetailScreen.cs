@@ -275,6 +275,7 @@ namespace ConnectApp.screens {
             {
                 return new CustomVideoPlayer(
                     eventObj.record,
+                    eventObj.recordDuration,
                     context,
                     _buildHeadTop(true,eventObj)
                 ); 

@@ -10,6 +10,9 @@ namespace ConnectApp.components {
         public static readonly VideoPlayerManager instance = new VideoPlayerManager();
 
         private VideoPlayer player { get; set; }
+        
+        private AudioSource audioSource { get; set; }
+
 
         private GameObject gameObject { get; set; }
 
@@ -25,6 +28,20 @@ namespace ConnectApp.components {
             }
 
             return instance.player;
+        }
+        
+        public AudioSource getAudioSource()
+        {
+            if (gameObject.GetComponent<AudioSource>())
+            {
+                instance.audioSource = gameObject.GetComponent<AudioSource>();
+            }
+            else
+            {
+                instance.audioSource = gameObject.AddComponent<AudioSource>();
+            }
+
+            return instance.audioSource;
         }
 
         public void destroyPlayer()
