@@ -212,26 +212,7 @@ namespace ConnectApp.screens {
             Widget shareWidget = new Container();
             if (isShowShare)
                 shareWidget = new CustomButton(
-                    onPressed: () => ShareUtils.showShareView(new ShareView(
-                        projectType: ProjectType.iEvent,
-                        onPressed: type => {
-                            var linkUrl =
-                                $"{Config.apiAddress}/events/{eventObj.id}";
-                            if (type == ShareType.clipBoard) {
-                                widget.actionModel.copyText(linkUrl);
-                                CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
-                            }
-                            else {
-                                var imageUrl = $"{eventObj.avatar}.200x0x1.jpg";
-                                CustomDialogUtils.showCustomDialog(
-                                    child: new CustomDialog()
-                                );
-                                widget.actionModel.shareToWechat(type, eventObj.title, eventObj.shortDescription,
-                                        linkUrl,
-                                        imageUrl).Then(CustomDialogUtils.hiddenCustomDialog)
-                                    .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
-                            }
-                        })),
+                    onPressed:()=> _showShareView(eventObj),
                     child: new Container(
                         alignment: Alignment.topRight,
                         width: 64,
@@ -284,7 +265,6 @@ namespace ConnectApp.screens {
                     eventObj.record,
                     eventObj.recordDuration,
                     context,
-                    _buildHeadTop(true,eventObj),
                     fullScreenCallback: isFullScreen =>
                     {
                         setState(() => { _isFullScreen = isFullScreen; });
@@ -307,28 +287,6 @@ namespace ConnectApp.screens {
 
         private Widget _buildEventDetail(BuildContext context, IEvent eventObj, EventType eventType, EventStatus eventStatus,
             bool isLoggedIn) {
-//            if (eventStatus != EventStatus.future && eventType == EventType.online && isLoggedIn)
-//                return new Expanded(
-//                    child: new Stack(
-//                        fit: StackFit.expand,
-//                        children: new List<Widget> {
-//                            new Container(
-//                                
-//                                margin: EdgeInsets.only(bottom: 64),
-//                                color: CColors.White,
-//                                child: new EventDetail(false,eventObj, widget.actionModel.openUrl)
-//                            ),
-//                            Positioned.fill(
-//                                new Container(
-//                                    child: new SlideTransition(
-//                                        position: _position,
-//                                        child: _buildChatWindow()
-//                                    )
-//                                )
-//                            )
-//                        }
-//                    )
-//                );
             return new Expanded(
                 child: new Stack(
                     children: new List<Widget> {
@@ -613,6 +571,36 @@ namespace ConnectApp.screens {
                                 child: new CustomActivityIndicator()
                             )
                             : new Container()
+                    }
+                )
+            );
+        }
+
+        void _showShareView(IEvent eventObj)
+        {
+            ShareUtils.showShareView(
+                new ShareView(
+                    projectType: ProjectType.iEvent,
+                    onPressed: type =>
+                    {
+                        var linkUrl =
+                            $"{Config.apiAddress}/events/{eventObj.id}";
+                        if (type == ShareType.clipBoard)
+                        {
+                            widget.actionModel.copyText(linkUrl);
+                            CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
+                        }
+                        else
+                        {
+                            var imageUrl = $"{eventObj.avatar}.200x0x1.jpg";
+                            CustomDialogUtils.showCustomDialog(
+                                child: new CustomDialog()
+                            );
+                            widget.actionModel.shareToWechat(type, eventObj.title, eventObj.shortDescription,
+                                    linkUrl,
+                                    imageUrl).Then(CustomDialogUtils.hiddenCustomDialog)
+                                .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
+                        }
                     }
                 )
             );

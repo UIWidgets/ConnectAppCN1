@@ -32,7 +32,6 @@ namespace ConnectApp.components {
             string url,
             float recordDuration,
             BuildContext context,
-            Widget topWidget,
             FullScreenCallback fullScreenCallback,
             Key key = null
         ) : base(key) {
@@ -40,12 +39,10 @@ namespace ConnectApp.components {
             this.url = url;
             this.recordDuration = recordDuration;
             this.context = context;
-            this.topWidget = topWidget;
             this.fullScreenCallback = fullScreenCallback;
         }
         public readonly string url;
         public readonly float recordDuration;
-        public readonly Widget topWidget;
         public readonly BuildContext context;
         public readonly FullScreenCallback fullScreenCallback;
 
@@ -55,29 +52,23 @@ namespace ConnectApp.components {
         }
     }
 
-    public class _CustomVideoPlayerState : SingleTickerProviderStateMixin<CustomVideoPlayer>{
-        AnimationController _controller;
+    public class _CustomVideoPlayerState : State<CustomVideoPlayer>{
         private VideoPlayer _player = null;
         private RenderTexture _texture = null;
-        private PlayState _playState = PlayState.pause;
-        private float _relative;
-        private bool _isFullScreen;
-        private bool _isHiddenBar;
-        
-
+        private PlayState _playState = PlayState.pause; 
+        private float _relative; //播放进度比例
+        private bool _isFullScreen; //是否全屏
+        private bool _isHiddenBar; //是否隐藏工具栏
 
         public override void initState() {
             base.initState();
-
-            _controller = new AnimationController(
-                duration: TimeSpan.FromSeconds(4), vsync: this);
             _texture = Resources.Load<RenderTexture>("ConnectAppRT");
             _player = _videoPlayer(widget.url);
         }
 
         public override void dispose()
         {
-            _controller.dispose();
+            _player.targetTexture.Release();
             _player.Stop();
             VideoPlayerManager.instance.destroyPlayer();
             base.dispose();
@@ -95,7 +86,9 @@ namespace ConnectApp.components {
                     iconData = Icons.play_arrow;
                     break;
             }
-            var content = new Container(
+            var content = new AnimatedContainer(
+                duration:TimeSpan.FromSeconds(0),
+                curve:Curves.easeInOut,
                 child: new Stack(children: new List<Widget> {
                     new GestureDetector(
                         onTap: () =>
@@ -105,22 +98,7 @@ namespace ConnectApp.components {
                         child:new Texture(texture: _texture)
                     ),
                     _isHiddenBar?new Positioned(child:new Container()):
-                        new Positioned(top:0,left:0,right:0,child:_isFullScreen? new Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: new List<Widget> {
-                                new GestureDetector(
-                                    onTap: fullScreen,
-                                    child: new Container(
-                                        margin:EdgeInsets.only(left:8,top:8),
-                                        child:new Icon(
-                                            Icons.arrow_back,
-                                            size: 28,
-                                            color:  CColors.White
-                                        )
-                                    ) 
-                                )
-                            }
-                        ):widget.topWidget),
+                        new Positioned(top:0,left:0,right:0,child:_buildHeadTop()),
                     _isHiddenBar?new Positioned(child:new Container()):new Positioned(
                         bottom:0,
                         left:0,
@@ -182,7 +160,8 @@ namespace ConnectApp.components {
                         )
                 })
             );
-            return new Container(
+            return new AnimatedContainer(
+                duration:TimeSpan.FromMilliseconds(0),
                 width: _isFullScreen?MediaQuery.of(context).size.height*16/9:MediaQuery.of(context).size.width,
                 height:_isFullScreen?MediaQuery.of(context).size.height:MediaQuery.of(context).size.width*9/16,
                 child:content
@@ -247,6 +226,12 @@ namespace ConnectApp.components {
         void fullScreen()
         {
             _isFullScreen = !_isFullScreen;
+            
+            if (widget.fullScreenCallback != null)
+            {
+                widget.fullScreenCallback(_isFullScreen);
+            }
+            
             if (_isFullScreen)
             {
                 Screen.orientation = ScreenOrientation.LandscapeLeft;
@@ -255,12 +240,39 @@ namespace ConnectApp.components {
             {
                 Screen.orientation = ScreenOrientation.Portrait;
             }
-
-            if (widget.fullScreenCallback != null)
-            {
-                widget.fullScreenCallback(_isFullScreen);
-            }
-            setState(() => { });
+           
+            
+        }
+        private Widget _buildHeadTop() {
+            return new AnimatedContainer(
+                height: 44,
+                duration: new TimeSpan(0, 0, 0, 0, 0),
+                padding: EdgeInsets.symmetric(horizontal: 8),
+                decoration: new BoxDecoration(
+                    CColors.White,
+                    gradient: new LinearGradient(
+                        colors: new List<Color> {
+                            new Color(0x80000000),
+                            new Color(0x0)
+                        },
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter
+                    ) 
+                ),
+                child: new Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: new List<Widget> {
+                        new CustomButton(
+                            onPressed: fullScreen,
+                            child: new Icon(
+                                Icons.arrow_back,
+                                size: 28,
+                                color: CColors.White
+                            )
+                        )
+                    }
+                )
+            );
         }
 
     }
