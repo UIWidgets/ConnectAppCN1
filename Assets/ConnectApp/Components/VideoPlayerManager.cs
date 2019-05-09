@@ -1,10 +1,9 @@
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.Video;
 
 namespace ConnectApp.components {
     public class VideoPlayerManager {
-        internal VideoPlayerManager() {
+        private VideoPlayerManager() {
         }
 
         public static readonly VideoPlayerManager instance = new VideoPlayerManager();

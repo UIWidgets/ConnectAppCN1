@@ -87,7 +87,8 @@ namespace ConnectApp.screens {
                             controller: _controller
                         );
                     }
-                ));
+                )
+            );
         }
     }
 }

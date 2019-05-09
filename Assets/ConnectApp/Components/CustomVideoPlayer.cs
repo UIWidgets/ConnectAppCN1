@@ -5,24 +5,19 @@ using ConnectApp.utils;
 using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.gestures;
-using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using UnityEngine.Video;
 using Color = Unity.UIWidgets.ui.Color;
-using Icons = ConnectApp.constants.Icons;
 using Texture = Unity.UIWidgets.widgets.Texture;
-using Transform = Unity.UIWidgets.widgets.Transform;
 
 namespace ConnectApp.components {
 
     public delegate void FullScreenCallback(bool isFullScreen);
     
-    enum PlayState
+    public enum PlayState
     {
         play,
         pause,
