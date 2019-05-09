@@ -36,7 +36,7 @@ namespace ConnectApp.screens
     {
         private WebViewObject _webViewObject = null;
         private float _progress;
-        private bool _loaded;
+        private bool _onClose;
         private Timer _timer;
 
         public override void initState()
@@ -60,6 +60,7 @@ namespace ConnectApp.screens
                 _webViewObject.SetVisibility(true);
             }
             _progress = 0;
+            _onClose = false;
             _timer = Window.instance.run(new TimeSpan(0,0,0,0,200), () => {
                 if (_progress < 1) {
                     _progress += 0.1f;
@@ -109,20 +110,47 @@ namespace ConnectApp.screens
                 color: CColors.background3,
                 child: new Column(
                     children: new List<Widget> {
-                        _buildNavigationBar(context),
+                        _buildNavigationBar(),
                         progressWidget
                     }
                 )
             );
+            
+            Widget closeText = new Container();
+            if (_onClose) {
+                closeText = new Text(
+                    "正在关闭...",
+                    style: CTextStyle.PXLarge
+                );
+            }
 
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
-                    child: child
+                    child: new Container(
+                        color: CColors.background3,
+                        child: new Column(
+                            children: new List<Widget> {
+                                new Container(
+                                    child: new Column(
+                                        children: new List<Widget> {
+                                            _buildNavigationBar(),
+                                            progressWidget
+                                        }
+                                    )
+                                ),
+                                new Expanded(
+                                    child: new Center(
+                                        child: closeText
+                                    )
+                                )
+                            }
+                        )
+                    )
                 )
             );
         }       
-        private Widget _buildNavigationBar(BuildContext context) {
+        private Widget _buildNavigationBar() {
             return new Container(
                 height: 44,
                 color: CColors.White,
@@ -131,8 +159,9 @@ namespace ConnectApp.screens
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: new List<Widget> {
                         new GestureDetector(
-                            onTap: () =>
-                            {
+                            onTap: () => {
+                                _onClose = true;
+                                setState(() => {});
                                 if (Router.navigator.canPop()) {
                                     Router.navigator.pop();
                                 }
