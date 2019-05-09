@@ -32,6 +32,7 @@ namespace ConnectApp.components {
             string url,
             float recordDuration,
             BuildContext context,
+            Widget topWidget,
             FullScreenCallback fullScreenCallback,
             Key key = null
         ) : base(key) {
@@ -39,10 +40,12 @@ namespace ConnectApp.components {
             this.url = url;
             this.recordDuration = recordDuration;
             this.context = context;
+            this.topWidget = topWidget;
             this.fullScreenCallback = fullScreenCallback;
         }
         public readonly string url;
         public readonly float recordDuration;
+        public readonly Widget topWidget;
         public readonly BuildContext context;
         public readonly FullScreenCallback fullScreenCallback;
 
@@ -52,7 +55,7 @@ namespace ConnectApp.components {
         }
     }
 
-    public class _CustomVideoPlayerState : State<CustomVideoPlayer>{
+    public class _CustomVideoPlayerState : SingleTickerProviderStateMixin<CustomVideoPlayer>{
         private VideoPlayer _player = null;
         private RenderTexture _texture = null;
         private PlayState _playState = PlayState.pause; 
@@ -98,7 +101,22 @@ namespace ConnectApp.components {
                         child:new Texture(texture: _texture)
                     ),
                     _isHiddenBar?new Positioned(child:new Container()):
-                        new Positioned(top:0,left:0,right:0,child:_buildHeadTop()),
+                        new Positioned(top:0,left:0,right:0,child:_isFullScreen? new Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: new List<Widget> {
+                                new GestureDetector(
+                                    onTap: fullScreen,
+                                    child: new Container(
+                                        margin:EdgeInsets.only(left:8,top:8),
+                                        child:new Icon(
+                                            Icons.arrow_back,
+                                            size: 28,
+                                            color:  CColors.White
+                                        )
+                                    ) 
+                                )
+                            }
+                        ):widget.topWidget),
                     _isHiddenBar?new Positioned(child:new Container()):new Positioned(
                         bottom:0,
                         left:0,
@@ -242,37 +260,6 @@ namespace ConnectApp.components {
             }
            
             
-        }
-        private Widget _buildHeadTop() {
-            return new AnimatedContainer(
-                height: 44,
-                duration: new TimeSpan(0, 0, 0, 0, 0),
-                padding: EdgeInsets.symmetric(horizontal: 8),
-                decoration: new BoxDecoration(
-                    CColors.White,
-                    gradient: new LinearGradient(
-                        colors: new List<Color> {
-                            new Color(0x80000000),
-                            new Color(0x0)
-                        },
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter
-                    ) 
-                ),
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: new List<Widget> {
-                        new CustomButton(
-                            onPressed: fullScreen,
-                            child: new Icon(
-                                Icons.arrow_back,
-                                size: 28,
-                                color: CColors.White
-                            )
-                        )
-                    }
-                )
-            );
         }
 
     }

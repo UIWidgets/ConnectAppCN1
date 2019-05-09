@@ -265,6 +265,7 @@ namespace ConnectApp.screens {
                     eventObj.record,
                     eventObj.recordDuration,
                     context,
+                    _buildHeadTop(true,eventObj),
                     fullScreenCallback: isFullScreen =>
                     {
                         setState(() => { _isFullScreen = isFullScreen; });
