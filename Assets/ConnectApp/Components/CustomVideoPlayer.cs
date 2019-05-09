@@ -104,6 +104,10 @@ namespace ConnectApp.components {
                     new GestureDetector(
                         onTap: () =>
                         {
+                            if (_isFailure&&_isHiddenBar==false)
+                            {
+                                return;
+                            }
                             _isHiddenBar = !_isHiddenBar;
                             if (_playState == PlayState.play & !_isHiddenBar)
                             {
