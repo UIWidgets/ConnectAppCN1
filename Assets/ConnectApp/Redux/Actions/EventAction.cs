@@ -35,6 +35,7 @@ namespace ConnectApp.redux.actions {
 
     public class SaveEventHistoryAction : BaseAction {
         public IEvent eventObj;
+        public EventType eventType;
     }
 
     public class DeleteEventHistoryAction : BaseAction {
@@ -139,7 +140,7 @@ namespace ConnectApp.redux.actions {
                             eventObj = newEventObj;
                         }
                         dispatcher.dispatch(new FetchEventDetailSuccessAction {eventObj = eventObj});
-                        dispatcher.dispatch(new SaveEventHistoryAction {eventObj = eventObj});
+                        dispatcher.dispatch(new SaveEventHistoryAction {eventObj = eventObj, eventType = eventType});
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchEventDetailFailedAction());
