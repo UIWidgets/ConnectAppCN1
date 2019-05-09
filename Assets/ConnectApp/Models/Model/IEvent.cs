@@ -30,7 +30,7 @@ namespace ConnectApp.models {
         public Dictionary<string, ContentMap> contentMap;
         public bool isNotFirst;    //加载详情后 置位true
         public string record;
-
+        public float recordDuration;
     }
 
     [Serializable]

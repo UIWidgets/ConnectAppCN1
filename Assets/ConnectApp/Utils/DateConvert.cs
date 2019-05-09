@@ -74,11 +74,16 @@ namespace ConnectApp.utils {
                 var currentHour = (int)time / 3600;
                 var currentMinute = (int)(time - currentHour * 3600) / 60;
                 var currentSecond = (int)(time - currentHour * 3600 - currentMinute * 60);
+                currentHour = currentHour < 0 ? 0 : currentHour;
+                currentMinute = currentMinute < 0 ? 0 : currentMinute;
+                currentSecond = currentSecond < 0 ? 0 : currentSecond;
                 return string.Format("{0:00}:{1:00}:{2:00}",
                             currentHour, currentMinute, currentSecond);
             }
             var min = (int)time / 60;
             var sec = (int)time % 60;
+            min = min < 0 ? 0 : min;
+            sec = sec < 0 ? 0 : sec;
             return string.Format("{0:00}:{1:00}", min, sec);
         }
     }

@@ -106,7 +106,7 @@ namespace ConnectApp.components {
             );
         }
 
-        private static Widget _buildVideoTimeCard() {
+        private static Widget _buildVideoTimeCard(float recordDuration) {
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: new BoxDecoration(
@@ -124,7 +124,7 @@ namespace ConnectApp.components {
                             )
                         ),
                         new Text(
-                            "59:28",
+                            DateConvert.formatTime(recordDuration),
                             style: CTextStyle.CaptionWhite
                         )
                     }
@@ -169,7 +169,7 @@ namespace ConnectApp.components {
                         }
                     )
                 );
-            if (widget.eventStatus == EventStatus.past) child = _buildVideoTimeCard();
+            if (widget.eventStatus == EventStatus.past&&widget.eventObj.recordDuration>0) child = _buildVideoTimeCard(widget.eventObj.recordDuration);
 
             return _buildHeadImage(
                 new Positioned(
