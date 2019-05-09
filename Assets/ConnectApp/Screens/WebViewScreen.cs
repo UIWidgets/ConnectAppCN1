@@ -44,7 +44,7 @@ namespace ConnectApp.screens
             base.initState();
             if (!Application.isEditor)
             {
-                _webViewObject = WebViewManager.instance.webViewObject; 
+                _webViewObject = WebViewManager.instance.getWebView(); 
                 _webViewObject.Init(
                     ua: "", 
                     enableWKWebView: true, 
@@ -168,6 +168,7 @@ namespace ConnectApp.screens
                                 if (!Application.isEditor)
                                 {
                                     _webViewObject.SetVisibility(false);
+                                    WebViewManager.instance.destroyWebView();
                                 }
                             },
                             child: new Container(
