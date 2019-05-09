@@ -724,13 +724,12 @@ namespace ConnectApp.redux.reducers {
                     if (action.url != null)
                         Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                                new WebViewScreenConnector(action.url), 
+                                new WebViewScreen(action.url), 
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new PushPageTransition(
                                     routeAnimation: animation,
                                     child: child
-                                )
-                            )
+                                ))
                         );
                     break;
                 }
