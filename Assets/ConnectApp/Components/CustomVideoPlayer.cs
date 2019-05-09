@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.utils;
+using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using UnityEngine.Video;
@@ -32,6 +34,7 @@ namespace ConnectApp.components {
             string url,
             float recordDuration,
             BuildContext context,
+            Widget topWidget,
             FullScreenCallback fullScreenCallback,
             Key key = null
         ) : base(key) {
@@ -39,10 +42,12 @@ namespace ConnectApp.components {
             this.url = url;
             this.recordDuration = recordDuration;
             this.context = context;
+            this.topWidget = topWidget;
             this.fullScreenCallback = fullScreenCallback;
         }
         public readonly string url;
         public readonly float recordDuration;
+        public readonly Widget topWidget;
         public readonly BuildContext context;
         public readonly FullScreenCallback fullScreenCallback;
 
@@ -52,7 +57,7 @@ namespace ConnectApp.components {
         }
     }
 
-    public class _CustomVideoPlayerState : State<CustomVideoPlayer>{
+    public class _CustomVideoPlayerState : SingleTickerProviderStateMixin<CustomVideoPlayer>{
         private VideoPlayer _player = null;
         private RenderTexture _texture = null;
         private PlayState _playState = PlayState.pause; 
@@ -98,7 +103,22 @@ namespace ConnectApp.components {
                         child:new Texture(texture: _texture)
                     ),
                     _isHiddenBar?new Positioned(child:new Container()):
-                        new Positioned(top:0,left:0,right:0,child:_buildHeadTop()),
+                        new Positioned(top:0,left:0,right:0,child:_isFullScreen? new Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: new List<Widget> {
+                                new GestureDetector(
+                                    onTap: _setScreenOrientation,
+                                    child: new Container(
+                                        margin:EdgeInsets.only(left:8,top:8),
+                                        child:new Icon(
+                                            Icons.arrow_back,
+                                            size: 28,
+                                            color:  CColors.White
+                                        )
+                                    ) 
+                                )
+                            }
+                        ):widget.topWidget),
                     _isHiddenBar?new Positioned(child:new Container()):new Positioned(
                         bottom:0,
                         left:0,
@@ -126,7 +146,7 @@ namespace ConnectApp.components {
                                             color:CColors.Transparent,
                                             child:new Icon(iconData,size:20,color:CColors.White)
                                         ),
-                                        onTap: playOrPause
+                                        onTap: _playOrPause
                                     ),
                                     new Container(margin:EdgeInsets.only(right:8),child:
                                         new Text($"{DateConvert.formatTime((float)_player.time)}",style:CTextStyle.CaptionWhite)),
@@ -153,20 +173,32 @@ namespace ConnectApp.components {
                                             color:CColors.Transparent,
                                             child:new Icon(_isFullScreen?Icons.fullscreen_exit:Icons.fullscreen,size:20,color:CColors.White)
                                         ),
-                                        onTap: fullScreen
+                                        onTap: _setScreenOrientation
                                     )
                                 })
                             )
                         )
                 })
             );
-            return new AnimatedContainer(
-                duration:TimeSpan.FromMilliseconds(0),
-                width: _isFullScreen?MediaQuery.of(context).size.height*16/9:MediaQuery.of(context).size.width,
-                height:_isFullScreen?MediaQuery.of(context).size.height:MediaQuery.of(context).size.width*9/16,
-                child:content
-            ); 
             
+            if (Application.platform == RuntimePlatform.Android)
+            {
+                return new AnimatedContainer(
+                    duration:TimeSpan.FromMilliseconds(150),
+                    width: _isFullScreen
+                        ? MediaQuery.of(context).size.height * 16 / 9
+                        : MediaQuery.of(context).size.width,
+                    height: _isFullScreen
+                        ? MediaQuery.of(context).size.height
+                        : MediaQuery.of(context).size.width * 9 / 16,
+                    child: content
+                );
+            }
+            return new Container(
+                width: _isFullScreen ? MediaQuery.of(context).size.height * 16 / 9 : MediaQuery.of(context).size.width,
+                height: _isFullScreen ? MediaQuery.of(context).size.height : MediaQuery.of(context).size.width * 9 / 16,
+                child: content
+            );
         }
 
         private VideoPlayer _videoPlayer(string url) {
@@ -199,6 +231,7 @@ namespace ConnectApp.components {
                     _relative = 0.0f;
                     _playState = PlayState.stop;
                     _player.Stop();
+                    _player.frame = 0;
                     setState(() => {});
                 }
                 
@@ -208,7 +241,7 @@ namespace ConnectApp.components {
             return player;
         }
 
-        void playOrPause()
+        private void _playOrPause()
         {
             if (_playState == PlayState.play)
             {
@@ -223,14 +256,9 @@ namespace ConnectApp.components {
             setState(() => {}); 
         }
 
-        void fullScreen()
+        private void _setScreenOrientation()
         {
             _isFullScreen = !_isFullScreen;
-            
-            if (widget.fullScreenCallback != null)
-            {
-                widget.fullScreenCallback(_isFullScreen);
-            }
             
             if (_isFullScreen)
             {
@@ -240,39 +268,11 @@ namespace ConnectApp.components {
             {
                 Screen.orientation = ScreenOrientation.Portrait;
             }
-           
             
-        }
-        private Widget _buildHeadTop() {
-            return new AnimatedContainer(
-                height: 44,
-                duration: new TimeSpan(0, 0, 0, 0, 0),
-                padding: EdgeInsets.symmetric(horizontal: 8),
-                decoration: new BoxDecoration(
-                    CColors.White,
-                    gradient: new LinearGradient(
-                        colors: new List<Color> {
-                            new Color(0x80000000),
-                            new Color(0x0)
-                        },
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter
-                    ) 
-                ),
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: new List<Widget> {
-                        new CustomButton(
-                            onPressed: fullScreen,
-                            child: new Icon(
-                                Icons.arrow_back,
-                                size: 28,
-                                color: CColors.White
-                            )
-                        )
-                    }
-                )
-            );
+            if (widget.fullScreenCallback != null)
+            {
+                widget.fullScreenCallback(_isFullScreen);
+            }
         }
 
     }

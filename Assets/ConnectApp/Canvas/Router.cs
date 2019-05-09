@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using ConnectApp.models;
 using ConnectApp.plugins;
 using ConnectApp.screens;
 using RSG;
@@ -7,6 +6,7 @@ using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 
 namespace ConnectApp.canvas {
     internal static class MainNavigatorRoutes {
@@ -56,6 +56,9 @@ namespace ConnectApp.canvas {
                     var promise = new Promise<bool>();
                     if (LoginScreen.navigator?.canPop() ?? false) {
                         LoginScreen.navigator.pop();
+                        promise.Resolve(false);
+                    }else if (Screen.orientation == ScreenOrientation.LandscapeLeft) {
+                        //视频全屏时禁止物理返回按钮
                         promise.Resolve(false);
                     } else if (navigator.canPop()) {
                         navigator.pop();
