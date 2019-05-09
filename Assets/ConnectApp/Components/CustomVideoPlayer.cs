@@ -98,7 +98,12 @@ namespace ConnectApp.components {
                     new GestureDetector(
                         onTap: () =>
                         {
-                            setState(() => { _isHiddenBar = !_isHiddenBar; });   
+                            _isHiddenBar = !_isHiddenBar;
+                            if (_playState == PlayState.play&!_isHiddenBar)
+                            {
+                                _hiddenBar();
+                            }
+                            setState();   
                         },
                         child:new Texture(texture: _texture)
                     ),
@@ -251,9 +256,18 @@ namespace ConnectApp.components {
             else
             {
                 _player.Play();
+                _hiddenBar();
                 _playState = PlayState.play;
             }
             setState(() => {}); 
+        }
+
+        private void _hiddenBar()
+        {
+            Promise.Delayed(TimeSpan.FromSeconds(5)).Then(() =>
+            {
+                setState(() => { _isHiddenBar = true; });   
+            });
         }
 
         private void _setScreenOrientation()
