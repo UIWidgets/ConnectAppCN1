@@ -1,88 +1,72 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
-using ConnectApp.models;
-using ConnectApp.redux.actions;
 using ConnectApp.utils;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
-namespace ConnectApp.screens {
-    public class WebViewScreenConnector : StatelessWidget {
-        public WebViewScreenConnector(
-            string url = null,
-            Key key = null
-        ) : base(key) {
-            this.url = url;
-        }
-
-        private readonly string url;
-
-        public override Widget build(BuildContext context) {
-            return new StoreConnector<AppState, string>(
-                converter: state => url,
-                builder: (context1, viewModel, dispatcher) => new WebViewScreen(viewModel, () => dispatcher.dispatch(new MainNavigatorPopAction()))
-            );
-        }
-    }
-    
-    public class WebViewScreen : StatefulWidget {
+namespace ConnectApp.screens
+{ 
+    public class WebViewScreen : StatefulWidget
+    {
         public WebViewScreen(
-            string url = null,
-            Action mainRouterPop = null,
+            string url = null ,
             Key key = null
-        ) : base(key) {
-            D.assert(url != null);
+        ) : base(key)
+        {
             this.url = url;
-            this.mainRouterPop = mainRouterPop;
         }
 
         public readonly string url;
-        public readonly Action mainRouterPop;
 
-        public override State createState() {
+        public override State createState()
+        {
             return new _WebViewScreenState();
         }
     }
-    public class _WebViewScreenState : State<WebViewScreen> {
-        private WebViewObject _webViewObject;
+    public class _WebViewScreenState : State<WebViewScreen>
+    {
+        private WebViewObject _webViewObject = null;
         private float _progress;
+        private bool _loaded;
         private Timer _timer;
 
-        public override void initState() {
+        public override void initState()
+        {
             base.initState();
-            if (!Application.isEditor) {
+            if (!Application.isEditor)
+            {
                 _webViewObject = WebViewManager.instance.webViewObject; 
-                _webViewObject.Init(ua: "", enableWKWebView: true, ld: obj => {
-                    _timer.cancel();
-                    _timer.Dispose();
-                    setState(() => {
-                        _progress = 1.0f;
-                    });
-                });
+                _webViewObject.Init(
+                    ua: "", 
+                    enableWKWebView: true, 
+                    transparent: true
+                );
                 _webViewObject.LoadURL(widget.url);
                 _webViewObject.ClearCookies();
                 if (HttpManager.getCookie().isNotEmpty()) {
+#if UNITY_IOS
                     _webViewObject.AddCustomHeader("Cookie", HttpManager.getCookie());
+#endif
                 }
                 _webViewObject.SetVisibility(true);
             }
             _progress = 0;
-            _timer = Window.instance.run(new TimeSpan(0,0,0,0,300), () => {
-                if (_progress < 0.8f) {
-                    setState(() => {
-                        _progress += 0.2f;
-                    });
-                } else {
+            _timer = Window.instance.run(new TimeSpan(0,0,0,0,200), () => {
+                if (_progress < 1) {
+                    _progress += 0.1f;
+                    setState(() => {});
+                }
+                else {
                     _timer.cancel();
-                    _timer.Dispose();
                 }
             }, true);
         }
@@ -96,33 +80,41 @@ namespace ConnectApp.screens {
             base.dispose();
         }
 
-        public override Widget build(BuildContext context) {
+        public override Widget build(BuildContext context)
+        {
             Widget progressWidget = new Container();
             var progressHeight = 0;
             if (_progress < 1.0f) {
                 progressWidget = new CustomProgress(
-                    _progress
+                    _progress,
+                    CColors.Transparent
                 );
-                progressHeight = 2;
+                progressHeight = (int) (2 * Window.instance.devicePixelRatio);
             }
-            if (!Application.isEditor) {
+            if (!Application.isEditor)
+            {
                 var ratio = Window.instance.devicePixelRatio;
-                var top = (int) (44 * ratio);
-                if (Application.platform != RuntimePlatform.Android) {
+                var top = (int) ( 44 * ratio);
+                if (Application.platform != RuntimePlatform.Android)
+                {
                     top = (int) ((MediaQuery.of(context).padding.top + 44) * ratio);
                 }
+                if (_progress < 1.0f) {
+                    top += progressHeight;
+                }
                 var bottom = (int) (MediaQuery.of(context).padding.bottom * ratio);
-                _webViewObject.SetMargins(0, top + progressHeight,0, bottom);
+                _webViewObject.SetMargins(0, top,0, bottom);
             }
             var child = new Container(
                 color: CColors.background3,
                 child: new Column(
                     children: new List<Widget> {
-                        _buildNavigationBar(),
+                        _buildNavigationBar(context),
                         progressWidget
                     }
                 )
             );
+
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
@@ -130,7 +122,7 @@ namespace ConnectApp.screens {
                 )
             );
         }       
-        private Widget _buildNavigationBar() {
+        private Widget _buildNavigationBar(BuildContext context) {
             return new Container(
                 height: 44,
                 color: CColors.White,
@@ -139,12 +131,20 @@ namespace ConnectApp.screens {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: new List<Widget> {
                         new GestureDetector(
-                            onTap: () => widget.mainRouterPop(),
+                            onTap: () =>
+                            {
+                                if (Router.navigator.canPop()) {
+                                    Router.navigator.pop();
+                                }
+                                if (!Application.isEditor)
+                                {
+                                    _webViewObject.SetVisibility(false);
+                                }
+                            },
                             child: new Container(
                                 padding: EdgeInsets.symmetric(10, 16),
                                 color: CColors.Transparent,
-                                child: new Icon(Icons.arrow_back, size: 24, color: CColors.icon3)
-                            )
+                                child: new Icon(Icons.arrow_back, size: 24, color: CColors.icon3))
                         )
                     }
                 )

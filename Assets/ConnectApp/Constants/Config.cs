@@ -1,6 +1,8 @@
 namespace ConnectApp.constants {
     public static class Config {
         public const string apiAddress = "https://connect.unity.com";
+        
+        public const string domain = ".connect.unity.com";
 
         public const string idBaseUrl = "https://id.unity.com";
 
