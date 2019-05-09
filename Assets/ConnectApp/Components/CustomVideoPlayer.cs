@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.utils;
+using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using UnityEngine.Video;
@@ -105,7 +107,7 @@ namespace ConnectApp.components {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: new List<Widget> {
                                 new GestureDetector(
-                                    onTap: fullScreen,
+                                    onTap: _setScreenOrientation,
                                     child: new Container(
                                         margin:EdgeInsets.only(left:8,top:8),
                                         child:new Icon(
@@ -144,7 +146,7 @@ namespace ConnectApp.components {
                                             color:CColors.Transparent,
                                             child:new Icon(iconData,size:20,color:CColors.White)
                                         ),
-                                        onTap: playOrPause
+                                        onTap: _playOrPause
                                     ),
                                     new Container(margin:EdgeInsets.only(right:8),child:
                                         new Text($"{DateConvert.formatTime((float)_player.time)}",style:CTextStyle.CaptionWhite)),
@@ -171,20 +173,32 @@ namespace ConnectApp.components {
                                             color:CColors.Transparent,
                                             child:new Icon(_isFullScreen?Icons.fullscreen_exit:Icons.fullscreen,size:20,color:CColors.White)
                                         ),
-                                        onTap: fullScreen
+                                        onTap: _setScreenOrientation
                                     )
                                 })
                             )
                         )
                 })
             );
-            return new AnimatedContainer(
-                duration:TimeSpan.FromMilliseconds(0),
-                width: _isFullScreen?MediaQuery.of(context).size.height*16/9:MediaQuery.of(context).size.width,
-                height:_isFullScreen?MediaQuery.of(context).size.height:MediaQuery.of(context).size.width*9/16,
-                child:content
-            ); 
             
+            if (Application.platform == RuntimePlatform.Android)
+            {
+                return new AnimatedContainer(
+                    duration:TimeSpan.FromMilliseconds(150),
+                    width: _isFullScreen
+                        ? MediaQuery.of(context).size.height * 16 / 9
+                        : MediaQuery.of(context).size.width,
+                    height: _isFullScreen
+                        ? MediaQuery.of(context).size.height
+                        : MediaQuery.of(context).size.width * 9 / 16,
+                    child: content
+                );
+            }
+            return new Container(
+                width: _isFullScreen ? MediaQuery.of(context).size.height * 16 / 9 : MediaQuery.of(context).size.width,
+                height: _isFullScreen ? MediaQuery.of(context).size.height : MediaQuery.of(context).size.width * 9 / 16,
+                child: content
+            );
         }
 
         private VideoPlayer _videoPlayer(string url) {
@@ -217,6 +231,7 @@ namespace ConnectApp.components {
                     _relative = 0.0f;
                     _playState = PlayState.stop;
                     _player.Stop();
+                    _player.frame = 0;
                     setState(() => {});
                 }
                 
@@ -226,7 +241,7 @@ namespace ConnectApp.components {
             return player;
         }
 
-        void playOrPause()
+        private void _playOrPause()
         {
             if (_playState == PlayState.play)
             {
@@ -241,14 +256,9 @@ namespace ConnectApp.components {
             setState(() => {}); 
         }
 
-        void fullScreen()
+        private void _setScreenOrientation()
         {
             _isFullScreen = !_isFullScreen;
-            
-            if (widget.fullScreenCallback != null)
-            {
-                widget.fullScreenCallback(_isFullScreen);
-            }
             
             if (_isFullScreen)
             {
@@ -258,8 +268,11 @@ namespace ConnectApp.components {
             {
                 Screen.orientation = ScreenOrientation.Portrait;
             }
-           
             
+            if (widget.fullScreenCallback != null)
+            {
+                widget.fullScreenCallback(_isFullScreen);
+            }
         }
 
     }
