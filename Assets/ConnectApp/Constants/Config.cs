@@ -8,9 +8,9 @@ namespace ConnectApp.constants {
 
         public const string wechatAppId = "wx0ab79f0c7db7ca52";
 
-        public const string versionNumber = "0.8.1";
+        public const string versionNumber = "0.9.0";
         
-        public const int versionCode = 17;
+        public const int versionCode = 18;
 
 #if UNITY_IOS
         public const string platform = "ios";
@@ -18,7 +18,8 @@ namespace ConnectApp.constants {
 #elif UNITY_ANDROID
         public const string platform = "android";
 //        public const string store = "test";
-        public const string store = "unity";
+        public const string store = "official";
+//        public const string store = "unity";
 //        public const string store = "xiaomi";
 //        public const string store = "huawei";
 //        public const string store = "ali";
