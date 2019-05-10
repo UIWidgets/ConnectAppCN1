@@ -128,8 +128,7 @@ namespace ConnectApp.screens {
             widget.actionModel.loginByEmail().Catch(_ => {
                 widget.actionModel.loginByEmailFailure();
                 var customSnackBar = new CustomSnackBar(
-                    "邮箱或密码不正确，请稍后再试。",
-                    new TimeSpan(0, 0, 0, 2)
+                    "邮箱或密码不正确，请稍后再试。"
                 );
                 customSnackBar.show();
             });

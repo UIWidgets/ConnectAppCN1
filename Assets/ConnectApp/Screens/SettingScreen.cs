@@ -141,6 +141,7 @@ namespace ConnectApp.screens {
                                 : new Container(),
                             _buildCellView("关于我们",
                                 () => widget.actionModel.mainRouterPushTo(MainNavigatorRoutes.AboutUs)),
+                            _buildGapView(),
                             _buildCellView("检查更新", () => VersionManager.checkForUpdates(CheckVersionType.setting)),
                             _buildGapView(),
                             _buildCellView("清理缓存", () => {

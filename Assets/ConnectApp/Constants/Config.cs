@@ -18,7 +18,7 @@ namespace ConnectApp.constants {
 #elif UNITY_ANDROID
         public const string platform = "android";
 //        public const string store = "test";
-        public const string store = "unity";
+        public const string store = "official";
 //        public const string store = "xiaomi";
 //        public const string store = "huawei";
 //        public const string store = "ali";
