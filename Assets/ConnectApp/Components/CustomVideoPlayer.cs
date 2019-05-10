@@ -189,6 +189,15 @@ namespace ConnectApp.components {
                                                 changeCallback: relative =>
                                                 {
                                                     _relative = relative;
+                                                    if (widget.recordDuration>0)
+                                                    {
+                                                        _player.time = relative * widget.recordDuration;
+                                                    }
+                                                    else
+                                                    {
+                                                        _player.time = relative * _player.frameCount/_player.frameRate;
+                                                    }
+
                                                     _playState = PlayState.play;
                                                     _player.Play();
                                                     setState(() => { });
@@ -304,6 +313,7 @@ namespace ConnectApp.components {
         {
             if (widget.isAutoPlay)
             {
+                _playState = PlayState.play;
                 player.Play();
             }
         }
