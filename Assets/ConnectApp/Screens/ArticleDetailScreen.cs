@@ -50,6 +50,10 @@ namespace ConnectApp.screens {
                         {
                             url = url
                         }),
+                        playVideo = url => dispatcher.dispatch(new PlayVideoAction()
+                        {
+                            url = url
+                        }),
                         pushToArticleDetail = id => dispatcher.dispatch(
                             new MainNavigatorPushToArticleDetailAction {
                                 articleId = id
@@ -248,7 +252,7 @@ namespace ConnectApp.screens {
             originItems.Add(_buildContentHead());
             originItems.Add(_buildSubTitle());
             originItems.AddRange(
-                ContentDescription.map(context, _article.body, _contentMap, widget.actionModel.openUrl));
+                ContentDescription.map(context, _article.body, _contentMap, widget.actionModel.openUrl,widget.actionModel.playVideo));
             originItems.Add(_buildActionCards(_article.like));
             originItems.Add(_buildRelatedArticles());
             originItems.Add(_comments());
