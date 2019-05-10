@@ -13,7 +13,7 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.components {
     public static class ContentDescription {
         public static List<Widget> map(BuildContext context, string cont, Dictionary<string, ContentMap> contentMap,
-            Action<string> openUrl) {
+            Action<string> openUrl,Action<string> playVideo) {
             if (cont == null) return new List<Widget>();
 
             var content = JsonConvert.DeserializeObject<EventContent>(cont);
@@ -98,11 +98,12 @@ namespace ConnectApp.components {
                                 if (contentMap.ContainsKey(data.contentId)) {
                                     var map = contentMap[data.contentId];
                                     var url = map.url;
+                                    var downloadUrl = map.downloadUrl;
                                     var originalImage = map.originalImage == null
                                         ? map.thumbnail
                                         : map.originalImage;
-                                    widgets.Add(_Atomic(context, dataMap.type, data.title, originalImage, url,
-                                        openUrl));
+                                    widgets.Add(_Atomic(context, dataMap.type, data.title, originalImage, url,downloadUrl,
+                                        openUrl,playVideo));
                                 }
                         }
                     }
@@ -234,19 +235,26 @@ namespace ConnectApp.components {
         }
 
         private static Widget _Atomic(BuildContext context, string type, string title, _OriginalImage originalImage,
-            string url, Action<string> openUrl) {
-            if (type == "ATTACHMENT") return new Container();
+            string url,string downloadUrl, Action<string> openUrl,Action<string> playVideo) {
+            
 
             var playButton = Positioned.fill(
                 new Container()
             );
-            if (type == "VIDEO")
+            if (type == "VIDEO"||type == "ATTACHMENT")
                 playButton = Positioned.fill(
                     new Center(
                         child: new CustomButton(
                             onPressed: () => {
-                                if (url == null || url.Length <= 0) return;
-                                openUrl(url);
+                                if (type == "ATTACHMENT")
+                                {
+                                    playVideo($"{downloadUrl}?noLoginRequired=true");
+                                }
+                                else
+                                {
+                                    if (url == null || url.Length <= 0) return;
+                                    openUrl(url);
+                                }
                             },
                             child: new Container(
                                 width: 60,
@@ -261,6 +269,31 @@ namespace ConnectApp.components {
                                     color: CColors.icon3
                                 )
                             )
+                        )
+                    )
+                );
+            var attachWidth =  MediaQuery.of(context).size.width - 32;
+            var attachHeight = attachWidth*9/16;
+            if (type == "ATTACHMENT") 
+                return new Container(
+                    color: CColors.White,
+                    padding: EdgeInsets.only(bottom: 32),
+                    alignment: Alignment.center,
+                    child: new Container(
+                        padding: EdgeInsets.only(16, right: 16),
+                        child: new Column(
+                            children: new List<Widget> {
+                                new Stack(
+                                    children: new List<Widget> {
+                                        new Container(
+                                            width:attachWidth,
+                                            height:attachHeight,
+                                            color:CColors.Black
+                                        ),
+                                        playButton
+                                    }
+                                )
+                            }
                         )
                     )
                 );
