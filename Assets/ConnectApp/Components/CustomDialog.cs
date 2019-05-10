@@ -91,10 +91,11 @@ namespace ConnectApp.components {
             var children = new List<Widget>();
             if (title.isNotEmpty()) {
                 children.Add(new Container(
-                    padding: EdgeInsets.fromLTRB(16, 16, 16, message == null ? 16 : 0),
+                    padding: EdgeInsets.fromLTRB(16, 24, 16, message == null ? 24 : 0),
+                    alignment: Alignment.center,
                     child: new Text(
                         title,
-                        style: CTextStyle.H5Body
+                        style: CTextStyle.H5
                     )
                 ));
             }
@@ -102,26 +103,43 @@ namespace ConnectApp.components {
             if (message.isNotEmpty()) {
                 children.Add(new Container(
                     padding: EdgeInsets.all(16),
+                    alignment: Alignment.center,
                     child: new Text(
                         message,
-                        style: CTextStyle.PLargeTitle
+                        style: CTextStyle.PLargeBody
                     )
                 ));
             }
 
             if (actions != null) {
+                children.Add(new CustomDivider(
+                    height: 1
+                ));
+                
                 var _children = new List<Widget>();
                 foreach (var _child in actions) {
-                    _children.Add(
-                        new Container(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            child: _child
+                    _children.Add(new Expanded(
+                        child: new Stack(
+                            fit: StackFit.expand,
+                            children: new List<Widget> {
+                                _child
+                            }
                         )
-                    );
+                    ));
+                    var index = actions.IndexOf(_child);
+                    if (index < actions.Count - 1) {
+                        _children.Add(new Container(
+                            width: 1,
+                            color: CColors.Separator
+                        ));
+                    }
                 }
-                Widget child = new Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: _children
+                Widget child = new Container(
+                    height: 48,
+                    child: new Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: _children
+                    )
                 );
                 children.Add(child);
             }

@@ -107,11 +107,7 @@ namespace ConnectApp.components {
                                 color: CColors.White,
                                 child: new Text(
                                     item.title,
-                                    style: new TextStyle(
-                                        color: titleColor,
-                                        fontSize: 16,
-                                        fontFamily: "Roboto-Regular"
-                                    )
+                                    style: CTextStyle.PLargeBody.copyWith(titleColor)
                                 )
                             )
                         ),
