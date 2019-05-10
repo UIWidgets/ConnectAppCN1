@@ -59,18 +59,20 @@ namespace ConnectApp.screens
                                         )
                                     }),
                                 new Positioned(
-                                    top:0,left:0,right:0,child:new Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: new List<Widget> {
-                                            new CustomButton(
-                                                onPressed: () => { Router.navigator.pop(); },
-                                                child: new Icon(
-                                                    Icons.arrow_back,
-                                                    size: 28,
-                                                    color:CColors.White
+                                    top:0,left:0,right:0,child:_isFullScreen?new Container(): new Container(
+                                        child:new Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: new List<Widget> {
+                                                new CustomButton(
+                                                    onPressed: () => { Router.navigator.pop(); },
+                                                    child: new Icon(
+                                                        Icons.arrow_back,
+                                                        size: 28,
+                                                        color:CColors.White
+                                                    )
                                                 )
-                                            )
-                                        }
+                                            }
+                                        )
                                     ))
                             }
                             
