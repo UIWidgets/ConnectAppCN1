@@ -71,15 +71,107 @@ namespace ConnectApp.components {
         }
     }
 
+    public class CustomAlertDialog : StatelessWidget {
+        public CustomAlertDialog(
+            string title = null,
+            string message = null,
+            List<Widget> actions = null,
+            Key key = null
+        ) : base(key) {
+            this.title = title;
+            this.message = message;
+            this.actions = actions;
+        }
+
+        private readonly string title;
+        private readonly string message;
+        private readonly List<Widget> actions;
+
+        public override Widget build(BuildContext context) {
+            var children = new List<Widget>();
+            if (title.isNotEmpty()) {
+                children.Add(new Container(
+                    padding: EdgeInsets.fromLTRB(16, 16, 16, message == null ? 16 : 0),
+                    child: new Text(
+                        title,
+                        style: CTextStyle.H5Body
+                    )
+                ));
+            }
+            
+            if (message.isNotEmpty()) {
+                children.Add(new Container(
+                    padding: EdgeInsets.all(16),
+                    child: new Text(
+                        message,
+                        style: CTextStyle.PLargeTitle
+                    )
+                ));
+            }
+
+            if (actions != null) {
+                var _children = new List<Widget>();
+                foreach (var _child in actions) {
+                    _children.Add(
+                        new Container(
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            child: _child
+                        )
+                    );
+                }
+                Widget child = new Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: _children
+                );
+                children.Add(child);
+            }
+
+            Widget dialogChild = new IntrinsicWidth(
+                child: new Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: children
+                )
+            );
+            
+            return new AnimatedPadding(
+                padding: MediaQuery.of(context).viewInsets + EdgeInsets.symmetric(horizontal: 40.0f, vertical: 24.0f),
+                duration: new TimeSpan(0, 0, 0, 0, 100),
+                curve: Curves.decelerate,
+                child: MediaQuery.removeViewInsets(
+                    removeLeft: true,
+                    removeTop: true,
+                    removeRight: true,
+                    removeBottom: true,
+                    context: context,
+                    child: new Center(
+                        child: new ConstrainedBox(
+                            constraints: new BoxConstraints(280.0f),
+                            child: new Container(
+                                color: CColors.White,
+                                decoration: new BoxDecoration(
+                                    CColors.White,
+                                    borderRadius: BorderRadius.all(5)
+                                ),
+                                child: dialogChild
+                            )
+                        )
+                    )
+                )
+            );
+        }
+    }
+
     public static class CustomDialogUtils {
         public static void showCustomDialog(
             bool barrierDismissible = false,
+            Color barrierColor = null,
             Widget child = null
         ) {
             var route = new _DialogRoute(
                 (context, animation, secondaryAnimation) => child,
                 barrierDismissible,
-                Color.fromRGBO(0, 0, 0, 0.01f),
+                barrierColor ?? Color.fromRGBO(0, 0, 0, 0.01f),
                 new TimeSpan(0, 0, 0, 0, 150),
                 _transitionBuilder
             );

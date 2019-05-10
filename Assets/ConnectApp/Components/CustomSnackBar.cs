@@ -101,7 +101,7 @@ namespace ConnectApp.components {
 
         private void _configureTimer() {
             if (_timer != null) return;
-            _timer = Window.instance.run(customSnackBar.duration, () => { navigator.pop(); });
+            _timer = Window.instance.run((TimeSpan)customSnackBar.duration, () => { navigator.pop(); });
         }
 
         private void _cancelTimer() {
@@ -114,16 +114,19 @@ namespace ConnectApp.components {
     public class CustomSnackBar : StatefulWidget {
         public CustomSnackBar(
             string message,
-            TimeSpan duration,
+            TimeSpan? duration = null,
+            Color color = null,
             Key key = null
         ) : base(key) {
             D.assert(message != null);
             this.message = message;
-            this.duration = duration;
+            this.duration = duration ?? new TimeSpan(0, 0, 0, 2);
+            this.color = color ?? CColors.Error;
         }
 
         public readonly string message;
-        public readonly TimeSpan duration;
+        public readonly TimeSpan? duration;
+        public readonly Color color;
         public readonly Curve forwardAnimationCurve = Curves.easeOut;
         public readonly Curve reverseAnimationCurve = Curves.fastOutSlowIn;
 
@@ -182,7 +185,7 @@ namespace ConnectApp.components {
                                     child: new Text(
                                         widget.message,
                                         maxLines: 3,
-                                        style: CTextStyle.PRegularError
+                                        style: CTextStyle.PRegularError.copyWith(widget.color)
                                     )
                                 ),
                                 new CustomButton(

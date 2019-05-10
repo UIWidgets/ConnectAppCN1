@@ -7,6 +7,7 @@ using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -140,6 +141,7 @@ namespace ConnectApp.screens {
                                 : new Container(),
                             _buildCellView("关于我们",
                                 () => widget.actionModel.mainRouterPushTo(MainNavigatorRoutes.AboutUs)),
+                            _buildCellView("检查更新", () => VersionManager.checkForUpdates(CheckVersionType.setting)),
                             _buildGapView(),
                             _buildCellView("清理缓存", () => {
                                 CustomDialogUtils.showCustomDialog(

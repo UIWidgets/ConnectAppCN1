@@ -111,7 +111,7 @@ namespace ConnectApp.components {
 
                             setState();
                         },
-                        child: new Container(color:Colors.black,child:new Texture(texture: _texture)) 
+                        child: new Container(color:CColors.Black,child:new Texture(texture: _texture)) 
                     ),
                     _isHiddenBar
                         ? new Positioned(child: new Container())
