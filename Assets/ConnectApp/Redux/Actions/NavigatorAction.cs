@@ -47,6 +47,9 @@ namespace ConnectApp.redux.actions {
     public class OpenUrlAction : BaseAction {
         public string url = "";
     }
+    public class PlayVideoAction : BaseAction {
+        public string url = "";
+    }
 
     public class CopyTextAction : BaseAction {
         public string text = "";
@@ -55,7 +58,7 @@ namespace ConnectApp.redux.actions {
     public class MainNavigatorPushToWebViewAction : BaseAction {
         public string url = "";
     }
-
+    
     public static partial class Actions {
 //        public static object popFromBindUnityScreen() {
 //            return 

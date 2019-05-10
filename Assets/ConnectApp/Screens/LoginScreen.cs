@@ -42,7 +42,8 @@ namespace ConnectApp.screens {
                         (context1, animation, secondaryAnimation, child) => new PushPageTransition(
                             routeAnimation: animation,
                             child: child
-                        ));
+                        )
+                    );
                 }
             );
         }

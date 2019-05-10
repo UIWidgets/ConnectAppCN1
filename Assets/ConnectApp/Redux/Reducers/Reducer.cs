@@ -735,6 +735,19 @@ namespace ConnectApp.redux.reducers {
                         );
                     break;
                 }
+                case PlayVideoAction action: {
+                    if (action.url != null)
+                        Router.navigator.push(new PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) =>
+                                new VideoViewScreen(action.url), 
+                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
+                                new PushPageTransition(
+                                    routeAnimation: animation,
+                                    child: child
+                                ))
+                        );
+                    break;
+                }
                 case FetchReviewUrlSuccessAction action: {
                     state.settingState.reviewUrl = action.url;
                     state.settingState.hasReviewUrl = true;

@@ -20,7 +20,6 @@ namespace ConnectApp.plugins
             if(!isListen) {
                 UIWidgetsMessageManager.instance.AddChannelMessageDelegate("jpush", _handleMethodCall);
                 completed();
-//                setJPushChannel(Config.store);
                 isListen = true;
             }
         }
@@ -102,8 +101,8 @@ namespace ConnectApp.plugins
         }
         
 #else
-        public void listenCompleted() {}
-        public void setChannel(string channel) {}
+        public static void listenCompleted() {}
+        public static void setChannel(string channel) {}
 #endif
     }
 }

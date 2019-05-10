@@ -79,8 +79,7 @@ namespace ConnectApp.screens {
         private Widget _buildMyFutureEvents() {
             var data = widget.viewModel.futureEventsList;
             if (widget.viewModel.futureListLoading && data.isEmpty()) return new GlobalLoading();
-            if (data.Count <= 0) return new BlankView("暂无我的即将开始活动",true,tapCallback: () =>
-            {
+            if (data.Count <= 0) return new BlankView("暂无我的即将开始活动",true, () => {
                 widget.actionModel.startFetchMyFutureEvents();
                 widget.actionModel.fetchMyFutureEvents(firstPageNumber);
             });
@@ -108,7 +107,8 @@ namespace ConnectApp.screens {
                             );
                         }
                     )
-                ));
+                )
+            );
         }
 
         private void _onRefresh(bool up) {

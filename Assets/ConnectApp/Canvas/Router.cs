@@ -12,14 +12,12 @@ namespace ConnectApp.canvas {
     internal static class MainNavigatorRoutes {
         public const string Root = "/";
         public const string Search = "/search";
-        public const string EventDetail = "/event-detail";
         public const string ArticleDetail = "/article-detail";
         public const string Setting = "/setting";
         public const string MyEvent = "/my-event";
         public const string History = "/history";
         public const string Login = "/login";
         public const string BindUnity = "/bind-unity";
-        public const string VideoPlayer = "/video-player";
         public const string Report = "/report";
         public const string AboutUs = "/aboutUs";
         public const string WebView = "/web-view";
@@ -126,7 +124,6 @@ namespace ConnectApp.canvas {
             Widget child = null
         ) : base(key) {
             _positionAnimation = _bottomUpTween.chain(_fastOutSlowInTween).animate(routeAnimation);
-            _opacityAnimation = _easeInTween.animate(routeAnimation);
             this.child = child;
         }
 
@@ -136,10 +133,7 @@ namespace ConnectApp.canvas {
         );
 
         private readonly Animatable<float> _fastOutSlowInTween = new CurveTween(Curves.fastOutSlowIn);
-        private readonly Animatable<float> _easeInTween = new CurveTween(Curves.easeIn);
-
         private readonly Animation<Offset> _positionAnimation;
-        private readonly Animation<float> _opacityAnimation;
         private readonly Widget child;
 
         public override Widget build(BuildContext context) {

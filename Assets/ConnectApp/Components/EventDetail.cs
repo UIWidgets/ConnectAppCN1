@@ -14,16 +14,20 @@ namespace ConnectApp.components {
             bool isShowImage,
             IEvent eventObj = null,
             Action<string> openUrl = null,
+            Action<string> playVideo = null,
             Key key = null
         ) : base(key) {
             this.eventObj = eventObj;
             this.openUrl = openUrl;
+            this.playVideo = playVideo;
             this.isShowImage = isShowImage;
         }
         
         private readonly IEvent eventObj;
         private readonly bool isShowImage;
         private readonly Action<string> openUrl;
+        private readonly Action<string> playVideo;
+
 
         public override Widget build(BuildContext context) {
             return new Container(child: _buildContent(context));
@@ -34,7 +38,9 @@ namespace ConnectApp.components {
                 _buildHeadImage(), 
                 _buildContentHead()
             };
-            items.AddRange(ContentDescription.map(context, eventObj.content, eventObj.contentMap, openUrl));
+            items.AddRange(ContentDescription.map(context, eventObj.content, eventObj.contentMap, openUrl,playVideo
+            
+            ));
             items.Add(_buildContentLecturerList());
             return new Container(
                 child: ListView.builder(

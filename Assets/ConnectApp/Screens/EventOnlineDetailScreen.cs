@@ -12,7 +12,6 @@ using ConnectApp.utils;
 using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
@@ -20,9 +19,7 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Color = Unity.UIWidgets.ui.Color;
 using Config = ConnectApp.constants.Config;
-using Icons = ConnectApp.constants.Icons;
 
 namespace ConnectApp.screens {
     public class EventOnlineDetailScreenConnector : StatelessWidget {
@@ -146,7 +143,7 @@ namespace ConnectApp.screens {
                 return new EventDetailLoading(mainRouterPop: widget.actionModel.mainRouterPop);
             var eventStatus = DateConvert.GetEventStatus(eventObj.begin);
             return new Container(
-                color:Colors.white,
+                color: CColors.White,
                 child: new CustomSafeArea(
                     top:!_isFullScreen,
                     bottom:!_isFullScreen,
@@ -266,13 +263,14 @@ namespace ConnectApp.screens {
             {
                 return new CustomVideoPlayer(
                     eventObj.record,
-                    eventObj.recordDuration,
                     context,
                     _buildHeadTop(true,eventObj),
                     fullScreenCallback: isFullScreen =>
                     {
                         setState(() => { _isFullScreen = isFullScreen; });
-                    }
+                    },                    
+                    eventObj.recordDuration
+
                 ); 
             }
             return new Stack(
@@ -580,8 +578,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        void _showShareView(IEvent eventObj)
-        {
+        private void _showShareView(IEvent eventObj) {
             ShareUtils.showShareView(
                 new ShareView(
                     projectType: ProjectType.iEvent,
