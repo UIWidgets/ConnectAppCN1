@@ -8,7 +8,6 @@ using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -48,7 +47,17 @@ namespace ConnectApp.screens
                 _webViewObject.Init(
                     ua: "", 
                     enableWKWebView: true, 
-                    transparent: true
+                    transparent: true,
+                    started: start => {
+                        using (WindowProvider.of(this.context).getScope()) {
+                           this.startProgress();
+                        }
+                    },
+                    ld: ld => {
+                        using (WindowProvider.of(this.context).getScope()) {
+                            this.stopProgress(); 
+                        }
+                    }
                 );
                 _webViewObject.LoadURL(widget.url);
                 _webViewObject.ClearCookies();
@@ -61,9 +70,29 @@ namespace ConnectApp.screens
             }
             _progress = 0;
             _onClose = false;
-            _timer = Window.instance.run(new TimeSpan(0,0,0,0,200), () => {
-                if (_progress < 1) {
-                    _progress += 0.1f;
+        }
+        
+        public override void dispose() {
+            if (_timer != null) {
+                _timer.cancel();
+                _timer.Dispose();
+            }
+            if (!Application.isEditor)
+            {
+                _webViewObject.SetVisibility(false);
+                WebViewManager.instance.destroyWebView();
+            }
+            base.dispose();
+        }
+
+        void startProgress() {
+            if (_timer != null) {
+                _timer.cancel();
+                _timer = null;
+            }
+            _timer = Window.instance.run(new TimeSpan(0,0,0,0,60), () => {
+                if (_progress < 0.9f) {
+                    _progress += 0.03f;
                     setState(() => {});
                 }
                 else {
@@ -71,26 +100,25 @@ namespace ConnectApp.screens
                 }
             }, true);
         }
-        
-        public override void dispose() {
-            _timer.cancel();
-            _timer.Dispose();
-            if (!Application.isEditor) {
-                _webViewObject.SetVisibility(false);
+
+        void stopProgress() {
+            if (_timer != null) {
+                _timer.cancel();
+                _timer = null;
             }
-            base.dispose();
+
+            _progress = 1;
+            setState(() => {});
         }
 
         public override Widget build(BuildContext context)
         {
             Widget progressWidget = new Container();
-            var progressHeight = 0;
             if (_progress < 1.0f) {
                 progressWidget = new CustomProgress(
                     _progress,
-                    CColors.Transparent
+                    CColors.White
                 );
-                progressHeight = (int) (2 * Window.instance.devicePixelRatio);
             }
             if (!Application.isEditor)
             {
@@ -100,26 +128,20 @@ namespace ConnectApp.screens
                 {
                     top = (int) ((MediaQuery.of(context).padding.top + 44) * ratio);
                 }
-                if (_progress < 1.0f) {
-                    top += progressHeight;
-                }
                 var bottom = (int) (MediaQuery.of(context).padding.bottom * ratio);
                 _webViewObject.SetMargins(0, top,0, bottom);
             }
-            var child = new Container(
-                color: CColors.background3,
-                child: new Column(
-                    children: new List<Widget> {
-                        _buildNavigationBar(),
-                        progressWidget
-                    }
-                )
-            );
             
-            Widget closeText = new Container();
+            Widget tipsText = new Container();
             if (_onClose) {
-                closeText = new Text(
+                tipsText = new Text(
                     "正在关闭...",
+                    style: CTextStyle.PXLarge
+                );
+            }
+            else {
+                tipsText = new Text(
+                    "正在加载...",
                     style: CTextStyle.PXLarge
                 );
             }
@@ -132,16 +154,19 @@ namespace ConnectApp.screens
                         child: new Column(
                             children: new List<Widget> {
                                 new Container(
-                                    child: new Column(
+                                    child: new Stack(
                                         children: new List<Widget> {
                                             _buildNavigationBar(),
-                                            progressWidget
+                                            new Align(
+                                                alignment: Alignment.bottomCenter,
+                                                child: progressWidget
+                                            )
                                         }
                                     )
                                 ),
                                 new Expanded(
                                     child: new Center(
-                                        child: closeText
+                                        child: tipsText
                                     )
                                 )
                             }
