@@ -105,8 +105,7 @@ namespace ConnectApp.screens {
             else {
                 if (widget.viewModel.notifications.Count <= 0)
                     content = new Container(
-                        child: new BlankView("暂无通知消息",true,tapCallback: () =>
-                        {
+                        child: new BlankView("暂无通知消息",true, () => {
                             widget.actionModel.startFetchNotifications();
                             widget.actionModel.fetchNotifications(firstPageNumber);
                         })
@@ -133,7 +132,8 @@ namespace ConnectApp.screens {
                                     );
                                 }
                             )
-                        ));
+                        )
+                    );
             }
 
             return new Container(
@@ -155,7 +155,8 @@ namespace ConnectApp.screens {
                                             duration: new TimeSpan(0, 0, 0, 0, 100)
                                         )
                                     )
-                                })
+                                }
+                            )
                         ),
                         new CustomDivider(
                             color: CColors.Separator2,

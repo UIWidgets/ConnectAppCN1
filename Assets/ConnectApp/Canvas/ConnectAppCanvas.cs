@@ -36,7 +36,9 @@ namespace ConnectApp.canvas {
             return new StoreProvider<AppState>(
                 StoreProvider.store,
                 new WidgetsApp(
-                    home: new Router(),
+                    home: new VersionUpdater(
+                        new Router()
+                    ),
                     pageRouteBuilder: pageRouteBuilder
                 )
             );
