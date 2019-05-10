@@ -98,11 +98,12 @@ namespace ConnectApp.components {
                                 if (contentMap.ContainsKey(data.contentId)) {
                                     var map = contentMap[data.contentId];
                                     var url = map.url;
-                                    var downloadUrl = map.downloadUrl;
+                                    var downloadUrl = map.downloadUrl??"";
+                                    var contentType = map.contentType??"";
                                     var originalImage = map.originalImage == null
                                         ? map.thumbnail
                                         : map.originalImage;
-                                    widgets.Add(_Atomic(context, dataMap.type, data.title, originalImage, url,downloadUrl,
+                                    widgets.Add(_Atomic(context, dataMap.type,contentType, data.title, originalImage,url,downloadUrl,
                                         openUrl,playVideo));
                                 }
                         }
@@ -234,14 +235,17 @@ namespace ConnectApp.components {
             );
         }
 
-        private static Widget _Atomic(BuildContext context, string type, string title, _OriginalImage originalImage,
+        private static Widget _Atomic(BuildContext context, string type,string contentType, string title, _OriginalImage originalImage,
             string url,string downloadUrl, Action<string> openUrl,Action<string> playVideo) {
-            
+            if (type == "ATTACHMENT" && contentType != "video/mp4")
+            {
+                return new Container();
+            }
 
             var playButton = Positioned.fill(
                 new Container()
             );
-            if (type == "VIDEO"||type == "ATTACHMENT")
+            if (type == "VIDEO"|| type == "ATTACHMENT")
                 playButton = Positioned.fill(
                     new Center(
                         child: new CustomButton(
@@ -275,6 +279,7 @@ namespace ConnectApp.components {
             var attachWidth =  MediaQuery.of(context).size.width - 32;
             var attachHeight = attachWidth*9/16;
             if (type == "ATTACHMENT") 
+                
                 return new Container(
                     color: CColors.White,
                     padding: EdgeInsets.only(bottom: 32),
