@@ -37,6 +37,7 @@ namespace ConnectApp.components {
             Widget topWidget,
             FullScreenCallback fullScreenCallback,
             float recordDuration = 0,
+            bool isAutoPlay = false,
             Key key = null
         ) : base(key) {
             D.assert(url != null);
@@ -45,12 +46,14 @@ namespace ConnectApp.components {
             this.context = context;
             this.topWidget = topWidget;
             this.fullScreenCallback = fullScreenCallback;
+            this.isAutoPlay = isAutoPlay;
         }
         public readonly string url;
         public readonly float recordDuration;
         public readonly Widget topWidget;
         public readonly BuildContext context;
         public readonly FullScreenCallback fullScreenCallback;
+        public readonly bool isAutoPlay;
 
 
         public override State createState() {
@@ -250,6 +253,7 @@ namespace ConnectApp.components {
             player.isLooping = false;
             player.sendFrameReadyEvents = true;
             player.aspectRatio = VideoAspectRatio.Stretch;
+            player.prepareCompleted += prepareCompleted;
             player.frameReady += (source, frameIndex) =>
             {
                 using (WindowProvider.of(widget.context).getScope())
@@ -295,6 +299,15 @@ namespace ConnectApp.components {
             }
             setState(() => {}); 
         }
+        
+        private void prepareCompleted(VideoPlayer player)
+        {
+            if (widget.isAutoPlay)
+            {
+                player.Play();
+            }
+        }
+        
         private void _errorReceived(VideoPlayer player,string message)
         {
             using (WindowProvider.of(widget.context).getScope())

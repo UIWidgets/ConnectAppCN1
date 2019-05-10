@@ -55,7 +55,7 @@ namespace ConnectApp.screens
                                             fullScreenCallback: isFullScreen =>
                                             {
                                                 setState(() => { _isFullScreen = isFullScreen; });
-                                            }
+                                            },0,true
                                         )
                                     }),
                                 new Positioned(
