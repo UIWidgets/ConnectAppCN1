@@ -13,7 +13,7 @@ namespace ConnectApp.api {
             }
             var promise = new Promise<FetchEventsResponse>();
             var request = HttpManager.GET(Config.apiAddress +
-                                          $"/api/events?tab={tab}&page={pageNumber}&mode={mode}&isPublic=true");
+                                          $"/api/events?tab={tab}&page={pageNumber}&mode={mode}&isPublic=true&pageSize=10");
             HttpManager.resume(request).Then(responseText => {
                 var eventsResponse = JsonConvert.DeserializeObject<FetchEventsResponse>(responseText);
                 promise.Resolve(eventsResponse);

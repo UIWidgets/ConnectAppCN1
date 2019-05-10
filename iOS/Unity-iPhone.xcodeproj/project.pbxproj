@@ -112,6 +112,7 @@
 		681E47FBB35ED7060FC52109 /* Bulk_Generics_8.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 455D4DB99483D6BD459CA11C /* Bulk_Generics_8.cpp */; };
 		686E4C979FCB9DE807905CF4 /* Bulk_ConnectApp_3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 796343A09E3CB51DB4E83C12 /* Bulk_ConnectApp_3.cpp */; };
 		6A7E43008A6D48ECAB78840D /* Il2CppCompilerCalculateTypeValues_17Table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9CAF4155835060B4029E76C7 /* Il2CppCompilerCalculateTypeValues_17Table.cpp */; };
+		6A8B43C189D654F319D9E8F6 /* Il2CppCompilerCalculateTypeValues_53Table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 89294CAFBEBCC501EE97205F /* Il2CppCompilerCalculateTypeValues_53Table.cpp */; };
 		6BA94233ACC89B3B917B38A3 /* Bulk_UnityEngine.TextRenderingModule_0.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D34240C8B7FF4FCDE293FF39 /* Bulk_UnityEngine.TextRenderingModule_0.cpp */; };
 		6C2C4D0894C30B9C29AA3275 /* Il2CppCompilerCalculateTypeValues_42Table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E3A341AFBFE68027A6730DDE /* Il2CppCompilerCalculateTypeValues_42Table.cpp */; };
 		6F464298AF42A0FB66AD09D9 /* Bulk_Unity.UIWidgets_2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = BD45427CA125165C5AFE47B6 /* Bulk_Unity.UIWidgets_2.cpp */; };
@@ -457,6 +458,7 @@
 		870047A6BF59CA12A70A7204 /* GenericMethods1.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GenericMethods1.cpp; path = Classes/Native/GenericMethods1.cpp; sourceTree = SOURCE_ROOT; };
 		8783409493FD9E3E13D1CCF7 /* Il2CppCompilerCalculateTypeValues_25Table.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Il2CppCompilerCalculateTypeValues_25Table.cpp; path = Classes/Native/Il2CppCompilerCalculateTypeValues_25Table.cpp; sourceTree = SOURCE_ROOT; };
 		88F449D8A3B5D5C71C4A0F2D /* CustomAppController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = CustomAppController.mm; path = Libraries/Plugins/iOS/CustomAppController.mm; sourceTree = SOURCE_ROOT; };
+		89294CAFBEBCC501EE97205F /* Il2CppCompilerCalculateTypeValues_53Table.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Il2CppCompilerCalculateTypeValues_53Table.cpp; path = Classes/Native/Il2CppCompilerCalculateTypeValues_53Table.cpp; sourceTree = SOURCE_ROOT; };
 		89C54B90B6E4977A968D4502 /* Bulk_Generics_2.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Bulk_Generics_2.cpp; path = Classes/Native/Bulk_Generics_2.cpp; sourceTree = SOURCE_ROOT; };
 		89CC4199BC4B026CAB6C9F00 /* Il2CppAttributes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Il2CppAttributes.cpp; path = Classes/Native/Il2CppAttributes.cpp; sourceTree = SOURCE_ROOT; };
 		8A0FED471649699200E9727D /* EAGLContextHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EAGLContextHelper.h; sourceTree = "<group>"; };
@@ -987,6 +989,7 @@
 				F5354E73A2CBD3327D140484 /* Bulk_Unity.UIWidgets_12.cpp */,
 				671A46E09C2D85D9CB904286 /* Bulk_Unity.UIWidgets_13.cpp */,
 				6D534B268D2299E5F5B78349 /* Il2CppCompilerCalculateTypeValues_52Table.cpp */,
+				89294CAFBEBCC501EE97205F /* Il2CppCompilerCalculateTypeValues_53Table.cpp */,
 			);
 			path = Native;
 			sourceTree = "<group>";
@@ -1600,6 +1603,7 @@
 				1B594704BC16DFB5BDD306F6 /* Bulk_Unity.UIWidgets_12.cpp in Sources */,
 				426C4BB7B39FC6A761ED05F3 /* Bulk_Unity.UIWidgets_13.cpp in Sources */,
 				1D4A476B9C3630F7BF3606F5 /* Il2CppCompilerCalculateTypeValues_52Table.cpp in Sources */,
+				6A8B43C189D654F319D9E8F6 /* Il2CppCompilerCalculateTypeValues_53Table.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1646,7 +1650,7 @@
 				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CODE_SIGN_ENTITLEMENTS = "Unity-iPhone/unityconnect.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Unity Software (Shanghai) Co., Ltd. (76Q3QH5MFC)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Unity Software (Shanghai) Co., Ltd. (76Q3QH5MFC)";
 				COPY_PHASE_STRIP = NO;
 				DEVELOPMENT_TEAM = 76Q3QH5MFC;
 				ENABLE_BITCODE = YES;
@@ -1697,7 +1701,7 @@
 				);
 				PRODUCT_NAME = unityconnect;
 				PROVISIONING_PROFILE = "cb5ca052-341e-43a9-a8c3-c7c254d24930";
-				PROVISIONING_PROFILE_SPECIFIER = UnityConnectProd;
+				PROVISIONING_PROFILE_SPECIFIER = "Unity Connect Distribution";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -1720,7 +1724,7 @@
 				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CODE_SIGN_ENTITLEMENTS = "Unity-iPhone/unityconnect.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Unity Software (Shanghai) Co., Ltd. (76Q3QH5MFC)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Unity Software (Shanghai) Co., Ltd. (76Q3QH5MFC)";
 				COPY_PHASE_STRIP = YES;
 				DEVELOPMENT_TEAM = 76Q3QH5MFC;
 				ENABLE_BITCODE = YES;
@@ -1768,7 +1772,7 @@
 				);
 				PRODUCT_NAME = unityconnect;
 				PROVISIONING_PROFILE = "cb5ca052-341e-43a9-a8c3-c7c254d24930";
-				PROVISIONING_PROFILE_SPECIFIER = UnityConnectProd;
+				PROVISIONING_PROFILE_SPECIFIER = "Unity Connect Distribution";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -1914,7 +1918,7 @@
 				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CODE_SIGN_ENTITLEMENTS = "Unity-iPhone/unityconnect.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Unity Software (Shanghai) Co., Ltd. (76Q3QH5MFC)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Unity Software (Shanghai) Co., Ltd. (76Q3QH5MFC)";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 76Q3QH5MFC;
@@ -1963,7 +1967,7 @@
 				);
 				PRODUCT_NAME = unityconnect;
 				PROVISIONING_PROFILE = "cb5ca052-341e-43a9-a8c3-c7c254d24930";
-				PROVISIONING_PROFILE_SPECIFIER = UnityConnectProd;
+				PROVISIONING_PROFILE_SPECIFIER = "Unity Connect Distribution";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -2054,7 +2058,7 @@
 				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CODE_SIGN_ENTITLEMENTS = "Unity-iPhone/unityconnect.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Unity Software (Shanghai) Co., Ltd. (76Q3QH5MFC)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Unity Software (Shanghai) Co., Ltd. (76Q3QH5MFC)";
 				COPY_PHASE_STRIP = YES;
 				DEVELOPMENT_TEAM = 76Q3QH5MFC;
 				ENABLE_BITCODE = YES;
@@ -2102,7 +2106,7 @@
 				);
 				PRODUCT_NAME = unityconnect;
 				PROVISIONING_PROFILE = "cb5ca052-341e-43a9-a8c3-c7c254d24930";
-				PROVISIONING_PROFILE_SPECIFIER = UnityConnectProd;
+				PROVISIONING_PROFILE_SPECIFIER = "Unity Connect Distribution";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
