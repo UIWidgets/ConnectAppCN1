@@ -4,6 +4,7 @@ using ConnectApp.components;
 using ConnectApp.constants;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.material;
+using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 using Icons = ConnectApp.constants.Icons;
@@ -35,7 +36,7 @@ namespace ConnectApp.screens
         public override Widget build(BuildContext context)
         {
             return new Container(
-                color:Colors.white,
+                color:Colors.black,
                 child: new CustomSafeArea(
                     top:!_isFullScreen,
                     bottom:!_isFullScreen,
@@ -44,20 +45,18 @@ namespace ConnectApp.screens
                         child: new Stack(
                             children:new List<Widget>
                             {
-                                new Column(
-                                    mainAxisAlignment:MainAxisAlignment.center,
-                                    children:new List<Widget>
-                                    {
-                                        new CustomVideoPlayer(
-                                            widget.url,
-                                            context,
-                                            new Container(), 
-                                            fullScreenCallback: isFullScreen =>
-                                            {
-                                                setState(() => { _isFullScreen = isFullScreen; });
-                                            },0,true
-                                        )
-                                    }),
+                                new Align(
+                                    alignment: Alignment.center,
+                                    child: new CustomVideoPlayer(
+                                        widget.url,
+                                        context,
+                                        new Container(), 
+                                        isFullScreen =>
+                                        {
+                                            setState(() => { _isFullScreen = isFullScreen; });
+                                        },0,true
+                                    )
+                                ),
                                 new Positioned(
                                     top:0,left:0,right:0,child:_isFullScreen?new Container(): new Container(
                                         child:new Row(
