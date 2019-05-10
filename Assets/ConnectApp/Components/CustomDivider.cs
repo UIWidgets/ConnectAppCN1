@@ -12,7 +12,7 @@ namespace ConnectApp.components {
             float height = 16.0f
         ) : base(key) {
             D.assert(height >= 0.0);
-            this.color = color ?? CColors.Black;
+            this.color = color ?? CColors.Separator;
             this.height = height;
         }
 
@@ -21,7 +21,7 @@ namespace ConnectApp.components {
 
         public override Widget build(BuildContext context) {
             return new Container(
-                decoration: new BoxDecoration(color),
+                color: color,
                 height: height
             );
         }
