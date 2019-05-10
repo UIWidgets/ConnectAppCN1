@@ -28,10 +28,11 @@ namespace ConnectApp.components {
     public class CustomVideoPlayer : StatefulWidget {
         public CustomVideoPlayer(
             string url,
-            float recordDuration,
             BuildContext context,
             Widget topWidget,
             FullScreenCallback fullScreenCallback,
+            float recordDuration = 0,
+            bool isAutoPlay = false,
             Key key = null
         ) : base(key) {
             D.assert(url != null);
@@ -40,12 +41,14 @@ namespace ConnectApp.components {
             this.context = context;
             this.topWidget = topWidget;
             this.fullScreenCallback = fullScreenCallback;
+            this.isAutoPlay = isAutoPlay;
         }
         public readonly string url;
         public readonly float recordDuration;
         public readonly Widget topWidget;
         public readonly BuildContext context;
         public readonly FullScreenCallback fullScreenCallback;
+        public readonly bool isAutoPlay;
 
 
         public override State createState() {
@@ -166,11 +169,10 @@ namespace ConnectApp.components {
                                     {
                                         new GestureDetector(
                                             child: new Container(
-                                                height: 24,
-                                                width: 24,
-                                                margin: EdgeInsets.only(left: 8, right: 8),
+                                                height: 44,
+                                                width: 44,
                                                 color: CColors.Transparent,
-                                                child: new Icon(iconData, size: 20, color: CColors.White)
+                                                child: new Icon(iconData, size: 24, color: CColors.White)
                                             ),
                                             onTap: _playOrPause
                                         ),
@@ -182,7 +184,15 @@ namespace ConnectApp.components {
                                                 changeCallback: relative =>
                                                 {
                                                     _relative = relative;
-                                                    _player.time = relative * widget.recordDuration;
+                                                    if (widget.recordDuration>0)
+                                                    {
+                                                        _player.time = relative * widget.recordDuration;
+                                                    }
+                                                    else
+                                                    {
+                                                        _player.time = relative * _player.frameCount/_player.frameRate;
+                                                    }
+
                                                     _playState = PlayState.play;
                                                     _player.Play();
                                                     setState(() => { });
@@ -192,16 +202,15 @@ namespace ConnectApp.components {
                                                     _player.Pause();
                                                 })),
                                         new Container(margin: EdgeInsets.only(left: 8, right: 8), child:
-                                            new Text($"{DateConvert.formatTime(widget.recordDuration)}",
+                                            new Text($"{DateConvert.formatTime(widget.recordDuration>0?widget.recordDuration:_player.frameCount/_player.frameRate)}",
                                                 style: CTextStyle.CaptionWhite)),
                                         new GestureDetector(
                                             child: new Container(
-                                                height: 24,
-                                                width: 24,
-                                                margin: EdgeInsets.only(right: 8),
+                                                height: 44,
+                                                width: 44,
                                                 color: CColors.Transparent,
                                                 child: new Icon(
-                                                    _isFullScreen ? Icons.fullscreen_exit : Icons.fullscreen, size: 20,
+                                                    _isFullScreen ? Icons.fullscreen_exit : Icons.fullscreen, size: 24,
                                                     color: CColors.White)
                                             ),
                                             onTap: _setScreenOrientation
@@ -248,6 +257,7 @@ namespace ConnectApp.components {
             player.isLooping = false;
             player.sendFrameReadyEvents = true;
             player.aspectRatio = VideoAspectRatio.Stretch;
+            player.prepareCompleted += prepareCompleted;
             player.frameReady += (source, frameIndex) =>
             {
                 using (WindowProvider.of(widget.context).getScope())
@@ -293,6 +303,16 @@ namespace ConnectApp.components {
             }
             setState(() => {}); 
         }
+        
+        private void prepareCompleted(VideoPlayer player)
+        {
+            if (widget.isAutoPlay)
+            {
+                _playState = PlayState.play;
+                player.Play();
+            }
+        }
+        
         private void _errorReceived(VideoPlayer player,string message)
         {
             using (WindowProvider.of(widget.context).getScope())

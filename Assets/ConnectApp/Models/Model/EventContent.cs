@@ -54,6 +54,8 @@ namespace ConnectApp.models {
         public _OriginalImage originalImage;
         public _OriginalImage thumbnail;
         public string url;
+        public string downloadUrl;
+        public string contentType;
     }
 
     [Serializable]
