@@ -59,7 +59,8 @@ namespace ConnectApp.screens {
                         fetchArticles = offset => dispatcher.dispatch<IPromise>(Actions.fetchArticles(offset))
                     };
                     return new ArticlesScreen(viewModel, actionModel);
-                });
+                }
+            );
         }
     }
 
