@@ -16,6 +16,7 @@ using Texture = Unity.UIWidgets.widgets.Texture;
 namespace ConnectApp.components {
 
     public delegate void FullScreenCallback(bool isFullScreen);
+    public delegate void FailureCallback();
     
     public enum PlayState
     {
@@ -52,15 +53,18 @@ namespace ConnectApp.components {
         }
     }
 
-    public class _CustomVideoPlayerState : SingleTickerProviderStateMixin<CustomVideoPlayer>{
+    public class _CustomVideoPlayerState : SingleTickerProviderStateMixin<CustomVideoPlayer>
+    {
         private VideoPlayer _player = null;
         private RenderTexture _texture = null;
-        private PlayState _playState = PlayState.pause; 
+        private PlayState _playState = PlayState.pause;
         private float _relative; //播放进度比例
         private bool _isFullScreen; //是否全屏
         private bool _isHiddenBar; //是否隐藏工具栏
+        private bool _isFailure; //是否隐藏工具栏
 
-        public override void initState() {
+        public override void initState()
+        {
             base.initState();
             _texture = Resources.Load<RenderTexture>("ConnectAppRT");
             _player = _videoPlayer(widget.url);
@@ -86,105 +90,132 @@ namespace ConnectApp.components {
                     iconData = Icons.play_arrow;
                     break;
             }
+
             var content = new AnimatedContainer(
-                duration:TimeSpan.FromSeconds(0),
-                curve:Curves.easeInOut,
-                child: new Stack(children: new List<Widget> {
+                duration: TimeSpan.FromSeconds(0),
+                curve: Curves.easeInOut,
+                child: new Stack(children: new List<Widget>
+                {
                     new GestureDetector(
                         onTap: () =>
                         {
+                            if (_isFailure&&_isHiddenBar==false)
+                            {
+                                return;
+                            }
                             _isHiddenBar = !_isHiddenBar;
-                            if (_playState == PlayState.play&!_isHiddenBar)
+                            if (_playState == PlayState.play & !_isHiddenBar)
                             {
                                 _hiddenBar();
                             }
-                            setState();   
+
+                            setState();
                         },
-                        child:new Texture(texture: _texture)
+                        child: new Container(color:Colors.black,child:new Texture(texture: _texture)) 
                     ),
-                    _isHiddenBar?new Positioned(child:new Container()):
-                        new Positioned(top:0,left:0,right:0,child:_isFullScreen? new Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: new List<Widget> {
-                                new GestureDetector(
-                                    onTap: _setScreenOrientation,
-                                    child: new Container(
-                                        margin:EdgeInsets.only(left:8,top:8),
-                                        child:new Icon(
-                                            Icons.arrow_back,
-                                            size: 28,
-                                            color:  CColors.White
-                                        )
-                                    ) 
-                                )
-                            }
-                        ):widget.topWidget),
-                    _isHiddenBar?new Positioned(child:new Container()):new Positioned(
-                        bottom:0,
-                        left:0,
-                        right:0,
-                        child:new Container(
-                            height:44,
-                            decoration:new BoxDecoration(gradient:new LinearGradient(
-                                colors: new List<Color> {
-                                    Color.fromRGBO(0,0,0,0),
-                                    Color.fromRGBO(0,0,0,0.5f)
-                                },
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter
-                            )),
-                            child:new Row(
-                                mainAxisAlignment:MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment:CrossAxisAlignment.center,
-                                children:new List<Widget>
+                    _isHiddenBar
+                        ? new Positioned(child: new Container())
+                        : new Positioned(top: 0, left: 0, right: 0, child: _isFullScreen
+                            ? new Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: new List<Widget>
                                 {
                                     new GestureDetector(
-                                        child:new Container(
-                                            height:24,
-                                            width:24,
-                                            margin:EdgeInsets.only(left:8,right:8),
-                                            color:CColors.Transparent,
-                                            child:new Icon(iconData,size:20,color:CColors.White)
-                                        ),
-                                        onTap: _playOrPause
-                                    ),
-                                    new Container(margin:EdgeInsets.only(right:8),child:
-                                        new Text($"{DateConvert.formatTime((float)_player.time)}",style:CTextStyle.CaptionWhite)),
-                                    new Expanded(
-                                        child:new ProgressBar(_relative,
-                                        changeCallback: relative =>
-                                        {
-                                            _relative = relative;
-                                            _player.time = relative * (_player.frameCount / _player.frameRate);
-                                            _playState = PlayState.play;
-                                            _player.Play();
-                                        },onDragStart: () =>
-                                        {
-                                            _playState = PlayState.pause;
-                                           _player.Pause();
-                                        })),
-                                    new Container(margin:EdgeInsets.only(left:8,right:8),child:
-                                        new Text($"{DateConvert.formatTime(widget.recordDuration)}",style:CTextStyle.CaptionWhite)),
-                                    new GestureDetector(
-                                        child:new Container(
-                                            height:24,
-                                            width:24,
-                                            margin:EdgeInsets.only(right:8),
-                                            color:CColors.Transparent,
-                                            child:new Icon(_isFullScreen?Icons.fullscreen_exit:Icons.fullscreen,size:20,color:CColors.White)
-                                        ),
-                                        onTap: _setScreenOrientation
+                                        onTap: _setScreenOrientation,
+                                        child: new Container(
+                                            margin: EdgeInsets.only(left: 8, top: 8),
+                                            child: new Icon(
+                                                Icons.arrow_back,
+                                                size: 28,
+                                                color: CColors.White
+                                            )
+                                        )
                                     )
-                                })
+                                }
+                            )
+                            : widget.topWidget),
+                    _isHiddenBar
+                        ? new Positioned(child: new Container())
+                        : new Positioned(
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            child: _isFailure?new Container(
+                                height: 44,
+                                padding:EdgeInsets.only(top:15,left:8),
+                                color:Color.fromRGBO(0,0,0,0.2f),
+                                child:new Text("视频播放失败",style:new TextStyle(
+                                    fontSize: 15,
+                                    fontFamily: "Roboto-Bold",
+                                    color: CColors.White
+                                ))) : new Container(
+                                height: 44,
+                                decoration: new BoxDecoration(gradient: new LinearGradient(
+                                    colors: new List<Color>
+                                    {
+                                        Color.fromRGBO(0, 0, 0, 0),
+                                        Color.fromRGBO(0, 0, 0, 0.5f)
+                                    },
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter
+                                )),
+                                child: new Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: new List<Widget>
+                                    {
+                                        new GestureDetector(
+                                            child: new Container(
+                                                height: 24,
+                                                width: 24,
+                                                margin: EdgeInsets.only(left: 8, right: 8),
+                                                color: CColors.Transparent,
+                                                child: new Icon(iconData, size: 20, color: CColors.White)
+                                            ),
+                                            onTap: _playOrPause
+                                        ),
+                                        new Container(margin: EdgeInsets.only(right: 8), child:
+                                            new Text($"{DateConvert.formatTime((float) _player.time)}",
+                                                style: CTextStyle.CaptionWhite)),
+                                        new Expanded(
+                                            child: new ProgressBar(_relative,
+                                                changeCallback: relative =>
+                                                {
+                                                    _relative = relative;
+                                                    _player.time = relative * widget.recordDuration;
+                                                    _playState = PlayState.play;
+                                                    _player.Play();
+                                                    setState(() => { });
+                                                }, onDragStart: () =>
+                                                {
+                                                    _playState = PlayState.pause;
+                                                    _player.Pause();
+                                                })),
+                                        new Container(margin: EdgeInsets.only(left: 8, right: 8), child:
+                                            new Text($"{DateConvert.formatTime(widget.recordDuration)}",
+                                                style: CTextStyle.CaptionWhite)),
+                                        new GestureDetector(
+                                            child: new Container(
+                                                height: 24,
+                                                width: 24,
+                                                margin: EdgeInsets.only(right: 8),
+                                                color: CColors.Transparent,
+                                                child: new Icon(
+                                                    _isFullScreen ? Icons.fullscreen_exit : Icons.fullscreen, size: 20,
+                                                    color: CColors.White)
+                                            ),
+                                            onTap: _setScreenOrientation
+                                        )
+                                    })
                             )
                         )
                 })
             );
-            
+
             if (Application.platform == RuntimePlatform.Android)
             {
                 return new AnimatedContainer(
-                    duration:TimeSpan.FromMilliseconds(150),
+                    duration: TimeSpan.FromMilliseconds(150),
                     width: _isFullScreen
                         ? MediaQuery.of(context).size.height * 16 / 9
                         : MediaQuery.of(context).size.width,
@@ -194,6 +225,7 @@ namespace ConnectApp.components {
                     child: content
                 );
             }
+
             return new Container(
                 width: _isFullScreen ? MediaQuery.of(context).size.height * 16 / 9 : MediaQuery.of(context).size.width,
                 height: _isFullScreen ? MediaQuery.of(context).size.height : MediaQuery.of(context).size.width * 9 / 16,
@@ -201,7 +233,8 @@ namespace ConnectApp.components {
             );
         }
 
-        private VideoPlayer _videoPlayer(string url) {
+        private VideoPlayer _videoPlayer(string url)
+        {
             var player = VideoPlayerManager.instance.getPlayer();
             var audioSource = VideoPlayerManager.instance.getAudioSource();
             player.url = url;
@@ -209,7 +242,7 @@ namespace ConnectApp.components {
             player.source = VideoSource.Url;
             player.audioOutputMode = VideoAudioOutputMode.AudioSource;
             player.SetTargetAudioSource(0, audioSource);
-            player.playOnAwake=false;
+            player.playOnAwake = false;
             player.IsAudioTrackEnabled(0);
             player.targetTexture = _texture;
             player.isLooping = false;
@@ -220,11 +253,14 @@ namespace ConnectApp.components {
                 using (WindowProvider.of(widget.context).getScope())
                 {
                     Texture.textureFrameAvailable();
-                    _relative =(float)frameIndex/source.frameCount;
-                    setState(() => { });
+                    _relative = (float) frameIndex / source.frameCount;
+                    Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(() =>
+                    {
+                        setState(() => { });
+                    });
                 }
-            };
-            player.loopPointReached += (_player)=>
+            };    
+            player.loopPointReached += _player =>
             {
                 using (WindowProvider.of(widget.context).getScope())
                 {
@@ -232,10 +268,11 @@ namespace ConnectApp.components {
                     _playState = PlayState.stop;
                     _player.Stop();
                     _player.frame = 0;
-                    setState(() => {});
+                    setState(() => { });
                 }
-                
+
             };
+            player.errorReceived += _errorReceived;
             player.Prepare();
             player.Pause();
             return player;
@@ -255,6 +292,13 @@ namespace ConnectApp.components {
                 _playState = PlayState.play;
             }
             setState(() => {}); 
+        }
+        private void _errorReceived(VideoPlayer player,string message)
+        {
+            using (WindowProvider.of(widget.context).getScope())
+            {
+                setState(() => { _isFailure = true;});
+            }
         }
 
         private void _hiddenBar()

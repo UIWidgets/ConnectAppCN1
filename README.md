@@ -2,7 +2,7 @@
 
 ```shell
 $ git clone git@github.com:UnityTech/ConnectAppCN.git
-$ cd com.unity.connectapp/
+$ cd ConnectAppCN/
 $ git submodule init
 $ git submodule update
 ```
