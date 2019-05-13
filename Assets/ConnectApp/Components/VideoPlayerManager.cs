@@ -46,6 +46,7 @@ namespace ConnectApp.components {
         public void destroyPlayer()
         {
             VideoPlayer.Destroy(instance.player);
+            AudioSource.Destroy(instance.audioSource);
         }
 
         public void initPlayer(GameObject gameObject)
