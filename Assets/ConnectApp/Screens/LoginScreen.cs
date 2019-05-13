@@ -233,7 +233,7 @@ namespace ConnectApp.screens {
                 onPressed: () => {
                     WechatPlugin.instance(code => {
                             CustomDialogUtils.showCustomDialog(
-                                child: new CustomDialog()
+                                child: new CustomLoadingDialog()
                             );
                             actionModel.loginByWechatAction(code).Then(() => {
                                     CustomDialogUtils.hiddenCustomDialog();

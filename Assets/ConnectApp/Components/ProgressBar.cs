@@ -1,7 +1,6 @@
 using ConnectApp.constants;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
-using Unity.UIWidgets.material;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -55,7 +54,7 @@ namespace ConnectApp.components
                 child:new Container(
                     height: MediaQuery.of(context).size.height,
                     width: MediaQuery.of(context).size.width,
-                    color: Colors.transparent,
+                    color: CColors.Transparent,
                     child: new CustomPaint(
                         painter: new _ProgressBarPainter(
                             widget.relative,
@@ -133,7 +132,7 @@ namespace ConnectApp.components
             path.addRRect(borderReact);
             
             var paint = new Paint();
-            paint.color = Colors.white;
+            paint.color = CColors.White;
             paint.style = PaintingStyle.stroke;
             paint.strokeWidth = borderWidth;
             

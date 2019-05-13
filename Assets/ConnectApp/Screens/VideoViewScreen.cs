@@ -3,11 +3,9 @@ using ConnectApp.canvas;
 using ConnectApp.components;
 using ConnectApp.constants;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
-using Icons = ConnectApp.constants.Icons;
 
 namespace ConnectApp.screens
 {
@@ -36,7 +34,7 @@ namespace ConnectApp.screens
         public override Widget build(BuildContext context)
         {
             return new Container(
-                color:Colors.black,
+                color: CColors.Black,
                 child: new CustomSafeArea(
                     top:!_isFullScreen,
                     bottom:!_isFullScreen,

@@ -20,7 +20,7 @@ namespace ConnectApp.utils {
         public static void checkForUpdates(CheckVersionType type) {
             if (type == CheckVersionType.setting) {
                 CustomDialogUtils.showCustomDialog(
-                    child: new CustomDialog(message: "正在检查更新")
+                    child: new CustomLoadingDialog(message: "正在检查更新")
                 );
             }
             SettingApi.FetchVersion(Config.platform, Config.store, $"{Config.versionCode}")

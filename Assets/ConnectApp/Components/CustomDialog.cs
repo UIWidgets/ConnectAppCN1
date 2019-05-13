@@ -13,6 +13,56 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.components {
     public class CustomDialog : StatelessWidget {
         public CustomDialog(
+            Key key = null,
+            Color backgroundColor = null,
+            TimeSpan? insetAnimationDuration = null,
+            Curve insetAnimationCurve = null,
+            float? radius = null,
+            Widget child = null
+        ) : base(key) {
+            this.backgroundColor = backgroundColor;
+            this.insetAnimationDuration = insetAnimationDuration ?? new TimeSpan(0, 0, 0, 0, 100);
+            this.insetAnimationCurve = insetAnimationCurve ?? Curves.decelerate;
+            this.radius = radius ?? 0;
+            this.child = child;
+        }
+
+        private readonly Color backgroundColor;
+        private readonly TimeSpan insetAnimationDuration;
+        private readonly Curve insetAnimationCurve;
+        private readonly float? radius;
+        private readonly Widget child;
+
+        public override Widget build(BuildContext context) {
+            return new AnimatedPadding(
+                padding: MediaQuery.of(context).viewInsets + EdgeInsets.symmetric(horizontal: 40.0f, vertical: 24.0f),
+                duration: insetAnimationDuration,
+                curve: insetAnimationCurve,
+                child: MediaQuery.removeViewInsets(
+                    removeLeft: true,
+                    removeTop: true,
+                    removeRight: true,
+                    removeBottom: true,
+                    context: context,
+                    child: new Center(
+                        child: new ConstrainedBox(
+                            constraints: new BoxConstraints(280.0f),
+                            child: new Container(
+                                decoration: new BoxDecoration(
+                                    backgroundColor,
+                                    borderRadius: BorderRadius.all((float)radius)
+                                ),
+                                child: child
+                            )
+                        )
+                    )
+                )
+            );
+        }
+    }
+    
+    public class CustomLoadingDialog : StatelessWidget {
+        public CustomLoadingDialog(
             Widget widget = null,
             string message = null,
             TimeSpan? duration = null,
@@ -151,31 +201,11 @@ namespace ConnectApp.components {
                     children: children
                 )
             );
-            
-            return new AnimatedPadding(
-                padding: MediaQuery.of(context).viewInsets + EdgeInsets.symmetric(horizontal: 40.0f, vertical: 24.0f),
-                duration: new TimeSpan(0, 0, 0, 0, 100),
-                curve: Curves.decelerate,
-                child: MediaQuery.removeViewInsets(
-                    removeLeft: true,
-                    removeTop: true,
-                    removeRight: true,
-                    removeBottom: true,
-                    context: context,
-                    child: new Center(
-                        child: new ConstrainedBox(
-                            constraints: new BoxConstraints(280.0f),
-                            child: new Container(
-                                color: CColors.White,
-                                decoration: new BoxDecoration(
-                                    CColors.White,
-                                    borderRadius: BorderRadius.all(5)
-                                ),
-                                child: dialogChild
-                            )
-                        )
-                    )
-                )
+
+            return new CustomDialog(
+                backgroundColor: CColors.White,
+                radius: 5,
+                child: dialogChild
             );
         }
     }
@@ -187,7 +217,7 @@ namespace ConnectApp.components {
             Widget child = null
         ) {
             var route = new _DialogRoute(
-                (context, animation, secondaryAnimation) => child,
+                (context, animation, secondaryAnimation) => new CustomSafeArea(child: child), 
                 barrierDismissible,
                 barrierColor ?? Color.fromRGBO(0, 0, 0, 0.01f),
                 new TimeSpan(0, 0, 0, 0, 150),
@@ -202,7 +232,7 @@ namespace ConnectApp.components {
 
         public static void showToast(string message, IconData iconData) {
             showCustomDialog(
-                child: new CustomDialog(
+                child: new CustomLoadingDialog(
                     new Icon(
                         iconData,
                         size: 27,
