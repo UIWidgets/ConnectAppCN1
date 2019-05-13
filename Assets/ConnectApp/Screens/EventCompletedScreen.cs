@@ -72,14 +72,14 @@ namespace ConnectApp.screens {
                 widget.actionModel.startFetchEventCompleted();
                 widget.actionModel.fetchEvents(firstPageNumber, "completed");
             });
-            _loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
-                widget.actionModel.startFetchEventCompleted();
-                widget.actionModel.fetchEvents(firstPageNumber, "completed");
-            });
+//            _loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
+//                widget.actionModel.startFetchEventCompleted();
+//                widget.actionModel.fetchEvents(firstPageNumber, "completed");
+//            });
         }
         
         public override void dispose() {
-            EventBus.unSubscribe(EventBusConstant.login_success, _loginSubId);
+//            EventBus.unSubscribe(EventBusConstant.login_success, _loginSubId);
             base.dispose();
         }
 

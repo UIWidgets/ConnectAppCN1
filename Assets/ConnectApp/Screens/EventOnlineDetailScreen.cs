@@ -59,10 +59,12 @@ namespace ConnectApp.screens {
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
-                        openUrl = url => dispatcher.dispatch(new MainNavigatorPushToWebViewAction
-                        {
-                            url = url
-                        }),
+                        openUrl = url => {
+                            EventBus.publish(EventBusConstant.pauseVideoPlayer, new List<object>());
+                            dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
+                                url = url
+                            });
+                        },
                         copyText = text => dispatcher.dispatch(new CopyTextAction {text = text}),
                         startFetchEventDetail = () => dispatcher.dispatch(new StartFetchEventDetailAction()),
                         fetchEventDetail = (id, eventType) =>
@@ -292,7 +294,7 @@ namespace ConnectApp.screens {
             return new Expanded(
                 child: new Stack(
                     children: new List<Widget> {
-                        new EventDetail(false,eventObj,widget.actionModel.openUrl)
+                        new EventDetail(false,eventObj, widget.actionModel.openUrl)
                     }
                 )
             );
