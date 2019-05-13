@@ -136,7 +136,7 @@ namespace ConnectApp.components {
                                     new GestureDetector(
                                         onTap: _setScreenOrientation,
                                         child: new Container(
-                                            margin: EdgeInsets.only(left: 8, top: 8),
+                                            margin: EdgeInsets.only( 8,Application.platform==RuntimePlatform.IPhonePlayer?20:8),
                                             child: new Icon(
                                                 Icons.arrow_back,
                                                 size: 28,
