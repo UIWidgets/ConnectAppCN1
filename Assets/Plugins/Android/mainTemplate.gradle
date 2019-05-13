@@ -60,7 +60,13 @@ android {
     }
 
     signingConfigs {
-        sign {
+        release {// 线上环境
+            storeFile file('./connect_live.keystore')
+            storePassword 'PbeE6b5N7a*u@V4fKzSP'
+            keyAlias 'connect_live'
+            keyPassword '2bKZ#3Cf5pUHaAc3HXn@'
+        }
+        debug {// 开发环境
             storeFile file('./connect_live.keystore')
             storePassword 'PbeE6b5N7a*u@V4fKzSP'
             keyAlias 'connect_live'
@@ -73,13 +79,13 @@ android {
             minifyEnabled false
             useProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-unity.txt'
-            signingConfig signingConfigs.sign
+            signingConfig signingConfigs.debug
         }
         release {
             minifyEnabled false
             useProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-unity.txt'
-            signingConfig signingConfigs.sign
+            signingConfig signingConfigs.release
         }
     }
 
