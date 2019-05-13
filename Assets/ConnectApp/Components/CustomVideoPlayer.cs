@@ -64,17 +64,27 @@ namespace ConnectApp.components {
         private float _relative; //播放进度比例
         private bool _isFullScreen; //是否全屏
         private bool _isHiddenBar; //是否隐藏工具栏
-        private bool _isFailure; //是否隐藏工具栏
+        private bool _isFailure;
+        private string _pauseVideoPlayerSubId;
 
         public override void initState()
         {
             base.initState();
             _texture = Resources.Load<RenderTexture>("ConnectAppRT");
             _player = _videoPlayer(widget.url);
+            _pauseVideoPlayerSubId = EventBus.subscribe(EventBusConstant.pauseVideoPlayer, args => {
+                if (_player) {
+                    _player.Pause();
+                    _isHiddenBar = false;
+                    _playState = PlayState.pause;
+                    setState(() => {});
+                }
+            });
         }
 
         public override void dispose()
         {
+            EventBus.unSubscribe(EventBusConstant.pauseVideoPlayer, _pauseVideoPlayerSubId);
             _player.targetTexture.Release();
             _player.Stop();
             VideoPlayerManager.instance.destroyPlayer();
@@ -126,7 +136,7 @@ namespace ConnectApp.components {
                                     new GestureDetector(
                                         onTap: _setScreenOrientation,
                                         child: new Container(
-                                            margin: EdgeInsets.only(left: 8, top: 8),
+                                            margin: EdgeInsets.only( 8,Application.platform==RuntimePlatform.IPhonePlayer?20:8),
                                             child: new Icon(
                                                 Icons.arrow_back,
                                                 size: 28,

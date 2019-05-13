@@ -39,5 +39,6 @@ namespace ConnectApp.utils {
 
     public static class EventBusConstant {
         public const string login_success = "LOGIN_SUCCEED";
+        public const string pauseVideoPlayer = "PAUSE_VIDEO_PLAYER";
     }
 }

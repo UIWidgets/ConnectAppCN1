@@ -368,8 +368,10 @@ namespace ConnectApp.redux.reducers {
                         if (eventObj.placeId != null && placeDict.ContainsKey(eventObj.placeId))
                             place = placeDict[eventObj.placeId].name;
                     }
-
                     eventObj.place = place;
+                    if (eventObj.mode.isEmpty()) {
+                        eventObj.mode = action.eventType == EventType.online ? "online" : "offline";
+                    }
                     var eventHistoryList = HistoryManager.saveEventHistoryList(eventObj,
                         state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
                     state.eventState.eventHistory = eventHistoryList;
