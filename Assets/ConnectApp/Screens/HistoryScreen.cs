@@ -9,8 +9,8 @@ using ConnectApp.redux.actions;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -51,22 +51,22 @@ namespace ConnectApp.screens {
         }
     }
 
-    internal class _HistoryScreenState : State<HistoryScreen> {
-        private PageController _pageController;
-        private int _selectedIndex;
+    class _HistoryScreenState : State<HistoryScreen> {
+        PageController _pageController;
+        int _selectedIndex;
 
         public override void initState() {
             base.initState();
-            _pageController = new PageController();
-            _selectedIndex = 0;
+            this._pageController = new PageController();
+            this._selectedIndex = 0;
         }
 
         public override void dispose() {
-            _pageController.dispose();
+            this._pageController.dispose();
             base.dispose();
         }
 
-        private void _deleteAllHistory() {
+        void _deleteAllHistory() {
             ActionSheetUtils.showModalActionSheet(new ActionSheet(
                 title: "确定删除浏览历史？",
                 items: new List<ActionSheetItem> {
@@ -74,10 +74,12 @@ namespace ConnectApp.screens {
                         "删除",
                         ActionType.destructive,
                         () => {
-                            if (_selectedIndex == 0)
-                                widget.actionModel.deleteAllArticleHistory();
-                            else
-                                widget.actionModel.deleteAllEventHistory();
+                            if (this._selectedIndex == 0) {
+                                this.widget.actionModel.deleteAllArticleHistory();
+                            }
+                            else {
+                                this.widget.actionModel.deleteAllEventHistory();
+                            }
                         }),
                     new ActionSheetItem("取消", ActionType.cancel)
                 }
@@ -92,9 +94,9 @@ namespace ConnectApp.screens {
                         color: CColors.White,
                         child: new Column(
                             children: new List<Widget> {
-                                _buildNavigationBar(context),
-                                _buildSelectView(),
-                                _buildContentView()
+                                this._buildNavigationBar(context),
+                                this._buildSelectView(),
+                                this._buildContentView()
                             }
                         )
                     )
@@ -102,7 +104,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildNavigationBar(BuildContext context) {
+        Widget _buildNavigationBar(BuildContext context) {
             return new Container(
                 decoration: new BoxDecoration(
                     CColors.White
@@ -115,7 +117,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new CustomButton(
                             padding: EdgeInsets.symmetric(8, 16),
-                            onPressed: () => widget.actionModel.mainRouterPop(),
+                            onPressed: () => this.widget.actionModel.mainRouterPop(),
                             child: new Icon(
                                 Icons.arrow_back,
                                 size: 24,
@@ -132,7 +134,7 @@ namespace ConnectApp.screens {
                                         style: CTextStyle.H2
                                     )
                                 ),
-                                _buildDeleteButton()
+                                this._buildDeleteButton()
                             }
                         )
                     }
@@ -140,60 +142,61 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildDeleteButton() {
-            if (_selectedIndex == 0) {
-                var articleHistory = widget.viewModel.articleHistory;
-                if (articleHistory.Count > 0)
+        Widget _buildDeleteButton() {
+            if (this._selectedIndex == 0) {
+                var articleHistory = this.widget.viewModel.articleHistory;
+                if (articleHistory.Count > 0) {
                     return new CustomButton(
                         padding: EdgeInsets.symmetric(12, 16),
-                        onPressed: _deleteAllHistory,
+                        onPressed: this._deleteAllHistory,
                         child: new Icon(
                             Icons.delete_outline,
                             size: 28,
                             color: CColors.icon3
                         )
                     );
+                }
             }
 
-            if (_selectedIndex == 1) {
-                var eventHistory = widget.viewModel.eventHistory;
-                if (eventHistory.Count > 0)
+            if (this._selectedIndex == 1) {
+                var eventHistory = this.widget.viewModel.eventHistory;
+                if (eventHistory.Count > 0) {
                     return new CustomButton(
                         padding: EdgeInsets.symmetric(12, 16),
-                        onPressed: _deleteAllHistory,
+                        onPressed: this._deleteAllHistory,
                         child: new Icon(
                             Icons.delete_outline,
                             size: 28,
                             color: CColors.icon3
                         )
                     );
+                }
             }
 
             return new Container();
         }
 
-        private Widget _buildSelectView() {
+        Widget _buildSelectView() {
             return new CustomSegmentedControl(
                 new List<string> {"文章", "活动"},
                 newValue => {
-                    setState(() => _selectedIndex = newValue);
-                    _pageController.animateToPage(
+                    this.setState(() => this._selectedIndex = newValue);
+                    this._pageController.animateToPage(
                         newValue,
                         new TimeSpan(0, 0, 0, 0, 250),
                         Curves.ease
                     );
-                },
-                _selectedIndex
+                }, this._selectedIndex
             );
         }
 
-        private Widget _buildContentView() {
+        Widget _buildContentView() {
             return new Flexible(
                 child: new Container(
                     child: new PageView(
                         physics: new BouncingScrollPhysics(),
-                        controller: _pageController,
-                        onPageChanged: index => { setState(() => { _selectedIndex = index; }); },
+                        controller: this._pageController,
+                        onPageChanged: index => { this.setState(() => { this._selectedIndex = index; }); },
                         children: new List<Widget> {
                             new HistoryArticleScreenConnector(),
                             new HistoryEventScreenConnector()

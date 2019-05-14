@@ -8,8 +8,8 @@ using ConnectApp.redux.actions;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -42,14 +42,14 @@ namespace ConnectApp.screens {
         }
     }
 
-    internal class _MyEventsScreenState : State<MyEventsScreen> {
-        private PageController _pageController;
-        private int _selectedIndex;
+    class _MyEventsScreenState : State<MyEventsScreen> {
+        PageController _pageController;
+        int _selectedIndex;
 
         public override void initState() {
             base.initState();
-            _pageController = new PageController();
-            _selectedIndex = 0;
+            this._pageController = new PageController();
+            this._selectedIndex = 0;
         }
 
         public override Widget build(BuildContext context) {
@@ -60,9 +60,9 @@ namespace ConnectApp.screens {
                         color: CColors.White,
                         child: new Column(
                             children: new List<Widget> {
-                                _buildNavigationBar(context),
-                                _buildSelectView(),
-                                _buildContentView()
+                                this._buildNavigationBar(context),
+                                this._buildSelectView(),
+                                this._buildContentView()
                             }
                         )
                     )
@@ -71,7 +71,7 @@ namespace ConnectApp.screens {
         }
 
 
-        private Widget _buildNavigationBar(BuildContext context) {
+        Widget _buildNavigationBar(BuildContext context) {
             return new Container(
                 decoration: new BoxDecoration(CColors.White),
                 width: MediaQuery.of(context).size.width,
@@ -83,7 +83,7 @@ namespace ConnectApp.screens {
                         new Container(
                             child: new CustomButton(
                                 padding: EdgeInsets.only(16, 10, 16),
-                                onPressed: () => widget.actionModel.mainRouterPop(),
+                                onPressed: () => this.widget.actionModel.mainRouterPop(),
                                 child: new Icon(
                                     Icons.arrow_back,
                                     size: 24,
@@ -104,28 +104,27 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildSelectView() {
+        Widget _buildSelectView() {
             return new CustomSegmentedControl(
                 new List<string> {"即将开始", "往期活动"},
                 newValue => {
-                    setState(() => _selectedIndex = newValue);
-                    _pageController.animateToPage(
+                    this.setState(() => this._selectedIndex = newValue);
+                    this._pageController.animateToPage(
                         newValue,
                         new TimeSpan(0, 0, 0, 0, 250),
                         Curves.ease
                     );
-                },
-                _selectedIndex
+                }, this._selectedIndex
             );
         }
 
-        private Widget _buildContentView() {
+        Widget _buildContentView() {
             return new Flexible(
                 child: new Container(
                     child: new PageView(
                         physics: new BouncingScrollPhysics(),
-                        controller: _pageController,
-                        onPageChanged: index => { setState(() => { _selectedIndex = index; }); },
+                        controller: this._pageController,
+                        onPageChanged: index => { this.setState(() => { this._selectedIndex = index; }); },
                         children: new List<Widget> {
                             new MyFutureEventsScreenConnector(),
                             new MyPastEventsScreenConnector()
@@ -136,7 +135,7 @@ namespace ConnectApp.screens {
         }
 
         public override void dispose() {
-            _pageController.dispose();
+            this._pageController.dispose();
             base.dispose();
         }
     }

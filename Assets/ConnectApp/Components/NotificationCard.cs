@@ -22,22 +22,27 @@ namespace ConnectApp.components {
             this.onTap = onTap;
         }
 
-        private readonly Notification notification;
-        private readonly User user;
-        private readonly Action onTap;
+        readonly Notification notification;
+        readonly User user;
+        readonly Action onTap;
 
         public override Widget build(BuildContext context) {
-            if (notification == null) return new Container();
-            var type = notification.type;
+            if (this.notification == null) {
+                return new Container();
+            }
+
+            var type = this.notification.type;
             var types = new List<string> {
                 "project_liked",
                 "project_message_commented",
                 "project_participate_comment"
             };
-            if (!types.Contains(type)) return new Container();
+            if (!types.Contains(type)) {
+                return new Container();
+            }
 
             return new GestureDetector(
-                onTap: () => onTap(),
+                onTap: () => this.onTap(),
                 child: new Container(
                     color: CColors.White,
                     child: new Row(
@@ -45,7 +50,7 @@ namespace ConnectApp.components {
                         children: new List<Widget> {
                             new Container(
                                 padding: EdgeInsets.only(16, 16, 16),
-                                child: Avatar.User(user.id, user, 48)
+                                child: Avatar.User(this.user.id, this.user, 48)
                             ),
                             new Expanded(
                                 child: new Container(
@@ -58,8 +63,7 @@ namespace ConnectApp.components {
                                         mainAxisAlignment: MainAxisAlignment.start,
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: new List<Widget> {
-                                            _buildNotificationTitle(),
-                                            _buildNotificationTime()
+                                            this._buildNotificationTitle(), this._buildNotificationTime()
                                         }
                                     )
                                 )
@@ -70,25 +74,30 @@ namespace ConnectApp.components {
             );
         }
 
-        private Widget _buildNotificationTitle() {
-            var type = notification.type;
-            var data = notification.data;
+        Widget _buildNotificationTitle() {
+            var type = this.notification.type;
+            var data = this.notification.data;
             var subTitle = new TextSpan();
-            if (type == "project_liked")
+            if (type == "project_liked") {
                 subTitle = new TextSpan(
                     $" 点赞了你的{data.projectTitle}文章",
                     CTextStyle.PLargeBody2
                 );
-            if (type == "project_message_commented")
+            }
+
+            if (type == "project_message_commented") {
                 subTitle = new TextSpan(
                     $" 评价了你的{data.projectTitle}文章",
                     CTextStyle.PLargeBody2
                 );
-            if (type == "project_participate_comment")
+            }
+
+            if (type == "project_participate_comment") {
                 subTitle = new TextSpan(
                     $" 评价了你关注/喜欢的{data.projectTitle}文章",
                     CTextStyle.PLargeBody2
                 );
+            }
 
             return new Container(
                 child: new RichText(
@@ -105,8 +114,8 @@ namespace ConnectApp.components {
             );
         }
 
-        private Widget _buildNotificationTime() {
-            var createdTime = notification.createdTime;
+        Widget _buildNotificationTime() {
+            var createdTime = this.notification.createdTime;
             return new Container(
                 child: new Text(
                     DateConvert.DateStringFromNow(createdTime),

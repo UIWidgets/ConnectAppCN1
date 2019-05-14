@@ -16,11 +16,12 @@ namespace ConnectApp.api {
             }).Catch(exception => { promise.Reject(exception); });
             return promise;
         }
-        
+
         public static IPromise<Dictionary<string, string>> FetchVersion(string platform, string store, string version) {
             var promise = new Promise<Dictionary<string, string>>();
             var request =
-                HttpManager.GET(Config.apiAddress + $"/api/live/version?platform={platform}&store={store}&version={version}");
+                HttpManager.GET(Config.apiAddress +
+                                $"/api/live/version?platform={platform}&store={store}&version={version}");
             HttpManager.resume(request).Then(responseText => {
                 var versionDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseText);
                 promise.Resolve(versionDictionary);

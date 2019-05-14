@@ -25,12 +25,12 @@ namespace ConnectApp.components {
             this.shareCallback = shareCallback;
         }
 
-        private readonly GestureTapCallback addCommentCallback;
-        private readonly GestureTapCallback commentCallback;
-        private readonly GestureTapCallback favorCallback;
-        private readonly GestureTapCallback bookmarkCallback;
-        private readonly GestureTapCallback shareCallback;
-        private readonly bool like;
+        readonly GestureTapCallback addCommentCallback;
+        readonly GestureTapCallback commentCallback;
+        readonly GestureTapCallback favorCallback;
+        readonly GestureTapCallback bookmarkCallback;
+        readonly GestureTapCallback shareCallback;
+        readonly bool like;
 
         public override Widget build(BuildContext context) {
             return new Container(
@@ -45,7 +45,7 @@ namespace ConnectApp.components {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: new List<Widget> {
                         new GestureDetector(
-                            onTap: addCommentCallback,
+                            onTap: this.addCommentCallback,
                             child: new Container(
                                 padding: EdgeInsets.only(16),
                                 height: 32,
@@ -56,29 +56,29 @@ namespace ConnectApp.components {
                                 ),
                                 alignment: Alignment.centerLeft,
                                 child: new Container(
-                                    child:new Text(
-                                    "说点想法...",
-                                    style: CTextStyle.PKeyboardTextStyle
-                                )) 
+                                    child: new Text(
+                                        "说点想法...",
+                                        style: CTextStyle.PKeyboardTextStyle
+                                    ))
                             )
                         ),
                         //评论
                         new CustomButton(
                             padding: EdgeInsets.symmetric(12, 10),
-                            onPressed: commentCallback,
+                            onPressed: this.commentCallback,
                             child: new Icon(Icons.comment, size: 24, color: CColors.icon3)
                         ),
                         //点赞
                         new CustomButton(
                             padding: EdgeInsets.symmetric(12, 10),
-                            onPressed: favorCallback,
-                            child: new Icon(like ? Icons.favorite : Icons.favorite_border, size: 24,
-                                color: like ? CColors.PrimaryBlue : CColors.icon3)
+                            onPressed: this.favorCallback,
+                            child: new Icon(this.like ? Icons.favorite : Icons.favorite_border, size: 24,
+                                color: this.like ? CColors.PrimaryBlue : CColors.icon3)
                         ),
                         //分享
                         new CustomButton(
                             padding: EdgeInsets.symmetric(12, 10),
-                            onPressed: shareCallback,
+                            onPressed: this.shareCallback,
                             child: new Icon(Icons.share, size: 24, color: CColors.icon3)
                         )
                     }

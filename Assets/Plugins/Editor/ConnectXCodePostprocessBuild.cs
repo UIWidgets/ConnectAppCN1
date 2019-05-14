@@ -4,38 +4,32 @@ using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEditor.iOS.Xcode;
 
-namespace Plugins.Editor
-{
-    public class ConnectXCodePostprocessBuild 
-    {
-        
+namespace Plugins.Editor {
+    public class ConnectXCodePostprocessBuild {
         [PostProcessBuild(999)]
-        public static void OnPostprocessBuild(BuildTarget buildTarget, string path)
-        {
-            if (BuildTarget.iOS != buildTarget)
-            {
+        public static void OnPostprocessBuild(BuildTarget buildTarget, string path) {
+            if (BuildTarget.iOS != buildTarget) {
                 return;
             }
 
             ModifyPBXProject(path);
 
             ModifyPlist(path);
-            
         }
-        
-        private static void ModifyPBXProject(string path)
-        {
+
+        static void ModifyPBXProject(string path) {
             string projPath = PBXProject.GetPBXProjectPath(path);
             PBXProject proj = new PBXProject();
 
             proj.ReadFromString(File.ReadAllText(projPath));
             string target = proj.TargetGuidByName("Unity-iPhone");
-            
+
             proj.SetBuildProperty(target, "LIBRARY_SEARCH_PATHS", "$(inherited)");
             proj.AddBuildProperty(target, "LIBRARY_SEARCH_PATHS", "$(SRCROOT)");
             proj.AddBuildProperty(target, "LIBRARY_SEARCH_PATHS", "$(PROJECT_DIR)/Libraries");
             proj.AddBuildProperty(target, "LIBRARY_SEARCH_PATHS", "$(PROJECT_DIR)/Libraries/Plugins/iOS");
-            proj.AddBuildProperty(target, "LIBRARY_SEARCH_PATHS", "$(PROJECT_DIR)/Libraries/Plugins/iOS/WeChatSDK1.8.4");
+            proj.AddBuildProperty(target, "LIBRARY_SEARCH_PATHS",
+                "$(PROJECT_DIR)/Libraries/Plugins/iOS/WeChatSDK1.8.4");
 
             //add framework
             proj.AddFrameworkToProject(target, "libz.tbd", true);
@@ -48,19 +42,19 @@ namespace Plugins.Editor
 
             proj.AddBuildProperty(target, "OTHER_LDFLAGS", "-ObjC");
             proj.AddBuildProperty(target, "OTHER_LDFLAGS", "-all_load");
-            
+
             //读取Preprocessor.h文件
             var Preprocessor = new XClass(path + "/Classes/Preprocessor.h");
-            Preprocessor.Replace("#define UNITY_USES_REMOTE_NOTIFICATIONS 0","#define UNITY_USES_REMOTE_NOTIFICATIONS 1");
+            Preprocessor.Replace("#define UNITY_USES_REMOTE_NOTIFICATIONS 0",
+                "#define UNITY_USES_REMOTE_NOTIFICATIONS 1");
 
-            
+
             //执行修改操作
 
             File.WriteAllText(projPath, proj.WriteToString());
         }
-        
-        private static void ModifyPlist(string path)
-        {
+
+        static void ModifyPlist(string path) {
             //Info.plist
             string plistPath = path + "/Info.plist";
             PlistDocument plist = new PlistDocument();
@@ -68,16 +62,16 @@ namespace Plugins.Editor
 
             //ROOT
             PlistElementDict rootDict = plist.root;
-            
+
             PlistElementArray urlTypes = rootDict.CreateArray("CFBundleURLTypes");
             // add url scheme for wechat
-            string wechat_appid =Config.wechatAppId;
+            string wechat_appid = Config.wechatAppId;
             PlistElementDict wxUrl = urlTypes.AddDict();
-            wxUrl.SetString("CFBundleTypeRole","Editor");
+            wxUrl.SetString("CFBundleTypeRole", "Editor");
             wxUrl.SetString("CFBundleURLName", "weixin");
-            wxUrl.SetString("CFBundleURLSchemes",wechat_appid );
+            wxUrl.SetString("CFBundleURLSchemes", wechat_appid);
             PlistElementArray wxUrlScheme = wxUrl.CreateArray("CFBundleURLSchemes");
-            wxUrlScheme.AddString(wechat_appid );
+            wxUrlScheme.AddString(wechat_appid);
             // 白名单 for wechat
             PlistElementArray queriesSchemes = rootDict.CreateArray("LSApplicationQueriesSchemes");
             queriesSchemes.AddString("wechat");
@@ -86,8 +80,8 @@ namespace Plugins.Editor
 
             //http设置
             var atsKey = "NSAppTransportSecurity";
-            PlistElementDict dictTmp = rootDict.CreateDict( atsKey );
-            dictTmp.SetBoolean( "NSAllowsArbitraryLoads", true);
+            PlistElementDict dictTmp = rootDict.CreateDict(atsKey);
+            dictTmp.SetBoolean("NSAllowsArbitraryLoads", true);
 
             PlistElementArray backModes = rootDict.CreateArray("UIBackgroundModes");
             backModes.AddString("remote-notification");

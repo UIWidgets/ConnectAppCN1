@@ -21,12 +21,14 @@ namespace ConnectApp.utils {
                 ),
                 new ActionSheetItem("取消", ActionType.cancel)
             };
-            if (reportType == ReportType.article)
+            if (reportType == ReportType.article) {
                 items.Insert(0, new ActionSheetItem(
                     "屏蔽",
                     ActionType.normal,
                     () => block(isLoggedIn, reportId, pushToLogin, pushToBlock)
                 ));
+            }
+
             ActionSheetUtils.showModalActionSheet(new ActionSheet(
                 items: items
             ));
@@ -67,7 +69,9 @@ namespace ConnectApp.utils {
                         ActionType.destructive,
                         () => {
                             pushToBlock(reportId);
-                            if (mainRouterPop != null) mainRouterPop();
+                            if (mainRouterPop != null) {
+                                mainRouterPop();
+                            }
                         }
                     ),
                     new ActionSheetItem("取消", ActionType.cancel)

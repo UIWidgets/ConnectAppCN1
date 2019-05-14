@@ -12,8 +12,8 @@ using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
@@ -79,8 +79,7 @@ namespace ConnectApp.screens {
                     child: new Container(
                         child: new Column(
                             children: new List<Widget> {
-                                _buildNavigationBar(context),
-                                _buildContent(context)
+                                this._buildNavigationBar(context), this._buildContent(context)
                             }
                         )
                     )
@@ -88,7 +87,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildNavigationBar(BuildContext context) {
+        Widget _buildNavigationBar(BuildContext context) {
             return new Container(
                 decoration: new BoxDecoration(
                     CColors.White,
@@ -102,7 +101,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new CustomButton(
                             padding: EdgeInsets.symmetric(8, 16),
-                            onPressed: () => widget.actionModel.mainRouterPop(),
+                            onPressed: () => this.widget.actionModel.mainRouterPop(),
                             child: new Icon(
                                 Icons.arrow_back,
                                 size: 24,
@@ -121,7 +120,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildContent(BuildContext context) {
+        Widget _buildContent(BuildContext context) {
             return new Flexible(
                 child: new Container(
                     decoration: new BoxDecoration(
@@ -131,16 +130,16 @@ namespace ConnectApp.screens {
                         physics: new AlwaysScrollableScrollPhysics(),
                         children: new List<Widget> {
                             _buildGapView(),
-                            widget.viewModel.hasReviewUrl
+                            this.widget.viewModel.hasReviewUrl
                                 ? _buildCellView("评分",
-                                    () => widget.actionModel.openUrl(widget.viewModel.reviewUrl))
+                                    () => this.widget.actionModel.openUrl(this.widget.viewModel.reviewUrl))
                                 : new Container(),
-                            widget.viewModel.anonymous
+                            this.widget.viewModel.anonymous
                                 ? _buildCellView("绑定 Unity ID",
-                                    () => widget.actionModel.mainRouterPushTo(MainNavigatorRoutes.BindUnity))
+                                    () => this.widget.actionModel.mainRouterPushTo(MainNavigatorRoutes.BindUnity))
                                 : new Container(),
                             _buildCellView("关于我们",
-                                () => widget.actionModel.mainRouterPushTo(MainNavigatorRoutes.AboutUs)),
+                                () => this.widget.actionModel.mainRouterPushTo(MainNavigatorRoutes.AboutUs)),
                             _buildGapView(),
                             _buildCellView("检查更新", () => VersionManager.checkForUpdates(CheckVersionType.setting)),
                             _buildGapView(),
@@ -150,7 +149,7 @@ namespace ConnectApp.screens {
                                         message: "正在清理缓存"
                                     )
                                 );
-                                widget.actionModel.clearCache();
+                                this.widget.actionModel.clearCache();
                                 Window.instance.run(TimeSpan.FromSeconds(1), () => {
                                         CustomDialogUtils.hiddenCustomDialog();
                                         CustomDialogUtils.showToast("缓存已清除", Icons.check_circle_outline);
@@ -158,20 +157,20 @@ namespace ConnectApp.screens {
                                 );
                             }),
                             _buildGapView(),
-                            _buildLogoutBtn(context)
+                            this._buildLogoutBtn(context)
                         }
                     )
                 )
             );
         }
 
-        private static Widget _buildGapView() {
+        static Widget _buildGapView() {
             return new CustomDivider(
                 color: CColors.BgGrey
             );
         }
 
-        private Widget _buildLogoutBtn(BuildContext context) {
+        Widget _buildLogoutBtn(BuildContext context) {
             return new CustomButton(
                 padding: EdgeInsets.zero,
                 onPressed: () => {
@@ -179,7 +178,7 @@ namespace ConnectApp.screens {
                         title: "确定退出当前账号吗？",
                         items: new List<ActionSheetItem> {
                             new ActionSheetItem("退出", ActionType.destructive,
-                                () => widget.actionModel.logout()),
+                                () => this.widget.actionModel.logout()),
                             new ActionSheetItem("取消", ActionType.cancel)
                         }
                     ));
@@ -203,7 +202,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private static Widget _buildCellView(string title, GestureTapCallback onTap) {
+        static Widget _buildCellView(string title, GestureTapCallback onTap) {
             return new GestureDetector(
                 onTap: onTap,
                 child: new Container(

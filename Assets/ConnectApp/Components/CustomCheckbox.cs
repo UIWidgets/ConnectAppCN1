@@ -35,52 +35,55 @@ namespace ConnectApp.components {
         }
     }
 
-    internal class _CustomCheckboxState : State<CustomCheckbox> {
-        private bool _value;
+    class _CustomCheckboxState : State<CustomCheckbox> {
+        bool _value;
 
         public override void initState() {
             base.initState();
-            _value = widget.value;
+            this._value = this.widget.value;
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
-            if (oldWidget is CustomCheckbox customCheckbox)
-                if (widget.value != customCheckbox.value)
-                    setState(() => _value = widget.value);
+            if (oldWidget is CustomCheckbox customCheckbox) {
+                if (this.widget.value != customCheckbox.value) {
+                    this.setState(() => this._value = this.widget.value);
+                }
+            }
         }
 
         public override Widget build(BuildContext context) {
-            var child = _value ? _buildCheckbox() : _buildUnCheckbox();
+            var child = this._value ? this._buildCheckbox() : this._buildUnCheckbox();
 
             return new CustomButton(
                 onPressed: () => {
-                    if (widget.onChanged != null) widget.onChanged(!_value);
+                    if (this.widget.onChanged != null) {
+                        this.widget.onChanged(!this._value);
+                    }
                 },
-                padding: widget.padding,
+                padding: this.widget.padding,
                 child: child
             );
         }
 
-        private Widget _buildCheckbox() {
+        Widget _buildCheckbox() {
             return new Container(
-                width: widget.size,
-                height: widget.size,
-                color: widget.activeColor,
+                width: this.widget.size,
+                height: this.widget.size,
+                color: this.widget.activeColor,
                 child: new Icon(
                     Icons.check_box,
-                    size: widget.size,
+                    size: this.widget.size,
                     color: CColors.White
                 )
             );
         }
 
-        private Widget _buildUnCheckbox() {
+        Widget _buildUnCheckbox() {
             return new Container(
-                width: widget.size,
-                height: widget.size,
-                decoration: new BoxDecoration(
-                    widget.inactiveColor,
+                width: this.widget.size,
+                height: this.widget.size,
+                decoration: new BoxDecoration(this.widget.inactiveColor,
                     border: Border.all(
                         Color.fromRGBO(199, 203, 207, 1)
                     )

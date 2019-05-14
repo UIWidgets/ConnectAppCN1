@@ -29,41 +29,44 @@ namespace ConnectApp.components {
     }
 
     public class _CustomInputState : State<CustomInput> {
-        private bool _isPublish;
-        private string _inputText;
-        private readonly TextEditingController _controller = new TextEditingController("");
-        private readonly GlobalKey _inputFieldKey = GlobalKey.key();
-        private readonly EdgeInsets _inputFieldPadding = EdgeInsets.symmetric(horizontal: 16, vertical: 5);
-        private readonly TextStyle _inputFieldStyle = CTextStyle.PLargeBody;
-        private float _inputFieldHeight = 22;
+        bool _isPublish;
+        string _inputText;
+        readonly TextEditingController _controller = new TextEditingController("");
+        readonly GlobalKey _inputFieldKey = GlobalKey.key();
+        readonly EdgeInsets _inputFieldPadding = EdgeInsets.symmetric(horizontal: 16, vertical: 5);
+        readonly TextStyle _inputFieldStyle = CTextStyle.PLargeBody;
+        float _inputFieldHeight = 22;
 
         public override void initState() {
             base.initState();
-            _isPublish = false;
-            _controller.addListener(_controllerListener);
+            this._isPublish = false;
+            this._controller.addListener(this._controllerListener);
         }
 
         public override void dispose() {
-            _controller.removeListener(_controllerListener);
+            this._controller.removeListener(this._controllerListener);
             base.dispose();
         }
 
-        private void _controllerListener() {
-            var text = _controller.text ?? "友好的评论是交流的起点…";
-            if (!mounted) return;
-            var inputFieldWidth = _inputFieldKey.currentContext.size.width;
-            var inputFieldHeight = _calculateTextHeight(text, inputFieldWidth);
+        void _controllerListener() {
+            var text = this._controller.text ?? "友好的评论是交流的起点…";
+            if (!this.mounted) {
+                return;
+            }
 
-            if (_inputFieldHeight != inputFieldHeight)
-                setState(() => { _inputFieldHeight = inputFieldHeight; });
+            var inputFieldWidth = this._inputFieldKey.currentContext.size.width;
+            var inputFieldHeight = this._calculateTextHeight(text, inputFieldWidth);
+
+            if (this._inputFieldHeight != inputFieldHeight) {
+                this.setState(() => { this._inputFieldHeight = inputFieldHeight; });
+            }
         }
 
-        private float _calculateTextHeight(string text, float textWidth) {
+        float _calculateTextHeight(string text, float textWidth) {
             var textPainter = new TextPainter(
                 textDirection: TextDirection.ltr,
                 text: new TextSpan(
-                    text,
-                    _inputFieldStyle
+                    text, this._inputFieldStyle
                 ),
                 maxLines: 2
             );
@@ -72,14 +75,15 @@ namespace ConnectApp.components {
             return textPainter.height;
         }
 
-        private void _onSubmitted(string text) {
-            if (widget.doneCallBack != null)
-                widget.doneCallBack(text);
+        void _onSubmitted(string text) {
+            if (this.widget.doneCallBack != null) {
+                this.widget.doneCallBack(text);
+            }
         }
 
         public override Widget build(BuildContext context) {
             var reply = new Container();
-            if (!widget.replyUserName.isEmpty())
+            if (!this.widget.replyUserName.isEmpty()) {
                 reply = new Container(
                     height: 40,
                     width: MediaQuery.of(context).size.width,
@@ -96,14 +100,15 @@ namespace ConnectApp.components {
                             "回复 ",
                             CTextStyle.PRegularBody3,
                             new List<TextSpan> {
-                                new TextSpan(
-                                    widget.replyUserName,
+                                new TextSpan(this.widget.replyUserName,
                                     CTextStyle.PMediumBody3
                                 )
                             }
                         )
                     )
                 );
+            }
+
             return new Container(
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -123,15 +128,14 @@ namespace ConnectApp.components {
                                                         decoration: new BoxDecoration(
                                                             CColors.Separator2,
                                                             borderRadius: BorderRadius.circular(
-                                                                (_inputFieldHeight + 13) / 2)
+                                                                (this._inputFieldHeight + 13) / 2)
                                                         ),
                                                         child: new Container(
-                                                            padding: _inputFieldPadding,
-                                                            child: new InputField(
-                                                                _inputFieldKey,
-                                                                height: _inputFieldHeight,
-                                                                controller: _controller,
-                                                                style: _inputFieldStyle,
+                                                            padding: this._inputFieldPadding,
+                                                            child: new InputField(this._inputFieldKey,
+                                                                height: this._inputFieldHeight,
+                                                                controller: this._controller,
+                                                                style: this._inputFieldStyle,
                                                                 maxLines: 2,
                                                                 autofocus: true,
                                                                 hintText: "友好的评论是交流的起点…",
@@ -140,23 +144,30 @@ namespace ConnectApp.components {
                                                                 textInputAction: TextInputAction.send,
                                                                 onChanged: text => {
                                                                     var isTextEmpty = text.Length > 0;
-                                                                    if (_isPublish != isTextEmpty)
-                                                                        setState(() => { _isPublish = isTextEmpty; });
-                                                                    _inputText = text;
+                                                                    if (this._isPublish != isTextEmpty) {
+                                                                        this.setState(() => {
+                                                                            this._isPublish = isTextEmpty;
+                                                                        });
+                                                                    }
+
+                                                                    this._inputText = text;
                                                                 },
-                                                                onSubmitted: _onSubmitted
+                                                                onSubmitted: this._onSubmitted
                                                             )
                                                         )
                                                     )
                                                 ),
                                                 new CustomButton(
                                                     onPressed: () => {
-                                                        if (!_isPublish) return;
-                                                        _onSubmitted(_inputText);
+                                                        if (!this._isPublish) {
+                                                            return;
+                                                        }
+
+                                                        this._onSubmitted(this._inputText);
                                                     },
                                                     child: new Text(
                                                         "发布",
-                                                        style: _isPublish
+                                                        style: this._isPublish
                                                             ? CTextStyle.PLargeBlue
                                                             : CTextStyle.PLargeDisabled
                                                     )

@@ -43,17 +43,19 @@ namespace ConnectApp.components {
     }
 
     public class _CustomActivityIndicatorState : State<CustomActivityIndicator>, TickerProvider {
-        private AnimationController _controller;
+        AnimationController _controller;
 
 
         public override void initState() {
             base.initState();
 
-            _controller = new AnimationController(
+            this._controller = new AnimationController(
                 duration: new TimeSpan(0, 0, 2),
                 vsync: this
             );
-            if (widget.animating == AnimatingType.repeat) _controller.repeat();
+            if (this.widget.animating == AnimatingType.repeat) {
+                this._controller.repeat();
+            }
         }
 
         public Ticker createTicker(TickerCallback onTick) {
@@ -65,12 +67,16 @@ namespace ConnectApp.components {
             base.didUpdateWidget(oldWidget);
             if (oldWidget is CustomActivityIndicator) {
                 CustomActivityIndicator customActivityIndicator = (CustomActivityIndicator) oldWidget;
-                if (widget.animating != customActivityIndicator.animating) {
-                    if (widget.animating == AnimatingType.repeat)
-                        _controller.repeat();
-                    else if (widget.animating == AnimatingType.stop)
-                        _controller.stop();
-                    else if (widget.animating == AnimatingType.reset) _controller.reset();
+                if (this.widget.animating != customActivityIndicator.animating) {
+                    if (this.widget.animating == AnimatingType.repeat) {
+                        this._controller.repeat();
+                    }
+                    else if (this.widget.animating == AnimatingType.stop) {
+                        this._controller.stop();
+                    }
+                    else if (this.widget.animating == AnimatingType.reset) {
+                        this._controller.reset();
+                    }
                 }
             }
         }
@@ -78,17 +84,17 @@ namespace ConnectApp.components {
         public override Widget build(BuildContext context) {
             string imageName;
             int sideLength;
-            if (widget.size == LoadingSize.normal) {
+            if (this.widget.size == LoadingSize.normal) {
                 sideLength = 24;
-                imageName = widget.loadingColor == LoadingColor.white ? "white-loading24" : "black-loading24";
+                imageName = this.widget.loadingColor == LoadingColor.white ? "white-loading24" : "black-loading24";
             }
             else {
                 sideLength = 20;
-                imageName = widget.loadingColor == LoadingColor.white ? "white-loading20" : "black-loading20";
+                imageName = this.widget.loadingColor == LoadingColor.white ? "white-loading20" : "black-loading20";
             }
 
             return new RotationTransition(
-                turns: _controller,
+                turns: this._controller,
                 child: new Center(
                     child: Image.asset(
                         imageName,
@@ -100,7 +106,7 @@ namespace ConnectApp.components {
         }
 
         public override void dispose() {
-            _controller.dispose();
+            this._controller.dispose();
             base.dispose();
         }
     }

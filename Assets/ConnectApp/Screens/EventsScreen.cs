@@ -12,16 +12,18 @@ namespace ConnectApp.screens {
         }
     }
 
-    internal class _EventsScreenState : AutomaticKeepAliveClientMixin<EventsScreen> {
-        private PageController _pageController;
-        private int _selectedIndex;
+    class _EventsScreenState : AutomaticKeepAliveClientMixin<EventsScreen> {
+        PageController _pageController;
+        int _selectedIndex;
 
-        protected override bool wantKeepAlive => true;
+        protected override bool wantKeepAlive {
+            get { return true; }
+        }
 
         public override void initState() {
             base.initState();
-            _pageController = new PageController();
-            _selectedIndex = 0;
+            this._pageController = new PageController();
+            this._selectedIndex = 0;
         }
 
         public override Widget build(BuildContext context) {
@@ -36,36 +38,35 @@ namespace ConnectApp.screens {
                             CColors.White,
                             0
                         ),
-                        _buildSelectView(),
-                        _buildContentView()
+                        this._buildSelectView(),
+                        this._buildContentView()
                     }
                 )
             );
         }
 
-        private Widget _buildSelectView() {
+        Widget _buildSelectView() {
             return new CustomSegmentedControl(
                 new List<string> {"即将开始", "往期活动"},
                 newValue => {
-                    setState(() => _selectedIndex = newValue);
-                    _pageController.animateToPage(
+                    this.setState(() => this._selectedIndex = newValue);
+                    this._pageController.animateToPage(
                         newValue,
                         new TimeSpan(0, 0, 0, 0, 250),
                         Curves.ease
                     );
-                },
-                _selectedIndex
+                }, this._selectedIndex
             );
         }
 
 
-        private Widget _buildContentView() {
+        Widget _buildContentView() {
             return new Flexible(
                 child: new Container(
                     child: new PageView(
                         physics: new BouncingScrollPhysics(),
-                        controller: _pageController,
-                        onPageChanged: index => { setState(() => { _selectedIndex = index; }); },
+                        controller: this._pageController,
+                        onPageChanged: index => { this.setState(() => { this._selectedIndex = index; }); },
                         children: new List<Widget> {
                             new EventOngoingScreenConnector(),
                             new EventCompletedScreenConnector()
@@ -76,7 +77,7 @@ namespace ConnectApp.screens {
         }
 
         public override void dispose() {
-            _pageController.dispose();
+            this._pageController.dispose();
             base.dispose();
         }
     }

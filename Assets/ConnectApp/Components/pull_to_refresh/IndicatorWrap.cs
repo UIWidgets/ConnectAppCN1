@@ -30,29 +30,35 @@ namespace ConnectApp.components.pull_to_refresh {
 
         public readonly float triggerDistance;
 
-        public bool _isRefreshing => mode == RefreshStatus.refreshing;
+        public bool _isRefreshing {
+            get { return this.mode == RefreshStatus.refreshing; }
+        }
 
-        public bool _isComplete =>
-            mode != RefreshStatus.idle &&
-            mode != RefreshStatus.refreshing &&
-            mode != RefreshStatus.canRefresh;
+        public bool _isComplete {
+            get {
+                return this.mode != RefreshStatus.idle && this.mode != RefreshStatus.refreshing &&
+                       this.mode != RefreshStatus.canRefresh;
+            }
+        }
 
         public int mode {
-            get => modeListener.value;
+            get { return this.modeListener.value; }
 
-            set => modeListener.value = value;
+            set { this.modeListener.value = value; }
         }
 
         public bool _isScrollToOutSide(ScrollNotification notification) {
-            if (up) {
+            if (this.up) {
                 if (notification.metrics.minScrollExtent - notification.metrics.pixels >
-                    0)
+                    0) {
                     return true;
+                }
             }
             else {
                 if (notification.metrics.pixels - notification.metrics.maxScrollExtent >
-                    0)
+                    0) {
                     return true;
+                }
             }
 
             return false;
@@ -86,54 +92,59 @@ namespace ConnectApp.components.pull_to_refresh {
     }
 
     public class _RefreshWrapperState : State<RefreshWrapper>, TickerProvider, GestureProcessor {
-        private AnimationController _sizeController;
+        AnimationController _sizeController;
 
         public override void initState() {
             base.initState();
-            _sizeController = new AnimationController(
+            this._sizeController = new AnimationController(
                 vsync: this,
                 lowerBound: DefaultConstants.minSpace,
                 duration: TimeSpan.FromMilliseconds(DefaultConstants.spaceAnimateMill));
-            _sizeController.addListener(_handleOffsetCallBack);
-            widget.modeListener.addListener(_handleModeChange);
+            this._sizeController.addListener(this._handleOffsetCallBack);
+            this.widget.modeListener.addListener(this._handleModeChange);
         }
 
         public override Widget build(BuildContext context) {
-            if (widget.up)
+            if (this.widget.up) {
                 return new Column(
                     children: new List<Widget> {
                         new SizeTransition(
-                            sizeFactor: _sizeController,
-                            child: new Container(height: widget.visibleRange)
+                            sizeFactor: this._sizeController,
+                            child: new Container(height: this.widget.visibleRange)
                         ),
-                        widget.builder(context, widget.mode)
+                        this.widget.builder(context, this.widget.mode)
                     }
                 );
+            }
+
             return new Column(
                 children: new List<Widget> {
-                    widget.builder(context, widget.mode),
+                    this.widget.builder(context, this.widget.mode),
                     new SizeTransition(
-                        sizeFactor: _sizeController,
-                        child: new Container(height: widget.visibleRange)
+                        sizeFactor: this._sizeController,
+                        child: new Container(height: this.widget.visibleRange)
                     )
                 }
             );
         }
 
-        private void _dismiss() {
-            _sizeController.animateTo(DefaultConstants.minSpace).Then(() => { widget.mode = RefreshStatus.idle; });
+        void _dismiss() {
+            this._sizeController.animateTo(DefaultConstants.minSpace)
+                .Then(() => { this.widget.mode = RefreshStatus.idle; });
         }
 
-        public int mode => widget.modeListener.value;
+        public int mode {
+            get { return this.widget.modeListener.value; }
+        }
 
-        private double _measure(ScrollNotification notification) {
-            if (widget.up)
+        double _measure(ScrollNotification notification) {
+            if (this.widget.up) {
                 return (notification.metrics.minScrollExtent -
-                        notification.metrics.pixels) /
-                       widget.triggerDistance;
+                        notification.metrics.pixels) / this.widget.triggerDistance;
+            }
+
             return (notification.metrics.pixels -
-                    notification.metrics.maxScrollExtent) /
-                   widget.triggerDistance;
+                    notification.metrics.maxScrollExtent) / this.widget.triggerDistance;
         }
 
         public Ticker createTicker(TickerCallback onTick) {
@@ -146,56 +157,71 @@ namespace ConnectApp.components.pull_to_refresh {
 
         public void onDragMove(ScrollUpdateNotification notification) {
             // TODO: implement onDragMove
-            if (!widget._isScrollToOutSide(notification)) return;
-            if (widget._isComplete || widget._isRefreshing) return;
+            if (!this.widget._isScrollToOutSide(notification)) {
+                return;
+            }
 
-            double offset = _measure(notification);
-            if (offset >= 1.0)
-                widget.mode = RefreshStatus.canRefresh;
-            else
-                widget.mode = RefreshStatus.idle;
+            if (this.widget._isComplete || this.widget._isRefreshing) {
+                return;
+            }
+
+            double offset = this._measure(notification);
+            if (offset >= 1.0) {
+                this.widget.mode = RefreshStatus.canRefresh;
+            }
+            else {
+                this.widget.mode = RefreshStatus.idle;
+            }
         }
 
         public void onDragEnd(ScrollNotification notification) {
-            if (!widget._isScrollToOutSide(notification)) return;
-            if (widget._isComplete || widget._isRefreshing) return;
-            bool reachMax = _measure(notification) >= 1.0;
-            if (!reachMax)
-                _sizeController.animateTo(0.0f);
-            else
-                widget.mode = RefreshStatus.refreshing;
+            if (!this.widget._isScrollToOutSide(notification)) {
+                return;
+            }
+
+            if (this.widget._isComplete || this.widget._isRefreshing) {
+                return;
+            }
+
+            bool reachMax = this._measure(notification) >= 1.0;
+            if (!reachMax) {
+                this._sizeController.animateTo(0.0f);
+            }
+            else {
+                this.widget.mode = RefreshStatus.refreshing;
+            }
         }
 
-        private void _handleOffsetCallBack() {
-            if (widget.onOffsetChange != null)
-                widget.onOffsetChange(
-                    widget.up, _sizeController.value * widget.visibleRange);
+        void _handleOffsetCallBack() {
+            if (this.widget.onOffsetChange != null) {
+                this.widget.onOffsetChange(this.widget.up, this._sizeController.value * this.widget.visibleRange);
+            }
         }
 
-        private void _handleModeChange() {
-            switch (mode) {
+        void _handleModeChange() {
+            switch (this.mode) {
                 case RefreshStatus.refreshing:
-                    _sizeController.setValue(1.0f);
+                    this._sizeController.setValue(1.0f);
                     break;
                 case RefreshStatus.completed:
-                    Promise.Delayed(TimeSpan.FromMilliseconds(widget.completeDuration)).Then(_dismiss
+                    Promise.Delayed(TimeSpan.FromMilliseconds(this.widget.completeDuration)).Then(this._dismiss
                     );
                     break;
                 case RefreshStatus.failed:
-                    Promise.Delayed(TimeSpan.FromMilliseconds(widget.completeDuration)).Then(() => {
-                            _dismiss();
-                            widget.mode = RefreshStatus.idle;
+                    Promise.Delayed(TimeSpan.FromMilliseconds(this.widget.completeDuration)).Then(() => {
+                            this._dismiss();
+                            this.widget.mode = RefreshStatus.idle;
                         }
                     );
                     break;
             }
 
-            setState(() => { });
+            this.setState(() => { });
         }
 
         public override void dispose() {
-            widget.modeListener.removeListener(_handleModeChange);
-            _sizeController.removeListener(_handleOffsetCallBack);
+            this.widget.modeListener.removeListener(this._handleModeChange);
+            this._sizeController.removeListener(this._handleOffsetCallBack);
             base.dispose();
         }
     }
@@ -220,17 +246,17 @@ namespace ConnectApp.components.pull_to_refresh {
     }
 
     public class _LoadWrapperState : State<LoadWrapper>, GestureProcessor {
-        private VoidCallback _updateListener;
+        VoidCallback _updateListener;
 
 
         public override void initState() {
             base.initState();
-            _updateListener = () => { setState(() => { }); };
-            widget.modeListener.addListener(_updateListener);
+            this._updateListener = () => { this.setState(() => { }); };
+            this.widget.modeListener.addListener(this._updateListener);
         }
 
         public override Widget build(BuildContext context) {
-            return widget.builder(context, widget.mode);
+            return this.widget.builder(context, this.widget.mode);
         }
 
 
@@ -239,32 +265,44 @@ namespace ConnectApp.components.pull_to_refresh {
         }
 
         public void onDragMove(ScrollUpdateNotification notification) {
-            if (widget._isRefreshing || widget._isComplete) return;
-            if (widget.autoLoad) {
-                if (widget.up &&
-                    notification.metrics.extentBefore() <= widget.triggerDistance)
-                    widget.mode = RefreshStatus.refreshing;
-                if (!widget.up &&
-                    notification.metrics.extentAfter() <= widget.triggerDistance)
-                    widget.mode = RefreshStatus.refreshing;
+            if (this.widget._isRefreshing || this.widget._isComplete) {
+                return;
+            }
+
+            if (this.widget.autoLoad) {
+                if (this.widget.up &&
+                    notification.metrics.extentBefore() <= this.widget.triggerDistance) {
+                    this.widget.mode = RefreshStatus.refreshing;
+                }
+
+                if (!this.widget.up &&
+                    notification.metrics.extentAfter() <= this.widget.triggerDistance) {
+                    this.widget.mode = RefreshStatus.refreshing;
+                }
             }
         }
 
         public void onDragEnd(ScrollNotification notification) {
-            if (widget._isRefreshing || widget._isComplete) return;
-            if (widget.autoLoad) {
-                if (widget.up &&
-                    notification.metrics.extentBefore() <= widget.triggerDistance)
-                    widget.mode = RefreshStatus.refreshing;
-                if (!widget.up &&
-                    notification.metrics.extentAfter() <= widget.triggerDistance)
-                    widget.mode = RefreshStatus.refreshing;
+            if (this.widget._isRefreshing || this.widget._isComplete) {
+                return;
+            }
+
+            if (this.widget.autoLoad) {
+                if (this.widget.up &&
+                    notification.metrics.extentBefore() <= this.widget.triggerDistance) {
+                    this.widget.mode = RefreshStatus.refreshing;
+                }
+
+                if (!this.widget.up &&
+                    notification.metrics.extentAfter() <= this.widget.triggerDistance) {
+                    this.widget.mode = RefreshStatus.refreshing;
+                }
             }
         }
 
 
         public override void dispose() {
-            widget.modeListener.removeListener(_updateListener);
+            this.widget.modeListener.removeListener(this._updateListener);
             base.dispose();
         }
     }

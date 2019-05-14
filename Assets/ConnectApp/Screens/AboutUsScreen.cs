@@ -6,8 +6,8 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -33,7 +33,7 @@ namespace ConnectApp.screens {
             this.actionModel = actionModel;
         }
 
-        private readonly AboutUsScreenActionModel actionModel;
+        readonly AboutUsScreenActionModel actionModel;
 
         public override Widget build(BuildContext context) {
             return new Container(
@@ -42,7 +42,7 @@ namespace ConnectApp.screens {
                     child: new Container(
                         child: new Column(
                             children: new List<Widget> {
-                                _buildNavigationBar(),
+                                this._buildNavigationBar(),
                                 _buildContent()
                             }
                         )
@@ -51,7 +51,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildNavigationBar() {
+        Widget _buildNavigationBar() {
             return new Container(
                 decoration: new BoxDecoration(
                     CColors.White,
@@ -68,7 +68,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new CustomButton(
                             padding: EdgeInsets.symmetric(10, 16),
-                            onPressed: () => actionModel.mainRouterPop(),
+                            onPressed: () => this.actionModel.mainRouterPop(),
                             child: new Icon(
                                 Icons.arrow_back,
                                 size: 24,
@@ -89,7 +89,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private static Widget _buildContent() {
+        static Widget _buildContent() {
             return new Container(
                 margin: EdgeInsets.only(top: 80),
                 child: new Column(

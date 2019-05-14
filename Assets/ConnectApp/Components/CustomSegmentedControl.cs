@@ -37,20 +37,21 @@ namespace ConnectApp.components {
         }
     }
 
-    internal class _CustomSegmentedControlState : State<CustomSegmentedControl> {
-        private int _selectedIndex;
+    class _CustomSegmentedControlState : State<CustomSegmentedControl> {
+        int _selectedIndex;
 
         public override void initState() {
             base.initState();
-            _selectedIndex = widget.currentIndex;
+            this._selectedIndex = this.widget.currentIndex;
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
             if (oldWidget is CustomSegmentedControl) {
                 var customSegmentedControl = (CustomSegmentedControl) oldWidget;
-                if (widget.currentIndex != customSegmentedControl.currentIndex)
-                    setState(() => _selectedIndex = widget.currentIndex);
+                if (this.widget.currentIndex != customSegmentedControl.currentIndex) {
+                    this.setState(() => this._selectedIndex = this.widget.currentIndex);
+                }
             }
         }
 
@@ -63,24 +64,24 @@ namespace ConnectApp.components {
                     height: 44,
                     child: new Row(
                         mainAxisAlignment: MainAxisAlignment.start,
-                        children: _buildChildren()
+                        children: this._buildChildren()
                     )
                 )
             );
         }
 
-        private List<Widget> _buildChildren() {
+        List<Widget> _buildChildren() {
             var widgets = new List<Widget>();
-            widget.items.ForEach(item => {
-                var itemIndex = widget.items.IndexOf(item);
-                var itemWidget = _buildSelectItem(item, itemIndex);
+            this.widget.items.ForEach(item => {
+                var itemIndex = this.widget.items.IndexOf(item);
+                var itemWidget = this._buildSelectItem(item, itemIndex);
                 widgets.Add(itemWidget);
             });
             return widgets;
         }
 
-        private Widget _buildSelectItem(string title, int index) {
-            var textColor = widget.unselectedColor;
+        Widget _buildSelectItem(string title, int index) {
+            var textColor = this.widget.unselectedColor;
             var fontFamily = "Roboto-Regular";
             Widget lineView = new Positioned(
                 bottom: 0,
@@ -88,8 +89,8 @@ namespace ConnectApp.components {
                 right: 0,
                 child: new Container(height: 2)
             );
-            if (index == _selectedIndex) {
-                textColor = widget.selectedColor;
+            if (index == this._selectedIndex) {
+                textColor = this.widget.selectedColor;
                 fontFamily = "Roboto-Medium";
                 lineView = new Positioned(
                     bottom: 0,
@@ -97,18 +98,20 @@ namespace ConnectApp.components {
                     right: 0,
                     child: new Container(
                         height: 2,
-                        color: widget.selectedColor
+                        color: this.widget.selectedColor
                     )
                 );
             }
 
             return new CustomButton(
                 onPressed: () => {
-                    if (_selectedIndex != index) {
-                        if (widget.onValueChanged != null)
-                            widget.onValueChanged(index);
-                        else
-                            setState(() => _selectedIndex = index);
+                    if (this._selectedIndex != index) {
+                        if (this.widget.onValueChanged != null) {
+                            this.widget.onValueChanged(index);
+                        }
+                        else {
+                            this.setState(() => this._selectedIndex = index);
+                        }
                     }
                 },
                 padding: EdgeInsets.zero,

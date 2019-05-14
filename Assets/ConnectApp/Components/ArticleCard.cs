@@ -24,18 +24,22 @@ namespace ConnectApp.components {
             this.moreCallBack = moreCallBack;
         }
 
-        private readonly Article article;
-        private readonly string fullName;
-        private readonly GestureTapCallback onTap;
-        private readonly GestureTapCallback moreCallBack;
+        readonly Article article;
+        readonly string fullName;
+        readonly GestureTapCallback onTap;
+        readonly GestureTapCallback moreCallBack;
 
         public override Widget build(BuildContext context) {
-            if (article == null) return new Container();
+            if (this.article == null) {
+                return new Container();
+            }
 
-            var time = article.lastPublishedTime == null ? article.publishedTime : article.lastPublishedTime;
-            var imageUrl = article.thumbnail.url.EndsWith(".gif")
-                ? article.thumbnail.url
-                : $"{article.thumbnail.url}.300x0x1.jpg";
+            var time = this.article.lastPublishedTime == null
+                ? this.article.publishedTime
+                : this.article.lastPublishedTime;
+            var imageUrl = this.article.thumbnail.url.EndsWith(".gif")
+                ? this.article.thumbnail.url
+                : $"{this.article.thumbnail.url}.300x0x1.jpg";
             var card = new Container(
                 color: CColors.White,
                 child: new Padding(
@@ -46,8 +50,7 @@ namespace ConnectApp.components {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: new List<Widget> {
                                 new Container(
-                                    child: new Text(
-                                        article.title,
+                                    child: new Text(this.article.title,
                                         style: CTextStyle.H5,
                                         maxLines: 2,
                                         textAlign: TextAlign.left,
@@ -59,8 +62,7 @@ namespace ConnectApp.components {
                                     child: new Row(
                                         children: new List<Widget> {
                                             new Expanded(
-                                                child: new Text(
-                                                    article.subTitle,
+                                                child: new Text(this.article.subTitle,
                                                     style: CTextStyle.PRegularBody,
                                                     maxLines: 3,
                                                     overflow: TextOverflow.ellipsis
@@ -87,7 +89,7 @@ namespace ConnectApp.components {
                                         children: new List<Widget> {
                                             new Expanded(
                                                 child: new Text(
-                                                    $"{fullName} · {DateConvert.DateStringFromNow(time)} · 阅读 {article.viewCount}",
+                                                    $"{this.fullName} · {DateConvert.DateStringFromNow(time)} · 阅读 {this.article.viewCount}",
                                                     style: CTextStyle.PSmallBody3
                                                 )
                                             ),
@@ -100,7 +102,7 @@ namespace ConnectApp.components {
                                                         color: CColors.BrownGrey
                                                     )
                                                 ),
-                                                onPressed: moreCallBack
+                                                onPressed: this.moreCallBack
                                             )
                                         }
                                     )
@@ -112,7 +114,7 @@ namespace ConnectApp.components {
             );
             return new GestureDetector(
                 child: card,
-                onTap: onTap
+                onTap: this.onTap
             );
         }
     }

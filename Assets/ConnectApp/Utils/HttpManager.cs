@@ -7,7 +7,6 @@ using RSG;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
-using Unity.UIWidgets.widgets;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -18,7 +17,7 @@ namespace ConnectApp.utils {
     }
 
     public static class HttpManager {
-        private const string COOKIE = "Cookie";
+        const string COOKIE = "Cookie";
 
         internal static UnityWebRequest initRequest(
             string url,
@@ -41,7 +40,7 @@ namespace ConnectApp.utils {
             return promise;
         }
 
-        private static IEnumerator sendRequest(Promise<string> promise, UnityWebRequest request) {
+        static IEnumerator sendRequest(Promise<string> promise, UnityWebRequest request) {
             yield return request.SendWebRequest();
             if (request.isNetworkError) {
                 promise.Reject(new Exception("NetworkError"));
@@ -63,20 +62,23 @@ namespace ConnectApp.utils {
             }
         }
 
-        private static string _cookieHeader() {
-            if (PlayerPrefs.GetString(COOKIE).isNotEmpty()) return PlayerPrefs.GetString(COOKIE);
+        static string _cookieHeader() {
+            if (PlayerPrefs.GetString(COOKIE).isNotEmpty()) {
+                return PlayerPrefs.GetString(COOKIE);
+            }
+
             return "";
         }
+
         public static void clearCookie() {
             PlayerPrefs.DeleteKey(COOKIE);
         }
 
-        public static string getCookie()
-        {
+        public static string getCookie() {
             return _cookieHeader();
         }
 
-        private static void updateCookie(string newCookie) {
+        static void updateCookie(string newCookie) {
             var cookie = PlayerPrefs.GetString(COOKIE);
             var cookieDict = new Dictionary<string, string>();
             var updateCookie = "";
@@ -93,10 +95,12 @@ namespace ConnectApp.utils {
                 foreach (var c in newCookieArr) {
                     var item = c.Split(';').first();
                     var name = item.Split('=').first();
-                    if (cookieDict.ContainsKey(name))
+                    if (cookieDict.ContainsKey(name)) {
                         cookieDict[name] = item;
-                    else
+                    }
+                    else {
                         cookieDict.Add(name, item);
+                    }
                 }
 
                 var updateCookieArr = cookieDict.Values;

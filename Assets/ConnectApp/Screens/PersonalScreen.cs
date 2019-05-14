@@ -8,8 +8,8 @@ using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -53,13 +53,15 @@ namespace ConnectApp.screens {
     }
 
     public class _PersonalScreenState : AutomaticKeepAliveClientMixin<PersonalScreen> {
-        protected override bool wantKeepAlive => true;
+        protected override bool wantKeepAlive {
+            get { return true; }
+        }
 
         public override Widget build(BuildContext context) {
             base.build(context);
-            var navigationBar = widget.viewModel.isLoggedIn
-                ? _buildLoginInNavigationBar()
-                : _buildNotLoginInNavigationBar(context);
+            var navigationBar = this.widget.viewModel.isLoggedIn
+                ? this._buildLoginInNavigationBar()
+                : this._buildNotLoginInNavigationBar(context);
 
             return new Container(
                 color: CColors.White,
@@ -73,7 +75,7 @@ namespace ConnectApp.screens {
                         new Flexible(
                             child: new Container(
                                 child: new ListView(
-                                    children: _buildItems()
+                                    children: this._buildItems()
                                 )
                             )
                         )
@@ -82,7 +84,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildNotLoginInNavigationBar(BuildContext context) {
+        Widget _buildNotLoginInNavigationBar(BuildContext context) {
             return new Container(
                 color: CColors.White,
                 width: MediaQuery.of(context).size.width,
@@ -98,7 +100,7 @@ namespace ConnectApp.screens {
                             margin: EdgeInsets.only(top: 16),
                             child: new CustomButton(
                                 padding: EdgeInsets.zero,
-                                onPressed: () => widget.mainRouterPushTo(MainNavigatorRoutes.Login),
+                                onPressed: () => this.widget.mainRouterPushTo(MainNavigatorRoutes.Login),
                                 child: new Container(
                                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                                     decoration: new BoxDecoration(
@@ -117,44 +119,45 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildLoginInNavigationBar() {
+        Widget _buildLoginInNavigationBar() {
             return new CustomNavigationBar(
                 new Expanded(
-                    child: new Text(widget.viewModel.userFullName, style: CTextStyle.H2)
+                    child: new Text(this.widget.viewModel.userFullName, style: CTextStyle.H2)
                 ),
                 new List<Widget> {
-                    Avatar.User(widget.viewModel.userId, widget.viewModel.userDict[widget.viewModel.userId], 40)
+                    Avatar.User(this.widget.viewModel.userId,
+                        this.widget.viewModel.userDict[this.widget.viewModel.userId], 40)
                 },
                 CColors.White,
                 0
             );
         }
 
-        private List<Widget> _buildItems() {
+        List<Widget> _buildItems() {
             var personalCardItems = new List<PersonalCardItem> {
                 new PersonalCardItem(
                     Icons.myEvent,
                     "我的活动",
                     () => {
-                        var routeName = widget.viewModel.isLoggedIn
+                        var routeName = this.widget.viewModel.isLoggedIn
                             ? MainNavigatorRoutes.MyEvent
                             : MainNavigatorRoutes.Login;
-                        widget.mainRouterPushTo(routeName);
+                        this.widget.mainRouterPushTo(routeName);
                     }
                 ),
                 new PersonalCardItem(
                     Icons.eye,
                     "浏览历史",
-                    () => widget.mainRouterPushTo(MainNavigatorRoutes.History)
+                    () => this.widget.mainRouterPushTo(MainNavigatorRoutes.History)
                 ),
                 new PersonalCardItem(
                     Icons.settings,
                     "设置",
                     () => {
-                        var routeName = widget.viewModel.isLoggedIn
+                        var routeName = this.widget.viewModel.isLoggedIn
                             ? MainNavigatorRoutes.Setting
                             : MainNavigatorRoutes.Login;
-                        widget.mainRouterPushTo(routeName);
+                        this.widget.mainRouterPushTo(routeName);
                     }
                 )
             };

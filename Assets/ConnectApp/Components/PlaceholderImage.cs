@@ -23,35 +23,36 @@ namespace ConnectApp.components {
             this.fit = fit;
         }
 
-        private readonly string imageUrl;
-        private readonly float? width;
-        private readonly float? height;
-        private readonly float? borderRadius;
-        private readonly BoxFit? fit;
+        readonly string imageUrl;
+        readonly float? width;
+        readonly float? height;
+        readonly float? borderRadius;
+        readonly BoxFit? fit;
 
         public override Widget build(BuildContext context) {
             Widget child;
-            if (imageUrl == null || imageUrl.Length <= 0)
+            if (this.imageUrl == null || this.imageUrl.Length <= 0) {
                 child = new Container(
-                    width: width,
-                    height: height,
+                    width: this.width,
+                    height: this.height,
                     color: new Color(0xFFD8D8D8)
                 );
-            else
+            }
+            else {
                 child = new Container(
-                    width: width,
-                    height: height,
+                    width: this.width,
+                    height: this.height,
                     color: new Color(0xFFD8D8D8),
-                    child: Image.network(
-                        imageUrl,
-                        width: width,
-                        height: height,
-                        fit: fit
+                    child: Image.network(this.imageUrl,
+                        width: this.width,
+                        height: this.height,
+                        fit: this.fit
                     )
                 );
+            }
 
             return new ClipRRect(
-                borderRadius: BorderRadius.all(borderRadius == null ? 0 : (float) borderRadius),
+                borderRadius: BorderRadius.all(this.borderRadius == null ? 0 : (float) this.borderRadius),
                 child: child
             );
         }

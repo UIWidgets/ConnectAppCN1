@@ -16,20 +16,24 @@ namespace ConnectApp.components {
             this.animation = animation;
         }
 
-        private readonly Animation<int> animation;
+        readonly Animation<int> animation;
 
         protected override Widget build(BuildContext context) {
-            int seconds = animation.value;
+            int seconds = this.animation.value;
             int minutes = seconds / 60;
 
             int minutesOne = 0;
-            if (minutes >= 10) minutesOne = minutes / 10;
+            if (minutes >= 10) {
+                minutesOne = minutes / 10;
+            }
 
             int minutesTwo = minutes - minutesOne * 10;
 
             int lastSeconds = seconds - minutes * 60;
             int lastSecondsOne = 0;
-            if (lastSeconds >= 10) lastSecondsOne = lastSeconds / 10;
+            if (lastSeconds >= 10) {
+                lastSecondsOne = lastSeconds / 10;
+            }
 
             int lastSecondsTwo = lastSeconds - lastSecondsOne * 10;
 
@@ -101,7 +105,7 @@ namespace ConnectApp.components {
             );
         }
 
-        private static Widget _buildCountView(string num) {
+        static Widget _buildCountView(string num) {
             return new Container(
                 width: 40,
                 height: 60,

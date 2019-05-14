@@ -5,7 +5,6 @@ using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
-using ConnectApp.utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
@@ -58,26 +57,28 @@ namespace ConnectApp.screens {
     }
 
     public class _EventCompletedScreenState : AutomaticKeepAliveClientMixin<EventCompletedScreen> {
-        private const int firstPageNumber = 1;
-        private RefreshController _completedRefreshController;
-        private int pageNumber = firstPageNumber;
-        private string _loginSubId;
+        const int firstPageNumber = 1;
+        RefreshController _completedRefreshController;
+        int pageNumber = firstPageNumber;
+        string _loginSubId;
 
-        protected override bool wantKeepAlive => true;
+        protected override bool wantKeepAlive {
+            get { return true; }
+        }
 
         public override void initState() {
             base.initState();
-            _completedRefreshController = new RefreshController();
+            this._completedRefreshController = new RefreshController();
             SchedulerBinding.instance.addPostFrameCallback(_ => {
-                widget.actionModel.startFetchEventCompleted();
-                widget.actionModel.fetchEvents(firstPageNumber, "completed");
+                this.widget.actionModel.startFetchEventCompleted();
+                this.widget.actionModel.fetchEvents(firstPageNumber, "completed");
             });
 //            _loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
 //                widget.actionModel.startFetchEventCompleted();
 //                widget.actionModel.fetchEvents(firstPageNumber, "completed");
 //            });
         }
-        
+
         public override void dispose() {
 //            EventBus.unSubscribe(EventBusConstant.login_success, _loginSubId);
             base.dispose();
@@ -85,36 +86,43 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             base.build(context);
-            if (widget.viewModel.eventCompletedLoading && widget.viewModel.completedEvents.isEmpty())
+            if (this.widget.viewModel.eventCompletedLoading && this.widget.viewModel.completedEvents.isEmpty()) {
                 return new GlobalLoading();
-            if (widget.viewModel.completedEvents.Count <= 0) 
+            }
+
+            if (this.widget.viewModel.completedEvents.Count <= 0) {
                 return new BlankView(
                     "暂无往期活动",
                     true,
                     () => {
-                        widget.actionModel.startFetchEventCompleted();
-                        widget.actionModel.fetchEvents(firstPageNumber, "completed");
-                     }
+                        this.widget.actionModel.startFetchEventCompleted();
+                        this.widget.actionModel.fetchEvents(firstPageNumber, "completed");
+                    }
                 );
+            }
+
             return new Container(
                 color: CColors.background3,
                 child: new SmartRefresher(
-                    controller: _completedRefreshController,
+                    controller: this._completedRefreshController,
                     enablePullDown: true,
-                    enablePullUp: widget.viewModel.completedEvents.Count < widget.viewModel.completedEventTotal,
-                    onRefresh: _completedRefresh,
+                    enablePullUp: this.widget.viewModel.completedEvents.Count <
+                                  this.widget.viewModel.completedEventTotal,
+                    onRefresh: this._completedRefresh,
                     child: ListView.builder(
                         itemExtent: 108,
                         physics: new AlwaysScrollableScrollPhysics(),
-                        itemCount: widget.viewModel.completedEvents.Count,
+                        itemCount: this.widget.viewModel.completedEvents.Count,
                         itemBuilder: (cxt, index) => {
-                            var eventId = widget.viewModel.completedEvents[index];
-                            var model = widget.viewModel.eventsDict[eventId];
-                            var place = model.placeId.isEmpty() ? new Place() : widget.viewModel.placeDict[model.placeId];
+                            var eventId = this.widget.viewModel.completedEvents[index];
+                            var model = this.widget.viewModel.eventsDict[eventId];
+                            var place = model.placeId.isEmpty()
+                                ? new Place()
+                                : this.widget.viewModel.placeDict[model.placeId];
                             return new EventCard(
                                 model,
                                 place.name,
-                                () => widget.actionModel.pushToEventDetail(
+                                () => this.widget.actionModel.pushToEventDetail(
                                     model.id,
                                     model.mode == "online" ? EventType.online : EventType.offline
                                 ),
@@ -126,14 +134,18 @@ namespace ConnectApp.screens {
             );
         }
 
-        private void _completedRefresh(bool up) {
-            if (up)
-                pageNumber = firstPageNumber;
-            else
-                pageNumber++;
-            widget.actionModel.fetchEvents(pageNumber, "completed")
-                .Then(() => _completedRefreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
-                .Catch(_ => _completedRefreshController.sendBack(up, RefreshStatus.failed));
+        void _completedRefresh(bool up) {
+            if (up) {
+                this.pageNumber = firstPageNumber;
+            }
+            else {
+                this.pageNumber++;
+            }
+
+            this.widget.actionModel.fetchEvents(this.pageNumber, "completed")
+                .Then(() => this._completedRefreshController.sendBack(up,
+                    up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Catch(_ => this._completedRefreshController.sendBack(up, RefreshStatus.failed));
         }
     }
 }

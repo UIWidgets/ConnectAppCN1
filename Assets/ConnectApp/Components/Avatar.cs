@@ -15,7 +15,7 @@ namespace ConnectApp.components {
     }
 
     public class Avatar : StatelessWidget {
-        private Avatar(
+        Avatar(
             string id,
             float size = 36,
             OwnerType type = OwnerType.user,
@@ -63,60 +63,75 @@ namespace ConnectApp.components {
         }
 
 
-        private readonly string id;
-        private readonly User user;
-        private readonly Team team;
-        private readonly float size;
-        private readonly OwnerType type;
+        readonly string id;
+        readonly User user;
+        readonly Team team;
+        readonly float size;
+        readonly OwnerType type;
 
         public override Widget build(BuildContext context) {
-            if (type == OwnerType.team) return _buildTeamAvatar();
-            var avatarUrl = user.avatar ?? "";
-            var fullName = user.fullName ?? user.name;
+            if (this.type == OwnerType.team) {
+                return this._buildTeamAvatar();
+            }
+
+            var avatarUrl = this.user.avatar ?? "";
+            var fullName = this.user.fullName ?? this.user.name;
             var result = _extractName(fullName) ?? "";
             return new ClipRRect(
-                borderRadius: BorderRadius.circular(size / 2),
+                borderRadius: BorderRadius.circular(this.size / 2),
                 child: avatarUrl.isEmpty()
                     ? new Container(
-                        child: new _Placeholder(result, size)
+                        child: new _Placeholder(result, this.size)
                     )
                     : new Container(
-                        width: size,
-                        height: size,
+                        width: this.size,
+                        height: this.size,
                         color: new Color(0xFFD8D8D8),
                         child: Image.network(avatarUrl, fit: BoxFit.cover)
                     )
             );
         }
 
-        private Widget _buildTeamAvatar() {
-            var avatarUrl = team.avatar ?? "";
-            var name = team.name;
+        Widget _buildTeamAvatar() {
+            var avatarUrl = this.team.avatar ?? "";
+            var name = this.team.name;
             var result = _extractName(name) ?? "";
-            if (avatarUrl.Length <= 0) return new _Placeholder(result, size);
+            if (avatarUrl.Length <= 0) {
+                return new _Placeholder(result, this.size);
+            }
+
             return new Container(
-                width: size,
-                height: size,
+                width: this.size,
+                height: this.size,
                 color: new Color(0xFFD8D8D8),
                 child: Image.network(avatarUrl)
             );
         }
 
 
-        private static string _extractName(string name) {
-            if (name == null || name.Length <= 0) return "";
+        static string _extractName(string name) {
+            if (name == null || name.Length <= 0) {
+                return "";
+            }
+
             name = name.Trim();
             var regex = new Regex(@"^\W+");
-            if (regex.IsMatch(name)) return name[0].ToString();
+            if (regex.IsMatch(name)) {
+                return name[0].ToString();
+            }
+
             var sep = name.IndexOf(" ") > 0 ? ' ' : ',';
             var tokens = name.Split(sep);
             var length = tokens.Length;
-            if (length > 1) return $"{tokens[0][0]}{tokens[length - 1][0]}";
+            if (length > 1) {
+                return $"{tokens[0][0]}{tokens[length - 1][0]}";
+            }
+
             return tokens[0][0].ToString();
         }
     }
 
-    internal class _Placeholder : StatelessWidget {
+    class _Placeholder : StatelessWidget {
         public _Placeholder(
             string title,
             float size = 36,
@@ -132,8 +147,8 @@ namespace ConnectApp.components {
 
         public override Widget build(BuildContext context) {
             return new Container(
-                width: size,
-                height: size,
+                width: this.size,
+                height: this.size,
                 alignment: Alignment.center,
                 decoration: new BoxDecoration(
                     gradient: new LinearGradient(
@@ -146,17 +161,16 @@ namespace ConnectApp.components {
                     )
                 ),
                 child: new Container(
-                    alignment:Alignment.center,
-                    child:new Text(
-                        title.ToUpper(),
-                        textAlign:TextAlign.center,
+                    alignment: Alignment.center,
+                    child: new Text(this.title.ToUpper(),
+                        textAlign: TextAlign.center,
                         style: new TextStyle(
                             height: 1.30f,
                             color: CColors.White,
                             fontFamily: "Roboto-Medium",
-                            fontSize: size * 0.45f
+                            fontSize: this.size * 0.45f
                         )
-                    )) 
+                    ))
             );
         }
     }

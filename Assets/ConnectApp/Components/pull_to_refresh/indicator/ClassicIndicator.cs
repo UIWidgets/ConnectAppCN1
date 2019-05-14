@@ -77,38 +77,37 @@ namespace ConnectApp.components.pull_to_refresh {
     }
 
 
-    internal class _ClassicIndicatorState : State<ClassicIndicator> {
+    class _ClassicIndicatorState : State<ClassicIndicator> {
         public override Widget build(BuildContext context) {
-            Widget textWidget = _buildText();
-            Widget iconWidget = _buildIcon();
+            Widget textWidget = this._buildText();
+            Widget iconWidget = this._buildIcon();
             var children = new List<Widget> {
                 iconWidget,
                 new Container(
-                    width: widget.spacing,
-                    height: widget.spacing
+                    width: this.widget.spacing,
+                    height: this.widget.spacing
                 ),
                 textWidget
             };
-            Widget container = new Row(
-                widget.iconPos == IconPosition.right
+            Widget container = new Row(this.widget.iconPos == IconPosition.right
                     ? TextDirection.rtl
                     : TextDirection.ltr,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: children
             );
-            if (widget.iconPos == IconPosition.top ||
-                widget.iconPos == IconPosition.bottom)
+            if (this.widget.iconPos == IconPosition.top || this.widget.iconPos == IconPosition.bottom) {
                 container = new Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    verticalDirection: widget.iconPos == IconPosition.top
+                    verticalDirection: this.widget.iconPos == IconPosition.top
                         ? VerticalDirection.down
                         : VerticalDirection.up,
                     children: children
                 );
+            }
 
             return new Container(
                 alignment: Alignment.center,
-                height: widget.height,
+                height: this.widget.height,
                 child: new Center(
                     child: container
                 )
@@ -116,37 +115,36 @@ namespace ConnectApp.components.pull_to_refresh {
         }
 
 
-        private Widget _buildText() {
-            return new Text(
-                widget.mode == RefreshStatus.canRefresh
-                    ? widget.releaseText
-                    : widget.mode == RefreshStatus.completed
-                        ? widget.completeText
-                        : widget.mode == RefreshStatus.failed
-                            ? widget.failedText
-                            : widget.mode == RefreshStatus.refreshing
-                                ? widget.refreshingText
-                                : widget.mode == RefreshStatus.noMore
-                                    ? widget.noDataText
-                                    : widget.idleText,
-                style: widget.textStyle);
+        Widget _buildText() {
+            return new Text(this.widget.mode == RefreshStatus.canRefresh
+                    ? this.widget.releaseText
+                    : this.widget.mode == RefreshStatus.completed
+                        ? this.widget.completeText
+                        : this.widget.mode == RefreshStatus.failed
+                            ? this.widget.failedText
+                            : this.widget.mode == RefreshStatus.refreshing
+                                ? this.widget.refreshingText
+                                : this.widget.mode == RefreshStatus.noMore
+                                    ? this.widget.noDataText
+                                    : this.widget.idleText,
+                style: this.widget.textStyle);
         }
 
-        private Widget _buildIcon() {
-            Widget icon = widget.mode == RefreshStatus.canRefresh
-                ? widget.releaseIcon
-                : widget.mode == RefreshStatus.noMore
-                    ? widget.noMoreIcon
-                    : widget.mode == RefreshStatus.idle
-                        ? widget.idleIcon
-                        : widget.mode == RefreshStatus.completed
-                            ? widget.completeIcon
-                            : widget.mode == RefreshStatus.failed
-                                ? widget.failedIcon
+        Widget _buildIcon() {
+            Widget icon = this.widget.mode == RefreshStatus.canRefresh
+                ? this.widget.releaseIcon
+                : this.widget.mode == RefreshStatus.noMore
+                    ? this.widget.noMoreIcon
+                    : this.widget.mode == RefreshStatus.idle
+                        ? this.widget.idleIcon
+                        : this.widget.mode == RefreshStatus.completed
+                            ? this.widget.completeIcon
+                            : this.widget.mode == RefreshStatus.failed
+                                ? this.widget.failedIcon
                                 : new SizedBox(
                                     width: 24,
                                     height: 24,
-                                    child: widget.refreshingIcon
+                                    child: this.widget.refreshingIcon
                                 );
             return icon;
         }

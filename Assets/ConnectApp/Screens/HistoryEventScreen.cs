@@ -41,32 +41,35 @@ namespace ConnectApp.screens {
             this.actionModel = actionModel;
         }
 
-        private readonly HistoryScreenViewModel viewModel;
-        private readonly HistoryScreenActionModel actionModel;
+        readonly HistoryScreenViewModel viewModel;
+        readonly HistoryScreenActionModel actionModel;
 
-        private readonly CustomDismissibleController _controller = new CustomDismissibleController();
+        readonly CustomDismissibleController _controller = new CustomDismissibleController();
 
         public override Widget build(BuildContext context) {
-            if (viewModel.eventHistory.Count == 0) return new BlankView("暂无浏览活动记录");
+            if (this.viewModel.eventHistory.Count == 0) {
+                return new BlankView("暂无浏览活动记录");
+            }
+
             return new Container(color: CColors.background3,
                 child: ListView.builder(
                     physics: new AlwaysScrollableScrollPhysics(),
-                    itemCount: viewModel.eventHistory.Count,
+                    itemCount: this.viewModel.eventHistory.Count,
                     itemExtent: 108,
                     itemBuilder: (cxt, index) => {
-                        var model = viewModel.eventHistory[index];
+                        var model = this.viewModel.eventHistory[index];
                         var eventType = model.mode == "online" ? EventType.online : EventType.offline;
                         return CustomDismissible.builder(
                             Key.key(model.id),
                             new EventCard(
                                 model,
                                 model.place,
-                                () => actionModel.pushToEventDetail(model.id, eventType)
+                                () => this.actionModel.pushToEventDetail(model.id, eventType)
                             ),
                             new CustomDismissibleDrawerDelegate(),
                             secondaryActions: new List<Widget> {
                                 new GestureDetector(
-                                    onTap: () => actionModel.deleteEventHistory(model.id),
+                                    onTap: () => this.actionModel.deleteEventHistory(model.id),
                                     child: new Container(
                                         color: CColors.Separator2,
                                         width: 80,
@@ -84,7 +87,7 @@ namespace ConnectApp.screens {
                                     )
                                 )
                             },
-                            controller: _controller
+                            controller: this._controller
                         );
                     }
                 )

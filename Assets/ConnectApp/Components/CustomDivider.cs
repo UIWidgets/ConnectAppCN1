@@ -1,6 +1,5 @@
 using ConnectApp.constants;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
@@ -16,13 +15,13 @@ namespace ConnectApp.components {
             this.height = height;
         }
 
-        private readonly Color color;
-        private readonly float height;
+        readonly Color color;
+        readonly float height;
 
         public override Widget build(BuildContext context) {
             return new Container(
-                color: color,
-                height: height
+                color: this.color,
+                height: this.height
             );
         }
     }

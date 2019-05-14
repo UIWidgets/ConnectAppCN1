@@ -13,21 +13,23 @@ namespace ConnectApp.utils {
         first,
         setting
     }
-    
+
     public static class VersionManager {
-        
-        private const string _ignoreUpdaterKey = "ignoreUpdaterKey";
+        const string _ignoreUpdaterKey = "ignoreUpdaterKey";
+
         public static void checkForUpdates(CheckVersionType type) {
             if (type == CheckVersionType.setting) {
                 CustomDialogUtils.showCustomDialog(
                     child: new CustomLoadingDialog(message: "正在检查更新")
                 );
             }
+
             SettingApi.FetchVersion(Config.platform, Config.store, $"{Config.versionCode}")
                 .Then(versionResponse => {
                     if (type == CheckVersionType.setting) {
                         CustomDialogUtils.hiddenCustomDialog();
                     }
+
                     var status = versionResponse["status"];
                     if (status.ToLower() == "need_update" && versionResponse.ContainsKey("url")) {
                         CustomDialogUtils.showCustomDialog(
@@ -64,7 +66,8 @@ namespace ConnectApp.utils {
                                 }
                             )
                         );
-                    } else {
+                    }
+                    else {
                         if (type == CheckVersionType.setting) {
                             var customSnackBar = new CustomSnackBar(
                                 "当前是最新版本",
@@ -85,7 +88,7 @@ namespace ConnectApp.utils {
             return !PlayerPrefs.HasKey(_ignoreUpdaterKey);
         }
 
-        private static void _ignoreUpdater() {
+        static void _ignoreUpdater() {
             CustomDialogUtils.hiddenCustomDialog();
             PlayerPrefs.SetString(_ignoreUpdaterKey, "true");
             PlayerPrefs.Save();

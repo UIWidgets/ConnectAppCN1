@@ -10,27 +10,34 @@ using ConnectApp.redux.actions;
 using RSG;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
-    internal static class LoginNavigatorRoutes {
+    static class LoginNavigatorRoutes {
         public const string Root = "/";
         public const string BindUnity = "/bind-unity";
         public const string WechatBindUnity = "/wachat-bind-unity";
     }
 
     public class LoginScreen : StatelessWidget {
-        private static readonly GlobalKey globalKey = GlobalKey.key("login-router");
-        public static NavigatorState navigator => globalKey.currentState as NavigatorState;
+        static readonly GlobalKey globalKey = GlobalKey.key("login-router");
 
-        private static Dictionary<string, WidgetBuilder> loginRoutes => new Dictionary<string, WidgetBuilder> {
-            {LoginNavigatorRoutes.Root, context => new LoginSwitchScreenConnector()},
-            {LoginNavigatorRoutes.BindUnity, context => new BindUnityScreenConnector(FromPage.login)},
-            {LoginNavigatorRoutes.WechatBindUnity, context => new BindUnityScreenConnector(FromPage.wechat)}
-        };
+        public static NavigatorState navigator {
+            get { return globalKey.currentState as NavigatorState; }
+        }
+
+        static Dictionary<string, WidgetBuilder> loginRoutes {
+            get {
+                return new Dictionary<string, WidgetBuilder> {
+                    {LoginNavigatorRoutes.Root, context => new LoginSwitchScreenConnector()},
+                    {LoginNavigatorRoutes.BindUnity, context => new BindUnityScreenConnector(FromPage.login)},
+                    {LoginNavigatorRoutes.WechatBindUnity, context => new BindUnityScreenConnector(FromPage.wechat)}
+                };
+            }
+        }
 
         public override Widget build(BuildContext context) {
             return new Navigator(
@@ -76,31 +83,30 @@ namespace ConnectApp.screens {
             this.actionModel = actionModel;
         }
 
-        private readonly bool anonymous;
-        private readonly LoginSwitchScreenActionModel actionModel;
+        readonly bool anonymous;
+        readonly LoginSwitchScreenActionModel actionModel;
 
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
-                    child: _buildContent(context)
+                    child: this._buildContent(context)
                 )
             );
         }
 
-        private Widget _buildContent(BuildContext context) {
+        Widget _buildContent(BuildContext context) {
             return new Container(
                 color: CColors.White,
                 child: new Column(
                     children: new List<Widget> {
-                        _buildTopView(),
-                        _buildBottomView(context)
+                        this._buildTopView(), this._buildBottomView(context)
                     }
                 )
             );
         }
 
-        private Widget _buildTopView() {
+        Widget _buildTopView() {
             return new Flexible(
                 child: new Stack(
                     children: new List<Widget> {
@@ -109,7 +115,7 @@ namespace ConnectApp.screens {
                             left: 0,
                             child: new CustomButton(
                                 padding: EdgeInsets.symmetric(10, 16),
-                                onPressed: () => actionModel.mainRouterPop(),
+                                onPressed: () => this.actionModel.mainRouterPop(),
                                 child: new Icon(
                                     Icons.close,
                                     size: 24,
@@ -144,15 +150,15 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildBottomView(BuildContext context) {
+        Widget _buildBottomView(BuildContext context) {
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
                     children: new List<Widget> {
-                        _buildWechatButton(context),
+                        this._buildWechatButton(context),
                         new Container(height: 16),
                         new CustomButton(
-                            onPressed: () => actionModel.loginRouterPushToBindUnity(),
+                            onPressed: () => this.actionModel.loginRouterPushToBindUnity(),
                             padding: EdgeInsets.zero,
                             child: new Container(
                                 height: 48,
@@ -193,7 +199,8 @@ namespace ConnectApp.screens {
                                             ),
                                             recognizer: new TapGestureRecognizer {
                                                 onTap = () =>
-                                                    actionModel.openUrl("https://unity3d.com/legal/terms-of-service")
+                                                    this.actionModel.openUrl(
+                                                        "https://unity3d.com/legal/terms-of-service")
                                             }
                                         ),
                                         new TextSpan(
@@ -211,7 +218,7 @@ namespace ConnectApp.screens {
                                             ),
                                             recognizer: new TapGestureRecognizer {
                                                 onTap = () =>
-                                                    actionModel.openUrl("https://unity3d.com/legal/privacy-policy")
+                                                    this.actionModel.openUrl("https://unity3d.com/legal/privacy-policy")
                                             }
                                         )
                                     }
@@ -226,8 +233,11 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildWechatButton(BuildContext context) {
-            if (!WechatPlugin.instance().inInstalled()) return new Container();
+        Widget _buildWechatButton(BuildContext context) {
+            if (!WechatPlugin.instance().inInstalled()) {
+                return new Container();
+            }
+
             WechatPlugin.instance().context = context;
             return new CustomButton(
                 onPressed: () => {
@@ -235,13 +245,15 @@ namespace ConnectApp.screens {
                             CustomDialogUtils.showCustomDialog(
                                 child: new CustomLoadingDialog()
                             );
-                            actionModel.loginByWechatAction(code).Then(() => {
+                            this.actionModel.loginByWechatAction(code).Then(() => {
                                     CustomDialogUtils.hiddenCustomDialog();
-                                    if (anonymous)
+                                    if (this.anonymous) {
                                         LoginScreen.navigator.pushReplacementNamed(LoginNavigatorRoutes
                                             .WechatBindUnity);
-                                    else
-                                        actionModel.mainRouterPop();
+                                    }
+                                    else {
+                                        this.actionModel.mainRouterPop();
+                                    }
                                 })
                                 .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
                         })

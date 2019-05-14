@@ -17,32 +17,32 @@ namespace ConnectApp.screens {
         }
     }
 
-    internal class _RefreshPageState : State<RefreshPage> {
-        private RefreshController _refreshController;
-        private ScrollController _scrollController;
+    class _RefreshPageState : State<RefreshPage> {
+        RefreshController _refreshController;
+        ScrollController _scrollController;
 
-        private List<Widget> _list = new List<Widget> {
+        List<Widget> _list = new List<Widget> {
             new Text("1"),
             new Text("2"),
             new Text("3")
         };
 
-        private void enterRefresh() {
-            _refreshController.requestRefresh(true);
+        void enterRefresh() {
+            this._refreshController.requestRefresh(true);
         }
 
-        private void _onOffsetCallback(bool isUp, double offset) {
+        void _onOffsetCallback(bool isUp, double offset) {
             // if you want change some widgets state ,you should rewrite the callback
         }
 
         public override void initState() {
-            _scrollController = new ScrollController();
-            _refreshController = new RefreshController();
-            enterRefresh();
+            this._scrollController = new ScrollController();
+            this._refreshController = new RefreshController();
+            this.enterRefresh();
             base.initState();
         }
 
-        private Widget _headerCreate(BuildContext context, int mode) {
+        Widget _headerCreate(BuildContext context, int mode) {
             return new ClassicIndicator(
                 mode: mode,
                 refreshingText: "",
@@ -58,43 +58,45 @@ namespace ConnectApp.screens {
                 color: CColors.White,
                 child: new Container(
                     child: new SmartRefresher(
-                        controller: _refreshController,
+                        controller: this._refreshController,
                         enablePullDown: true,
                         enablePullUp: true,
-                        onOffsetChange: _onOffsetCallback,
+                        onOffsetChange: this._onOffsetCallback,
                         onRefresh: up => {
-                            if (up)
+                            if (up) {
                                 Promise.Delayed(TimeSpan.FromMilliseconds(1000)).Then(() => {
-                                    setState(() => {
-                                        _list.Add(new Text("new up"));
-                                        _list.Add(new Text("new up"));
-                                        _list.Add(new Text("new up"));
-                                        _list.Add(new Text("new up"));
-                                        _list.Add(new Text("new up"));
+                                    this.setState(() => {
+                                        this._list.Add(new Text("new up"));
+                                        this._list.Add(new Text("new up"));
+                                        this._list.Add(new Text("new up"));
+                                        this._list.Add(new Text("new up"));
+                                        this._list.Add(new Text("new up"));
 
-                                        _refreshController.sendBack(true, RefreshStatus.completed);
+                                        this._refreshController.sendBack(true, RefreshStatus.completed);
                                     });
                                 });
-                            else
+                            }
+                            else {
                                 Promise.Delayed(TimeSpan.FromMilliseconds(1000)).Then(() => {
-                                    setState(() => {
-                                        _list.Add(new Text("new down"));
-                                        _list.Add(new Text("new down"));
-                                        _list.Add(new Text("new udownp"));
-                                        _list.Add(new Text("new udownp"));
-                                        _list.Add(new Text("new udownp"));
-                                        _list.Add(new Text("new udownp"));
-                                        _list.Add(new Text("new udownp"));
+                                    this.setState(() => {
+                                        this._list.Add(new Text("new down"));
+                                        this._list.Add(new Text("new down"));
+                                        this._list.Add(new Text("new udownp"));
+                                        this._list.Add(new Text("new udownp"));
+                                        this._list.Add(new Text("new udownp"));
+                                        this._list.Add(new Text("new udownp"));
+                                        this._list.Add(new Text("new udownp"));
 
-                                        _refreshController.sendBack(false, RefreshStatus.idle);
+                                        this._refreshController.sendBack(false, RefreshStatus.idle);
                                     });
                                 });
+                            }
                         },
                         child: ListView.builder(
                             reverse: false,
                             itemExtent: 100.0f,
-                            itemCount: _list.Count,
-                            itemBuilder: (cxt, index) => { return _list[index]; }
+                            itemCount: this._list.Count,
+                            itemBuilder: (cxt, index) => { return this._list[index]; }
                         )
                     ))
             );

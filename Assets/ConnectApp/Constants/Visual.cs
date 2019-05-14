@@ -44,7 +44,6 @@ namespace ConnectApp.constants {
         public static readonly IconData fullscreen = new IconData(0xe5d0, "Material Icons");
         public static readonly IconData fullscreen_exit = new IconData(0xe5d1, "Material Icons");
         public static readonly IconData pause = new IconData(0xe034, "Material Icons");
-
     }
 
     public static class CTextStyle {

@@ -22,19 +22,21 @@ namespace ConnectApp.components {
             this.onTap = onTap;
         }
 
-        private readonly IEvent model;
-        private readonly string place;
-        private readonly GestureTapCallback onTap;
+        readonly IEvent model;
+        readonly string place;
+        readonly GestureTapCallback onTap;
 
         public override Widget build(BuildContext context) {
-            if (model == null) return new Container();
+            if (this.model == null) {
+                return new Container();
+            }
 
-            var time = Convert.ToDateTime(model.begin.startTime);
+            var time = Convert.ToDateTime(this.model.begin.startTime);
             var hour = $"{time.Hour.ToString().PadLeft(2, '0')}";
             var minute = $"{time.Minute.ToString().PadLeft(2, '0')}";
             var hourMinute = $"{hour}:{minute}";
-            var address = place ?? "";
-            var imageUrl = model.avatar ?? model.background;
+            var address = this.place ?? "";
+            var imageUrl = this.model.avatar ?? this.model.background;
             var card = new Container(
                 padding: EdgeInsets.all(16),
                 color: CColors.White,
@@ -71,16 +73,14 @@ namespace ConnectApp.components {
                                     children: new List<Widget> {
                                         new Container(
                                             margin: EdgeInsets.only(bottom: 8),
-                                            child: new Text(
-                                                model.title,
+                                            child: new Text(this.model.title,
                                                 style: CTextStyle.PLargeMedium,
                                                 maxLines: 2,
                                                 overflow: TextOverflow.ellipsis
                                             )
                                         ),
-                                        new Text(
-                                            model.mode == "online"
-                                                ? $"{hourMinute} · {model.participantsCount}人已预订"
+                                        new Text(this.model.mode == "online"
+                                                ? $"{hourMinute} · {this.model.participantsCount}人已预订"
                                                 : $"{hourMinute}  · {address}",
                                             style: CTextStyle.PSmallBody3
                                         )
@@ -108,12 +108,11 @@ namespace ConnectApp.components {
                                             child: new Container(
                                                 width: 41,
                                                 height: 24,
-                                                color: model.mode == "online"
+                                                color: this.model.mode == "online"
                                                     ? CColors.SecondaryPink
                                                     : CColors.PrimaryBlue,
                                                 alignment: Alignment.center,
-                                                child: new Text(
-                                                    model.mode == "online" ? "线上" : "线下",
+                                                child: new Text(this.model.mode == "online" ? "线上" : "线下",
                                                     style: CTextStyle.CaptionWhite,
                                                     textAlign: TextAlign.center
                                                 )
@@ -128,7 +127,7 @@ namespace ConnectApp.components {
             );
             return new GestureDetector(
                 child: card,
-                onTap: onTap
+                onTap: this.onTap
             );
         }
     }

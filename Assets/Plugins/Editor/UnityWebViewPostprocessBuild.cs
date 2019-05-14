@@ -1,11 +1,10 @@
-using System.Collections;
 using System.IO;
 using System.Text;
 using System.Xml;
+using UnityEditor;
 using UnityEditor.Android;
 using UnityEditor.Callbacks;
 using UnityEditor.iOS.Xcode;
-using UnityEditor;
 using UnityEngine;
 
 #if UNITY_2018_1_OR_NEWER
@@ -20,18 +19,16 @@ public class UnityWebViewPostprocessBuild
 
     public void OnPostGenerateGradleAndroidProject(string basePath) {
         Debug.Log("adjusted AndroidManifest.xml.");
-        var androidManifest = new AndroidManifest(GetManifestPath(basePath));
+        var androidManifest = new AndroidManifest(this.GetManifestPath(basePath));
         androidManifest.SetHardwareAccelerated(true);
         androidManifest.Save();
     }
 
     public int callbackOrder {
-        get {
-            return 1;
-        }
+        get { return 1; }
     }
 
-    private string GetManifestPath(string basePath) {
+    string GetManifestPath(string basePath) {
         var pathBuilder = new StringBuilder(basePath);
         pathBuilder.Append(Path.DirectorySeparatorChar).Append("src");
         pathBuilder.Append(Path.DirectorySeparatorChar).Append("main");
@@ -89,7 +86,7 @@ public class UnityWebViewPostprocessBuild
         }
     }
 
-    private static XmlElement SearchActivity(XmlDocument doc) {
+    static XmlElement SearchActivity(XmlDocument doc) {
         foreach (XmlNode node0 in doc.DocumentElement.ChildNodes) {
             if (node0.Name == "application") {
                 foreach (XmlNode node1 in node0.ChildNodes) {
@@ -106,15 +103,19 @@ public class UnityWebViewPostprocessBuild
                                 bool hasCategoryLauncher = false;
                                 foreach (XmlNode node3 in node2.ChildNodes) {
                                     if (node3.Name == "action"
-                                        && ((XmlElement)node3).GetAttribute("android:name") == "android.intent.action.MAIN") {
+                                        && ((XmlElement) node3).GetAttribute("android:name") ==
+                                        "android.intent.action.MAIN") {
                                         hasActionMain = true;
-                                    } else if (node3.Name == "category"
-                                               && ((XmlElement)node3).GetAttribute("android:name") == "android.intent.category.LAUNCHER") {
+                                    }
+                                    else if (node3.Name == "category"
+                                             && ((XmlElement) node3).GetAttribute("android:name") ==
+                                             "android.intent.category.LAUNCHER") {
                                         hasCategoryLauncher = true;
                                     }
                                 }
+
                                 if (hasActionMain && hasCategoryLauncher) {
-                                    return (XmlElement)node1;
+                                    return (XmlElement) node1;
                                 }
                             }
                         }
@@ -123,62 +124,62 @@ public class UnityWebViewPostprocessBuild
                 }
             }
         }
+
         return null;
     }
 }
 
-internal class AndroidXmlDocument : XmlDocument {
-    private string m_Path;
+class AndroidXmlDocument : XmlDocument {
+    string m_Path;
     protected XmlNamespaceManager nsMgr;
     public readonly string AndroidXmlNamespace = "http://schemas.android.com/apk/res/android";
 
     public AndroidXmlDocument(string path) {
-        m_Path = path;
-        using (var reader = new XmlTextReader(m_Path)) {
+        this.m_Path = path;
+        using (var reader = new XmlTextReader(this.m_Path)) {
             reader.Read();
-            Load(reader);
+            this.Load(reader);
         }
-        nsMgr = new XmlNamespaceManager(NameTable);
-        nsMgr.AddNamespace("android", AndroidXmlNamespace);
+
+        this.nsMgr = new XmlNamespaceManager(this.NameTable);
+        this.nsMgr.AddNamespace("android", this.AndroidXmlNamespace);
     }
 
     public string Save() {
-        return SaveAs(m_Path);
+        return this.SaveAs(this.m_Path);
     }
 
     public string SaveAs(string path) {
         using (var writer = new XmlTextWriter(path, new UTF8Encoding(false))) {
             writer.Formatting = Formatting.Indented;
-            Save(writer);
+            this.Save(writer);
         }
+
         return path;
     }
 }
 
-internal class AndroidManifest : AndroidXmlDocument {
-    private readonly XmlElement ApplicationElement;
+class AndroidManifest : AndroidXmlDocument {
+    readonly XmlElement ApplicationElement;
 
     public AndroidManifest(string path) : base(path) {
-        ApplicationElement = SelectSingleNode("/manifest/application") as XmlElement;
+        this.ApplicationElement = this.SelectSingleNode("/manifest/application") as XmlElement;
     }
 
-    private XmlAttribute CreateAndroidAttribute(string key, string value) {
-        XmlAttribute attr = CreateAttribute("android", key, AndroidXmlNamespace);
+    XmlAttribute CreateAndroidAttribute(string key, string value) {
+        XmlAttribute attr = this.CreateAttribute("android", key, this.AndroidXmlNamespace);
         attr.Value = value;
         return attr;
     }
 
     internal XmlNode GetActivityWithLaunchIntent() {
-        return
-            SelectSingleNode(
-                "/manifest/application/activity[intent-filter/action/@android:name='android.intent.action.MAIN' and "
-                + "intent-filter/category/@android:name='android.intent.category.LAUNCHER']",
-                nsMgr);
+        return this.SelectSingleNode(
+            "/manifest/application/activity[intent-filter/action/@android:name='android.intent.action.MAIN' and "
+            + "intent-filter/category/@android:name='android.intent.category.LAUNCHER']", this.nsMgr);
     }
 
     internal void SetHardwareAccelerated(bool enabled) {
-        var activity = GetActivityWithLaunchIntent() as XmlElement;
+        var activity = this.GetActivityWithLaunchIntent() as XmlElement;
         activity.SetAttribute("android:hardwareAccelerated", (enabled) ? "true" : "false");
     }
 }
-

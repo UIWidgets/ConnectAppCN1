@@ -6,10 +6,12 @@ using UnityEngine;
 
 namespace ConnectApp.utils {
     public static class UserInfoManager {
-        private const string _userInfo = "UserInfo";
+        const string _userInfo = "UserInfo";
 
         public static void saveUserInfo(LoginInfo loginInfo) {
-            if (loginInfo == null) return;
+            if (loginInfo == null) {
+                return;
+            }
 
             var list = new List<LoginInfo> {loginInfo};
             var infoStr = JsonConvert.SerializeObject(list);
@@ -35,7 +37,10 @@ namespace ConnectApp.utils {
 
         public static Dictionary<string, User> initUserDict() {
             var info = initUserInfo();
-            if (info.userId.isEmpty()) return new Dictionary<string, User>();
+            if (info.userId.isEmpty()) {
+                return new Dictionary<string, User>();
+            }
+
             var user = new User {
                 fullName = info.userFullName,
                 id = info.userId,
@@ -45,8 +50,9 @@ namespace ConnectApp.utils {
         }
 
         public static void clearUserInfo() {
-            if (PlayerPrefs.HasKey(_userInfo))
+            if (PlayerPrefs.HasKey(_userInfo)) {
                 PlayerPrefs.DeleteKey(_userInfo);
+            }
         }
     }
 }

@@ -12,7 +12,7 @@ namespace ConnectApp.models {
     }
 
     public class Frame {
-        private Frame fromJson(Dictionary<string, object> json) {
+        Frame fromJson(Dictionary<string, object> json) {
             var op = json["op"];
             switch (op) {
                 case OpCode.DISPATCH:

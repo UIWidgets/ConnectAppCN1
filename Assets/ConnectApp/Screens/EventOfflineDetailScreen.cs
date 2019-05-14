@@ -11,25 +11,24 @@ using ConnectApp.utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.screens
-{
-    
+namespace ConnectApp.screens {
     public class EventOfflineDetailScreenConnector : StatelessWidget {
         public EventOfflineDetailScreenConnector(string eventId) {
             this.eventId = eventId;
         }
 
-        private readonly string eventId;
+        readonly string eventId;
+
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, EventDetailScreenViewModel>(
                 converter: state => new EventDetailScreenViewModel {
-                    eventId = eventId,
+                    eventId = this.eventId,
                     isLoggedIn = state.loginState.isLoggedIn,
                     eventDetailLoading = state.eventState.eventDetailLoading,
                     joinEventLoading = state.eventState.joinEventLoading,
@@ -42,8 +41,7 @@ namespace ConnectApp.screens
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
-                        openUrl = url => dispatcher.dispatch(new MainNavigatorPushToWebViewAction
-                        {
+                        openUrl = url => dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
                             url = url
                         }),
                         copyText = text => dispatcher.dispatch(new CopyTextAction {text = text}),
@@ -60,10 +58,9 @@ namespace ConnectApp.screens
             );
         }
     }
-    
-    
-    public class EventOfflineDetailScreen : StatefulWidget
-    {
+
+
+    public class EventOfflineDetailScreen : StatefulWidget {
         public EventOfflineDetailScreen(
             EventDetailScreenViewModel viewModel = null,
             EventDetailScreenActionModel actionModel = null,
@@ -81,30 +78,33 @@ namespace ConnectApp.screens
         }
     }
 
-    internal class _EventOfflineDetailScreenState : State<EventOfflineDetailScreen>
-    {
-        private string _loginSubId;
-        private bool _showNavBarShadow;
+    class _EventOfflineDetailScreenState : State<EventOfflineDetailScreen> {
+        string _loginSubId;
+        bool _showNavBarShadow;
 
         public override void initState() {
             base.initState();
-            _showNavBarShadow = true;
+            this._showNavBarShadow = true;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
-                widget.actionModel.startFetchEventDetail();
-                widget.actionModel.fetchEventDetail(widget.viewModel.eventId, EventType.offline);
+                this.widget.actionModel.startFetchEventDetail();
+                this.widget.actionModel.fetchEventDetail(this.widget.viewModel.eventId, EventType.offline);
             });
-            _loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
-                widget.actionModel.startFetchEventDetail();
-                widget.actionModel.fetchEventDetail(widget.viewModel.eventId, EventType.offline);
+            this._loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
+                this.widget.actionModel.startFetchEventDetail();
+                this.widget.actionModel.fetchEventDetail(this.widget.viewModel.eventId, EventType.offline);
             });
         }
 
         public override Widget build(BuildContext context) {
             var eventObj = new IEvent();
-            if (widget.viewModel.eventsDict.ContainsKey(widget.viewModel.eventId))
-                eventObj = widget.viewModel.eventsDict[widget.viewModel.eventId];
-            if ((widget.viewModel.eventDetailLoading || eventObj?.user == null)&&!eventObj.isNotFirst)
-                return new EventDetailLoading(mainRouterPop: widget.actionModel.mainRouterPop);
+            if (this.widget.viewModel.eventsDict.ContainsKey(this.widget.viewModel.eventId)) {
+                eventObj = this.widget.viewModel.eventsDict[this.widget.viewModel.eventId];
+            }
+
+            if ((this.widget.viewModel.eventDetailLoading || eventObj?.user == null) && !eventObj.isNotFirst) {
+                return new EventDetailLoading(mainRouterPop: this.widget.actionModel.mainRouterPop);
+            }
+
             var eventStatus = DateConvert.GetEventStatus(eventObj.begin);
             return new Container(
                 color: CColors.White,
@@ -112,11 +112,12 @@ namespace ConnectApp.screens
                     child: new Container(
                         color: CColors.White,
                         child: new NotificationListener<ScrollNotification>(
-                            onNotification: _onNotification,
+                            onNotification: this._onNotification,
                             child: new Column(
                                 children: new List<Widget> {
-                                    _buildEventDetail(context,eventObj),
-                                    _buildOfflineRegisterNow(eventObj, widget.viewModel.isLoggedIn, eventStatus)
+                                    this._buildEventDetail(context, eventObj),
+                                    this._buildOfflineRegisterNow(eventObj, this.widget.viewModel.isLoggedIn,
+                                        eventStatus)
                                 }
                             )
                         )
@@ -124,37 +125,38 @@ namespace ConnectApp.screens
                 )
             );
         }
-        
-        private Widget _buildEventDetail(BuildContext context, IEvent eventObj) {
+
+        Widget _buildEventDetail(BuildContext context, IEvent eventObj) {
             return new Expanded(
                 child: new Stack(
                     children: new List<Widget> {
-                        new EventDetail(true,eventObj, widget.actionModel.openUrl),
+                        new EventDetail(true, eventObj, this.widget.actionModel.openUrl),
                         new Positioned(
                             left: 0,
                             top: 0,
                             right: 0,
-                            child: _buildHeadTop(true, eventObj)
+                            child: this._buildHeadTop(true, eventObj)
                         )
                     }
                 )
             );
         }
-        private bool _onNotification(ScrollNotification notification) {
+
+        bool _onNotification(ScrollNotification notification) {
             var pixels = notification.metrics.pixels;
-            _showNavBarShadow = !(pixels >= 44);
-            setState(() => { });
+            this._showNavBarShadow = !(pixels >= 44);
+            this.setState(() => { });
             return true;
         }
-      
+
         public override void dispose() {
-            EventBus.unSubscribe(EventBusConstant.login_success, _loginSubId);
+            EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
             base.dispose();
         }
 
-        private Widget _buildHeadTop(bool isShowShare, IEvent eventObj) {
+        Widget _buildHeadTop(bool isShowShare, IEvent eventObj) {
             Widget shareWidget = new Container();
-            if (isShowShare)
+            if (isShowShare) {
                 shareWidget = new CustomButton(
                     onPressed: () => ShareUtils.showShareView(new ShareView(
                         projectType: ProjectType.iEvent,
@@ -162,7 +164,7 @@ namespace ConnectApp.screens
                             var linkUrl =
                                 $"{Config.apiAddress}/events/{eventObj.id}";
                             if (type == ShareType.clipBoard) {
-                                widget.actionModel.copyText(linkUrl);
+                                this.widget.actionModel.copyText(linkUrl);
                                 CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
                             }
                             else {
@@ -170,7 +172,7 @@ namespace ConnectApp.screens
                                 CustomDialogUtils.showCustomDialog(
                                     child: new CustomLoadingDialog()
                                 );
-                                widget.actionModel.shareToWechat(type, eventObj.title, eventObj.shortDescription,
+                                this.widget.actionModel.shareToWechat(type, eventObj.title, eventObj.shortDescription,
                                         linkUrl,
                                         imageUrl).Then(CustomDialogUtils.hiddenCustomDialog)
                                     .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
@@ -181,32 +183,37 @@ namespace ConnectApp.screens
                         width: 64,
                         height: 64,
                         color: CColors.Transparent,
-                        child: new Icon(Icons.share, size: 28, color: _showNavBarShadow ? CColors.White : CColors.icon3))
+                        child: new Icon(Icons.share, size: 28,
+                            color: this._showNavBarShadow ? CColors.White : CColors.icon3))
                 );
+            }
+
             return new AnimatedContainer(
                 height: 44,
                 duration: new TimeSpan(0, 0, 0, 0, 0),
                 padding: EdgeInsets.symmetric(horizontal: 8),
                 decoration: new BoxDecoration(
                     CColors.White,
-                    gradient: _showNavBarShadow ? new LinearGradient(
-                        colors: new List<Color> {
-                            new Color(0x80000000),
-                            new Color(0x0)
-                        },
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter
-                    ) : null 
+                    gradient: this._showNavBarShadow
+                        ? new LinearGradient(
+                            colors: new List<Color> {
+                                new Color(0x80000000),
+                                new Color(0x0)
+                            },
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter
+                        )
+                        : null
                 ),
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: new List<Widget> {
                         new CustomButton(
-                            onPressed: () => widget.actionModel.mainRouterPop(),
+                            onPressed: () => this.widget.actionModel.mainRouterPop(),
                             child: new Icon(
                                 Icons.arrow_back,
                                 size: 28,
-                                color: _showNavBarShadow ? CColors.White : CColors.icon3
+                                color: this._showNavBarShadow ? CColors.White : CColors.icon3
                             )
                         ),
                         shareWidget
@@ -214,13 +221,12 @@ namespace ConnectApp.screens
                 )
             );
         }
-        
-        private Widget _buildOfflineRegisterNow(IEvent eventObj, bool isLoggedIn, EventStatus eventStatus) {
 
+        Widget _buildOfflineRegisterNow(IEvent eventObj, bool isLoggedIn, EventStatus eventStatus) {
             if (eventObj.type.isNotEmpty() && !(eventObj.type == "bagevent" || eventObj.type == "customize")) {
                 return new Container();
             }
-            
+
             var buttonText = "立即报名";
             var backgroundColor = CColors.PrimaryBlue;
             var isEnabled = true;
@@ -240,18 +246,21 @@ namespace ConnectApp.screens
                 ),
                 child: new CustomButton(
                     onPressed: () => {
-                        if (!isEnabled) return;
+                        if (!isEnabled) {
+                            return;
+                        }
+
                         if (isLoggedIn && eventObj.type.isNotEmpty()) {
                             if (eventObj.type == "bagevent") {
-                                widget.actionModel.openUrl(
+                                this.widget.actionModel.openUrl(
                                     $"{Config.apiAddress}/events/{eventObj.id}/purchase");
                             }
                             else if (eventObj.type == "customize" && eventObj.typeParam.isNotEmpty()) {
-                                widget.actionModel.openUrl(eventObj.typeParam);
+                                this.widget.actionModel.openUrl(eventObj.typeParam);
                             }
                         }
                         else {
-                            widget.actionModel.pushToLogin();
+                            this.widget.actionModel.pushToLogin();
                         }
                     },
                     padding: EdgeInsets.zero,

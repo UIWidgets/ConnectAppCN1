@@ -5,11 +5,13 @@ using Unity.UIWidgets.Redux;
 
 namespace ConnectApp.redux {
     public static class StoreProvider {
-        private static Store<AppState> _store;
+        static Store<AppState> _store;
 
         public static Store<AppState> store {
             get {
-                if (_store != null) return _store;
+                if (_store != null) {
+                    return _store;
+                }
 
                 var middleware = new[] {
 //                    ReduxLogging.create<AppState>(),

@@ -12,128 +12,124 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
-namespace ConnectApp.screens
-{ 
-    public class WebViewScreen : StatefulWidget
-    {
+namespace ConnectApp.screens {
+    public class WebViewScreen : StatefulWidget {
         public WebViewScreen(
-            string url = null ,
+            string url = null,
             Key key = null
-        ) : base(key)
-        {
+        ) : base(key) {
             this.url = url;
         }
 
         public readonly string url;
 
-        public override State createState()
-        {
+        public override State createState() {
             return new _WebViewScreenState();
         }
     }
-    public class _WebViewScreenState : State<WebViewScreen>
-    {
-        private WebViewObject _webViewObject = null;
-        private float _progress;
-        private bool _onClose;
-        private Timer _timer;
 
-        public override void initState()
-        {
+    public class _WebViewScreenState : State<WebViewScreen> {
+        WebViewObject _webViewObject = null;
+        float _progress;
+        bool _onClose;
+        Timer _timer;
+
+        public override void initState() {
             base.initState();
-            if (!Application.isEditor)
-            {
-                _webViewObject = WebViewManager.instance.getWebView(); 
-                _webViewObject.Init(
-                    ua: "", 
-                    enableWKWebView: true, 
+            if (!Application.isEditor) {
+                this._webViewObject = WebViewManager.instance.getWebView();
+                this._webViewObject.Init(
+                    ua: "",
+                    enableWKWebView: true,
                     transparent: true,
                     started: start => {
                         using (WindowProvider.of(this.context).getScope()) {
-                           this.startProgress();
+                            this.startProgress();
                         }
                     },
                     ld: ld => {
                         using (WindowProvider.of(this.context).getScope()) {
-                            this.stopProgress(); 
+                            this.stopProgress();
                         }
                     }
                 );
-                _webViewObject.LoadURL(widget.url);
-                _webViewObject.ClearCookies();
+                this._webViewObject.LoadURL(this.widget.url);
+                this._webViewObject.ClearCookies();
                 if (HttpManager.getCookie().isNotEmpty()) {
 #if UNITY_IOS
-                    _webViewObject.AddCustomHeader("Cookie", HttpManager.getCookie());
+                    this._webViewObject.AddCustomHeader("Cookie", HttpManager.getCookie());
 #endif
                 }
-                _webViewObject.SetVisibility(true);
+
+                this._webViewObject.SetVisibility(true);
             }
-            _progress = 0;
-            _onClose = false;
+
+            this._progress = 0;
+            this._onClose = false;
         }
-        
+
         public override void dispose() {
-            if (_timer != null) {
-                _timer.cancel();
-                _timer.Dispose();
+            if (this._timer != null) {
+                this._timer.cancel();
+                this._timer.Dispose();
             }
-            if (!Application.isEditor)
-            {
-                _webViewObject.SetVisibility(false);
+
+            if (!Application.isEditor) {
+                this._webViewObject.SetVisibility(false);
                 WebViewManager.instance.destroyWebView();
             }
+
             base.dispose();
         }
 
         void startProgress() {
-            if (_timer != null) {
-                _timer.cancel();
-                _timer = null;
+            if (this._timer != null) {
+                this._timer.cancel();
+                this._timer = null;
             }
-            _timer = Window.instance.run(new TimeSpan(0,0,0,0,60), () => {
-                if (_progress < 0.9f) {
-                    _progress += 0.03f;
-                    setState(() => {});
+
+            this._timer = Window.instance.run(new TimeSpan(0, 0, 0, 0, 60), () => {
+                if (this._progress < 0.9f) {
+                    this._progress += 0.03f;
+                    this.setState(() => { });
                 }
                 else {
-                    _timer.cancel();
+                    this._timer.cancel();
                 }
             }, true);
         }
 
         void stopProgress() {
-            if (_timer != null) {
-                _timer.cancel();
-                _timer = null;
+            if (this._timer != null) {
+                this._timer.cancel();
+                this._timer = null;
             }
 
-            _progress = 1;
-            setState(() => {});
+            this._progress = 1;
+            this.setState(() => { });
         }
 
-        public override Widget build(BuildContext context)
-        {
+        public override Widget build(BuildContext context) {
             Widget progressWidget = new Container();
-            if (_progress < 1.0f) {
-                progressWidget = new CustomProgress(
-                    _progress,
+            if (this._progress < 1.0f) {
+                progressWidget = new CustomProgress(this._progress,
                     CColors.White
                 );
             }
-            if (!Application.isEditor)
-            {
+
+            if (!Application.isEditor) {
                 var ratio = Window.instance.devicePixelRatio;
-                var top = (int) ( 44 * ratio);
-                if (Application.platform != RuntimePlatform.Android)
-                {
+                var top = (int) (44 * ratio);
+                if (Application.platform != RuntimePlatform.Android) {
                     top = (int) ((MediaQuery.of(context).padding.top + 44) * ratio);
                 }
+
                 var bottom = (int) (MediaQuery.of(context).padding.bottom * ratio);
-                _webViewObject.SetMargins(0, top,0, bottom);
+                this._webViewObject.SetMargins(0, top, 0, bottom);
             }
-            
+
             Widget tipsText = new Container();
-            if (_onClose) {
+            if (this._onClose) {
                 tipsText = new Text(
                     "正在关闭...",
                     style: CTextStyle.PXLarge
@@ -156,7 +152,7 @@ namespace ConnectApp.screens
                                 new Container(
                                     child: new Stack(
                                         children: new List<Widget> {
-                                            _buildNavigationBar(),
+                                            this._buildNavigationBar(),
                                             new Align(
                                                 alignment: Alignment.bottomCenter,
                                                 child: progressWidget
@@ -174,8 +170,9 @@ namespace ConnectApp.screens
                     )
                 )
             );
-        }       
-        private Widget _buildNavigationBar() {
+        }
+
+        Widget _buildNavigationBar() {
             return new Container(
                 height: 44,
                 color: CColors.White,
@@ -185,14 +182,14 @@ namespace ConnectApp.screens
                     children: new List<Widget> {
                         new GestureDetector(
                             onTap: () => {
-                                _onClose = true;
-                                setState(() => {});
+                                this._onClose = true;
+                                this.setState(() => { });
                                 if (Router.navigator.canPop()) {
                                     Router.navigator.pop();
                                 }
-                                if (!Application.isEditor)
-                                {
-                                    _webViewObject.SetVisibility(false);
+
+                                if (!Application.isEditor) {
+                                    this._webViewObject.SetVisibility(false);
                                     WebViewManager.instance.destroyWebView();
                                 }
                             },

@@ -13,8 +13,10 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.components {
     public static class ContentDescription {
         public static List<Widget> map(BuildContext context, string cont, Dictionary<string, ContentMap> contentMap,
-            Action<string> openUrl,Action<string> playVideo) {
-            if (cont == null) return new List<Widget>();
+            Action<string> openUrl, Action<string> playVideo) {
+            if (cont == null) {
+                return new List<Widget>();
+            }
 
             var content = JsonConvert.DeserializeObject<EventContent>(cont);
             var widgets = new List<Widget>();
@@ -27,28 +29,33 @@ namespace ConnectApp.components {
                 var text = block.text;
                 switch (type) {
                     case "header-one": {
-                        var inlineSpans = _RichStyle(text, content.entityMap, block.entityRanges, block.inlineStyleRanges, openUrl, CTextStyle.H4);
+                        var inlineSpans = _RichStyle(text, content.entityMap, block.entityRanges,
+                            block.inlineStyleRanges, openUrl, CTextStyle.H4);
                         widgets.Add(_H1(text, inlineSpans));
                     }
                         break;
                     case "header-two": {
-                        var inlineSpans = _RichStyle(text, content.entityMap, block.entityRanges, block.inlineStyleRanges, openUrl, CTextStyle.H5);
+                        var inlineSpans = _RichStyle(text, content.entityMap, block.entityRanges,
+                            block.inlineStyleRanges, openUrl, CTextStyle.H5);
                         widgets.Add(_H2(text, inlineSpans));
                     }
                         break;
                     case "blockquote": {
-                        var inlineSpans = _RichStyle(text, content.entityMap, block.entityRanges, block.inlineStyleRanges, openUrl, CTextStyle.PXLargeBody4);
+                        var inlineSpans = _RichStyle(text, content.entityMap, block.entityRanges,
+                            block.inlineStyleRanges, openUrl, CTextStyle.PXLargeBody4);
                         widgets.Add(_QuoteBlock(text, inlineSpans));
                     }
                         break;
                     case "code-block": {
-                        var inlineSpans = _RichStyle(text, content.entityMap, block.entityRanges, block.inlineStyleRanges, openUrl, CTextStyle.PCodeStyle);
+                        var inlineSpans = _RichStyle(text, content.entityMap, block.entityRanges,
+                            block.inlineStyleRanges, openUrl, CTextStyle.PCodeStyle);
                         widgets.Add(_CodeBlock(context, text, inlineSpans));
                     }
                         break;
                     case "unstyled": {
                         if (text.isNotEmpty()) {
-                            var inlineSpans = _RichStyle(text, content.entityMap, block.entityRanges, block.inlineStyleRanges, openUrl);
+                            var inlineSpans = _RichStyle(text, content.entityMap, block.entityRanges,
+                                block.inlineStyleRanges, openUrl);
                             widgets.Add(_Unstyled(text, inlineSpans));
                         }
                     }
@@ -62,7 +69,8 @@ namespace ConnectApp.components {
 
                         var afterBlock = blocks[i + 1];
                         var isLast = afterBlock.type != "unordered-list-item";
-                        var inlineSpans = _RichStyle(text, content.entityMap, block.entityRanges, block.inlineStyleRanges, openUrl);
+                        var inlineSpans = _RichStyle(text, content.entityMap, block.entityRanges,
+                            block.inlineStyleRanges, openUrl);
                         widgets.Add(
                             _UnorderedList(
                                 block.text,
@@ -74,7 +82,10 @@ namespace ConnectApp.components {
                     }
                         break;
                     case "ordered-list-item": {
-                        if (_isFirstOrderedListItem) break;
+                        if (_isFirstOrderedListItem) {
+                            break;
+                        }
+
                         var items = new List<OrderedListModel>();
                         var orderedItem = blocks.FindAll(item => item.type == "ordered-list-item");
                         orderedItem.ForEach(item => items.Add(new OrderedListModel {
@@ -94,18 +105,20 @@ namespace ConnectApp.components {
                         if (content.entityMap.ContainsKey(key)) {
                             var dataMap = content.entityMap[key];
                             var data = dataMap.data;
-                            if (data.contentId.isNotEmpty())
+                            if (data.contentId.isNotEmpty()) {
                                 if (contentMap.ContainsKey(data.contentId)) {
                                     var map = contentMap[data.contentId];
                                     var url = map.url;
-                                    var downloadUrl = map.downloadUrl??"";
-                                    var contentType = map.contentType??"";
+                                    var downloadUrl = map.downloadUrl ?? "";
+                                    var contentType = map.contentType ?? "";
                                     var originalImage = map.originalImage == null
                                         ? map.thumbnail
                                         : map.originalImage;
-                                    widgets.Add(_Atomic(context, dataMap.type,contentType, data.title, originalImage,url,downloadUrl,
-                                        openUrl,playVideo));
+                                    widgets.Add(_Atomic(context, dataMap.type, contentType, data.title, originalImage,
+                                        url, downloadUrl,
+                                        openUrl, playVideo));
                                 }
+                            }
                         }
                     }
                         break;
@@ -115,19 +128,23 @@ namespace ConnectApp.components {
             return widgets;
         }
 
-        private static Widget _H1(string text, List<TextSpan>inlineSpans) {
-            if (text == null) return new Container();
-            
+        static Widget _H1(string text, List<TextSpan> inlineSpans) {
+            if (text == null) {
+                return new Container();
+            }
+
             Widget child = new Text(
                 text,
                 style: CTextStyle.H4
             );
-            if (inlineSpans != null)
+            if (inlineSpans != null) {
                 child = new RichText(
                     text: new TextSpan(
                         children: inlineSpans
                     )
                 );
+            }
+
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(16, 16, 16, 24),
@@ -135,19 +152,23 @@ namespace ConnectApp.components {
             );
         }
 
-        private static Widget _H2(string text, List<TextSpan>inlineSpans) {
-            if (text == null) return new Container();
-            
+        static Widget _H2(string text, List<TextSpan> inlineSpans) {
+            if (text == null) {
+                return new Container();
+            }
+
             Widget child = new Text(
                 text,
                 style: CTextStyle.H5
             );
-            if (inlineSpans != null)
+            if (inlineSpans != null) {
                 child = new RichText(
                     text: new TextSpan(
                         children: inlineSpans
                     )
                 );
+            }
+
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(16, 16, 16, 24),
@@ -155,18 +176,22 @@ namespace ConnectApp.components {
             );
         }
 
-        private static Widget _Unstyled(string text, List<TextSpan>inlineSpans) {
-            if (text == null) return new Container();
+        static Widget _Unstyled(string text, List<TextSpan> inlineSpans) {
+            if (text == null) {
+                return new Container();
+            }
+
             Widget child = new Text(
                 text,
                 style: CTextStyle.PXLarge
             );
-            if (inlineSpans != null)
+            if (inlineSpans != null) {
                 child = new RichText(
                     text: new TextSpan(
                         children: inlineSpans
                     )
                 );
+            }
 
             return new Container(
                 color: CColors.White,
@@ -175,20 +200,23 @@ namespace ConnectApp.components {
             );
         }
 
-        private static Widget _CodeBlock(BuildContext context, string text, List<TextSpan> inlineSpans) {
-            if (text == null) return new Container();
-            
+        static Widget _CodeBlock(BuildContext context, string text, List<TextSpan> inlineSpans) {
+            if (text == null) {
+                return new Container();
+            }
+
             Widget child = new Text(
                 text,
                 style: CTextStyle.PCodeStyle
             );
-            if (inlineSpans != null)
+            if (inlineSpans != null) {
                 child = new RichText(
                     text: new TextSpan(
                         children: inlineSpans
                     )
                 );
-            
+            }
+
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(bottom: 24),
@@ -204,18 +232,19 @@ namespace ConnectApp.components {
         }
 
 
-        private static Widget _QuoteBlock(string text, List<TextSpan>inlineSpans) {
+        static Widget _QuoteBlock(string text, List<TextSpan> inlineSpans) {
             Widget child = new Text(
                 text,
                 style: CTextStyle.PXLargeBody4
             );
-            if (inlineSpans != null)
+            if (inlineSpans != null) {
                 child = new RichText(
                     text: new TextSpan(
                         children: inlineSpans
                     )
                 );
-            
+            }
+
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(16, right: 16, bottom: 24),
@@ -235,28 +264,29 @@ namespace ConnectApp.components {
             );
         }
 
-        private static Widget _Atomic(BuildContext context, string type,string contentType, string title, _OriginalImage originalImage,
-            string url,string downloadUrl, Action<string> openUrl,Action<string> playVideo) {
-            if (type == "ATTACHMENT" && contentType != "video/mp4")
-            {
+        static Widget _Atomic(BuildContext context, string type, string contentType, string title,
+            _OriginalImage originalImage,
+            string url, string downloadUrl, Action<string> openUrl, Action<string> playVideo) {
+            if (type == "ATTACHMENT" && contentType != "video/mp4") {
                 return new Container();
             }
 
             var playButton = Positioned.fill(
                 new Container()
             );
-            if (type == "VIDEO"|| type == "ATTACHMENT")
+            if (type == "VIDEO" || type == "ATTACHMENT") {
                 playButton = Positioned.fill(
                     new Center(
                         child: new CustomButton(
                             onPressed: () => {
-                                if (type == "ATTACHMENT")
-                                {
+                                if (type == "ATTACHMENT") {
                                     playVideo($"{downloadUrl}?noLoginRequired=true");
                                 }
-                                else
-                                {
-                                    if (url == null || url.Length <= 0) return;
+                                else {
+                                    if (url == null || url.Length <= 0) {
+                                        return;
+                                    }
+
                                     openUrl(url);
                                 }
                             },
@@ -276,10 +306,11 @@ namespace ConnectApp.components {
                         )
                     )
                 );
-            var attachWidth =  MediaQuery.of(context).size.width - 32;
-            var attachHeight = attachWidth*9/16;
-            if (type == "ATTACHMENT") 
-                
+            }
+
+            var attachWidth = MediaQuery.of(context).size.width - 32;
+            var attachHeight = attachWidth * 9 / 16;
+            if (type == "ATTACHMENT") {
                 return new Container(
                     color: CColors.White,
                     padding: EdgeInsets.only(bottom: 32),
@@ -291,9 +322,9 @@ namespace ConnectApp.components {
                                 new Stack(
                                     children: new List<Widget> {
                                         new Container(
-                                            width:attachWidth,
-                                            height:attachHeight,
-                                            color:CColors.Black
+                                            width: attachWidth,
+                                            height: attachHeight,
+                                            color: CColors.Black
                                         ),
                                         playButton
                                     }
@@ -302,13 +333,17 @@ namespace ConnectApp.components {
                         )
                     )
                 );
+            }
+
             var width = originalImage.width < MediaQuery.of(context).size.width - 32
                 ? originalImage.width
                 : MediaQuery.of(context).size.width - 32;
             var height = width * originalImage.height / originalImage.width;
             var imageUrl = originalImage.url;
-            if (imageUrl.isNotEmpty())
+            if (imageUrl.isNotEmpty()) {
                 imageUrl = imageUrl.EndsWith(".gif") ? imageUrl : $"{originalImage.url}.600x0x1.jpg";
+            }
+
             var nodes = new List<Widget> {
                 new Stack(
                     children: new List<Widget> {
@@ -357,7 +392,7 @@ namespace ConnectApp.components {
         }
 
 
-        private static Widget _OrderedList(List<OrderedListModel> items) {
+        static Widget _OrderedList(List<OrderedListModel> items) {
             var widgets = new List<Widget>();
 
             for (var i = 0; i < items.Count; i++) {
@@ -368,11 +403,15 @@ namespace ConnectApp.components {
                         CTextStyle.PXLarge
                     )
                 };
-                var linkSpans = _RichStyle(item.text, item.entityMap, item.entityRanges, item.inlineStyleRanges, item.openUrl);
-                if (linkSpans != null)
+                var linkSpans = _RichStyle(item.text, item.entityMap, item.entityRanges, item.inlineStyleRanges,
+                    item.openUrl);
+                if (linkSpans != null) {
                     spans.AddRange(linkSpans);
-                else
+                }
+                else {
                     spans.Add(new TextSpan(item.text, CTextStyle.PXLarge));
+                }
+
                 widgets.Add(
                     new Container(
                         padding: EdgeInsets.only(16, right: 16),
@@ -397,7 +436,7 @@ namespace ConnectApp.components {
             );
         }
 
-        private static Widget _UnorderedList(
+        static Widget _UnorderedList(
             string text,
             bool isFirst,
             bool isLast,
@@ -407,12 +446,14 @@ namespace ConnectApp.components {
                 text,
                 style: CTextStyle.PXLarge
             );
-            if (inlineSpans != null)
+            if (inlineSpans != null) {
                 child = new RichText(
                     text: new TextSpan(
                         children: inlineSpans
                     )
                 );
+            }
+
             var spans = new List<Widget> {
                 new Container(
                     width: 8,
@@ -438,7 +479,7 @@ namespace ConnectApp.components {
             );
         }
 
-        private static List<TextSpan> _RichStyle(
+        static List<TextSpan> _RichStyle(
             string text,
             Dictionary<string, _EventContentEntity> entityMap,
             List<_EntityRange> entityRanges,
@@ -446,23 +487,31 @@ namespace ConnectApp.components {
             Action<string> openUrl,
             TextStyle style = null
         ) {
-            if (text == null) return null;
-            
-            if (entityRanges == null 
+            if (text == null) {
+                return null;
+            }
+
+            if (entityRanges == null
                 && entityRanges.Count <= 0
-                && inlineStyleRanges == null 
-                && inlineStyleRanges.Count <= 0) return null;
-            
+                && inlineStyleRanges == null
+                && inlineStyleRanges.Count <= 0) {
+                return null;
+            }
+
             var newStyle = style != null ? style : CTextStyle.PXLarge;
-            if (inlineStyleRanges.Count <= 0) return _LinkSpans(text, entityMap, entityRanges, openUrl, newStyle);
-            
-            if (entityRanges.Count <= 0) return _InlineStyle(text, inlineStyleRanges, newStyle);
+            if (inlineStyleRanges.Count <= 0) {
+                return _LinkSpans(text, entityMap, entityRanges, openUrl, newStyle);
+            }
+
+            if (entityRanges.Count <= 0) {
+                return _InlineStyle(text, inlineStyleRanges, newStyle);
+            }
 
             var inlineStyleRange = inlineStyleRanges.first();
             var inlineOffset = inlineStyleRange.offset;
             var inlineLength = inlineStyleRange.length;
             var inlineStyle = inlineStyleRange.style;
-            
+
             var entityRange = entityRanges.first();
             var key = entityRange.key.ToString();
             var data = entityMap[key];
@@ -490,22 +539,32 @@ namespace ConnectApp.components {
                 var spans = new List<TextSpan> {
                     new TextSpan(text.Substring(0, inlineOffset), newStyle),
                     new TextSpan(text.Substring(inlineOffset, inlineLength), textStyle),
-                    new TextSpan(text.Substring(inlineOffset + inlineLength, entityOffset - inlineOffset - inlineLength), newStyle),
-                    new TextSpan(text.Substring(entityOffset, entityLength), newStyle.copyWith(CColors.PrimaryBlue), recognizer: recognizer),
-                    new TextSpan(text.Substring(entityOffset + entityLength, text.Length - entityOffset - entityLength), newStyle)
+                    new TextSpan(
+                        text.Substring(inlineOffset + inlineLength, entityOffset - inlineOffset - inlineLength),
+                        newStyle),
+                    new TextSpan(text.Substring(entityOffset, entityLength), newStyle.copyWith(CColors.PrimaryBlue),
+                        recognizer: recognizer),
+                    new TextSpan(text.Substring(entityOffset + entityLength, text.Length - entityOffset - entityLength),
+                        newStyle)
                 };
                 return spans;
             }
+
             if (inlineOffset >= entityOffset + entityLength) {
                 var spans = new List<TextSpan> {
                     new TextSpan(text.Substring(0, entityOffset), newStyle),
-                    new TextSpan(text.Substring(entityOffset, entityLength), newStyle.copyWith(CColors.PrimaryBlue), recognizer: recognizer),
-                    new TextSpan(text.Substring(entityOffset + entityLength, inlineOffset - entityOffset - entityLength), newStyle),
+                    new TextSpan(text.Substring(entityOffset, entityLength), newStyle.copyWith(CColors.PrimaryBlue),
+                        recognizer: recognizer),
+                    new TextSpan(
+                        text.Substring(entityOffset + entityLength, inlineOffset - entityOffset - entityLength),
+                        newStyle),
                     new TextSpan(text.Substring(inlineOffset, inlineLength), textStyle),
-                    new TextSpan(text.Substring(inlineOffset + inlineLength, text.Length - inlineOffset - inlineLength), newStyle)
+                    new TextSpan(text.Substring(inlineOffset + inlineLength, text.Length - inlineOffset - inlineLength),
+                        newStyle)
                 };
                 return spans;
             }
+
             if (entityOffset >= inlineOffset) {
                 if (entityOffset + entityLength <= inlineOffset + inlineLength) {
                     var lastLength = inlineOffset + inlineLength - entityOffset - entityLength;
@@ -514,16 +573,21 @@ namespace ConnectApp.components {
                         new TextSpan(text.Substring(inlineOffset, entityOffset - inlineOffset), textStyle),
                         new TextSpan(text.Substring(entityOffset, entityLength), textBlueStyle, recognizer: recognizer),
                         new TextSpan(text.Substring(entityOffset + entityLength, lastLength), textStyle),
-                        new TextSpan(text.Substring(inlineOffset + inlineLength, text.Length - inlineOffset - inlineLength), newStyle)
+                        new TextSpan(
+                            text.Substring(inlineOffset + inlineLength, text.Length - inlineOffset - inlineLength),
+                            newStyle)
                     };
                     return spans;
                 }
             }
+
             return null;
         }
-        
-        private static List<TextSpan> _InlineStyle(string text, List<_InlineStyleRange> inlineStyleRanges, TextStyle style) {
-            if (inlineStyleRanges == null && inlineStyleRanges.Count <= 0) return null;
+
+        static List<TextSpan> _InlineStyle(string text, List<_InlineStyleRange> inlineStyleRanges, TextStyle style) {
+            if (inlineStyleRanges == null && inlineStyleRanges.Count <= 0) {
+                return null;
+            }
 
             var inlineStyleRange = inlineStyleRanges.first();
             var offset = inlineStyleRange.offset;
@@ -555,7 +619,7 @@ namespace ConnectApp.components {
             };
         }
 
-        private static List<TextSpan> _LinkSpans(
+        static List<TextSpan> _LinkSpans(
             string text,
             Dictionary<string, _EventContentEntity> entityMap,
             List<_EntityRange> entityRanges,
@@ -594,6 +658,7 @@ namespace ConnectApp.components {
                     }
                 }
             }
+
             return null;
         }
     }

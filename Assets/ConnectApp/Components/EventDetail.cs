@@ -22,26 +22,25 @@ namespace ConnectApp.components {
             this.playVideo = playVideo;
             this.isShowImage = isShowImage;
         }
-        
-        private readonly IEvent eventObj;
-        private readonly bool isShowImage;
-        private readonly Action<string> openUrl;
-        private readonly Action<string> playVideo;
+
+        readonly IEvent eventObj;
+        readonly bool isShowImage;
+        readonly Action<string> openUrl;
+        readonly Action<string> playVideo;
 
 
         public override Widget build(BuildContext context) {
-            return new Container(child: _buildContent(context));
+            return new Container(child: this._buildContent(context));
         }
 
-        private Widget _buildContent(BuildContext context) {
+        Widget _buildContent(BuildContext context) {
             var items = new List<Widget> {
-                _buildHeadImage(), 
-                _buildContentHead()
+                this._buildHeadImage(), this._buildContentHead()
             };
-            items.AddRange(ContentDescription.map(context, eventObj.content, eventObj.contentMap, openUrl,playVideo
-            
+            items.AddRange(ContentDescription.map(context, this.eventObj.content, this.eventObj.contentMap,
+                this.openUrl, this.playVideo
             ));
-            items.Add(_buildContentLecturerList());
+            items.Add(this._buildContentLecturerList());
             return new Container(
                 child: ListView.builder(
                     physics: new AlwaysScrollableScrollPhysics(),
@@ -50,10 +49,13 @@ namespace ConnectApp.components {
                 )
             );
         }
-        
-        private Widget _buildHeadImage() {
-            if (!isShowImage) return new Container();
-            var imageUrl = eventObj.avatar ?? "";
+
+        Widget _buildHeadImage() {
+            if (!this.isShowImage) {
+                return new Container();
+            }
+
+            var imageUrl = this.eventObj.avatar ?? "";
             return new Container(
                 color: CColors.text2,
                 child: new AspectRatio(
@@ -71,16 +73,15 @@ namespace ConnectApp.components {
             );
         }
 
-        private Widget _buildContentHead() {
-            var user = eventObj.user ?? new User();
+        Widget _buildContentHead() {
+            var user = this.eventObj.user ?? new User();
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 margin: EdgeInsets.only(top: 16, bottom: 20),
                 child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        new Text(
-                            eventObj.title ?? "",
+                        new Text(this.eventObj.title ?? "",
                             style: CTextStyle.H4
                         ),
                         new Container(
@@ -100,7 +101,7 @@ namespace ConnectApp.components {
                                                 style: CTextStyle.PMediumBody
                                             ),
                                             new Text(
-                                                $"{DateConvert.DateStringFromNow(eventObj.createdTime)}发布",
+                                                $"{DateConvert.DateStringFromNow(this.eventObj.createdTime)}发布",
                                                 style: CTextStyle.PSmallBody3
                                             )
                                         }
@@ -113,9 +114,12 @@ namespace ConnectApp.components {
             );
         }
 
-        private Widget _buildContentLecturerList() {
-            var hosts = eventObj.hosts;
-            if (hosts == null || hosts.Count == 0) return new Container();
+        Widget _buildContentLecturerList() {
+            var hosts = this.eventObj.hosts;
+            if (hosts == null || hosts.Count == 0) {
+                return new Container();
+            }
+
             var hostItems = new List<Widget>();
             hostItems.Add(new Container(
                 margin: EdgeInsets.symmetric(horizontal: 16, vertical: 40),
@@ -136,7 +140,7 @@ namespace ConnectApp.components {
             );
         }
 
-        private static Widget _buildLecture(User host) {
+        static Widget _buildLecture(User host) {
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 margin: EdgeInsets.only(bottom: 24),

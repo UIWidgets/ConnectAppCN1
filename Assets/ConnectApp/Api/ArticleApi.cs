@@ -34,7 +34,10 @@ namespace ConnectApp.api {
             FetchArticleComments(string channelId, string currOldestMessageId) {
             var promise = new Promise<FetchCommentsResponse>();
             var url = Config.apiAddress + "/api/channels/" + channelId + "/messages?limit=5";
-            if (currOldestMessageId.Length > 0) url += "&before=" + currOldestMessageId;
+            if (currOldestMessageId.Length > 0) {
+                url += "&before=" + currOldestMessageId;
+            }
+
             var request = HttpManager.GET(url);
             HttpManager.resume(request).Then(responseText => {
                 var responseComments = JsonConvert.DeserializeObject<FetchCommentsResponse>(responseText);
