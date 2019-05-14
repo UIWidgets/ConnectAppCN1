@@ -168,7 +168,7 @@ namespace ConnectApp.screens
                             else {
                                 var imageUrl = $"{eventObj.avatar}.200x0x1.jpg";
                                 CustomDialogUtils.showCustomDialog(
-                                    child: new CustomDialog()
+                                    child: new CustomLoadingDialog()
                                 );
                                 widget.actionModel.shareToWechat(type, eventObj.title, eventObj.shortDescription,
                                         linkUrl,

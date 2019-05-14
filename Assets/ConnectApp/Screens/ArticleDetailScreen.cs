@@ -79,7 +79,7 @@ namespace ConnectApp.screens {
                         likeComment = id => dispatcher.dispatch<IPromise>(Actions.likeComment(id)),
                         removeLikeComment = id => dispatcher.dispatch<IPromise>(Actions.removeLikeComment(id)),
                         sendComment = (channelId, content, nonce, parentMessageId) => {
-                            CustomDialogUtils.showCustomDialog(child: new CustomDialog());
+                            CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog());
                             return dispatcher.dispatch<IPromise>(
                                 Actions.sendComment(channelId, content, nonce, parentMessageId));
                         },
@@ -566,7 +566,7 @@ namespace ConnectApp.screens {
                     }
                     else {
                         CustomDialogUtils.showCustomDialog(
-                            child: new CustomDialog()
+                            child: new CustomLoadingDialog()
                         );
                         string imageUrl = $"{_article.thumbnail.url}.200x0x1.jpg";
                         widget.actionModel.shareToWechat(type, _article.title, _article.subTitle, linkUrl,

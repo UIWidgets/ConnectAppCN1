@@ -146,7 +146,7 @@ namespace ConnectApp.screens {
                             _buildGapView(),
                             _buildCellView("清理缓存", () => {
                                 CustomDialogUtils.showCustomDialog(
-                                    child: new CustomDialog(
+                                    child: new CustomLoadingDialog(
                                         message: "正在清理缓存"
                                     )
                                 );
