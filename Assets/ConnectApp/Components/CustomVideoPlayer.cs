@@ -64,8 +64,9 @@ namespace ConnectApp.components {
         private float _relative; //播放进度比例
         private bool _isFullScreen; //是否全屏
         private bool _isHiddenBar; //是否隐藏工具栏
-        private bool _isFailure;
-        private string _pauseVideoPlayerSubId;
+        private bool _isFailure;  //加载失败
+        private bool _isLoaded;  //加载完成，用来隐藏loading
+        private string _pauseVideoPlayerSubId; //收到通知暂停播放
 
         public override void initState()
         {
@@ -104,9 +105,7 @@ namespace ConnectApp.components {
                     break;
             }
 
-            var content = new AnimatedContainer(
-                duration: TimeSpan.FromSeconds(0),
-                curve: Curves.easeInOut,
+            var content = new Container(
                 child: new Stack(children: new List<Widget>
                 {
                     new GestureDetector(
@@ -125,6 +124,10 @@ namespace ConnectApp.components {
                             setState();
                         },
                         child: new Container(color:CColors.Black,child:new Texture(texture: _texture)) 
+                    ),
+                    _isLoaded?new Align():new Align(
+                        alignment:Alignment.center,
+                        child:new CustomActivityIndicator(loadingColor: LoadingColor.white)
                     ),
                     _isHiddenBar
                         ? new Positioned(child: new Container())
@@ -155,13 +158,25 @@ namespace ConnectApp.components {
                             right: 0,
                             child: _isFailure?new Container(
                                 height: 44,
-                                padding:EdgeInsets.only(top:15,left:8),
+                                padding:EdgeInsets.only(top:0,left:8),
                                 color:Color.fromRGBO(0,0,0,0.2f),
-                                child:new Text("视频播放失败",style:new TextStyle(
-                                    fontSize: 15,
-                                    fontFamily: "Roboto-Bold",
-                                    color: CColors.White
-                                ))) : new Container(
+                                child: new Row(children:new List<Widget>
+                                {
+                                    new GestureDetector(
+                                        child: new Container(
+                                            height: 44,
+                                            width: 44,
+                                            color: CColors.Transparent,
+                                            child: new Icon(Icons.replay, size: 24, color: CColors.White)
+                                        ),
+                                        onTap: _reloadVideo
+                                    ),
+                                    new Text("视频播放失败",style:new TextStyle(
+                                        fontSize: 15,
+                                        fontFamily: "Roboto-Bold",
+                                        color: CColors.White
+                                    ))
+                                })) : new Container(
                                 height: 44,
                                 decoration: new BoxDecoration(gradient: new LinearGradient(
                                     colors: new List<Color>
@@ -202,13 +217,11 @@ namespace ConnectApp.components {
                                                     {
                                                         _player.time = relative * _player.frameCount/_player.frameRate;
                                                     }
-
-                                                    _playState = PlayState.play;
-                                                    _player.Play();
+                                                    _isLoaded = false;
+                                                    _player.Pause();
                                                     setState(() => { });
                                                 }, onDragStart: () =>
                                                 {
-                                                    _playState = PlayState.pause;
                                                     _player.Pause();
                                                 })),
                                         new Container(margin: EdgeInsets.only(left: 8, right: 8), child:
@@ -274,10 +287,24 @@ namespace ConnectApp.components {
                 {
                     Texture.textureFrameAvailable();
                     _relative = (float) frameIndex / source.frameCount;
-                    Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(() =>
+                    _isLoaded = true;
+                    _isFailure = false;
+                    if (_playState == PlayState.play)
+                    {
+                        _player.Play();
+                    }
+                    if (frameIndex==0)
+                    {
+                        Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(() =>
+                        {
+                            setState(() => { });
+                        });  
+                    }
+                    else
                     {
                         setState(() => { });
-                    });
+                    }
+
                 }
             };    
             player.loopPointReached += _player =>
@@ -327,7 +354,10 @@ namespace ConnectApp.components {
         {
             using (WindowProvider.of(widget.context).getScope())
             {
-                setState(() => { _isFailure = true;});
+                setState(() => {
+                    _isFailure = true;
+                    _isLoaded = true;
+                });
             }
         }
 
@@ -337,6 +367,12 @@ namespace ConnectApp.components {
             {
                 setState(() => { _isHiddenBar = true; });   
             });
+        }
+        
+        private void _reloadVideo()
+        {
+            _player.Prepare();
+            setState(() => {_isLoaded = false; _isFailure = false;});
         }
 
         private void _setScreenOrientation()
