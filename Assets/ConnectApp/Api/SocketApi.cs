@@ -17,7 +17,7 @@ namespace ConnectApp.api {
             return promise;
         }
 
-        private static IEnumerator
+        static IEnumerator
             _FetchSocketUrl(Promise<string> promise) {
             var request = HttpManager.GET(Config.apiAddress + "/api/socketgw");
             yield return request.SendWebRequest();
@@ -34,10 +34,12 @@ namespace ConnectApp.api {
                 // Format output and resolve promise
                 var responseText = request.downloadHandler.text;
                 var response = JsonConvert.DeserializeObject<FetchSocketUrlResponse>(responseText);
-                if (!string.IsNullOrEmpty(response.url))
+                if (!string.IsNullOrEmpty(response.url)) {
                     promise.Resolve(response.url);
-                else
+                }
+                else {
                     promise.Reject(new Exception("No user under this username found!"));
+                }
             }
         }
     }

@@ -27,19 +27,22 @@ namespace ConnectApp.components {
             this.replyCallBack = replyCallBack;
         }
 
-        private readonly Message message;
-        private readonly bool isPraised;
-        private readonly string parentName;
-        private readonly GestureTapCallback moreCallBack;
-        private readonly GestureTapCallback praiseCallBack;
-        private readonly GestureTapCallback replyCallBack;
+        readonly Message message;
+        readonly bool isPraised;
+        readonly string parentName;
+        readonly GestureTapCallback moreCallBack;
+        readonly GestureTapCallback praiseCallBack;
+        readonly GestureTapCallback replyCallBack;
 
 
         public override Widget build(BuildContext context) {
-            if (message == null) return new Container();
+            if (this.message == null) {
+                return new Container();
+            }
 
-            var content = MessageUtils.AnalyzeMessage(message.content, message.mentions, message.mentionEveryone);
-            Widget _content = parentName.isEmpty()
+            var content = MessageUtils.AnalyzeMessage(this.message.content, this.message.mentions,
+                this.message.mentionEveryone);
+            Widget _content = this.parentName.isEmpty()
                 ? new Container(
                     child: new Text(
                         content,
@@ -51,7 +54,7 @@ namespace ConnectApp.components {
                             "回复@",
                             children: new List<TextSpan> {
                                 new TextSpan(
-                                    $"{parentName}",
+                                    $"{this.parentName}",
                                     children: new List<TextSpan> {
                                         new TextSpan(
                                             $": {content}",
@@ -64,13 +67,13 @@ namespace ConnectApp.components {
                         )
                     )
                 );
-            var reply = message.parentMessageId.isEmpty()
+            var reply = this.message.parentMessageId.isEmpty()
                 ? new GestureDetector(
-                    onTap: replyCallBack,
+                    onTap: this.replyCallBack,
                     child: new Container(
                         margin: EdgeInsets.only(left: 10),
                         child: new Text(
-                            $"回复 {message.replyMessageIds.Count}",
+                            $"回复 {this.message.replyMessageIds.Count}",
                             style: CTextStyle.PRegularBody4
                         ))
                 )
@@ -86,7 +89,7 @@ namespace ConnectApp.components {
                         new Container(
                             height: 24,
                             margin: EdgeInsets.only(right: 8),
-                            child: Avatar.User(message.author.id, message.author, 24)
+                            child: Avatar.User(this.message.author.id, this.message.author, 24)
                         ),
                         new Expanded(
                             child: new Container(
@@ -99,12 +102,12 @@ namespace ConnectApp.components {
                                                     new Expanded(
                                                         child: new Container(
                                                             alignment: Alignment.centerLeft,
-                                                            child: new Text(message.author.fullName,
+                                                            child: new Text(this.message.author.fullName,
                                                                 style: CTextStyle.PMediumBody3))),
 
                                                     new CustomButton(
                                                         padding: EdgeInsets.only(8, 0, 0, 8),
-                                                        onPressed: moreCallBack,
+                                                        onPressed: this.moreCallBack,
                                                         child: new Icon(Icons.ellipsis, size: 20,
                                                             color: CColors.BrownGrey)
                                                     )
@@ -120,18 +123,18 @@ namespace ConnectApp.components {
                                         new Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: new List<Widget> {
-                                                new Text($"{DateConvert.DateStringFromNonce(message.nonce)}",
+                                                new Text($"{DateConvert.DateStringFromNonce(this.message.nonce)}",
                                                     style: CTextStyle.PSmallBody4),
                                                 new Container(
                                                     child: new Row(
                                                         children: new List<Widget> {
                                                             new GestureDetector(
-                                                                onTap: praiseCallBack,
+                                                                onTap: this.praiseCallBack,
                                                                 child: new Container(
-                                                                    color:CColors.White,
+                                                                    color: CColors.White,
                                                                     child: new Text(
-                                                                        $"点赞 {message.reactions.Count}",
-                                                                        style: isPraised
+                                                                        $"点赞 {this.message.reactions.Count}",
+                                                                        style: this.isPraised
                                                                             ? CTextStyle.PRegularBlue
                                                                             : CTextStyle.PRegularBody4
                                                                     )

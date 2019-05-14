@@ -1,22 +1,20 @@
-
-namespace LitJson
-{
-	/**
-	 * ParserToken.cs
-	 *   Internal representation of the tokens used by the lexer and the parser.
-	 *
-	 * The authors disclaim copyright to this source code. For more details, see
-	 * the COPYING file included with this distribution.
-	 **/
-	internal enum ParserToken
-    {
+namespace LitJson {
+    /**
+     * ParserToken.cs
+     *   Internal representation of the tokens used by the lexer and the parser.
+     *
+     * The authors disclaim copyright to this source code. For more details, see
+     * the COPYING file included with this distribution.
+     **/
+    enum ParserToken {
         // Lexer tokens
-        None = System.Char.MaxValue + 1,
+        None = char.MaxValue + 1,
         Number,
         True,
         False,
         Null,
         CharSeq,
+
         // Single char
         Char,
 

@@ -59,18 +59,18 @@ android {
         noCompress = ['.unity3d', '.ress', '.resource', '.obb']
     }
 
-    signingConfigs {
-        release {// 线上环境
-            storeFile file('./connect_live.keystore')
-            storePassword 'PbeE6b5N7a*u@V4fKzSP'
-            keyAlias 'connect_live'
-            keyPassword '2bKZ#3Cf5pUHaAc3HXn@'
+    signingConfigs { // set your keystore
+        release {
+//            storeFile file('./connectApp.keystore')  
+//            storePassword 'connectApp'
+//            keyAlias 'connectApp'
+//            keyPassword 'connectApp'
         }
-        debug {// 开发环境
-            storeFile file('./connect_live.keystore')
-            storePassword 'PbeE6b5N7a*u@V4fKzSP'
-            keyAlias 'connect_live'
-            keyPassword '2bKZ#3Cf5pUHaAc3HXn@'
+        debug {
+//            storeFile file('./connectApp.keystore')
+//            storePassword 'connectApp'
+//            keyAlias 'connectApp'
+//            keyPassword 'connectApp'
         }
     }
 

@@ -9,8 +9,8 @@ using ConnectApp.redux.actions;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
@@ -27,12 +27,12 @@ namespace ConnectApp.screens {
             this.fromPage = fromPage;
         }
 
-        private readonly FromPage fromPage;
+        readonly FromPage fromPage;
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, BindUnityScreenViewModel>(
                 converter: state => new BindUnityScreenViewModel {
-                    fromPage = fromPage,
+                    fromPage = this.fromPage,
                     loginLoading = state.loginState.loading,
                     loginEmail = state.loginState.email,
                     loginPassword = state.loginState.password,
@@ -87,46 +87,60 @@ namespace ConnectApp.screens {
     }
 
     public class _BindUnityScreenState : State<BindUnityScreen> {
-        private readonly FocusNode _emailFocusNode = new FocusNode();
-        private readonly FocusNode _passwordFocusNode = new FocusNode();
-        private bool _isEmailFocus;
-        private bool _isPasswordFocus;
+        readonly FocusNode _emailFocusNode = new FocusNode();
+        readonly FocusNode _passwordFocusNode = new FocusNode();
+        bool _isEmailFocus;
+        bool _isPasswordFocus;
 
         public override void initState() {
             base.initState();
-            _isEmailFocus = true;
-            _isPasswordFocus = false;
-            _emailFocusNode.addListener(_emailFocusNodeListener);
-            _passwordFocusNode.addListener(_passwordFocusNodeListener);
+            this._isEmailFocus = true;
+            this._isPasswordFocus = false;
+            this._emailFocusNode.addListener(this._emailFocusNodeListener);
+            this._passwordFocusNode.addListener(this._passwordFocusNodeListener);
             SchedulerBinding.instance.addPostFrameCallback(_ => {
-                if (widget.viewModel.loginEmail.Length > 0 || widget.viewModel.loginPassword.Length > 0)
-                    widget.actionModel.clearEmailAndPassword();
+                if (this.widget.viewModel.loginEmail.Length > 0 || this.widget.viewModel.loginPassword.Length > 0) {
+                    this.widget.actionModel.clearEmailAndPassword();
+                }
             });
         }
 
         public override void dispose() {
-            _emailFocusNode.removeListener(_emailFocusNodeListener);
-            _passwordFocusNode.removeListener(_passwordFocusNodeListener);
+            this._emailFocusNode.removeListener(this._emailFocusNodeListener);
+            this._passwordFocusNode.removeListener(this._passwordFocusNodeListener);
             base.dispose();
         }
 
-        private void _emailFocusNodeListener() {
-            if (_isEmailFocus == false) setState(() => { _isEmailFocus = true; });
-            if (_isPasswordFocus) setState(() => { _isPasswordFocus = false; });
+        void _emailFocusNodeListener() {
+            if (this._isEmailFocus == false) {
+                this.setState(() => { this._isEmailFocus = true; });
+            }
+
+            if (this._isPasswordFocus) {
+                this.setState(() => { this._isPasswordFocus = false; });
+            }
         }
 
-        private void _passwordFocusNodeListener() {
-            if (_isPasswordFocus == false) setState(() => { _isPasswordFocus = true; });
-            if (_isEmailFocus) setState(() => { _isEmailFocus = false; });
+        void _passwordFocusNodeListener() {
+            if (this._isPasswordFocus == false) {
+                this.setState(() => { this._isPasswordFocus = true; });
+            }
+
+            if (this._isEmailFocus) {
+                this.setState(() => { this._isEmailFocus = false; });
+            }
         }
 
-        private void _login() {
-            if (!widget.viewModel.loginBtnEnable || widget.viewModel.loginLoading) return;
-            _emailFocusNode.unfocus();
-            _passwordFocusNode.unfocus();
-            widget.actionModel.startLoginByEmail();
-            widget.actionModel.loginByEmail().Catch(_ => {
-                widget.actionModel.loginByEmailFailure();
+        void _login() {
+            if (!this.widget.viewModel.loginBtnEnable || this.widget.viewModel.loginLoading) {
+                return;
+            }
+
+            this._emailFocusNode.unfocus();
+            this._passwordFocusNode.unfocus();
+            this.widget.actionModel.startLoginByEmail();
+            this.widget.actionModel.loginByEmail().Catch(_ => {
+                this.widget.actionModel.loginByEmailFailure();
                 var customSnackBar = new CustomSnackBar(
                     "邮箱或密码不正确，请稍后再试。"
                 );
@@ -138,30 +152,30 @@ namespace ConnectApp.screens {
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
-                    child: _buildContent(context)
+                    child: this._buildContent(context)
                 )
             );
         }
 
-        private Widget _buildContent(BuildContext context) {
+        Widget _buildContent(BuildContext context) {
             return new Container(
                 color: CColors.White,
                 child: new Column(
                     children: new List<Widget> {
-                        _buildTopView(),
-                        _buildMiddleView(context),
-                        _buildBottomView()
+                        this._buildTopView(),
+                        this._buildMiddleView(context),
+                        this._buildBottomView()
                     }
                 )
             );
         }
 
-        private Widget _buildTopView() {
+        Widget _buildTopView() {
             Widget leftWidget;
-            switch (widget.viewModel.fromPage) {
+            switch (this.widget.viewModel.fromPage) {
                 case FromPage.login: {
                     leftWidget = new CustomButton(
-                        onPressed: () => widget.actionModel.loginRouterPop(),
+                        onPressed: () => this.widget.actionModel.loginRouterPop(),
                         child: new Icon(
                             Icons.arrow_back,
                             size: 24,
@@ -170,9 +184,10 @@ namespace ConnectApp.screens {
                     );
                     break;
                 }
+
                 case FromPage.wechat: {
                     leftWidget = new CustomButton(
-                        onPressed: () => widget.actionModel.mainRouterPop(),
+                        onPressed: () => this.widget.actionModel.mainRouterPop(),
                         child: new Text(
                             "跳过",
                             style: CTextStyle.PLargeBody4
@@ -180,9 +195,10 @@ namespace ConnectApp.screens {
                     );
                     break;
                 }
+
                 case FromPage.setting: {
                     leftWidget = new CustomButton(
-                        onPressed: () => widget.actionModel.mainRouterPop(),
+                        onPressed: () => this.widget.actionModel.mainRouterPop(),
                         child: new Icon(
                             Icons.arrow_back,
                             size: 24,
@@ -191,6 +207,7 @@ namespace ConnectApp.screens {
                     );
                     break;
                 }
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -206,7 +223,7 @@ namespace ConnectApp.screens {
                             children: new List<Widget> {
                                 leftWidget,
                                 new CustomButton(
-                                    onPressed: () => widget.actionModel.openCreateUnityIdUrl(),
+                                    onPressed: () => this.widget.actionModel.openCreateUnityIdUrl(),
                                     child: new Text(
                                         "创建 Unity ID",
                                         style: CTextStyle.PLargeMediumBlue
@@ -219,7 +236,7 @@ namespace ConnectApp.screens {
                     new Container(
                         padding: EdgeInsets.symmetric(horizontal: 16),
                         child: new Text(
-                            widget.viewModel.fromPage == FromPage.login ? "登录你的Unity账号" : "绑定你的Unity账号",
+                            this.widget.viewModel.fromPage == FromPage.login ? "登录你的Unity账号" : "绑定你的Unity账号",
                             style: CTextStyle.H2
                         )
                     )
@@ -227,7 +244,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildMiddleView(BuildContext context) {
+        Widget _buildMiddleView(BuildContext context) {
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
@@ -245,26 +262,25 @@ namespace ConnectApp.screens {
                             decoration: new BoxDecoration(
                                 CColors.Transparent,
                                 border: new Border(
-                                    bottom: new BorderSide(
-                                        _isEmailFocus ? CColors.PrimaryBlue : CColors.Separator,
-                                        _isEmailFocus ? 2 : 1
+                                    bottom: new BorderSide(this._isEmailFocus ? CColors.PrimaryBlue : CColors.Separator,
+                                        this._isEmailFocus ? 2 : 1
                                     )
                                 )
                             ),
                             alignment: Alignment.center,
                             child: new InputField(
-                                focusNode: _emailFocusNode,
+                                focusNode: this._emailFocusNode,
                                 maxLines: 1,
                                 autofocus: true,
-                                enabled: !widget.viewModel.loginLoading,
+                                enabled: !this.widget.viewModel.loginLoading,
                                 style: CTextStyle.PLargeBody,
                                 cursorColor: CColors.PrimaryBlue,
                                 clearButtonMode: InputFieldClearButtonMode.whileEditing,
                                 keyboardType: TextInputType.emailAddress,
-                                onChanged: text => widget.actionModel.changeEmail(text),
+                                onChanged: text => this.widget.actionModel.changeEmail(text),
                                 onSubmitted: _ => {
-                                    _emailFocusNode.unfocus();
-                                    FocusScope.of(context).requestFocus(_passwordFocusNode);
+                                    this._emailFocusNode.unfocus();
+                                    FocusScope.of(context).requestFocus(this._passwordFocusNode);
                                 }
                             )
                         ),
@@ -281,23 +297,23 @@ namespace ConnectApp.screens {
                                 CColors.Transparent,
                                 border: new Border(
                                     bottom: new BorderSide(
-                                        _isPasswordFocus ? CColors.PrimaryBlue : CColors.Separator,
-                                        _isPasswordFocus ? 2 : 1
+                                        this._isPasswordFocus ? CColors.PrimaryBlue : CColors.Separator,
+                                        this._isPasswordFocus ? 2 : 1
                                     )
                                 )
                             ),
                             alignment: Alignment.center,
                             child: new InputField(
-                                focusNode: _passwordFocusNode,
+                                focusNode: this._passwordFocusNode,
                                 maxLines: 1,
                                 autofocus: false,
                                 obscureText: true,
-                                enabled: !widget.viewModel.loginLoading,
+                                enabled: !this.widget.viewModel.loginLoading,
                                 style: CTextStyle.PLargeBody,
                                 cursorColor: CColors.PrimaryBlue,
                                 clearButtonMode: InputFieldClearButtonMode.whileEditing,
-                                onChanged: text => widget.actionModel.changePassword(text),
-                                onSubmitted: _ => _login()
+                                onChanged: text => this.widget.actionModel.changePassword(text),
+                                onSubmitted: _ => this._login()
                             )
                         )
                     }
@@ -305,13 +321,15 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildBottomView() {
+        Widget _buildBottomView() {
             Widget right = new Container();
-            if (widget.viewModel.loginLoading)
+            if (this.widget.viewModel.loginLoading) {
                 right = new CustomActivityIndicator(
                     loadingColor: LoadingColor.white,
                     size: LoadingSize.small
                 );
+            }
+
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: new Column(
@@ -319,13 +337,12 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new Container(height: 32),
                         new CustomButton(
-                            onPressed: _login,
+                            onPressed: this._login,
                             padding: EdgeInsets.zero,
                             child: new Container(
                                 height: 48,
-                                decoration: new BoxDecoration(
-                                    widget.viewModel.loginBtnEnable
-                                        ? widget.viewModel.loginLoading
+                                decoration: new BoxDecoration(this.widget.viewModel.loginBtnEnable
+                                        ? this.widget.viewModel.loginLoading
                                             ? CColors.ButtonActive
                                             : CColors.PrimaryBlue
                                         : CColors.Disable,
@@ -352,7 +369,7 @@ namespace ConnectApp.screens {
                         ),
                         new Container(height: 8),
                         new CustomButton(
-                            onPressed: () => widget.actionModel.openUrl($"{Config.idBaseUrl}/password/new"),
+                            onPressed: () => this.widget.actionModel.openUrl($"{Config.idBaseUrl}/password/new"),
                             child: new Text(
                                 "忘记密码",
                                 style: CTextStyle.PRegularBody3

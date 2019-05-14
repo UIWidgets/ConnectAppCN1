@@ -27,17 +27,17 @@ namespace ConnectApp.components {
             this.child = child;
         }
 
-        private readonly Color backgroundColor;
-        private readonly TimeSpan insetAnimationDuration;
-        private readonly Curve insetAnimationCurve;
-        private readonly float? radius;
-        private readonly Widget child;
+        readonly Color backgroundColor;
+        readonly TimeSpan insetAnimationDuration;
+        readonly Curve insetAnimationCurve;
+        readonly float? radius;
+        readonly Widget child;
 
         public override Widget build(BuildContext context) {
             return new AnimatedPadding(
                 padding: MediaQuery.of(context).viewInsets + EdgeInsets.symmetric(horizontal: 40.0f, vertical: 24.0f),
-                duration: insetAnimationDuration,
-                curve: insetAnimationCurve,
+                duration: this.insetAnimationDuration,
+                curve: this.insetAnimationCurve,
                 child: MediaQuery.removeViewInsets(
                     removeLeft: true,
                     removeTop: true,
@@ -48,11 +48,10 @@ namespace ConnectApp.components {
                         child: new ConstrainedBox(
                             constraints: new BoxConstraints(280.0f),
                             child: new Container(
-                                decoration: new BoxDecoration(
-                                    backgroundColor,
-                                    borderRadius: BorderRadius.all((float)radius)
+                                decoration: new BoxDecoration(this.backgroundColor,
+                                    borderRadius: BorderRadius.all((float) this.radius)
                                 ),
-                                child: child
+                                child: this.child
                             )
                         )
                     )
@@ -60,7 +59,7 @@ namespace ConnectApp.components {
             );
         }
     }
-    
+
     public class CustomLoadingDialog : StatelessWidget {
         public CustomLoadingDialog(
             Widget widget = null,
@@ -73,14 +72,16 @@ namespace ConnectApp.components {
             this.duration = duration;
         }
 
-        private readonly Widget widget;
-        private readonly string message;
-        private readonly TimeSpan? duration;
+        readonly Widget widget;
+        readonly string message;
+        readonly TimeSpan? duration;
 
         public override Widget build(BuildContext context) {
-            if (duration != null)
-                Promise.Delayed((TimeSpan) duration)
+            if (this.duration != null) {
+                Promise.Delayed((TimeSpan) this.duration)
                     .Then(CustomDialogUtils.hiddenCustomDialog);
+            }
+
             return new GestureDetector(
                 onTap: () => { },
                 child: new Container(
@@ -96,10 +97,10 @@ namespace ConnectApp.components {
                                 mainAxisSize: MainAxisSize.min,
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: new List<Widget> {
-                                    widget != null
-                                        ? widget
+                                    this.widget != null
+                                        ? this.widget
                                         : new CustomActivityIndicator(loadingColor: LoadingColor.white),
-                                    _buildMessage(message)
+                                    _buildMessage(this.message)
                                 }
                             )
                         )
@@ -108,8 +109,11 @@ namespace ConnectApp.components {
             );
         }
 
-        private static Widget _buildMessage(string message) {
-            if (message == null || message.Length <= 0) return new Container();
+        static Widget _buildMessage(string message) {
+            if (message == null || message.Length <= 0) {
+                return new Container();
+            }
+
             return new Container(
                 margin: EdgeInsets.only(top: 8, left: 8, right: 8),
                 child: new Text(
@@ -133,41 +137,39 @@ namespace ConnectApp.components {
             this.actions = actions;
         }
 
-        private readonly string title;
-        private readonly string message;
-        private readonly List<Widget> actions;
+        readonly string title;
+        readonly string message;
+        readonly List<Widget> actions;
 
         public override Widget build(BuildContext context) {
             var children = new List<Widget>();
-            if (title.isNotEmpty()) {
+            if (this.title.isNotEmpty()) {
                 children.Add(new Container(
-                    padding: EdgeInsets.fromLTRB(16, 24, 16, message == null ? 24 : 0),
+                    padding: EdgeInsets.fromLTRB(16, 24, 16, this.message == null ? 24 : 0),
                     alignment: Alignment.center,
-                    child: new Text(
-                        title,
+                    child: new Text(this.title,
                         style: CTextStyle.H5
                     )
                 ));
             }
-            
-            if (message.isNotEmpty()) {
+
+            if (this.message.isNotEmpty()) {
                 children.Add(new Container(
                     padding: EdgeInsets.all(16),
                     alignment: Alignment.center,
-                    child: new Text(
-                        message,
+                    child: new Text(this.message,
                         style: CTextStyle.PLargeBody
                     )
                 ));
             }
 
-            if (actions != null) {
+            if (this.actions != null) {
                 children.Add(new CustomDivider(
                     height: 1
                 ));
-                
+
                 var _children = new List<Widget>();
-                foreach (var _child in actions) {
+                foreach (var _child in this.actions) {
                     _children.Add(new Expanded(
                         child: new Stack(
                             fit: StackFit.expand,
@@ -176,14 +178,15 @@ namespace ConnectApp.components {
                             }
                         )
                     ));
-                    var index = actions.IndexOf(_child);
-                    if (index < actions.Count - 1) {
+                    var index = this.actions.IndexOf(_child);
+                    if (index < this.actions.Count - 1) {
                         _children.Add(new Container(
                             width: 1,
                             color: CColors.Separator
                         ));
                     }
                 }
+
                 Widget child = new Container(
                     height: 48,
                     child: new Row(
@@ -217,7 +220,7 @@ namespace ConnectApp.components {
             Widget child = null
         ) {
             var route = new _DialogRoute(
-                (context, animation, secondaryAnimation) => new CustomSafeArea(child: child), 
+                (context, animation, secondaryAnimation) => new CustomSafeArea(child: child),
                 barrierDismissible,
                 barrierColor ?? Color.fromRGBO(0, 0, 0, 0.01f),
                 new TimeSpan(0, 0, 0, 0, 150),
@@ -227,7 +230,9 @@ namespace ConnectApp.components {
         }
 
         public static void hiddenCustomDialog() {
-            if (Router.navigator.canPop()) Router.navigator.pop();
+            if (Router.navigator.canPop()) {
+                Router.navigator.pop();
+            }
         }
 
         public static void showToast(string message, IconData iconData) {
@@ -244,7 +249,7 @@ namespace ConnectApp.components {
             );
         }
 
-        private static Widget _transitionBuilder(BuildContext context, Animation<float> animation,
+        static Widget _transitionBuilder(BuildContext context, Animation<float> animation,
             Animation<float> secondaryAnimation, Widget child) {
             return new FadeTransition(
                 opacity: new CurvedAnimation(
@@ -256,7 +261,7 @@ namespace ConnectApp.components {
         }
     }
 
-    internal class _DialogRoute : PopupRoute {
+    class _DialogRoute : PopupRoute {
         public _DialogRoute(
             RoutePageBuilder pageBuilder = null,
             bool barrierDismissible = true,
@@ -272,7 +277,7 @@ namespace ConnectApp.components {
             this.transitionBuilder = transitionBuilder;
         }
 
-        private readonly RoutePageBuilder pageBuilder;
+        readonly RoutePageBuilder pageBuilder;
 
         public override bool barrierDismissible { get; }
 
@@ -280,16 +285,16 @@ namespace ConnectApp.components {
 
         public override TimeSpan transitionDuration { get; }
 
-        private readonly RouteTransitionsBuilder transitionBuilder;
+        readonly RouteTransitionsBuilder transitionBuilder;
 
         public override Widget buildPage(BuildContext context, Animation<float> animation,
             Animation<float> secondaryAnimation) {
-            return pageBuilder(context, animation, secondaryAnimation);
+            return this.pageBuilder(context, animation, secondaryAnimation);
         }
 
         public override Widget buildTransitions(BuildContext context, Animation<float> animation,
             Animation<float> secondaryAnimation, Widget child) {
-            if (transitionBuilder == null)
+            if (this.transitionBuilder == null) {
                 return new FadeTransition(
                     opacity: new CurvedAnimation(
                         animation,
@@ -297,7 +302,9 @@ namespace ConnectApp.components {
                     ),
                     child: child
                 );
-            return transitionBuilder(context, animation, secondaryAnimation, child);
+            }
+
+            return this.transitionBuilder(context, animation, secondaryAnimation, child);
         }
     }
 }

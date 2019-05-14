@@ -63,8 +63,10 @@ namespace ConnectApp.components {
 
         public Widget buildActions(BuildContext context, CustomDismissibleDelegateContext ctx,
             CustomDismissibleDelegate dismissibleDelegate) {
-            if (ctx.state.overallMoveAnimation.value > ctx.state.totalActionsExtent)
-                return buildActionsWhileDismissing(context, ctx);
+            if (ctx.state.overallMoveAnimation.value > ctx.state.totalActionsExtent) {
+                return this.buildActionsWhileDismissing(context, ctx);
+            }
+
             return dismissibleDelegate.buildActions(context, ctx);
         }
 
@@ -177,12 +179,12 @@ namespace ConnectApp.components {
             this.actionCount = actionCount;
         }
 
-        private readonly SlideActionBuilder builder;
-        private new int actionCount;
+        readonly SlideActionBuilder builder;
+        new int actionCount;
 
         public override Widget build(BuildContext context, int index, Animation<float> animation,
             CustomDismissibleMode mode) {
-            return builder(context, index, animation, mode);
+            return this.builder(context, index, animation, mode);
         }
     }
 
@@ -193,13 +195,15 @@ namespace ConnectApp.components {
             this.actions = actions;
         }
 
-        private readonly List<Widget> actions;
+        readonly List<Widget> actions;
 
-        public override int actionCount => actions?.Count ?? 0;
+        public override int actionCount {
+            get { return this.actions?.Count ?? 0; }
+        }
 
         public override Widget build(BuildContext context, int index, Animation<float> animation,
             CustomDismissibleMode mode) {
-            return actions[index];
+            return this.actions[index];
         }
     }
 
@@ -212,13 +216,15 @@ namespace ConnectApp.components {
 
         public readonly CustomDismissibleStateView state;
 
-        public bool showActions => state.actionType == CustomDismissibleActionType.primary;
+        public bool showActions {
+            get { return this.state.actionType == CustomDismissibleActionType.primary; }
+        }
 
         public List<Widget> buildActions(BuildContext context) {
             var widgets = new List<Widget>();
-            for (var index = 0; index < state.actionCount; index++) {
-                var widget = state.actionDelegate.build(context, index,
-                    state.actionsMoveAnimation, CustomDismissibleMode.slide);
+            for (var index = 0; index < this.state.actionCount; index++) {
+                var widget = this.state.actionDelegate.build(context, index, this.state.actionsMoveAnimation,
+                    CustomDismissibleMode.slide);
                 widgets.Add(widget);
             }
 
@@ -226,13 +232,13 @@ namespace ConnectApp.components {
         }
 
         public Offset createOffset(float value) {
-            return state.directionIsXAxis
+            return this.state.directionIsXAxis
                 ? new Offset(value, 0)
                 : new Offset(0, value);
         }
 
         public float getMaxExtent(BoxConstraints constraints) {
-            return state.directionIsXAxis
+            return this.state.directionIsXAxis
                 ? constraints.maxWidth
                 : constraints.maxHeight;
         }
@@ -242,17 +248,17 @@ namespace ConnectApp.components {
             float? right = 0;
             float? top = null;
             float? bottom = position;
-            if (showActions) {
+            if (this.showActions) {
                 top = position;
                 bottom = null;
             }
 
             float? width = null;
             float? height = extent;
-            if (state.directionIsXAxis) {
+            if (this.state.directionIsXAxis) {
                 left = null;
                 right = position;
-                if (showActions) {
+                if (this.showActions) {
                     left = position;
                     right = null;
                 }
@@ -300,11 +306,11 @@ namespace ConnectApp.components {
                 ctx.createOffset(ctx.state.totalActionsExtent * ctx.state.dragSign)
             ).animate(ctx.state.actionsMoveAnimation);
 
-            if (ctx.state.actionsMoveAnimation.value != 0.0f)
+            if (ctx.state.actionsMoveAnimation.value != 0.0f) {
                 return new Container(
                     child: new Stack(
                         children: new List<Widget> {
-                            buildStackActions(context, ctx),
+                            this.buildStackActions(context, ctx),
                             new SlideTransition(
                                 position: animation,
                                 child: ctx.state.widget.child
@@ -312,6 +318,8 @@ namespace ConnectApp.components {
                         }
                     )
                 );
+            }
+
             return ctx.state.widget.child;
         }
 
@@ -492,44 +500,46 @@ namespace ConnectApp.components {
             this.onSlideIsOpenChanged = onSlideIsOpenChanged;
         }
 
-        private readonly ValueChanged<Animation<float>> onSlideAnimationChanged;
-        private readonly ValueChanged<bool> onSlideIsOpenChanged;
-        private bool _isSlideOpen;
+        readonly ValueChanged<Animation<float>> onSlideAnimationChanged;
+        readonly ValueChanged<bool> onSlideIsOpenChanged;
+        bool _isSlideOpen;
 
-        private Animation<float> _slideAnimation;
+        Animation<float> _slideAnimation;
 
-        private CustomDismissibleState _activeState;
+        CustomDismissibleState _activeState;
 
         public void _setActiveState(CustomDismissibleState newValue) {
-            _activeState = newValue;
+            this._activeState = newValue;
         }
 
-        public CustomDismissibleState activeState => _activeState;
+        public CustomDismissibleState activeState {
+            get { return this._activeState; }
+        }
 
         public void setActiveState(CustomDismissibleState newValue) {
-            _activeState?._flingAnimationControllers();
-            _activeState = newValue;
-            if (onSlideAnimationChanged != null) {
-                _slideAnimation?.removeListener(_handleSlideIsOpenChanged);
-                if (onSlideIsOpenChanged != null) {
-                    _slideAnimation = newValue?.overallMoveAnimation;
-                    _slideAnimation?.addListener(_handleSlideIsOpenChanged);
-                    if (_slideAnimation == null) {
-                        _isSlideOpen = false;
-                        onSlideIsOpenChanged(_isSlideOpen);
+            this._activeState?._flingAnimationControllers();
+            this._activeState = newValue;
+            if (this.onSlideAnimationChanged != null) {
+                this._slideAnimation?.removeListener(this._handleSlideIsOpenChanged);
+                if (this.onSlideIsOpenChanged != null) {
+                    this._slideAnimation = newValue?.overallMoveAnimation;
+                    this._slideAnimation?.addListener(this._handleSlideIsOpenChanged);
+                    if (this._slideAnimation == null) {
+                        this._isSlideOpen = false;
+                        this.onSlideIsOpenChanged(this._isSlideOpen);
                     }
                 }
 
-                onSlideAnimationChanged(newValue?.overallMoveAnimation);
+                this.onSlideAnimationChanged(newValue?.overallMoveAnimation);
             }
         }
 
-        private void _handleSlideIsOpenChanged() {
-            if (onSlideIsOpenChanged != null && _slideAnimation != null) {
-                var isOpen = _slideAnimation.value != 0.0;
-                if (isOpen != _isSlideOpen) {
-                    _isSlideOpen = isOpen;
-                    onSlideIsOpenChanged(_isSlideOpen);
+        void _handleSlideIsOpenChanged() {
+            if (this.onSlideIsOpenChanged != null && this._slideAnimation != null) {
+                var isOpen = this._slideAnimation.value != 0.0;
+                if (isOpen != this._isSlideOpen) {
+                    this._isSlideOpen = isOpen;
+                    this.onSlideIsOpenChanged(this._isSlideOpen);
                 }
             }
         }
@@ -549,7 +559,7 @@ namespace ConnectApp.components {
     }
 
     public class CustomDismissible : StatefulWidget {
-        private CustomDismissible(
+        CustomDismissible(
             Key key,
             Widget child,
             CustomDismissibleDelegate dismissibleDelegate,
@@ -624,7 +634,7 @@ namespace ConnectApp.components {
         public readonly SlideToDismissDelegate slideToDismissDelegate;
         public readonly CustomDismissibleController controller;
 
-        private static CustomDismissibleState of(BuildContext context) {
+        static CustomDismissibleState of(BuildContext context) {
             return (CustomDismissibleState) context.ancestorStateOfType(new TypeMatcher<CustomDismissibleState>());
         }
 
@@ -635,300 +645,368 @@ namespace ConnectApp.components {
 
     public class CustomDismissibleState : AutomaticKeepAliveClientWithTickerProviderStateMixin<CustomDismissible>,
         CustomDismissibleStateView {
-        private AnimationController _overallMoveController;
-        public Animation<float> overallMoveAnimation => _overallMoveController.view;
+        AnimationController _overallMoveController;
 
-        private AnimationController _actionsMoveController;
-        public Animation<float> actionsMoveAnimation => _actionsMoveController.view;
+        public Animation<float> overallMoveAnimation {
+            get { return this._overallMoveController.view; }
+        }
 
-        private AnimationController _resizeController;
-        private Animation<float> _resizeAnimation;
+        AnimationController _actionsMoveController;
 
-        private float _dragExtent;
-        public float dragSign => _dragExtent.sign() == 0 ? 1.0f : _dragExtent.sign();
+        public Animation<float> actionsMoveAnimation {
+            get { return this._actionsMoveController.view; }
+        }
 
-        private CustomDismissibleMode _renderingMode = CustomDismissibleMode.none;
-        public CustomDismissibleMode renderingMode => _renderingMode;
+        AnimationController _resizeController;
+        Animation<float> _resizeAnimation;
 
-        private ScrollPosition _scrollPosition;
-        private bool _dragUnderway = false;
-        private Size _sizePriorToCollapse;
-        private bool _dismissing = false;
+        float _dragExtent;
 
-        public CustomDismissibleActionType actionType =>
-            dragSign > 0 ? CustomDismissibleActionType.primary : CustomDismissibleActionType.secondary;
+        public float dragSign {
+            get { return this._dragExtent.sign() == 0 ? 1.0f : this._dragExtent.sign(); }
+        }
 
-        public int actionCount => actionDelegate?.actionCount ?? 0;
+        CustomDismissibleMode _renderingMode = CustomDismissibleMode.none;
 
-        public float totalActionsExtent => (float) widget.actionExtentRatio * actionCount;
+        public CustomDismissibleMode renderingMode {
+            get { return this._renderingMode; }
+        }
 
-        public float dismissThreshold => widget.slideToDismissDelegate.dismissThresholds[actionType] ??
-                                         CustomDismissibleUtil.DismissThreshold;
+        ScrollPosition _scrollPosition;
+        bool _dragUnderway = false;
+        Size _sizePriorToCollapse;
+        bool _dismissing = false;
 
-        public bool dismissible => widget.slideToDismissDelegate != null && dismissThreshold < 1.0;
-
-        protected override bool wantKeepAlive =>
-            !widget.closeOnScroll &&
-            (_overallMoveController?.isAnimating == true ||
-             _actionsMoveController?.isAnimating == true ||
-             _resizeController?.isAnimating == true);
-
-        public SlideActionDelegate actionDelegate =>
-            actionType == CustomDismissibleActionType.primary
-                ? widget.actionDelegate
-                : widget.secondaryActionDelegate;
-
-        public bool directionIsXAxis => widget.direction == Axis.horizontal;
-
-        private float _overallDragAxisExtent {
+        public CustomDismissibleActionType actionType {
             get {
-                var size = context.size;
-                return directionIsXAxis ? size.width : size.height;
+                return this.dragSign > 0 ? CustomDismissibleActionType.primary : CustomDismissibleActionType.secondary;
             }
         }
 
-        private float _actionsDragAxisExtent => _overallDragAxisExtent * totalActionsExtent;
+        public int actionCount {
+            get { return this.actionDelegate?.actionCount ?? 0; }
+        }
+
+        public float totalActionsExtent {
+            get { return (float) this.widget.actionExtentRatio * this.actionCount; }
+        }
+
+        public float dismissThreshold {
+            get {
+                return this.widget.slideToDismissDelegate.dismissThresholds[this.actionType] ??
+                       CustomDismissibleUtil.DismissThreshold;
+            }
+        }
+
+        public bool dismissible {
+            get { return this.widget.slideToDismissDelegate != null && this.dismissThreshold < 1.0; }
+        }
+
+        protected override bool wantKeepAlive {
+            get {
+                return !this.widget.closeOnScroll &&
+                       (this._overallMoveController?.isAnimating == true ||
+                        this._actionsMoveController?.isAnimating == true ||
+                        this._resizeController?.isAnimating == true);
+            }
+        }
+
+        public SlideActionDelegate actionDelegate {
+            get {
+                return this.actionType == CustomDismissibleActionType.primary
+                    ? this.widget.actionDelegate
+                    : this.widget.secondaryActionDelegate;
+            }
+        }
+
+        public bool directionIsXAxis {
+            get { return this.widget.direction == Axis.horizontal; }
+        }
+
+        float _overallDragAxisExtent {
+            get {
+                var size = this.context.size;
+                return this.directionIsXAxis ? size.width : size.height;
+            }
+        }
+
+        float _actionsDragAxisExtent {
+            get { return this._overallDragAxisExtent * this.totalActionsExtent; }
+        }
 
         public override void initState() {
             base.initState();
-            _overallMoveController = new AnimationController(duration: widget.movementDuration, vsync: this);
-            _overallMoveController.addStatusListener(_handleDismissStatusChanged);
-            _actionsMoveController = new AnimationController(duration: widget.movementDuration, vsync: this);
-            _actionsMoveController.addStatusListener(_handleShowAllActionsStatusChanged);
-            _dragExtent = 0;
+            this._overallMoveController = new AnimationController(duration: this.widget.movementDuration, vsync: this);
+            this._overallMoveController.addStatusListener(this._handleDismissStatusChanged);
+            this._actionsMoveController = new AnimationController(duration: this.widget.movementDuration, vsync: this);
+            this._actionsMoveController.addStatusListener(this._handleShowAllActionsStatusChanged);
+            this._dragExtent = 0;
         }
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            _removeScrollingNotifierListener();
-            _addScrollingNotifierListener();
+            this._removeScrollingNotifierListener();
+            this._addScrollingNotifierListener();
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
             base.didUpdateWidget(oldWidget);
-            if (oldWidget is CustomDismissible customDismissible)
-                if (widget.closeOnScroll != customDismissible.closeOnScroll) {
-                    _removeScrollingNotifierListener();
-                    _addScrollingNotifierListener();
+            if (oldWidget is CustomDismissible customDismissible) {
+                if (this.widget.closeOnScroll != customDismissible.closeOnScroll) {
+                    this._removeScrollingNotifierListener();
+                    this._addScrollingNotifierListener();
                 }
-        }
-
-        public override void dispose() {
-            _overallMoveController.dispose();
-            _actionsMoveController.dispose();
-            _resizeController?.dispose();
-            _removeScrollingNotifierListener();
-            widget.controller?._setActiveState(null);
-            base.dispose();
-        }
-
-        private void _addScrollingNotifierListener() {
-            if (widget.closeOnScroll) {
-                _scrollPosition = Scrollable.of(context)?.position;
-                if (_scrollPosition != null)
-                    _scrollPosition.isScrollingNotifier.addListener(_isScrollingListener);
             }
         }
 
-        private void _removeScrollingNotifierListener() {
-            if (_scrollPosition != null) _scrollPosition.isScrollingNotifier.removeListener(_isScrollingListener);
+        public override void dispose() {
+            this._overallMoveController.dispose();
+            this._actionsMoveController.dispose();
+            this._resizeController?.dispose();
+            this._removeScrollingNotifierListener();
+            this.widget.controller?._setActiveState(null);
+            base.dispose();
+        }
+
+        void _addScrollingNotifierListener() {
+            if (this.widget.closeOnScroll) {
+                this._scrollPosition = Scrollable.of(this.context)?.position;
+                if (this._scrollPosition != null) {
+                    this._scrollPosition.isScrollingNotifier.addListener(this._isScrollingListener);
+                }
+            }
+        }
+
+        void _removeScrollingNotifierListener() {
+            if (this._scrollPosition != null) {
+                this._scrollPosition.isScrollingNotifier.removeListener(this._isScrollingListener);
+            }
         }
 
         public void open() {
-            _actionsMoveController.fling();
-            _overallMoveController.animateTo(
-                totalActionsExtent,
+            this._actionsMoveController.fling();
+            this._overallMoveController.animateTo(this.totalActionsExtent,
                 curve: Curves.easeIn,
-                duration: widget.movementDuration
+                duration: this.widget.movementDuration
             );
         }
 
         public void close() {
-            _flingAnimationControllers();
-            widget.controller?.setActiveState(null);
+            this._flingAnimationControllers();
+            this.widget.controller?.setActiveState(null);
         }
 
         public void _flingAnimationControllers() {
-            if (!_dismissing) {
-                _actionsMoveController.fling(-1);
-                _overallMoveController.fling(-1);
+            if (!this._dismissing) {
+                this._actionsMoveController.fling(-1);
+                this._overallMoveController.fling(-1);
             }
         }
 
         public void dismiss(CustomDismissibleActionType? actionType) {
-            if (dismissible) {
-                _dismissing = true;
-                if (actionType == null)
+            if (this.dismissible) {
+                this._dismissing = true;
+                if (actionType == null) {
                     actionType = this.actionType;
-                if (actionType != this.actionType)
-                    setState(() => { _dragExtent = actionType == CustomDismissibleActionType.primary ? 1 : -1; });
-                _overallMoveController.fling();
+                }
+
+                if (actionType != this.actionType) {
+                    this.setState(() => {
+                        this._dragExtent = actionType == CustomDismissibleActionType.primary ? 1 : -1;
+                    });
+                }
+
+                this._overallMoveController.fling();
             }
         }
 
-        private void _isScrollingListener() {
-            if (!widget.closeOnScroll || _scrollPosition == null) return;
-            if (_scrollPosition.isScrollingNotifier.value) close();
+        void _isScrollingListener() {
+            if (!this.widget.closeOnScroll || this._scrollPosition == null) {
+                return;
+            }
+
+            if (this._scrollPosition.isScrollingNotifier.value) {
+                this.close();
+            }
         }
 
-        private void _handleDragStart(DragStartDetails details) {
-            _dragUnderway = true;
-            widget.controller?.setActiveState(this);
-            _dragExtent = _actionsMoveController.value *
-                          _actionsDragAxisExtent *
-                          _dragExtent.sign();
-            if (_overallMoveController.isAnimating) _overallMoveController.stop();
+        void _handleDragStart(DragStartDetails details) {
+            this._dragUnderway = true;
+            this.widget.controller?.setActiveState(this);
+            this._dragExtent = this._actionsMoveController.value * this._actionsDragAxisExtent *
+                               this._dragExtent.sign();
+            if (this._overallMoveController.isAnimating) {
+                this._overallMoveController.stop();
+            }
 
-            if (_actionsMoveController.isAnimating) _actionsMoveController.stop();
+            if (this._actionsMoveController.isAnimating) {
+                this._actionsMoveController.stop();
+            }
         }
 
-        private void _handleDragUpdate(DragUpdateDetails details) {
-            if (widget.controller != null && widget.controller.activeState != this) return;
+        void _handleDragUpdate(DragUpdateDetails details) {
+            if (this.widget.controller != null && this.widget.controller.activeState != this) {
+                return;
+            }
 
             var delta = details.primaryDelta;
-            if (delta != null)
-                _dragExtent += (float) delta;
-            setState(() => {
-                _overallMoveController.setValue(_dragExtent.abs() / _overallDragAxisExtent);
-                _actionsMoveController.setValue(_dragExtent.abs() / _actionsDragAxisExtent);
-                _renderingMode = _overallMoveController.value > totalActionsExtent
+            if (delta != null) {
+                this._dragExtent += (float) delta;
+            }
+
+            this.setState(() => {
+                this._overallMoveController.setValue(this._dragExtent.abs() / this._overallDragAxisExtent);
+                this._actionsMoveController.setValue(this._dragExtent.abs() / this._actionsDragAxisExtent);
+                this._renderingMode = this._overallMoveController.value > this.totalActionsExtent
                     ? CustomDismissibleMode.dismiss
                     : CustomDismissibleMode.slide;
             });
         }
 
-        private void _handleDragEnd(DragEndDetails details) {
-            if (widget.controller != null && widget.controller.activeState != this) return;
-
-            _dragUnderway = false;
-            var velocity = (float) details.primaryVelocity;
-            var shouldOpen = velocity.sign() == _dragExtent.sign();
-            var fast = velocity.abs() > widget.dismissibleDelegate.fastThreshold;
-
-            if (dismissible && overallMoveAnimation.value > totalActionsExtent) {
-                // We are in a dismiss state.
-                if (overallMoveAnimation.value >= dismissThreshold)
-                    dismiss(null);
-                else
-                    open();
+        void _handleDragEnd(DragEndDetails details) {
+            if (this.widget.controller != null && this.widget.controller.activeState != this) {
+                return;
             }
-            else if (actionsMoveAnimation.value >= widget.showAllActionsThreshold || (shouldOpen && fast)) {
-                open();
+
+            this._dragUnderway = false;
+            var velocity = (float) details.primaryVelocity;
+            var shouldOpen = velocity.sign() == this._dragExtent.sign();
+            var fast = velocity.abs() > this.widget.dismissibleDelegate.fastThreshold;
+
+            if (this.dismissible && this.overallMoveAnimation.value > this.totalActionsExtent) {
+                // We are in a dismiss state.
+                if (this.overallMoveAnimation.value >= this.dismissThreshold) {
+                    this.dismiss(null);
+                }
+                else {
+                    this.open();
+                }
+            }
+            else if (this.actionsMoveAnimation.value >= this.widget.showAllActionsThreshold || (shouldOpen && fast)) {
+                this.open();
             }
             else {
-                close();
+                this.close();
             }
         }
 
-        private void _handleShowAllActionsStatusChanged(AnimationStatus status) {
-            if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) setState(() => { });
-            updateKeepAlive();
+        void _handleShowAllActionsStatusChanged(AnimationStatus status) {
+            if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
+                this.setState(() => { });
+            }
+
+            this.updateKeepAlive();
         }
 
-        private void _handleDismissStatusChanged(AnimationStatus status) {
-            if (dismissible) {
+        void _handleDismissStatusChanged(AnimationStatus status) {
+            if (this.dismissible) {
                 if (status == AnimationStatus.completed &&
-                    _overallMoveController.value == _overallMoveController.upperBound &&
-                    !_dragUnderway) {
-                    if (widget.slideToDismissDelegate.onWillDismiss == null ||
-                        widget.slideToDismissDelegate.onWillDismiss(actionType)) {
-                        _startResizeAnimation();
+                    this._overallMoveController.value == this._overallMoveController.upperBound &&
+                    !this._dragUnderway) {
+                    if (this.widget.slideToDismissDelegate.onWillDismiss == null ||
+                        this.widget.slideToDismissDelegate.onWillDismiss(this.actionType)) {
+                        this._startResizeAnimation();
                     }
                     else {
-                        _dismissing = false;
-                        if (widget.slideToDismissDelegate?.closeOnCanceled == true)
-                            close();
-                        else
-                            open();
+                        this._dismissing = false;
+                        if (this.widget.slideToDismissDelegate?.closeOnCanceled == true) {
+                            this.close();
+                        }
+                        else {
+                            this.open();
+                        }
                     }
                 }
 
-                updateKeepAlive();
+                this.updateKeepAlive();
             }
         }
 
-        private void _handleDismiss() {
-            widget.controller?.setActiveState(null);
-            var slideToDismissDelegate = widget.slideToDismissDelegate;
-            if (slideToDismissDelegate.onDismissed != null) slideToDismissDelegate.onDismissed(actionType);
+        void _handleDismiss() {
+            this.widget.controller?.setActiveState(null);
+            var slideToDismissDelegate = this.widget.slideToDismissDelegate;
+            if (slideToDismissDelegate.onDismissed != null) {
+                slideToDismissDelegate.onDismissed(this.actionType);
+            }
         }
 
-        private void _startResizeAnimation() {
-            D.assert(_overallMoveController != null);
-            D.assert(_overallMoveController.isCompleted);
-            D.assert(_resizeController == null);
-            D.assert(_sizePriorToCollapse == null);
-            var slideToDismissDelegate = widget.slideToDismissDelegate;
+        void _startResizeAnimation() {
+            D.assert(this._overallMoveController != null);
+            D.assert(this._overallMoveController.isCompleted);
+            D.assert(this._resizeController == null);
+            D.assert(this._sizePriorToCollapse == null);
+            var slideToDismissDelegate = this.widget.slideToDismissDelegate;
             if (slideToDismissDelegate.resizeDuration == null) {
-                _handleDismiss();
+                this._handleDismiss();
             }
             else {
-                _resizeController =
+                this._resizeController =
                     new AnimationController(duration: slideToDismissDelegate.resizeDuration, vsync: this);
-                _resizeController.addListener(_handleResizeProgressChanged);
-                _resizeController.addStatusListener(status => updateKeepAlive());
-                _resizeController.forward();
-                setState(() => {
-                    _renderingMode = CustomDismissibleMode.resize;
-                    _sizePriorToCollapse = context.size;
-                    _resizeAnimation = new FloatTween(1, 0).animate(
-                        new CurvedAnimation(_resizeController, CustomDismissibleUtil.ResizeTimeCurve));
+                this._resizeController.addListener(this._handleResizeProgressChanged);
+                this._resizeController.addStatusListener(status => this.updateKeepAlive());
+                this._resizeController.forward();
+                this.setState(() => {
+                    this._renderingMode = CustomDismissibleMode.resize;
+                    this._sizePriorToCollapse = this.context.size;
+                    this._resizeAnimation = new FloatTween(1, 0).animate(
+                        new CurvedAnimation(this._resizeController, CustomDismissibleUtil.ResizeTimeCurve));
                 });
             }
         }
 
-        private void _handleResizeProgressChanged() {
-            var slideToDismissDelegate = widget.slideToDismissDelegate;
-            if (_resizeController.isCompleted) {
-                _handleDismiss();
+        void _handleResizeProgressChanged() {
+            var slideToDismissDelegate = this.widget.slideToDismissDelegate;
+            if (this._resizeController.isCompleted) {
+                this._handleDismiss();
             }
             else {
-                if (slideToDismissDelegate.onResize != null)
+                if (slideToDismissDelegate.onResize != null) {
                     slideToDismissDelegate.onResize();
+                }
             }
         }
 
         public override Widget build(BuildContext context) {
             base.build(context); // See AutomaticKeepAliveClientMixin.
-            if (!widget.enabled ||
-                (widget.actionDelegate == null || widget.actionDelegate.actionCount == 0) &&
-                (widget.secondaryActionDelegate == null || widget.secondaryActionDelegate.actionCount == 0))
-                return widget.child;
+            if (!this.widget.enabled ||
+                (this.widget.actionDelegate == null || this.widget.actionDelegate.actionCount == 0) &&
+                (this.widget.secondaryActionDelegate == null || this.widget.secondaryActionDelegate.actionCount == 0)) {
+                return this.widget.child;
+            }
 
-            var content = widget.child;
+            var content = this.widget.child;
 
-            if (actionType == CustomDismissibleActionType.primary &&
-                widget.actionDelegate != null &&
-                widget.actionDelegate.actionCount > 0 ||
-                actionType == CustomDismissibleActionType.secondary &&
-                widget.secondaryActionDelegate != null &&
-                widget.secondaryActionDelegate.actionCount > 0) {
-                if (dismissible) {
-                    content = widget.slideToDismissDelegate.buildActions(
+            if (this.actionType == CustomDismissibleActionType.primary && this.widget.actionDelegate != null &&
+                this.widget.actionDelegate.actionCount > 0 ||
+                this.actionType == CustomDismissibleActionType.secondary &&
+                this.widget.secondaryActionDelegate != null && this.widget.secondaryActionDelegate.actionCount > 0) {
+                if (this.dismissible) {
+                    content = this.widget.slideToDismissDelegate.buildActions(
                         context,
-                        new CustomDismissibleDelegateContext(this),
-                        widget.dismissibleDelegate
+                        new CustomDismissibleDelegateContext(this), this.widget.dismissibleDelegate
                     );
 
-                    if (_resizeAnimation != null) {
+                    if (this._resizeAnimation != null) {
                         D.assert(() => {
-                            if (_resizeAnimation.status != AnimationStatus.forward)
-                                D.assert(_resizeAnimation.status == AnimationStatus.completed);
+                            if (this._resizeAnimation.status != AnimationStatus.forward) {
+                                D.assert(this._resizeAnimation.status == AnimationStatus.completed);
+                            }
+
                             return true;
                         });
                         return new SizeTransition(
-                            sizeFactor: _resizeAnimation,
-                            axis: directionIsXAxis ? Axis.vertical : Axis.horizontal,
+                            sizeFactor: this._resizeAnimation,
+                            axis: this.directionIsXAxis ? Axis.vertical : Axis.horizontal,
                             child: new SizedBox(
-                                width: _sizePriorToCollapse.width,
-                                height: _sizePriorToCollapse.height,
+                                width: this._sizePriorToCollapse.width,
+                                height: this._sizePriorToCollapse.height,
                                 child: content
                             )
                         );
                     }
                 }
                 else {
-                    content = widget.dismissibleDelegate.buildActions(
+                    content = this.widget.dismissibleDelegate.buildActions(
                         context,
                         new CustomDismissibleDelegateContext(this)
                     );
@@ -938,13 +1016,13 @@ namespace ConnectApp.components {
             GestureDragStartCallback onHorizontalDragStart = null;
             GestureDragUpdateCallback onHorizontalDragUpdate = null;
             GestureDragEndCallback onHorizontalDragEnd = null;
-            GestureDragStartCallback onVerticalDragStart = _handleDragStart;
-            GestureDragUpdateCallback onVerticalDragUpdate = _handleDragUpdate;
-            GestureDragEndCallback onVerticalDragEnd = _handleDragEnd;
-            if (directionIsXAxis) {
-                onHorizontalDragStart = _handleDragStart;
-                onHorizontalDragUpdate = _handleDragUpdate;
-                onHorizontalDragEnd = _handleDragEnd;
+            GestureDragStartCallback onVerticalDragStart = this._handleDragStart;
+            GestureDragUpdateCallback onVerticalDragUpdate = this._handleDragUpdate;
+            GestureDragEndCallback onVerticalDragEnd = this._handleDragEnd;
+            if (this.directionIsXAxis) {
+                onHorizontalDragStart = this._handleDragStart;
+                onHorizontalDragUpdate = this._handleDragUpdate;
+                onHorizontalDragEnd = this._handleDragEnd;
                 onVerticalDragStart = null;
                 onVerticalDragUpdate = null;
                 onVerticalDragEnd = null;

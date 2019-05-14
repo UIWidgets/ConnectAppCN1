@@ -11,8 +11,8 @@ using ConnectApp.utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -25,12 +25,12 @@ namespace ConnectApp.screens {
             this.articleId = articleId;
         }
 
-        private readonly string articleId;
+        readonly string articleId;
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ArticleDetailScreenViewModel>(
                 converter: state => new ArticleDetailScreenViewModel {
-                    articleId = articleId,
+                    articleId = this.articleId,
                     loginUserId = state.loginState.loginInfo.userId,
                     isLoggedIn = state.loginState.isLoggedIn,
                     articleDetailLoading = state.articleState.articleDetailLoading,
@@ -46,12 +46,10 @@ namespace ConnectApp.screens {
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
-                        openUrl = url => dispatcher.dispatch(new MainNavigatorPushToWebViewAction
-                        {
+                        openUrl = url => dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
                             url = url
                         }),
-                        playVideo = url => dispatcher.dispatch(new PlayVideoAction()
-                        {
+                        playVideo = url => dispatcher.dispatch(new PlayVideoAction() {
                             url = url
                         }),
                         pushToArticleDetail = id => dispatcher.dispatch(
@@ -92,7 +90,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    internal class ArticleDetailScreen : StatefulWidget {
+    class ArticleDetailScreen : StatefulWidget {
         public ArticleDetailScreen(
             ArticleDetailScreenViewModel viewModel = null,
             ArticleDetailScreenActionModel actionModel = null,
@@ -110,80 +108,94 @@ namespace ConnectApp.screens {
         }
     }
 
-    internal class _ArticleDetailScreenState : State<ArticleDetailScreen> {
-        private Article _article = new Article();
-        private User _user = new User();
-        private Team _team = new Team();
-        private string _channelId = "";
-        private List<string> _channelComments = new List<string>();
-        private List<Article> _relArticles = new List<Article>();
-        private Dictionary<string, ContentMap> _contentMap = new Dictionary<string, ContentMap>();
-        private string _lastCommentId = "";
-        private bool _hasMore = false;
-        private RefreshController _refreshController;
-        private string _loginSubId;
+    class _ArticleDetailScreenState : State<ArticleDetailScreen> {
+        Article _article = new Article();
+        User _user = new User();
+        Team _team = new Team();
+        string _channelId = "";
+        List<string> _channelComments = new List<string>();
+        List<Article> _relArticles = new List<Article>();
+        Dictionary<string, ContentMap> _contentMap = new Dictionary<string, ContentMap>();
+        string _lastCommentId = "";
+        bool _hasMore = false;
+        RefreshController _refreshController;
+        string _loginSubId;
 
         public override void initState() {
             base.initState();
-            _refreshController = new RefreshController();
+            this._refreshController = new RefreshController();
             SchedulerBinding.instance.addPostFrameCallback(_ => {
-                widget.actionModel.startFetchArticleDetail();
-                widget.actionModel.fetchArticleDetail(widget.viewModel.articleId);
+                this.widget.actionModel.startFetchArticleDetail();
+                this.widget.actionModel.fetchArticleDetail(this.widget.viewModel.articleId);
             });
-            _loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
-                widget.actionModel.startFetchArticleDetail();
-                widget.actionModel.fetchArticleDetail(widget.viewModel.articleId);
+            this._loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
+                this.widget.actionModel.startFetchArticleDetail();
+                this.widget.actionModel.fetchArticleDetail(this.widget.viewModel.articleId);
             });
         }
 
         public override void dispose() {
-            EventBus.unSubscribe(EventBusConstant.login_success, _loginSubId);
+            EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
             base.dispose();
         }
 
         public override Widget build(BuildContext context) {
-            widget.viewModel.articleDict.TryGetValue(widget.viewModel.articleId, out _article);
-            if (widget.viewModel.articleDetailLoading&&(_article==null||!_article.isNotFirst))
+            this.widget.viewModel.articleDict.TryGetValue(this.widget.viewModel.articleId, out this._article);
+            if (this.widget.viewModel.articleDetailLoading && (this._article == null || !this._article.isNotFirst)) {
                 return new Container(
                     color: CColors.White,
                     child: new CustomSafeArea(
                         child: new Column(
                             children: new List<Widget> {
-                                _buildNavigationBar(),
+                                this._buildNavigationBar(),
                                 new ArticleDetailLoading()
                             }
                         )
                     )
                 );
-            if (_article == null || _article.channelId == null) return new Container();
-            if (_article.ownerType == "user")
-                if (_article.userId != null && widget.viewModel.userDict.TryGetValue(_article.userId, out _user))
-                    _user = widget.viewModel.userDict[_article.userId];
+            }
 
-            if (_article.ownerType == "team")
-                if (_article.teamId != null && widget.viewModel.teamDict.TryGetValue(_article.teamId, out _team))
-                    _team = widget.viewModel.teamDict[_article.teamId];
-            _channelId = _article.channelId;
-            _relArticles = _article.projects.FindAll(item => item.type == "article");
-            if (widget.viewModel.channelMessageList.ContainsKey(_article.channelId))
-                _channelComments = widget.viewModel.channelMessageList[_article.channelId];
-            _contentMap = _article.contentMap;
-            _lastCommentId = _article.currOldestMessageId ?? "";
-            _hasMore = _article.hasMore;
+            if (this._article == null || this._article.channelId == null) {
+                return new Container();
+            }
 
-            var originItems = _article == null ? new List<Widget>() : _buildItems(context);
+            if (this._article.ownerType == "user") {
+                if (this._article.userId != null &&
+                    this.widget.viewModel.userDict.TryGetValue(this._article.userId, out this._user)) {
+                    this._user = this.widget.viewModel.userDict[this._article.userId];
+                }
+            }
+
+            if (this._article.ownerType == "team") {
+                if (this._article.teamId != null &&
+                    this.widget.viewModel.teamDict.TryGetValue(this._article.teamId, out this._team)) {
+                    this._team = this.widget.viewModel.teamDict[this._article.teamId];
+                }
+            }
+
+            this._channelId = this._article.channelId;
+            this._relArticles = this._article.projects.FindAll(item => item.type == "article");
+            if (this.widget.viewModel.channelMessageList.ContainsKey(this._article.channelId)) {
+                this._channelComments = this.widget.viewModel.channelMessageList[this._article.channelId];
+            }
+
+            this._contentMap = this._article.contentMap;
+            this._lastCommentId = this._article.currOldestMessageId ?? "";
+            this._hasMore = this._article.hasMore;
+
+            var originItems = this._article == null ? new List<Widget>() : this._buildItems(context);
 
             var child = new Container(
                 color: CColors.background3,
                 child: new Column(
                     children: new List<Widget> {
-                        _buildNavigationBar(),
+                        this._buildNavigationBar(),
                         new Expanded(
                             child: new SmartRefresher(
-                                controller: _refreshController,
+                                controller: this._refreshController,
                                 enablePullDown: false,
-                                enablePullUp: _hasMore,
-                                onRefresh: _onRefresh,
+                                enablePullUp: this._hasMore,
+                                onRefresh: this._onRefresh,
                                 child: ListView.builder(
                                     physics: new AlwaysScrollableScrollPhysics(),
                                     itemCount: originItems.Count,
@@ -191,50 +203,52 @@ namespace ConnectApp.screens {
                                 )
                             )
                         ),
-                        new ArticleTabBar(
-                            _article.like,
+                        new ArticleTabBar(this._article.like,
                             () => {
-                                if (!widget.viewModel.isLoggedIn)
-                                    widget.actionModel.pushToLogin();
-                                else
-                                    ActionSheetUtils.showModalActionSheet(new CustomInput(
-                                        doneCallBack: text => {
-                                            ActionSheetUtils.hiddenModalPopup();
-                                            widget.actionModel.sendComment(
-                                                _article.channelId,
-                                                text,
-                                                Snowflake.CreateNonce(),
-                                                null
-                                            );
-                                        })
-                                    );
-                            },
-                            () => {
-                                if (!widget.viewModel.isLoggedIn)
-                                    widget.actionModel.pushToLogin();
-                                else
-                                    ActionSheetUtils.showModalActionSheet(new CustomInput(
-                                        doneCallBack: text => {
-                                            ActionSheetUtils.hiddenModalPopup();
-                                            widget.actionModel.sendComment(
-                                                _article.channelId,
-                                                text,
-                                                Snowflake.CreateNonce(),
-                                                null
-                                            );
-                                        })
-                                    );
-                            },
-                            () => {
-                                if (!widget.viewModel.isLoggedIn) {
-                                    widget.actionModel.pushToLogin();
+                                if (!this.widget.viewModel.isLoggedIn) {
+                                    this.widget.actionModel.pushToLogin();
                                 }
                                 else {
-                                    if (!_article.like)
-                                        widget.actionModel.likeArticle(_article.id);
+                                    ActionSheetUtils.showModalActionSheet(new CustomInput(
+                                        doneCallBack: text => {
+                                            ActionSheetUtils.hiddenModalPopup();
+                                            this.widget.actionModel.sendComment(this._article.channelId,
+                                                text,
+                                                Snowflake.CreateNonce(),
+                                                null
+                                            );
+                                        })
+                                    );
                                 }
                             },
-                            shareCallback: share
+                            () => {
+                                if (!this.widget.viewModel.isLoggedIn) {
+                                    this.widget.actionModel.pushToLogin();
+                                }
+                                else {
+                                    ActionSheetUtils.showModalActionSheet(new CustomInput(
+                                        doneCallBack: text => {
+                                            ActionSheetUtils.hiddenModalPopup();
+                                            this.widget.actionModel.sendComment(this._article.channelId,
+                                                text,
+                                                Snowflake.CreateNonce(),
+                                                null
+                                            );
+                                        })
+                                    );
+                                }
+                            },
+                            () => {
+                                if (!this.widget.viewModel.isLoggedIn) {
+                                    this.widget.actionModel.pushToLogin();
+                                }
+                                else {
+                                    if (!this._article.like) {
+                                        this.widget.actionModel.likeArticle(this._article.id);
+                                    }
+                                }
+                            },
+                            shareCallback: this.share
                         )
                     }
                 )
@@ -247,21 +261,25 @@ namespace ConnectApp.screens {
             );
         }
 
-        private List<Widget> _buildItems(BuildContext context) {
+        List<Widget> _buildItems(BuildContext context) {
             var originItems = new List<Widget>();
-            originItems.Add(_buildContentHead());
-            originItems.Add(_buildSubTitle());
+            originItems.Add(this._buildContentHead());
+            originItems.Add(this._buildSubTitle());
             originItems.AddRange(
-                ContentDescription.map(context, _article.body, _contentMap, widget.actionModel.openUrl,widget.actionModel.playVideo));
-            originItems.Add(_buildActionCards(_article.like));
-            originItems.Add(_buildRelatedArticles());
-            originItems.Add(_comments());
-            originItems.AddRange(_buildComments());
-            if (!_article.hasMore) originItems.Add(_buildEnd());
+                ContentDescription.map(context, this._article.body, this._contentMap, this.widget.actionModel.openUrl,
+                    this.widget.actionModel.playVideo));
+            originItems.Add(this._buildActionCards(this._article.like));
+            originItems.Add(this._buildRelatedArticles());
+            originItems.Add(this._comments());
+            originItems.AddRange(this._buildComments());
+            if (!this._article.hasMore) {
+                originItems.Add(this._buildEnd());
+            }
+
             return originItems;
         }
 
-        private Widget _buildNavigationBar() {
+        Widget _buildNavigationBar() {
             return new Container(
                 height: 44,
                 color: CColors.White,
@@ -270,7 +288,7 @@ namespace ConnectApp.screens {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: new List<Widget> {
                         new GestureDetector(
-                            onTap: () => widget.actionModel.mainRouterPop(),
+                            onTap: () => this.widget.actionModel.mainRouterPop(),
                             child: new Container(
                                 padding: EdgeInsets.symmetric(10, 16),
                                 color: CColors.Transparent,
@@ -302,42 +320,49 @@ namespace ConnectApp.screens {
             );
         }
 
-        private void _onRefresh(bool up) {
-            if (!up)
-                widget.actionModel.fetchArticleComments(_channelId, _lastCommentId)
-                    .Then(() => { _refreshController.sendBack(up, RefreshStatus.idle); })
-                    .Catch(err => { _refreshController.sendBack(up, RefreshStatus.failed); });
+        void _onRefresh(bool up) {
+            if (!up) {
+                this.widget.actionModel.fetchArticleComments(this._channelId, this._lastCommentId)
+                    .Then(() => { this._refreshController.sendBack(up, RefreshStatus.idle); })
+                    .Catch(err => { this._refreshController.sendBack(up, RefreshStatus.failed); });
+            }
         }
 
-        private Widget _buildContentHead() {
+        Widget _buildContentHead() {
             Widget _avatar;
-            if (_article.ownerType == OwnerType.user.ToString())
-                _avatar = Avatar.User(_user.id, _user, 32);
-            else
-                _avatar = Avatar.Team(_team.id, _team, 32);
-            var text = _article.ownerType == "user" ? _user.fullName : _team.name;
-            var description = _article.ownerType == "user" ? _user.title : "";
-            var time = _article.lastPublishedTime == null ? _article.publishedTime : _article.lastPublishedTime;
+            if (this._article.ownerType == OwnerType.user.ToString()) {
+                _avatar = Avatar.User(this._user.id, this._user, 32);
+            }
+            else {
+                _avatar = Avatar.Team(this._team.id, this._team, 32);
+            }
+
+            var text = this._article.ownerType == "user" ? this._user.fullName : this._team.name;
+            var description = this._article.ownerType == "user" ? this._user.title : "";
+            var time = this._article.lastPublishedTime == null
+                ? this._article.publishedTime
+                : this._article.lastPublishedTime;
             Widget descriptionWidget = new Container();
-            if (description.isNotEmpty())
+            if (description.isNotEmpty()) {
                 descriptionWidget = new Text(
                     description,
                     style: CTextStyle.PSmallBody3
                 );
+            }
+
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(16, right: 16, top: 16),
                 child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        new Text(
-                            _article.title,
+                        new Text(this._article.title,
                             style: CTextStyle.H3
                         ),
                         new Container(
                             margin: EdgeInsets.only(top: 8),
                             child: new Text(
-                                $"阅读 {_article.viewCount} · {DateConvert.DateStringFromNow(time)}",
+                                $"阅读 {this._article.viewCount} · {DateConvert.DateStringFromNow(time)}",
                                 style: CTextStyle.PSmallBody4
                             )
                         ),
@@ -368,7 +393,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildSubTitle() {
+        Widget _buildSubTitle() {
             return new Container(
                 color: CColors.White,
                 child: new Container(
@@ -379,13 +404,13 @@ namespace ConnectApp.screens {
                             borderRadius: BorderRadius.all(4)
                         ),
                         padding: EdgeInsets.only(16, 12, 16, 12),
-                        child: new Text($"{_article.subTitle}", style: CTextStyle.PLargeBody4)
+                        child: new Text($"{this._article.subTitle}", style: CTextStyle.PLargeBody4)
                     ))
             );
         }
 
 
-        private Widget _buildActionCards(bool like) {
+        Widget _buildActionCards(bool like) {
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(bottom: 40),
@@ -394,34 +419,42 @@ namespace ConnectApp.screens {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: new List<Widget> {
                         new ActionCard(like ? Icons.favorite : Icons.favorite_border, like ? "已赞" : "点赞", like, () => {
-                            if (!widget.viewModel.isLoggedIn) {
-                                widget.actionModel.pushToLogin();
+                            if (!this.widget.viewModel.isLoggedIn) {
+                                this.widget.actionModel.pushToLogin();
                             }
                             else {
-                                if (!like)
-                                    widget.actionModel.likeArticle(_article.id);
+                                if (!like) {
+                                    this.widget.actionModel.likeArticle(this._article.id);
+                                }
                             }
                         }),
                         new Container(width: 16),
-                        new ActionCard(Icons.share, "分享", false, share)
+                        new ActionCard(Icons.share, "分享", false, this.share)
                     }
                 )
             );
         }
 
-        private Widget _buildRelatedArticles() {
-            if (_relArticles.Count == 0) return new Container();
+        Widget _buildRelatedArticles() {
+            if (this._relArticles.Count == 0) {
+                return new Container();
+            }
+
             var widgets = new List<Widget>();
-            _relArticles.ForEach(article => {
+            this._relArticles.ForEach(article => {
                 //对文章进行过滤
-                if (article.id != _article.id) {
+                if (article.id != this._article.id) {
                     Widget card;
-                    if (article.ownerType == OwnerType.user.ToString())
-                        card = RelatedArticleCard.User(article, _user,
-                            () => { widget.actionModel.pushToArticleDetail(article.id); }, new ObjectKey(article.id));
-                    else
-                        card = RelatedArticleCard.Team(article, _team,
-                            () => { widget.actionModel.pushToArticleDetail(article.id); }, new ObjectKey(article.id));
+                    if (article.ownerType == OwnerType.user.ToString()) {
+                        card = RelatedArticleCard.User(article, this._user,
+                            () => { this.widget.actionModel.pushToArticleDetail(article.id); },
+                            new ObjectKey(article.id));
+                    }
+                    else {
+                        card = RelatedArticleCard.Team(article, this._team,
+                            () => { this.widget.actionModel.pushToArticleDetail(article.id); },
+                            new ObjectKey(article.id));
+                    }
 
                     widgets.Add(card);
                 }
@@ -445,8 +478,11 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _comments() {
-            if (_channelComments.Count == 0) return new Container();
+        Widget _comments() {
+            if (this._channelComments.Count == 0) {
+                return new Container();
+            }
+
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(16, 16, 16),
@@ -458,59 +494,69 @@ namespace ConnectApp.screens {
             );
         }
 
-        private List<Widget> _buildComments() {
-            if (_channelComments.isEmpty()) return new List<Widget>();
+        List<Widget> _buildComments() {
+            if (this._channelComments.isEmpty()) {
+                return new List<Widget>();
+            }
+
             var comments = new List<Widget>();
-            if (!widget.viewModel.channelMessageDict.ContainsKey(_channelId)) return comments;
-            var messageDict = widget.viewModel.channelMessageDict[_channelId];
-            foreach (var commentId in _channelComments) {
-                if (!messageDict.ContainsKey(commentId)) break;
+            if (!this.widget.viewModel.channelMessageDict.ContainsKey(this._channelId)) {
+                return comments;
+            }
+
+            var messageDict = this.widget.viewModel.channelMessageDict[this._channelId];
+            foreach (var commentId in this._channelComments) {
+                if (!messageDict.ContainsKey(commentId)) {
+                    break;
+                }
+
                 var message = messageDict[commentId];
-                bool isPraised = _isPraised(message, widget.viewModel.loginUserId);
+                bool isPraised = _isPraised(message, this.widget.viewModel.loginUserId);
                 var parentName = "";
-                if (message.parentMessageId.isNotEmpty())
+                if (message.parentMessageId.isNotEmpty()) {
                     if (messageDict.ContainsKey(message.parentMessageId)) {
                         var parentMessage = messageDict[message.parentMessageId];
                         parentName = parentMessage.author.fullName;
                     }
+                }
 
                 var card = new CommentCard(
                     message,
                     isPraised,
                     parentName,
-                    () => ReportManager.showReportView(
-                        widget.viewModel.isLoggedIn,
+                    () => ReportManager.showReportView(this.widget.viewModel.isLoggedIn,
                         commentId,
-                        ReportType.comment,
-                        widget.actionModel.pushToLogin,
-                        widget.actionModel.pushToReport
+                        ReportType.comment, this.widget.actionModel.pushToLogin, this.widget.actionModel.pushToReport
                     ),
                     replyCallBack: () => {
-                        if (!widget.viewModel.isLoggedIn)
-                            widget.actionModel.pushToLogin();
-                        else
+                        if (!this.widget.viewModel.isLoggedIn) {
+                            this.widget.actionModel.pushToLogin();
+                        }
+                        else {
                             ActionSheetUtils.showModalActionSheet(new CustomInput(
                                 message.author.fullName.isEmpty() ? "" : message.author.fullName,
                                 text => {
                                     ActionSheetUtils.hiddenModalPopup();
-                                    widget.actionModel.sendComment(
-                                        _channelId,
+                                    this.widget.actionModel.sendComment(this._channelId,
                                         text,
                                         Snowflake.CreateNonce(),
                                         commentId
                                     );
                                 })
                             );
+                        }
                     },
                     praiseCallBack: () => {
-                        if (!widget.viewModel.isLoggedIn) {
-                            widget.actionModel.pushToLogin();
+                        if (!this.widget.viewModel.isLoggedIn) {
+                            this.widget.actionModel.pushToLogin();
                         }
                         else {
-                            if (isPraised)
-                                widget.actionModel.removeLikeComment(commentId);
-                            else
-                                widget.actionModel.likeComment(commentId);
+                            if (isPraised) {
+                                this.widget.actionModel.removeLikeComment(commentId);
+                            }
+                            else {
+                                this.widget.actionModel.likeComment(commentId);
+                            }
                         }
                     });
                 comments.Add(card);
@@ -519,15 +565,20 @@ namespace ConnectApp.screens {
             return comments;
         }
 
-        private static bool _isPraised(Message message, string loginUserId) {
-            foreach (var reaction in message.reactions)
-                if (reaction.user.id == loginUserId)
+        static bool _isPraised(Message message, string loginUserId) {
+            foreach (var reaction in message.reactions) {
+                if (reaction.user.id == loginUserId) {
                     return true;
+                }
+            }
+
             return false;
         }
 
-        private Widget _buildEnd() {
-            if (_channelComments.Count == 0) return new Container();
+        Widget _buildEnd() {
+            if (this._channelComments.Count == 0) {
+                return new Container();
+            }
 
             return new Container(
                 height: 52,
@@ -537,39 +588,34 @@ namespace ConnectApp.screens {
             );
         }
 
-        private void share() {
+        void share() {
             ShareUtils.showShareView(new ShareView(
                 projectType: ProjectType.article,
                 onPressed: type => {
-                    string linkUrl = $"{Config.apiAddress}/p/{_article.id}";
+                    string linkUrl = $"{Config.apiAddress}/p/{this._article.id}";
                     if (type == ShareType.clipBoard) {
                         Clipboard.setData(new ClipboardData(linkUrl));
                         CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
                     }
                     else if (type == ShareType.block) {
-                        ReportManager.block(
-                            widget.viewModel.isLoggedIn,
-                            _article.id,
-                            widget.actionModel.pushToLogin,
-                            widget.actionModel.pushToBlock,
-                            widget.actionModel.mainRouterPop
+                        ReportManager.block(this.widget.viewModel.isLoggedIn, this._article.id,
+                            this.widget.actionModel.pushToLogin, this.widget.actionModel.pushToBlock,
+                            this.widget.actionModel.mainRouterPop
                         );
                     }
                     else if (type == ShareType.report) {
-                        ReportManager.report(
-                            widget.viewModel.isLoggedIn,
-                            _article.id,
-                            ReportType.article,
-                            widget.actionModel.pushToLogin,
-                            widget.actionModel.pushToReport
+                        ReportManager.report(this.widget.viewModel.isLoggedIn, this._article.id,
+                            ReportType.article, this.widget.actionModel.pushToLogin,
+                            this.widget.actionModel.pushToReport
                         );
                     }
                     else {
                         CustomDialogUtils.showCustomDialog(
                             child: new CustomLoadingDialog()
                         );
-                        string imageUrl = $"{_article.thumbnail.url}.200x0x1.jpg";
-                        widget.actionModel.shareToWechat(type, _article.title, _article.subTitle, linkUrl,
+                        string imageUrl = $"{this._article.thumbnail.url}.200x0x1.jpg";
+                        this.widget.actionModel.shareToWechat(type, this._article.title, this._article.subTitle,
+                                linkUrl,
                                 imageUrl).Then(CustomDialogUtils.hiddenCustomDialog)
                             .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
                     }

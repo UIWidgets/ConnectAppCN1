@@ -21,7 +21,7 @@ namespace ConnectApp.redux.actions {
                 return NotificationApi.FetchNotifications(pageNumber)
                     .Then(notificationResponse => {
                         var oldResults = notificationResponse.results;
-                        if (oldResults != null && oldResults.Count > 0)
+                        if (oldResults != null && oldResults.Count > 0) {
                             oldResults.ForEach(item => {
                                 var data = item.data;
                                 var user = new User {
@@ -35,13 +35,16 @@ namespace ConnectApp.redux.actions {
                                     }
                                 });
                             });
+                        }
+
                         var notifications = getState().notificationState.notifications;
                         if (pageNumber == 1) {
                             notifications = notificationResponse.results;
                         }
                         else {
-                            if (pageNumber <= notificationResponse.pageTotal)
+                            if (pageNumber <= notificationResponse.pageTotal) {
                                 notifications.AddRange(notificationResponse.results);
+                            }
                         }
 
                         dispatcher.dispatch(new FetchNotificationsSuccessAction

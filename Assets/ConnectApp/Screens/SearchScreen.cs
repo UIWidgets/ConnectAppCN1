@@ -9,8 +9,8 @@ using ConnectApp.redux.actions;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -73,80 +73,94 @@ namespace ConnectApp.screens {
         }
     }
 
-    internal class _SearchScreenState : State<SearchScreen> {
-        private readonly TextEditingController _controller = new TextEditingController("");
-        private int _pageNumber;
-        private RefreshController _refreshController;
-        private FocusNode _focusNode;
+    class _SearchScreenState : State<SearchScreen> {
+        readonly TextEditingController _controller = new TextEditingController("");
+        int _pageNumber;
+        RefreshController _refreshController;
+        FocusNode _focusNode;
 
         public override void initState() {
             base.initState();
-            _pageNumber = 0;
-            _refreshController = new RefreshController();
-            _focusNode = new FocusNode();
+            this._pageNumber = 0;
+            this._refreshController = new RefreshController();
+            this._focusNode = new FocusNode();
             SchedulerBinding.instance.addPostFrameCallback(_ => {
-                if (widget.viewModel.searchKeyword.Length > 0 || widget.viewModel.searchArticles.Count > 0)
-                    widget.actionModel.clearSearchArticleResult();
-                widget.actionModel.fetchPopularSearch();
+                if (this.widget.viewModel.searchKeyword.Length > 0 || this.widget.viewModel.searchArticles.Count > 0) {
+                    this.widget.actionModel.clearSearchArticleResult();
+                }
+
+                this.widget.actionModel.fetchPopularSearch();
             });
         }
 
         public override void dispose() {
-            _controller.dispose();
-            _focusNode.dispose();
+            this._controller.dispose();
+            this._focusNode.dispose();
             base.dispose();
         }
 
-        private void _searchArticle(string text) {
-            if (text.isEmpty()) return;
-            if (_focusNode.hasFocus) _focusNode.unfocus();
-            widget.actionModel.saveSearchHistory(text);
-            _controller.text = text;
-            widget.actionModel.startSearchArticle();
-            widget.actionModel.searchArticle(text, 0);
+        void _searchArticle(string text) {
+            if (text.isEmpty()) {
+                return;
+            }
+
+            if (this._focusNode.hasFocus) {
+                this._focusNode.unfocus();
+            }
+
+            this.widget.actionModel.saveSearchHistory(text);
+            this._controller.text = text;
+            this.widget.actionModel.startSearchArticle();
+            this.widget.actionModel.searchArticle(text, 0);
         }
 
-        private void _onRefresh(bool up) {
-            if (up)
-                _pageNumber = 0;
-            else
-                _pageNumber++;
-            widget.actionModel.searchArticle(widget.viewModel.searchKeyword, _pageNumber)
-                .Then(() => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
-                .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
+        void _onRefresh(bool up) {
+            if (up) {
+                this._pageNumber = 0;
+            }
+            else {
+                this._pageNumber++;
+            }
+
+            this.widget.actionModel.searchArticle(this.widget.viewModel.searchKeyword, this._pageNumber)
+                .Then(() => this._refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Catch(_ => this._refreshController.sendBack(up, RefreshStatus.failed));
         }
 
         public override Widget build(BuildContext context) {
             Widget child = new Container();
-            if (widget.viewModel.searchLoading) {
+            if (this.widget.viewModel.searchLoading) {
                 child = new GlobalLoading();
             }
-            else if (widget.viewModel.searchKeyword.Length > 0) {
-                if (widget.viewModel.searchArticles.Count > 0) {
-                    var currentPage = widget.viewModel.currentPage;
-                    var pages = widget.viewModel.pages;
+            else if (this.widget.viewModel.searchKeyword.Length > 0) {
+                if (this.widget.viewModel.searchArticles.Count > 0) {
+                    var currentPage = this.widget.viewModel.currentPage;
+                    var pages = this.widget.viewModel.pages;
                     child = new Container(
                         color: CColors.background3,
                         child: new SmartRefresher(
-                            controller: _refreshController,
+                            controller: this._refreshController,
                             enablePullDown: false,
                             enablePullUp: currentPage != pages.Count - 1,
-                            onRefresh: _onRefresh,
+                            onRefresh: this._onRefresh,
                             child: ListView.builder(
                                 physics: new AlwaysScrollableScrollPhysics(),
-                                itemCount: widget.viewModel.searchArticles.Count,
+                                itemCount: this.widget.viewModel.searchArticles.Count,
                                 itemBuilder: (cxt, index) => {
-                                    var searchArticle = widget.viewModel.searchArticles[index];
-                                    if (widget.viewModel.blockArticleList.Contains(searchArticle.id))
+                                    var searchArticle = this.widget.viewModel.searchArticles[index];
+                                    if (this.widget.viewModel.blockArticleList.Contains(searchArticle.id)) {
                                         return new Container();
-                                    if (searchArticle.ownerType == OwnerType.user.ToString()) {
-                                        var user = widget.viewModel.userDict[searchArticle.userId];
-                                        return RelatedArticleCard.User(searchArticle, user,
-                                            () => { widget.actionModel.pushToArticleDetail(searchArticle.id); });
                                     }
-                                    var team = widget.viewModel.teamDict[searchArticle.teamId];
+
+                                    if (searchArticle.ownerType == OwnerType.user.ToString()) {
+                                        var user = this.widget.viewModel.userDict[searchArticle.userId];
+                                        return RelatedArticleCard.User(searchArticle, user,
+                                            () => { this.widget.actionModel.pushToArticleDetail(searchArticle.id); });
+                                    }
+
+                                    var team = this.widget.viewModel.teamDict[searchArticle.teamId];
                                     return RelatedArticleCard.Team(searchArticle, team,
-                                        () => { widget.actionModel.pushToArticleDetail(searchArticle.id); });
+                                        () => { this.widget.actionModel.pushToArticleDetail(searchArticle.id); });
                                 }
                             )
                         ));
@@ -158,8 +172,7 @@ namespace ConnectApp.screens {
             else {
                 child = new ListView(
                     children: new List<Widget> {
-                        _buildSearchHistory(widget.viewModel.searchHistoryList),
-                        _buildHotSearch()
+                        this._buildSearchHistory(this.widget.viewModel.searchHistoryList), this._buildHotSearch()
                     }
                 );
             }
@@ -170,7 +183,7 @@ namespace ConnectApp.screens {
                     child: new Container(
                         child: new Column(
                             children: new List<Widget> {
-                                _buildSearchBar(context),
+                                this._buildSearchBar(context),
                                 new Flexible(
                                     child: child
                                 )
@@ -181,7 +194,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildSearchBar(BuildContext context) {
+        Widget _buildSearchBar(BuildContext context) {
             return new Container(
                 height: 94,
                 padding: EdgeInsets.only(16, 0, 16, 12),
@@ -192,7 +205,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new CustomButton(
                             padding: EdgeInsets.only(8, 8, 0, 8),
-                            onPressed: () => { widget.actionModel.mainRouterPop(); },
+                            onPressed: () => { this.widget.actionModel.mainRouterPop(); },
                             child: new Text(
                                 "取消",
                                 style: CTextStyle.PLargeBlue
@@ -200,8 +213,8 @@ namespace ConnectApp.screens {
                         ),
                         new InputField(
                             height: 40,
-                            controller: _controller,
-                            focusNode: _focusNode,
+                            controller: this._controller,
+                            focusNode: this._focusNode,
                             style: CTextStyle.H2,
                             autofocus: true,
                             hintText: "搜索",
@@ -210,18 +223,22 @@ namespace ConnectApp.screens {
                             textInputAction: TextInputAction.search,
                             clearButtonMode: InputFieldClearButtonMode.whileEditing,
                             onChanged: text => {
-                                if (text == null || text.Length <= 0) widget.actionModel.clearSearchArticleResult();
+                                if (text == null || text.Length <= 0) {
+                                    this.widget.actionModel.clearSearchArticleResult();
+                                }
                             },
-                            onSubmitted: _searchArticle
+                            onSubmitted: this._searchArticle
                         )
                     }
                 )
             );
         }
 
-        private Widget _buildHotSearch() {
-            if (widget.viewModel.popularSearchs.Count <= 0)
+        Widget _buildHotSearch() {
+            if (this.widget.viewModel.popularSearchs.Count <= 0) {
                 return new Container();
+            }
+
             return new Container(
                 padding: EdgeInsets.only(16, 24, 16),
                 color: CColors.White,
@@ -238,18 +255,18 @@ namespace ConnectApp.screens {
                         new Wrap(
                             spacing: 8,
                             runSpacing: 20,
-                            children: _buildPopularSearchItem(widget.viewModel.popularSearchs)
+                            children: this._buildPopularSearchItem(this.widget.viewModel.popularSearchs)
                         )
                     }
                 )
             );
         }
 
-        private List<Widget> _buildPopularSearchItem(List<PopularSearch> popularSearch) {
+        List<Widget> _buildPopularSearchItem(List<PopularSearch> popularSearch) {
             List<Widget> widgets = new List<Widget>();
             popularSearch.ForEach(item => {
                 Widget widget = new GestureDetector(
-                    onTap: () => _searchArticle(item.keyword),
+                    onTap: () => this._searchArticle(item.keyword),
                     child: new Container(
                         decoration: new BoxDecoration(
                             CColors.Separator2,
@@ -266,7 +283,7 @@ namespace ConnectApp.screens {
                                 color: CColors.TextBody
                             ),
                             overflow: TextOverflow.ellipsis
-                        ) 
+                        )
                     )
                 );
                 widgets.Add(widget);
@@ -274,8 +291,10 @@ namespace ConnectApp.screens {
             return widgets;
         }
 
-        private Widget _buildSearchHistory(List<string> searchHistoryList) {
-            if (searchHistoryList == null || searchHistoryList.Count <= 0) return new Container();
+        Widget _buildSearchHistory(List<string> searchHistoryList) {
+            if (searchHistoryList == null || searchHistoryList.Count <= 0) {
+                return new Container();
+            }
 
             var widgets = new List<Widget>();
             widgets.Add(
@@ -296,7 +315,7 @@ namespace ConnectApp.screens {
                                             title: "确定清除搜索历史记录？",
                                             items: new List<ActionSheetItem> {
                                                 new ActionSheetItem("确定", ActionType.destructive,
-                                                    () => widget.actionModel.deleteAllSearchHistory()),
+                                                    () => this.widget.actionModel.deleteAllSearchHistory()),
                                                 new ActionSheetItem("取消", ActionType.cancel)
                                             }
                                         )
@@ -313,7 +332,7 @@ namespace ConnectApp.screens {
             );
             searchHistoryList.ForEach(item => {
                 var child = new GestureDetector(
-                    onTap: () => { _searchArticle(item); },
+                    onTap: () => { this._searchArticle(item); },
                     child: new Container(
                         height: 44,
                         color: CColors.White,
@@ -326,7 +345,7 @@ namespace ConnectApp.screens {
                                 ),
                                 new CustomButton(
                                     padding: EdgeInsets.only(8, 8, 0, 8),
-                                    onPressed: () => widget.actionModel.deleteSearchHistory(item),
+                                    onPressed: () => this.widget.actionModel.deleteSearchHistory(item),
                                     child: new Icon(
                                         Icons.close,
                                         size: 16,

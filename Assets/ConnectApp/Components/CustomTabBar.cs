@@ -1,14 +1,12 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
-using ConnectApp.utils;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.components {
     public delegate bool SelectTabCallBack(int index);
@@ -41,15 +39,15 @@ namespace ConnectApp.components {
     }
 
     public class CustomTabBarState : State<CustomTabBar> {
-        private PageController _pageController;
-        private int _selectedIndex;
+        PageController _pageController;
+        int _selectedIndex;
 
-        private const int KTabBarHeight = 49;
+        const int KTabBarHeight = 49;
 
         public override void initState() {
             base.initState();
-            _selectedIndex = 0;
-            _pageController = new PageController(_selectedIndex);
+            this._selectedIndex = 0;
+            this._pageController = new PageController(this._selectedIndex);
         }
 
         public override Widget build(BuildContext context) {
@@ -57,61 +55,63 @@ namespace ConnectApp.components {
                 child: new Column(
                     children: new List<Widget> {
                         new Flexible(
-                            child: _buildContentView(context)
+                            child: this._buildContentView(context)
                         ),
-                        _buildBottomTabBar()
+                        this._buildBottomTabBar()
                     }
                 )
             );
         }
 
-        private Widget _buildContentView(BuildContext context) {
+        Widget _buildContentView(BuildContext context) {
             return new Container(
                 child: new Container(
                     height: MediaQuery.of(context).size.height,
                     color: CColors.background1,
                     child: new PageView(
                         physics: new NeverScrollableScrollPhysics(),
-                        children: widget.controllers,
-                        controller: _pageController,
-                        onPageChanged: _onPageChanged
+                        children: this.widget.controllers,
+                        controller: this._pageController,
+                        onPageChanged: this._onPageChanged
                     )
                 )
             );
         }
 
-        private Widget _buildBottomTabBar() {
+        Widget _buildBottomTabBar() {
             return new Container(
                 decoration: new BoxDecoration(
                     border: new Border(new BorderSide(CColors.Separator)),
-                    color: widget.backgroundColor
+                    color: this.widget.backgroundColor
                 ),
                 height: KTabBarHeight,
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: _buildItems()
+                    children: this._buildItems()
                 )
             );
         }
 
-        private List<Widget> _buildItems() {
+        List<Widget> _buildItems() {
             var children = new List<Widget>();
-            widget.items.ForEach(item => {
+            this.widget.items.ForEach(item => {
                 Widget buildItem = new Flexible(
                     child: new Stack(
                         fit: StackFit.expand,
                         children: new List<Widget> {
                             new GestureDetector(
                                 onTap: () => {
-                                    if (_selectedIndex != item.index) {
-                                        if (widget.tapCallBack != null)
-                                            if (widget.tapCallBack(item.index))
-                                                setState(() => {
-                                                    _selectedIndex = item.index;
-                                                    _pageController.animateToPage(item.index,
+                                    if (this._selectedIndex != item.index) {
+                                        if (this.widget.tapCallBack != null) {
+                                            if (this.widget.tapCallBack(item.index)) {
+                                                this.setState(() => {
+                                                    this._selectedIndex = item.index;
+                                                    this._pageController.animateToPage(item.index,
                                                         new TimeSpan(0, 0, 0, 0, 1),
                                                         Curves.ease);
                                                 });
+                                            }
+                                        }
                                     }
                                 },
                                 child: new Container(
@@ -124,7 +124,7 @@ namespace ConnectApp.components {
                                             new Padding(
                                                 padding: EdgeInsets.only(top: 5),
                                                 child: new Icon(item.icon, size: item.size,
-                                                    color: _selectedIndex == item.index
+                                                    color: this._selectedIndex == item.index
                                                         ? item.activeColor
                                                         : item.inActiveColor)
                                             ),
@@ -132,7 +132,7 @@ namespace ConnectApp.components {
                                                 padding: EdgeInsets.only(top: 2.5f),
                                                 child: new Text(item.title,
                                                     style: new TextStyle(fontSize: 10,
-                                                        color: _selectedIndex == item.index
+                                                        color: this._selectedIndex == item.index
                                                             ? item.activeColor
                                                             : item.inActiveColor))
                                             )
@@ -149,12 +149,12 @@ namespace ConnectApp.components {
             return children;
         }
 
-        private void _onPageChanged(int page) {
-            _pageController.jumpToPage(page);
+        void _onPageChanged(int page) {
+            this._pageController.jumpToPage(page);
         }
 
         public override void dispose() {
-            _pageController.dispose();
+            this._pageController.dispose();
             base.dispose();
         }
     }

@@ -9,7 +9,7 @@ using Unity.UIWidgets.widgets;
 using UnityEngine;
 
 namespace ConnectApp.canvas {
-    internal static class MainNavigatorRoutes {
+    static class MainNavigatorRoutes {
         public const string Root = "/";
         public const string Search = "/search";
         public const string ArticleDetail = "/article-detail";
@@ -23,61 +23,77 @@ namespace ConnectApp.canvas {
         public const string WebView = "/web-view";
     }
 
-    internal class Router : StatelessWidget {
-        private static readonly GlobalKey globalKey = GlobalKey.key("main-router");
-        public static NavigatorState navigator => globalKey.currentState as NavigatorState;
+    class Router : StatelessWidget {
+        static readonly GlobalKey globalKey = GlobalKey.key("main-router");
 
-        private static Dictionary<string, WidgetBuilder> mainRoutes => new Dictionary<string, WidgetBuilder> {
-            {MainNavigatorRoutes.Root, context => new MainScreen()},
-            {MainNavigatorRoutes.Search, context => new SearchScreenConnector()},
-            {MainNavigatorRoutes.ArticleDetail, context => new ArticleDetailScreenConnector("")},
-            {MainNavigatorRoutes.Setting, context => new SettingScreenConnector()},
-            {MainNavigatorRoutes.MyEvent, context => new MyEventsScreenConnector()},
-            {MainNavigatorRoutes.History, context => new HistoryScreenConnector()},
-            {MainNavigatorRoutes.Login, context => new LoginScreen()},
-            {MainNavigatorRoutes.BindUnity, context => new BindUnityScreenConnector(FromPage.setting)},
-            {MainNavigatorRoutes.Report, context => new ReportScreenConnector("", ReportType.article)},
-            {MainNavigatorRoutes.AboutUs, context => new AboutUsScreenConnector()},
-            {MainNavigatorRoutes.WebView, context => new WebViewScreen()}
-        };
+        public static NavigatorState navigator {
+            get { return globalKey.currentState as NavigatorState; }
+        }
 
-        private static Dictionary<string, WidgetBuilder> fullScreenRoutes => new Dictionary<string, WidgetBuilder> {
-            {MainNavigatorRoutes.Search, context => new SearchScreenConnector()},
-            {MainNavigatorRoutes.Login, context => new LoginScreen()}
-        };
+        static Dictionary<string, WidgetBuilder> mainRoutes {
+            get {
+                return new Dictionary<string, WidgetBuilder> {
+                    {MainNavigatorRoutes.Root, context => new MainScreen()},
+                    {MainNavigatorRoutes.Search, context => new SearchScreenConnector()},
+                    {MainNavigatorRoutes.ArticleDetail, context => new ArticleDetailScreenConnector("")},
+                    {MainNavigatorRoutes.Setting, context => new SettingScreenConnector()},
+                    {MainNavigatorRoutes.MyEvent, context => new MyEventsScreenConnector()},
+                    {MainNavigatorRoutes.History, context => new HistoryScreenConnector()},
+                    {MainNavigatorRoutes.Login, context => new LoginScreen()},
+                    {MainNavigatorRoutes.BindUnity, context => new BindUnityScreenConnector(FromPage.setting)},
+                    {MainNavigatorRoutes.Report, context => new ReportScreenConnector("", ReportType.article)},
+                    {MainNavigatorRoutes.AboutUs, context => new AboutUsScreenConnector()},
+                    {MainNavigatorRoutes.WebView, context => new WebViewScreen()}
+                };
+            }
+        }
+
+        static Dictionary<string, WidgetBuilder> fullScreenRoutes {
+            get {
+                return new Dictionary<string, WidgetBuilder> {
+                    {MainNavigatorRoutes.Search, context => new SearchScreenConnector()},
+                    {MainNavigatorRoutes.Login, context => new LoginScreen()}
+                };
+            }
+        }
 
         public override Widget build(BuildContext context) {
             JPushPlugin.context = context;
             return new WillPopScope(
-                onWillPop: () =>
-                {
+                onWillPop: () => {
                     var promise = new Promise<bool>();
                     if (LoginScreen.navigator?.canPop() ?? false) {
                         LoginScreen.navigator.pop();
                         promise.Resolve(false);
-                    }else if (Screen.orientation == ScreenOrientation.LandscapeLeft) {
+                    }
+                    else if (Screen.orientation == ScreenOrientation.LandscapeLeft) {
                         //视频全屏时禁止物理返回按钮
                         promise.Resolve(false);
-                    } else if (navigator.canPop()) {
+                    }
+                    else if (navigator.canPop()) {
                         navigator.pop();
                         promise.Resolve(false);
-                    } else {
+                    }
+                    else {
                         promise.Resolve(true);
                     }
+
                     return promise;
                 },
-                child:new Navigator(
+                child: new Navigator(
                     globalKey,
                     onGenerateRoute: settings => {
                         return new PageRouteBuilder(
                             settings,
                             (context1, animation, secondaryAnimation) => mainRoutes[settings.name](context1),
                             (context1, animation, secondaryAnimation, child) => {
-                                if (fullScreenRoutes.ContainsKey(settings.name))
+                                if (fullScreenRoutes.ContainsKey(settings.name)) {
                                     return new ModalPageTransition(
                                         routeAnimation: animation,
                                         child: child
                                     );
+                                }
+
                                 return new PushPageTransition(
                                     routeAnimation: animation,
                                     child: child
@@ -86,60 +102,60 @@ namespace ConnectApp.canvas {
                         );
                     }
                 )
-           ); 
+            );
         }
     }
 
-    internal class PushPageTransition : StatelessWidget {
+    class PushPageTransition : StatelessWidget {
         internal PushPageTransition(
             Key key = null,
             Animation<float> routeAnimation = null, // The route's linear 0.0 - 1.0 animation.
             Widget child = null
         ) : base(key) {
-            _positionAnimation = _leftPushTween.chain(_fastOutSlowInTween).animate(routeAnimation);
+            this._positionAnimation = this._leftPushTween.chain(this._fastOutSlowInTween).animate(routeAnimation);
             this.child = child;
         }
 
-        private readonly Tween<Offset> _leftPushTween = new OffsetTween(
+        readonly Tween<Offset> _leftPushTween = new OffsetTween(
             new Offset(1.0f, 0.0f),
             Offset.zero
         );
 
-        private readonly Animatable<float> _fastOutSlowInTween = new CurveTween(Curves.fastOutSlowIn);
-        private readonly Animation<Offset> _positionAnimation;
-        private readonly Widget child;
+        readonly Animatable<float> _fastOutSlowInTween = new CurveTween(Curves.fastOutSlowIn);
+        readonly Animation<Offset> _positionAnimation;
+        readonly Widget child;
 
         public override Widget build(BuildContext context) {
             return new SlideTransition(
-                position: _positionAnimation,
-                child: child
+                position: this._positionAnimation,
+                child: this.child
             );
         }
     }
 
-    internal class ModalPageTransition : StatelessWidget {
+    class ModalPageTransition : StatelessWidget {
         internal ModalPageTransition(
             Key key = null,
             Animation<float> routeAnimation = null, // The route's linear 0.0 - 1.0 animation.
             Widget child = null
         ) : base(key) {
-            _positionAnimation = _bottomUpTween.chain(_fastOutSlowInTween).animate(routeAnimation);
+            this._positionAnimation = this._bottomUpTween.chain(this._fastOutSlowInTween).animate(routeAnimation);
             this.child = child;
         }
 
-        private readonly Tween<Offset> _bottomUpTween = new OffsetTween(
+        readonly Tween<Offset> _bottomUpTween = new OffsetTween(
             new Offset(0.0f, 1.0f),
             Offset.zero
         );
 
-        private readonly Animatable<float> _fastOutSlowInTween = new CurveTween(Curves.fastOutSlowIn);
-        private readonly Animation<Offset> _positionAnimation;
-        private readonly Widget child;
+        readonly Animatable<float> _fastOutSlowInTween = new CurveTween(Curves.fastOutSlowIn);
+        readonly Animation<Offset> _positionAnimation;
+        readonly Widget child;
 
         public override Widget build(BuildContext context) {
             return new SlideTransition(
-                position: _positionAnimation,
-                child: child
+                position: this._positionAnimation,
+                child: this.child
             );
         }
     }

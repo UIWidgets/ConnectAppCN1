@@ -8,8 +8,8 @@ using ConnectApp.redux.actions;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
@@ -29,32 +29,37 @@ namespace ConnectApp.screens {
             this.reportType = reportType;
         }
 
-        private readonly string reportId;
-        private readonly ReportType reportType;
+        readonly string reportId;
+        readonly ReportType reportType;
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ReportScreenViewModel>(
                 converter: state => new ReportScreenViewModel {
-                    reportId = reportId,
-                    reportType = reportType,
+                    reportId = this.reportId,
+                    reportType = this.reportType,
                     loading = state.reportState.loading
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var itemType = "";
-                    if (reportType == ReportType.article) itemType = "project";
-                    if (reportType == ReportType.comment) itemType = "comment";
+                    if (this.reportType == ReportType.article) {
+                        itemType = "project";
+                    }
+
+                    if (this.reportType == ReportType.comment) {
+                        itemType = "comment";
+                    }
+
                     var actionModel = new ReportScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         startReportItem = () => dispatcher.dispatch(new StartReportItemAction()),
                         reportItem = reportContext => dispatcher.dispatch<IPromise>(
-                            Actions.reportItem(
-                                reportId,
+                            Actions.reportItem(this.reportId,
                                 itemType,
                                 reportContext
                             )
                         )
                     };
-                    return new ReportScreen(viewModel, actionModel, key);
+                    return new ReportScreen(viewModel, actionModel, this.key);
                 }
             );
         }
@@ -78,19 +83,19 @@ namespace ConnectApp.screens {
         }
     }
 
-    internal class _ReportScreenState : State<ReportScreen> {
-        private readonly List<string> _reportItems = new List<string> {
+    class _ReportScreenState : State<ReportScreen> {
+        readonly List<string> _reportItems = new List<string> {
             "垃圾信息",
             "涉嫌侵权",
             "不友善行为",
             "有害信息"
         };
 
-        private int _selectedIndex;
+        int _selectedIndex;
 
         public override void initState() {
             base.initState();
-            _selectedIndex = 0;
+            this._selectedIndex = 0;
         }
 
         public override Widget build(BuildContext context) {
@@ -100,8 +105,7 @@ namespace ConnectApp.screens {
                     child: new Container(
                         child: new Column(
                             children: new List<Widget> {
-                                _buildNavigationBar(),
-                                _buildContent()
+                                this._buildNavigationBar(), this._buildContent()
                             }
                         )
                     )
@@ -109,7 +113,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildNavigationBar() {
+        Widget _buildNavigationBar() {
             return new Container(
                 decoration: new BoxDecoration(
                     CColors.White,
@@ -126,7 +130,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new CustomButton(
                             padding: EdgeInsets.only(16, 0, 16),
-                            onPressed: () => widget.actionModel.mainRouterPop(),
+                            onPressed: () => this.widget.actionModel.mainRouterPop(),
                             child: new Icon(
                                 Icons.arrow_back,
                                 size: 24,
@@ -147,14 +151,14 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildContent() {
+        Widget _buildContent() {
             var widgets = new List<Widget>();
-            _reportItems.ForEach(item => {
-                var index = _reportItems.IndexOf(item);
-                var widget = _buildReportItem(item, index);
+            this._reportItems.ForEach(item => {
+                var index = this._reportItems.IndexOf(item);
+                var widget = this._buildReportItem(item, index);
                 widgets.Add(widget);
             });
-            widgets.Add(_buildReportButton());
+            widgets.Add(this._buildReportButton());
             return new Container(
                 margin: EdgeInsets.only(top: 15),
                 child: new Column(
@@ -163,10 +167,12 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildReportItem(string title, int index) {
+        Widget _buildReportItem(string title, int index) {
             return new GestureDetector(
                 onTap: () => {
-                    if (_selectedIndex != index) setState(() => { _selectedIndex = index; });
+                    if (this._selectedIndex != index) {
+                        this.setState(() => { this._selectedIndex = index; });
+                    }
                 },
                 child: new Container(
                     height: 44,
@@ -174,7 +180,7 @@ namespace ConnectApp.screens {
                     padding: EdgeInsets.symmetric(horizontal: 16),
                     child: new Row(
                         children: new List<Widget> {
-                            index == _selectedIndex ? _buildCheckBox() : _buildUnCheckBox(),
+                            index == this._selectedIndex ? _buildCheckBox() : _buildUnCheckBox(),
                             new Container(
                                 margin: EdgeInsets.only(12),
                                 child: new Text(
@@ -188,7 +194,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private static Widget _buildUnCheckBox() {
+        static Widget _buildUnCheckBox() {
             return new Container(
                 width: 20,
                 height: 20,
@@ -199,7 +205,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private static Widget _buildCheckBox() {
+        static Widget _buildCheckBox() {
             return new Container(
                 width: 20,
                 height: 20,
@@ -219,27 +225,31 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget _buildReportButton() {
+        Widget _buildReportButton() {
             Widget right = new Container();
-            if (widget.viewModel.loading)
+            if (this.widget.viewModel.loading) {
                 right = new CustomActivityIndicator(
                     loadingColor: LoadingColor.white,
                     size: LoadingSize.small
                 );
+            }
+
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 margin: EdgeInsets.only(top: 16),
                 child: new CustomButton(
                     onPressed: () => {
-                        if (widget.viewModel.loading) return;
-                        widget.actionModel.startReportItem();
-                        widget.actionModel.reportItem(_reportItems[_selectedIndex]);
+                        if (this.widget.viewModel.loading) {
+                            return;
+                        }
+
+                        this.widget.actionModel.startReportItem();
+                        this.widget.actionModel.reportItem(this._reportItems[this._selectedIndex]);
                     },
                     padding: EdgeInsets.zero,
                     child: new Container(
                         height: 40,
-                        decoration: new BoxDecoration(
-                            widget.viewModel.loading
+                        decoration: new BoxDecoration(this.widget.viewModel.loading
                                 ? CColors.ButtonActive
                                 : CColors.PrimaryBlue,
                             borderRadius: BorderRadius.all(4)

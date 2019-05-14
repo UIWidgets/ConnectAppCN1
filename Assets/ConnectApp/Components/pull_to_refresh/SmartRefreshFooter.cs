@@ -4,8 +4,8 @@ using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.components.pull_to_refresh {
     public class SmartRefreshFooter : StatelessWidget {
-        private readonly int mode;
-        private readonly EdgeInsets padding;
+        readonly int mode;
+        readonly EdgeInsets padding;
 
         public SmartRefreshFooter(
             int mode,
@@ -17,14 +17,25 @@ namespace ConnectApp.components.pull_to_refresh {
         }
 
         public override Widget build(BuildContext context) {
-            if (mode == 0) return new Container(height: DefaultConstants.default_VisibleRange);
+            if (this.mode == 0) {
+                return new Container(height: DefaultConstants.default_VisibleRange);
+            }
+
             AnimatingType animatingType = AnimatingType.stop;
-            if (mode == 2) animatingType = AnimatingType.repeat;
-            if (mode == 3) animatingType = AnimatingType.stop;
-            if (mode == 0) animatingType = AnimatingType.reset;
+            if (this.mode == 2) {
+                animatingType = AnimatingType.repeat;
+            }
+
+            if (this.mode == 3) {
+                animatingType = AnimatingType.stop;
+            }
+
+            if (this.mode == 0) {
+                animatingType = AnimatingType.reset;
+            }
 
             return new Container(
-                padding: padding,
+                padding: this.padding,
                 child: new CustomActivityIndicator(
                     animating: animatingType
                 )

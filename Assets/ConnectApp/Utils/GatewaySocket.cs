@@ -8,7 +8,7 @@ namespace ConnectApp.utils {
     public delegate string GetLoginSession();
 
     public static class GatewaySocket {
-        private static WebSocket _webSocket;
+        static WebSocket _webSocket;
 
         public static void Connect(
             string url,
@@ -26,11 +26,11 @@ namespace ConnectApp.utils {
                 });
         }
 
-        private static void OnWebSocketOpen(WebSocket webSocket) {
+        static void OnWebSocketOpen(WebSocket webSocket) {
             Debug.Log("WebSocket Open!");
         }
 
-        private static void OnMessageReceived(WebSocket webSocket, string message) {
+        static void OnMessageReceived(WebSocket webSocket, string message) {
             Debug.Log("Text Message received from server: " + message);
         }
 
@@ -50,7 +50,7 @@ namespace ConnectApp.utils {
 //            }
 //        }
 
-        private static void _Info(string msg) {
+        static void _Info(string msg) {
             Debug.Log($"[INFO] GatewaySocket: {msg}");
         }
     }

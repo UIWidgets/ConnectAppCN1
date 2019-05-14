@@ -12,7 +12,10 @@ namespace ConnectApp.api {
         public static Promise<FetchCommentsResponse> FetchMessages(string channelId, string currOldestMessageId) {
             var promise = new Promise<FetchCommentsResponse>();
             var url = Config.apiAddress + "/api/channels/" + channelId + "/messages";
-            if (currOldestMessageId.isNotEmpty()) url += "?before=" + currOldestMessageId;
+            if (currOldestMessageId.isNotEmpty()) {
+                url += "?before=" + currOldestMessageId;
+            }
+
             var request = HttpManager.GET(url);
             HttpManager.resume(request).Then(responseText => {
                 var messagesResponse = JsonConvert.DeserializeObject<FetchCommentsResponse>(responseText);

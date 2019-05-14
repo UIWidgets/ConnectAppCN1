@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.models;
-using ConnectApp.screens;
 using ConnectApp.utils;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
@@ -38,19 +37,19 @@ namespace ConnectApp.components {
         }
     }
 
-    internal class _EventHeaderState : State<EventHeader>, TickerProvider {
-        private AnimationController _animationController;
+    class _EventHeaderState : State<EventHeader>, TickerProvider {
+        AnimationController _animationController;
 
         public override void initState() {
             base.initState();
-            _animationController = new AnimationController(
+            this._animationController = new AnimationController(
                 vsync: this,
                 duration: new TimeSpan(0, 0, 655)
             );
         }
 
         public override void dispose() {
-            _animationController.dispose();
+            this._animationController.dispose();
             base.dispose();
         }
 
@@ -59,20 +58,40 @@ namespace ConnectApp.components {
         }
 
         public override Widget build(BuildContext context) {
-            if (widget.eventObj == null) return new Container();
+            if (this.widget.eventObj == null) {
+                return new Container();
+            }
 
-            var isLoggedIn = widget.isLoggedIn;
-            if (widget.eventType == EventType.offline) return _buildOfflineHeaderView();
-            if (!isLoggedIn) return _buildOnLineNotLoginHeaderView();
-            if (widget.eventStatus == EventStatus.future) return _buildFutureView();
-            if (widget.eventStatus == EventStatus.countDown) return _buildCountDownView();
-            if (widget.eventStatus == EventStatus.live) return _buildLiveView();
-            if (widget.eventStatus == EventStatus.past) return _buildPastView();
+            var isLoggedIn = this.widget.isLoggedIn;
+            if (this.widget.eventType == EventType.offline) {
+                return this._buildOfflineHeaderView();
+            }
+
+            if (!isLoggedIn) {
+                return this._buildOnLineNotLoginHeaderView();
+            }
+
+            if (this.widget.eventStatus == EventStatus.future) {
+                return this._buildFutureView();
+            }
+
+            if (this.widget.eventStatus == EventStatus.countDown) {
+                return this._buildCountDownView();
+            }
+
+            if (this.widget.eventStatus == EventStatus.live) {
+                return this._buildLiveView();
+            }
+
+            if (this.widget.eventStatus == EventStatus.past) {
+                return this._buildPastView();
+            }
+
             return new Container();
         }
 
-        private Widget _buildHeadImage(Widget child) {
-            var eventObj = widget.eventObj;
+        Widget _buildHeadImage(Widget child) {
+            var eventObj = this.widget.eventObj;
             var imageUrl = eventObj.background != null ? eventObj.background : "";
             return new Container(
                 color: new Color(0xFFD8D8D8),
@@ -92,7 +111,7 @@ namespace ConnectApp.components {
             );
         }
 
-        private static Widget _buildFutureCard() {
+        static Widget _buildFutureCard() {
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: new BoxDecoration(
@@ -106,7 +125,7 @@ namespace ConnectApp.components {
             );
         }
 
-        private static Widget _buildVideoTimeCard(float recordDuration) {
+        static Widget _buildVideoTimeCard(float recordDuration) {
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: new BoxDecoration(
@@ -132,19 +151,25 @@ namespace ConnectApp.components {
             );
         }
 
-        private Widget _buildOfflineHeaderView() {
-            return _buildHeadImage(
+        Widget _buildOfflineHeaderView() {
+            return this._buildHeadImage(
                 Positioned.fill(
                     new Container()
                 )
             );
         }
 
-        private Widget _buildOnLineNotLoginHeaderView() {
-            if (widget.eventStatus == EventStatus.future) return _buildFutureView();
-            if (widget.eventStatus == EventStatus.countDown) return _buildCountDownView();
+        Widget _buildOnLineNotLoginHeaderView() {
+            if (this.widget.eventStatus == EventStatus.future) {
+                return this._buildFutureView();
+            }
+
+            if (this.widget.eventStatus == EventStatus.countDown) {
+                return this._buildCountDownView();
+            }
+
             Widget child = new Container();
-            if (widget.eventStatus == EventStatus.live)
+            if (this.widget.eventStatus == EventStatus.live) {
                 child = new Container(
                     padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: new BoxDecoration(
@@ -169,9 +194,13 @@ namespace ConnectApp.components {
                         }
                     )
                 );
-            if (widget.eventStatus == EventStatus.past&&widget.eventObj.recordDuration>0) child = _buildVideoTimeCard(widget.eventObj.recordDuration);
+            }
 
-            return _buildHeadImage(
+            if (this.widget.eventStatus == EventStatus.past && this.widget.eventObj.recordDuration > 0) {
+                child = _buildVideoTimeCard(this.widget.eventObj.recordDuration);
+            }
+
+            return this._buildHeadImage(
                 new Positioned(
                     left: 16,
                     bottom: 16,
@@ -180,8 +209,8 @@ namespace ConnectApp.components {
             );
         }
 
-        private Widget _buildFutureView() {
-            return _buildHeadImage(
+        Widget _buildFutureView() {
+            return this._buildHeadImage(
                 new Positioned(
                     left: 16,
                     bottom: 16,
@@ -190,26 +219,25 @@ namespace ConnectApp.components {
             );
         }
 
-        private Widget _buildCountDownView() {
-            return _buildHeadImage(
+        Widget _buildCountDownView() {
+            return this._buildHeadImage(
                 new EventCountDown(
                     new StepTween(
                         655,
                         0
-                    ).animate(_animationController)
+                    ).animate(this._animationController)
                 )
             );
         }
 
-        private Widget _buildLiveView() {
-            return _buildHeadImage(
+        Widget _buildLiveView() {
+            return this._buildHeadImage(
                 new Container()
             );
         }
 
-        private Widget _buildPastView()
-        {
-            return _buildHeadImage(
+        Widget _buildPastView() {
+            return this._buildHeadImage(
                 new Container()
             );
         }

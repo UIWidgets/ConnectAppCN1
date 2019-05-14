@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace ConnectApp.components {
     public class CustomSafeArea : StatelessWidget {
-        
         public CustomSafeArea(
             Key key = null,
             bool top = true,
@@ -17,23 +16,22 @@ namespace ConnectApp.components {
             this.bottom = bottom;
         }
 
-        
-        private readonly Widget child;
-        private readonly bool top;
-        private readonly bool bottom;
 
-        
-        public override Widget build(BuildContext context)
-        {
+        readonly Widget child;
+        readonly bool top;
+        readonly bool bottom;
+
+
+        public override Widget build(BuildContext context) {
             bool topValue = Application.platform != RuntimePlatform.Android;
-            if (top==false)
-            {
+            if (this.top == false) {
                 topValue = false;
             }
+
             return new SafeArea(
                 top: topValue,
-                bottom: bottom,
-                child: child
+                bottom: this.bottom,
+                child: this.child
             );
         }
     }

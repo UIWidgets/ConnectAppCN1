@@ -12,103 +12,118 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.components {
-    internal class _SnackBarRoute : OverlayRoute {
+    class _SnackBarRoute : OverlayRoute {
         public _SnackBarRoute(
             CustomSnackBar customSnackBar = null,
             RouteSettings settings = null
         ) : base(settings) {
             this.customSnackBar = customSnackBar;
-            _builder = new Builder(builder: innerContext => customSnackBar);
+            this._builder = new Builder(builder: innerContext => customSnackBar);
         }
 
-        private readonly CustomSnackBar customSnackBar;
+        readonly CustomSnackBar customSnackBar;
 
-        private readonly Builder _builder;
-        private readonly Alignment _initialAlignment = new Alignment(-1, 2);
-        private readonly Alignment _endAlignment = new Alignment(-1, 1);
+        readonly Builder _builder;
+        readonly Alignment _initialAlignment = new Alignment(-1, 2);
+        readonly Alignment _endAlignment = new Alignment(-1, 1);
         public Timer _timer;
 
-        public bool opaque => false;
+        public bool opaque {
+            get { return false; }
+        }
 
         public override ICollection<OverlayEntry> createOverlayEntries() {
             return new List<OverlayEntry> {
                 new OverlayEntry(
                     context => {
                         var annotatedChild = new AlignTransition(
-                            alignment: animation,
-                            child: _builder
+                            alignment: this.animation,
+                            child: this._builder
                         );
                         return annotatedChild;
                     },
                     maintainState: false,
-                    opaque: opaque
+                    opaque: this.opaque
                 )
             };
         }
 
-        protected override bool finishedWhenPopped => controller.status == AnimationStatus.dismissed;
+        protected override bool finishedWhenPopped {
+            get { return this.controller.status == AnimationStatus.dismissed; }
+        }
 
-        private Animation<Alignment> animation => _animation;
-        private Animation<Alignment> _animation;
+        Animation<Alignment> animation {
+            get { return this._animation; }
+        }
 
-        private AnimationController controller => _controller;
-        private AnimationController _controller;
+        Animation<Alignment> _animation;
 
-        private AnimationController createAnimationController() {
+        AnimationController controller {
+            get { return this._controller; }
+        }
+
+        AnimationController _controller;
+
+        AnimationController createAnimationController() {
             var duration = new TimeSpan(0, 0, 1);
             D.assert(duration != null && duration >= TimeSpan.Zero);
             return new AnimationController(
                 duration: duration,
-                debugLabel: debugLabel,
-                vsync: navigator
+                debugLabel: this.debugLabel,
+                vsync: this.navigator
             );
         }
 
-        private Animation<Alignment> createAnimation() {
-            D.assert(_controller != null);
-            return new AlignmentTween(_initialAlignment, _endAlignment).animate(
-                new CurvedAnimation(
-                    _controller,
-                    customSnackBar.forwardAnimationCurve,
-                    customSnackBar.reverseAnimationCurve
+        Animation<Alignment> createAnimation() {
+            D.assert(this._controller != null);
+            return new AlignmentTween(this._initialAlignment, this._endAlignment).animate(
+                new CurvedAnimation(this._controller, this.customSnackBar.forwardAnimationCurve,
+                    this.customSnackBar.reverseAnimationCurve
                 )
             );
         }
 
         protected override void install(OverlayEntry insertionPoint) {
-            _controller = createAnimationController();
-            D.assert(_controller != null, () => $"{this.GetType()}.createAnimationController() returned null.");
-            _animation = createAnimation();
-            D.assert(_animation != null, () => $"{this.GetType()}.createAnimation() returned null.");
+            this._controller = this.createAnimationController();
+            D.assert(this._controller != null, () => $"{this.GetType()}.createAnimationController() returned null.");
+            this._animation = this.createAnimation();
+            D.assert(this._animation != null, () => $"{this.GetType()}.createAnimation() returned null.");
             base.install(insertionPoint);
         }
 
         protected override TickerFuture didPush() {
-            D.assert(_controller != null,
+            D.assert(this._controller != null,
                 () => $"{this.GetType()}.didPush called before calling install() or after calling dispose().");
-            _configureTimer();
-            return _controller.forward();
+            this._configureTimer();
+            return this._controller.forward();
         }
 
         protected override bool didPop(object result) {
-            D.assert(_controller != null,
+            D.assert(this._controller != null,
                 () => $"{this.GetType()}.didPop called before calling install() or after calling dispose().");
 
-            _cancelTimer();
-            _controller.reverse();
+            this._cancelTimer();
+            this._controller.reverse();
             return base.didPop(result);
         }
 
-        private void _configureTimer() {
-            if (_timer != null) return;
-            _timer = Window.instance.run((TimeSpan)customSnackBar.duration, () => { navigator.pop(); });
+        void _configureTimer() {
+            if (this._timer != null) {
+                return;
+            }
+
+            this._timer = Window.instance.run((TimeSpan) this.customSnackBar.duration, () => { this.navigator.pop(); });
         }
 
-        private void _cancelTimer() {
-            if (_timer != null) _timer.cancel();
+        void _cancelTimer() {
+            if (this._timer != null) {
+                this._timer.cancel();
+            }
         }
 
-        public string debugLabel => $"{this.GetType()}";
+        public string debugLabel {
+            get { return $"{this.GetType()}"; }
+        }
     }
 
     public class CustomSnackBar : StatefulWidget {
@@ -130,25 +145,32 @@ namespace ConnectApp.components {
         public readonly Curve forwardAnimationCurve = Curves.easeOut;
         public readonly Curve reverseAnimationCurve = Curves.fastOutSlowIn;
 
-        private _SnackBarRoute _snackBarRoute;
+        _SnackBarRoute _snackBarRoute;
 
         public void show() {
             D.assert(this != null);
-            _snackBarRoute = new _SnackBarRoute(
+            this._snackBarRoute = new _SnackBarRoute(
                 this,
                 new RouteSettings("/snackBarRoute")
             );
-            Router.navigator.push(_snackBarRoute);
+            Router.navigator.push(this._snackBarRoute);
         }
 
         public void dismiss() {
-            if (_snackBarRoute == null) return;
+            if (this._snackBarRoute == null) {
+                return;
+            }
 
-            if (_snackBarRoute.isCurrent) Router.navigator.pop();
-            else if (_snackBarRoute.isActive) _snackBarRoute.navigator.removeRoute(_snackBarRoute);
-            if (_snackBarRoute._timer != null) {
-                _snackBarRoute._timer.cancel();
-                _snackBarRoute._timer = null;
+            if (this._snackBarRoute.isCurrent) {
+                Router.navigator.pop();
+            }
+            else if (this._snackBarRoute.isActive) {
+                this._snackBarRoute.navigator.removeRoute(this._snackBarRoute);
+            }
+
+            if (this._snackBarRoute._timer != null) {
+                this._snackBarRoute._timer.cancel();
+                this._snackBarRoute._timer = null;
             }
         }
 
@@ -157,7 +179,7 @@ namespace ConnectApp.components {
         }
     }
 
-    internal class _CustomSnackBarState : State<CustomSnackBar> {
+    class _CustomSnackBarState : State<CustomSnackBar> {
         public override Widget build(BuildContext context) {
             var mediaQuery = MediaQuery.of(context);
             return new Container(
@@ -182,15 +204,14 @@ namespace ConnectApp.components {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: new List<Widget> {
                                 new Expanded(
-                                    child: new Text(
-                                        widget.message,
+                                    child: new Text(this.widget.message,
                                         maxLines: 3,
-                                        style: CTextStyle.PRegularError.copyWith(widget.color)
+                                        style: CTextStyle.PRegularError.copyWith(this.widget.color)
                                     )
                                 ),
                                 new CustomButton(
                                     padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                    onPressed: widget.dismiss,
+                                    onPressed: this.widget.dismiss,
                                     child: new Icon(
                                         Icons.close,
                                         size: 24,

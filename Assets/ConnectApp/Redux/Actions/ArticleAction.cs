@@ -130,10 +130,12 @@ namespace ConnectApp.redux.actions {
                         responseComments.items.ForEach(message => {
                             itemIds.Add(message.id);
                             messageItems[message.id] = message;
-                            if (userMap.ContainsKey(message.author.id))
+                            if (userMap.ContainsKey(message.author.id)) {
                                 userMap[message.author.id] = message.author;
-                            else
+                            }
+                            else {
                                 userMap.Add(message.author.id, message.author);
+                            }
                         });
                         dispatcher.dispatch(new UserMapAction {
                             userMap = userMap
@@ -164,10 +166,12 @@ namespace ConnectApp.redux.actions {
                             articleDetailResponse.project.comments.items.ForEach(message => {
                                 itemIds.Add(message.id);
                                 messageItems[message.id] = message;
-                                if (userMap.ContainsKey(message.author.id))
+                                if (userMap.ContainsKey(message.author.id)) {
                                     userMap[message.author.id] = message.author;
-                                else
+                                }
+                                else {
                                     userMap.Add(message.author.id, message.author);
+                                }
                             });
                             dispatcher.dispatch(new UserMapAction {
                                 userMap = userMap

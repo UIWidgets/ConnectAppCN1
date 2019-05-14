@@ -11,7 +11,7 @@ using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.components {
     public class RelatedArticleCard : StatelessWidget {
-        private RelatedArticleCard(
+        RelatedArticleCard(
             Article article,
             User user = null,
             Team team = null,
@@ -47,17 +47,21 @@ namespace ConnectApp.components {
             );
         }
 
-        private readonly OwnerType type;
-        private readonly User user;
-        private readonly Team team;
-        private readonly Article article;
-        private readonly GestureTapCallback onTap;
+        readonly OwnerType type;
+        readonly User user;
+        readonly Team team;
+        readonly Article article;
+        readonly GestureTapCallback onTap;
 
         public override Widget build(BuildContext context) {
-            if (article == null) return new Container();
+            if (this.article == null) {
+                return new Container();
+            }
 
-            var username = user == null ? team.name : user.fullName;
-            var time = article.lastPublishedTime == null ? article.publishedTime : article.lastPublishedTime;
+            var username = this.user == null ? this.team.name : this.user.fullName;
+            var time = this.article.lastPublishedTime == null
+                ? this.article.publishedTime
+                : this.article.lastPublishedTime;
             var child = new Container(
                 color: CColors.White,
                 padding: EdgeInsets.all(16),
@@ -69,15 +73,14 @@ namespace ConnectApp.components {
                                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: new List<Widget> {
-                                        new Text(
-                                            article.title,
+                                        new Text(this.article.title,
                                             style: CTextStyle.PLargeTitle,
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
                                             textAlign: TextAlign.left
                                         ),
                                         new Text(
-                                            $"{username} · {DateConvert.DateStringFromNow(time)} · 阅读 {article.viewCount}",
+                                            $"{username} · {DateConvert.DateStringFromNow(time)} · 阅读 {this.article.viewCount}",
                                             style: CTextStyle.PSmallBody3,
                                             textAlign: TextAlign.left
                                         )
@@ -89,10 +92,9 @@ namespace ConnectApp.components {
                             margin: EdgeInsets.only(8),
                             width: 114,
                             height: 76,
-                            child: new PlaceholderImage(
-                                article.thumbnail.url.EndsWith(".gif")
-                                    ? article.thumbnail.url
-                                    : $"{article.thumbnail.url}.300x0x1.jpg",
+                            child: new PlaceholderImage(this.article.thumbnail.url.EndsWith(".gif")
+                                    ? this.article.thumbnail.url
+                                    : $"{this.article.thumbnail.url}.300x0x1.jpg",
                                 114,
                                 76,
                                 4,
@@ -103,7 +105,7 @@ namespace ConnectApp.components {
                 )
             );
             return new GestureDetector(
-                onTap: onTap,
+                onTap: this.onTap,
                 child: child
             );
         }

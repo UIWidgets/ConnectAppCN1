@@ -3,56 +3,47 @@ using UnityEngine.Video;
 
 namespace ConnectApp.components {
     public class VideoPlayerManager {
-        private VideoPlayerManager() {
+        VideoPlayerManager() {
         }
 
         public static readonly VideoPlayerManager instance = new VideoPlayerManager();
 
-        private VideoPlayer player { get; set; }
-        
-        private AudioSource audioSource { get; set; }
+        VideoPlayer player { get; set; }
+
+        AudioSource audioSource { get; set; }
 
 
-        private GameObject gameObject { get; set; }
+        GameObject gameObject { get; set; }
 
-        public VideoPlayer getPlayer()
-        {
-            if (gameObject.GetComponent<VideoPlayer>())
-            {
-                instance.player = gameObject.GetComponent<VideoPlayer>();
+        public VideoPlayer getPlayer() {
+            if (this.gameObject.GetComponent<VideoPlayer>()) {
+                instance.player = this.gameObject.GetComponent<VideoPlayer>();
             }
-            else
-            {
-                instance.player = gameObject.AddComponent<VideoPlayer>();
+            else {
+                instance.player = this.gameObject.AddComponent<VideoPlayer>();
             }
 
             return instance.player;
         }
-        
-        public AudioSource getAudioSource()
-        {
-            if (gameObject.GetComponent<AudioSource>())
-            {
-                instance.audioSource = gameObject.GetComponent<AudioSource>();
+
+        public AudioSource getAudioSource() {
+            if (this.gameObject.GetComponent<AudioSource>()) {
+                instance.audioSource = this.gameObject.GetComponent<AudioSource>();
             }
-            else
-            {
-                instance.audioSource = gameObject.AddComponent<AudioSource>();
+            else {
+                instance.audioSource = this.gameObject.AddComponent<AudioSource>();
             }
 
             return instance.audioSource;
         }
 
-        public void destroyPlayer()
-        {
-            VideoPlayer.Destroy(instance.player);
-            AudioSource.Destroy(instance.audioSource);
+        public void destroyPlayer() {
+            Object.Destroy(instance.player);
+            Object.Destroy(instance.audioSource);
         }
 
-        public void initPlayer(GameObject gameObject)
-        {
+        public void initPlayer(GameObject gameObject) {
             this.gameObject = gameObject;
         }
-
     }
 }

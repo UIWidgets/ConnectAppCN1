@@ -10,6 +10,7 @@ namespace ConnectApp.components {
         ) : base(key) {
             this.child = child;
         }
+
         public readonly Widget child;
 
         public override State createState() {
@@ -21,12 +22,13 @@ namespace ConnectApp.components {
         public override void initState() {
             base.initState();
             var needCheckUpdater = VersionManager.needCheckUpdater();
-            if (needCheckUpdater)
+            if (needCheckUpdater) {
                 VersionManager.checkForUpdates(CheckVersionType.first);
+            }
         }
 
         public override Widget build(BuildContext context) {
-            return widget.child;
+            return this.widget.child;
         }
     }
 }

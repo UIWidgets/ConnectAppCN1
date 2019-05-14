@@ -98,8 +98,7 @@ namespace ConnectApp.redux.actions {
                         );
                     })
                     .Catch(error => {
-                        dispatcher.dispatch(new FetchEventsFailureAction()
-                        {
+                        dispatcher.dispatch(new FetchEventsFailureAction() {
                             tab = tab,
                             pageNumber = pageNumber
                         });
@@ -121,10 +120,12 @@ namespace ConnectApp.redux.actions {
                             {eventObj.user.id, eventObj.user}
                         };
                         eventObj.hosts.ForEach(host => {
-                            if (userMap.ContainsKey(host.id))
+                            if (userMap.ContainsKey(host.id)) {
                                 userMap[host.id] = host;
-                            else
+                            }
+                            else {
                                 userMap.Add(host.id, host);
+                            }
                         });
                         dispatcher.dispatch(new UserMapAction {userMap = userMap});
                         if (getState().eventState.eventsDict.ContainsKey(eventObj.id)) {
@@ -138,6 +139,7 @@ namespace ConnectApp.redux.actions {
                             newEventObj.typeParam = oldEventObj.typeParam;
                             eventObj = newEventObj;
                         }
+
                         eventObj.isNotFirst = true;
                         dispatcher.dispatch(new FetchEventDetailSuccessAction {eventObj = eventObj});
                         dispatcher.dispatch(new SaveEventHistoryAction {eventObj = eventObj, eventType = eventType});
@@ -169,27 +171,37 @@ namespace ConnectApp.redux.actions {
 
                         var channelMessageList = getState().messageState.channelMessageList;
                         var channelMessageDict = getState().messageState.channelMessageDict;
-                        if (channelMessageList.ContainsKey(channelId) && !isFirstLoad)
+                        if (channelMessageList.ContainsKey(channelId) && !isFirstLoad) {
                             messageIds = channelMessageList[channelId];
-                        if (channelMessageDict.ContainsKey(channelId) && !isFirstLoad)
+                        }
+
+                        if (channelMessageDict.ContainsKey(channelId) && !isFirstLoad) {
                             messageDict = channelMessageDict[channelId];
+                        }
 
                         var userMap = new Dictionary<string, User>();
                         messagesResponse.items.ForEach(message => {
                             if (message.deletedTime == null && message.type == "normal") {
-                                if (messageIds.Contains(message.id)) messageIds.Remove(message.id);
+                                if (messageIds.Contains(message.id)) {
+                                    messageIds.Remove(message.id);
+                                }
+
                                 messageIds.Add(message.id);
 
-                                if (messageDict.ContainsKey(message.id))
+                                if (messageDict.ContainsKey(message.id)) {
                                     messageDict[message.id] = message;
-                                else
+                                }
+                                else {
                                     messageDict.Add(message.id, message);
+                                }
                             }
 
-                            if (userMap.ContainsKey(message.author.id))
+                            if (userMap.ContainsKey(message.author.id)) {
                                 userMap[message.author.id] = message.author;
-                            else
+                            }
+                            else {
                                 userMap.Add(message.author.id, message.author);
+                            }
                         });
                         dispatcher.dispatch(new UserMapAction {userMap = userMap});
                         dispatcher.dispatch(new FetchMessagesSuccessAction {

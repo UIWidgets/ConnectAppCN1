@@ -56,31 +56,30 @@ namespace ConnectApp.screens {
             this.actionModel = actionModel;
         }
 
-        private readonly HistoryScreenViewModel viewModel;
-        private readonly HistoryScreenActionModel actionModel;
+        readonly HistoryScreenViewModel viewModel;
+        readonly HistoryScreenActionModel actionModel;
 
-        private readonly CustomDismissibleController _controller = new CustomDismissibleController();
+        readonly CustomDismissibleController _controller = new CustomDismissibleController();
 
         public override Widget build(BuildContext context) {
-            if (viewModel.articleHistory.Count == 0) return new BlankView("暂无浏览文章记录");
+            if (this.viewModel.articleHistory.Count == 0) {
+                return new BlankView("暂无浏览文章记录");
+            }
 
             return new Container(
                 color: CColors.background3,
                 child: ListView.builder(
                     physics: new AlwaysScrollableScrollPhysics(),
-                    itemCount: viewModel.articleHistory.Count,
+                    itemCount: this.viewModel.articleHistory.Count,
                     itemBuilder: (cxt, index) => {
-                        var model = viewModel.articleHistory[index];
+                        var model = this.viewModel.articleHistory[index];
                         var child = new ArticleCard(
                             model,
-                            () => actionModel.pushToArticleDetail(model.id),
-                            () => ReportManager.showReportView(
-                                viewModel.isLoggedIn,
+                            () => this.actionModel.pushToArticleDetail(model.id),
+                            () => ReportManager.showReportView(this.viewModel.isLoggedIn,
                                 model.id,
-                                ReportType.article,
-                                actionModel.pushToLogin,
-                                actionModel.pushToReport,
-                                actionModel.pushToBlock
+                                ReportType.article, this.actionModel.pushToLogin, this.actionModel.pushToReport,
+                                this.actionModel.pushToBlock
                             ),
                             model.fullName,
                             new ObjectKey(model.id)
@@ -92,7 +91,7 @@ namespace ConnectApp.screens {
                             new CustomDismissibleDrawerDelegate(),
                             secondaryActions: new List<Widget> {
                                 new GestureDetector(
-                                    onTap: () => actionModel.deleteArticleHistory(model.id),
+                                    onTap: () => this.actionModel.deleteArticleHistory(model.id),
                                     child: new Container(
                                         color: CColors.Separator2,
                                         width: 80,
@@ -110,7 +109,7 @@ namespace ConnectApp.screens {
                                     )
                                 )
                             },
-                            controller: _controller
+                            controller: this._controller
                         );
                     }
                 )

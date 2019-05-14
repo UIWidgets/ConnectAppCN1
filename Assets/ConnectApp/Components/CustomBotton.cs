@@ -19,18 +19,18 @@ namespace ConnectApp.components {
             this.child = child;
         }
 
-        private readonly GestureTapCallback onPressed;
-        private readonly EdgeInsets padding;
-        private readonly Widget child;
-        private readonly Color backgroundColor;
+        readonly GestureTapCallback onPressed;
+        readonly EdgeInsets padding;
+        readonly Widget child;
+        readonly Color backgroundColor;
 
         public override Widget build(BuildContext context) {
             return new GestureDetector(
-                onTap: onPressed,
+                onTap: this.onPressed,
                 child: new Container(
-                    padding: padding,
-                    decoration: new BoxDecoration(backgroundColor),
-                    child: child
+                    padding: this.padding,
+                    decoration: new BoxDecoration(this.backgroundColor),
+                    child: this.child
                 )
             );
         }

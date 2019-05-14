@@ -22,14 +22,14 @@ namespace ConnectApp.components {
             this.onTap = onTap;
         }
 
-        private readonly IconData iconData;
-        private readonly string title;
-        private readonly bool done;
-        private readonly GestureTapCallback onTap;
+        readonly IconData iconData;
+        readonly string title;
+        readonly bool done;
+        readonly GestureTapCallback onTap;
 
         public override Widget build(BuildContext context) {
-            var iconColor = done ? CColors.PrimaryBlue : new Color(0xFFC7CBCF);
-            var textColor = done ? CColors.PrimaryBlue : CColors.TextBody2;
+            var iconColor = this.done ? CColors.PrimaryBlue : new Color(0xFFC7CBCF);
+            var textColor = this.done ? CColors.PrimaryBlue : CColors.TextBody2;
             var child = new Container(
                 decoration: new BoxDecoration(
                     CColors.Transparent,
@@ -44,9 +44,8 @@ namespace ConnectApp.components {
                     children: new List<Widget> {
                         new Container(
                             margin: EdgeInsets.only(right: 10),
-                            child: new Icon(iconData, color: iconColor)),
-                        new Text(
-                            title,
+                            child: new Icon(this.iconData, color: iconColor)),
+                        new Text(this.title,
                             style: new TextStyle(
                                 height: 1.09f,
                                 fontSize: 16,
@@ -58,7 +57,7 @@ namespace ConnectApp.components {
                 )
             );
             return new GestureDetector(
-                onTap: onTap,
+                onTap: this.onTap,
                 child: child
             );
         }

@@ -100,50 +100,52 @@ namespace ConnectApp.components {
         }
     }
 
-    internal class _InputFieldState : State<InputField> {
-        private TextEditingController _textEditingController;
-        private FocusNode _focusNode;
-        private bool _isHintTextHidden;
-        private bool _isFocus;
+    class _InputFieldState : State<InputField> {
+        TextEditingController _textEditingController;
+        FocusNode _focusNode;
+        bool _isHintTextHidden;
+        bool _isFocus;
 
         public override void initState() {
             base.initState();
-            _textEditingController = widget.controller != null ? widget.controller : new TextEditingController("");
-            _focusNode = widget.focusNode != null ? widget.focusNode : new FocusNode();
-            _isHintTextHidden = false;
-            _isFocus = widget.autofocus;
-            _textEditingController.addListener(_controllerListener);
-            _focusNode.addListener(_focusNodeListener);
+            this._textEditingController =
+                this.widget.controller != null ? this.widget.controller : new TextEditingController("");
+            this._focusNode = this.widget.focusNode != null ? this.widget.focusNode : new FocusNode();
+            this._isHintTextHidden = false;
+            this._isFocus = this.widget.autofocus;
+            this._textEditingController.addListener(this._controllerListener);
+            this._focusNode.addListener(this._focusNodeListener);
         }
 
         public override void dispose() {
-            _textEditingController.removeListener(_controllerListener);
-            _focusNode.removeListener(_focusNodeListener);
+            this._textEditingController.removeListener(this._controllerListener);
+            this._focusNode.removeListener(this._focusNodeListener);
             base.dispose();
         }
 
-        private void _controllerListener() {
-            var isTextEmpty = _textEditingController.text.Length > 0;
-            if (_isHintTextHidden != isTextEmpty)
-                setState(() => { _isHintTextHidden = isTextEmpty; });
+        void _controllerListener() {
+            var isTextEmpty = this._textEditingController.text.Length > 0;
+            if (this._isHintTextHidden != isTextEmpty) {
+                this.setState(() => { this._isHintTextHidden = isTextEmpty; });
+            }
         }
 
-        private void _focusNodeListener() {
-            if (_isFocus != _focusNode.hasFocus)
-                setState(() => { _isFocus = _focusNode.hasFocus; });
+        void _focusNodeListener() {
+            if (this._isFocus != this._focusNode.hasFocus) {
+                this.setState(() => { this._isFocus = this._focusNode.hasFocus; });
+            }
         }
 
         public override Widget build(BuildContext context) {
             return new IgnorePointer(
-                ignoring: !widget.enabled,
+                ignoring: !this.widget.enabled,
                 child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        _buildLabelText(),
+                        this._buildLabelText(),
                         new Stack(
                             children: new List<Widget> {
-                                _buildEditableText(context),
-                                _buildHintText()
+                                this._buildEditableText(context), this._buildHintText()
                             }
                         )
                     }
@@ -151,21 +153,29 @@ namespace ConnectApp.components {
             );
         }
 
-        private Widget _buildLabelText() {
-            if (widget.labelText == null) return new Container();
-            if (!_isHintTextHidden) return new Container(height: 20);
+        Widget _buildLabelText() {
+            if (this.widget.labelText == null) {
+                return new Container();
+            }
+
+            if (!this._isHintTextHidden) {
+                return new Container(height: 20);
+            }
 
             return new Container(
                 height: 20,
                 alignment: Alignment.bottomLeft,
-                child: new Text(widget.labelText,
-                    style: widget.labelStyle
+                child: new Text(this.widget.labelText,
+                    style: this.widget.labelStyle
                 )
             );
         }
 
-        private Widget _buildHintText() {
-            if (widget.hintText == null || _isHintTextHidden) return new Container();
+        Widget _buildHintText() {
+            if (this.widget.hintText == null || this._isHintTextHidden) {
+                return new Container();
+            }
+
             return new Positioned(
                 top: 0,
                 left: 0,
@@ -174,62 +184,69 @@ namespace ConnectApp.components {
                     ignoring: true,
                     child: new Container(
                         alignment: Alignment.center,
-                        child: new Text(widget.hintText, style: widget.hintStyle)
+                        child: new Text(this.widget.hintText, style: this.widget.hintStyle)
                     )
                 )
             );
         }
 
-        private Widget _buildEditableText(BuildContext context) {
+        Widget _buildEditableText(BuildContext context) {
             Widget clearButton = new Container();
-            if (widget.clearButtonMode == InputFieldClearButtonMode.always) {
-                clearButton = _buildClearButton(context);
+            if (this.widget.clearButtonMode == InputFieldClearButtonMode.always) {
+                clearButton = this._buildClearButton(context);
             }
-            else if (widget.clearButtonMode == InputFieldClearButtonMode.hasText) {
-                if (_isHintTextHidden) clearButton = _buildClearButton(context);
+            else if (this.widget.clearButtonMode == InputFieldClearButtonMode.hasText) {
+                if (this._isHintTextHidden) {
+                    clearButton = this._buildClearButton(context);
+                }
             }
-            else if (widget.clearButtonMode == InputFieldClearButtonMode.whileEditing) {
-                if (_isHintTextHidden && _isFocus) clearButton = _buildClearButton(context);
+            else if (this.widget.clearButtonMode == InputFieldClearButtonMode.whileEditing) {
+                if (this._isHintTextHidden && this._isFocus) {
+                    clearButton = this._buildClearButton(context);
+                }
             }
 
             return new GestureDetector(
                 onTap: () => {
-                    var focusNode = widget.focusNode ?? _focusNode;
+                    var focusNode = this.widget.focusNode ?? this._focusNode;
                     FocusScope.of(context).requestFocus(focusNode);
                 },
                 child: new Container(
-                    height: widget.height,
+                    height: this.widget.height,
                     alignment: Alignment.center,
                     color: CColors.Transparent,
                     child: new Row(
                         children: new List<Widget> {
                             new Expanded(
                                 child: new EditableText(
-                                    maxLines: widget.maxLines,
-                                    controller: _textEditingController,
-                                    focusNode: _focusNode,
-                                    autofocus: widget.autofocus,
-                                    obscureText: widget.obscureText,
-                                    style: widget.style,
-                                    cursorColor: widget.cursorColor,
-                                    autocorrect: widget.autocorrect,
-                                    textInputAction: widget.textInputAction,
-                                    keyboardType: widget.keyboardType,
-                                    textAlign: widget.textAlign,
-                                    scrollPadding: widget.scrollPadding,
-                                    selectionControls: widget.enableInteractiveSelection 
+                                    maxLines: this.widget.maxLines,
+                                    controller: this._textEditingController,
+                                    focusNode: this._focusNode,
+                                    autofocus: this.widget.autofocus,
+                                    obscureText: this.widget.obscureText,
+                                    style: this.widget.style,
+                                    cursorColor: this.widget.cursorColor,
+                                    autocorrect: this.widget.autocorrect,
+                                    textInputAction: this.widget.textInputAction,
+                                    keyboardType: this.widget.keyboardType,
+                                    textAlign: this.widget.textAlign,
+                                    scrollPadding: this.widget.scrollPadding,
+                                    selectionControls: this.widget.enableInteractiveSelection
                                         ? MaterialUtils.materialTextSelectionControls
                                         : null,
-                                    enableInteractiveSelection: widget.enableInteractiveSelection,
-                                    selectionColor: widget.selectionColor,
+                                    enableInteractiveSelection: this.widget.enableInteractiveSelection,
+                                    selectionColor: this.widget.selectionColor,
                                     onChanged: text => {
                                         var isTextEmpty = text.Length > 0;
-                                        if (_isHintTextHidden != isTextEmpty)
-                                            setState(() => { _isHintTextHidden = isTextEmpty; });
-                                        if (widget.onChanged != null)
-                                            widget.onChanged(text);
+                                        if (this._isHintTextHidden != isTextEmpty) {
+                                            this.setState(() => { this._isHintTextHidden = isTextEmpty; });
+                                        }
+
+                                        if (this.widget.onChanged != null) {
+                                            this.widget.onChanged(text);
+                                        }
                                     },
-                                    onSubmitted: widget.onSubmitted
+                                    onSubmitted: this.widget.onSubmitted
                                 )
                             ),
                             clearButton
@@ -239,12 +256,12 @@ namespace ConnectApp.components {
             );
         }
 
-        private Widget _buildClearButton(BuildContext context) {
+        Widget _buildClearButton(BuildContext context) {
             return new CustomButton(
                 onPressed: () => {
-                    _textEditingController.clear();
-                    widget.onChanged("");
-                    FocusScope.of(context).requestFocus(_focusNode);
+                    this._textEditingController.clear();
+                    this.widget.onChanged("");
+                    FocusScope.of(context).requestFocus(this._focusNode);
                 },
                 child: new Container(
                     child: new Icon(

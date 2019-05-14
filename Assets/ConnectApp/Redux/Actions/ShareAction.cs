@@ -12,16 +12,20 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ShareApi.FetchImageBytes(imageUrl)
                     .Then(imageBytes => {
-                    var encodeBytes = Convert.ToBase64String(imageBytes);
-                        if (type == ShareType.friends)
+                        var encodeBytes = Convert.ToBase64String(imageBytes);
+                        if (type == ShareType.friends) {
                             WechatPlugin.instance().shareToFriend(title, description, linkUrl, encodeBytes);
-                        else if (type == ShareType.moments)
+                        }
+                        else if (type == ShareType.moments) {
                             WechatPlugin.instance().shareToTimeline(title, description, linkUrl, encodeBytes);
+                        }
                     }).Catch(error => {
-                        if (type == ShareType.friends)
+                        if (type == ShareType.friends) {
                             WechatPlugin.instance().shareToFriend(title, description, linkUrl, null);
-                        else if (type == ShareType.moments)
+                        }
+                        else if (type == ShareType.moments) {
                             WechatPlugin.instance().shareToTimeline(title, description, linkUrl, null);
+                        }
                     });
             });
         }

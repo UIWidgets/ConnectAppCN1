@@ -56,54 +56,64 @@ namespace ConnectApp.screens {
     }
 
     public class _MyFutureEventsScreenState : AutomaticKeepAliveClientMixin<MyFutureEventsScreen> {
-        private const int firstPageNumber = 1;
-        private int _pageNumber;
-        private RefreshController _refreshController;
+        const int firstPageNumber = 1;
+        int _pageNumber;
+        RefreshController _refreshController;
 
-        protected override bool wantKeepAlive => true;
+        protected override bool wantKeepAlive {
+            get { return true; }
+        }
 
         public override void initState() {
             base.initState();
-            _pageNumber = firstPageNumber;
-            _refreshController = new RefreshController();
+            this._pageNumber = firstPageNumber;
+            this._refreshController = new RefreshController();
             SchedulerBinding.instance.addPostFrameCallback(_ => {
-                widget.actionModel.startFetchMyFutureEvents();
-                widget.actionModel.fetchMyFutureEvents(firstPageNumber);
+                this.widget.actionModel.startFetchMyFutureEvents();
+                this.widget.actionModel.fetchMyFutureEvents(firstPageNumber);
             });
         }
 
         public override Widget build(BuildContext context) {
-            return _buildMyFutureEvents();
+            return this._buildMyFutureEvents();
         }
 
-        private Widget _buildMyFutureEvents() {
-            var data = widget.viewModel.futureEventsList;
-            if (widget.viewModel.futureListLoading && data.isEmpty()) return new GlobalLoading();
-            if (data.Count <= 0) return new BlankView("暂无我的即将开始活动",true, () => {
-                widget.actionModel.startFetchMyFutureEvents();
-                widget.actionModel.fetchMyFutureEvents(firstPageNumber);
-            });
-            var futureEventTotal = widget.viewModel.futureEventTotal;
+        Widget _buildMyFutureEvents() {
+            var data = this.widget.viewModel.futureEventsList;
+            if (this.widget.viewModel.futureListLoading && data.isEmpty()) {
+                return new GlobalLoading();
+            }
+
+            if (data.Count <= 0) {
+                return new BlankView("暂无我的即将开始活动", true, () => {
+                    this.widget.actionModel.startFetchMyFutureEvents();
+                    this.widget.actionModel.fetchMyFutureEvents(firstPageNumber);
+                });
+            }
+
+            var futureEventTotal = this.widget.viewModel.futureEventTotal;
             var hasMore = futureEventTotal != data.Count;
 
             return new Container(
                 color: CColors.background3,
                 child: new SmartRefresher(
-                    controller: _refreshController,
+                    controller: this._refreshController,
                     enablePullDown: true,
                     enablePullUp: hasMore,
-                    onRefresh: _onRefresh,
+                    onRefresh: this._onRefresh,
                     child: ListView.builder(
                         physics: new AlwaysScrollableScrollPhysics(),
                         itemCount: data.Count,
                         itemBuilder: (cxt, idx) => {
                             var model = data[idx];
                             var eventType = model.mode == "online" ? EventType.online : EventType.offline;
-                            var placeName = model.placeId.isEmpty() ? null : widget.viewModel.placeDict[model.placeId].name;
+                            var placeName = model.placeId.isEmpty()
+                                ? null
+                                : this.widget.viewModel.placeDict[model.placeId].name;
                             return new EventCard(
                                 model,
                                 placeName,
-                                () => widget.actionModel.pushToEventDetail(model.id, eventType)
+                                () => this.widget.actionModel.pushToEventDetail(model.id, eventType)
                             );
                         }
                     )
@@ -111,14 +121,17 @@ namespace ConnectApp.screens {
             );
         }
 
-        private void _onRefresh(bool up) {
-            if (up)
-                _pageNumber = firstPageNumber;
-            else
-                _pageNumber++;
-            widget.actionModel.fetchMyFutureEvents(_pageNumber)
-                .Then(() => _refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
-                .Catch(_ => _refreshController.sendBack(up, RefreshStatus.failed));
+        void _onRefresh(bool up) {
+            if (up) {
+                this._pageNumber = firstPageNumber;
+            }
+            else {
+                this._pageNumber++;
+            }
+
+            this.widget.actionModel.fetchMyFutureEvents(this._pageNumber)
+                .Then(() => this._refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Catch(_ => this._refreshController.sendBack(up, RefreshStatus.failed));
         }
     }
 }

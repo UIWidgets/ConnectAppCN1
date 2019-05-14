@@ -15,7 +15,7 @@ namespace ConnectApp.api {
             return promise;
         }
 
-        private static IEnumerator
+        static IEnumerator
             _FetchImageBytes(Promise<byte[]> promise, string url) {
             var request = UnityWebRequestTexture.GetTexture(url);
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
@@ -38,11 +38,15 @@ namespace ConnectApp.api {
                         quality -= 1;
                         data = texture.EncodeToJPG(quality);
                     }
-                    if (data != null)
+
+                    if (data != null) {
                         promise.Resolve(data);
-                    else
+                    }
+                    else {
                         promise.Reject(new Exception("No user under this username found!"));
-                } else {
+                    }
+                }
+                else {
                     promise.Reject(new Exception("no picture"));
                 }
             }

@@ -7,8 +7,7 @@ using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
     public class MainScreen : StatelessWidget {
-        public override Widget build(BuildContext context)
-        {
+        public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
@@ -43,11 +42,12 @@ namespace ConnectApp.screens {
                         },
                         CColors.White,
                         index => {
-                            if (index == 2)
+                            if (index == 2) {
                                 if (!StoreProvider.store.getState().loginState.isLoggedIn) {
                                     Navigator.pushNamed(context, MainNavigatorRoutes.Login);
                                     return false;
                                 }
+                            }
 
                             return true;
                         }

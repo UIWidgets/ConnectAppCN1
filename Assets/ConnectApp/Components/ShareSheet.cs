@@ -43,8 +43,8 @@ namespace ConnectApp.components {
             this.projectType = projectType;
         }
 
-        private readonly OnPressed onPressed;
-        private readonly ProjectType projectType;
+        readonly OnPressed onPressed;
+        readonly ProjectType projectType;
 
         public override Widget build(BuildContext context) {
             var mediaQueryData = MediaQuery.of(context);
@@ -54,7 +54,7 @@ namespace ConnectApp.components {
                     new Container(
                         color: CColors.White,
                         width: mediaQueryData.size.width,
-                        height: projectType == ProjectType.article ? 319 : 211 + mediaQueryData.padding.bottom,
+                        height: this.projectType == ProjectType.article ? 319 : 211 + mediaQueryData.padding.bottom,
                         child: new Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,10 +75,10 @@ namespace ConnectApp.components {
                                     ),
                                     child: new Row(
                                         mainAxisAlignment: MainAxisAlignment.start,
-                                        children: _buildShareItems()
+                                        children: this._buildShareItems()
                                     )
                                 ),
-                                projectType == ProjectType.article
+                                this.projectType == ProjectType.article
                                     ? new Container(
                                         height: 108,
                                         padding: EdgeInsets.only(top: 16),
@@ -89,13 +89,15 @@ namespace ConnectApp.components {
                                         ),
                                         child: new Row(
                                             mainAxisAlignment: MainAxisAlignment.start,
-                                            children: _buildOtherItems()
+                                            children: this._buildOtherItems()
                                         )
                                     )
                                     : new Container(),
                                 new GestureDetector(
                                     onTap: () => {
-                                        if (Router.navigator.canPop()) Router.navigator.pop();
+                                        if (Router.navigator.canPop()) {
+                                            Router.navigator.pop();
+                                        }
                                     },
                                     child: new Container(
                                         height: 49,
@@ -114,16 +116,16 @@ namespace ConnectApp.components {
             );
         }
 
-        private List<Widget> _buildShareItems() {
+        List<Widget> _buildShareItems() {
             var shareItems = new List<Widget>();
             if (WechatPlugin.instance().inInstalled()) {
                 shareItems.Add(
                     _buildShareItem(
-                        Icons.WechatIcon, 
+                        Icons.WechatIcon,
                         "微信好友",
                         CColors.White,
                         CColors.WechatGreen,
-                        () => onPressed(ShareType.friends)
+                        () => this.onPressed(ShareType.friends)
                     )
                 );
                 shareItems.Add(
@@ -132,30 +134,31 @@ namespace ConnectApp.components {
                         "朋友圈",
                         CColors.White,
                         CColors.WechatGreen,
-                        () => onPressed(ShareType.moments)
+                        () => this.onPressed(ShareType.moments)
                     )
                 );
             }
+
             shareItems.Add(
                 _buildShareItem(
                     Icons.insert_link,
                     "复制链接",
                     CColors.White,
                     CColors.PrimaryBlue,
-                    () => onPressed(ShareType.clipBoard)
+                    () => this.onPressed(ShareType.clipBoard)
                 )
             );
             return shareItems;
         }
 
-        private List<Widget> _buildOtherItems() {
+        List<Widget> _buildOtherItems() {
             return new List<Widget> {
                 _buildShareItem(
                     Icons.block,
                     "屏蔽",
                     CColors.BrownGrey,
                     CColors.White,
-                    () => onPressed(ShareType.block),
+                    () => this.onPressed(ShareType.block),
                     true
                 ),
                 _buildShareItem(
@@ -163,13 +166,14 @@ namespace ConnectApp.components {
                     "投诉",
                     CColors.BrownGrey,
                     CColors.White,
-                    () => onPressed(ShareType.report),
+                    () => this.onPressed(ShareType.report),
                     true
                 )
             };
         }
-        
-        private static Widget _buildShareItem(IconData icon, string title, Color color, Color background, GestureTapCallback onTap, bool isBorder = false) {
+
+        static Widget _buildShareItem(IconData icon, string title, Color color, Color background,
+            GestureTapCallback onTap, bool isBorder = false) {
             var border = isBorder
                 ? Border.all(
                     Color.fromRGBO(216, 216, 216, 1)
@@ -177,7 +181,10 @@ namespace ConnectApp.components {
                 : null;
             return new GestureDetector(
                 onTap: () => {
-                    if (Router.navigator.canPop()) Router.navigator.pop();
+                    if (Router.navigator.canPop()) {
+                        Router.navigator.pop();
+                    }
+
                     onTap();
                 },
                 child: new Container(

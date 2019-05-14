@@ -22,7 +22,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private static Widget renderWebSocket() {
+        static Widget renderWebSocket() {
             return new ListView(
                 children: new List<Widget> {
                     new GestureDetector(
@@ -46,7 +46,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private static Widget renderTestText() {
+        static Widget renderTestText() {
             return new ListView(
                 children: new List<Widget> {
                     new Container(height: 10),
@@ -119,7 +119,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private static Widget renderTestView(BuildContext context) {
+        static Widget renderTestView(BuildContext context) {
             return new ListView(
                 children: new List<Widget> {
                     new Container(height: 10),
@@ -400,7 +400,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        private Widget renderListView() {
+        Widget renderListView() {
             return new ListView(
                 physics: new BouncingScrollPhysics(),
                 children: new List<Widget> {

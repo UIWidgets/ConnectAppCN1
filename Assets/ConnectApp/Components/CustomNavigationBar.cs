@@ -20,16 +20,16 @@ namespace ConnectApp.components {
             this.offset = offset;
         }
 
-        private readonly Widget leftWidget;
-        private readonly List<Widget> rightWidgets;
-        private readonly Color backgroundColor;
-        private readonly float offset;
+        readonly Widget leftWidget;
+        readonly List<Widget> rightWidgets;
+        readonly Color backgroundColor;
+        readonly float offset;
         public static readonly float height = 96;
 
         public override Widget build(BuildContext context) {
             return new Container(
-                color: backgroundColor,
-                height: height - offset,
+                color: this.backgroundColor,
+                height: height - this.offset,
                 child: new Container(
                     height: 52,
                     child: new Column(
@@ -41,14 +41,14 @@ namespace ConnectApp.components {
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: new List<Widget> {
                                         new Container(
-                                            child: leftWidget
+                                            child: this.leftWidget
                                         ),
                                         new Container(
                                             height: 44,
                                             child: new Row(
                                                 mainAxisAlignment: MainAxisAlignment.end,
                                                 crossAxisAlignment: CrossAxisAlignment.center,
-                                                children: rightWidgets
+                                                children: this.rightWidgets
                                             )
                                         )
                                     }

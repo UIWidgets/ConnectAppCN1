@@ -78,196 +78,247 @@ namespace ConnectApp.components.pull_to_refresh {
     }
 
     public class _SmartRefresherState : State<SmartRefresher> {
-        private ScrollController _scrollController;
-        private readonly GlobalKey _headerKey = GlobalKey.key();
-        private readonly GlobalKey _footerKey = GlobalKey.key();
-        private float _headerHeight = DefaultConstants.default_VisibleRange;
-        private float _footerHeight = DefaultConstants.default_VisibleRange;
-        private readonly ValueNotifier<float> offsetLis = new ValueNotifier<float>(0.0f);
-        private readonly ValueNotifier<int> topModeLis = new ValueNotifier<int>(0);
-        private readonly ValueNotifier<int> bottomModeLis = new ValueNotifier<int>(0);
+        ScrollController _scrollController;
+        readonly GlobalKey _headerKey = GlobalKey.key();
+        readonly GlobalKey _footerKey = GlobalKey.key();
+        float _headerHeight = DefaultConstants.default_VisibleRange;
+        float _footerHeight = DefaultConstants.default_VisibleRange;
+        readonly ValueNotifier<float> offsetLis = new ValueNotifier<float>(0.0f);
+        readonly ValueNotifier<int> topModeLis = new ValueNotifier<int>(0);
+        readonly ValueNotifier<int> bottomModeLis = new ValueNotifier<int>(0);
 
-        private bool _handleScrollStart(ScrollStartNotification notification) {
+        bool _handleScrollStart(ScrollStartNotification notification) {
             // This is used to interupt useless callback when the pull up load rolls back.
-            if ((notification.metrics.outOfRange())) return false;
-            GestureProcessor topWrap = _headerKey.currentState as GestureProcessor;
-            GestureProcessor bottomWrap = _footerKey.currentState as GestureProcessor;
-            if (widget.enablePullUp) bottomWrap.onDragStart(notification);
-            if (widget.enablePullDown) topWrap.onDragStart(notification);
+            if ((notification.metrics.outOfRange())) {
+                return false;
+            }
+
+            GestureProcessor topWrap = this._headerKey.currentState as GestureProcessor;
+            GestureProcessor bottomWrap = this._footerKey.currentState as GestureProcessor;
+            if (this.widget.enablePullUp) {
+                bottomWrap.onDragStart(notification);
+            }
+
+            if (this.widget.enablePullDown) {
+                topWrap.onDragStart(notification);
+            }
+
             return false;
         }
 
-        private bool _handleScrollMoving(ScrollUpdateNotification notification) {
-            if (_measure(notification) != -1.0)
-                offsetLis.value = _measure(notification);
-            GestureProcessor topWrap = _headerKey.currentState as GestureProcessor;
-            GestureProcessor bottomWrap = _footerKey.currentState as GestureProcessor;
-            if (widget.enablePullUp) bottomWrap.onDragMove(notification);
-            if (widget.enablePullDown) topWrap.onDragMove(notification);
+        bool _handleScrollMoving(ScrollUpdateNotification notification) {
+            if (this._measure(notification) != -1.0) {
+                this.offsetLis.value = this._measure(notification);
+            }
+
+            GestureProcessor topWrap = this._headerKey.currentState as GestureProcessor;
+            GestureProcessor bottomWrap = this._footerKey.currentState as GestureProcessor;
+            if (this.widget.enablePullUp) {
+                bottomWrap.onDragMove(notification);
+            }
+
+            if (this.widget.enablePullDown) {
+                topWrap.onDragMove(notification);
+            }
+
             return false;
         }
 
-        private bool _handleScrollEnd(ScrollNotification notification) {
-            GestureProcessor topWrap = _headerKey.currentState as GestureProcessor;
-            GestureProcessor bottomWrap = _footerKey.currentState as GestureProcessor;
-            if (widget.enablePullUp) bottomWrap.onDragEnd(notification);
-            if (widget.enablePullDown) topWrap.onDragEnd(notification);
+        bool _handleScrollEnd(ScrollNotification notification) {
+            GestureProcessor topWrap = this._headerKey.currentState as GestureProcessor;
+            GestureProcessor bottomWrap = this._footerKey.currentState as GestureProcessor;
+            if (this.widget.enablePullUp) {
+                bottomWrap.onDragEnd(notification);
+            }
+
+            if (this.widget.enablePullDown) {
+                topWrap.onDragEnd(notification);
+            }
+
             return false;
         }
 
-        private bool _dispatchScrollEvent(ScrollNotification notification) {
+        bool _dispatchScrollEvent(ScrollNotification notification) {
             // when is scroll in the ScrollInside,nothing to do
-            if ((!_isPullUp(notification) && !_isPullDown(notification))) return false;
+            if ((!_isPullUp(notification) && !_isPullDown(notification))) {
+                return false;
+            }
+
             if (notification is ScrollStartNotification) {
                 var startNotification = (ScrollStartNotification) notification;
-                return _handleScrollStart(startNotification);
+                return this._handleScrollStart(startNotification);
             }
 
             if (notification is ScrollUpdateNotification) {
                 var startNotification = (ScrollUpdateNotification) notification;
                 //if dragDetails is null,This represents the user's finger out of the screen
-                if (startNotification.dragDetails == null)
-                    return _handleScrollEnd(notification);
-                else if (startNotification.dragDetails != null) return _handleScrollMoving(startNotification);
+                if (startNotification.dragDetails == null) {
+                    return this._handleScrollEnd(notification);
+                }
+                else if (startNotification.dragDetails != null) {
+                    return this._handleScrollMoving(startNotification);
+                }
             }
 
-            if (notification is ScrollEndNotification) _handleScrollEnd(notification);
+            if (notification is ScrollEndNotification) {
+                this._handleScrollEnd(notification);
+            }
 
             return false;
         }
 
-        private static bool _isPullUp(ScrollNotification notification) {
+        static bool _isPullUp(ScrollNotification notification) {
             return notification.metrics.pixels < 0;
         }
 
         //check user is pulling down
-        private static bool _isPullDown(ScrollNotification notification) {
+        static bool _isPullDown(ScrollNotification notification) {
             return notification.metrics.pixels > 0;
         }
 
-        private float _measure(ScrollNotification notification) {
+        float _measure(ScrollNotification notification) {
             if (notification.metrics.minScrollExtent - notification.metrics.pixels >
-                0)
+                0) {
                 return (notification.metrics.minScrollExtent -
-                        notification.metrics.pixels) /
-                       widget.headerConfig.triggerDistance;
+                        notification.metrics.pixels) / this.widget.headerConfig.triggerDistance;
+            }
+
             if (notification.metrics.pixels -
                 notification.metrics.maxScrollExtent >
-                0)
+                0) {
                 return (notification.metrics.pixels -
-                        notification.metrics.maxScrollExtent) /
-                       widget.footerConfig.triggerDistance;
+                        notification.metrics.maxScrollExtent) / this.widget.footerConfig.triggerDistance;
+            }
+
             return -1.0f;
         }
 
-        private void _init() {
-            _scrollController = new ScrollController();
-            widget.controller.scrollController = _scrollController;
-            SchedulerBinding.instance.addPostFrameCallback(duration => { _onAfterBuild(); });
-            _scrollController.addListener(_handleOffsetCallback);
-            widget.controller._headerMode = topModeLis;
-            widget.controller._footerMode = bottomModeLis;
+        void _init() {
+            this._scrollController = new ScrollController();
+            this.widget.controller.scrollController = this._scrollController;
+            SchedulerBinding.instance.addPostFrameCallback(duration => { this._onAfterBuild(); });
+            this._scrollController.addListener(this._handleOffsetCallback);
+            this.widget.controller._headerMode = this.topModeLis;
+            this.widget.controller._footerMode = this.bottomModeLis;
         }
 
-        private void _handleOffsetCallback() {
-            double overscrollPastStart = Math.Max(
-                _scrollController.position.minScrollExtent -
-                _scrollController.position.pixels + (widget.headerConfig is RefreshConfig &&
-                                                     (topModeLis.value == RefreshStatus.refreshing ||
-                                                      topModeLis.value == RefreshStatus.completed ||
-                                                      topModeLis.value == RefreshStatus.failed)
-                    ? (widget.headerConfig as RefreshConfig).visibleRange
-                    : 0.0),
+        void _handleOffsetCallback() {
+            double overscrollPastStart = Math.Max(this._scrollController.position.minScrollExtent -
+                                                  this._scrollController.position.pixels +
+                                                  (this.widget.headerConfig is RefreshConfig &&
+                                                   (this.topModeLis.value == RefreshStatus.refreshing ||
+                                                    this.topModeLis.value == RefreshStatus.completed ||
+                                                    this.topModeLis.value == RefreshStatus.failed)
+                                                      ? (this.widget.headerConfig as RefreshConfig).visibleRange
+                                                      : 0.0),
                 0.0);
-            double overscrollPastEnd = Math.Max(
-                _scrollController.position.pixels -
-                _scrollController.position.maxScrollExtent + (widget.footerConfig is RefreshConfig &&
-                                                              (bottomModeLis.value == RefreshStatus.refreshing ||
-                                                               bottomModeLis.value == RefreshStatus.completed ||
-                                                               bottomModeLis.value == RefreshStatus.failed)
-                    ? (widget.footerConfig as RefreshConfig).visibleRange
-                    : 0.0),
+            double overscrollPastEnd = Math.Max(this._scrollController.position.pixels -
+                                                this._scrollController.position.maxScrollExtent +
+                                                (this.widget.footerConfig is RefreshConfig &&
+                                                 (this.bottomModeLis.value == RefreshStatus.refreshing ||
+                                                  this.bottomModeLis.value == RefreshStatus.completed ||
+                                                  this.bottomModeLis.value == RefreshStatus.failed)
+                                                    ? (this.widget.footerConfig as RefreshConfig).visibleRange
+                                                    : 0.0),
                 0.0);
             if (overscrollPastStart > overscrollPastEnd) {
-                if (widget.headerConfig is RefreshConfig) {
-                    if (widget.onOffsetChange != null) widget.onOffsetChange(true, overscrollPastStart);
+                if (this.widget.headerConfig is RefreshConfig) {
+                    if (this.widget.onOffsetChange != null) {
+                        this.widget.onOffsetChange(true, overscrollPastStart);
+                    }
                 }
                 else {
-                    if (widget.onOffsetChange != null) widget.onOffsetChange(true, overscrollPastStart);
+                    if (this.widget.onOffsetChange != null) {
+                        this.widget.onOffsetChange(true, overscrollPastStart);
+                    }
                 }
             }
             else if (overscrollPastEnd > 0) {
-                if (widget.footerConfig is RefreshConfig) {
-                    if (widget.onOffsetChange != null) widget.onOffsetChange(false, overscrollPastEnd);
+                if (this.widget.footerConfig is RefreshConfig) {
+                    if (this.widget.onOffsetChange != null) {
+                        this.widget.onOffsetChange(false, overscrollPastEnd);
+                    }
                 }
                 else {
-                    if (widget.onOffsetChange != null) widget.onOffsetChange(false, overscrollPastEnd);
+                    if (this.widget.onOffsetChange != null) {
+                        this.widget.onOffsetChange(false, overscrollPastEnd);
+                    }
                 }
             }
         }
 
-        private void _didChangeMode(bool up, ValueNotifier<int> mode) {
+        void _didChangeMode(bool up, ValueNotifier<int> mode) {
             switch (mode.value) {
                 case RefreshStatus.refreshing:
-                    if (widget.onRefresh != null) widget.onRefresh(up);
-                    if (up && widget.headerConfig is RefreshConfig) {
-                        RefreshConfig config = widget.headerConfig as RefreshConfig;
-                        _scrollController
-                            .jumpTo(_scrollController.offset + config.visibleRange);
+                    if (this.widget.onRefresh != null) {
+                        this.widget.onRefresh(up);
+                    }
+
+                    if (up && this.widget.headerConfig is RefreshConfig) {
+                        RefreshConfig config = this.widget.headerConfig as RefreshConfig;
+                        this._scrollController
+                            .jumpTo(this._scrollController.offset + config.visibleRange);
                     }
 
                     break;
             }
         }
 
-        private void _onAfterBuild() {
-            if (widget.headerConfig is LoadConfig)
-                if ((widget.headerConfig as LoadConfig).bottomWhenBuild)
-                    _scrollController.jumpTo(-(_scrollController.position.pixels -
-                                               _scrollController.position.maxScrollExtent));
+        void _onAfterBuild() {
+            if (this.widget.headerConfig is LoadConfig) {
+                if ((this.widget.headerConfig as LoadConfig).bottomWhenBuild) {
+                    this._scrollController.jumpTo(-(this._scrollController.position.pixels -
+                                                    this._scrollController.position.maxScrollExtent));
+                }
+            }
 
-            topModeLis.addListener(() => { _didChangeMode(true, topModeLis); });
-            bottomModeLis.addListener(() => { _didChangeMode(false, bottomModeLis); });
-            setState(() => {
-                if (widget.enablePullDown)
-                    _headerHeight = _headerKey.currentContext.size.height;
-                if (widget.enablePullUp) _footerHeight = _footerKey.currentContext.size.height;
+            this.topModeLis.addListener(() => { this._didChangeMode(true, this.topModeLis); });
+            this.bottomModeLis.addListener(() => { this._didChangeMode(false, this.bottomModeLis); });
+            this.setState(() => {
+                if (this.widget.enablePullDown) {
+                    this._headerHeight = this._headerKey.currentContext.size.height;
+                }
+
+                if (this.widget.enablePullUp) {
+                    this._footerHeight = this._footerKey.currentContext.size.height;
+                }
             });
         }
 
-        private Widget _buildWrapperByConfig(Config config, bool up) {
+        Widget _buildWrapperByConfig(Config config, bool up) {
             if (config is LoadConfig) {
                 var loadConfig = (LoadConfig) config;
                 return new LoadWrapper(
-                    key: up ? _headerKey : _footerKey,
-                    modeListener: up ? topModeLis : bottomModeLis,
+                    key: up ? this._headerKey : this._footerKey,
+                    modeListener: up ? this.topModeLis : this.bottomModeLis,
                     up: up,
                     autoLoad: loadConfig.autoLoad,
                     triggerDistance: loadConfig.triggerDistance,
-                    builder: up ? widget.headerBuilder : widget.footerBuilder
+                    builder: up ? this.widget.headerBuilder : this.widget.footerBuilder
                 );
             }
 
             if (config is RefreshConfig) {
                 var refreshConfig = (RefreshConfig) config;
                 return new RefreshWrapper(
-                    key: up ? _headerKey : _footerKey,
-                    modeListener: up ? topModeLis : bottomModeLis,
+                    key: up ? this._headerKey : this._footerKey,
+                    modeListener: up ? this.topModeLis : this.bottomModeLis,
                     up: up,
                     onOffsetChange: (offsetUp, offset) => {
-                        if (widget.onOffsetChange != null)
-                            widget.onOffsetChange(
+                        if (this.widget.onOffsetChange != null) {
+                            this.widget.onOffsetChange(
                                 offsetUp,
                                 offsetUp
-                                    ? -_scrollController.offset + offset
-                                    : _scrollController.position.pixels -
-                                      _scrollController.position.maxScrollExtent +
+                                    ? -this._scrollController.offset + offset
+                                    : this._scrollController.position.pixels -
+                                      this._scrollController.position.maxScrollExtent +
                                       offset);
+                        }
                     },
                     completeDuration: refreshConfig.completeDuration,
                     triggerDistance: refreshConfig.triggerDistance,
                     visibleRange: refreshConfig.visibleRange,
-                    builder: up ? widget.headerBuilder : widget.footerBuilder
+                    builder: up ? this.widget.headerBuilder : this.widget.footerBuilder
                 );
             }
 
@@ -275,20 +326,20 @@ namespace ConnectApp.components.pull_to_refresh {
         }
 
         public override void dispose() {
-            _scrollController.removeListener(_handleOffsetCallback);
-            _scrollController.dispose();
+            this._scrollController.removeListener(this._handleOffsetCallback);
+            this._scrollController.dispose();
             base.dispose();
         }
 
         public override void initState() {
             base.initState();
-            _init();
+            this._init();
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
-            widget.controller._headerMode = topModeLis;
-            widget.controller._footerMode = bottomModeLis;
-            widget.controller.scrollController = _scrollController;
+            this.widget.controller._headerMode = this.topModeLis;
+            this.widget.controller._footerMode = this.bottomModeLis;
+            this.widget.controller.scrollController = this._scrollController;
             base.didUpdateWidget(oldWidget);
         }
 
@@ -297,37 +348,37 @@ namespace ConnectApp.components.pull_to_refresh {
             var method = type.GetMethod("buildSlivers", BindingFlags.NonPublic | BindingFlags.Instance);
             var objs = new object[1];
             objs[0] = context;
-            var slivers = (List<Widget>) method.Invoke(widget.child, objs);
+            var slivers = (List<Widget>) method.Invoke(this.widget.child, objs);
             slivers.Add(new SliverToBoxAdapter(
-                child: widget.footerBuilder != null && widget.enablePullUp
-                    ? _buildWrapperByConfig(widget.footerConfig, false)
+                child: this.widget.footerBuilder != null && this.widget.enablePullUp
+                    ? this._buildWrapperByConfig(this.widget.footerConfig, false)
                     : new Container()
             ));
             slivers.Insert(
                 0,
                 new SliverToBoxAdapter(
-                    child: widget.headerBuilder != null && widget.enablePullDown
-                        ? _buildWrapperByConfig(widget.headerConfig, true)
+                    child: this.widget.headerBuilder != null && this.widget.enablePullDown
+                        ? this._buildWrapperByConfig(this.widget.headerConfig, true)
                         : new Container()));
             return new LayoutBuilder(builder: (cxt, cons) => {
                 return new Stack(
                     children: new List<Widget> {
                         new Positioned(
-                            top: !widget.enablePullDown || widget.headerConfig is LoadConfig
+                            top: !this.widget.enablePullDown || this.widget.headerConfig is LoadConfig
                                 ? 0.0f
-                                : -_headerHeight,
-                            bottom: !widget.enablePullUp || widget.footerConfig is LoadConfig
+                                : -this._headerHeight,
+                            bottom: !this.widget.enablePullUp || this.widget.footerConfig is LoadConfig
                                 ? 0.0f
-                                : -_footerHeight,
+                                : -this._footerHeight,
                             left: 0.0f,
                             right: 0.0f,
                             child: new NotificationListener<ScrollNotification>(
                                 child: new CustomScrollView(
-                                    physics: new RefreshScrollPhysics(enableOverScroll: widget.enableOverScroll),
-                                    controller: _scrollController,
+                                    physics: new RefreshScrollPhysics(enableOverScroll: this.widget.enableOverScroll),
+                                    controller: this._scrollController,
                                     slivers: slivers
                                 ),
-                                onNotification: _dispatchScrollEvent
+                                onNotification: this._dispatchScrollEvent
                             )
                         )
                     }
@@ -356,42 +407,53 @@ namespace ConnectApp.components.pull_to_refresh {
 
         public void requestRefresh(bool up) {
             if (up) {
-                if (_headerMode.value == RefreshStatus.idle)
-                    _headerMode.value = RefreshStatus.refreshing;
+                if (this._headerMode.value == RefreshStatus.idle) {
+                    this._headerMode.value = RefreshStatus.refreshing;
+                }
             }
             else {
-                if (_footerMode.value == RefreshStatus.idle) _footerMode.value = RefreshStatus.refreshing;
+                if (this._footerMode.value == RefreshStatus.idle) {
+                    this._footerMode.value = RefreshStatus.refreshing;
+                }
             }
         }
 
         public void scrollTo(float offset) {
-            scrollController.jumpTo(offset);
+            this.scrollController.jumpTo(offset);
         }
-        
+
         public void animateTo(float to, TimeSpan duration, Curve curve) {
-            scrollController.animateTo(to, duration, curve);
+            this.scrollController.animateTo(to, duration, curve);
         }
-        
+
         public float offset {
-            get { return scrollController.offset; }
+            get { return this.scrollController.offset; }
         }
 
         public void sendBack(bool up, int mode) {
-            if (up)
-                _headerMode.value = mode;
-            else
-                _footerMode.value = mode;
+            if (up) {
+                this._headerMode.value = mode;
+            }
+            else {
+                this._footerMode.value = mode;
+            }
         }
 
         public bool isRefresh(bool up) {
-            if (up)
-                return _headerMode.value == RefreshStatus.refreshing;
-            else
-                return _footerMode.value == RefreshStatus.refreshing;
+            if (up) {
+                return this._headerMode.value == RefreshStatus.refreshing;
+            }
+            else {
+                return this._footerMode.value == RefreshStatus.refreshing;
+            }
         }
 
-        public int headerMode => _headerMode.value;
+        public int headerMode {
+            get { return this._headerMode.value; }
+        }
 
-        public int footerMode => _footerMode.value;
+        public int footerMode {
+            get { return this._footerMode.value; }
+        }
     }
 }

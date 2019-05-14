@@ -16,21 +16,23 @@ namespace ConnectApp.components {
             this.message = message;
         }
 
-        private readonly Message message;
+        readonly Message message;
 
         public override Widget build(BuildContext context) {
-            if (message == null) return new Container();
+            if (this.message == null) {
+                return new Container();
+            }
 
-            var author = message.author != null ? message.author : new User();
+            var author = this.message.author != null ? this.message.author : new User();
 
             var messageContent =
-                MessageUtils.AnalyzeMessage(message.content, message.mentions, message.mentionEveryone);
+                MessageUtils.AnalyzeMessage(this.message.content, this.message.mentions, this.message.mentionEveryone);
             return new Container(
                 padding: EdgeInsets.symmetric(6),
                 child: new Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        Avatar.User(message.author.id, message.author, 24),
+                        Avatar.User(this.message.author.id, this.message.author, 24),
                         new Expanded(
                             child: new Container(
                                 margin: EdgeInsets.only(8),

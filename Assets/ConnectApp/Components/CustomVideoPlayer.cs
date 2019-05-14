@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.utils;
 using RSG;
-using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -14,17 +13,16 @@ using Color = Unity.UIWidgets.ui.Color;
 using Texture = Unity.UIWidgets.widgets.Texture;
 
 namespace ConnectApp.components {
-
     public delegate void FullScreenCallback(bool isFullScreen);
+
     public delegate void FailureCallback();
-    
-    public enum PlayState
-    {
+
+    public enum PlayState {
         play,
         pause,
         stop
     }
-    
+
     public class CustomVideoPlayer : StatefulWidget {
         public CustomVideoPlayer(
             string url,
@@ -43,6 +41,7 @@ namespace ConnectApp.components {
             this.fullScreenCallback = fullScreenCallback;
             this.isAutoPlay = isAutoPlay;
         }
+
         public readonly string url;
         public readonly float recordDuration;
         public readonly Widget topWidget;
@@ -56,47 +55,42 @@ namespace ConnectApp.components {
         }
     }
 
-    public class _CustomVideoPlayerState : SingleTickerProviderStateMixin<CustomVideoPlayer>
-    {
-        private VideoPlayer _player = null;
-        private RenderTexture _texture = null;
-        private PlayState _playState = PlayState.pause;
-        private float _relative; //播放进度比例
-        private bool _isFullScreen; //是否全屏
-        private bool _isHiddenBar; //是否隐藏工具栏
-        private bool _isFailure;  //加载失败
-        private bool _isLoaded;  //加载完成，用来隐藏loading
-        private string _pauseVideoPlayerSubId; //收到通知暂停播放
+    public class _CustomVideoPlayerState : SingleTickerProviderStateMixin<CustomVideoPlayer> {
+        VideoPlayer _player = null;
+        RenderTexture _texture = null;
+        PlayState _playState = PlayState.pause;
+        float _relative; //播放进度比例
+        bool _isFullScreen; //是否全屏
+        bool _isHiddenBar; //是否隐藏工具栏
+        bool _isFailure; //加载失败
+        bool _isLoaded; //加载完成，用来隐藏loading
+        string _pauseVideoPlayerSubId; //收到通知暂停播放
 
-        public override void initState()
-        {
+        public override void initState() {
             base.initState();
-            _texture = Resources.Load<RenderTexture>("ConnectAppRT");
-            _player = _videoPlayer(widget.url);
-            _pauseVideoPlayerSubId = EventBus.subscribe(EventBusConstant.pauseVideoPlayer, args => {
-                if (_player) {
-                    _player.Pause();
-                    _isHiddenBar = false;
-                    _playState = PlayState.pause;
-                    setState(() => {});
+            this._texture = Resources.Load<RenderTexture>("ConnectAppRT");
+            this._player = this._videoPlayer(this.widget.url);
+            this._pauseVideoPlayerSubId = EventBus.subscribe(EventBusConstant.pauseVideoPlayer, args => {
+                if (this._player) {
+                    this._player.Pause();
+                    this._isHiddenBar = false;
+                    this._playState = PlayState.pause;
+                    this.setState(() => { });
                 }
             });
         }
 
-        public override void dispose()
-        {
-            EventBus.unSubscribe(EventBusConstant.pauseVideoPlayer, _pauseVideoPlayerSubId);
-            _player.targetTexture.Release();
-            _player.Stop();
+        public override void dispose() {
+            EventBus.unSubscribe(EventBusConstant.pauseVideoPlayer, this._pauseVideoPlayerSubId);
+            this._player.targetTexture.Release();
+            this._player.Stop();
             VideoPlayerManager.instance.destroyPlayer();
             base.dispose();
         }
 
-        public override Widget build(BuildContext context)
-        {
+        public override Widget build(BuildContext context) {
             var iconData = Icons.pause;
-            switch (_playState)
-            {
+            switch (this._playState) {
                 case PlayState.stop:
                     iconData = Icons.replay;
                     break;
@@ -106,40 +100,39 @@ namespace ConnectApp.components {
             }
 
             var content = new Container(
-                child: new Stack(children: new List<Widget>
-                {
+                child: new Stack(children: new List<Widget> {
                     new GestureDetector(
-                        onTap: () =>
-                        {
-                            if (_isFailure&&_isHiddenBar==false)
-                            {
+                        onTap: () => {
+                            if (this._isFailure && this._isHiddenBar == false) {
                                 return;
                             }
-                            _isHiddenBar = !_isHiddenBar;
-                            if (_playState == PlayState.play & !_isHiddenBar)
-                            {
-                                _hiddenBar();
+
+                            this._isHiddenBar = !this._isHiddenBar;
+                            if ((this._playState == PlayState.play) & !this._isHiddenBar) {
+                                this._hiddenBar();
                             }
 
-                            setState();
+                            this.setState();
                         },
-                        child: new Container(color:CColors.Black,child:new Texture(texture: _texture)) 
+                        child: new Container(color: CColors.Black, child: new Texture(texture: this._texture))
                     ),
-                    _isLoaded?new Align():new Align(
-                        alignment:Alignment.center,
-                        child:new CustomActivityIndicator(loadingColor: LoadingColor.white)
-                    ),
-                    _isHiddenBar
+                    this._isLoaded
+                        ? new Align()
+                        : new Align(
+                            alignment: Alignment.center,
+                            child: new CustomActivityIndicator(loadingColor: LoadingColor.white)
+                        ),
+                    this._isHiddenBar
                         ? new Positioned(child: new Container())
-                        : new Positioned(top: 0, left: 0, right: 0, child: _isFullScreen
+                        : new Positioned(top: 0, left: 0, right: 0, child: this._isFullScreen
                             ? new Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: new List<Widget>
-                                {
+                                children: new List<Widget> {
                                     new GestureDetector(
-                                        onTap: _setScreenOrientation,
+                                        onTap: this._setScreenOrientation,
                                         child: new Container(
-                                            margin: EdgeInsets.only( 8,Application.platform==RuntimePlatform.IPhonePlayer?20:8),
+                                            margin: EdgeInsets.only(8,
+                                                Application.platform == RuntimePlatform.IPhonePlayer ? 20 : 8),
                                             child: new Icon(
                                                 Icons.arrow_back,
                                                 size: 28,
@@ -149,109 +142,106 @@ namespace ConnectApp.components {
                                     )
                                 }
                             )
-                            : widget.topWidget),
-                    _isHiddenBar
+                            : this.widget.topWidget),
+                    this._isHiddenBar
                         ? new Positioned(child: new Container())
                         : new Positioned(
                             bottom: 0,
                             left: 0,
                             right: 0,
-                            child: _isFailure?new Container(
-                                height: 44,
-                                padding:EdgeInsets.only(top:0,left:8),
-                                color:Color.fromRGBO(0,0,0,0.2f),
-                                child: new Row(children:new List<Widget>
-                                {
-                                    new GestureDetector(
-                                        child: new Container(
-                                            height: 44,
-                                            width: 44,
-                                            color: CColors.Transparent,
-                                            child: new Icon(Icons.replay, size: 24, color: CColors.White)
-                                        ),
-                                        onTap: _reloadVideo
-                                    ),
-                                    new Text("视频播放失败",style:new TextStyle(
-                                        fontSize: 15,
-                                        fontFamily: "Roboto-Bold",
-                                        color: CColors.White
-                                    ))
-                                })) : new Container(
-                                height: 44,
-                                decoration: new BoxDecoration(gradient: new LinearGradient(
-                                    colors: new List<Color>
-                                    {
-                                        Color.fromRGBO(0, 0, 0, 0),
-                                        Color.fromRGBO(0, 0, 0, 0.5f)
-                                    },
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter
-                                )),
-                                child: new Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: new List<Widget>
-                                    {
+                            child: this._isFailure
+                                ? new Container(
+                                    height: 44,
+                                    padding: EdgeInsets.only(top: 0, left: 8),
+                                    color: Color.fromRGBO(0, 0, 0, 0.2f),
+                                    child: new Row(children: new List<Widget> {
                                         new GestureDetector(
                                             child: new Container(
                                                 height: 44,
                                                 width: 44,
                                                 color: CColors.Transparent,
-                                                child: new Icon(iconData, size: 24, color: CColors.White)
+                                                child: new Icon(Icons.replay, size: 24, color: CColors.White)
                                             ),
-                                            onTap: _playOrPause
+                                            onTap: this._reloadVideo
                                         ),
-                                        new Container(margin: EdgeInsets.only(right: 8), child:
-                                            new Text($"{DateConvert.formatTime((float) _player.time)}",
-                                                style: CTextStyle.CaptionWhite)),
-                                        new Expanded(
-                                            child: new ProgressBar(_relative,
-                                                changeCallback: relative =>
-                                                {
-                                                    _relative = relative;
-                                                    if (widget.recordDuration>0)
-                                                    {
-                                                        _player.time = relative * widget.recordDuration;
-                                                    }
-                                                    else
-                                                    {
-                                                        _player.time = relative * _player.frameCount/_player.frameRate;
-                                                    }
-                                                    _isLoaded = false;
-                                                    _player.Pause();
-                                                    setState(() => { });
-                                                }, onDragStart: () =>
-                                                {
-                                                    _player.Pause();
-                                                })),
-                                        new Container(margin: EdgeInsets.only(left: 8, right: 8), child:
-                                            new Text($"{DateConvert.formatTime(widget.recordDuration>0?widget.recordDuration:_player.frameCount/_player.frameRate)}",
-                                                style: CTextStyle.CaptionWhite)),
-                                        new GestureDetector(
-                                            child: new Container(
-                                                height: 44,
-                                                width: 44,
-                                                color: CColors.Transparent,
-                                                child: new Icon(
-                                                    _isFullScreen ? Icons.fullscreen_exit : Icons.fullscreen, size: 24,
-                                                    color: CColors.White)
+                                        new Text("视频播放失败", style: new TextStyle(
+                                            fontSize: 15,
+                                            fontFamily: "Roboto-Bold",
+                                            color: CColors.White
+                                        ))
+                                    }))
+                                : new Container(
+                                    height: 44,
+                                    decoration: new BoxDecoration(gradient: new LinearGradient(
+                                        colors: new List<Color> {
+                                            Color.fromRGBO(0, 0, 0, 0),
+                                            Color.fromRGBO(0, 0, 0, 0.5f)
+                                        },
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter
+                                    )),
+                                    child: new Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: new List<Widget> {
+                                            new GestureDetector(
+                                                child: new Container(
+                                                    height: 44,
+                                                    width: 44,
+                                                    color: CColors.Transparent,
+                                                    child: new Icon(iconData, size: 24, color: CColors.White)
+                                                ),
+                                                onTap: this._playOrPause
                                             ),
-                                            onTap: _setScreenOrientation
-                                        )
-                                    })
-                            )
+                                            new Container(margin: EdgeInsets.only(right: 8), child:
+                                                new Text($"{DateConvert.formatTime((float) this._player.time)}",
+                                                    style: CTextStyle.CaptionWhite)),
+                                            new Expanded(
+                                                child: new ProgressBar(this._relative,
+                                                    changeCallback: relative => {
+                                                        this._relative = relative;
+                                                        if (this.widget.recordDuration > 0) {
+                                                            this._player.time = relative * this.widget.recordDuration;
+                                                        }
+                                                        else {
+                                                            this._player.time =
+                                                                relative * this._player.frameCount /
+                                                                this._player.frameRate;
+                                                        }
+
+                                                        this._isLoaded = false;
+                                                        this._player.Pause();
+                                                        this.setState(() => { });
+                                                    }, onDragStart: () => { this._player.Pause(); })),
+                                            new Container(margin: EdgeInsets.only(left: 8, right: 8), child:
+                                                new Text(
+                                                    $"{DateConvert.formatTime(this.widget.recordDuration > 0 ? this.widget.recordDuration : this._player.frameCount / this._player.frameRate)}",
+                                                    style: CTextStyle.CaptionWhite)),
+                                            new GestureDetector(
+                                                child: new Container(
+                                                    height: 44,
+                                                    width: 44,
+                                                    color: CColors.Transparent,
+                                                    child: new Icon(
+                                                        this._isFullScreen ? Icons.fullscreen_exit : Icons.fullscreen,
+                                                        size: 24,
+                                                        color: CColors.White)
+                                                ),
+                                                onTap: this._setScreenOrientation
+                                            )
+                                        })
+                                )
                         )
                 })
             );
 
-            if (Application.platform == RuntimePlatform.Android)
-            {
+            if (Application.platform == RuntimePlatform.Android) {
                 return new AnimatedContainer(
                     duration: TimeSpan.FromMilliseconds(150),
-                    width: _isFullScreen
+                    width: this._isFullScreen
                         ? MediaQuery.of(context).size.height * 16 / 9
                         : MediaQuery.of(context).size.width,
-                    height: _isFullScreen
+                    height: this._isFullScreen
                         ? MediaQuery.of(context).size.height
                         : MediaQuery.of(context).size.width * 9 / 16,
                     child: content
@@ -259,14 +249,17 @@ namespace ConnectApp.components {
             }
 
             return new Container(
-                width: _isFullScreen ? MediaQuery.of(context).size.height * 16 / 9 : MediaQuery.of(context).size.width,
-                height: _isFullScreen ? MediaQuery.of(context).size.height : MediaQuery.of(context).size.width * 9 / 16,
+                width: this._isFullScreen
+                    ? MediaQuery.of(context).size.height * 16 / 9
+                    : MediaQuery.of(context).size.width,
+                height: this._isFullScreen
+                    ? MediaQuery.of(context).size.height
+                    : MediaQuery.of(context).size.width * 9 / 16,
                 child: content
             );
         }
 
-        private VideoPlayer _videoPlayer(string url)
-        {
+        VideoPlayer _videoPlayer(string url) {
             var player = VideoPlayerManager.instance.getPlayer();
             var audioSource = VideoPlayerManager.instance.getAudioSource();
             player.url = url;
@@ -276,123 +269,101 @@ namespace ConnectApp.components {
             player.SetTargetAudioSource(0, audioSource);
             player.playOnAwake = false;
             player.IsAudioTrackEnabled(0);
-            player.targetTexture = _texture;
+            player.targetTexture = this._texture;
             player.isLooping = false;
             player.sendFrameReadyEvents = true;
             player.aspectRatio = VideoAspectRatio.Stretch;
-            player.prepareCompleted += prepareCompleted;
-            player.frameReady += (source, frameIndex) =>
-            {
-                using (WindowProvider.of(widget.context).getScope())
-                {
+            player.prepareCompleted += this.prepareCompleted;
+            player.frameReady += (source, frameIndex) => {
+                using (WindowProvider.of(this.widget.context).getScope()) {
                     Texture.textureFrameAvailable();
-                    _relative = (float) frameIndex / source.frameCount;
-                    _isLoaded = true;
-                    _isFailure = false;
-                    if (_playState == PlayState.play)
-                    {
-                        _player.Play();
-                    }
-                    if (frameIndex==0)
-                    {
-                        Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(() =>
-                        {
-                            setState(() => { });
-                        });  
-                    }
-                    else
-                    {
-                        setState(() => { });
+                    this._relative = (float) frameIndex / source.frameCount;
+                    this._isLoaded = true;
+                    this._isFailure = false;
+                    if (this._playState == PlayState.play) {
+                        this._player.Play();
                     }
 
+                    if (frameIndex == 0) {
+                        Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(() => { this.setState(() => { }); });
+                    }
+                    else {
+                        this.setState(() => { });
+                    }
                 }
-            };    
-            player.loopPointReached += _player =>
-            {
-                using (WindowProvider.of(widget.context).getScope())
-                {
-                    _relative = 0.0f;
-                    _playState = PlayState.stop;
+            };
+            player.loopPointReached += _player => {
+                using (WindowProvider.of(this.widget.context).getScope()) {
+                    this._relative = 0.0f;
+                    this._playState = PlayState.stop;
                     _player.Stop();
                     _player.frame = 0;
-                    setState(() => { });
+                    this.setState(() => { });
                 }
-
             };
-            player.errorReceived += _errorReceived;
+            player.errorReceived += this._errorReceived;
             player.Prepare();
             player.Pause();
             return player;
         }
 
-        private void _playOrPause()
-        {
-            if (_playState == PlayState.play)
-            {
-                _player.Pause();
-                _playState = PlayState.pause;
+        void _playOrPause() {
+            if (this._playState == PlayState.play) {
+                this._player.Pause();
+                this._playState = PlayState.pause;
             }
-            else
-            {
-                _player.Play();
-                _hiddenBar();
-                _playState = PlayState.play;
+            else {
+                this._player.Play();
+                this._hiddenBar();
+                this._playState = PlayState.play;
             }
-            setState(() => {}); 
+
+            this.setState(() => { });
         }
-        
-        private void prepareCompleted(VideoPlayer player)
-        {
-            if (widget.isAutoPlay)
-            {
-                _playState = PlayState.play;
+
+        void prepareCompleted(VideoPlayer player) {
+            if (this.widget.isAutoPlay) {
+                this._playState = PlayState.play;
                 player.Play();
             }
         }
-        
-        private void _errorReceived(VideoPlayer player,string message)
-        {
-            using (WindowProvider.of(widget.context).getScope())
-            {
-                setState(() => {
-                    _isFailure = true;
-                    _isLoaded = true;
+
+        void _errorReceived(VideoPlayer player, string message) {
+            using (WindowProvider.of(this.widget.context).getScope()) {
+                this.setState(() => {
+                    this._isFailure = true;
+                    this._isLoaded = true;
                 });
             }
         }
 
-        private void _hiddenBar()
-        {
-            Promise.Delayed(TimeSpan.FromSeconds(5)).Then(() =>
-            {
-                setState(() => { _isHiddenBar = true; });   
+        void _hiddenBar() {
+            Promise.Delayed(TimeSpan.FromSeconds(5)).Then(() => {
+                this.setState(() => { this._isHiddenBar = true; });
             });
         }
-        
-        private void _reloadVideo()
-        {
-            _player.Prepare();
-            setState(() => {_isLoaded = false; _isFailure = false;});
+
+        void _reloadVideo() {
+            this._player.Prepare();
+            this.setState(() => {
+                this._isLoaded = false;
+                this._isFailure = false;
+            });
         }
 
-        private void _setScreenOrientation()
-        {
-            _isFullScreen = !_isFullScreen;
-            
-            if (_isFullScreen)
-            {
+        void _setScreenOrientation() {
+            this._isFullScreen = !this._isFullScreen;
+
+            if (this._isFullScreen) {
                 Screen.orientation = ScreenOrientation.LandscapeLeft;
             }
-            else
-            {
+            else {
                 Screen.orientation = ScreenOrientation.Portrait;
             }
-            
-            if (widget.fullScreenCallback != null)
-            {
-                widget.fullScreenCallback(_isFullScreen);
+
+            if (this.widget.fullScreenCallback != null) {
+                this.widget.fullScreenCallback(this._isFullScreen);
             }
         }
-
     }
 }

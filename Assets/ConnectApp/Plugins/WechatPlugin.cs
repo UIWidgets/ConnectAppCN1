@@ -9,29 +9,34 @@ using UnityEngine;
 namespace ConnectApp.plugins {
     public class WechatPlugin {
         public static WechatPlugin instance(Action<string> codeCallBack = null) {
-            if (plugin == null) plugin = new WechatPlugin();
+            if (plugin == null) {
+                plugin = new WechatPlugin();
+            }
 
-            if (codeCallBack != null) plugin.codeCallBack = codeCallBack;
+            if (codeCallBack != null) {
+                plugin.codeCallBack = codeCallBack;
+            }
+
             return plugin;
         }
 
         public static WechatPlugin plugin;
 
-        private bool isListen;
+        bool isListen;
 
         public BuildContext context;
 
         public Action<string> codeCallBack;
 
         public void addListener() {
-            if (!isListen) {
-                UIWidgetsMessageManager.instance.AddChannelMessageDelegate("wechat", _handleMethodCall);
-                isListen = true;
+            if (!this.isListen) {
+                UIWidgetsMessageManager.instance.AddChannelMessageDelegate("wechat", this._handleMethodCall);
+                this.isListen = true;
             }
         }
 
-        private void _handleMethodCall(string method, List<JSONNode> args) {
-            using (WindowProvider.of(context).getScope()) {
+        void _handleMethodCall(string method, List<JSONNode> args) {
+            using (WindowProvider.of(this.context).getScope()) {
                 switch (method) {
                     case "callback": {
                         var node = args[0];
@@ -39,7 +44,9 @@ namespace ConnectApp.plugins {
                         var type = dict["type"];
                         if (type == "code") {
                             var code = dict["code"];
-                            if (codeCallBack != null) codeCallBack(code);
+                            if (this.codeCallBack != null) {
+                                this.codeCallBack(code);
+                            }
                         }
                     }
                         break;
@@ -50,21 +57,21 @@ namespace ConnectApp.plugins {
 
         public void login(string stateId) {
             if (!Application.isEditor) {
-                addListener();
+                this.addListener();
                 loginWechat(stateId);
             }
         }
 
         public void shareToFriend(string title, string description, string url, string imageBytes) {
             if (!Application.isEditor) {
-                addListener();
+                this.addListener();
                 toFriends(title, description, url, imageBytes);
             }
         }
 
         public void shareToTimeline(string title, string description, string url, string imageBytes) {
             if (!Application.isEditor) {
-                addListener();
+                this.addListener();
                 toTimeline(title, description, url, imageBytes);
             }
         }
@@ -72,7 +79,7 @@ namespace ConnectApp.plugins {
 
         public bool inInstalled() {
             if (!Application.isEditor) {
-                addListener();
+                this.addListener();
                 return isInstallWechat();
             }
 
@@ -93,7 +100,6 @@ namespace ConnectApp.plugins {
         internal static extern void toTimeline(string title, string description, string url, string imageBytes);
 
 #elif UNITY_ANDROID
-        
         static void loginWechat(string stateId) {
             using (
                 AndroidJavaClass managerClass = new AndroidJavaClass("com.unity3d.unityconnect.plugins.WechatPlugin")

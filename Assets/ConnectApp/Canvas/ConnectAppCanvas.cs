@@ -23,13 +23,15 @@ namespace ConnectApp.canvas {
             FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Semibold"), "PingFangSC-Semibold");
             FontManager.instance.addFont(Resources.Load<Font>("Menlo-Regular"), "Menlo");
             FontManager.instance.addFont(Resources.Load<Font>("iconFont"), "iconfont");
-            VideoPlayerManager.instance.initPlayer(gameObject);
-            WebViewManager.instance.initWebView(gameObject);
+            VideoPlayerManager.instance.initPlayer(this.gameObject);
+            WebViewManager.instance.initWebView(this.gameObject);
         }
 
         protected override void Update() {
             base.Update();
-            if (!Application.isEditor) JPushPlugin.addListener();
+            if (!Application.isEditor) {
+                JPushPlugin.addListener();
+            }
         }
 
         protected override Widget createWidget() {
@@ -44,7 +46,7 @@ namespace ConnectApp.canvas {
             );
         }
 
-        private static PageRouteFactory pageRouteBuilder {
+        static PageRouteFactory pageRouteBuilder {
             get {
                 return (settings, builder) =>
                     new PageRouteBuilder(
