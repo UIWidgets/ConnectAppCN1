@@ -146,10 +146,10 @@ namespace ConnectApp.plugins {
             }
         }
 #else
-        public bool isInstallWechat() {return true;}
-        public void login(string stateId) {}
-        public void shareToFriend(string title, string description, string url,string imageBytes) {}
-        public void shareToTimeline(string title, string description, string url,string imageBytes) {}
+        public static bool isInstallWechat() {return true;}
+        public static void loginWechat(string stateId) {}
+        public static void toFriends(string title, string description, string url,string imageBytes) {}
+        public static void toTimeline(string title, string description, string url,string imageBytes) {}
 #endif
     }
 }
