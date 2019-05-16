@@ -4,50 +4,48 @@ using UnityEngine;
 
 namespace Plugins.Editor {
     public class XClass : IDisposable {
-        string filePath;
-
+        readonly string _filePath;
         public XClass(string fPath) {
-            this.filePath = fPath;
-            if (!File.Exists(this.filePath)) {
-                Debug.LogError(this.filePath + "not found in path.");
-                return;
+            this._filePath = fPath;
+            if (!File.Exists(this._filePath)) {
+                Debug.LogError(this._filePath + "not found in path.");
             }
         }
 
         public void WriteBelow(string below, string text) {
-            StreamReader streamReader = new StreamReader(this.filePath);
-            string text_all = streamReader.ReadToEnd();
+            StreamReader streamReader = new StreamReader(path: this._filePath);
+            string textAll = streamReader.ReadToEnd();
             streamReader.Close();
 
-            int beginIndex = text_all.IndexOf(below);
+            int beginIndex = textAll.IndexOf(value: below, comparisonType: StringComparison.CurrentCulture);
             if (beginIndex == -1) {
-                Debug.LogError(this.filePath + " not found sign in " + below);
+                Debug.LogError(this._filePath + " not found sign in " + below);
                 return;
             }
 
-            int endIndex = text_all.LastIndexOf("\n", beginIndex + below.Length);
+            int endIndex = textAll.LastIndexOf("\n", beginIndex + below.Length, comparisonType: StringComparison.CurrentCulture);
 
-            text_all = text_all.Substring(0, endIndex) + "\n" + text + "\n" + text_all.Substring(endIndex);
+            textAll = textAll.Substring(0, length: endIndex) + "\n" + text + "\n" + textAll.Substring(startIndex: endIndex);
 
-            StreamWriter streamWriter = new StreamWriter(this.filePath);
-            streamWriter.Write(text_all);
+            StreamWriter streamWriter = new StreamWriter(path: this._filePath);
+            streamWriter.Write(value: textAll);
             streamWriter.Close();
         }
 
         public void Replace(string below, string newText) {
-            StreamReader streamReader = new StreamReader(this.filePath);
-            string text_all = streamReader.ReadToEnd();
+            StreamReader streamReader = new StreamReader(path: this._filePath);
+            string textAll = streamReader.ReadToEnd();
             streamReader.Close();
 
-            int beginIndex = text_all.IndexOf(below);
+            int beginIndex = textAll.IndexOf(value: below, comparisonType: StringComparison.CurrentCulture);
             if (beginIndex == -1) {
-                Debug.LogError(this.filePath + " not found sign in " + below);
+                Debug.LogError(this._filePath + " not found sign in " + below);
                 return;
             }
 
-            text_all = text_all.Replace(below, newText);
-            StreamWriter streamWriter = new StreamWriter(this.filePath);
-            streamWriter.Write(text_all);
+            textAll = textAll.Replace(oldValue: below, newValue: newText);
+            StreamWriter streamWriter = new StreamWriter(path: this._filePath);
+            streamWriter.Write(value: textAll);
             streamWriter.Close();
         }
 

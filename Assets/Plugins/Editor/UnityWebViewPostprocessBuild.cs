@@ -172,7 +172,7 @@ class AndroidManifest : AndroidXmlDocument {
         return attr;
     }
 
-    internal XmlNode GetActivityWithLaunchIntent() {
+    XmlNode GetActivityWithLaunchIntent() {
         return this.SelectSingleNode(
             "/manifest/application/activity[intent-filter/action/@android:name='android.intent.action.MAIN' and "
             + "intent-filter/category/@android:name='android.intent.category.LAUNCHER']", this.nsMgr);
