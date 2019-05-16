@@ -911,7 +911,7 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchReviewUrlSuccessAction action: {
                     state.settingState.reviewUrl = action.url;
-                    state.settingState.hasReviewUrl = true;
+                    state.settingState.hasReviewUrl = action.url.isNotEmpty();
                     break;
                 }
 

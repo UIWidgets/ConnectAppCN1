@@ -14,6 +14,7 @@ using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
@@ -30,7 +31,7 @@ namespace ConnectApp.screens {
                     var actionModel = new SettingScreenActionModel {
                         fetchReviewUrl = () => dispatcher.dispatch<IPromise>(Actions.fetchReviewUrl()),
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
-                        mainRouterPushTo = (routeName) => dispatcher.dispatch(new MainNavigatorPushToAction {
+                        mainRouterPushTo = routeName => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = routeName
                         }),
                         openUrl = url => dispatcher.dispatch(new OpenUrlAction {url = url}),
@@ -67,9 +68,9 @@ namespace ConnectApp.screens {
     public class _SettingScreenState : State<SettingScreen> {
         public override void initState() {
             base.initState();
-//            SchedulerBinding.instance.addPostFrameCallback(_ => {
-//                widget.actionModel.fetchReviewUrl();
-//            });
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                this.widget.actionModel.fetchReviewUrl();
+            });
         }
 
         public override Widget build(BuildContext context) {
@@ -79,7 +80,8 @@ namespace ConnectApp.screens {
                     child: new Container(
                         child: new Column(
                             children: new List<Widget> {
-                                this._buildNavigationBar(context), this._buildContent(context)
+                                this._buildNavigationBar(context),
+                                this._buildContent(context)
                             }
                         )
                     )
