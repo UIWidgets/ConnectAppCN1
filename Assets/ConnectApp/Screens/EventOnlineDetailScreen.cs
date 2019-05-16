@@ -234,7 +234,7 @@ namespace ConnectApp.screens {
 
             return new AnimatedContainer(
                 height: 44,
-                duration: new TimeSpan(0, 0, 0, 0, 0),
+                duration: TimeSpan.FromSeconds(0),
                 padding: EdgeInsets.symmetric(horizontal: 8),
                 decoration: new BoxDecoration(
                     CColors.White,
@@ -278,6 +278,9 @@ namespace ConnectApp.screens {
                 );
             }
 
+            if (eventStatus == EventStatus.past &&eventObj.record.isEmpty()) {
+                return new Container();
+            }
             return new Stack(
                 children: new List<Widget> {
                     new EventHeader(eventObj, eventType, eventStatus, isLoggedIn),
@@ -293,12 +296,22 @@ namespace ConnectApp.screens {
 
         Widget _buildEventDetail(BuildContext context, IEvent eventObj, EventType eventType, EventStatus eventStatus,
             bool isLoggedIn) {
+            if (eventObj.record.isEmpty()&&eventStatus == EventStatus.past) {
+                return new Expanded(
+                    child: new Stack(children:new List<Widget> {
+                            new EventDetail(false, eventObj, this.widget.actionModel.openUrl,topWidget:new EventHeader(eventObj, eventType, eventStatus, isLoggedIn)),
+                            new Positioned(
+                                left: 0,
+                                top: 0,
+                                right: 0,
+                                child: this._buildHeadTop(true, eventObj)
+                            )
+                        }
+                    )
+                );
+            }
             return new Expanded(
-                child: new Stack(
-                    children: new List<Widget> {
-                        new EventDetail(false, eventObj, this.widget.actionModel.openUrl)
-                    }
-                )
+                child: new EventDetail(false, eventObj, this.widget.actionModel.openUrl)
             );
         }
 
