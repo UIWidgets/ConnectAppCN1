@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using ConnectApp.constants;
 using ConnectApp.utils;
 using RSG;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using UnityEngine.Video;
@@ -61,20 +63,23 @@ namespace ConnectApp.components {
         PlayState _playState = PlayState.pause;
         float _relative; //播放进度比例
         bool _isFullScreen; //是否全屏
+        bool _isReadyHiddenBar; //在倒计时隐藏bar
         bool _isHiddenBar; //是否隐藏工具栏
         bool _isFailure; //加载失败
         bool _isLoaded; //加载完成，用来隐藏loading
         string _pauseVideoPlayerSubId; //收到通知暂停播放
+        Timer m_Timer;
 
         public override void initState() {
             base.initState();
-            this._texture = Resources.Load<RenderTexture>("ConnectAppRT");
+            this._texture = Resources.Load<RenderTexture>("texture/ConnectAppRT");
             this._player = this._videoPlayer(this.widget.url);
             this._pauseVideoPlayerSubId = EventBus.subscribe(EventBusConstant.pauseVideoPlayer, args => {
                 if (this._player) {
                     this._player.Pause();
                     this._isHiddenBar = false;
                     this._playState = PlayState.pause;
+                    this.cancelTimer();
                     this.setState(() => { });
                 }
             });
@@ -85,6 +90,8 @@ namespace ConnectApp.components {
             this._player.targetTexture.Release();
             this._player.Stop();
             VideoPlayerManager.instance.destroyPlayer();
+            this.m_Timer?.cancel();
+            this.m_Timer?.Dispose();
             base.dispose();
         }
 
@@ -108,11 +115,9 @@ namespace ConnectApp.components {
                             }
 
                             this._isHiddenBar = !this._isHiddenBar;
-                            if ((this._playState == PlayState.play) & !this._isHiddenBar) {
-                                this._hiddenBar();
-                            }
-
+                            this._isReadyHiddenBar = false;
                             this.setState();
+                            this.cancelTimer();
                         },
                         child: new Container(color: CColors.Black, child: new Texture(texture: this._texture))
                     ),
@@ -209,10 +214,16 @@ namespace ConnectApp.components {
                                                                 this._player.frameRate;
                                                         }
 
+                                                        this.cancelTimer();
                                                         this._isLoaded = false;
                                                         this._player.Pause();
                                                         this.setState(() => { });
-                                                    }, onDragStart: () => { this._player.Pause(); })),
+                                                    }, onDragStart: () => {
+                                                        this._isLoaded = false;
+                                                        this._player.Pause();
+                                                        this.cancelTimer();
+                                                        this.setState(() => { });
+                                                    })),
                                             new Container(margin: EdgeInsets.only(left: 8, right: 8), child:
                                                 new Text(
                                                     $"{DateConvert.formatTime(this.widget.recordDuration > 0 ? this.widget.recordDuration : this._player.frameCount / this._player.frameRate)}",
@@ -282,6 +293,10 @@ namespace ConnectApp.components {
                     this._isFailure = false;
                     if (this._playState == PlayState.play) {
                         this._player.Play();
+                        if (!this._isHiddenBar && !this._isReadyHiddenBar) {
+                            this._isReadyHiddenBar = true;
+                            this._hiddenBar();
+                        }
                     }
 
                     if (frameIndex == 0) {
@@ -314,7 +329,6 @@ namespace ConnectApp.components {
             }
             else {
                 this._player.Play();
-                this._hiddenBar();
                 this._playState = PlayState.play;
             }
 
@@ -330,6 +344,7 @@ namespace ConnectApp.components {
 
         void _errorReceived(VideoPlayer player, string message) {
             using (WindowProvider.of(this.widget.context).getScope()) {
+                this.cancelTimer();
                 this.setState(() => {
                     this._isFailure = true;
                     this._isLoaded = true;
@@ -337,10 +352,21 @@ namespace ConnectApp.components {
             }
         }
 
+
         void _hiddenBar() {
-            Promise.Delayed(TimeSpan.FromSeconds(5)).Then(() => {
-                this.setState(() => { this._isHiddenBar = true; });
+            this.m_Timer = Window.instance.run(TimeSpan.FromSeconds(5), () => {
+                if (this._playState == PlayState.play) {
+                    this.setState(() => {
+                        this._isHiddenBar = true;
+                        this._isReadyHiddenBar = false;
+                    });
+                }
             });
+        }
+
+        void cancelTimer() {
+            this.m_Timer?.cancel();
+            this._isReadyHiddenBar = false;
         }
 
         void _reloadVideo() {

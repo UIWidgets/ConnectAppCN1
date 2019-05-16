@@ -79,13 +79,13 @@ android {
             minifyEnabled false
             useProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-unity.txt'
-            signingConfig signingConfigs.debug
+            //signingConfig signingConfigs.debug
         }
         release {
             minifyEnabled false
             useProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-unity.txt'
-            signingConfig signingConfigs.release
+            //signingConfig signingConfigs.release
         }
     }
 
