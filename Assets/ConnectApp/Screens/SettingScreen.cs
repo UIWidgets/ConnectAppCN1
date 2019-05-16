@@ -134,13 +134,7 @@ namespace ConnectApp.screens {
                             _buildGapView(),
                             this.widget.viewModel.hasReviewUrl
                                 ? _buildCellView("评分",
-                                    () => {
-                                        var reviewUrl = this.widget.viewModel.reviewUrl;
-                                        if (reviewUrl.Contains("itms-apps:")) {
-                                            reviewUrl = reviewUrl.Replace("itms-apps:", "https:");
-                                        }
-                                        this.widget.actionModel.openUrl(reviewUrl);
-                                    })
+                                    () => this.widget.actionModel.openUrl(this.widget.viewModel.reviewUrl))
                                 : new Container(),
                             this.widget.viewModel.anonymous
                                 ? _buildCellView("绑定 Unity ID",
