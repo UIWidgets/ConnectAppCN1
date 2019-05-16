@@ -14,15 +14,15 @@ namespace ConnectApp.canvas {
             base.OnEnable();
             Screen.fullScreen = false;
             Application.targetFrameRate = 60;
-            FontManager.instance.addFont(Resources.Load<Font>("Material Icons"), "Material Icons");
-            FontManager.instance.addFont(Resources.Load<Font>("Roboto-Regular"), "Roboto-Regular");
-            FontManager.instance.addFont(Resources.Load<Font>("Roboto-Medium"), "Roboto-Medium");
-            FontManager.instance.addFont(Resources.Load<Font>("Roboto-Bold"), "Roboto-Bold");
-            FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Regular"), "PingFangSC-Regular");
-            FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Medium"), "PingFangSC-Medium");
-            FontManager.instance.addFont(Resources.Load<Font>("PingFangSC-Semibold"), "PingFangSC-Semibold");
-            FontManager.instance.addFont(Resources.Load<Font>("Menlo-Regular"), "Menlo");
-            FontManager.instance.addFont(Resources.Load<Font>("iconFont"), "iconfont");
+            FontManager.instance.addFont(Resources.Load<Font>("font/Material Icons"), "Material Icons");
+            FontManager.instance.addFont(Resources.Load<Font>("font/Roboto-Regular"), "Roboto-Regular");
+            FontManager.instance.addFont(Resources.Load<Font>("font/Roboto-Medium"), "Roboto-Medium");
+            FontManager.instance.addFont(Resources.Load<Font>("font/Roboto-Bold"), "Roboto-Bold");
+            FontManager.instance.addFont(Resources.Load<Font>("font/PingFangSC-Regular"), "PingFangSC-Regular");
+            FontManager.instance.addFont(Resources.Load<Font>("font/PingFangSC-Medium"), "PingFangSC-Medium");
+            FontManager.instance.addFont(Resources.Load<Font>("font/PingFangSC-Semibold"), "PingFangSC-Semibold");
+            FontManager.instance.addFont(Resources.Load<Font>("font/Menlo-Regular"), "Menlo");
+            FontManager.instance.addFont(Resources.Load<Font>("font/iconFont"), "iconfont");
             VideoPlayerManager.instance.initPlayer(this.gameObject);
             WebViewManager.instance.initWebView(this.gameObject);
         }

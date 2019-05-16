@@ -72,7 +72,7 @@ namespace ConnectApp.components {
 
         public override void initState() {
             base.initState();
-            this._texture = Resources.Load<RenderTexture>("ConnectAppRT");
+            this._texture = Resources.Load<RenderTexture>("texture/ConnectAppRT");
             this._player = this._videoPlayer(this.widget.url);
             this._pauseVideoPlayerSubId = EventBus.subscribe(EventBusConstant.pauseVideoPlayer, args => {
                 if (this._player) {

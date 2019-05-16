@@ -86,11 +86,11 @@ namespace ConnectApp.components {
             int sideLength;
             if (this.widget.size == LoadingSize.normal) {
                 sideLength = 24;
-                imageName = this.widget.loadingColor == LoadingColor.white ? "white-loading24" : "black-loading24";
+                imageName = this.widget.loadingColor == LoadingColor.white ? "image/white-loading24" : "image/black-loading24";
             }
             else {
                 sideLength = 20;
-                imageName = this.widget.loadingColor == LoadingColor.white ? "white-loading20" : "black-loading20";
+                imageName = this.widget.loadingColor == LoadingColor.white ? "image/white-loading20" : "image/black-loading20";
             }
 
             return new RotationTransition(

@@ -6,7 +6,7 @@
           android:name="com.unity3d.unityconnect.permission.JPUSH_MESSAGE"
           android:protectionLevel="signature" />
 
-  <application android:theme="@style/UnityThemeSelector" android:icon="@mipmap/app_icon" android:label="@string/app_name" android:isGame="true" android:banner="@drawable/app_banner" android:name=".CustomApplication">
+  <application android:theme="@android:style/Theme.Material.Light.LightStatusBar" android:icon="@mipmap/app_icon" android:label="@string/app_name" android:isGame="true" android:banner="@drawable/app_banner" android:name=".CustomApplication">
     <activity android:label="@string/app_name" android:name="com.unity3d.unityconnect.UnityPlayerActivityStatusBar" android:screenOrientation="sensorPortrait" android:launchMode="singleTask" android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale|layoutDirection|density" android:hardwareAccelerated="false">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
