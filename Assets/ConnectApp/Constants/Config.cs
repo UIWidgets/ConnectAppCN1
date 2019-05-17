@@ -6,6 +6,10 @@ namespace ConnectApp.constants {
 
         public const string idBaseUrl = "https://id.unity.com";
 
+        public const string termsOfService = "https://unity3d.com/legal/terms-of-service";
+        
+        public const string privacyPolicy = "https://unity3d.com/legal/privacy-policy";
+
         public const string wechatAppId = "wx0ab79f0c7db7ca52";
 
         public const string versionNumber = "0.9.1";

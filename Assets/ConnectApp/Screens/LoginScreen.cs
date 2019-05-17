@@ -190,17 +190,9 @@ namespace ConnectApp.screens {
                                         ),
                                         new TextSpan(
                                             "用户协议",
-                                            new TextStyle(
-                                                height: 1.53f,
-                                                fontSize: 12,
-                                                fontFamily: "Roboto-Regular",
-                                                color: CColors.TextBody4,
-                                                decoration: TextDecoration.underline
-                                            ),
+                                            CTextStyle.PSmallBody4.copyWith(decoration: TextDecoration.underline),
                                             recognizer: new TapGestureRecognizer {
-                                                onTap = () =>
-                                                    this.actionModel.openUrl(
-                                                        "https://unity3d.com/legal/terms-of-service")
+                                                onTap = () => this.actionModel.openUrl(Config.termsOfService)
                                             }
                                         ),
                                         new TextSpan(
@@ -209,16 +201,9 @@ namespace ConnectApp.screens {
                                         ),
                                         new TextSpan(
                                             "隐私政策",
-                                            new TextStyle(
-                                                height: 1.53f,
-                                                fontSize: 12,
-                                                fontFamily: "Roboto-Regular",
-                                                color: CColors.TextBody4,
-                                                decoration: TextDecoration.underline
-                                            ),
+                                            CTextStyle.PSmallBody4.copyWith(decoration: TextDecoration.underline),
                                             recognizer: new TapGestureRecognizer {
-                                                onTap = () =>
-                                                    this.actionModel.openUrl("https://unity3d.com/legal/privacy-policy")
+                                                onTap = () => this.actionModel.openUrl(Config.privacyPolicy)
                                             }
                                         )
                                     }
