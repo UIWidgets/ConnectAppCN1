@@ -31,7 +31,7 @@ namespace ConnectApp.screens {
             this._refreshController.requestRefresh(true);
         }
 
-        void _onOffsetCallback(bool isUp, double offset) {
+        static void _onOffsetCallback(bool isUp, float offset) {
             // if you want change some widgets state ,you should rewrite the callback
         }
 
@@ -61,7 +61,7 @@ namespace ConnectApp.screens {
                         controller: this._refreshController,
                         enablePullDown: true,
                         enablePullUp: true,
-                        onOffsetChange: this._onOffsetCallback,
+                        onOffsetChange: _onOffsetCallback,
                         onRefresh: up => {
                             if (up) {
                                 Promise.Delayed(TimeSpan.FromMilliseconds(1000)).Then(() => {

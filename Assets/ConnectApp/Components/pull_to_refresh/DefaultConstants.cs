@@ -3,12 +3,12 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.components.pull_to_refresh {
     public delegate void OnRefresh(bool up);
 
-    public delegate void OnOffsetChange(bool up, double offset);
+    public delegate void OnOffsetChange(bool up, float offset);
 
     public delegate Widget IndicatorBuilder(BuildContext context, int mode);
 
     public static class DefaultConstants {
-        public const int default_completeDuration = 200;
+        public const int default_completeDuration = 600;
 
         public const float default_refresh_triggerDistance = 56.0f;
 
