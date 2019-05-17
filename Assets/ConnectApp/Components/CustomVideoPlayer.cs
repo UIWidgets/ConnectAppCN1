@@ -57,7 +57,7 @@ namespace ConnectApp.components {
         }
     }
 
-    public class _CustomVideoPlayerState : SingleTickerProviderStateMixin<CustomVideoPlayer> {
+    public class _CustomVideoPlayerState : State<CustomVideoPlayer> {
         VideoPlayer _player = null;
         RenderTexture _texture = null;
         PlayState _playState = PlayState.pause;
@@ -219,9 +219,9 @@ namespace ConnectApp.components {
                                                         this._player.Pause();
                                                         this.setState(() => { });
                                                     }, onDragStart: () => {
+                                                        this.cancelTimer();
                                                         this._isLoaded = false;
                                                         this._player.Pause();
-                                                        this.cancelTimer();
                                                         this.setState(() => { });
                                                     })),
                                             new Container(margin: EdgeInsets.only(left: 8, right: 8), child:
@@ -313,6 +313,9 @@ namespace ConnectApp.components {
                     this._playState = PlayState.stop;
                     _player.Stop();
                     _player.frame = 0;
+                    this.cancelTimer();
+                    this._isHiddenBar = false;
+                    this._isReadyHiddenBar = false;
                     this.setState(() => { });
                 }
             };

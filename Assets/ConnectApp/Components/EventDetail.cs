@@ -15,18 +15,21 @@ namespace ConnectApp.components {
             IEvent eventObj = null,
             Action<string> openUrl = null,
             Action<string> playVideo = null,
+            Widget topWidget = null,
             Key key = null
         ) : base(key) {
             this.eventObj = eventObj;
             this.openUrl = openUrl;
             this.playVideo = playVideo;
             this.isShowImage = isShowImage;
+            this.topWidget = topWidget;
         }
 
         readonly IEvent eventObj;
         readonly bool isShowImage;
         readonly Action<string> openUrl;
         readonly Action<string> playVideo;
+        readonly Widget topWidget;
 
 
         public override Widget build(BuildContext context) {
@@ -34,9 +37,13 @@ namespace ConnectApp.components {
         }
 
         Widget _buildContent(BuildContext context) {
+
             var items = new List<Widget> {
                 this._buildHeadImage(), this._buildContentHead()
             };
+            if (this.topWidget!=null) {
+                items.Insert(0,this.topWidget);
+            }
             items.AddRange(ContentDescription.map(context, this.eventObj.content, this.eventObj.contentMap,
                 this.openUrl, this.playVideo
             ));
@@ -57,18 +64,9 @@ namespace ConnectApp.components {
 
             var imageUrl = this.eventObj.avatar ?? "";
             return new Container(
-                color: CColors.text2,
-                child: new AspectRatio(
-                    aspectRatio: 16.0f / 9.0f,
-                    child: new Stack(
-                        fit: StackFit.expand,
-                        children: new List<Widget> {
-                            new PlaceholderImage(
-                                imageUrl.EndsWith(".gif") ? imageUrl : $"{imageUrl}.1400x0x1.jpg",
-                                fit: BoxFit.cover
-                            )
-                        }
-                    )
+                child: new PlaceholderImage(
+                    imageUrl.EndsWith(".gif") ? imageUrl : $"{imageUrl}.1400x0x1.jpg",
+                    fit: BoxFit.cover
                 )
             );
         }
