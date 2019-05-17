@@ -40,16 +40,13 @@ namespace ConnectApp.screens {
                                 "我的"
                             )
                         },
-                        CColors.White,
+                        backgroundColor: CColors.White,
                         index => {
-                            if (index == 2) {
-                                if (!StoreProvider.store.getState().loginState.isLoggedIn) {
-                                    Navigator.pushNamed(context, MainNavigatorRoutes.Login);
-                                    return false;
-                                }
+                            if (index != 2 || StoreProvider.store.getState().loginState.isLoggedIn) {
+                                return true;
                             }
-
-                            return true;
+                            Navigator.pushNamed(context: context, routeName: MainNavigatorRoutes.Login);
+                            return false;
                         }
                     )
                 )
