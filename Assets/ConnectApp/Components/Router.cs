@@ -8,7 +8,7 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
-namespace ConnectApp.canvas {
+namespace ConnectApp.Components {
     static class MainNavigatorRoutes {
         public const string Root = "/";
         public const string Search = "/search";

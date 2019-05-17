@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using ConnectApp.canvas;
+using ConnectApp.Components;
 using ConnectApp.models;
 using ConnectApp.redux.actions;
 using ConnectApp.screens;
