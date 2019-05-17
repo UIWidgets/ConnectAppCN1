@@ -85,9 +85,9 @@ namespace ConnectApp.components.pull_to_refresh {
                     width: 235,
                     height: 40
                 ),
-                firstCurve: Curves.easeIn,
-                duration: TimeSpan.FromMilliseconds(400),
-                crossFadeState: crossFadeState
+                duration: TimeSpan.FromMilliseconds(500),
+                crossFadeState: crossFadeState,
+                alignment: Alignment.center
             );
             return new Container(
                 height: 56.0f,
