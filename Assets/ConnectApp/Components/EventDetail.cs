@@ -37,13 +37,13 @@ namespace ConnectApp.components {
         }
 
         Widget _buildContent(BuildContext context) {
-
             var items = new List<Widget> {
                 this._buildHeadImage(), this._buildContentHead()
             };
-            if (this.topWidget!=null) {
-                items.Insert(0,this.topWidget);
+            if (this.topWidget != null) {
+                items.Insert(0, this.topWidget);
             }
+
             items.AddRange(ContentDescription.map(context, this.eventObj.content, this.eventObj.contentMap,
                 this.openUrl, this.playVideo
             ));
@@ -64,9 +64,12 @@ namespace ConnectApp.components {
 
             var imageUrl = this.eventObj.avatar ?? "";
             return new Container(
-                child: new PlaceholderImage(
-                    imageUrl.EndsWith(".gif") ? imageUrl : $"{imageUrl}.1400x0x1.jpg",
-                    fit: BoxFit.cover
+                child: new AspectRatio(
+                    aspectRatio: 16.0f / 9.0f,
+                    child: new PlaceholderImage(
+                        imageUrl.EndsWith(".gif") ? imageUrl : $"{imageUrl}.1400x0x1.jpg",
+                        fit: BoxFit.cover
+                    )
                 )
             );
         }
