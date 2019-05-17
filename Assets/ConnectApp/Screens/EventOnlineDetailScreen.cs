@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.components;
-using ConnectApp.Components;
 using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
+using ConnectApp.Components;
 using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
@@ -13,8 +13,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -157,15 +157,27 @@ namespace ConnectApp.screens {
                     bottom: !this._isFullScreen,
                     child: new Container(
                         color: this._isFullScreen ? CColors.Black : CColors.White,
-                        child: new Column(
-                            children: new List<Widget> {
-                                this._buildEventHeader(eventObj, EventType.online, eventStatus,
-                                    this.widget.viewModel.isLoggedIn),
-                                this._buildEventDetail(context, eventObj, EventType.online, eventStatus,
-                                    this.widget.viewModel.isLoggedIn),
-                                this._buildEventBottom(eventObj, EventType.online, eventStatus,
-                                    this.widget.viewModel.isLoggedIn)
-                            }
+                        child: new NotificationListener<ScrollNotification>(
+                            onNotification: notification => {
+                                if (eventStatus == EventStatus.past && eventObj.record.isEmpty()) {
+                                    var pixels = notification.metrics.pixels;
+                                    this._showNavBarShadow = !(pixels >= 44);
+                                    this.setState(() => { });
+                                    return true;
+                                }
+
+                                return false;
+                            },
+                            child: new Column(
+                                children: new List<Widget> {
+                                    this._buildEventHeader(eventObj, EventType.online, eventStatus,
+                                        this.widget.viewModel.isLoggedIn),
+                                    this._buildEventDetail(context, eventObj, EventType.online, eventStatus,
+                                        this.widget.viewModel.isLoggedIn),
+                                    this._buildEventBottom(eventObj, EventType.online, eventStatus,
+                                        this.widget.viewModel.isLoggedIn)
+                                }
+                            )
                         )
                     )
                 )
@@ -278,9 +290,10 @@ namespace ConnectApp.screens {
                 );
             }
 
-            if (eventStatus == EventStatus.past &&eventObj.record.isEmpty()) {
+            if (eventStatus == EventStatus.past && eventObj.record.isEmpty()) {
                 return new Container();
             }
+
             return new Stack(
                 children: new List<Widget> {
                     new EventHeader(eventObj, eventType, eventStatus, isLoggedIn),
@@ -296,10 +309,11 @@ namespace ConnectApp.screens {
 
         Widget _buildEventDetail(BuildContext context, IEvent eventObj, EventType eventType, EventStatus eventStatus,
             bool isLoggedIn) {
-            if (eventObj.record.isEmpty()&&eventStatus == EventStatus.past) {
+            if (eventObj.record.isEmpty() && eventStatus == EventStatus.past) {
                 return new Expanded(
-                    child: new Stack(children:new List<Widget> {
-                            new EventDetail(false, eventObj, this.widget.actionModel.openUrl,topWidget:new EventHeader(eventObj, eventType, eventStatus, isLoggedIn)),
+                    child: new Stack(children: new List<Widget> {
+                            new EventDetail(false, eventObj, this.widget.actionModel.openUrl,
+                                topWidget: new EventHeader(eventObj, eventType, eventStatus, isLoggedIn)),
                             new Positioned(
                                 left: 0,
                                 top: 0,
@@ -310,6 +324,7 @@ namespace ConnectApp.screens {
                     )
                 );
             }
+
             return new Expanded(
                 child: new EventDetail(false, eventObj, this.widget.actionModel.openUrl)
             );
