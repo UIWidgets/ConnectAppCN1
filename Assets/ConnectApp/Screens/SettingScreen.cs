@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.canvas;
 using ConnectApp.components;
+using ConnectApp.Components;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
@@ -68,9 +68,7 @@ namespace ConnectApp.screens {
     public class _SettingScreenState : State<SettingScreen> {
         public override void initState() {
             base.initState();
-            SchedulerBinding.instance.addPostFrameCallback(_ => {
-                this.widget.actionModel.fetchReviewUrl();
-            });
+            SchedulerBinding.instance.addPostFrameCallback(_ => { this.widget.actionModel.fetchReviewUrl(); });
         }
 
         public override Widget build(BuildContext context) {

@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using ConnectApp.canvas;
+using ConnectApp.Components;
 using ConnectApp.constants;
 using ConnectApp.plugins;
 using Unity.UIWidgets.foundation;

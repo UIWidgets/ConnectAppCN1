@@ -1,4 +1,5 @@
 using ConnectApp.components;
+using ConnectApp.Components;
 using ConnectApp.models;
 using ConnectApp.plugins;
 using ConnectApp.redux;
@@ -8,12 +9,18 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
-namespace ConnectApp.canvas {
-    public sealed class ConnectAppCanvas : UIWidgetsPanel {
+namespace ConnectApp.Main {
+    public sealed class ConnectAppPanel : UIWidgetsPanel {
         protected override void OnEnable() {
             base.OnEnable();
             Screen.fullScreen = false;
             Application.targetFrameRate = 60;
+            LoadFonts();
+            VideoPlayerManager.instance.initPlayer(this.gameObject);
+            WebViewManager.instance.initWebView(this.gameObject);
+        }
+
+        static void LoadFonts() {
             FontManager.instance.addFont(Resources.Load<Font>("font/Material Icons"), "Material Icons");
             FontManager.instance.addFont(Resources.Load<Font>("font/Roboto-Regular"), "Roboto-Regular");
             FontManager.instance.addFont(Resources.Load<Font>("font/Roboto-Medium"), "Roboto-Medium");
@@ -23,8 +30,6 @@ namespace ConnectApp.canvas {
             FontManager.instance.addFont(Resources.Load<Font>("font/PingFangSC-Semibold"), "PingFangSC-Semibold");
             FontManager.instance.addFont(Resources.Load<Font>("font/Menlo-Regular"), "Menlo");
             FontManager.instance.addFont(Resources.Load<Font>("font/iconFont"), "iconfont");
-            VideoPlayerManager.instance.initPlayer(this.gameObject);
-            WebViewManager.instance.initWebView(this.gameObject);
         }
 
         protected override void Update() {
@@ -36,7 +41,7 @@ namespace ConnectApp.canvas {
 
         protected override Widget createWidget() {
             return new StoreProvider<AppState>(
-                StoreProvider.store,
+                store: StoreProvider.store,
                 new WidgetsApp(
                     home: new VersionUpdater(
                         new Router()
@@ -50,7 +55,7 @@ namespace ConnectApp.canvas {
             get {
                 return (settings, builder) =>
                     new PageRouteBuilder(
-                        settings,
+                        settings: settings,
                         (context, animation, secondaryAnimation) => builder(context)
                     );
             }
