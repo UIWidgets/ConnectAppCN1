@@ -26,6 +26,7 @@ using System.Text.RegularExpressions;
 using System;
 using System.Runtime.InteropServices;
 using UnityEngine;
+using UnityEngine.Networking;
 using Callback = System.Action<string>;
 
 #if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
@@ -706,7 +707,7 @@ public class WebViewObject : MonoBehaviour {
     public void CallFromJS(string message) {
         if (this.onJS != null) {
 #if !UNITY_ANDROID
-            message = WWW.UnEscapeURL(message);
+            message = UnityWebRequest.UnEscapeURL(message);
 #endif
             this.onJS(message);
         }
