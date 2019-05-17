@@ -3,6 +3,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.physics;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 
 namespace ConnectApp.components.pull_to_refresh {
     public class RefreshScrollPhysics : ScrollPhysics {
@@ -15,8 +16,8 @@ namespace ConnectApp.components.pull_to_refresh {
 
         public readonly bool enableOverScroll;
 
-        double frictionFactor(double overscrollFraction) {
-            return 0.52 * Math.Pow(1 - overscrollFraction, 2);
+        static float frictionFactor(float overScrollFraction) {
+            return 0.52f * Mathf.Pow(1 - overScrollFraction, 2);
         }
 
         public override ScrollPhysics applyTo(ScrollPhysics ancestor) {
@@ -36,30 +37,25 @@ namespace ConnectApp.components.pull_to_refresh {
                 return offset;
             }
 
-            double overscrollPastStart =
-                Math.Max(position.minScrollExtent - position.pixels, 0.0);
-            double overscrollPastEnd =
-                Math.Max(position.pixels - position.maxScrollExtent, 0.0);
-            double overscrollPast =
-                Math.Max(overscrollPastStart, overscrollPastEnd);
-            bool easing = (overscrollPastStart > 0.0 && offset < 0.0) ||
-                          (overscrollPastEnd > 0.0 && offset > 0.0);
+            var overScrollPastStart = Math.Max(position.minScrollExtent - position.pixels, 0.0f);
+            var overScrollPastEnd = Math.Max(position.pixels - position.maxScrollExtent, 0.0f);
+            var overScrollPast = Mathf.Max(overScrollPastStart, overScrollPastEnd);
+            bool easing = (overScrollPastStart > 0.0 && offset < 0.0) ||
+                          (overScrollPastEnd > 0.0 && offset > 0.0);
 
-            double friction = easing
-                // Apply less resistance when easing the overscroll vs tensioning.
-                ? this.frictionFactor(
-                    (overscrollPast - offset.abs()) / position.viewportDimension)
-                : this.frictionFactor(overscrollPast / position.viewportDimension);
+            var friction = easing
+                ? frictionFactor(
+                    (overScrollPast - offset.abs()) / position.viewportDimension)
+                : frictionFactor(overScrollPast / position.viewportDimension);
             float direction = offset.sign();
-            return direction * _applyFriction(overscrollPast, offset.abs(), friction);
+            return direction * _applyFriction(overScrollPast, offset.abs(), friction);
         }
 
-        static float _applyFriction(
-            double extentOutside, double absDelta, double gamma) {
+        static float _applyFriction(float extentOutside, float absDelta, float gamma) {
             D.assert(absDelta > 0);
-            double total = 0.0f;
+            var total = 0.0f;
             if (extentOutside > 0) {
-                double deltaToLimit = extentOutside / gamma;
+                var deltaToLimit = extentOutside / gamma;
                 if (absDelta < deltaToLimit) {
                     return float.Parse((absDelta * gamma).ToString());
                 }
@@ -74,26 +70,22 @@ namespace ConnectApp.components.pull_to_refresh {
         public override float applyBoundaryConditions(ScrollMetrics position, float value) {
             if (!this.enableOverScroll) {
                 if (value < position.pixels &&
-                    position.pixels <= position.minScrollExtent) // underscroll
-                {
+                    position.pixels <= position.minScrollExtent) {
                     return value - position.pixels;
                 }
 
                 if (value < position.minScrollExtent &&
-                    position.minScrollExtent < position.pixels) // hit top edge
-                {
+                    position.minScrollExtent < position.pixels) {
                     return value - position.minScrollExtent;
                 }
 
                 if (position.maxScrollExtent <= position.pixels &&
-                    position.pixels < value) // overscroll
-                {
+                    position.pixels < value) {
                     return value - position.pixels;
                 }
 
                 if (position.pixels < position.maxScrollExtent &&
-                    position.maxScrollExtent < value) // hit bottom edge
-                {
+                    position.maxScrollExtent < value) {
                     return value - position.maxScrollExtent;
                 }
             }
@@ -107,8 +99,7 @@ namespace ConnectApp.components.pull_to_refresh {
                 return new BouncingScrollSimulation(
                     spring: this.spring,
                     position: position.pixels,
-                    velocity: velocity *
-                              0.91f, // TODO(abarth): We should move this constant closer to the drag end.
+                    velocity: velocity * 0.91f,
                     leadingExtent: position.minScrollExtent,
                     trailingExtent: position.maxScrollExtent,
                     tolerance: tolerance

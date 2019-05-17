@@ -74,7 +74,8 @@ namespace ConnectApp.components.pull_to_refresh {
             float visibleRange = DefaultConstants.default_VisibleRange,
             IndicatorBuilder builder = null,
             float triggerDistance = 0,
-            Key key = null) : base(modeListener, up, builder, triggerDistance, key) {
+            Key key = null
+        ) : base(modeListener, up, builder, triggerDistance, key) {
             this.completeDuration = completeDuration;
             this.onOffsetChange = onOffsetChange;
             this.visibleRange = visibleRange;
@@ -137,7 +138,7 @@ namespace ConnectApp.components.pull_to_refresh {
             get { return this.widget.modeListener.value; }
         }
 
-        double _measure(ScrollNotification notification) {
+        float _measure(ScrollNotification notification) {
             if (this.widget.up) {
                 return (notification.metrics.minScrollExtent -
                         notification.metrics.pixels) / this.widget.triggerDistance;
@@ -156,7 +157,6 @@ namespace ConnectApp.components.pull_to_refresh {
         }
 
         public void onDragMove(ScrollUpdateNotification notification) {
-            // TODO: implement onDragMove
             if (!this.widget._isScrollToOutSide(notification)) {
                 return;
             }
@@ -165,7 +165,7 @@ namespace ConnectApp.components.pull_to_refresh {
                 return;
             }
 
-            double offset = this._measure(notification);
+            var offset = this._measure(notification);
             if (offset >= 1.0) {
                 this.widget.mode = RefreshStatus.canRefresh;
             }
@@ -234,7 +234,8 @@ namespace ConnectApp.components.pull_to_refresh {
             bool autoLoad = true,
             IndicatorBuilder builder = null,
             float triggerDistance = 0,
-            Key key = null) : base(modeListener, up, builder, triggerDistance, key) {
+            Key key = null
+        ) : base(modeListener, up, builder, triggerDistance, key) {
             this.autoLoad = autoLoad;
         }
 

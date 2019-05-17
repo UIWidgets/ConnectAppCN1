@@ -5,6 +5,7 @@ using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 
 namespace ConnectApp.components.pull_to_refresh {
     public static class RefreshStatus {
@@ -32,10 +33,10 @@ namespace ConnectApp.components.pull_to_refresh {
             Key key = null
         ) : base(key) {
             this.child = child;
-            this.headerBuilder = headerBuilder ?? ((context, mode) => new SmartRefreshHeader(mode));
+            this.headerBuilder = headerBuilder ?? ((context, mode) => new SmartRefreshHeader(mode, RefreshHeaderType.other));
             this.footerBuilder = footerBuilder ?? ((context, mode) => new SmartRefreshFooter(mode));
             this.headerConfig = headerConfig ?? new RefreshConfig();
-            this.footerConfig = footerConfig ?? new RefreshConfig(triggerDistance: 0);
+            this.footerConfig = footerConfig ?? new LoadConfig(triggerDistance: 0);
             this.enablePullUp = enablePullUp;
             this.enablePullDown = enablePullDown;
             this.enableOverScroll = enableOverScroll;
@@ -68,7 +69,7 @@ namespace ConnectApp.components.pull_to_refresh {
         // This method will callback when the indicator changes from edge to edge.
         public readonly OnOffsetChange onOffsetChange;
 
-        //controll inner state
+        //controller inner state
         public readonly RefreshController controller;
 
 
@@ -88,8 +89,8 @@ namespace ConnectApp.components.pull_to_refresh {
         readonly ValueNotifier<int> bottomModeLis = new ValueNotifier<int>(0);
 
         bool _handleScrollStart(ScrollStartNotification notification) {
-            // This is used to interupt useless callback when the pull up load rolls back.
-            if ((notification.metrics.outOfRange())) {
+            // This is used to interrupt useless callback when the pull up load rolls back.
+            if (notification.metrics.outOfRange()) {
                 return false;
             }
 
@@ -140,7 +141,7 @@ namespace ConnectApp.components.pull_to_refresh {
 
         bool _dispatchScrollEvent(ScrollNotification notification) {
             // when is scroll in the ScrollInside,nothing to do
-            if ((!_isPullUp(notification) && !_isPullDown(notification))) {
+            if (!_isPullUp(notification) && !_isPullDown(notification)) {
                 return false;
             }
 
@@ -155,7 +156,7 @@ namespace ConnectApp.components.pull_to_refresh {
                 if (startNotification.dragDetails == null) {
                     return this._handleScrollEnd(notification);
                 }
-                else if (startNotification.dragDetails != null) {
+                if (startNotification.dragDetails != null) {
                     return this._handleScrollMoving(startNotification);
                 }
             }
@@ -171,7 +172,6 @@ namespace ConnectApp.components.pull_to_refresh {
             return notification.metrics.pixels < 0;
         }
 
-        //check user is pulling down
         static bool _isPullDown(ScrollNotification notification) {
             return notification.metrics.pixels > 0;
         }
@@ -203,45 +203,45 @@ namespace ConnectApp.components.pull_to_refresh {
         }
 
         void _handleOffsetCallback() {
-            double overscrollPastStart = Math.Max(this._scrollController.position.minScrollExtent -
+            var overScrollPastStart = Mathf.Max(this._scrollController.position.minScrollExtent -
                                                   this._scrollController.position.pixels +
                                                   (this.widget.headerConfig is RefreshConfig &&
                                                    (this.topModeLis.value == RefreshStatus.refreshing ||
                                                     this.topModeLis.value == RefreshStatus.completed ||
                                                     this.topModeLis.value == RefreshStatus.failed)
                                                       ? (this.widget.headerConfig as RefreshConfig).visibleRange
-                                                      : 0.0),
-                0.0);
-            double overscrollPastEnd = Math.Max(this._scrollController.position.pixels -
+                                                      : 0.0f),
+                0.0f);
+            var overScrollPastEnd = Mathf.Max(this._scrollController.position.pixels -
                                                 this._scrollController.position.maxScrollExtent +
                                                 (this.widget.footerConfig is RefreshConfig &&
                                                  (this.bottomModeLis.value == RefreshStatus.refreshing ||
                                                   this.bottomModeLis.value == RefreshStatus.completed ||
                                                   this.bottomModeLis.value == RefreshStatus.failed)
                                                     ? (this.widget.footerConfig as RefreshConfig).visibleRange
-                                                    : 0.0),
-                0.0);
-            if (overscrollPastStart > overscrollPastEnd) {
+                                                    : 0.0f),
+                0.0f);
+            if (overScrollPastStart > overScrollPastEnd) {
                 if (this.widget.headerConfig is RefreshConfig) {
                     if (this.widget.onOffsetChange != null) {
-                        this.widget.onOffsetChange(true, overscrollPastStart);
+                        this.widget.onOffsetChange(true, overScrollPastStart);
                     }
                 }
                 else {
                     if (this.widget.onOffsetChange != null) {
-                        this.widget.onOffsetChange(true, overscrollPastStart);
+                        this.widget.onOffsetChange(true, overScrollPastStart);
                     }
                 }
             }
-            else if (overscrollPastEnd > 0) {
+            else if (overScrollPastEnd > 0) {
                 if (this.widget.footerConfig is RefreshConfig) {
                     if (this.widget.onOffsetChange != null) {
-                        this.widget.onOffsetChange(false, overscrollPastEnd);
+                        this.widget.onOffsetChange(false, overScrollPastEnd);
                     }
                 }
                 else {
                     if (this.widget.onOffsetChange != null) {
-                        this.widget.onOffsetChange(false, overscrollPastEnd);
+                        this.widget.onOffsetChange(false, overScrollPastEnd);
                     }
                 }
             }
