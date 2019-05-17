@@ -290,16 +290,16 @@ namespace ConnectApp.components {
                     Texture.textureFrameAvailable();
                     if (this._relative * source.frameCount < frameIndex || frameIndex == 0) {
                         this._isLoaded = true;
+                        if (!this._isHiddenBar && !this._isReadyHiddenBar) {
+                            this._isReadyHiddenBar = true;
+                            this._hiddenBar();
+                        }
                     }
 
                     this._relative = (float) frameIndex / source.frameCount;
                     this._isFailure = false;
                     if (this._playState == PlayState.play) {
                         this._player.Play();
-                        if (!this._isHiddenBar && !this._isReadyHiddenBar) {
-                            this._isReadyHiddenBar = true;
-                            this._hiddenBar();
-                        }
                     }
 
                     if (frameIndex == 0) {
