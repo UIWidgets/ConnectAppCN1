@@ -1,4 +1,6 @@
+using System;
 using ConnectApp.constants;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
@@ -35,15 +37,20 @@ namespace ConnectApp.components.pull_to_refresh {
         }
 
         Widget _buildActivityIndicator() {
-            AnimatingType animatingType = AnimatingType.stop;
-            if (this.mode == 0) {
-                animatingType = AnimatingType.reset;
-            }
-            if (this.mode == 2) {
-                animatingType = AnimatingType.repeat;
-            }
-            if (this.mode == 3) {
-                animatingType = AnimatingType.stop;
+            AnimatingType animatingType;
+            switch (this.mode) {
+                case RefreshStatus.idle:
+                    animatingType = AnimatingType.reset;
+                    break;
+                case RefreshStatus.refreshing:
+                    animatingType = AnimatingType.repeat;
+                    break;
+                case RefreshStatus.completed:
+                    animatingType = AnimatingType.stop;
+                    break;
+                default:
+                    animatingType = AnimatingType.stop;
+                    break;
             }
             return new Container(
                 height: 56.0f,
@@ -54,23 +61,34 @@ namespace ConnectApp.components.pull_to_refresh {
         }
         
         Widget _buildOther() {
-            Widget child = new Container();
+            CrossFadeState? crossFadeState = null;
+            string refreshText = "";
             if (this.mode == 0 || this.mode == 1) {
-                child = _buildText("探索新鲜内容");
+                refreshText = "探索新鲜内容";
+                crossFadeState = CrossFadeState.showFirst;
             }
             if (this.mode == 2) {
-                child = Image.asset(
+                crossFadeState = CrossFadeState.showSecond;
+            }
+            if (this.mode == 3) {
+                refreshText = "刷新成功";
+                crossFadeState = CrossFadeState.showFirst;
+            }
+            if (this.mode == 4) {
+                refreshText = "刷新失败";
+                crossFadeState = CrossFadeState.showFirst;
+            }
+            Widget child = new AnimatedCrossFade(
+                firstChild: _buildText(text: refreshText),
+                secondChild: Image.asset(
                     "image/loading.gif",
                     width: 235,
                     height: 40
-                );
-            }
-            if (this.mode == 3) {
-                child = _buildText("刷新成功");
-            }
-            if (this.mode == 4) {
-                child = _buildText("刷新失败");
-            }
+                ),
+                duration: TimeSpan.FromMilliseconds(500),
+                crossFadeState: crossFadeState,
+                alignment: Alignment.center
+            );
             return new Container(
                 height: 56.0f,
                 alignment: Alignment.center,
