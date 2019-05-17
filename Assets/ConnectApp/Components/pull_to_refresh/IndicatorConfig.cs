@@ -20,8 +20,6 @@ namespace ConnectApp.components.pull_to_refresh {
         }
 
         public readonly int completeDuration;
-
-        // emptySpace height
         public readonly float visibleRange;
     }
 
@@ -38,10 +36,7 @@ namespace ConnectApp.components.pull_to_refresh {
         }
 
         public readonly bool autoLoad;
-
-        // Whether the interface is at the bottom when the interface is loaded
         public readonly bool bottomWhenBuild;
-
         public readonly bool enableOverScroll;
     }
 }
