@@ -11,29 +11,31 @@ namespace ConnectApp.components.pull_to_refresh {
             int mode,
             EdgeInsets padding = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.mode = mode;
             this.padding = padding ?? EdgeInsets.symmetric(16.0f);
         }
 
         public override Widget build(BuildContext context) {
-            if (this.mode == 0) {
+            if (this.mode == RefreshStatus.idle) {
                 return new Container(height: DefaultConstants.default_VisibleRange);
             }
 
-            AnimatingType animatingType = AnimatingType.stop;
-            if (this.mode == 2) {
-                animatingType = AnimatingType.repeat;
+            AnimatingType animatingType;
+            switch (this.mode) {
+                case RefreshStatus.idle:
+                    animatingType = AnimatingType.reset;
+                    break;
+                case RefreshStatus.refreshing:
+                    animatingType = AnimatingType.repeat;
+                    break;
+                case RefreshStatus.completed:
+                    animatingType = AnimatingType.stop;
+                    break;
+                default:
+                    animatingType = AnimatingType.stop;
+                    break;
             }
-
-            if (this.mode == 3) {
-                animatingType = AnimatingType.stop;
-            }
-
-            if (this.mode == 0) {
-                animatingType = AnimatingType.reset;
-            }
-
             return new Container(
                 padding: this.padding,
                 child: new CustomActivityIndicator(
