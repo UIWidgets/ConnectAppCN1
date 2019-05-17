@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.canvas;
+using ConnectApp.Components;
 using ConnectApp.constants;
 using RSG;
 using Unity.UIWidgets.animation;

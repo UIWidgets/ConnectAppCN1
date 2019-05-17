@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using ConnectApp.canvas;
 using ConnectApp.components;
+using ConnectApp.Components;
 using ConnectApp.constants;
 using ConnectApp.redux;
 using Unity.UIWidgets.widgets;
