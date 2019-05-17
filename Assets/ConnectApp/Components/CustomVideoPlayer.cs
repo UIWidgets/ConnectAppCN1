@@ -288,15 +288,18 @@ namespace ConnectApp.components {
             player.frameReady += (source, frameIndex) => {
                 using (WindowProvider.of(this.widget.context).getScope()) {
                     Texture.textureFrameAvailable();
-                    this._relative = (float) frameIndex / source.frameCount;
-                    this._isLoaded = true;
-                    this._isFailure = false;
-                    if (this._playState == PlayState.play) {
-                        this._player.Play();
+                    if (this._relative * source.frameCount < frameIndex || frameIndex == 0) {
+                        this._isLoaded = true;
                         if (!this._isHiddenBar && !this._isReadyHiddenBar) {
                             this._isReadyHiddenBar = true;
                             this._hiddenBar();
                         }
+                    }
+
+                    this._relative = (float) frameIndex / source.frameCount;
+                    this._isFailure = false;
+                    if (this._playState == PlayState.play) {
+                        this._player.Play();
                     }
 
                     if (frameIndex == 0) {
