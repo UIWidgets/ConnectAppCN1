@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using ConnectApp.api;
 using ConnectApp.models;
+using ConnectApp.plugins;
 using ConnectApp.utils;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
@@ -69,6 +70,8 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new MainNavigatorPopAction());
                         dispatcher.dispatch(new CleanEmailAndPasswordAction());
                         UserInfoManager.saveUserInfo(loginInfo);
+                        JAnalyticsPlugin.login("email");
+                        JPushPlugin.setJPushAlias(loginInfo.userId);
                     });
             });
         }
@@ -90,7 +93,8 @@ namespace ConnectApp.redux.actions {
                             loginInfo = loginInfo
                         });
                         UserInfoManager.saveUserInfo(loginInfo);
-//                        dispatcher.dispatch(new MainNavigatorPopAction());
+                        JAnalyticsPlugin.login("wechat");
+                        JPushPlugin.setJPushAlias(loginInfo.userId);
                     });
             });
         }

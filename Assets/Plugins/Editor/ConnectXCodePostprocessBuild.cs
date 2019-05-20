@@ -61,19 +61,26 @@ namespace Plugins.Editor {
             PlistElementArray urlTypes = rootDict.CreateArray("CFBundleURLTypes");
             
             // Add URLScheme For Wechat
-            var wechat_appid = Config.wechatAppId;
             PlistElementDict wxUrl = urlTypes.AddDict();
             wxUrl.SetString("CFBundleTypeRole", "Editor");
             wxUrl.SetString("CFBundleURLName", "weixin");
-            wxUrl.SetString("CFBundleURLSchemes", val: wechat_appid);
+            wxUrl.SetString("CFBundleURLSchemes", val: Config.wechatAppId);
             PlistElementArray wxUrlScheme = wxUrl.CreateArray("CFBundleURLSchemes");
-            wxUrlScheme.AddString(val: wechat_appid);
+            wxUrlScheme.AddString(val: Config.wechatAppId);
+            
+            // Add URLScheme For jiguang
+            PlistElementDict jgUrl = urlTypes.AddDict();
+            jgUrl.SetString("CFBundleTypeRole", "Editor");
+            jgUrl.SetString("CFBundleURLName", "jiguang");
+            jgUrl.SetString("CFBundleURLSchemes", val: "jiguang-"+Config.jgAppKey);
+            PlistElementArray jgUrlScheme = jgUrl.CreateArray("CFBundleURLSchemes");
+            jgUrlScheme.AddString(val: "jiguang-"+Config.jgAppKey);
             
             // 白名单 for wechat
             PlistElementArray queriesSchemes = rootDict.CreateArray("LSApplicationQueriesSchemes");
             queriesSchemes.AddString("wechat");
             queriesSchemes.AddString("weixin");
-            queriesSchemes.AddString(val: wechat_appid);
+            queriesSchemes.AddString(val: Config.wechatAppId);
 
             // HTTP 设置
             const string atsKey = "NSAppTransportSecurity";

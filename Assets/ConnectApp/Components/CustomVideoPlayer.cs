@@ -245,20 +245,6 @@ namespace ConnectApp.components {
                         )
                 })
             );
-
-            if (Application.platform == RuntimePlatform.Android) {
-                return new AnimatedContainer(
-                    duration: TimeSpan.FromMilliseconds(150),
-                    width: this._isFullScreen
-                        ? MediaQuery.of(context).size.height * 16 / 9
-                        : MediaQuery.of(context).size.width,
-                    height: this._isFullScreen
-                        ? MediaQuery.of(context).size.height
-                        : MediaQuery.of(context).size.width * 9 / 16,
-                    child: content
-                );
-            }
-
             return new Container(
                 width: this._isFullScreen
                     ? MediaQuery.of(context).size.height * 16 / 9

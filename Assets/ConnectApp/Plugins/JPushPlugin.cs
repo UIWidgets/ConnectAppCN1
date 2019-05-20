@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using ConnectApp.constants;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using EventType = ConnectApp.models.EventType;
@@ -17,6 +19,7 @@ namespace ConnectApp.plugins {
             if (!isListen) {
                 UIWidgetsMessageManager.instance.AddChannelMessageDelegate("jpush", _handleMethodCall);
                 completed();
+                setChannel(Config.store);
                 isListen = true;
             }
         }
@@ -55,19 +58,29 @@ namespace ConnectApp.plugins {
         }
 
         public static void setJPushChannel(string channel) {
+            if (channel.isEmpty()) return;
             setChannel(channel);
+        }
+        
+        public static void setJPushAlias(string alias) {
+            if (alias.isEmpty()) return;
+            setAlias(alias);
         }
 
 
 #if UNITY_IOS
 
         [DllImport("__Internal")]
-        internal static extern void listenCompleted();
+        static extern void listenCompleted();
 
         [DllImport("__Internal")]
-        internal static extern void setChannel(string channel);
+        static extern void setChannel(string channel);
+        
+        [DllImport("__Internal")]
+        static extern void setAlias(string alias);
 
 #elif UNITY_ANDROID
+        
         static void listenCompleted() {
             using (
                 AndroidJavaClass managerClass = new AndroidJavaClass("com.unity3d.unityconnect.plugins.JPushPlugin")
@@ -90,6 +103,20 @@ namespace ConnectApp.plugins {
                 }
             }
         }
+        
+        static void setAlias(string alias) {
+            using (
+                AndroidJavaClass managerClass = new AndroidJavaClass("com.unity3d.unityconnect.plugins.JPushPlugin")
+            ) {
+                using (
+                    AndroidJavaObject managerInstance = managerClass.CallStatic<AndroidJavaObject>("getInstance")
+                ) {
+                    managerInstance.Call("setAlias",alias);
+                }
+            }
+        }
+
+        
 
 #else
         public static void listenCompleted() {}
