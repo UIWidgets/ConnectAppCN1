@@ -10,6 +10,7 @@
 #include "WXApi.h"
 #import "JPUSHService.h"
 #import "JPushEventCache.h"
+#import "JANALYTICSService.h"
 #import <UserNotifications/UserNotifications.h>
 #include "UIWidgetsMessageManager.h"
 
@@ -29,6 +30,12 @@ IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
     [JPUSHService setupWithOption:launchOptions appKey:@"a50eff2d99416a0495f02766" channel:@"appstore" apsForProduction:YES];
     [JPUSHService setBadge:0];
     [JPUSHService setLogOFF];
+    
+    JANALYTICSLaunchConfig * config = [[JANALYTICSLaunchConfig alloc] init];
+    config.appKey = @"a50eff2d99416a0495f02766";
+    config.channel = @"appstore";
+    [JANALYTICSService setupWithConfig:config];
+    [JANALYTICSService crashLogON];
 
     return YES;
 }
@@ -56,6 +63,9 @@ IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
 
 - (BOOL)application:(UIApplication*)app openURL:(NSURL*)url options:(NSDictionary<NSString*, id>*)options
 {
+    if ([JANALYTICSService handleUrl:url]) {
+        return YES;
+    }
     return [WXApi handleOpenURL:url delegate:self];
 }
 

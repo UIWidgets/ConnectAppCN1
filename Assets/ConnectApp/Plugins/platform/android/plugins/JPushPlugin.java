@@ -34,4 +34,7 @@ public class JPushPlugin {
         JPushInterface.setChannel(context, channel);
     }
 
+    public void setAlias(String alias){
+        JPushInterface.setAlias(context,0, alias);
+    }
 }
