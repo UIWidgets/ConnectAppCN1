@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.widgets;
@@ -86,7 +85,6 @@ namespace ConnectApp.plugins {
             return false;
         }
 #if UNITY_IOS
-
         [DllImport("__Internal")]
         internal static extern void loginWechat(string stateId);
 
@@ -100,56 +98,42 @@ namespace ConnectApp.plugins {
         internal static extern void toTimeline(string title, string description, string url, string imageBytes);
 
 #elif UNITY_ANDROID
+
+        static AndroidJavaObject _plugin;
+
+        static AndroidJavaObject Plugin() {
+            if (_plugin == null) {
+                using (
+                    AndroidJavaClass managerClass =
+                        new AndroidJavaClass("com.unity3d.unityconnect.plugins.WechatPlugin")
+                ) {
+                    _plugin = managerClass.CallStatic<AndroidJavaObject>("getInstance");
+                }
+            }
+
+            return _plugin;
+        }
+
         static void loginWechat(string stateId) {
-            using (
-                AndroidJavaClass managerClass = new AndroidJavaClass("com.unity3d.unityconnect.plugins.WechatPlugin")
-            ) {
-                using (
-                    AndroidJavaObject managerInstance = managerClass.CallStatic<AndroidJavaObject>("getInstance")
-                ) {
-                    managerInstance.Call("loginWechat", stateId);
-                }
-            }
+            Plugin().Call("loginWechat", stateId);
         }
-        static bool isInstallWechat()
-        {
-            using (
-                AndroidJavaClass managerClass = new AndroidJavaClass("com.unity3d.unityconnect.plugins.WechatPlugin")
-            ) {
-                using (
-                    AndroidJavaObject managerInstance = managerClass.CallStatic<AndroidJavaObject>("getInstance")
-                ) {
-                   return managerInstance.Call<bool>("isInstallWechat");
-                }
-            }
+
+        static bool isInstallWechat() {
+            return Plugin().Call<bool>("isInstallWechat");
         }
-        static void toFriends(string title, string description, string url,string imageBytes) {
-            using (
-                AndroidJavaClass managerClass = new AndroidJavaClass("com.unity3d.unityconnect.plugins.WechatPlugin")
-            ) {
-                using (
-                    AndroidJavaObject managerInstance = managerClass.CallStatic<AndroidJavaObject>("getInstance")
-                ) {
-                    managerInstance.Call("shareToFriends",title,description,url,imageBytes);
-                }
-            }
+
+        static void toFriends(string title, string description, string url, string imageBytes) {
+            Plugin().Call("shareToFriends", title, description, url, imageBytes);
         }
-        static void toTimeline(string title, string description, string url,string imageBytes) {
-            using (
-                AndroidJavaClass managerClass = new AndroidJavaClass("com.unity3d.unityconnect.plugins.WechatPlugin")
-            ) {
-                using (
-                    AndroidJavaObject managerInstance = managerClass.CallStatic<AndroidJavaObject>("getInstance")
-                ) {
-                    managerInstance.Call("shareToTimeline",title,description,url,imageBytes);
-                }
-            }
+
+        static void toTimeline(string title, string description, string url, string imageBytes) {
+            Plugin().Call("shareToTimeline", title, description, url, imageBytes);
         }
 #else
-        public static bool isInstallWechat() {return true;}
-        public static void loginWechat(string stateId) {}
-        public static void toFriends(string title, string description, string url,string imageBytes) {}
-        public static void toTimeline(string title, string description, string url,string imageBytes) {}
+        static bool isInstallWechat() {return true;}
+        static void loginWechat(string stateId) {}
+        static void toFriends(string title, string description, string url,string imageBytes) {}
+        static void toTimeline(string title, string description, string url,string imageBytes) {}
 #endif
     }
 }

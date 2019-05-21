@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using ConnectApp.constants;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
@@ -19,7 +18,7 @@ namespace ConnectApp.plugins {
             if (!isListen) {
                 UIWidgetsMessageManager.instance.AddChannelMessageDelegate("jpush", _handleMethodCall);
                 completed();
-                setChannel(Config.store);
+                setJPushChannel(Config.store);
                 isListen = true;
             }
         }
@@ -58,18 +57,23 @@ namespace ConnectApp.plugins {
         }
 
         public static void setJPushChannel(string channel) {
-            if (channel.isEmpty()) return;
+            if (channel.isEmpty()) {
+                return;
+            }
+
             setChannel(channel);
         }
-        
+
         public static void setJPushAlias(string alias) {
-            if (alias.isEmpty()) return;
+            if (alias.isEmpty()) {
+                return;
+            }
+
             setAlias(alias);
         }
 
 
 #if UNITY_IOS
-
         [DllImport("__Internal")]
         static extern void listenCompleted();
 
@@ -80,47 +84,37 @@ namespace ConnectApp.plugins {
         static extern void setAlias(string alias);
 
 #elif UNITY_ANDROID
-        
-        static void listenCompleted() {
-            using (
-                AndroidJavaClass managerClass = new AndroidJavaClass("com.unity3d.unityconnect.plugins.JPushPlugin")
-            ) {
+        static AndroidJavaObject _plugin;
+
+        static AndroidJavaObject Plugin() {
+            if (_plugin == null) {
                 using (
-                    AndroidJavaObject managerInstance = managerClass.CallStatic<AndroidJavaObject>("getInstance")
+                    AndroidJavaClass managerClass = new AndroidJavaClass("com.unity3d.unityconnect.plugins.JPushPlugin")
                 ) {
-                    managerInstance.Call("listenCompleted");
+                    _plugin = managerClass.CallStatic<AndroidJavaObject>("getInstance");
                 }
             }
-        }
-        static void setChannel(string channel) {
-            using (
-                AndroidJavaClass managerClass = new AndroidJavaClass("com.unity3d.unityconnect.plugins.JPushPlugin")
-            ) {
-                using (
-                    AndroidJavaObject managerInstance = managerClass.CallStatic<AndroidJavaObject>("getInstance")
-                ) {
-                    managerInstance.Call("setChannel",channel);
-                }
-            }
-        }
-        
-        static void setAlias(string alias) {
-            using (
-                AndroidJavaClass managerClass = new AndroidJavaClass("com.unity3d.unityconnect.plugins.JPushPlugin")
-            ) {
-                using (
-                    AndroidJavaObject managerInstance = managerClass.CallStatic<AndroidJavaObject>("getInstance")
-                ) {
-                    managerInstance.Call("setAlias",alias);
-                }
-            }
+
+            return _plugin;
         }
 
-        
+        static void listenCompleted() {
+            Plugin().Call("listenCompleted");
+        }
+
+        static void setChannel(string channel) {
+            Plugin().Call("setChannel", channel);
+        }
+
+        static void setAlias(string alias) {
+            Plugin().Call("setAlias", alias);
+        }
+
 
 #else
-        public static void listenCompleted() {}
-        public static void setChannel(string channel) {}
+        static void listenCompleted() {}
+        static void setChannel(string channel) {}
+        static void setAlias(string channel) {}
 #endif
     }
 }
