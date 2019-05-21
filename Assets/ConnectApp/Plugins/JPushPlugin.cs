@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using ConnectApp.constants;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
+using ConnectApp.utils;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
@@ -14,12 +15,14 @@ namespace ConnectApp.plugins {
     public static class JPushPlugin {
         public static BuildContext context;
         public static bool isListen;
-
+        static int callbackId = 0;
+        
         public static void addListener() {
             if (!isListen) {
                 UIWidgetsMessageManager.instance.AddChannelMessageDelegate("jpush", _handleMethodCall);
                 completed();
-                setChannel(Config.store);
+                setJPushChannel(Config.store);
+                setJPushTags(new List<string>{Config.versionCode.ToString()});
                 isListen = true;
             }
         }
@@ -64,9 +67,18 @@ namespace ConnectApp.plugins {
         
         public static void setJPushAlias(string alias) {
             if (alias.isEmpty()) return;
-            setAlias(alias);
+            setAlias(callbackId++, alias);
         }
-
+        
+        public static void deleteJPushAlias() {
+            deleteAlias(callbackId++);
+        }
+        
+        public static void setJPushTags(List<string> tags)  {
+            string tagsJsonStr = JsonHelper.ToJson(tags);
+            if (tagsJsonStr.isEmpty()) return;
+            setTags(callbackId++, tagsJsonStr);
+        }
 
 #if UNITY_IOS
 
@@ -77,7 +89,13 @@ namespace ConnectApp.plugins {
         static extern void setChannel(string channel);
         
         [DllImport("__Internal")]
-        static extern void setAlias(string alias);
+        static extern void setAlias(int sequence, string alias);
+
+        [DllImport("__Internal")]
+        static extern void deleteAlias(int sequence);
+
+        [DllImport("__Internal")]
+        static extern void setTags(int sequence, string tagsJsonStr);
 
 #elif UNITY_ANDROID
         
@@ -99,28 +117,52 @@ namespace ConnectApp.plugins {
                 using (
                     AndroidJavaObject managerInstance = managerClass.CallStatic<AndroidJavaObject>("getInstance")
                 ) {
-                    managerInstance.Call("setChannel",channel);
+                    managerInstance.Call("setChannel", channel);
                 }
             }
         }
         
-        static void setAlias(string alias) {
+        static void setAlias(int sequence, string alias) {
+            using ( 
+                AndroidJavaClass managerClass = new AndroidJavaClass("com.unity3d.unityconnect.plugins.JPushPlugin")
+            ) {
+                using (
+                    AndroidJavaObject managerInstance = managerClass.CallStatic<AndroidJavaObject>("getInstance")
+                ) {
+                    managerInstance.Call("setAlias", sequence, alias);
+                }
+            }
+        }
+        
+        static void deleteAlias(int sequence) {
             using (
                 AndroidJavaClass managerClass = new AndroidJavaClass("com.unity3d.unityconnect.plugins.JPushPlugin")
             ) {
                 using (
                     AndroidJavaObject managerInstance = managerClass.CallStatic<AndroidJavaObject>("getInstance")
                 ) {
-                    managerInstance.Call("setAlias",alias);
+                    managerInstance.Call("deleteAlias", sequence);
+                }
+            }
+        }
+        
+        static void setTags(int sequence, string tagsJsonStr) {
+            using (
+                AndroidJavaClass managerClass = new AndroidJavaClass("com.unity3d.unityconnect.plugins.JPushPlugin")
+            ) {
+                using (
+                    AndroidJavaObject managerInstance = managerClass.CallStatic<AndroidJavaObject>("getInstance")
+                ) {
+                    managerInstance.Call("setTags", sequence, tagsJsonStr);
                 }
             }
         }
 
-        
-
 #else
         public static void listenCompleted() {}
         public static void setChannel(string channel) {}
+        public static void setTags(int sequence, string tagsJsonStr) {}
+        public static void deleteAlias(int sequence) {}
 #endif
     }
 }

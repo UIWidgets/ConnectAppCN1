@@ -19,7 +19,7 @@ public class CustomApplication extends Application {
         WechatPlugin.getInstance().iwxapi = iwxapi;
         iwxapi.registerApp("wx0ab79f0c7db7ca52");
 
-        JPushPlugin.getInstance().context = this;
+        JPushPlugin.getInstance().mContext = this;
         JAnalyticsPlugin.getInstance().context = this;
 
         JPushInterface.init(this);     		// 初始化 JPush

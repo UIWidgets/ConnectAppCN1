@@ -6,6 +6,7 @@ using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
+using ConnectApp.plugins;
 using ConnectApp.redux.actions;
 using ConnectApp.utils;
 using RSG;
@@ -178,7 +179,10 @@ namespace ConnectApp.screens {
                         title: "确定退出当前账号吗？",
                         items: new List<ActionSheetItem> {
                             new ActionSheetItem("退出", ActionType.destructive,
-                                () => this.widget.actionModel.logout()),
+                                () => {
+                                    JPushPlugin.deleteJPushAlias();
+                                    this.widget.actionModel.logout();
+                                }),
                             new ActionSheetItem("取消", ActionType.cancel)
                         }
                     ));
