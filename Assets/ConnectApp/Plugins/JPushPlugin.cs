@@ -31,14 +31,17 @@ namespace ConnectApp.plugins {
                             var node = args[0];
                             var dict = JSON.Parse(node);
                             var type = dict["type"];
+                            var subType = dict["subtype"];
                             var id = dict["id"];
-                            if (type == "article") {
-                                StoreProvider.store.dispatcher.dispatch(
-                                    new MainNavigatorPushToArticleDetailAction {articleId = id});
+                            if (type == "project") {
+                                if (subType == "article") {
+                                    StoreProvider.store.dispatcher.dispatch(
+                                        new MainNavigatorPushToArticleDetailAction {articleId = id});
+                                }
                             }
                             else if (type == "event") {
                                 var eventType = EventType.offline;
-                                if (dict["eventType"] == "online") {
+                                if (subType == "online") {
                                     eventType = EventType.online;
                                 }
 
