@@ -180,8 +180,8 @@ namespace ConnectApp.screens {
                         items: new List<ActionSheetItem> {
                             new ActionSheetItem("退出", ActionType.destructive,
                                 () => {
-                                    JPushPlugin.deleteJPushAlias();
                                     this.widget.actionModel.logout();
+                                    JPushPlugin.deleteJPushAlias();
                                 }),
                             new ActionSheetItem("取消", ActionType.cancel)
                         }

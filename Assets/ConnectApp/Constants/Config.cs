@@ -13,8 +13,7 @@ namespace ConnectApp.constants {
         public const string wechatAppId = "wx0ab79f0c7db7ca52";
         
         public const string jgAppKey = "a50eff2d99416a0495f02766";
-
-
+        
         public const string versionNumber = "0.9.2";
 
         public const int versionCode = 20;
