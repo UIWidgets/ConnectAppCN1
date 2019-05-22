@@ -323,12 +323,16 @@ namespace ConnectApp.screens {
                         color: CColors.TextTitle
                     ),
                     maxLines: 1,
-                    overflow: TextOverflow.ellipsis
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center
                 );
             }
             return new Container(
                 height: navBarHeight,
-                color: CColors.White,
+                decoration: new BoxDecoration(
+                    CColors.White,
+                    border: new Border(bottom: new BorderSide(this._isHaveTitle ? CColors.Separator2 : CColors.Transparent))
+                ),
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -336,7 +340,7 @@ namespace ConnectApp.screens {
                         new GestureDetector(
                             onTap: () => this.widget.actionModel.mainRouterPop(),
                             child: new Container(
-                                padding: EdgeInsets.symmetric(10, 16),
+                                padding: EdgeInsets.only(16, 10, 0, 10),
                                 color: CColors.Transparent,
                                 child: new Icon(Icons.arrow_back, size: 24, color: CColors.icon3))
                         ),
@@ -388,18 +392,17 @@ namespace ConnectApp.screens {
 
         bool _onNotification(ScrollNotification notification) {
             var pixels = notification.metrics.pixels;
-            var status = this._controller.status;
             if (this._titleHeight == 0.0f) {
                 this._titleHeight = headTitleKey.currentContext.size.height + 16;
             }
-            if (pixels > this._titleHeight && status != AnimationStatus.completed) {
-                this._controller.forward();
+            if (pixels > this._titleHeight) {
                 if (this._isHaveTitle == false) {
+                    this._controller.forward();
                     this.setState(() => { this._isHaveTitle = true; });
                 }
-            } else if (pixels <= this._titleHeight && status != AnimationStatus.dismissed) {
-                this._controller.reverse();
+            } else {
                 if (this._isHaveTitle) {
+                    this._controller.reverse();
                     this.setState(() => { this._isHaveTitle = false; });
                 }
             }
