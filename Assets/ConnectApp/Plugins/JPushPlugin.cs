@@ -32,6 +32,7 @@ namespace ConnectApp.plugins {
                 using (WindowProvider.of(context).getScope()) {
                     switch (method) {
                         case "OnOpenNotification": {
+                            //点击应用通知栏
                             var node = args[0];
                             var dict = JSON.Parse(node);
                             var type = dict["type"];
@@ -52,6 +53,16 @@ namespace ConnectApp.plugins {
                                 StoreProvider.store.dispatcher.dispatch(
                                     new MainNavigatorPushToEventDetailAction {eventId = id, eventType = eventType});
                             }
+                        }
+                            break;
+                        case "OnReceiveNotification": {
+                            //接收到推送
+                            EventBus.publish(EventBusConstant.refreshNotifications, new List<object>());
+                        }
+                            break;
+                        case "OnReceiveMessage": {
+                            //接收到应用内消息
+                            
                         }
                             break;
                     }

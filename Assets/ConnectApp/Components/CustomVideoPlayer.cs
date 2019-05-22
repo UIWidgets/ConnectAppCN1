@@ -370,6 +370,7 @@ namespace ConnectApp.components {
         }
 
         void _setScreenOrientation() {
+            this.cancelTimer();
             this._isFullScreen = !this._isFullScreen;
 
             if (this._isFullScreen) {

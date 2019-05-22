@@ -13,6 +13,9 @@
 #import "JANALYTICSService.h"
 #import <UserNotifications/UserNotifications.h>
 #include "UIWidgetsMessageManager.h"
+#import "JPushPlugin.h"
+
+static NSString *gameObjectName = @"jpush";
 
 @interface CustomAppController : UnityAppController<WXApiDelegate>
 @end
@@ -37,6 +40,21 @@ IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
     [JANALYTICSService setupWithConfig:config];
     [JANALYTICSService crashLogON];
 
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(networkDidRecieveMessage:)
+                                                 name:kJPFNetworkDidReceiveMessageNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(networkDidRecievePushNotification:)
+                                                 name:@"JPushPluginReceiveNotification"
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(networkOpenPushNotification:)
+                                                 name:@"JPushPluginOpenNotification"
+                                               object:nil];
+    [[JPushEventCache sharedInstance] scheduleNotificationQueue];
     return YES;
 }
 
@@ -59,6 +77,40 @@ IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
     [[JPushEventCache sharedInstance] sendEvent:userInfo withKey:@"JPushPluginReceiveNotification"];
 }
 
+- (void)networkDidRecieveMessage:(NSNotification *)notification {
+    if (notification.name == kJPFNetworkDidReceiveMessageNotification && notification.userInfo){
+        NSData *data = APNativeJSONData(notification.userInfo);
+        NSString *jsonStr = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
+        UIWidgetsMethodMessage(gameObjectName, @"OnReceiveMessage", @[jsonStr]);
+    }
+}
+
+- (void)networkDidRecievePushNotification:(NSNotification *)notification {
+    if ([notification.name isEqual:@"JPushPluginReceiveNotification"] && notification.object){
+        NSData *data = APNativeJSONData(notification.object);
+        NSString *jsonStr = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
+        UIWidgetsMethodMessage(gameObjectName, @"OnReceiveNotification", @[jsonStr]);
+    }
+}
+
+- (void)networkOpenPushNotification:(NSNotification *)notification {
+    if ([notification.name isEqual:@"JPushPluginOpenNotification"] && notification.object){
+        NSData *data = APNativeJSONData(notification.object);
+        NSString *jsonStr = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
+        [JPushPlugin instance].pushJson = jsonStr;
+        UIWidgetsMethodMessage(gameObjectName, @"OnOpenNotification", @[jsonStr]);
+    }
+}
+
+NSData *APNativeJSONData(id obj) {
+    NSError *error = nil;
+    NSData *data = [NSJSONSerialization dataWithJSONObject:obj options:0 error:&error];
+    if (error) {
+        NSLog(@"%s trans obj to data with error: %@", __func__, error);
+        return nil;
+    }
+    return data;
+}
 #pragma mark wechat
 
 - (BOOL)application:(UIApplication*)app openURL:(NSURL*)url options:(NSDictionary<NSString*, id>*)options
@@ -75,4 +127,6 @@ IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
         [[WechatPlugin instance]sendCodeEvent:sendAuthResp.code stateId:sendAuthResp.state];
     }
 }
+
+
 @end
