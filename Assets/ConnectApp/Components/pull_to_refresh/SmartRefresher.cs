@@ -30,6 +30,7 @@ namespace ConnectApp.components.pull_to_refresh {
             OnRefresh onRefresh = null,
             OnOffsetChange onOffsetChange = null,
             RefreshController controller = null,
+            NotificationListenerCallback<ScrollNotification> onNotification = null,
             Key key = null
         ) : base(key) {
             this.child = child;
@@ -43,6 +44,7 @@ namespace ConnectApp.components.pull_to_refresh {
             this.onRefresh = onRefresh;
             this.onOffsetChange = onOffsetChange;
             this.controller = controller ?? new RefreshController();
+            this.onNotification = onNotification;
         }
 
         public readonly ScrollView child;
@@ -71,6 +73,8 @@ namespace ConnectApp.components.pull_to_refresh {
 
         //controller inner state
         public readonly RefreshController controller;
+        
+        public readonly NotificationListenerCallback<ScrollNotification> onNotification;
 
 
         public override State createState() {
@@ -140,24 +144,25 @@ namespace ConnectApp.components.pull_to_refresh {
         }
 
         bool _dispatchScrollEvent(ScrollNotification notification) {
+            if (this.widget.onNotification != null) {
+                this.widget.onNotification(notification);
+            }
             // when is scroll in the ScrollInside,nothing to do
             if (!_isPullUp(notification) && !_isPullDown(notification)) {
                 return false;
             }
 
-            if (notification is ScrollStartNotification) {
-                var startNotification = (ScrollStartNotification) notification;
+            if (notification is ScrollStartNotification startNotification) {
                 return this._handleScrollStart(startNotification);
             }
 
-            if (notification is ScrollUpdateNotification) {
-                var startNotification = (ScrollUpdateNotification) notification;
+            if (notification is ScrollUpdateNotification updateNotification) {
                 //if dragDetails is null,This represents the user's finger out of the screen
-                if (startNotification.dragDetails == null) {
+                if (updateNotification.dragDetails == null) {
                     return this._handleScrollEnd(notification);
                 }
-                if (startNotification.dragDetails != null) {
-                    return this._handleScrollMoving(startNotification);
+                if (updateNotification.dragDetails != null) {
+                    return this._handleScrollMoving(updateNotification);
                 }
             }
 
@@ -254,8 +259,7 @@ namespace ConnectApp.components.pull_to_refresh {
                         this.widget.onRefresh(up);
                     }
 
-                    if (up && this.widget.headerConfig is RefreshConfig) {
-                        RefreshConfig config = this.widget.headerConfig as RefreshConfig;
+                    if (up && this.widget.headerConfig is RefreshConfig config) {
                         this._scrollController
                             .jumpTo(this._scrollController.offset + config.visibleRange);
                     }
@@ -265,8 +269,8 @@ namespace ConnectApp.components.pull_to_refresh {
         }
 
         void _onAfterBuild() {
-            if (this.widget.headerConfig is LoadConfig) {
-                if ((this.widget.headerConfig as LoadConfig).bottomWhenBuild) {
+            if (this.widget.headerConfig is LoadConfig loadConfig) {
+                if (loadConfig.bottomWhenBuild) {
                     this._scrollController.jumpTo(-(this._scrollController.position.pixels -
                                                     this._scrollController.position.maxScrollExtent));
                 }
@@ -286,8 +290,7 @@ namespace ConnectApp.components.pull_to_refresh {
         }
 
         Widget _buildWrapperByConfig(Config config, bool up) {
-            if (config is LoadConfig) {
-                var loadConfig = (LoadConfig) config;
+            if (config is LoadConfig loadConfig) {
                 return new LoadWrapper(
                     key: up ? this._headerKey : this._footerKey,
                     modeListener: up ? this.topModeLis : this.bottomModeLis,
@@ -298,8 +301,7 @@ namespace ConnectApp.components.pull_to_refresh {
                 );
             }
 
-            if (config is RefreshConfig) {
-                var refreshConfig = (RefreshConfig) config;
+            if (config is RefreshConfig refreshConfig) {
                 return new RefreshWrapper(
                     key: up ? this._headerKey : this._footerKey,
                     modeListener: up ? this.topModeLis : this.bottomModeLis,
