@@ -71,6 +71,8 @@ namespace ConnectApp.screens {
         const float minNavBarHeight = 44;
         float navBarHeight;
         string _loginSubId;
+        string _refreshSubId;
+
 
         protected override bool wantKeepAlive {
             get { return true; }
@@ -91,10 +93,17 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.startFetchNotifications();
                 this.widget.actionModel.fetchNotifications(firstPageNumber);
             });
+            this._refreshSubId = EventBus.subscribe(EventBusConstant.refreshNotifications, args => {
+                this.navBarHeight = maxNavBarHeight;
+                this.titleStyle = CTextStyle.H2;
+                this.widget.actionModel.startFetchNotifications();
+                this.widget.actionModel.fetchNotifications(firstPageNumber);
+            });
         }
 
         public override void dispose() {
             EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
+            EventBus.unSubscribe(EventBusConstant.refreshNotifications, this._refreshSubId);
             base.dispose();
         }
 
