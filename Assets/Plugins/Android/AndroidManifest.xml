@@ -3,7 +3,7 @@
   <supports-screens android:smallScreens="true" android:normalScreens="true" android:largeScreens="true" android:xlargeScreens="true" android:anyDensity="true" />
   <!-- Required -->
   <permission android:name="com.unity3d.unityconnect.permission.JPUSH_MESSAGE" android:protectionLevel="signature" />
-  <application android:theme="@android:style/Theme.Material.Light.LightStatusBar" android:icon="@mipmap/app_icon" android:label="@string/app_name" android:name=".CustomApplication" tools:targetApi="m" android:isGame="true" android:banner="@drawable/app_banner" android:roundIcon="@mipmap/app_icon_round">
+  <application android:theme="@android:style/Theme.Material.Light.LightStatusBar" android:icon="@mipmap/app_icon" android:label="@string/app_name" android:name=".CustomApplication" tools:targetApi="m" android:roundIcon="@mipmap/app_icon_round" android:isGame="true" android:banner="@drawable/app_banner">
     <activity android:label="@string/app_name" android:name="com.unity3d.unityconnect.UnityPlayerActivityStatusBar" android:screenOrientation="sensorPortrait" android:launchMode="singleTask" android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale|layoutDirection|density" android:hardwareAccelerated="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
@@ -64,20 +64,11 @@
     </receiver>
     <!-- Required SDK核心功能-->
     <receiver android:name="cn.jpush.android.service.AlarmReceiver" android:exported="false" />
-    <!-- User defined.  For test only  用户自定义的广播接收器-->
-    <receiver android:name=".CustomReceiver" android:exported="false" android:enabled="true">
+    <receiver android:name=".PushMessageReceiver" android:enabled="true"
+              android:exported="false">
       <intent-filter>
-        <action android:name="cn.jpush.android.intent.REGISTRATION" />
-        <!--Required  用户注册SDK的intent-->
-        <action android:name="cn.jpush.android.intent.MESSAGE_RECEIVED" />
-        <!--Required  用户接收SDK消息的intent-->
-        <action android:name="cn.jpush.android.intent.NOTIFICATION_RECEIVED" />
-        <!--Required  用户接收SDK通知栏信息的intent-->
-        <action android:name="cn.jpush.android.intent.NOTIFICATION_OPENED" />
-        <!--Required  用户打开自定义通知栏的intent-->
-        <action android:name="cn.jpush.android.intent.CONNECTION" />
-        <!-- 接收网络变化 连接/断开 since 1.6.3 -->
-        <category android:name="com.unity3d.unityconnect" />
+        <action android:name="cn.jpush.android.intent.RECEIVE_MESSAGE" />
+        <category android:name="com.unity3d.unityconnect"></category>
       </intent-filter>
     </receiver>
     <!--since 3.3.0 Required SDK核心功能-->
@@ -99,7 +90,7 @@
     <meta-data android:name="JPUSH_CHANNEL" android:value="official" />
     <meta-data android:name="JPUSH_APPKEY" android:value="a50eff2d99416a0495f02766" />
     <!--  </>值来自开发者平台取得的AppKey-->
-    <meta-data android:name="unity.build-id" android:value="231909d4-0158-4bff-8b02-36c6a88368b4" />
+    <meta-data android:name="unity.build-id" android:value="468897d6-9d31-4f80-86bf-e98c952926ae" />
     <meta-data android:name="unity.splash-mode" android:value="0" />
     <meta-data android:name="unity.splash-enable" android:value="True" />
   </application>
