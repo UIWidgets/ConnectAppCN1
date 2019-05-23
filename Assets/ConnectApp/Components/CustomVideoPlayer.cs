@@ -17,8 +17,6 @@ using Texture = Unity.UIWidgets.widgets.Texture;
 namespace ConnectApp.components {
     public delegate void FullScreenCallback(bool isFullScreen);
 
-    public delegate void FailureCallback();
-
     public enum PlayState {
         play,
         pause,
