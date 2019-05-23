@@ -14,9 +14,9 @@ namespace ConnectApp.constants {
         
         public const string jgAppKey = "a50eff2d99416a0495f02766";
         
-        public const string versionNumber = "0.9.2";
+        public const string versionNumber = "0.9.3";
 
-        public const int versionCode = 20;
+        public const int versionCode = 21;
 
 #if UNITY_IOS
         public const string platform = "ios";
