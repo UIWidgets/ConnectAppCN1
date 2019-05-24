@@ -14,12 +14,16 @@ namespace ConnectApp.Main {
         protected override void OnEnable() {
             base.OnEnable();
             Screen.fullScreen = false;
-            Application.targetFrameRate = 60;
+            Window.onFrameRateCoolDown = CustomFrameRateCoolDown;
             LoadFonts();
             VideoPlayerManager.instance.initPlayer(this.gameObject);
             WebViewManager.instance.initWebView(this.gameObject);
         }
 
+        static void CustomFrameRateCoolDown() {
+            Application.targetFrameRate = 30;
+        }
+        
         static void LoadFonts() {
             FontManager.instance.addFont(Resources.Load<Font>("font/Material Icons"), "Material Icons");
             FontManager.instance.addFont(Resources.Load<Font>("font/Roboto-Regular"), "Roboto-Regular");
