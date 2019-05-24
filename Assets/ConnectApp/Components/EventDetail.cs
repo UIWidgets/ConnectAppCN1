@@ -16,6 +16,7 @@ namespace ConnectApp.components {
             Action<string> openUrl = null,
             Action<string> playVideo = null,
             Widget topWidget = null,
+            Key titleKey = null,
             Key key = null
         ) : base(key) {
             this.eventObj = eventObj;
@@ -23,6 +24,7 @@ namespace ConnectApp.components {
             this.playVideo = playVideo;
             this.isShowImage = isShowImage;
             this.topWidget = topWidget;
+            this.titleKey = titleKey;
         }
 
         readonly IEvent eventObj;
@@ -30,7 +32,7 @@ namespace ConnectApp.components {
         readonly Action<string> openUrl;
         readonly Action<string> playVideo;
         readonly Widget topWidget;
-
+        readonly Key titleKey;
 
         public override Widget build(BuildContext context) {
             return new Container(child: this._buildContent(context));
@@ -82,7 +84,9 @@ namespace ConnectApp.components {
                 child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        new Text(this.eventObj.title ?? "",
+                        new Text(
+                            this.eventObj.title ?? "",
+                            this.titleKey,
                             style: CTextStyle.H4
                         ),
                         new Container(

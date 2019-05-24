@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.components;
 using ConnectApp.components.pull_to_refresh;
@@ -9,6 +10,7 @@ using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using ConnectApp.utils;
 using RSG;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -21,7 +23,10 @@ using Config = ConnectApp.constants.Config;
 
 namespace ConnectApp.screens {
     public class ArticleDetailScreenConnector : StatelessWidget {
-        public ArticleDetailScreenConnector(string articleId) {
+        public ArticleDetailScreenConnector(
+            string articleId,
+            Key key = null
+        ) : base(key) {
             this.articleId = articleId;
         }
 
@@ -49,7 +54,7 @@ namespace ConnectApp.screens {
                         openUrl = url => dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
                             url = url
                         }),
-                        playVideo = url => dispatcher.dispatch(new PlayVideoAction() {
+                        playVideo = url => dispatcher.dispatch(new PlayVideoAction {
                             url = url
                         }),
                         pushToArticleDetail = id => dispatcher.dispatch(
@@ -85,9 +90,9 @@ namespace ConnectApp.screens {
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
                             Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
                     };
-
                     return new ArticleDetailScreen(viewModel, actionModel);
-                });
+                }
+            );
         }
     }
 
@@ -109,7 +114,9 @@ namespace ConnectApp.screens {
         }
     }
 
-    class _ArticleDetailScreenState : State<ArticleDetailScreen> {
+    class _ArticleDetailScreenState : State<ArticleDetailScreen>, TickerProvider {
+        const float navBarHeight = 44;
+        static readonly GlobalKey headTitleKey = GlobalKey.key("head-title");
         Article _article = new Article();
         User _user = new User();
         Team _team = new Team();
@@ -118,13 +125,34 @@ namespace ConnectApp.screens {
         List<Article> _relArticles = new List<Article>();
         Dictionary<string, ContentMap> _contentMap = new Dictionary<string, ContentMap>();
         string _lastCommentId = "";
-        bool _hasMore = false;
+        bool _hasMore;
+        bool _isHaveTitle;
+        float _titleHeight;
+        Animation<RelativeRect> _animation;
+        AnimationController _controller;
         RefreshController _refreshController;
         string _loginSubId;
 
         public override void initState() {
             base.initState();
             this._refreshController = new RefreshController();
+            this._hasMore = false;
+            this._isHaveTitle = false;
+            this._titleHeight = 0.0f;
+            this._controller = new AnimationController(
+                duration: TimeSpan.FromMilliseconds(100),
+                vsync: this
+            );
+            RelativeRectTween rectTween = new RelativeRectTween(
+                RelativeRect.fromLTRB(
+                    0,
+                    navBarHeight,
+                    0,
+                    0
+                ),
+                RelativeRect.fromLTRB(0, 13, 0, 0)
+            );
+            this._animation = rectTween.animate(this._controller);
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchArticleDetail();
                 this.widget.actionModel.fetchArticleDetail(this.widget.viewModel.articleId);
@@ -138,6 +166,10 @@ namespace ConnectApp.screens {
         public override void dispose() {
             EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
             base.dispose();
+        }
+        
+        public Ticker createTicker(TickerCallback onTick) {
+            return new Ticker(onTick, () => $"created by {this}");
         }
 
         public override Widget build(BuildContext context) {
@@ -197,6 +229,7 @@ namespace ConnectApp.screens {
                                 enablePullDown: false,
                                 enablePullUp: this._hasMore,
                                 onRefresh: this._onRefresh,
+                                onNotification: this._onNotification,
                                 child: ListView.builder(
                                     physics: new AlwaysScrollableScrollPhysics(),
                                     itemCount: originItems.Count,
@@ -281,9 +314,26 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildNavigationBar() {
+            Widget titleWidget = new Container();
+            if (this._isHaveTitle) {
+                titleWidget = new Text(
+                    this._article.title,
+                    style: new TextStyle(
+                        fontSize: 18,
+                        fontFamily: "Roboto-Medium",
+                        color: CColors.TextTitle
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center
+                );
+            }
             return new Container(
-                height: 44,
-                color: CColors.White,
+                height: navBarHeight,
+                decoration: new BoxDecoration(
+                    CColors.White,
+                    border: new Border(bottom: new BorderSide(this._isHaveTitle ? CColors.Separator2 : CColors.Transparent))
+                ),
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -291,10 +341,22 @@ namespace ConnectApp.screens {
                         new GestureDetector(
                             onTap: () => this.widget.actionModel.mainRouterPop(),
                             child: new Container(
-                                padding: EdgeInsets.symmetric(10, 16),
+                                padding: EdgeInsets.only(16, 10, 0, 10),
                                 color: CColors.Transparent,
                                 child: new Icon(Icons.arrow_back, size: 24, color: CColors.icon3))
-                        )
+                        ),
+                        new Expanded(
+                            child: new Stack(
+                                fit: StackFit.expand,
+                                children: new List<Widget> {
+                                    new PositionedTransition(
+                                        rect: this._animation,
+                                        child: titleWidget
+                                    )
+                                }
+                            )
+                        ),
+                        new Container(width: 48)
 //                        new CustomButton(
 //                            padding: EdgeInsets.zero,
 //                            onPressed: () => { },
@@ -329,14 +391,29 @@ namespace ConnectApp.screens {
             }
         }
 
+        bool _onNotification(ScrollNotification notification) {
+            var pixels = notification.metrics.pixels;
+            if (this._titleHeight == 0.0f) {
+                this._titleHeight = headTitleKey.currentContext.size.height + 16;
+            }
+            if (pixels > this._titleHeight) {
+                if (this._isHaveTitle == false) {
+                    this._controller.forward();
+                    this.setState(() => { this._isHaveTitle = true; });
+                }
+            } else {
+                if (this._isHaveTitle) {
+                    this._controller.reverse();
+                    this.setState(() => { this._isHaveTitle = false; });
+                }
+            }
+            return true;
+        }
+
         Widget _buildContentHead() {
-            Widget _avatar;
-            if (this._article.ownerType == OwnerType.user.ToString()) {
-                _avatar = Avatar.User(this._user.id, this._user, 32);
-            }
-            else {
-                _avatar = Avatar.Team(this._team.id, this._team, 32);
-            }
+            Widget _avatar = this._article.ownerType == OwnerType.user.ToString() 
+                ? Avatar.User(this._user.id, this._user, 32)
+                : Avatar.Team(this._team.id, this._team, 32);
 
             var text = this._article.ownerType == "user" ? this._user.fullName : this._team.name;
             var description = this._article.ownerType == "user" ? this._user.title : "";
@@ -357,7 +434,9 @@ namespace ConnectApp.screens {
                 child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        new Text(this._article.title,
+                        new Text(
+                            this._article.title,
+                            headTitleKey,
                             style: CTextStyle.H3
                         ),
                         new Container(

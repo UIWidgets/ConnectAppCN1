@@ -23,7 +23,10 @@ using Config = ConnectApp.constants.Config;
 
 namespace ConnectApp.screens {
     public class EventOnlineDetailScreenConnector : StatelessWidget {
-        public EventOnlineDetailScreenConnector(string eventId) {
+        public EventOnlineDetailScreenConnector(
+            string eventId,
+            Key key = null
+        ) : base(key) {
             this.eventId = eventId;
         }
 
@@ -112,9 +115,14 @@ namespace ConnectApp.screens {
     class _EventDetailScreenState : State<EventOnlineDetailScreen>, TickerProvider {
         AnimationController _controller;
         Animation<Offset> _position;
+        Animation<RelativeRect> _titleAnimation;
+        AnimationController _titleAnimationController;
         readonly TextEditingController _textController = new TextEditingController("");
         readonly FocusNode _focusNode = new FocusNode();
         readonly RefreshController _refreshController = new RefreshController();
+        static readonly GlobalKey eventTitleKey = GlobalKey.key("event-title");
+        float _titleHeight;
+        bool _isHaveTitle;
         string _loginSubId;
         bool _showNavBarShadow;
         bool _isFullScreen;
@@ -123,10 +131,26 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             this._showNavBarShadow = true;
+            this._titleHeight = 0.0f;
+            this._isHaveTitle = false;
             this._controller = new AnimationController(
                 duration: new TimeSpan(0, 0, 0, 0, 300),
                 vsync: this
             );
+            this._titleAnimationController = new AnimationController(
+                duration: TimeSpan.FromMilliseconds(100),
+                vsync: this
+            );
+            RelativeRectTween rectTween = new RelativeRectTween(
+                RelativeRect.fromLTRB(
+                    0,
+                    44,
+                    0,
+                    0
+                ),
+                RelativeRect.fromLTRB(0, 13, 0, 0)
+            );
+            this._titleAnimation = rectTween.animate(this._titleAnimationController);
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.showChatWindow(false);
                 this.widget.actionModel.startFetchEventDetail();
@@ -136,6 +160,50 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.startFetchEventDetail();
                 this.widget.actionModel.fetchEventDetail(this.widget.viewModel.eventId, EventType.online);
             });
+        }
+        
+        public override void dispose() {
+            EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
+            this._textController.dispose();
+            this._controller.dispose();
+            base.dispose();
+        }
+
+        public Ticker createTicker(TickerCallback onTick) {
+            return new Ticker(onTick, () => $"created by {this}");
+        }
+        
+        bool _onNotification(BuildContext context, ScrollNotification notification, EventStatus eventStatus, IEvent eventObj) {
+            if (eventStatus == EventStatus.past && eventObj.record.isEmpty()) {
+                var pixels = notification.metrics.pixels;
+                if (this._titleHeight == 0.0f) {
+                    var width = MediaQuery.of(context).size.width;
+                    var imageHeight = 9.0f / 16.0f * width;
+                    this._titleHeight = imageHeight + eventTitleKey.currentContext.size.height + 16 - 64;
+                }
+                if (pixels >= 44) {
+                    if (this._showNavBarShadow) {
+                        this.setState(() => { this._showNavBarShadow = false; });
+                    }
+                } else {
+                    if (!this._showNavBarShadow) {
+                        this.setState(() => { this._showNavBarShadow = true; });
+                    }
+                }
+                if (pixels >= this._titleHeight) {
+                    if (!this._isHaveTitle) {
+                        this._titleAnimationController.forward();
+                        this.setState(() => { this._isHaveTitle = true; });
+                    }
+                } else {
+                    if (this._isHaveTitle) {
+                        this._titleAnimationController.reverse();
+                        this.setState(() => { this._isHaveTitle = false; });
+                    }
+                }
+                return true;
+            }
+            return false;
         }
 
         public override Widget build(BuildContext context) {
@@ -158,19 +226,10 @@ namespace ConnectApp.screens {
                     child: new Container(
                         color: this._isFullScreen ? CColors.Black : CColors.White,
                         child: new NotificationListener<ScrollNotification>(
-                            onNotification: notification => {
-                                if (eventStatus == EventStatus.past && eventObj.record.isEmpty()) {
-                                    var pixels = notification.metrics.pixels;
-                                    this._showNavBarShadow = !(pixels >= 44);
-                                    this.setState(() => { });
-                                    return true;
-                                }
-
-                                return false;
-                            },
+                            onNotification: notification => this._onNotification(context, notification, eventStatus, eventObj),
                             child: new Column(
                                 children: new List<Widget> {
-                                    this._buildEventHeader(eventObj, EventType.online, eventStatus,
+                                    this._buildEventHeader(context, eventObj, EventType.online, eventStatus,
                                         this.widget.viewModel.isLoggedIn),
                                     this._buildEventDetail(context, eventObj, EventType.online, eventStatus,
                                         this.widget.viewModel.isLoggedIn),
@@ -182,17 +241,6 @@ namespace ConnectApp.screens {
                     )
                 )
             );
-        }
-
-        public override void dispose() {
-            EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
-            this._textController.dispose();
-            this._controller.dispose();
-            base.dispose();
-        }
-
-        public Ticker createTicker(TickerCallback onTick) {
-            return new Ticker(onTick, () => $"created by {this}");
         }
 
         void _setAnimationPosition(BuildContext context) {
@@ -229,18 +277,40 @@ namespace ConnectApp.screens {
             this._refreshController.scrollTo(0);
         }
 
-        Widget _buildHeadTop(bool isShowShare, IEvent eventObj) {
-            Widget shareWidget = new Container();
-            if (isShowShare) {
-                shareWidget = new CustomButton(
-                    onPressed: () => this._showShareView(eventObj),
-                    child: new Container(
-                        alignment: Alignment.topRight,
-                        width: 64,
-                        height: 64,
-                        color: CColors.Transparent,
-                        child: new Icon(Icons.share, size: 28,
-                            color: this._showNavBarShadow ? CColors.White : CColors.icon3))
+        Widget _buildHeadTop(bool isShowTitle, IEvent eventObj) {
+            Widget shareWidget = new CustomButton(
+                onPressed: () => this._showShareView(eventObj),
+                child: new Container(
+                    color: CColors.Transparent,
+                    child: new Icon(Icons.share, size: 28,
+                        color: this._showNavBarShadow ? CColors.White : CColors.icon3))
+            );
+            Widget titleWidget = new Container();
+            if (isShowTitle) {
+                Widget child = new Container();
+                if (this._isHaveTitle) {
+                    child = new Text(
+                        eventObj.title,
+                        style: new TextStyle(
+                            fontSize: 18,
+                            fontFamily: "Roboto-Medium",
+                            color: CColors.TextTitle
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center
+                    );
+                }
+                titleWidget = new Expanded(
+                    child: new Stack(
+                        fit: StackFit.expand,
+                        children: new List<Widget> {
+                            new PositionedTransition(
+                                rect: this._titleAnimation,
+                                child: child
+                            )
+                        }
+                    )
                 );
             }
 
@@ -250,6 +320,7 @@ namespace ConnectApp.screens {
                 padding: EdgeInsets.symmetric(horizontal: 8),
                 decoration: new BoxDecoration(
                     CColors.White,
+                    border: new Border(bottom: new BorderSide(this._isHaveTitle ? CColors.Separator2 : CColors.Transparent)),
                     gradient: this._showNavBarShadow
                         ? new LinearGradient(
                             colors: new List<Color> {
@@ -272,18 +343,21 @@ namespace ConnectApp.screens {
                                 color: this._showNavBarShadow ? CColors.White : CColors.icon3
                             )
                         ),
+                        titleWidget,
                         shareWidget
                     }
                 )
             );
         }
 
-        Widget _buildEventHeader(IEvent eventObj, EventType eventType, EventStatus eventStatus,
+        Widget _buildEventHeader(BuildContext context, IEvent eventObj, EventType eventType, EventStatus eventStatus,
             bool isLoggedIn) {
-            if (this.widget.viewModel.isLoggedIn && eventStatus == EventStatus.past && eventObj.record.isNotEmpty()) {
+            if (isLoggedIn && eventStatus == EventStatus.past && eventObj.record.isNotEmpty()) {
                 return new CustomVideoPlayer(
-                    eventObj.record, this.context, this._buildHeadTop(true, eventObj),
-                    fullScreenCallback: isFullScreen => {
+                    eventObj.record,
+                    context,
+                    this._buildHeadTop(false, eventObj),
+                    isFullScreen => {
                         this.setState(() => { this._isFullScreen = isFullScreen; });
                     },
                     eventObj.recordDuration
@@ -301,7 +375,7 @@ namespace ConnectApp.screens {
                         left: 0,
                         top: 0,
                         right: 0,
-                        child: this._buildHeadTop(true, eventObj)
+                        child: this._buildHeadTop(false, eventObj)
                     )
                 }
             );
@@ -311,9 +385,15 @@ namespace ConnectApp.screens {
             bool isLoggedIn) {
             if (eventObj.record.isEmpty() && eventStatus == EventStatus.past) {
                 return new Expanded(
-                    child: new Stack(children: new List<Widget> {
-                            new EventDetail(false, eventObj, this.widget.actionModel.openUrl,
-                                topWidget: new EventHeader(eventObj, eventType, eventStatus, isLoggedIn)),
+                    child: new Stack(
+                        children: new List<Widget> {
+                            new EventDetail(
+                                false, 
+                                eventObj,
+                                this.widget.actionModel.openUrl,
+                                topWidget: new EventHeader(eventObj, eventType, eventStatus, isLoggedIn),
+                                titleKey: eventTitleKey
+                            ),
                             new Positioned(
                                 left: 0,
                                 top: 0,
@@ -326,7 +406,12 @@ namespace ConnectApp.screens {
             }
 
             return new Expanded(
-                child: new EventDetail(false, eventObj, this.widget.actionModel.openUrl)
+                child: new EventDetail(
+                    false,
+                    eventObj,
+                    this.widget.actionModel.openUrl,
+                    titleKey: eventTitleKey
+                )
             );
         }
 

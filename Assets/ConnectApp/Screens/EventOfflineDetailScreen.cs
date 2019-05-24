@@ -9,6 +9,7 @@ using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using ConnectApp.utils;
 using RSG;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
@@ -19,7 +20,10 @@ using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
     public class EventOfflineDetailScreenConnector : StatelessWidget {
-        public EventOfflineDetailScreenConnector(string eventId) {
+        public EventOfflineDetailScreenConnector(
+            string eventId,
+            Key key = null
+        ) : base(key) {
             this.eventId = eventId;
         }
 
@@ -78,13 +82,34 @@ namespace ConnectApp.screens {
         }
     }
 
-    class _EventOfflineDetailScreenState : State<EventOfflineDetailScreen> {
+    class _EventOfflineDetailScreenState : State<EventOfflineDetailScreen>, TickerProvider {
         string _loginSubId;
         bool _showNavBarShadow;
+        bool _isHaveTitle;
+        Animation<RelativeRect> _animation;
+        AnimationController _controller;
+        float _titleHeight;
+        static readonly GlobalKey eventTitleKey = GlobalKey.key("event-title");
 
         public override void initState() {
             base.initState();
             this._showNavBarShadow = true;
+            this._isHaveTitle = false;
+            this._titleHeight = 0.0f;
+            this._controller = new AnimationController(
+                duration: TimeSpan.FromMilliseconds(100),
+                vsync: this
+            );
+            RelativeRectTween rectTween = new RelativeRectTween(
+                RelativeRect.fromLTRB(
+                    0,
+                    44,
+                    0,
+                    0
+                ),
+                RelativeRect.fromLTRB(0, 13, 0, 0)
+            );
+            this._animation = rectTween.animate(this._controller);
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchEventDetail();
                 this.widget.actionModel.fetchEventDetail(this.widget.viewModel.eventId, EventType.offline);
@@ -93,6 +118,15 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.startFetchEventDetail();
                 this.widget.actionModel.fetchEventDetail(this.widget.viewModel.eventId, EventType.offline);
             });
+        }
+        
+        public override void dispose() {
+            EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
+            base.dispose();
+        }
+        
+        public Ticker createTicker(TickerCallback onTick) {
+            return new Ticker(onTick, () => $"created by {this}");
         }
 
         public override Widget build(BuildContext context) {
@@ -112,10 +146,10 @@ namespace ConnectApp.screens {
                     child: new Container(
                         color: CColors.White,
                         child: new NotificationListener<ScrollNotification>(
-                            onNotification: this._onNotification,
+                            onNotification: notification => this._onNotification(context, notification, eventObj),
                             child: new Column(
                                 children: new List<Widget> {
-                                    this._buildEventDetail(context, eventObj),
+                                    this._buildEventDetail(eventObj),
                                     this._buildOfflineRegisterNow(eventObj, this.widget.viewModel.isLoggedIn,
                                         eventStatus)
                                 }
@@ -126,74 +160,111 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildEventDetail(BuildContext context, IEvent eventObj) {
+        Widget _buildEventDetail(IEvent eventObj) {
             return new Expanded(
                 child: new Stack(
                     children: new List<Widget> {
-                        new EventDetail(true, eventObj, this.widget.actionModel.openUrl),
+                        new EventDetail(
+                            true,
+                            eventObj,
+                            this.widget.actionModel.openUrl,
+                            titleKey: eventTitleKey
+                        ),
                         new Positioned(
                             left: 0,
                             top: 0,
                             right: 0,
-                            child: this._buildHeadTop(true, eventObj)
+                            child: this._buildHeadTop(eventObj)
                         )
                     }
                 )
             );
         }
 
-        bool _onNotification(ScrollNotification notification) {
+        bool _onNotification(BuildContext context, ScrollNotification notification, IEvent eventObj) {
             var pixels = notification.metrics.pixels;
-            this._showNavBarShadow = !(pixels >= 44);
-            this.setState(() => { });
+            if (this._titleHeight == 0.0f) {
+                var width = MediaQuery.of(context).size.width;
+                var imageHeight = 9.0f / 16.0f * width;
+                if (eventObj.type.isNotEmpty() && !(eventObj.type == "bagevent" || eventObj.type == "customize")) {
+                    this._titleHeight = imageHeight + eventTitleKey.currentContext.size.height + 16;
+                } else {
+                    this._titleHeight = imageHeight + eventTitleKey.currentContext.size.height + 16 - 64;
+                }
+            }
+            if (pixels >= 44) {
+                if (this._showNavBarShadow) {
+                    this.setState(() => { this._showNavBarShadow = false; });
+                }
+            } else {
+                if (!this._showNavBarShadow) {
+                    this.setState(() => { this._showNavBarShadow = true; });
+                }
+            }
+            if (pixels > this._titleHeight) {
+                if (!this._isHaveTitle) {
+                    this._controller.forward();
+                    this.setState(() => { this._isHaveTitle = true; });
+                }
+            } else {
+                if (this._isHaveTitle) {
+                    this._controller.reverse();
+                    this.setState(() => { this._isHaveTitle = false; });
+                }
+            }
             return true;
         }
 
-        public override void dispose() {
-            EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
-            base.dispose();
-        }
+        Widget _buildHeadTop(IEvent eventObj) {
+            Widget shareWidget = new CustomButton(
+                onPressed: () => ShareUtils.showShareView(new ShareView(
+                    projectType: ProjectType.iEvent,
+                    onPressed: type => {
+                        var linkUrl =
+                            $"{Config.apiAddress}/events/{eventObj.id}";
+                        if (type == ShareType.clipBoard) {
+                            this.widget.actionModel.copyText(linkUrl);
+                            CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
+                        }
+                        else {
+                            var imageUrl = $"{eventObj.avatar}.200x0x1.jpg";
+                            CustomDialogUtils.showCustomDialog(
+                                child: new CustomLoadingDialog()
+                            );
+                            this.widget.actionModel.shareToWechat(type, eventObj.title, eventObj.shortDescription,
+                                    linkUrl,
+                                    imageUrl).Then(CustomDialogUtils.hiddenCustomDialog)
+                                .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
+                        }
+                    })),
+                child: new Container(
+                    color: CColors.Transparent,
+                    child: new Icon(Icons.share, size: 28,
+                        color: this._showNavBarShadow ? CColors.White : CColors.icon3))
+            );
 
-        Widget _buildHeadTop(bool isShowShare, IEvent eventObj) {
-            Widget shareWidget = new Container();
-            if (isShowShare) {
-                shareWidget = new CustomButton(
-                    onPressed: () => ShareUtils.showShareView(new ShareView(
-                        projectType: ProjectType.iEvent,
-                        onPressed: type => {
-                            var linkUrl =
-                                $"{Config.apiAddress}/events/{eventObj.id}";
-                            if (type == ShareType.clipBoard) {
-                                this.widget.actionModel.copyText(linkUrl);
-                                CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
-                            }
-                            else {
-                                var imageUrl = $"{eventObj.avatar}.200x0x1.jpg";
-                                CustomDialogUtils.showCustomDialog(
-                                    child: new CustomLoadingDialog()
-                                );
-                                this.widget.actionModel.shareToWechat(type, eventObj.title, eventObj.shortDescription,
-                                        linkUrl,
-                                        imageUrl).Then(CustomDialogUtils.hiddenCustomDialog)
-                                    .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
-                            }
-                        })),
-                    child: new Container(
-                        alignment: Alignment.topRight,
-                        width: 64,
-                        height: 64,
-                        color: CColors.Transparent,
-                        child: new Icon(Icons.share, size: 28,
-                            color: this._showNavBarShadow ? CColors.White : CColors.icon3))
+            Widget titleWidget = new Container();
+            if (this._isHaveTitle) {
+                titleWidget = new Text(
+                    eventObj.title,
+                    style: new TextStyle(
+                        fontSize: 18,
+                        fontFamily: "Roboto-Medium",
+                        color: CColors.TextTitle
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center
                 );
             }
 
             return new AnimatedContainer(
                 height: 44,
-                duration: new TimeSpan(0, 0, 0, 0, 0),
+                duration: TimeSpan.Zero,
                 padding: EdgeInsets.symmetric(horizontal: 8),
                 decoration: new BoxDecoration(
                     CColors.White,
+                    border: new Border(bottom: new BorderSide(this._isHaveTitle ? CColors.Separator2 : CColors.Transparent)),
                     gradient: this._showNavBarShadow
                         ? new LinearGradient(
                             colors: new List<Color> {
@@ -214,6 +285,17 @@ namespace ConnectApp.screens {
                                 Icons.arrow_back,
                                 size: 28,
                                 color: this._showNavBarShadow ? CColors.White : CColors.icon3
+                            )
+                        ),
+                        new Expanded(
+                            child: new Stack(
+                                fit: StackFit.expand,
+                                children: new List<Widget> {
+                                    new PositionedTransition(
+                                        rect: this._animation,
+                                        child: titleWidget
+                                    )
+                                }
                             )
                         ),
                         shareWidget
