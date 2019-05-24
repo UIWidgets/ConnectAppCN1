@@ -3,6 +3,7 @@ using ConnectApp.api;
 using ConnectApp.components;
 using ConnectApp.constants;
 using ConnectApp.models;
+using ConnectApp.utils;
 using Unity.UIWidgets.Redux;
 using UnityEngine;
 
@@ -207,41 +208,48 @@ namespace ConnectApp.redux.actions {
         }
 
         public static object likeArticle(string articleId) {
+            if (HttpManager.isNetWorkError()) {
+                CustomDialogUtils.showToast("请检查网络", Icons.sentiment_dissatisfied);
+                return null;
+            }
+
             return new ThunkAction<AppState>((dispatcher, getState) => {
+                CustomDialogUtils.showToast("点赞成功", Icons.sentiment_satisfied);
+                dispatcher.dispatch(new LikeArticleSuccessAction {articleId = articleId});
                 return ArticleApi.LikeArticle(articleId)
-                    .Then(() => {
-                        CustomDialogUtils.showToast("点赞成功", Icons.sentiment_satisfied);
-                        dispatcher.dispatch(new LikeArticleSuccessAction {articleId = articleId});
-                    })
-                    .Catch(_ => CustomDialogUtils.showToast("点赞失败", Icons.sentiment_dissatisfied));
+                    .Then(() => { })
+                    .Catch(_ => { });
             });
         }
 
-        public static object likeComment(string messageId) {
+        public static object likeComment(Message message) {
+            if (HttpManager.isNetWorkError()) {
+                CustomDialogUtils.showToast("请检查网络", Icons.sentiment_dissatisfied);
+                return null;
+            }
+
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ArticleApi.LikeComment(messageId)
-                    .Then(message => {
-                        CustomDialogUtils.showToast("点赞成功", Icons.sentiment_satisfied);
-                        dispatcher.dispatch(new LikeCommentSuccessAction {message = message});
-                    })
-                    .Catch(error => {
-                        CustomDialogUtils.showToast("点赞失败", Icons.sentiment_dissatisfied);
-                        dispatcher.dispatch(new LikeCommentFailureAction());
-                    });
+                CustomDialogUtils.showToast("点赞成功", Icons.sentiment_satisfied);
+                dispatcher.dispatch(new LikeCommentSuccessAction {message = message});
+
+                return ArticleApi.LikeComment(message.id)
+                    .Then(mess => { })
+                    .Catch(error => { });
             });
         }
 
-        public static object removeLikeComment(string messageId) {
+        public static object removeLikeComment(Message message) {
+            if (HttpManager.isNetWorkError()) {
+                CustomDialogUtils.showToast("请检查网络", Icons.sentiment_dissatisfied);
+                return null;
+            }
+
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ArticleApi.RemoveLikeComment(messageId)
-                    .Then(message => {
-                        CustomDialogUtils.showToast("已取消点赞", Icons.sentiment_satisfied);
-                        dispatcher.dispatch(new RemoveLikeCommentSuccessAction {message = message});
-                    })
-                    .Catch(error => {
-                        CustomDialogUtils.showToast("取消点赞失败", Icons.sentiment_dissatisfied);
-                        Debug.Log(error);
-                    });
+                CustomDialogUtils.showToast("已取消点赞", Icons.sentiment_satisfied);
+                dispatcher.dispatch(new RemoveLikeCommentSuccessAction {message = message});
+                return ArticleApi.RemoveLikeComment(message.id)
+                    .Then(mess => { })
+                    .Catch(error => { });
             });
         }
 
