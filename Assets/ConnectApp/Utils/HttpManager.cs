@@ -30,6 +30,7 @@ namespace ConnectApp.utils {
             return request;
         }
 
+
         public static UnityWebRequest GET(string uri) {
             return initRequest(uri, Method.GET);
         }
@@ -111,6 +112,10 @@ namespace ConnectApp.utils {
                 PlayerPrefs.SetString(COOKIE, updateCookie);
                 PlayerPrefs.Save();
             }
+        }
+        
+        public static bool isNetWorkError() {
+            return Application.internetReachability == NetworkReachability.NotReachable;
         }
     }
 }

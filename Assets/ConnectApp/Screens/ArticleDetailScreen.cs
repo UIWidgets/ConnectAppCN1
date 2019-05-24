@@ -74,8 +74,8 @@ namespace ConnectApp.screens {
                                 Actions.fetchArticleComments(channelId, currOldestMessageId)
                             ),
                         likeArticle = id => dispatcher.dispatch<IPromise>(Actions.likeArticle(id)),
-                        likeComment = id => dispatcher.dispatch<IPromise>(Actions.likeComment(id)),
-                        removeLikeComment = id => dispatcher.dispatch<IPromise>(Actions.removeLikeComment(id)),
+                        likeComment = message => dispatcher.dispatch<IPromise>(Actions.likeComment(message)),
+                        removeLikeComment = message => dispatcher.dispatch<IPromise>(Actions.removeLikeComment(message)),
                         sendComment = (channelId, content, nonce, parentMessageId) => {
                             CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog());
                             return dispatcher.dispatch<IPromise>(
@@ -552,10 +552,10 @@ namespace ConnectApp.screens {
                         }
                         else {
                             if (isPraised) {
-                                this.widget.actionModel.removeLikeComment(commentId);
+                                this.widget.actionModel.removeLikeComment(message);
                             }
                             else {
-                                this.widget.actionModel.likeComment(commentId);
+                                this.widget.actionModel.likeComment(message);
                             }
                         }
                     });

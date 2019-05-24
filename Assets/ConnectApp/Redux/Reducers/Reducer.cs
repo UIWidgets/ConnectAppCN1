@@ -289,6 +289,11 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case LikeCommentSuccessAction action: {
+                    var user = new User();
+                    user.id = state.loginState.loginInfo.userId;
+                    var reaction = new Reaction();
+                    reaction.user = user;
+                    action.message.reactions.Add(reaction);
                     state.messageState.channelMessageDict[action.message.channelId][action.message.id] = action.message;
                     break;
                 }
@@ -302,6 +307,13 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case RemoveLikeCommentSuccessAction action: {
+                    var reactions = action.message.reactions;
+                    foreach (var reaction in reactions) {
+                        if (reaction.user.id == state.loginState.loginInfo.userId) {
+                            action.message.reactions.Remove(reaction);
+                            break;
+                        }
+                    }
                     state.messageState.channelMessageDict[action.message.channelId][action.message.id] = action.message;
                     break;
                 }
