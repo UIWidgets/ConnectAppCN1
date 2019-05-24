@@ -113,7 +113,7 @@ namespace ConnectApp.utils {
                 PlayerPrefs.Save();
             }
         }
-        
+
         public static bool isNetWorkError() {
             return Application.internetReachability == NetworkReachability.NotReachable;
         }

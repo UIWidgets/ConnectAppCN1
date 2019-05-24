@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using ConnectApp.components;
-using ConnectApp.Components;
 using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
+using ConnectApp.Components;
 using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
@@ -11,8 +11,8 @@ using ConnectApp.utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -75,7 +75,8 @@ namespace ConnectApp.screens {
                             ),
                         likeArticle = id => dispatcher.dispatch<IPromise>(Actions.likeArticle(id)),
                         likeComment = message => dispatcher.dispatch<IPromise>(Actions.likeComment(message)),
-                        removeLikeComment = message => dispatcher.dispatch<IPromise>(Actions.removeLikeComment(message)),
+                        removeLikeComment =
+                            message => dispatcher.dispatch<IPromise>(Actions.removeLikeComment(message)),
                         sendComment = (channelId, content, nonce, parentMessageId) => {
                             CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog());
                             return dispatcher.dispatch<IPromise>(

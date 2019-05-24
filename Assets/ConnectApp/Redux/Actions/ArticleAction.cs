@@ -70,7 +70,6 @@ namespace ConnectApp.redux.actions {
 
     public class LikeCommentSuccessAction : BaseAction {
         public Message message;
-
     }
 
     public class LikeCommentFailureAction : BaseAction {
@@ -213,16 +212,13 @@ namespace ConnectApp.redux.actions {
                 CustomDialogUtils.showToast("请检查网络", Icons.sentiment_dissatisfied);
                 return null;
             }
+
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 CustomDialogUtils.showToast("点赞成功", Icons.sentiment_satisfied);
                 dispatcher.dispatch(new LikeArticleSuccessAction {articleId = articleId});
                 return ArticleApi.LikeArticle(articleId)
-                    .Then(() => {
-                        
-                    })
-                    .Catch(_ => {
-                        
-                    });
+                    .Then(() => { })
+                    .Catch(_ => { });
             });
         }
 
@@ -231,17 +227,14 @@ namespace ConnectApp.redux.actions {
                 CustomDialogUtils.showToast("请检查网络", Icons.sentiment_dissatisfied);
                 return null;
             }
+
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 CustomDialogUtils.showToast("点赞成功", Icons.sentiment_satisfied);
                 dispatcher.dispatch(new LikeCommentSuccessAction {message = message});
-                
+
                 return ArticleApi.LikeComment(message.id)
-                    .Then(mess => {
-                        
-                    })
-                    .Catch(error => {
-                        
-                    });
+                    .Then(mess => { })
+                    .Catch(error => { });
             });
         }
 
@@ -250,15 +243,13 @@ namespace ConnectApp.redux.actions {
                 CustomDialogUtils.showToast("请检查网络", Icons.sentiment_dissatisfied);
                 return null;
             }
+
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 CustomDialogUtils.showToast("已取消点赞", Icons.sentiment_satisfied);
                 dispatcher.dispatch(new RemoveLikeCommentSuccessAction {message = message});
                 return ArticleApi.RemoveLikeComment(message.id)
-                    .Then(mess => {
-                        
-                    })
-                    .Catch(error => {
-                    });
+                    .Then(mess => { })
+                    .Catch(error => { });
             });
         }
 
