@@ -7,6 +7,5 @@ namespace ConnectApp.Models.ActionModel {
         public Action<string> mainRouterPushTo;
         public Action clearCache;
         public Action logout;
-        public Func<IPromise> fetchReviewUrl;
     }
 }

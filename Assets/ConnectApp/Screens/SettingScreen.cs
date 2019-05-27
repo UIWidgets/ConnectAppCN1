@@ -30,7 +30,6 @@ namespace ConnectApp.screens {
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new SettingScreenActionModel {
-                        fetchReviewUrl = () => dispatcher.dispatch<IPromise>(Actions.fetchReviewUrl()),
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         mainRouterPushTo = routeName => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = routeName
@@ -67,10 +66,6 @@ namespace ConnectApp.screens {
     }
 
     public class _SettingScreenState : State<SettingScreen> {
-        public override void initState() {
-            base.initState();
-            SchedulerBinding.instance.addPostFrameCallback(_ => { this.widget.actionModel.fetchReviewUrl(); });
-        }
 
         public override Widget build(BuildContext context) {
             return new Container(
