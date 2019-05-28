@@ -51,13 +51,13 @@ namespace ConnectApp.components {
                     alignment: Alignment.centerLeft
                 )
                 : new Container(alignment: Alignment.centerLeft, child: new RichText(text: new TextSpan(
-                            "回复@",
+                            "回复",
                             children: new List<TextSpan> {
                                 new TextSpan(
-                                    $"{this.parentName}",
+                                    $"@{this.parentName}",
                                     children: new List<TextSpan> {
                                         new TextSpan(
-                                            $": {content}",
+                                            $" ：{content}",
                                             CTextStyle.PLargeBody
                                         )
                                     },
@@ -103,7 +103,8 @@ namespace ConnectApp.components {
                                                         child: new Container(
                                                             alignment: Alignment.centerLeft,
                                                             child: new Text(this.message.author.fullName,
-                                                                style: CTextStyle.PMediumBody3))),
+                                                                style: CTextStyle.PMediumBody3.apply(heightFactor: 0,
+                                                                    heightDelta: 1)))),
 
                                                     new CustomButton(
                                                         padding: EdgeInsets.only(8, 0, 0, 8),
