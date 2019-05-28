@@ -12,13 +12,13 @@ using EventType = ConnectApp.models.EventType;
 
 namespace ConnectApp.redux.reducers {
     public static class AppReducer {
-        static List<string> _nonce = new List<string>();
+        static readonly List<string> _nonce = new List<string>();
 
         public static AppState Reduce(AppState state, object bAction) {
             switch (bAction) {
                 case AddCountAction action: {
                     state.Count += action.number;
-                    PlayerPrefs.SetInt("count", state.Count);
+                    PlayerPrefs.SetInt("count", value: state.Count);
                     PlayerPrefs.Save();
                     break;
                 }
@@ -52,11 +52,14 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.loading = false;
                     state.loginState.loginInfo = action.loginInfo;
                     state.loginState.isLoggedIn = true;
-                    state.articleState.articleHistory = HistoryManager.articleHistoryList(action.loginInfo.userId);
-                    state.eventState.eventHistory = HistoryManager.eventHistoryList(action.loginInfo.userId);
-                    state.searchState.searchHistoryList = HistoryManager.searchHistoryList(action.loginInfo.userId);
-                    state.articleState.blockArticleList = HistoryManager.blockArticleList(action.loginInfo.userId);
-                    EventBus.publish(EventBusConstant.login_success, new List<object>());
+                    state.articleState.articleHistory =
+                        HistoryManager.articleHistoryList(userId: action.loginInfo.userId);
+                    state.eventState.eventHistory = HistoryManager.eventHistoryList(userId: action.loginInfo.userId);
+                    state.searchState.searchHistoryList =
+                        HistoryManager.searchHistoryList(userId: action.loginInfo.userId);
+                    state.articleState.blockArticleList =
+                        HistoryManager.blockArticleList(userId: action.loginInfo.userId);
+                    EventBus.publish(sName: EventBusConstant.login_success, new List<object>());
                     break;
                 }
 
@@ -74,10 +77,12 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.loading = false;
                     state.loginState.loginInfo = action.loginInfo;
                     state.loginState.isLoggedIn = true;
-                    state.articleState.articleHistory = HistoryManager.articleHistoryList(action.loginInfo.userId);
-                    state.eventState.eventHistory = HistoryManager.eventHistoryList(action.loginInfo.userId);
-                    state.searchState.searchHistoryList = HistoryManager.searchHistoryList(action.loginInfo.userId);
-                    EventBus.publish(EventBusConstant.login_success, new List<object>());
+                    state.articleState.articleHistory =
+                        HistoryManager.articleHistoryList(userId: action.loginInfo.userId);
+                    state.eventState.eventHistory = HistoryManager.eventHistoryList(userId: action.loginInfo.userId);
+                    state.searchState.searchHistoryList =
+                        HistoryManager.searchHistoryList(userId: action.loginInfo.userId);
+                    EventBus.publish(sName: EventBusConstant.login_success, new List<object>());
                     break;
                 }
 
@@ -119,9 +124,9 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     foreach (var article in action.articleList) {
-                        state.articleState.articleList.Add(article.id);
-                        if (!state.articleState.articleDict.ContainsKey(article.id)) {
-                            state.articleState.articleDict.Add(article.id, article);
+                        state.articleState.articleList.Add(item: article.id);
+                        if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
+                            state.articleState.articleDict.Add(key: article.id, value: article);
                         }
                     }
 
@@ -152,11 +157,11 @@ namespace ConnectApp.redux.reducers {
                     article.isNotFirst = true;
                     article.currOldestMessageId = action.articleDetail.comments.currOldestMessageId;
                     var dict = state.articleState.articleDict;
-                    if (dict.ContainsKey(article.id)) {
-                        state.articleState.articleDict[article.id] = article;
+                    if (dict.ContainsKey(key: article.id)) {
+                        state.articleState.articleDict[key: article.id] = article;
                     }
                     else {
-                        state.articleState.articleDict.Add(article.id, article);
+                        state.articleState.articleDict.Add(key: article.id, value: article);
                     }
 
                     break;
@@ -172,27 +177,27 @@ namespace ConnectApp.redux.reducers {
                     var fullName = "";
                     if (article.ownerType == "user") {
                         var userDict = state.userState.userDict;
-                        if (article.userId != null && userDict.ContainsKey(article.userId)) {
-                            fullName = userDict[article.userId].fullName;
+                        if (article.userId != null && userDict.ContainsKey(key: article.userId)) {
+                            fullName = userDict[key: article.userId].fullName;
                         }
                     }
 
                     if (article.ownerType == "team") {
                         var teamDict = state.teamState.teamDict;
-                        if (article.teamId != null && teamDict.ContainsKey(article.teamId)) {
-                            fullName = teamDict[article.teamId].name;
+                        if (article.teamId != null && teamDict.ContainsKey(key: article.teamId)) {
+                            fullName = teamDict[key: article.teamId].name;
                         }
                     }
 
                     article.fullName = fullName;
-                    var articleHistoryList = HistoryManager.saveArticleHistory(article,
+                    var articleHistoryList = HistoryManager.saveArticleHistory(article: article,
                         state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
                     state.articleState.articleHistory = articleHistoryList;
                     break;
                 }
 
                 case DeleteArticleHistoryAction action: {
-                    var articleHistoryList = HistoryManager.deleteArticleHistory(action.articleId,
+                    var articleHistoryList = HistoryManager.deleteArticleHistory(articleId: action.articleId,
                         state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
                     state.articleState.articleHistory = articleHistoryList;
                     break;
@@ -211,8 +216,8 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case LikeArticleSuccessAction action: {
-                    if (state.articleState.articleDict.ContainsKey(action.articleId)) {
-                        state.articleState.articleDict[action.articleId].like = true;
+                    if (state.articleState.articleDict.ContainsKey(key: action.articleId)) {
+                        state.articleState.articleDict[key: action.articleId].like = true;
                     }
 
                     break;
@@ -220,7 +225,8 @@ namespace ConnectApp.redux.reducers {
 
                 case BlockArticleAction action: {
                     var blockArticleList =
-                        HistoryManager.saveBlockArticleList(action.articleId, state.loginState.loginInfo.userId);
+                        HistoryManager.saveBlockArticleList(articleId: action.articleId,
+                            userId: state.loginState.loginInfo.userId);
                     state.articleState.blockArticleList = blockArticleList;
                     break;
                 }
@@ -234,8 +240,8 @@ namespace ConnectApp.redux.reducers {
                     var channelMessageDict = new Dictionary<string, Dictionary<string, Message>>();
 
                     // action.commentsResponse.parents.ForEach(message => { messageItem[message.id] = message; });
-                    channelMessageList.Add(action.channelId, action.itemIds);
-                    channelMessageDict.Add(action.channelId, action.messageItems);
+                    channelMessageList.Add(key: action.channelId, value: action.itemIds);
+                    channelMessageDict.Add(key: action.channelId, value: action.messageItems);
 
                     if (action.channelId.isNotEmpty()) {
                         foreach (var dict in state.articleState.articleDict) {
@@ -247,37 +253,37 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     foreach (var keyValuePair in channelMessageList) {
-                        if (state.messageState.channelMessageList.ContainsKey(keyValuePair.Key)) {
-                            var oldList = state.messageState.channelMessageList[keyValuePair.Key];
+                        if (state.messageState.channelMessageList.ContainsKey(key: keyValuePair.Key)) {
+                            var oldList = state.messageState.channelMessageList[key: keyValuePair.Key];
                             if (action.isRefreshList) {
                                 oldList.Clear();
                             }
 
-                            oldList.AddRange(keyValuePair.Value);
-                            state.messageState.channelMessageList[keyValuePair.Key] = oldList;
+                            oldList.AddRange(collection: keyValuePair.Value);
+                            state.messageState.channelMessageList[key: keyValuePair.Key] = oldList;
                         }
                         else {
-                            state.messageState.channelMessageList.Add(keyValuePair.Key, keyValuePair.Value);
+                            state.messageState.channelMessageList.Add(key: keyValuePair.Key, value: keyValuePair.Value);
                         }
                     }
 
                     foreach (var keyValuePair in channelMessageDict) {
-                        if (state.messageState.channelMessageDict.ContainsKey(keyValuePair.Key)) {
-                            var oldDict = state.messageState.channelMessageDict[keyValuePair.Key];
+                        if (state.messageState.channelMessageDict.ContainsKey(key: keyValuePair.Key)) {
+                            var oldDict = state.messageState.channelMessageDict[key: keyValuePair.Key];
                             var newDict = keyValuePair.Value;
                             foreach (var valuePair in newDict) {
-                                if (oldDict.ContainsKey(valuePair.Key)) {
-                                    oldDict[valuePair.Key] = valuePair.Value;
+                                if (oldDict.ContainsKey(key: valuePair.Key)) {
+                                    oldDict[key: valuePair.Key] = valuePair.Value;
                                 }
                                 else {
-                                    oldDict.Add(valuePair.Key, valuePair.Value);
+                                    oldDict.Add(key: valuePair.Key, value: valuePair.Value);
                                 }
                             }
 
-                            state.messageState.channelMessageDict[keyValuePair.Key] = oldDict;
+                            state.messageState.channelMessageDict[key: keyValuePair.Key] = oldDict;
                         }
                         else {
-                            state.messageState.channelMessageDict.Add(keyValuePair.Key, keyValuePair.Value);
+                            state.messageState.channelMessageDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
                         }
                     }
 
@@ -289,7 +295,13 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case LikeCommentSuccessAction action: {
-                    state.messageState.channelMessageDict[action.message.channelId][action.message.id] = action.message;
+                    var user = new User();
+                    user.id = state.loginState.loginInfo.userId;
+                    var reaction = new Reaction();
+                    reaction.user = user;
+                    action.message.reactions.Add(item: reaction);
+                    state.messageState.channelMessageDict[key: action.message.channelId][key: action.message.id] =
+                        action.message;
                     break;
                 }
 
@@ -302,7 +314,16 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case RemoveLikeCommentSuccessAction action: {
-                    state.messageState.channelMessageDict[action.message.channelId][action.message.id] = action.message;
+                    var reactions = action.message.reactions;
+                    foreach (var reaction in reactions) {
+                        if (reaction.user.id == state.loginState.loginInfo.userId) {
+                            action.message.reactions.Remove(item: reaction);
+                            break;
+                        }
+                    }
+
+                    state.messageState.channelMessageDict[key: action.message.channelId][key: action.message.id] =
+                        action.message;
                     break;
                 }
 
@@ -311,24 +332,24 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case SendCommentSuccessAction action: {
-                    if (state.messageState.channelMessageList.ContainsKey(action.message.channelId)) {
-                        var list = state.messageState.channelMessageList[action.message.channelId];
-                        list.Insert(0, action.message.id);
-                        state.messageState.channelMessageList[action.message.channelId] = list;
+                    if (state.messageState.channelMessageList.ContainsKey(key: action.message.channelId)) {
+                        var list = state.messageState.channelMessageList[key: action.message.channelId];
+                        list.Insert(0, item: action.message.id);
+                        state.messageState.channelMessageList[key: action.message.channelId] = list;
                     }
                     else {
-                        state.messageState.channelMessageList.Add(action.message.channelId,
+                        state.messageState.channelMessageList.Add(key: action.message.channelId,
                             new List<string> {action.message.id});
                     }
 
-                    if (state.messageState.channelMessageDict.ContainsKey(action.message.channelId)) {
-                        var dict = state.messageState.channelMessageDict[action.message.channelId];
-                        dict.Add(action.message.id, action.message);
-                        state.messageState.channelMessageDict[action.message.channelId] = dict;
+                    if (state.messageState.channelMessageDict.ContainsKey(key: action.message.channelId)) {
+                        var dict = state.messageState.channelMessageDict[key: action.message.channelId];
+                        dict.Add(key: action.message.id, value: action.message);
+                        state.messageState.channelMessageDict[key: action.message.channelId] = dict;
                     }
                     else {
                         state.messageState.channelMessageDict.Add(
-                            action.message.channelId,
+                            key: action.message.channelId,
                             new Dictionary<string, Message> {
                                 {action.message.id, action.message}
                             }
@@ -387,21 +408,21 @@ namespace ConnectApp.redux.reducers {
                     action.eventsResponse.events.items.ForEach(eventObj => {
 //                        if (eventObj.mode == "online") return;
                         if (action.tab == "ongoing") {
-                            if (!state.eventState.ongoingEvents.Contains(eventObj.id)) {
-                                state.eventState.ongoingEvents.Add(eventObj.id);
+                            if (!state.eventState.ongoingEvents.Contains(item: eventObj.id)) {
+                                state.eventState.ongoingEvents.Add(item: eventObj.id);
                             }
                         }
                         else {
-                            if (!state.eventState.completedEvents.Contains(eventObj.id)) {
-                                state.eventState.completedEvents.Add(eventObj.id);
+                            if (!state.eventState.completedEvents.Contains(item: eventObj.id)) {
+                                state.eventState.completedEvents.Add(item: eventObj.id);
                             }
                         }
 
-                        if (state.eventState.eventsDict.ContainsKey(eventObj.id)) {
-                            state.eventState.eventsDict[eventObj.id] = eventObj;
+                        if (state.eventState.eventsDict.ContainsKey(key: eventObj.id)) {
+                            state.eventState.eventsDict[key: eventObj.id] = eventObj;
                         }
                         else {
-                            state.eventState.eventsDict.Add(eventObj.id, eventObj);
+                            state.eventState.eventsDict.Add(key: eventObj.id, value: eventObj);
                         }
                     });
                     break;
@@ -415,11 +436,11 @@ namespace ConnectApp.redux.reducers {
                 case FetchEventDetailSuccessAction action: {
                     state.eventState.eventDetailLoading = false;
                     state.eventState.channelId = action.eventObj.channelId;
-                    if (state.eventState.eventsDict.ContainsKey(action.eventObj.id)) {
-                        state.eventState.eventsDict[action.eventObj.id] = action.eventObj;
+                    if (state.eventState.eventsDict.ContainsKey(key: action.eventObj.id)) {
+                        state.eventState.eventsDict[key: action.eventObj.id] = action.eventObj;
                     }
                     else {
-                        state.eventState.eventsDict.Add(action.eventObj.id, action.eventObj);
+                        state.eventState.eventsDict.Add(key: action.eventObj.id, value: action.eventObj);
                     }
 
                     break;
@@ -435,8 +456,8 @@ namespace ConnectApp.redux.reducers {
                     var place = "";
                     if (eventObj.mode == "offline") {
                         var placeDict = state.placeState.placeDict;
-                        if (eventObj.placeId != null && placeDict.ContainsKey(eventObj.placeId)) {
-                            place = placeDict[eventObj.placeId].name;
+                        if (eventObj.placeId != null && placeDict.ContainsKey(key: eventObj.placeId)) {
+                            place = placeDict[key: eventObj.placeId].name;
                         }
                     }
 
@@ -445,14 +466,14 @@ namespace ConnectApp.redux.reducers {
                         eventObj.mode = action.eventType == EventType.online ? "online" : "offline";
                     }
 
-                    var eventHistoryList = HistoryManager.saveEventHistoryList(eventObj,
+                    var eventHistoryList = HistoryManager.saveEventHistoryList(eventObj: eventObj,
                         state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
                     state.eventState.eventHistory = eventHistoryList;
                     break;
                 }
 
                 case DeleteEventHistoryAction action: {
-                    var eventHistoryList = HistoryManager.deleteEventHistoryList(action.eventId,
+                    var eventHistoryList = HistoryManager.deleteEventHistoryList(eventId: action.eventId,
                         state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
                     state.eventState.eventHistory = eventHistoryList;
                     break;
@@ -472,9 +493,9 @@ namespace ConnectApp.redux.reducers {
 
                 case JoinEventSuccessAction action: {
                     state.eventState.joinEventLoading = false;
-                    var eventObj = state.eventState.eventsDict[action.eventId];
+                    var eventObj = state.eventState.eventsDict[key: action.eventId];
                     eventObj.userIsCheckedIn = true;
-                    state.eventState.eventsDict[action.eventId] = eventObj;
+                    state.eventState.eventsDict[key: action.eventId] = eventObj;
                     break;
                 }
 
@@ -529,7 +550,7 @@ namespace ConnectApp.redux.reducers {
                     }
                     else {
                         var results = state.mineState.futureEventsList;
-                        results.AddRange(offlineItems);
+                        results.AddRange(collection: offlineItems);
                         state.mineState.futureEventsList = results;
                     }
 
@@ -555,7 +576,7 @@ namespace ConnectApp.redux.reducers {
                     }
                     else {
                         var results = state.mineState.pastEventsList;
-                        results.AddRange(offlineItems);
+                        results.AddRange(collection: offlineItems);
                         state.mineState.pastEventsList = results;
                     }
 
@@ -577,18 +598,18 @@ namespace ConnectApp.redux.reducers {
                         action.messageDict != null && action.messageDict.Count > 0) {
                         var channelMessageList = state.messageState.channelMessageList;
                         var channelMessageDict = state.messageState.channelMessageDict;
-                        if (channelMessageList.ContainsKey(action.channelId)) {
-                            channelMessageList[action.channelId] = action.messageIds;
+                        if (channelMessageList.ContainsKey(key: action.channelId)) {
+                            channelMessageList[key: action.channelId] = action.messageIds;
                         }
                         else {
-                            channelMessageList.Add(action.channelId, action.messageIds);
+                            channelMessageList.Add(key: action.channelId, value: action.messageIds);
                         }
 
-                        if (channelMessageDict.ContainsKey(action.channelId)) {
-                            channelMessageDict[action.channelId] = action.messageDict;
+                        if (channelMessageDict.ContainsKey(key: action.channelId)) {
+                            channelMessageDict[key: action.channelId] = action.messageDict;
                         }
                         else {
-                            channelMessageDict.Add(action.channelId, action.messageDict);
+                            channelMessageDict.Add(key: action.channelId, value: action.messageDict);
                         }
 
                         state.messageState.channelMessageList = channelMessageList;
@@ -615,21 +636,21 @@ namespace ConnectApp.redux.reducers {
                     var channelMessageList = state.messageState.channelMessageList;
                     var channelMessageDict = state.messageState.channelMessageDict;
                     var messageIds = new List<string>();
-                    if (channelMessageList.ContainsKey(action.channelId)) {
-                        messageIds = channelMessageList[action.channelId];
+                    if (channelMessageList.ContainsKey(key: action.channelId)) {
+                        messageIds = channelMessageList[key: action.channelId];
                     }
 
                     var messageDict = new Dictionary<string, Message>();
-                    if (channelMessageDict.ContainsKey(action.channelId)) {
-                        messageDict = channelMessageDict[action.channelId];
+                    if (channelMessageDict.ContainsKey(key: action.channelId)) {
+                        messageDict = channelMessageDict[key: action.channelId];
                     }
 
-                    messageIds.Insert(0, action.nonce);
-                    if (channelMessageList.ContainsKey(action.channelId)) {
-                        channelMessageList[action.channelId] = messageIds;
+                    messageIds.Insert(0, item: action.nonce);
+                    if (channelMessageList.ContainsKey(key: action.channelId)) {
+                        channelMessageList[key: action.channelId] = messageIds;
                     }
                     else {
-                        channelMessageList.Add(action.channelId, messageIds);
+                        channelMessageList.Add(key: action.channelId, value: messageIds);
                     }
 
                     var previewMsg = new Message {
@@ -640,12 +661,12 @@ namespace ConnectApp.redux.reducers {
                             fullName = state.loginState.loginInfo.userFullName
                         }
                     };
-                    _nonce.Add(action.nonce);
-                    if (messageDict.ContainsKey(action.nonce)) {
-                        messageDict[action.nonce] = previewMsg;
+                    _nonce.Add(item: action.nonce);
+                    if (messageDict.ContainsKey(key: action.nonce)) {
+                        messageDict[key: action.nonce] = previewMsg;
                     }
                     else {
-                        messageDict.Add(action.nonce, previewMsg);
+                        messageDict.Add(key: action.nonce, value: previewMsg);
                     }
 
                     state.messageState.channelMessageList = channelMessageList;
@@ -662,11 +683,11 @@ namespace ConnectApp.redux.reducers {
                 case UserMapAction action: {
                     var userDict = state.userState.userDict;
                     foreach (var keyValuePair in action.userMap) {
-                        if (userDict.ContainsKey(keyValuePair.Key)) {
-                            userDict[keyValuePair.Key] = keyValuePair.Value;
+                        if (userDict.ContainsKey(key: keyValuePair.Key)) {
+                            userDict[key: keyValuePair.Key] = keyValuePair.Value;
                         }
                         else {
-                            userDict.Add(keyValuePair.Key, keyValuePair.Value);
+                            userDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
                         }
                     }
 
@@ -677,11 +698,11 @@ namespace ConnectApp.redux.reducers {
                 case TeamMapAction action: {
                     var teamDict = state.teamState.teamDict;
                     foreach (var keyValuePair in action.teamMap) {
-                        if (teamDict.ContainsKey(keyValuePair.Key)) {
-                            teamDict[keyValuePair.Key] = keyValuePair.Value;
+                        if (teamDict.ContainsKey(key: keyValuePair.Key)) {
+                            teamDict[key: keyValuePair.Key] = keyValuePair.Value;
                         }
                         else {
-                            teamDict.Add(keyValuePair.Key, keyValuePair.Value);
+                            teamDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
                         }
                     }
 
@@ -692,11 +713,11 @@ namespace ConnectApp.redux.reducers {
                 case PlaceMapAction action: {
                     var placeDict = state.placeState.placeDict;
                     foreach (var keyValuePair in action.placeMap) {
-                        if (placeDict.ContainsKey(keyValuePair.Key)) {
-                            placeDict[keyValuePair.Key] = keyValuePair.Value;
+                        if (placeDict.ContainsKey(key: keyValuePair.Key)) {
+                            placeDict[key: keyValuePair.Key] = keyValuePair.Value;
                         }
                         else {
-                            placeDict.Add(keyValuePair.Key, keyValuePair.Value);
+                            placeDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
                         }
                     }
 
@@ -724,7 +745,7 @@ namespace ConnectApp.redux.reducers {
                     }
                     else {
                         var searchArticles = state.searchState.searchArticles;
-                        searchArticles.AddRange(action.searchResponse.projects);
+                        searchArticles.AddRange(collection: action.searchResponse.projects);
                         state.searchState.searchArticles = searchArticles;
                     }
 
@@ -744,14 +765,14 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case SaveSearchHistoryAction action: {
-                    var searchHistoryList = HistoryManager.saveSearchHistoryList(action.keyword,
+                    var searchHistoryList = HistoryManager.saveSearchHistoryList(keyword: action.keyword,
                         state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
                     state.searchState.searchHistoryList = searchHistoryList;
                     break;
                 }
 
                 case DeleteSearchHistoryAction action: {
-                    var searchHistoryList = HistoryManager.deleteSearchHistoryList(action.keyword,
+                    var searchHistoryList = HistoryManager.deleteSearchHistoryList(keyword: action.keyword,
                         state.loginState.isLoggedIn ? state.loginState.loginInfo.userId : null);
                     state.searchState.searchHistoryList = searchHistoryList;
                     break;
@@ -769,7 +790,7 @@ namespace ConnectApp.redux.reducers {
                     if (action.articleId != null) {
                         Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                                new ArticleDetailScreenConnector(action.articleId),
+                                new ArticleDetailScreenConnector(articleId: action.articleId),
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new PushPageTransition(
                                     routeAnimation: animation,
@@ -786,10 +807,10 @@ namespace ConnectApp.redux.reducers {
                         Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) => {
                                 if (action.eventType == EventType.offline) {
-                                    return new EventOfflineDetailScreenConnector(action.eventId);
+                                    return new EventOfflineDetailScreenConnector(eventId: action.eventId);
                                 }
 
-                                return new EventOnlineDetailScreenConnector(action.eventId);
+                                return new EventOnlineDetailScreenConnector(eventId: action.eventId);
                             },
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new PushPageTransition(
@@ -805,7 +826,7 @@ namespace ConnectApp.redux.reducers {
                 case MainNavigatorPushToReportAction action: {
                     Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                                new ReportScreenConnector(action.reportId, action.reportType),
+                                new ReportScreenConnector(reportId: action.reportId, reportType: action.reportType),
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new PushPageTransition(
                                     routeAnimation: animation,
@@ -818,12 +839,12 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case MainNavigatorPushToAction action: {
-                    Router.navigator.pushNamed(action.routeName);
+                    Router.navigator.pushNamed(routeName: action.routeName);
                     break;
                 }
 
                 case MainNavigatorPushToRouteAction action: {
-                    Router.navigator.push(action.route);
+                    Router.navigator.push(route: action.route);
                     break;
                 }
 
@@ -840,7 +861,7 @@ namespace ConnectApp.redux.reducers {
                 case LoginNavigatorPushToBindUnityAction _: {
                     LoginScreen.navigator.push(new PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
-                            new BindUnityScreenConnector(FromPage.login),
+                            new BindUnityScreenConnector(fromPage: FromPage.login),
                         transitionsBuilder: (context1, animation, secondaryAnimation, child) => new PushPageTransition(
                             routeAnimation: animation,
                             child: child
@@ -850,7 +871,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case LoginNavigatorPushToAction action: {
-                    LoginScreen.navigator.pushNamed(action.routeName);
+                    LoginScreen.navigator.pushNamed(routeName: action.routeName);
                     break;
                 }
 
@@ -866,14 +887,14 @@ namespace ConnectApp.redux.reducers {
 
                 case OpenUrlAction action: {
                     if (action.url != null || action.url.Length > 0) {
-                        Application.OpenURL(action.url);
+                        Application.OpenURL(url: action.url);
                     }
 
                     break;
                 }
 
                 case CopyTextAction action: {
-                    Clipboard.setData(new ClipboardData(action.text));
+                    Clipboard.setData(new ClipboardData(text: action.text));
                     break;
                 }
 
@@ -881,7 +902,7 @@ namespace ConnectApp.redux.reducers {
                     if (action.url != null) {
                         Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                                new WebViewScreen(action.url),
+                                new WebViewScreen(url: action.url),
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new PushPageTransition(
                                     routeAnimation: animation,
@@ -897,7 +918,7 @@ namespace ConnectApp.redux.reducers {
                     if (action.url != null) {
                         Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                                new VideoViewScreen(action.url),
+                                new VideoViewScreen(url: action.url),
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new PushPageTransition(
                                     routeAnimation: animation,

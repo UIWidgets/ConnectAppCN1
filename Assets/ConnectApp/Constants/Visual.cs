@@ -97,6 +97,7 @@ namespace ConnectApp.constants {
         );
 
         public static readonly TextStyle H5 = new TextStyle(
+            height: 1.27f,
             fontSize: 20,
             fontFamily: "Roboto-Medium",
             color: CColors.TextTitle

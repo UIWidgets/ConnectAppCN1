@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.components;
-using ConnectApp.Components;
 using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
+using ConnectApp.Components;
 using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
@@ -13,8 +13,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -79,8 +79,9 @@ namespace ConnectApp.screens {
                                 Actions.fetchArticleComments(channelId, currOldestMessageId)
                             ),
                         likeArticle = id => dispatcher.dispatch<IPromise>(Actions.likeArticle(id)),
-                        likeComment = id => dispatcher.dispatch<IPromise>(Actions.likeComment(id)),
-                        removeLikeComment = id => dispatcher.dispatch<IPromise>(Actions.removeLikeComment(id)),
+                        likeComment = message => dispatcher.dispatch<IPromise>(Actions.likeComment(message)),
+                        removeLikeComment =
+                            message => dispatcher.dispatch<IPromise>(Actions.removeLikeComment(message)),
                         sendComment = (channelId, content, nonce, parentMessageId) => {
                             CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog());
                             return dispatcher.dispatch<IPromise>(
@@ -631,10 +632,10 @@ namespace ConnectApp.screens {
                         }
                         else {
                             if (isPraised) {
-                                this.widget.actionModel.removeLikeComment(commentId);
+                                this.widget.actionModel.removeLikeComment(message);
                             }
                             else {
-                                this.widget.actionModel.likeComment(commentId);
+                                this.widget.actionModel.likeComment(message);
                             }
                         }
                     });
