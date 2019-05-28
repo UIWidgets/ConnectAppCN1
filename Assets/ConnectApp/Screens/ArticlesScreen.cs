@@ -56,7 +56,8 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = articleId});
                         },
                         startFetchArticles = () => dispatcher.dispatch(new StartFetchArticlesAction()),
-                        fetchArticles = offset => dispatcher.dispatch<IPromise>(Actions.fetchArticles(offset))
+                        fetchArticles = offset => dispatcher.dispatch<IPromise>(Actions.fetchArticles(offset)),
+                        fetchReviewUrl = () => dispatcher.dispatch<IPromise>(Actions.fetchReviewUrl())
                     };
                     return new ArticlesScreen(viewModel, actionModel);
                 }
@@ -104,6 +105,7 @@ namespace ConnectApp.screens {
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchArticles();
                 this.widget.actionModel.fetchArticles(initOffset);
+                this.widget.actionModel.fetchReviewUrl();
             });
         }
 

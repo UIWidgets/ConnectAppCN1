@@ -10,5 +10,6 @@ namespace ConnectApp.Models.ActionModel {
         public Action<string> pushToBlock;
         public Action startFetchArticles;
         public Func<int, IPromise> fetchArticles;
+        public Func<IPromise> fetchReviewUrl;
     }
 }

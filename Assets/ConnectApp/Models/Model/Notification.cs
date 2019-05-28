@@ -23,5 +23,7 @@ namespace ConnectApp.models {
         public string role;
         public string userId;
         public string username;
+        public string comment;
+        public string parentComment;
     }
 }
