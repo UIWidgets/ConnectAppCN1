@@ -46,8 +46,8 @@ android {
         ndk {
             abiFilters 'armeabi-v7a', 'x86'
         }
-        versionCode 21
-        versionName '0.9.3'
+        versionCode 24
+        versionName '0.9.5'
     }
 
     lintOptions {
@@ -84,7 +84,7 @@ android {
             minifyEnabled false
             useProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-unity.txt'
-            //signingConfig signingConfigs.release
+            signingConfig signingConfigs.release
         }
     }
 
