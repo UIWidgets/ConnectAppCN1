@@ -37,9 +37,10 @@ namespace ConnectApp.components {
             var time = this.article.lastPublishedTime == null
                 ? this.article.publishedTime
                 : this.article.lastPublishedTime;
-            var imageUrl = this.article.thumbnail.url.EndsWith(".gif")
-                ? this.article.thumbnail.url
-                : $"{this.article.thumbnail.url}.300x0x1.jpg";
+//            var imageUrl = this.article.thumbnail.url.EndsWith(".gif")
+//                ? this.article.thumbnail.url
+//                : $"{this.article.thumbnail.url}.600x0x1.jpg";
+            var imageUrl = $"{this.article.thumbnail.url}.400x0x1.jpg";
             var card = new Container(
                 color: CColors.White,
                 child: new Padding(
