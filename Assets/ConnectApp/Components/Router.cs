@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.components;
+using ConnectApp.constants;
 using ConnectApp.plugins;
 using ConnectApp.screens;
 using RSG;
@@ -80,24 +81,28 @@ namespace ConnectApp.Components {
                         promise.Resolve(false);
                     }
                     else {
-                        if (this._exitApp) {
-                            CustomToast.hidden();
-                            promise.Resolve(true);
-                            if (this._timer != null) {
-                                this._timer.Dispose();
-                                this._timer = null;
+                        if (Config.platform == "android") {
+                            if (this._exitApp) {
+                                CustomToast.hidden();
+                                promise.Resolve(true);
+                                if (this._timer != null) {
+                                    this._timer.Dispose();
+                                    this._timer = null;
+                                }
+                            } else {
+                                this._exitApp = true;
+                                CustomToast.show(new CustomToastItem(
+                                    context: context,
+                                    "再按一次退出",
+                                    TimeSpan.FromMilliseconds(2000)
+                                ));
+                                this._timer = Window.instance.run(TimeSpan.FromMilliseconds(2000), () => {
+                                    this._exitApp = false;
+                                });
+                                promise.Resolve(false);
                             }
                         } else {
-                            this._exitApp = true;
-                            CustomToast.show(new CustomToastItem(
-                                context: context,
-                                "再按一次退出",
-                                TimeSpan.FromMilliseconds(2000)
-                            ));
-                            this._timer = Window.instance.run(TimeSpan.FromMilliseconds(2000), () => {
-                                this._exitApp = false;
-                            });
-                            promise.Resolve(false);
+                            promise.Resolve(true);
                         }
                     }
                     return promise;
