@@ -322,6 +322,7 @@ namespace ConnectApp.components {
                 this._playState = PlayState.play;
             }
 
+            this.cancelTimer();
             this.setState(() => { });
         }
 
