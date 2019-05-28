@@ -1,8 +1,11 @@
+using System;
 using System.Collections.Generic;
+using ConnectApp.components;
 using ConnectApp.plugins;
 using ConnectApp.screens;
 using RSG;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -25,6 +28,8 @@ namespace ConnectApp.Components {
 
     class Router : StatelessWidget {
         static readonly GlobalKey globalKey = GlobalKey.key("main-router");
+        bool _exitApp;
+        Timer _timer;
 
         public static NavigatorState navigator {
             get { return globalKey.currentState as NavigatorState; }
@@ -75,16 +80,33 @@ namespace ConnectApp.Components {
                         promise.Resolve(false);
                     }
                     else {
-                        promise.Resolve(true);
+                        if (this._exitApp) {
+                            CustomToast.hidden();
+                            promise.Resolve(true);
+                            if (this._timer != null) {
+                                this._timer.Dispose();
+                                this._timer = null;
+                            }
+                        } else {
+                            this._exitApp = true;
+                            CustomToast.show(new CustomToastItem(
+                                context: context,
+                                "再按一次退出",
+                                TimeSpan.FromMilliseconds(2000)
+                            ));
+                            this._timer = Window.instance.run(TimeSpan.FromMilliseconds(2000), () => {
+                                this._exitApp = false;
+                            });
+                            promise.Resolve(false);
+                        }
                     }
-
                     return promise;
                 },
                 child: new Navigator(
-                    globalKey,
+                    key: globalKey,
                     onGenerateRoute: settings => {
                         return new PageRouteBuilder(
-                            settings,
+                            settings: settings,
                             (context1, animation, secondaryAnimation) => mainRoutes[settings.name](context1),
                             (context1, animation, secondaryAnimation, child) => {
                                 if (fullScreenRoutes.ContainsKey(settings.name)) {
@@ -111,7 +133,7 @@ namespace ConnectApp.Components {
             Key key = null,
             Animation<float> routeAnimation = null, // The route's linear 0.0 - 1.0 animation.
             Widget child = null
-        ) : base(key) {
+        ) : base(key: key) {
             this._positionAnimation = this._leftPushTween.chain(this._fastOutSlowInTween).animate(routeAnimation);
             this.child = child;
         }
@@ -138,7 +160,7 @@ namespace ConnectApp.Components {
             Key key = null,
             Animation<float> routeAnimation = null, // The route's linear 0.0 - 1.0 animation.
             Widget child = null
-        ) : base(key) {
+        ) : base(key: key) {
             this._positionAnimation = this._bottomUpTween.chain(this._fastOutSlowInTween).animate(routeAnimation);
             this.child = child;
         }
