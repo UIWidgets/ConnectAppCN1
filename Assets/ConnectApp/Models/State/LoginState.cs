@@ -1,6 +1,7 @@
 using System;
+using ConnectApp.Models.Model;
 
-namespace ConnectApp.models {
+namespace ConnectApp.Models.State {
     [Serializable]
     public class LoginState {
         public LoginInfo loginInfo;

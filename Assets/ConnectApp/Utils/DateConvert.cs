@@ -1,5 +1,5 @@
 using System;
-using ConnectApp.models;
+using ConnectApp.Models.Model;
 
 namespace ConnectApp.utils {
     public enum EventStatus {

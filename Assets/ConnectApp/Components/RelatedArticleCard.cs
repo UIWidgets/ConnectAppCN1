@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.constants;
-using ConnectApp.models;
+using ConnectApp.Models.Model;
 using ConnectApp.utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;

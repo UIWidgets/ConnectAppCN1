@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using ConnectApp.constants;
-using ConnectApp.models;
+using ConnectApp.Models.Api;
 using ConnectApp.utils;
 using Newtonsoft.Json;
 using RSG;

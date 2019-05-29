@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
-using ConnectApp.models;
+using ConnectApp.Models.Model;
 using ConnectApp.utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
-using Notification = ConnectApp.models.Notification;
+using Notification = ConnectApp.Models.Model.Notification;
 
 namespace ConnectApp.Components {
     public class NotificationCard : StatelessWidget {

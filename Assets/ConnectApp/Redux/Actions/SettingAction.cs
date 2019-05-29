@@ -1,6 +1,6 @@
 using ConnectApp.api;
 using ConnectApp.constants;
-using ConnectApp.models;
+using ConnectApp.Models.State;
 using Unity.UIWidgets.Redux;
 
 namespace ConnectApp.redux.actions {

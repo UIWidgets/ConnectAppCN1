@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.constants;
-using ConnectApp.models;
+using ConnectApp.Models.Model;
+using ConnectApp.Models.State;
 using ConnectApp.utils;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;

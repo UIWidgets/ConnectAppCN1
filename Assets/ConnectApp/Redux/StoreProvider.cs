@@ -1,4 +1,4 @@
-using ConnectApp.models;
+using ConnectApp.Models.State;
 using ConnectApp.redux.reducers;
 using Unity.UIWidgets;
 using Unity.UIWidgets.Redux;

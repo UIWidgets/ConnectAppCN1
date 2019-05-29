@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.constants;
-using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
+using ConnectApp.Models.State;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;

@@ -1,5 +1,5 @@
 using ConnectApp.Components;
-using ConnectApp.models;
+using ConnectApp.Models.State;
 using ConnectApp.plugins;
 using ConnectApp.redux;
 using Unity.UIWidgets.engine;

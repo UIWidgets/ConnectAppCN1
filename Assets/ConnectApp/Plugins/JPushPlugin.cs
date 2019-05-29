@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using ConnectApp.constants;
+using ConnectApp.Models.State;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using ConnectApp.utils;
@@ -8,8 +9,6 @@ using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using EventType = ConnectApp.models.EventType;
 
 namespace ConnectApp.plugins {
     public static class JPushPlugin {
@@ -62,7 +61,6 @@ namespace ConnectApp.plugins {
                             break;
                         case "OnReceiveMessage": {
                             //接收到应用内消息
-                            
                         }
                             break;
                     }

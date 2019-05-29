@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ConnectApp.models {
+namespace ConnectApp.Models.Api {
     [Serializable]
     public class LoginParameter {
         public string email;

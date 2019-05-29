@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using ConnectApp.models;
+using ConnectApp.Models.Model;
 using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
 using UnityEngine;

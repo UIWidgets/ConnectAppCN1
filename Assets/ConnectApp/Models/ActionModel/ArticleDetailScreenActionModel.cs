@@ -1,6 +1,6 @@
 using System;
 using ConnectApp.Components;
-using ConnectApp.models;
+using ConnectApp.Models.Model;
 using ConnectApp.screens;
 using RSG;
 

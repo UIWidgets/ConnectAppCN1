@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using ConnectApp.models;
+using ConnectApp.Models.Model;
 
 namespace ConnectApp.redux.actions {
     public class PlaceMapAction : BaseAction {
