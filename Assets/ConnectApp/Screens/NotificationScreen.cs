@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ConnectApp.components;
 using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
+using ConnectApp.Components;
 using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
@@ -178,7 +179,9 @@ namespace ConnectApp.screens {
                         new Flexible(
                             child: new NotificationListener<ScrollNotification>(
                                 onNotification: this._onNotification,
-                                child: content
+                                child: new CustomScrollbar(
+                                    child: content
+                                )
                             )
                         )
                     }

@@ -163,7 +163,7 @@ namespace ConnectApp.screens {
                 );
             }
             else if (this.widget.viewModel.articleList.Count <= 0) {
-                content = new BlankView("暂无文章", true, tapCallback: () => {
+                content = new BlankView("暂无文章", true, () => {
                     this.widget.actionModel.startFetchArticles();
                     this.widget.actionModel.fetchArticles(initOffset);
                 });
@@ -217,19 +217,15 @@ namespace ConnectApp.screens {
                 onNotification: this._onNotification,
                 child: new Container(
                     color: CColors.background3,
-                    child: content
+                    child: new CustomScrollbar(
+                        child: content
+                    )
                 )
             );
         }
 
         void onRefresh(bool up) {
-            if (up) {
-                this.offset = initOffset;
-            }
-            else {
-                this.offset = this.widget.viewModel.hosttestOffset;
-            }
-
+            this.offset = up ? initOffset : this.widget.viewModel.hosttestOffset;
             this.widget.actionModel.fetchArticles(this.offset)
                 .Then(() => this._refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => this._refreshController.sendBack(up, RefreshStatus.failed));
