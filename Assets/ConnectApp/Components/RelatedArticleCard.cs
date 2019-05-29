@@ -94,7 +94,7 @@ namespace ConnectApp.components {
                             height: 76,
                             child: new PlaceholderImage(this.article.thumbnail.url.EndsWith(".gif")
                                     ? this.article.thumbnail.url
-                                    : $"{this.article.thumbnail.url}.300x0x1.jpg",
+                                    : $"{this.article.thumbnail.url}.450x0x1.jpg",
                                 114,
                                 76,
                                 4,

@@ -35,7 +35,10 @@ namespace ConnectApp.components {
             var types = new List<string> {
                 "project_liked",
                 "project_message_commented",
-                "project_participate_comment"
+                "project_participate_comment",
+                "project_message_liked",
+                "project_message_participate_liked"
+
             };
             if (!types.Contains(type)) {
                 return new Container();
@@ -78,39 +81,83 @@ namespace ConnectApp.components {
             var type = this.notification.type;
             var data = this.notification.data;
             var subTitle = new TextSpan();
+            var content = "";
             if (type == "project_liked") {
                 subTitle = new TextSpan(
-                    $" 点赞了你的{data.projectTitle}文章",
+                    " 赞了你的文章",
                     CTextStyle.PLargeBody2
                 );
             }
 
             if (type == "project_message_commented") {
-                subTitle = new TextSpan(
-                    $" 评价了你的{data.projectTitle}文章",
-                    CTextStyle.PLargeBody2
-                );
+                if (data.parentComment.isNotEmpty()) {
+                    content = $" “{data.parentComment}”";
+                    subTitle = new TextSpan(
+                        " 回复了你的评论" + content,
+                        CTextStyle.PLargeBody2
+                    );
+                }
+                else {
+                    subTitle = new TextSpan(
+                        " 评论了你的文章",
+                        CTextStyle.PLargeBody2
+                    );  
+                }
             }
 
             if (type == "project_participate_comment") {
+                if (data.parentComment.isNotEmpty()) {
+                    content = $" “{data.parentComment}”";
+                }
                 subTitle = new TextSpan(
-                    $" 评价了你关注/喜欢的{data.projectTitle}文章",
+                    " 回复了你的评论" + content,
+                    CTextStyle.PLargeBody2
+                );
+            }
+            
+            if (type == "project_message_liked") {
+                if (data.comment.isNotEmpty()) {
+                    content = $" “{data.comment}”";
+                }
+                subTitle = new TextSpan(
+                    " 赞了你的评论" + content,
+                    CTextStyle.PLargeBody2
+                );
+            }
+            
+            if (type == "project_message_participate_liked") {
+                if (data.comment.isNotEmpty()) {
+                    content = $" “{data.comment}”";
+                }
+                subTitle = new TextSpan(
+                    " 赞了你的评论" + content,
                     CTextStyle.PLargeBody2
                 );
             }
 
-            return new Container(
-                child: new RichText(
-                    text: new TextSpan(
-                        children: new List<TextSpan> {
-                            new TextSpan(
-                                data.fullname,
-                                CTextStyle.PLargeMedium
-                            ),
-                            subTitle
-                        }
+            return new Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: new List<Widget> {
+                    new RichText(
+                        maxLines: 2,
+                        text: new TextSpan(
+                            children: new List<TextSpan> {
+                                new TextSpan(
+                                    data.fullname,
+                                    CTextStyle.PLargeMedium
+                                ),
+                                subTitle
+                            }
+                        ),
+                        overflow: TextOverflow.ellipsis
+                    ),
+                    new Text(
+                        data.projectTitle,
+                        maxLines: 1,
+                        style: CTextStyle.PLargeMedium,
+                        overflow: TextOverflow.ellipsis
                     )
-                )
+                }
             );
         }
 

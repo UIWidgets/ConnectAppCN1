@@ -21,7 +21,7 @@ namespace ConnectApp.components {
             var content = JsonConvert.DeserializeObject<EventContent>(cont);
             var widgets = new List<Widget>();
 
-            var _isFirstOrderedListItem = false;
+            var orderedIndex = 1;
             var blocks = content.blocks;
             for (var i = 0; i < blocks.Count; i++) {
                 var block = blocks[i];
@@ -85,22 +85,23 @@ namespace ConnectApp.components {
                     }
                         break;
                     case "ordered-list-item": {
-                        if (_isFirstOrderedListItem) {
-                            break;
+                        var isFirst = true;
+                        if (i > 0) {
+                            var beforeBlock = blocks[i - 1];
+                            isFirst = beforeBlock.type != "ordered-list-item";
                         }
+                        if (isFirst) {
+                            orderedIndex = 1;
+                        }
+                        else {
+                            orderedIndex++;
+                        }
+                        var afterBlock = blocks[i + 1];
+                        var isLast = afterBlock.type != "ordered-list-item";
 
-                        var items = new List<OrderedListModel>();
-                        var orderedItem = blocks.FindAll(item => item.type == "ordered-list-item");
-                        orderedItem.ForEach(item => items.Add(new OrderedListModel {
-                            text = item.text,
-                            entityMap = content.entityMap,
-                            entityRanges = item.entityRanges,
-                            inlineStyleRanges = item.inlineStyleRanges,
-                            openUrl = openUrl
-                        }));
-
-                        widgets.Add(_OrderedList(items));
-                        _isFirstOrderedListItem = true;
+                        var inlineSpans = _RichStyle(text, content.entityMap, block.entityRanges,
+                            block.inlineStyleRanges, openUrl);
+                        widgets.Add(_OrderedList(text, orderedIndex, isLast, inlineSpans));
                     }
                         break;
                     case "atomic": {
@@ -395,46 +396,33 @@ namespace ConnectApp.components {
         }
 
 
-        static Widget _OrderedList(List<OrderedListModel> items) {
-            var widgets = new List<Widget>();
-
-            for (var i = 0; i < items.Count; i++) {
-                var item = items[i];
-                var spans = new List<TextSpan> {
-                    new TextSpan(
-                        $"{i + 1}. ",
-                        CTextStyle.PXLarge
-                    )
-                };
-                var linkSpans = _RichStyle(item.text, item.entityMap, item.entityRanges, item.inlineStyleRanges,
-                    item.openUrl);
-                if (linkSpans != null) {
-                    spans.AddRange(linkSpans);
-                }
-                else {
-                    spans.Add(new TextSpan(item.text, CTextStyle.PXLarge));
-                }
-
-                widgets.Add(
-                    new Container(
-                        padding: EdgeInsets.only(16, right: 16),
-                        margin: EdgeInsets.only(top: i == 0 ? 0 : 4),
-                        child: new RichText(
-                            text: new TextSpan(
-                                style: CTextStyle.PXLarge,
-                                children: spans
-                            )
-                        )
-                    )
-                );
+        static Widget _OrderedList(
+            string text,
+            int index,
+            bool isLast,
+            List<TextSpan> inlineSpans
+        ) {
+            var spans = new List<TextSpan> {
+                new TextSpan(
+                    $"{index}. ",
+                    CTextStyle.PXLarge
+                )
+            };
+            if (inlineSpans != null) {
+                spans.AddRange(inlineSpans);
+            }
+            else {
+                spans.Add(new TextSpan(text, CTextStyle.PXLarge));
             }
 
             return new Container(
-                color: CColors.White,
-                padding: EdgeInsets.only(bottom: 24),
-                child: new Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: widgets
+                padding: EdgeInsets.only(16, right: 16),
+                margin: EdgeInsets.only(top: index == 1 ? 0 : 4, bottom: isLast ? 24 : 0),
+                child: new RichText(
+                    text: new TextSpan(
+                        style: CTextStyle.PXLarge,
+                        children: spans
+                    )
                 )
             );
         }
