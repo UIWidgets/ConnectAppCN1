@@ -1,11 +1,11 @@
 using ConnectApp.Constants;
 using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
-using ConnectApp.utils;
+using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
 
-namespace ConnectApp.api {
+namespace ConnectApp.Api {
     public static class EventApi {
         public static IPromise<FetchEventsResponse> FetchEvents(int pageNumber, string tab, string mode) {
             if (tab == "completed") {

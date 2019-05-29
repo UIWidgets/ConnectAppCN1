@@ -4,7 +4,7 @@ using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.redux.actions;
 using ConnectApp.screens;
-using ConnectApp.utils;
+using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;

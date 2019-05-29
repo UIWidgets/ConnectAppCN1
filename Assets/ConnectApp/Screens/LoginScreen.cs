@@ -4,7 +4,7 @@ using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
-using ConnectApp.plugins;
+using ConnectApp.Plugins;
 using ConnectApp.redux.actions;
 using RSG;
 using Unity.UIWidgets.gestures;

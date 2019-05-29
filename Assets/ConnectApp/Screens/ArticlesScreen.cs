@@ -7,7 +7,7 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
-using ConnectApp.utils;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;

@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
 
-namespace ConnectApp.utils {
+namespace ConnectApp.Utils {
     public static class HistoryManager {
         const string _searchHistoryKey = "searchHistoryKey";
         const string _articleHistoryKey = "articleHistoryKey";

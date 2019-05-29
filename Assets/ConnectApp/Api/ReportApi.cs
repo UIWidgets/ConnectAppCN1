@@ -2,12 +2,12 @@ using System.Collections.Generic;
 using System.Text;
 using ConnectApp.Constants;
 using ConnectApp.Models.Api;
-using ConnectApp.utils;
+using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
 using UnityEngine.Networking;
 
-namespace ConnectApp.api {
+namespace ConnectApp.Api {
     public static class ReportApi {
         public static Promise ReportItem(string itemId, string itemType, string reportContext) {
             var promise = new Promise();

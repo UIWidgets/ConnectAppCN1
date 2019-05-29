@@ -4,13 +4,13 @@ using ConnectApp.Constants;
 using ConnectApp.Models.State;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
-using ConnectApp.utils;
+using ConnectApp.Utils;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.plugins {
+namespace ConnectApp.Plugins {
     public static class JPushPlugin {
         public static BuildContext context;
         public static bool isListen;

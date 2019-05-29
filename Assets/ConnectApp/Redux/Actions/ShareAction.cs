@@ -1,8 +1,8 @@
 using System;
-using ConnectApp.api;
+using ConnectApp.Api;
 using ConnectApp.Components;
 using ConnectApp.Models.State;
-using ConnectApp.plugins;
+using ConnectApp.Plugins;
 using Unity.UIWidgets.Redux;
 
 namespace ConnectApp.redux.actions {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
-using ConnectApp.utils;
+using ConnectApp.Utils;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;

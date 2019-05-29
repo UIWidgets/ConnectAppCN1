@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using ConnectApp.api;
+using ConnectApp.Api;
 using ConnectApp.Components;
 using ConnectApp.Constants;
 using Unity.UIWidgets.foundation;
@@ -9,7 +9,7 @@ using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 
-namespace ConnectApp.utils {
+namespace ConnectApp.Utils {
     public enum CheckVersionType {
         first,
         setting

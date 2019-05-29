@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
-using ConnectApp.utils;
+using ConnectApp.Utils;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;

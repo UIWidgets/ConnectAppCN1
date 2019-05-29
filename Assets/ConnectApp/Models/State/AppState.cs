@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.Models.Model;
-using ConnectApp.utils;
+using ConnectApp.Utils;
 using UnityEngine;
 
 namespace ConnectApp.Models.State {

@@ -2,13 +2,13 @@ using System;
 using System.Collections;
 using ConnectApp.Constants;
 using ConnectApp.Models.Api;
-using ConnectApp.utils;
+using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.ui;
 
-namespace ConnectApp.api {
+namespace ConnectApp.Api {
     public static class SocketApi {
         public static Promise<string> FetchSocketUrl() {
             // We return a promise instantly and start the coroutine to do the real work

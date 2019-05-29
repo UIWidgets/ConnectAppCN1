@@ -1,10 +1,10 @@
 using ConnectApp.Constants;
 using ConnectApp.Models.Api;
-using ConnectApp.utils;
+using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
 
-namespace ConnectApp.api {
+namespace ConnectApp.Api {
     public static class MineApi {
         public static Promise<FetchEventsResponse> FetchMyFutureEvents(int pageNumber) {
             var promise = new Promise<FetchEventsResponse>();

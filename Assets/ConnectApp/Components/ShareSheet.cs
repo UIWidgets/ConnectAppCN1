@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.Constants;
-using ConnectApp.plugins;
+using ConnectApp.Plugins;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;

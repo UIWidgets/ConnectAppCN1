@@ -3,12 +3,12 @@ using System.Text;
 using ConnectApp.Constants;
 using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
-using ConnectApp.utils;
+using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
 using UnityEngine.Networking;
 
-namespace ConnectApp.api {
+namespace ConnectApp.Api {
     public static class LoginApi {
         public static IPromise<LoginInfo> LoginByEmail(string email, string password) {
             var promise = new Promise<LoginInfo>();

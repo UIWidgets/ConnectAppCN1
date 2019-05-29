@@ -6,7 +6,7 @@ using Unity.UIWidgets.ui;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace ConnectApp.api {
+namespace ConnectApp.Api {
     public static class ShareApi {
         public static Promise<byte[]> FetchImageBytes(string url) {
             // We return a promise instantly and start the coroutine to do the real work

@@ -1,7 +1,6 @@
 using System.Runtime.InteropServices;
-using UnityEngine;
 
-namespace ConnectApp.plugins {
+namespace ConnectApp.Plugins {
     public class JAnalyticsPlugin {
         public static void startPageView(string pageName) {
             startLogPageView(pageName);
@@ -22,12 +21,11 @@ namespace ConnectApp.plugins {
 
         [DllImport("__Internal")]
         static extern void stopLogPageView(string pageName);
-        
+
         [DllImport("__Internal")]
         static extern void loginEvent(string loginType);
 
 #elif UNITY_ANDROID
-
         static AndroidJavaObject _plugin;
 
         static AndroidJavaObject Plugin() {

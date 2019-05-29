@@ -2,11 +2,11 @@ using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
-using ConnectApp.utils;
+using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
 
-namespace ConnectApp.api {
+namespace ConnectApp.Api {
     public static class SearchApi {
         public static Promise<List<PopularSearch>> PopularSearch() {
             var promise = new Promise<List<PopularSearch>>();

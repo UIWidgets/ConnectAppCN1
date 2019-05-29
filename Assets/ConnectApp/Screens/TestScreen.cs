@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
-using ConnectApp.utils;
+using ConnectApp.Utils;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
