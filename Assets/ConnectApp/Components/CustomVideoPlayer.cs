@@ -32,7 +32,7 @@ namespace ConnectApp.components {
             float recordDuration = 0,
             bool isAutoPlay = false,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             D.assert(url != null);
             this.url = url;
             this.recordDuration = recordDuration;
@@ -56,8 +56,8 @@ namespace ConnectApp.components {
     }
 
     public class _CustomVideoPlayerState : State<CustomVideoPlayer> {
-        VideoPlayer _player = null;
-        RenderTexture _texture = null;
+        VideoPlayer _player;
+        RenderTexture _texture;
         PlayState _playState = PlayState.pause;
         float _relative; //播放进度比例
         bool _isFullScreen; //是否全屏
@@ -66,6 +66,7 @@ namespace ConnectApp.components {
         bool _isFailure; //加载失败
         bool _isLoaded; //加载完成，用来隐藏loading
         string _pauseVideoPlayerSubId; //收到通知暂停播放
+        string _fullScreenSubId;
         Timer m_Timer;
 
         public override void initState() {
@@ -81,10 +82,15 @@ namespace ConnectApp.components {
                     this.setState(() => { });
                 }
             });
+            this._fullScreenSubId = EventBus.subscribe(EventBusConstant.fullScreen, args => {
+                this._isFullScreen = (bool) args[0];
+                this._setScreenOrientation();
+            });
         }
 
         public override void dispose() {
             EventBus.unSubscribe(EventBusConstant.pauseVideoPlayer, this._pauseVideoPlayerSubId);
+            EventBus.unSubscribe(EventBusConstant.fullScreen, this._fullScreenSubId);
             this._player.targetTexture.Release();
             this._player.Stop();
             VideoPlayerManager.instance.destroyPlayer();
