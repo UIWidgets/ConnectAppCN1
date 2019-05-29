@@ -70,8 +70,9 @@ namespace ConnectApp.components {
                         var isLast = true;
                         if (i < blocks.Count - 1) {
                             var afterBlock = blocks[i + 1];
-                             isLast= afterBlock.type != "unordered-list-item";
+                            isLast = afterBlock.type != "unordered-list-item";
                         }
+
                         var inlineSpans = _RichStyle(text, content.entityMap, block.entityRanges,
                             block.inlineStyleRanges, openUrl);
                         widgets.Add(
@@ -90,14 +91,19 @@ namespace ConnectApp.components {
                             var beforeBlock = blocks[i - 1];
                             isFirst = beforeBlock.type != "ordered-list-item";
                         }
+
                         if (isFirst) {
                             orderedIndex = 1;
                         }
                         else {
                             orderedIndex++;
                         }
-                        var afterBlock = blocks[i + 1];
-                        var isLast = afterBlock.type != "ordered-list-item";
+
+                        var isLast = true;
+                        if (i < blocks.Count - 1) {
+                            var afterBlock = blocks[i + 1];
+                            isLast = afterBlock.type != "ordered-list-item";
+                        }
 
                         var inlineSpans = _RichStyle(text, content.entityMap, block.entityRanges,
                             block.inlineStyleRanges, openUrl);
