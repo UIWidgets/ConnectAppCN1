@@ -1,5 +1,5 @@
 using System;
-using ConnectApp.models;
+using ConnectApp.Models.State;
 using ConnectApp.screens;
 
 namespace ConnectApp.Models.ActionModel {

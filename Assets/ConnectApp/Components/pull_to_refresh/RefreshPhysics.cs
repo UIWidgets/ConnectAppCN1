@@ -5,7 +5,7 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
-namespace ConnectApp.components.pull_to_refresh {
+namespace ConnectApp.Components.pull_to_refresh {
     public class RefreshScrollPhysics : ScrollPhysics {
         public RefreshScrollPhysics(
             ScrollPhysics parent = null,

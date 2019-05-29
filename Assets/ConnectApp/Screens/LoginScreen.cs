@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.components;
 using ConnectApp.Components;
-using ConnectApp.constants;
-using ConnectApp.models;
+using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
-using ConnectApp.plugins;
+using ConnectApp.Models.State;
+using ConnectApp.Plugins;
 using ConnectApp.redux.actions;
 using RSG;
 using Unity.UIWidgets.gestures;

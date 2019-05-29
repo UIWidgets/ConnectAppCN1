@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Video;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public class VideoPlayerManager {
         VideoPlayerManager() {
         }

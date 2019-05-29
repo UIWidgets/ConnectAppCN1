@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ConnectApp.utils {
+namespace ConnectApp.Utils {
     public delegate void _Delegate(List<object> args);
 
     public static class EventBus {

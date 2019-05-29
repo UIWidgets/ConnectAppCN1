@@ -1,6 +1,6 @@
 using System;
 
-namespace ConnectApp.models {
+namespace ConnectApp.Models.Model {
     [Serializable]
     public class Thumbnail {
         public string url;

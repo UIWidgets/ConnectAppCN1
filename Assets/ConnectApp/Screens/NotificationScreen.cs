@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.components;
-using ConnectApp.components.pull_to_refresh;
-using ConnectApp.constants;
 using ConnectApp.Components;
-using ConnectApp.models;
+using ConnectApp.Components.pull_to_refresh;
+using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
+using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
-using ConnectApp.utils;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -179,9 +178,7 @@ namespace ConnectApp.screens {
                         new Flexible(
                             child: new NotificationListener<ScrollNotification>(
                                 onNotification: this._onNotification,
-                                child: new CustomScrollbar(
-                                    child: content
-                                )
+                                child: content
                             )
                         )
                     }

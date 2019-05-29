@@ -1,11 +1,11 @@
-using ConnectApp.constants;
+using ConnectApp.Constants;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public delegate void ChangeCallback(float relative);
 
     public class ProgressBar : StatefulWidget {

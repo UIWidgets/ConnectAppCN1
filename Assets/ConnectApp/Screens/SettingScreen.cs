@@ -1,21 +1,18 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.components;
 using ConnectApp.Components;
-using ConnectApp.constants;
-using ConnectApp.models;
+using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
+using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
-using ConnectApp.plugins;
+using ConnectApp.Plugins;
 using ConnectApp.redux.actions;
-using ConnectApp.utils;
-using RSG;
+using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
@@ -66,7 +63,6 @@ namespace ConnectApp.screens {
     }
 
     public class _SettingScreenState : State<SettingScreen> {
-
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,

@@ -1,15 +1,14 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.constants;
-using ConnectApp.Components;
-using ConnectApp.models;
-using ConnectApp.utils;
+using ConnectApp.Constants;
+using ConnectApp.Models.Model;
+using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public class EventDetail : StatelessWidget {
         public EventDetail(
             bool isShowImage,
@@ -52,12 +51,10 @@ namespace ConnectApp.components {
             ));
             items.Add(this._buildContentLecturerList());
             return new Container(
-                child: new CustomScrollbar(
-                    ListView.builder(
-                        physics: new AlwaysScrollableScrollPhysics(),
-                        itemCount: items.Count,
-                        itemBuilder: (cxt, index) => items[index]
-                    )
+                child: ListView.builder(
+                    physics: new AlwaysScrollableScrollPhysics(),
+                    itemCount: items.Count,
+                    itemBuilder: (cxt, index) => items[index]
                 )
             );
         }

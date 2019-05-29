@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using ConnectApp.Components;
-using ConnectApp.constants;
-using ConnectApp.plugins;
+using ConnectApp.Constants;
+using ConnectApp.Plugins;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -9,7 +8,7 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public enum ShareType {
         friends,
         moments,

@@ -1,7 +1,7 @@
-using ConnectApp.api;
-using ConnectApp.components;
-using ConnectApp.constants;
-using ConnectApp.models;
+using ConnectApp.Api;
+using ConnectApp.Components;
+using ConnectApp.Constants;
+using ConnectApp.Models.State;
 using Unity.UIWidgets.Redux;
 using UnityEngine;
 

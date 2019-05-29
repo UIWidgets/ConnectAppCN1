@@ -1,4 +1,4 @@
-using ConnectApp.models;
+using ConnectApp.Models.State;
 using ConnectApp.screens;
 using Unity.UIWidgets.widgets;
 

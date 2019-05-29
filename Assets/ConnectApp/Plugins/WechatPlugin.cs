@@ -6,7 +6,7 @@ using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
-namespace ConnectApp.plugins {
+namespace ConnectApp.Plugins {
     public class WechatPlugin {
         public static WechatPlugin instance(Action<string> codeCallBack = null) {
             if (plugin == null) {
@@ -99,7 +99,6 @@ namespace ConnectApp.plugins {
         internal static extern void toTimeline(string title, string description, string url, string imageBytes);
 
 #elif UNITY_ANDROID
-
         static AndroidJavaObject _plugin;
 
         static AndroidJavaObject Plugin() {

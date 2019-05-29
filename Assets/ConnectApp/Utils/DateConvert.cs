@@ -1,7 +1,7 @@
 using System;
-using ConnectApp.models;
+using ConnectApp.Models.Model;
 
-namespace ConnectApp.utils {
+namespace ConnectApp.Utils {
     public enum EventStatus {
         future,
         countDown,

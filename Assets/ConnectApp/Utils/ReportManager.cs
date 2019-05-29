@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.components;
+using ConnectApp.Components;
 using ConnectApp.screens;
 
-namespace ConnectApp.utils {
+namespace ConnectApp.Utils {
     public static class ReportManager {
         public static void showReportView(
             bool isLoggedIn,

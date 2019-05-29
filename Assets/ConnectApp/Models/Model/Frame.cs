@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace ConnectApp.models {
+namespace ConnectApp.Models.Model {
     public class OpCode {
         public const int DISPATCH = 0;
         public const int IDENTIFY = 1;

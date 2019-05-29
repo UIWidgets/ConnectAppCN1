@@ -1,7 +1,7 @@
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public class PersonalCardItem {
         public PersonalCardItem(
             IconData icon,

@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using ConnectApp.constants;
-using ConnectApp.models;
+using ConnectApp.Constants;
+using ConnectApp.Models.Model;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using Image = Unity.UIWidgets.widgets.Image;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public enum OwnerType {
         user,
         team

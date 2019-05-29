@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.constants;
-using ConnectApp.utils;
+using ConnectApp.Constants;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
@@ -14,7 +14,7 @@ using UnityEngine.Video;
 using Color = Unity.UIWidgets.ui.Color;
 using Texture = Unity.UIWidgets.widgets.Texture;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public delegate void FullScreenCallback(bool isFullScreen);
 
     public enum PlayState {

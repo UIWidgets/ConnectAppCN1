@@ -1,8 +1,8 @@
 using System.Net.WebSockets;
-using ConnectApp.api;
+using ConnectApp.Api;
 using UnityEngine;
 
-namespace ConnectApp.utils {
+namespace ConnectApp.Utils {
     public delegate string GetCurrentChannelId();
 
     public delegate string GetLoginSession();
