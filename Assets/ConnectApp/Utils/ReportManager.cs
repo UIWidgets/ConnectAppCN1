@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.components;
+using ConnectApp.Components;
 using ConnectApp.screens;
 
 namespace ConnectApp.utils {

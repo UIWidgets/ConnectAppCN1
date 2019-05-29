@@ -7,7 +7,7 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public class ChatMessage : StatelessWidget {
         public ChatMessage(
             Message message,

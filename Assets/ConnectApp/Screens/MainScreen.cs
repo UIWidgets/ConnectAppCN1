@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using ConnectApp.components;
 using ConnectApp.Components;
 using ConnectApp.constants;
 using ConnectApp.redux;
@@ -45,6 +44,7 @@ namespace ConnectApp.screens {
                             if (index != 2 || StoreProvider.store.getState().loginState.isLoggedIn) {
                                 return true;
                             }
+
                             Navigator.pushNamed(context: context, routeName: MainNavigatorRoutes.Login);
                             return false;
                         }

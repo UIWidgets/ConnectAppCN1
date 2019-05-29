@@ -6,7 +6,7 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public class ArticleTabBar : StatelessWidget {
         public ArticleTabBar(
             bool like,

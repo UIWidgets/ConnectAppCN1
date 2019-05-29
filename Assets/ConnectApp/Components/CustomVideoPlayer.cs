@@ -14,7 +14,7 @@ using UnityEngine.Video;
 using Color = Unity.UIWidgets.ui.Color;
 using Texture = Unity.UIWidgets.widgets.Texture;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public delegate void FullScreenCallback(bool isFullScreen);
 
     public enum PlayState {

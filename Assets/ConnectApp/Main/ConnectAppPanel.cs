@@ -1,4 +1,3 @@
-using ConnectApp.components;
 using ConnectApp.Components;
 using ConnectApp.models;
 using ConnectApp.plugins;
@@ -23,7 +22,7 @@ namespace ConnectApp.Main {
         static void CustomFrameRateCoolDown() {
             Application.targetFrameRate = 30;
         }
-        
+
         static void LoadFonts() {
             FontManager.instance.addFont(Resources.Load<Font>("font/Material Icons"), "Material Icons");
             FontManager.instance.addFont(Resources.Load<Font>("font/Roboto-Regular"), "Roboto-Regular");

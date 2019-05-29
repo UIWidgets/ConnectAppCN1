@@ -2,7 +2,7 @@ using ConnectApp.utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public class VersionUpdater : StatefulWidget {
         public VersionUpdater(
             Widget child = null,

@@ -1,6 +1,6 @@
 using System;
 using ConnectApp.api;
-using ConnectApp.components;
+using ConnectApp.Components;
 using ConnectApp.models;
 using ConnectApp.plugins;
 using Unity.UIWidgets.Redux;

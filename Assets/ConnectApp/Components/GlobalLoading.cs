@@ -3,7 +3,7 @@ using ConnectApp.constants;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public class GlobalLoading : StatelessWidget {
         public override Widget build(BuildContext context) {
             return new Container(

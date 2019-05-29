@@ -9,7 +9,7 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using Icons = ConnectApp.constants.Icons;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public enum InputFieldClearButtonMode {
         never,
         hasText,

@@ -7,7 +7,7 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public class BlankView : StatelessWidget {
         public BlankView(
             string title,

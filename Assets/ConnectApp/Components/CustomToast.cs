@@ -6,8 +6,7 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.components {
-
+namespace ConnectApp.Components {
     public enum ToastGravity {
         top,
         center,
@@ -28,7 +27,7 @@ namespace ConnectApp.components {
             D.assert(message != null);
             this.context = context;
             this.message = message;
-            this.duration = duration ?? new TimeSpan(0,0,1);
+            this.duration = duration ?? new TimeSpan(0, 0, 1);
             this.gravity = gravity;
             this.backgroundColor = backgroundColor ?? new Color(0xAA000000);
             this.textColor = textColor ?? CColors.White;
@@ -43,20 +42,19 @@ namespace ConnectApp.components {
         public readonly Color textColor;
         public readonly float radius;
     }
-    
+
     public static class CustomToast {
         public static void show(CustomToastItem toastItem) {
             CustomToastView.dismiss();
             CustomToastView.createView(toastItem: toastItem);
         }
-        
+
         public static void hidden() {
             CustomToastView.dismiss();
         }
     }
 
     public static class CustomToastView {
-
         static OverlayState _overlayState;
         static OverlayEntry _overlayEntry;
         static bool _isVisible;
@@ -87,13 +85,19 @@ namespace ConnectApp.components {
             );
             _isVisible = true;
             _overlayState.insert(entry: _overlayEntry);
-            _timer = Window.instance.run((TimeSpan)toastItem.duration, callback: dismiss);
+            _timer = Window.instance.run((TimeSpan) toastItem.duration, callback: dismiss);
         }
 
         public static void dismiss() {
-            if (!_isVisible) return;
+            if (!_isVisible) {
+                return;
+            }
+
             _isVisible = false;
-            if (_overlayEntry != null) _overlayEntry.remove();
+            if (_overlayEntry != null) {
+                _overlayEntry.remove();
+            }
+
             if (_timer != null) {
                 _timer.Dispose();
                 _timer = null;
@@ -110,7 +114,7 @@ namespace ConnectApp.components {
             this.gravity = gravity;
             this.child = child;
         }
-        
+
         readonly ToastGravity gravity;
         readonly Widget child;
 
@@ -120,11 +124,14 @@ namespace ConnectApp.components {
             if (this.gravity == ToastGravity.top) {
                 top = 50;
             }
+
             if (this.gravity == ToastGravity.center) {
             }
+
             if (this.gravity == ToastGravity.bottom) {
                 bottom = 50;
             }
+
             return new Positioned(
                 top: top,
                 bottom: bottom,

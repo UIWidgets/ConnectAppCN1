@@ -6,7 +6,7 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public class CustomSegmentedControl : StatefulWidget {
         public CustomSegmentedControl(
             List<string> items,

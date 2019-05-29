@@ -7,7 +7,7 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public class EventDetailLoading : StatelessWidget {
         public EventDetailLoading(
             EventType eventType = EventType.offline,

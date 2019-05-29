@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.api;
-using ConnectApp.components;
+using ConnectApp.Components;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.utils;

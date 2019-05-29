@@ -12,7 +12,7 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using Image = Unity.UIWidgets.widgets.Image;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public class EventHeader : StatefulWidget {
         public EventHeader(
             IEvent eventObj,

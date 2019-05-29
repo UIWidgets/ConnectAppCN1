@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.Components;
 using ConnectApp.constants;
 using RSG;
 using Unity.UIWidgets.animation;
@@ -10,7 +9,7 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public class CustomDialog : StatelessWidget {
         public CustomDialog(
             Key key = null,
@@ -141,7 +140,7 @@ namespace ConnectApp.components {
         readonly string message;
         readonly List<Widget> actions;
         readonly TextStyle _messageStyle = CTextStyle.PLargeBody;
-        
+
         float _calculateTextHeight(string text, float textWidth, int? maxLines = null) {
             var textPainter = new TextPainter(
                 new TextSpan(
@@ -178,6 +177,7 @@ namespace ConnectApp.components {
                 else {
                     maxHeight += 32;
                 }
+
                 children.Add(new Container(
                     height: maxHeight,
                     alignment: Alignment.center,

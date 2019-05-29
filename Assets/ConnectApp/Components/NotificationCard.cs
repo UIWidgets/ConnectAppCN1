@@ -9,7 +9,7 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 using Notification = ConnectApp.models.Notification;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public class NotificationCard : StatelessWidget {
         public NotificationCard(
             Notification notification,
@@ -38,7 +38,6 @@ namespace ConnectApp.components {
                 "project_participate_comment",
                 "project_message_liked",
                 "project_message_participate_liked"
-
             };
             if (!types.Contains(type)) {
                 return new Container();
@@ -101,7 +100,7 @@ namespace ConnectApp.components {
                     subTitle = new TextSpan(
                         " 评论了你的文章",
                         CTextStyle.PLargeBody2
-                    );  
+                    );
                 }
             }
 
@@ -109,26 +108,29 @@ namespace ConnectApp.components {
                 if (data.parentComment.isNotEmpty()) {
                     content = $" “{data.parentComment}”";
                 }
+
                 subTitle = new TextSpan(
                     " 回复了你的评论" + content,
                     CTextStyle.PLargeBody2
                 );
             }
-            
+
             if (type == "project_message_liked") {
                 if (data.comment.isNotEmpty()) {
                     content = $" “{data.comment}”";
                 }
+
                 subTitle = new TextSpan(
                     " 赞了你的评论" + content,
                     CTextStyle.PLargeBody2
                 );
             }
-            
+
             if (type == "project_message_participate_liked") {
                 if (data.comment.isNotEmpty()) {
                     content = $" “{data.comment}”";
                 }
+
                 subTitle = new TextSpan(
                     " 赞了你的评论" + content,
                     CTextStyle.PLargeBody2

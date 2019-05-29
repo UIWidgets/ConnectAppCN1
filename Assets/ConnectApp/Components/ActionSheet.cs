@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.Components;
 using ConnectApp.constants;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
@@ -9,7 +8,7 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public enum ActionType {
         normal,
         cancel,

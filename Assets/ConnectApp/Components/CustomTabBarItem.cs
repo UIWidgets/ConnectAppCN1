@@ -2,7 +2,7 @@ using ConnectApp.constants;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public class CustomTabBarItem {
         public CustomTabBarItem(
             int index,

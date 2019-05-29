@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public class WebViewManager {
         internal WebViewManager() {
         }

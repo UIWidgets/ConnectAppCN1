@@ -1,5 +1,5 @@
 using System;
-using ConnectApp.components;
+using ConnectApp.Components;
 using ConnectApp.models;
 using RSG;
 

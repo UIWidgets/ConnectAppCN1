@@ -7,7 +7,7 @@ using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public delegate void InputDone(string text);
 
     public class CustomInput : StatefulWidget {

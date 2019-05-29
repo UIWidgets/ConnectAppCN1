@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.components;
 using ConnectApp.Components;
 using ConnectApp.constants;
 using ConnectApp.models;
@@ -119,12 +118,12 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.fetchEventDetail(this.widget.viewModel.eventId, EventType.offline);
             });
         }
-        
+
         public override void dispose() {
             EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
             base.dispose();
         }
-        
+
         public Ticker createTicker(TickerCallback onTick) {
             return new Ticker(onTick, () => $"created by {this}");
         }
@@ -188,30 +187,36 @@ namespace ConnectApp.screens {
                 var imageHeight = 9.0f / 16.0f * width;
                 if (eventObj.type.isNotEmpty() && !(eventObj.type == "bagevent" || eventObj.type == "customize")) {
                     this._titleHeight = imageHeight + eventTitleKey.currentContext.size.height + 16;
-                } else {
+                }
+                else {
                     this._titleHeight = imageHeight + eventTitleKey.currentContext.size.height + 16 - 64;
                 }
             }
+
             if (pixels >= 44) {
                 if (this._showNavBarShadow) {
                     this.setState(() => { this._showNavBarShadow = false; });
                 }
-            } else {
+            }
+            else {
                 if (!this._showNavBarShadow) {
                     this.setState(() => { this._showNavBarShadow = true; });
                 }
             }
+
             if (pixels > this._titleHeight) {
                 if (!this._isHaveTitle) {
                     this._controller.forward();
                     this.setState(() => { this._isHaveTitle = true; });
                 }
-            } else {
+            }
+            else {
                 if (this._isHaveTitle) {
                     this._controller.reverse();
                     this.setState(() => { this._isHaveTitle = false; });
                 }
             }
+
             return true;
         }
 
@@ -264,7 +269,8 @@ namespace ConnectApp.screens {
                 padding: EdgeInsets.symmetric(horizontal: 8),
                 decoration: new BoxDecoration(
                     CColors.White,
-                    border: new Border(bottom: new BorderSide(this._isHaveTitle ? CColors.Separator2 : CColors.Transparent)),
+                    border: new Border(
+                        bottom: new BorderSide(this._isHaveTitle ? CColors.Separator2 : CColors.Transparent)),
                     gradient: this._showNavBarShadow
                         ? new LinearGradient(
                             colors: new List<Color> {

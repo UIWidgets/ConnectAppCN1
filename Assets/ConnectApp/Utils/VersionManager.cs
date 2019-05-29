@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.api;
-using ConnectApp.components;
+using ConnectApp.Components;
 using ConnectApp.constants;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -39,6 +39,7 @@ namespace ConnectApp.utils {
                                 changeLog = versionResponse["changeLog"];
                             }
                         }
+
                         CustomDialogUtils.showCustomDialog(
                             barrierColor: Color.fromRGBO(0, 0, 0, 0.5f),
                             child: new CustomAlertDialog(

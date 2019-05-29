@@ -1,5 +1,5 @@
-using ConnectApp.components;
-using ConnectApp.components.pull_to_refresh;
+using ConnectApp.Components;
+using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.Models.ActionModel;

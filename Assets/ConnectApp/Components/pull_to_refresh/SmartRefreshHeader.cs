@@ -1,17 +1,15 @@
 using System;
 using ConnectApp.constants;
-using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
-using Image = Unity.UIWidgets.widgets.Image;
 
-namespace ConnectApp.components.pull_to_refresh {
+namespace ConnectApp.Components.pull_to_refresh {
     public enum RefreshHeaderType {
         activityIndicator,
         other
     }
-    
+
     public class SmartRefreshHeader : StatelessWidget {
         readonly int mode;
         readonly RefreshHeaderType type;
@@ -52,6 +50,7 @@ namespace ConnectApp.components.pull_to_refresh {
                     animatingType = AnimatingType.stop;
                     break;
             }
+
             return new Container(
                 height: 56.0f,
                 child: new CustomActivityIndicator(
@@ -59,7 +58,7 @@ namespace ConnectApp.components.pull_to_refresh {
                 )
             );
         }
-        
+
         Widget _buildOther() {
             CrossFadeState? crossFadeState = null;
             string refreshText = "";
@@ -67,17 +66,21 @@ namespace ConnectApp.components.pull_to_refresh {
                 refreshText = "探索新鲜内容";
                 crossFadeState = CrossFadeState.showFirst;
             }
+
             if (this.mode == 2) {
                 crossFadeState = CrossFadeState.showSecond;
             }
+
             if (this.mode == 3) {
                 refreshText = "刷新成功";
                 crossFadeState = CrossFadeState.showFirst;
             }
+
             if (this.mode == 4) {
                 refreshText = "刷新失败";
                 crossFadeState = CrossFadeState.showFirst;
             }
+
             Widget child = new AnimatedCrossFade(
                 firstChild: _buildText(text: refreshText),
                 secondChild: Image.asset(

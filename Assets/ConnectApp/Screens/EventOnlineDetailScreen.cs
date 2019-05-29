@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.components;
-using ConnectApp.components.pull_to_refresh;
-using ConnectApp.constants;
 using ConnectApp.Components;
+using ConnectApp.Components.pull_to_refresh;
+using ConnectApp.constants;
 using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
@@ -13,8 +12,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -161,7 +160,7 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.fetchEventDetail(this.widget.viewModel.eventId, EventType.online);
             });
         }
-        
+
         public override void dispose() {
             EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
             this._textController.dispose();
@@ -172,8 +171,9 @@ namespace ConnectApp.screens {
         public Ticker createTicker(TickerCallback onTick) {
             return new Ticker(onTick, () => $"created by {this}");
         }
-        
-        bool _onNotification(BuildContext context, ScrollNotification notification, EventStatus eventStatus, IEvent eventObj) {
+
+        bool _onNotification(BuildContext context, ScrollNotification notification, EventStatus eventStatus,
+            IEvent eventObj) {
             if (eventStatus == EventStatus.past && eventObj.record.isEmpty()) {
                 var pixels = notification.metrics.pixels;
                 if (this._titleHeight == 0.0f) {
@@ -181,28 +181,34 @@ namespace ConnectApp.screens {
                     var imageHeight = 9.0f / 16.0f * width;
                     this._titleHeight = imageHeight + eventTitleKey.currentContext.size.height + 16 - 64;
                 }
+
                 if (pixels >= 44) {
                     if (this._showNavBarShadow) {
                         this.setState(() => { this._showNavBarShadow = false; });
                     }
-                } else {
+                }
+                else {
                     if (!this._showNavBarShadow) {
                         this.setState(() => { this._showNavBarShadow = true; });
                     }
                 }
+
                 if (pixels >= this._titleHeight) {
                     if (!this._isHaveTitle) {
                         this._titleAnimationController.forward();
                         this.setState(() => { this._isHaveTitle = true; });
                     }
-                } else {
+                }
+                else {
                     if (this._isHaveTitle) {
                         this._titleAnimationController.reverse();
                         this.setState(() => { this._isHaveTitle = false; });
                     }
                 }
+
                 return true;
             }
+
             return false;
         }
 
@@ -226,7 +232,8 @@ namespace ConnectApp.screens {
                     child: new Container(
                         color: this._isFullScreen ? CColors.Black : CColors.White,
                         child: new NotificationListener<ScrollNotification>(
-                            onNotification: notification => this._onNotification(context, notification, eventStatus, eventObj),
+                            onNotification: notification =>
+                                this._onNotification(context, notification, eventStatus, eventObj),
                             child: new Column(
                                 children: new List<Widget> {
                                     this._buildEventHeader(context, eventObj, EventType.online, eventStatus,
@@ -301,6 +308,7 @@ namespace ConnectApp.screens {
                         textAlign: TextAlign.center
                     );
                 }
+
                 titleWidget = new Expanded(
                     child: new Stack(
                         fit: StackFit.expand,
@@ -320,7 +328,8 @@ namespace ConnectApp.screens {
                 padding: EdgeInsets.symmetric(horizontal: 8),
                 decoration: new BoxDecoration(
                     CColors.White,
-                    border: new Border(bottom: new BorderSide(this._isHaveTitle ? CColors.Separator2 : CColors.Transparent)),
+                    border: new Border(
+                        bottom: new BorderSide(this._isHaveTitle ? CColors.Separator2 : CColors.Transparent)),
                     gradient: this._showNavBarShadow
                         ? new LinearGradient(
                             colors: new List<Color> {
@@ -357,9 +366,7 @@ namespace ConnectApp.screens {
                     eventObj.record,
                     context,
                     this._buildHeadTop(false, eventObj),
-                    isFullScreen => {
-                        this.setState(() => { this._isFullScreen = isFullScreen; });
-                    },
+                    isFullScreen => { this.setState(() => { this._isFullScreen = isFullScreen; }); },
                     eventObj.recordDuration
                 );
             }
@@ -388,7 +395,7 @@ namespace ConnectApp.screens {
                     child: new Stack(
                         children: new List<Widget> {
                             new EventDetail(
-                                false, 
+                                false,
                                 eventObj,
                                 this.widget.actionModel.openUrl,
                                 topWidget: new EventHeader(eventObj, eventType, eventStatus, isLoggedIn),
