@@ -422,8 +422,8 @@ namespace ConnectApp.components {
             }
 
             return new Container(
-                padding: EdgeInsets.only(16, right: 16),
-                margin: EdgeInsets.only(top: index == 1 ? 0 : 4, bottom: isLast ? 24 : 0),
+                color: CColors.White,
+                padding: EdgeInsets.only(16, right: 16,top: index == 1 ? 0 : 4, bottom: isLast ? 24 : 0),
                 child: new RichText(
                     text: new TextSpan(
                         style: CTextStyle.PXLarge,
