@@ -1,6 +1,6 @@
 using System;
 using System.Collections;
-using ConnectApp.constants;
+using ConnectApp.Constants;
 using ConnectApp.Models.Api;
 using ConnectApp.utils;
 using Newtonsoft.Json;

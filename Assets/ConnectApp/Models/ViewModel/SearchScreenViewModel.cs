@@ -11,7 +11,7 @@ namespace ConnectApp.Models.ViewModel {
         public List<string> searchHistoryList;
         public Dictionary<string, User> userDict;
         public Dictionary<string, Team> teamDict;
-        public List<PopularSearch> popularSearchs;
+        public List<PopularSearch> popularSearchList;
         public List<string> blockArticleList;
     }
 }

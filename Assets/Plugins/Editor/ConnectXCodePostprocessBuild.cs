@@ -1,5 +1,5 @@
 using System.IO;
-using ConnectApp.constants;
+using ConnectApp.Constants;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEditor.iOS.Xcode;
@@ -11,6 +11,7 @@ namespace Plugins.Editor {
             if (BuildTarget.iOS != buildTarget) {
                 return;
             }
+
             ModifyPbxProject(path: path);
             ModifyPlist(path: path);
         }
@@ -59,7 +60,7 @@ namespace Plugins.Editor {
             // ROOT
             PlistElementDict rootDict = plist.root;
             PlistElementArray urlTypes = rootDict.CreateArray("CFBundleURLTypes");
-            
+
             // Add URLScheme For Wechat
             PlistElementDict wxUrl = urlTypes.AddDict();
             wxUrl.SetString("CFBundleTypeRole", "Editor");
@@ -67,15 +68,15 @@ namespace Plugins.Editor {
             wxUrl.SetString("CFBundleURLSchemes", val: Config.wechatAppId);
             PlistElementArray wxUrlScheme = wxUrl.CreateArray("CFBundleURLSchemes");
             wxUrlScheme.AddString(val: Config.wechatAppId);
-            
+
             // Add URLScheme For jiguang
             PlistElementDict jgUrl = urlTypes.AddDict();
             jgUrl.SetString("CFBundleTypeRole", "Editor");
             jgUrl.SetString("CFBundleURLName", "jiguang");
-            jgUrl.SetString("CFBundleURLSchemes", val: "jiguang-"+Config.jgAppKey);
+            jgUrl.SetString("CFBundleURLSchemes", val: "jiguang-" + Config.jgAppKey);
             PlistElementArray jgUrlScheme = jgUrl.CreateArray("CFBundleURLSchemes");
-            jgUrlScheme.AddString(val: "jiguang-"+Config.jgAppKey);
-            
+            jgUrlScheme.AddString(val: "jiguang-" + Config.jgAppKey);
+
             // 白名单 for wechat
             PlistElementArray queriesSchemes = rootDict.CreateArray("LSApplicationQueriesSchemes");
             queriesSchemes.AddString("wechat");
@@ -89,7 +90,7 @@ namespace Plugins.Editor {
 
             PlistElementArray backModes = rootDict.CreateArray("UIBackgroundModes");
             backModes.AddString("remote-notification");
-            
+
             // 出口合规信息
             rootDict.SetBoolean("ITSAppUsesNonExemptEncryption", false);
 

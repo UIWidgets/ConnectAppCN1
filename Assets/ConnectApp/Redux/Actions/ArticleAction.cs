@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using ConnectApp.api;
 using ConnectApp.Components;
-using ConnectApp.constants;
+using ConnectApp.Constants;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.utils;

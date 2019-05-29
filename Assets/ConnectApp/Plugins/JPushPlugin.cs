@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using ConnectApp.constants;
+using ConnectApp.Constants;
 using ConnectApp.Models.State;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;

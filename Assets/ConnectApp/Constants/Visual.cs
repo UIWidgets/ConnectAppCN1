@@ -2,7 +2,7 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.constants {
+namespace ConnectApp.Constants {
     public static class Icons {
         public static readonly IconData UnityLogo = new IconData(0xe61d, "iconfont");
         public static readonly IconData WechatMoment = new IconData(0xe61e, "iconfont");

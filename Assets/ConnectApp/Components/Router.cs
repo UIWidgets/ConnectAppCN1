@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.constants;
+using ConnectApp.Constants;
 using ConnectApp.plugins;
 using ConnectApp.screens;
 using RSG;

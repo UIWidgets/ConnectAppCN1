@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
-using ConnectApp.constants;
+using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
@@ -28,7 +28,7 @@ namespace ConnectApp.screens {
                     currentPage = state.searchState.currentPage,
                     pages = state.searchState.pages,
                     searchHistoryList = state.searchState.searchHistoryList,
-                    popularSearchs = state.popularSearchState.popularSearchs,
+                    popularSearchList = state.popularSearchState.popularSearchs,
                     userDict = state.userState.userDict,
                     teamDict = state.teamState.teamDict,
                     blockArticleList = state.articleState.blockArticleList
@@ -237,7 +237,7 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildHotSearch() {
-            if (this.widget.viewModel.popularSearchs.Count <= 0) {
+            if (this.widget.viewModel.popularSearchList.Count <= 0) {
                 return new Container();
             }
 
@@ -257,7 +257,7 @@ namespace ConnectApp.screens {
                         new Wrap(
                             spacing: 8,
                             runSpacing: 20,
-                            children: this._buildPopularSearchItem(this.widget.viewModel.popularSearchs)
+                            children: this._buildPopularSearchItem(this.widget.viewModel.popularSearchList)
                         )
                     }
                 )

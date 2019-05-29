@@ -1,5 +1,5 @@
 using ConnectApp.api;
-using ConnectApp.constants;
+using ConnectApp.Constants;
 using ConnectApp.Models.State;
 using Unity.UIWidgets.Redux;
 

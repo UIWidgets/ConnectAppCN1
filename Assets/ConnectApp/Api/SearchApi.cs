@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using ConnectApp.constants;
+using ConnectApp.Constants;
 using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.utils;
