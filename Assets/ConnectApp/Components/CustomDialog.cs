@@ -140,12 +140,25 @@ namespace ConnectApp.components {
         readonly string title;
         readonly string message;
         readonly List<Widget> actions;
+        readonly TextStyle _messageStyle = CTextStyle.PLargeBody;
+        
+        float _calculateTextHeight(string text, float textWidth, int? maxLines = null) {
+            var textPainter = new TextPainter(
+                new TextSpan(
+                    text,
+                    this._messageStyle
+                ),
+                maxLines: maxLines
+            );
+            textPainter.layout(maxWidth: textWidth);
+            return textPainter.height;
+        }
 
         public override Widget build(BuildContext context) {
             var children = new List<Widget>();
             if (this.title.isNotEmpty()) {
                 children.Add(new Container(
-                    padding: EdgeInsets.fromLTRB(16, 24, 16, this.message == null ? 24 : 0),
+                    padding: EdgeInsets.only(16, 24, 16, this.message == null ? 24 : 8),
                     alignment: Alignment.center,
                     child: new Text(this.title,
                         style: CTextStyle.H5
@@ -154,11 +167,29 @@ namespace ConnectApp.components {
             }
 
             if (this.message.isNotEmpty()) {
+                var mediaQuery = MediaQuery.of(context);
+                var horizontalPadding = mediaQuery.viewInsets.left + mediaQuery.viewInsets.right + 40 + 40;
+                var width = mediaQuery.size.width - horizontalPadding - 32;
+                var maxHeight = this._calculateTextHeight(this.message, width, 7);
+                var totalHeight = this._calculateTextHeight(this.message, width);
+                if (maxHeight < totalHeight) {
+                    maxHeight += 16;
+                }
+                else {
+                    maxHeight += 32;
+                }
                 children.Add(new Container(
-                    padding: EdgeInsets.all(16),
+                    height: maxHeight,
                     alignment: Alignment.center,
-                    child: new Text(this.message,
-                        style: CTextStyle.PLargeBody
+                    child: new CustomScrollbar(
+                        new SingleChildScrollView(
+                            child: new Padding(
+                                padding: EdgeInsets.only(16, 8, 16, 16),
+                                child: new Text(this.message,
+                                    style: this._messageStyle
+                                )
+                            )
+                        )
                     )
                 ));
             }
