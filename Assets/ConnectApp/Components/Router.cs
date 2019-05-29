@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Plugins;
 using ConnectApp.screens;
-using ConnectApp.utils;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async;
