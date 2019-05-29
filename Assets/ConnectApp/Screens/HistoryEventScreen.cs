@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.components;
 using ConnectApp.constants;
-using ConnectApp.Components;
 using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
@@ -54,46 +53,44 @@ namespace ConnectApp.screens {
 
             return new Container(
                 color: CColors.background3,
-                child: new CustomScrollbar(
-                    ListView.builder(
-                        physics: new AlwaysScrollableScrollPhysics(),
-                        itemCount: this.viewModel.eventHistory.Count,
-                        itemExtent: 108,
-                        itemBuilder: (cxt, index) => {
-                            var model = this.viewModel.eventHistory[index];
-                            var eventType = model.mode == "online" ? EventType.online : EventType.offline;
-                            return CustomDismissible.builder(
-                                Key.key(model.id),
-                                new EventCard(
-                                    model,
-                                    model.place,
-                                    () => this.actionModel.pushToEventDetail(model.id, eventType)
-                                ),
-                                new CustomDismissibleDrawerDelegate(),
-                                secondaryActions: new List<Widget> {
-                                    new GestureDetector(
-                                        onTap: () => this.actionModel.deleteEventHistory(model.id),
+                child: ListView.builder(
+                    physics: new AlwaysScrollableScrollPhysics(),
+                    itemCount: this.viewModel.eventHistory.Count,
+                    itemExtent: 108,
+                    itemBuilder: (cxt, index) => {
+                        var model = this.viewModel.eventHistory[index];
+                        var eventType = model.mode == "online" ? EventType.online : EventType.offline;
+                        return CustomDismissible.builder(
+                            Key.key(model.id),
+                            new EventCard(
+                                model,
+                                model.place,
+                                () => this.actionModel.pushToEventDetail(model.id, eventType)
+                            ),
+                            new CustomDismissibleDrawerDelegate(),
+                            secondaryActions: new List<Widget> {
+                                new GestureDetector(
+                                    onTap: () => this.actionModel.deleteEventHistory(model.id),
+                                    child: new Container(
+                                        color: CColors.Separator2,
+                                        width: 80,
+                                        alignment: Alignment.center,
                                         child: new Container(
-                                            color: CColors.Separator2,
-                                            width: 80,
+                                            width: 44,
+                                            height: 44,
                                             alignment: Alignment.center,
-                                            child: new Container(
-                                                width: 44,
-                                                height: 44,
-                                                alignment: Alignment.center,
-                                                decoration: new BoxDecoration(
-                                                    CColors.White,
-                                                    borderRadius: BorderRadius.circular(22)
-                                                ),
-                                                child: new Icon(Icons.delete_outline, size: 28, color: CColors.Error)
-                                            )
+                                            decoration: new BoxDecoration(
+                                                CColors.White,
+                                                borderRadius: BorderRadius.circular(22)
+                                            ),
+                                            child: new Icon(Icons.delete_outline, size: 28, color: CColors.Error)
                                         )
                                     )
-                                },
-                                controller: this._controller
-                            );
-                        }
-                    )
+                                )
+                            },
+                            controller: this._controller
+                        );
+                    }
                 )
             );
         }

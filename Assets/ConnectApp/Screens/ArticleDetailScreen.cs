@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.components;
+using ConnectApp.Components;
 using ConnectApp.components.pull_to_refresh;
 using ConnectApp.constants;
-using ConnectApp.Components;
 using ConnectApp.models;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.ViewModel;
@@ -13,8 +13,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -167,7 +167,7 @@ namespace ConnectApp.screens {
             EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
             base.dispose();
         }
-        
+
         public Ticker createTicker(TickerCallback onTick) {
             return new Ticker(onTick, () => $"created by {this}");
         }
@@ -224,18 +224,16 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         this._buildNavigationBar(),
                         new Expanded(
-                            child: new CustomScrollbar(
-                                new SmartRefresher(
-                                    controller: this._refreshController,
-                                    enablePullDown: false,
-                                    enablePullUp: this._hasMore,
-                                    onRefresh: this._onRefresh,
-                                    onNotification: this._onNotification,
-                                    child: ListView.builder(
-                                        physics: new AlwaysScrollableScrollPhysics(),
-                                        itemCount: originItems.Count,
-                                        itemBuilder: (cxt, index) => originItems[index]
-                                    )
+                            child: new SmartRefresher(
+                                controller: this._refreshController,
+                                enablePullDown: false,
+                                enablePullUp: this._hasMore,
+                                onRefresh: this._onRefresh,
+                                onNotification: this._onNotification,
+                                child: ListView.builder(
+                                    physics: new AlwaysScrollableScrollPhysics(),
+                                    itemCount: originItems.Count,
+                                    itemBuilder: (cxt, index) => originItems[index]
                                 )
                             )
                         ),
@@ -330,11 +328,13 @@ namespace ConnectApp.screens {
                     textAlign: TextAlign.center
                 );
             }
+
             return new Container(
                 height: navBarHeight,
                 decoration: new BoxDecoration(
                     CColors.White,
-                    border: new Border(bottom: new BorderSide(this._isHaveTitle ? CColors.Separator2 : CColors.Transparent))
+                    border: new Border(
+                        bottom: new BorderSide(this._isHaveTitle ? CColors.Separator2 : CColors.Transparent))
                 ),
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -398,22 +398,25 @@ namespace ConnectApp.screens {
             if (this._titleHeight == 0.0f) {
                 this._titleHeight = headTitleKey.currentContext.size.height + 16;
             }
+
             if (pixels > this._titleHeight) {
                 if (this._isHaveTitle == false) {
                     this._controller.forward();
                     this.setState(() => { this._isHaveTitle = true; });
                 }
-            } else {
+            }
+            else {
                 if (this._isHaveTitle) {
                     this._controller.reverse();
                     this.setState(() => { this._isHaveTitle = false; });
                 }
             }
+
             return true;
         }
 
         Widget _buildContentHead() {
-            Widget _avatar = this._article.ownerType == OwnerType.user.ToString() 
+            Widget _avatar = this._article.ownerType == OwnerType.user.ToString()
                 ? Avatar.User(this._user.id, this._user, 32)
                 : Avatar.Team(this._team.id, this._team, 32);
 

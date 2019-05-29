@@ -219,9 +219,7 @@ namespace ConnectApp.screens {
                 onNotification: this._onNotification,
                 child: new Container(
                     color: CColors.background3,
-                    child: new CustomScrollbar(
-                        child: content
-                    )
+                    child: content
                 )
             );
         }
