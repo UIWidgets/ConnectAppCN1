@@ -23,7 +23,7 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, NotificationScreenViewModel>(
                 converter: state => new NotificationScreenViewModel {
                     notificationLoading = state.notificationState.loading,
-                    total = state.notificationState.total,
+                    pageTotal = state.notificationState.pageTotal,
                     notifications = state.notificationState.notifications,
                     userDict = state.userState.userDict
                 },
@@ -129,7 +129,7 @@ namespace ConnectApp.screens {
                         child: new SmartRefresher(
                             controller: this._refreshController,
                             enablePullDown: true,
-                            enablePullUp: this.widget.viewModel.notifications.Count < this.widget.viewModel.total,
+                            enablePullUp: this._pageNumber < this.widget.viewModel.pageTotal,
                             onRefresh: this._onRefresh,
                             child: ListView.builder(
                                 physics: new AlwaysScrollableScrollPhysics(),

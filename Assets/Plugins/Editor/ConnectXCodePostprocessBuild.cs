@@ -90,6 +90,9 @@ namespace Plugins.Editor {
             PlistElementArray backModes = rootDict.CreateArray("UIBackgroundModes");
             backModes.AddString("remote-notification");
             
+            // 出口合规信息
+            rootDict.SetBoolean("ITSAppUsesNonExemptEncryption", false);
+
             // 写入
             File.WriteAllText(path: plistPath, plist.WriteToString());
         }

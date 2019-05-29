@@ -8,7 +8,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchNotificationsSuccessAction : BaseAction {
-        public int total;
+        public int pageTotal;
         public List<Notification> notifications;
     }
 
@@ -48,7 +48,7 @@ namespace ConnectApp.redux.actions {
                         }
 
                         dispatcher.dispatch(new FetchNotificationsSuccessAction
-                            {total = notificationResponse.total, notifications = notifications});
+                            {pageTotal = notificationResponse.pageTotal, notifications = notifications});
                     })
                     .Catch(err => { dispatcher.dispatch(new FetchNotificationsFailureAction()); });
             });
