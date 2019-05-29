@@ -1,10 +1,10 @@
 using System.Collections.Generic;
-using ConnectApp.models;
+using ConnectApp.Models.Model;
 using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
 using UnityEngine;
 
-namespace ConnectApp.utils {
+namespace ConnectApp.Utils {
     public static class UserInfoManager {
         const string _userInfo = "UserInfo";
 

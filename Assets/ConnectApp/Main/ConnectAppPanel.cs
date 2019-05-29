@@ -1,7 +1,6 @@
-using ConnectApp.components;
 using ConnectApp.Components;
-using ConnectApp.models;
-using ConnectApp.plugins;
+using ConnectApp.Models.State;
+using ConnectApp.Plugins;
 using ConnectApp.redux;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.Redux;
@@ -23,7 +22,7 @@ namespace ConnectApp.Main {
         static void CustomFrameRateCoolDown() {
             Application.targetFrameRate = 30;
         }
-        
+
         static void LoadFonts() {
             FontManager.instance.addFont(Resources.Load<Font>("font/Material Icons"), "Material Icons");
             FontManager.instance.addFont(Resources.Load<Font>("font/Roboto-Regular"), "Roboto-Regular");

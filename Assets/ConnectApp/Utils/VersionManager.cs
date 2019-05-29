@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using ConnectApp.api;
-using ConnectApp.components;
-using ConnectApp.constants;
+using ConnectApp.Api;
+using ConnectApp.Components;
+using ConnectApp.Constants;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
@@ -9,7 +9,7 @@ using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 
-namespace ConnectApp.utils {
+namespace ConnectApp.Utils {
     public enum CheckVersionType {
         first,
         setting
@@ -39,6 +39,7 @@ namespace ConnectApp.utils {
                                 changeLog = versionResponse["changeLog"];
                             }
                         }
+
                         CustomDialogUtils.showCustomDialog(
                             barrierColor: Color.fromRGBO(0, 0, 0, 0.5f),
                             child: new CustomAlertDialog(

@@ -1,6 +1,6 @@
 using System;
-using ConnectApp.components;
-using ConnectApp.models;
+using ConnectApp.Components;
+using ConnectApp.Models.State;
 using RSG;
 
 namespace ConnectApp.Models.ActionModel {

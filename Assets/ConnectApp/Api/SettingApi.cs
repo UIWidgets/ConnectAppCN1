@@ -1,10 +1,10 @@
 using System.Collections.Generic;
-using ConnectApp.constants;
-using ConnectApp.utils;
+using ConnectApp.Constants;
+using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
 
-namespace ConnectApp.api {
+namespace ConnectApp.Api {
     public static class SettingApi {
         public static IPromise<string> FetchReviewUrl(string platform, string store) {
             var promise = new Promise<string>();

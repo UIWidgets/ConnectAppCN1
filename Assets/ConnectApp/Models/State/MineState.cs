@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.Models.Model;
 
-namespace ConnectApp.models {
+namespace ConnectApp.Models.State {
     [Serializable]
     public class MineState {
         public List<IEvent> futureEventsList { get; set; }

@@ -8,7 +8,7 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public enum CustomDismissibleMode {
         none,
         slide,

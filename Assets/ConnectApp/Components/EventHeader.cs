@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.constants;
-using ConnectApp.models;
-using ConnectApp.utils;
+using ConnectApp.Constants;
+using ConnectApp.Models.Model;
+using ConnectApp.Models.State;
+using ConnectApp.Utils;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -12,7 +13,7 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using Image = Unity.UIWidgets.widgets.Image;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public class EventHeader : StatefulWidget {
         public EventHeader(
             IEvent eventObj,

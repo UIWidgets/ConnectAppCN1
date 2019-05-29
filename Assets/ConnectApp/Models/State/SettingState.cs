@@ -1,6 +1,6 @@
 using System;
 
-namespace ConnectApp.models {
+namespace ConnectApp.Models.State {
     [Serializable]
     public class SettingState {
         public bool hasReviewUrl { get; set; }

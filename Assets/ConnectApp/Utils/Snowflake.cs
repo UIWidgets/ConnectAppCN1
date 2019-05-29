@@ -1,6 +1,6 @@
 using System;
 
-namespace ConnectApp.utils {
+namespace ConnectApp.Utils {
     public static class Snowflake {
         public static string CreateNonce() {
             var startTime = TimeZoneInfo.ConvertTime(new DateTime(2016, 1, 1), TimeZoneInfo.Local);

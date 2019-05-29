@@ -1,4 +1,4 @@
-namespace ConnectApp.components.pull_to_refresh {
+namespace ConnectApp.Components.pull_to_refresh {
     public abstract class Config {
         public readonly float triggerDistance;
 

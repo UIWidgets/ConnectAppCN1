@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using ConnectApp.components;
-using ConnectApp.constants;
-using ConnectApp.models;
+using ConnectApp.Components;
+using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
+using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using RSG;

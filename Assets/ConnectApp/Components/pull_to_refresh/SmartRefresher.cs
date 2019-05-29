@@ -7,7 +7,7 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
-namespace ConnectApp.components.pull_to_refresh {
+namespace ConnectApp.Components.pull_to_refresh {
     public static class RefreshStatus {
         public const int idle = 0;
         public const int canRefresh = 1;
@@ -34,7 +34,8 @@ namespace ConnectApp.components.pull_to_refresh {
             Key key = null
         ) : base(key) {
             this.child = child;
-            this.headerBuilder = headerBuilder ?? ((context, mode) => new SmartRefreshHeader(mode, RefreshHeaderType.other));
+            this.headerBuilder =
+                headerBuilder ?? ((context, mode) => new SmartRefreshHeader(mode, RefreshHeaderType.other));
             this.footerBuilder = footerBuilder ?? ((context, mode) => new SmartRefreshFooter(mode));
             this.headerConfig = headerConfig ?? new RefreshConfig();
             this.footerConfig = footerConfig ?? new LoadConfig(triggerDistance: 0);
@@ -73,7 +74,7 @@ namespace ConnectApp.components.pull_to_refresh {
 
         //controller inner state
         public readonly RefreshController controller;
-        
+
         public readonly NotificationListenerCallback<ScrollNotification> onNotification;
 
 
@@ -147,6 +148,7 @@ namespace ConnectApp.components.pull_to_refresh {
             if (this.widget.onNotification != null) {
                 this.widget.onNotification(notification);
             }
+
             // when is scroll in the ScrollInside,nothing to do
             if (!_isPullUp(notification) && !_isPullDown(notification)) {
                 return false;
@@ -161,6 +163,7 @@ namespace ConnectApp.components.pull_to_refresh {
                 if (updateNotification.dragDetails == null) {
                     return this._handleScrollEnd(notification);
                 }
+
                 if (updateNotification.dragDetails != null) {
                     return this._handleScrollMoving(updateNotification);
                 }
@@ -209,22 +212,22 @@ namespace ConnectApp.components.pull_to_refresh {
 
         void _handleOffsetCallback() {
             var overScrollPastStart = Mathf.Max(this._scrollController.position.minScrollExtent -
-                                                  this._scrollController.position.pixels +
-                                                  (this.widget.headerConfig is RefreshConfig &&
-                                                   (this.topModeLis.value == RefreshStatus.refreshing ||
-                                                    this.topModeLis.value == RefreshStatus.completed ||
-                                                    this.topModeLis.value == RefreshStatus.failed)
-                                                      ? (this.widget.headerConfig as RefreshConfig).visibleRange
-                                                      : 0.0f),
+                                                this._scrollController.position.pixels +
+                                                (this.widget.headerConfig is RefreshConfig &&
+                                                 (this.topModeLis.value == RefreshStatus.refreshing ||
+                                                  this.topModeLis.value == RefreshStatus.completed ||
+                                                  this.topModeLis.value == RefreshStatus.failed)
+                                                    ? (this.widget.headerConfig as RefreshConfig).visibleRange
+                                                    : 0.0f),
                 0.0f);
             var overScrollPastEnd = Mathf.Max(this._scrollController.position.pixels -
-                                                this._scrollController.position.maxScrollExtent +
-                                                (this.widget.footerConfig is RefreshConfig &&
-                                                 (this.bottomModeLis.value == RefreshStatus.refreshing ||
-                                                  this.bottomModeLis.value == RefreshStatus.completed ||
-                                                  this.bottomModeLis.value == RefreshStatus.failed)
-                                                    ? (this.widget.footerConfig as RefreshConfig).visibleRange
-                                                    : 0.0f),
+                                              this._scrollController.position.maxScrollExtent +
+                                              (this.widget.footerConfig is RefreshConfig &&
+                                               (this.bottomModeLis.value == RefreshStatus.refreshing ||
+                                                this.bottomModeLis.value == RefreshStatus.completed ||
+                                                this.bottomModeLis.value == RefreshStatus.failed)
+                                                  ? (this.widget.footerConfig as RefreshConfig).visibleRange
+                                                  : 0.0f),
                 0.0f);
             if (overScrollPastStart > overScrollPastEnd) {
                 if (this.widget.headerConfig is RefreshConfig) {
