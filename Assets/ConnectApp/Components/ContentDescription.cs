@@ -67,8 +67,11 @@ namespace ConnectApp.components {
                             isFirst = beforeBlock.type != "unordered-list-item";
                         }
 
-                        var afterBlock = blocks[i + 1];
-                        var isLast = afterBlock.type != "unordered-list-item";
+                        var isLast = true;
+                        if (i < blocks.Count - 1) {
+                            var afterBlock = blocks[i + 1];
+                             isLast= afterBlock.type != "unordered-list-item";
+                        }
                         var inlineSpans = _RichStyle(text, content.entityMap, block.entityRanges,
                             block.inlineStyleRanges, openUrl);
                         widgets.Add(
