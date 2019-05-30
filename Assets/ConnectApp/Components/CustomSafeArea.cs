@@ -2,7 +2,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public class CustomSafeArea : StatelessWidget {
         public CustomSafeArea(
             Key key = null,

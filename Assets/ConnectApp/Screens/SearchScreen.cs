@@ -1,10 +1,10 @@
 using System.Collections.Generic;
-using ConnectApp.components;
-using ConnectApp.components.pull_to_refresh;
-using ConnectApp.constants;
 using ConnectApp.Components;
-using ConnectApp.models;
+using ConnectApp.Components.pull_to_refresh;
+using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
+using ConnectApp.Models.Model;
+using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using RSG;
@@ -28,7 +28,7 @@ namespace ConnectApp.screens {
                     currentPage = state.searchState.currentPage,
                     pages = state.searchState.pages,
                     searchHistoryList = state.searchState.searchHistoryList,
-                    popularSearchs = state.popularSearchState.popularSearchs,
+                    popularSearchList = state.popularSearchState.popularSearchs,
                     userDict = state.userState.userDict,
                     teamDict = state.teamState.teamDict,
                     blockArticleList = state.articleState.blockArticleList
@@ -139,32 +139,30 @@ namespace ConnectApp.screens {
                     var pages = this.widget.viewModel.pages;
                     child = new Container(
                         color: CColors.background3,
-                        child: new CustomScrollbar(
-                            new SmartRefresher(
-                                controller: this._refreshController,
-                                enablePullDown: false,
-                                enablePullUp: currentPage != pages.Count - 1,
-                                onRefresh: this._onRefresh,
-                                child: ListView.builder(
-                                    physics: new AlwaysScrollableScrollPhysics(),
-                                    itemCount: this.widget.viewModel.searchArticles.Count,
-                                    itemBuilder: (cxt, index) => {
-                                        var searchArticle = this.widget.viewModel.searchArticles[index];
-                                        if (this.widget.viewModel.blockArticleList.Contains(searchArticle.id)) {
-                                            return new Container();
-                                        }
+                        child: new SmartRefresher(
+                            controller: this._refreshController,
+                            enablePullDown: false,
+                            enablePullUp: currentPage != pages.Count - 1,
+                            onRefresh: this._onRefresh,
+                            child: ListView.builder(
+                                physics: new AlwaysScrollableScrollPhysics(),
+                                itemCount: this.widget.viewModel.searchArticles.Count,
+                                itemBuilder: (cxt, index) => {
+                                    var searchArticle = this.widget.viewModel.searchArticles[index];
+                                    if (this.widget.viewModel.blockArticleList.Contains(searchArticle.id)) {
+                                        return new Container();
+                                    }
 
-                                        if (searchArticle.ownerType == OwnerType.user.ToString()) {
-                                            var user = this.widget.viewModel.userDict[searchArticle.userId];
-                                            return RelatedArticleCard.User(searchArticle, user,
-                                                () => { this.widget.actionModel.pushToArticleDetail(searchArticle.id); });
-                                        }
-
-                                        var team = this.widget.viewModel.teamDict[searchArticle.teamId];
-                                        return RelatedArticleCard.Team(searchArticle, team,
+                                    if (searchArticle.ownerType == OwnerType.user.ToString()) {
+                                        var user = this.widget.viewModel.userDict[searchArticle.userId];
+                                        return RelatedArticleCard.User(searchArticle, user,
                                             () => { this.widget.actionModel.pushToArticleDetail(searchArticle.id); });
                                     }
-                                )
+
+                                    var team = this.widget.viewModel.teamDict[searchArticle.teamId];
+                                    return RelatedArticleCard.Team(searchArticle, team,
+                                        () => { this.widget.actionModel.pushToArticleDetail(searchArticle.id); });
+                                }
                             )
                         )
                     );
@@ -239,7 +237,7 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildHotSearch() {
-            if (this.widget.viewModel.popularSearchs.Count <= 0) {
+            if (this.widget.viewModel.popularSearchList.Count <= 0) {
                 return new Container();
             }
 
@@ -259,7 +257,7 @@ namespace ConnectApp.screens {
                         new Wrap(
                             spacing: 8,
                             runSpacing: 20,
-                            children: this._buildPopularSearchItem(this.widget.viewModel.popularSearchs)
+                            children: this._buildPopularSearchItem(this.widget.viewModel.popularSearchList)
                         )
                     }
                 )

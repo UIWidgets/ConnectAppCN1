@@ -10,7 +10,7 @@ using Unity.UIWidgets.ui;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace ConnectApp.utils {
+namespace ConnectApp.Utils {
     public static class Method {
         public const string GET = "GET";
         public const string POST = "POST";

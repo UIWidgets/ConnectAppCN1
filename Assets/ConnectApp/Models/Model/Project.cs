@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.Models.Api;
 
-namespace ConnectApp.models {
+namespace ConnectApp.Models.Model {
     [Serializable]
     public class Project {
         public Article projectData;

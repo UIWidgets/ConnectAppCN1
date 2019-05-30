@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.utils;
+using ConnectApp.Models.Model;
+using ConnectApp.Utils;
 using UnityEngine;
 
-namespace ConnectApp.models {
+namespace ConnectApp.Models.State {
     [Serializable]
     public class AppState {
         public int Count { get; set; }

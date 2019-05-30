@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using ConnectApp.constants;
+using ConnectApp.Constants;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
@@ -7,9 +7,9 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Icons = ConnectApp.constants.Icons;
+using Icons = ConnectApp.Constants.Icons;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public enum InputFieldClearButtonMode {
         never,
         hasText,

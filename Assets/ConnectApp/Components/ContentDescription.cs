@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.constants;
-using ConnectApp.models;
+using ConnectApp.Constants;
+using ConnectApp.Models.Model;
 using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -10,7 +10,7 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public static class ContentDescription {
         public static List<Widget> map(BuildContext context, string cont, Dictionary<string, ContentMap> contentMap,
             Action<string> openUrl, Action<string> playVideo) {
@@ -423,7 +423,7 @@ namespace ConnectApp.components {
 
             return new Container(
                 color: CColors.White,
-                padding: EdgeInsets.only(16, right: 16,top: index == 1 ? 0 : 4, bottom: isLast ? 24 : 0),
+                padding: EdgeInsets.only(16, right: 16, top: index == 1 ? 0 : 4, bottom: isLast ? 24 : 0),
                 child: new RichText(
                     text: new TextSpan(
                         style: CTextStyle.PXLarge,

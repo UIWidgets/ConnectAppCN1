@@ -2,7 +2,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.components.pull_to_refresh {
+namespace ConnectApp.Components.pull_to_refresh {
     public class SmartRefreshFooter : StatelessWidget {
         readonly int mode;
         readonly EdgeInsets padding;
@@ -36,6 +36,7 @@ namespace ConnectApp.components.pull_to_refresh {
                     animatingType = AnimatingType.stop;
                     break;
             }
+
             return new Container(
                 padding: this.padding,
                 child: new CustomActivityIndicator(

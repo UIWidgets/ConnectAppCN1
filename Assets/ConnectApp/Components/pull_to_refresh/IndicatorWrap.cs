@@ -7,7 +7,7 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.components.pull_to_refresh {
+namespace ConnectApp.Components.pull_to_refresh {
     public abstract class Wrapper : StatefulWidget {
         protected Wrapper(
             ValueNotifier<int> modeListener,

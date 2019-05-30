@@ -1,9 +1,10 @@
 using System.Collections.Generic;
-using ConnectApp.api;
-using ConnectApp.components;
-using ConnectApp.constants;
-using ConnectApp.models;
-using ConnectApp.utils;
+using ConnectApp.Api;
+using ConnectApp.Components;
+using ConnectApp.Constants;
+using ConnectApp.Models.Model;
+using ConnectApp.Models.State;
+using ConnectApp.Utils;
 using Unity.UIWidgets.Redux;
 using UnityEngine;
 

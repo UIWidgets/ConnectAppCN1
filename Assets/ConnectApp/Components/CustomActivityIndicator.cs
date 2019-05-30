@@ -4,7 +4,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public enum AnimatingType {
         repeat,
         stop,
@@ -86,11 +86,15 @@ namespace ConnectApp.components {
             int sideLength;
             if (this.widget.size == LoadingSize.normal) {
                 sideLength = 24;
-                imageName = this.widget.loadingColor == LoadingColor.white ? "image/white-loading24" : "image/black-loading24";
+                imageName = this.widget.loadingColor == LoadingColor.white
+                    ? "image/white-loading24"
+                    : "image/black-loading24";
             }
             else {
                 sideLength = 20;
-                imageName = this.widget.loadingColor == LoadingColor.white ? "image/white-loading20" : "image/black-loading20";
+                imageName = this.widget.loadingColor == LoadingColor.white
+                    ? "image/white-loading20"
+                    : "image/black-loading20";
             }
 
             return new RotationTransition(

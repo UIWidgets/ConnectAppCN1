@@ -1,13 +1,13 @@
 using System.Text;
-using ConnectApp.constants;
-using ConnectApp.models;
-using ConnectApp.utils;
+using ConnectApp.Constants;
+using ConnectApp.Models.Api;
+using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.foundation;
 using UnityEngine.Networking;
 
-namespace ConnectApp.api {
+namespace ConnectApp.Api {
     public static class MessageApi {
         public static Promise<FetchCommentsResponse> FetchMessages(string channelId, string currOldestMessageId) {
             var promise = new Promise<FetchCommentsResponse>();

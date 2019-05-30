@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ConnectApp.models {
+namespace ConnectApp.Models.Model {
     [Serializable]
     public class Place {
         public string id;

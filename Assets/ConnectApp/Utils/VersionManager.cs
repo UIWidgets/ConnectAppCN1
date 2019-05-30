@@ -1,14 +1,15 @@
 using System.Collections.Generic;
-using ConnectApp.api;
-using ConnectApp.components;
-using ConnectApp.constants;
+using ConnectApp.Api;
+using ConnectApp.Components;
+using ConnectApp.Constants;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
 
-namespace ConnectApp.utils {
+namespace ConnectApp.Utils {
     public enum CheckVersionType {
         first,
         setting
@@ -32,11 +33,18 @@ namespace ConnectApp.utils {
 
                     var status = versionResponse["status"];
                     if (status.ToLower() == "need_update" && versionResponse.ContainsKey("url")) {
+                        var changeLog = "发现新版本，立即更新体验吧！";
+                        if (versionResponse.ContainsKey("changeLog")) {
+                            if (versionResponse["changeLog"].isNotEmpty()) {
+                                changeLog = versionResponse["changeLog"];
+                            }
+                        }
+
                         CustomDialogUtils.showCustomDialog(
                             barrierColor: Color.fromRGBO(0, 0, 0, 0.5f),
                             child: new CustomAlertDialog(
                                 "版本更新",
-                                "发现新版本，立即更新体验吧！",
+                                changeLog,
                                 new List<Widget> {
                                     new CustomButton(
                                         child: new Text(

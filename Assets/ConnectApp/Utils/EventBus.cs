@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ConnectApp.utils {
+namespace ConnectApp.Utils {
     public delegate void _Delegate(List<object> args);
 
     public static class EventBus {
@@ -49,5 +49,6 @@ namespace ConnectApp.utils {
         public const string login_success = "LOGIN_SUCCEED";
         public const string pauseVideoPlayer = "PAUSE_VIDEO_PLAYER";
         public const string refreshNotifications = "REFRESH_NOTIFICATIONS";
+        public const string fullScreen = "FULL_SCREEN";
     }
 }

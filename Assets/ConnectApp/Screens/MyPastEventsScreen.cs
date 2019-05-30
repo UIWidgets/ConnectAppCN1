@@ -1,9 +1,8 @@
-using ConnectApp.components;
-using ConnectApp.components.pull_to_refresh;
-using ConnectApp.constants;
 using ConnectApp.Components;
-using ConnectApp.models;
+using ConnectApp.Components.pull_to_refresh;
+using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
+using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using RSG;
@@ -97,28 +96,26 @@ namespace ConnectApp.screens {
 
             return new Container(
                 color: CColors.background3,
-                child: new CustomScrollbar(
-                    new SmartRefresher(
-                        controller: this._refreshController,
-                        enablePullDown: true,
-                        enablePullUp: !hasMore,
-                        onRefresh: this._onRefresh,
-                        child: ListView.builder(
-                            physics: new AlwaysScrollableScrollPhysics(),
-                            itemCount: data.Count,
-                            itemBuilder: (cxt, idx) => {
-                                var model = data[idx];
-                                var eventType = model.mode == "online" ? EventType.online : EventType.offline;
-                                var placeName = model.placeId.isEmpty()
-                                    ? null
-                                    : this.widget.viewModel.placeDict[model.placeId].name;
-                                return new EventCard(
-                                    model,
-                                    placeName,
-                                    () => this.widget.actionModel.pushToEventDetail(model.id, eventType)
-                                );
-                            }
-                        )
+                child: new SmartRefresher(
+                    controller: this._refreshController,
+                    enablePullDown: true,
+                    enablePullUp: !hasMore,
+                    onRefresh: this._onRefresh,
+                    child: ListView.builder(
+                        physics: new AlwaysScrollableScrollPhysics(),
+                        itemCount: data.Count,
+                        itemBuilder: (cxt, idx) => {
+                            var model = data[idx];
+                            var eventType = model.mode == "online" ? EventType.online : EventType.offline;
+                            var placeName = model.placeId.isEmpty()
+                                ? null
+                                : this.widget.viewModel.placeDict[model.placeId].name;
+                            return new EventCard(
+                                model,
+                                placeName,
+                                () => this.widget.actionModel.pushToEventDetail(model.id, eventType)
+                            );
+                        }
                     )
                 )
             );

@@ -1,6 +1,6 @@
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.components.pull_to_refresh {
+namespace ConnectApp.Components.pull_to_refresh {
     public delegate void OnRefresh(bool up);
 
     public delegate void OnOffsetChange(bool up, float offset);

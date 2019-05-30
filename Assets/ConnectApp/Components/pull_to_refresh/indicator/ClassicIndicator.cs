@@ -1,12 +1,12 @@
 using System.Collections.Generic;
-using ConnectApp.constants;
+using ConnectApp.Constants;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.components.pull_to_refresh {
+namespace ConnectApp.Components.pull_to_refresh {
     public enum IconPosition {
         left,
         right,

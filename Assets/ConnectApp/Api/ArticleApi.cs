@@ -1,12 +1,13 @@
 using System.Text;
-using ConnectApp.constants;
-using ConnectApp.models;
-using ConnectApp.utils;
+using ConnectApp.Constants;
+using ConnectApp.Models.Api;
+using ConnectApp.Models.Model;
+using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
 using UnityEngine.Networking;
 
-namespace ConnectApp.api {
+namespace ConnectApp.Api {
     public static class ArticleApi {
         public static Promise<FetchArticlesResponse> FetchArticles(int offset) {
             var promise = new Promise<FetchArticlesResponse>();

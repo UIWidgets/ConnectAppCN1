@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.components;
-using ConnectApp.constants;
-using ConnectApp.plugins;
+using ConnectApp.Constants;
+using ConnectApp.Plugins;
 using ConnectApp.screens;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async;
@@ -74,6 +74,7 @@ namespace ConnectApp.Components {
                     }
                     else if (Screen.orientation == ScreenOrientation.LandscapeLeft) {
                         //视频全屏时禁止物理返回按钮
+                        EventBus.publish(EventBusConstant.fullScreen, new List<object> { true });
                         promise.Resolve(false);
                     }
                     else if (navigator.canPop()) {
@@ -89,22 +90,24 @@ namespace ConnectApp.Components {
                                     this._timer.Dispose();
                                     this._timer = null;
                                 }
-                            } else {
+                            }
+                            else {
                                 this._exitApp = true;
                                 CustomToast.show(new CustomToastItem(
                                     context: context,
                                     "再按一次退出",
                                     TimeSpan.FromMilliseconds(2000)
                                 ));
-                                this._timer = Window.instance.run(TimeSpan.FromMilliseconds(2000), () => {
-                                    this._exitApp = false;
-                                });
+                                this._timer = Window.instance.run(TimeSpan.FromMilliseconds(2000),
+                                    () => { this._exitApp = false; });
                                 promise.Resolve(false);
                             }
-                        } else {
+                        }
+                        else {
                             promise.Resolve(true);
                         }
                     }
+
                     return promise;
                 },
                 child: new Navigator(

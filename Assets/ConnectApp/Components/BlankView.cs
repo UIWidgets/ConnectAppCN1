@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using ConnectApp.constants;
+using ConnectApp.Constants;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -7,7 +7,7 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
-namespace ConnectApp.components {
+namespace ConnectApp.Components {
     public class BlankView : StatelessWidget {
         public BlankView(
             string title,
