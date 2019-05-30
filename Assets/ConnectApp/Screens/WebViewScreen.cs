@@ -145,7 +145,7 @@ namespace ConnectApp.screens {
                 color: CColors.White,
                 child: new CustomSafeArea(
                     child: new Container(
-                        color: CColors.background3,
+                        color: CColors.Background,
                         child: new Column(
                             children: new List<Widget> {
                                 new Container(
@@ -195,7 +195,7 @@ namespace ConnectApp.screens {
                             child: new Container(
                                 padding: EdgeInsets.symmetric(10, 16),
                                 color: CColors.Transparent,
-                                child: new Icon(Icons.arrow_back, size: 24, color: CColors.icon3))
+                                child: new Icon(Icons.arrow_back, size: 24, color: CColors.Icon))
                         )
                     }
                 )

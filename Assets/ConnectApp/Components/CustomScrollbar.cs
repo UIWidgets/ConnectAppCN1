@@ -74,12 +74,13 @@ namespace ConnectApp.Components {
                     this._fadeoutAnimationController.forward();
                 }
 
+                this._fadeoutTimer?.cancel();
                 this._scrollbarPainter.update(
                     metrics: notification.metrics,
                     axisDirection: notification.metrics.axisDirection
                 );
+            } else if (notification is ScrollEndNotification) {
                 this._fadeoutTimer?.cancel();
-
                 this._fadeoutTimer = Window.instance.run(TimeSpan.FromMilliseconds(50), () => {
                     this._fadeoutAnimationController.reverse();
                     this._fadeoutTimer = null;

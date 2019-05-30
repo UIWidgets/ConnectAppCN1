@@ -66,20 +66,20 @@ namespace ConnectApp.Components {
                         new CustomButton(
                             padding: EdgeInsets.symmetric(12, 10),
                             onPressed: this.commentCallback,
-                            child: new Icon(Icons.comment, size: 24, color: CColors.icon3)
+                            child: new Icon(Icons.comment, size: 24, color: CColors.Icon)
                         ),
                         //点赞
                         new CustomButton(
                             padding: EdgeInsets.symmetric(12, 10),
                             onPressed: this.favorCallback,
                             child: new Icon(this.like ? Icons.favorite : Icons.favorite_border, size: 24,
-                                color: this.like ? CColors.PrimaryBlue : CColors.icon3)
+                                color: this.like ? CColors.PrimaryBlue : CColors.Icon)
                         ),
                         //分享
                         new CustomButton(
                             padding: EdgeInsets.symmetric(12, 10),
                             onPressed: this.shareCallback,
-                            child: new Icon(Icons.share, size: 24, color: CColors.icon3)
+                            child: new Icon(Icons.share, size: 24, color: CColors.Icon)
                         )
                     }
                 )
