@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using UnityEngine;
 
 namespace ConnectApp.Plugins {
     public class JAnalyticsPlugin {
