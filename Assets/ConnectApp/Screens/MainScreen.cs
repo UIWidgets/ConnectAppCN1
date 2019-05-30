@@ -2,7 +2,9 @@ using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.redux;
+using ConnectApp.Utils;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 
 namespace ConnectApp.screens {
     public class MainScreen : StatelessWidget {
@@ -40,8 +42,12 @@ namespace ConnectApp.screens {
                             )
                         },
                         backgroundColor: CColors.White,
-                        index => {
-                            if (index != 2 || StoreProvider.store.getState().loginState.isLoggedIn) {
+                        (fromIndex, toIndex) => {
+                            if (!Application.isEditor) {
+                                AnalyticsManager.TabClick(fromIndex, toIndex);
+                            }
+
+                            if (toIndex != 2 || StoreProvider.store.getState().loginState.isLoggedIn) {
                                 return true;
                             }
 
