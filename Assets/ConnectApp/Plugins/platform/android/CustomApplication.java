@@ -4,6 +4,7 @@ import android.app.Application;
 
 import com.tencent.mm.opensdk.openapi.IWXAPI;
 import com.tencent.mm.opensdk.openapi.WXAPIFactory;
+import com.unity3d.unityconnect.plugins.CommonPlugin;
 import com.unity3d.unityconnect.plugins.JAnalyticsPlugin;
 import com.unity3d.unityconnect.plugins.JPushPlugin;
 import com.unity3d.unityconnect.plugins.WechatPlugin;
@@ -21,6 +22,7 @@ public class CustomApplication extends Application {
 
         JPushPlugin.getInstance().mContext = this;
         JAnalyticsPlugin.getInstance().context = this;
+        CommonPlugin.mContext = this;
 
         JPushInterface.init(this);     		// 初始化 JPush
         JAnalyticsInterface.init(this);
