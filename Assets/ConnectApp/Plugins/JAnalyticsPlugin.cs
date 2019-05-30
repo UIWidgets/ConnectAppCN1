@@ -1,4 +1,8 @@
+#if UNITY_IOS
+using System.Runtime.InteropServices;
+#elif UNITY_ANDROID
 using UnityEngine;
+#endif
 
 namespace ConnectApp.Plugins {
     public static class JAnalyticsPlugin {
