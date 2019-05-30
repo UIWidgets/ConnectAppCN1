@@ -49,5 +49,6 @@ namespace ConnectApp.Utils {
         public const string login_success = "LOGIN_SUCCEED";
         public const string pauseVideoPlayer = "PAUSE_VIDEO_PLAYER";
         public const string refreshNotifications = "REFRESH_NOTIFICATIONS";
+        public const string fullScreen = "FULL_SCREEN";
     }
 }

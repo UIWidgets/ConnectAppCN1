@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Plugins;
 using ConnectApp.screens;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async;
@@ -73,6 +74,7 @@ namespace ConnectApp.Components {
                     }
                     else if (Screen.orientation == ScreenOrientation.LandscapeLeft) {
                         //视频全屏时禁止物理返回按钮
+                        EventBus.publish(EventBusConstant.fullScreen, new List<object> { true });
                         promise.Resolve(false);
                     }
                     else if (navigator.canPop()) {
