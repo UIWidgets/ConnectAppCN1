@@ -14,6 +14,7 @@
 #import <UserNotifications/UserNotifications.h>
 #include "UIWidgetsMessageManager.h"
 #import "JPushPlugin.h"
+#import <AVFoundation/AVFoundation.h>
 
 static NSString *gameObjectName = @"jpush";
 
@@ -128,5 +129,15 @@ NSData *APNativeJSONData(id obj) {
     }
 }
 
+
+extern "C" {
+    
+    void pauseAudioSession(){
+        AVAudioSession *session = [AVAudioSession sharedInstance];
+        [session setCategory:AVAudioSessionCategoryPlayback error:nil];
+        [session setActive:YES error:nil];
+    }
+    
+}
 
 @end

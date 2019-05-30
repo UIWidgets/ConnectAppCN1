@@ -271,6 +271,7 @@ namespace ConnectApp.components {
             player.prepareCompleted += this.prepareCompleted;
             player.frameReady += (source, frameIndex) => {
                 using (WindowProvider.of(this.widget.context).getScope()) {
+                    pauseAudioSession();
                     Texture.textureFrameAvailable();
                     if (this._relative * source.frameCount < frameIndex || frameIndex == 0) {
                         this._isLoaded = true;
@@ -383,5 +384,26 @@ namespace ConnectApp.components {
                 this.widget.fullScreenCallback(this._isFullScreen);
             }
         }
+#if UNITY_IOS
+        [DllImport("__Internal")]
+        static extern void pauseAudioSession();
+
+#elif UNITY_ANDROID
+        static AndroidJavaClass _plugin;
+
+        static AndroidJavaClass Plugin() {
+            if (_plugin == null) {
+                _plugin = new AndroidJavaClass("com.unity3d.unityconnect.plugins.CommonPlugin");
+            }
+
+            return _plugin;
+        }
+
+        static void pauseAudioSession() {
+            Plugin().CallStatic("pauseAudioSession");
+        }
+#else
+        static void pauseAudioSession() {}
+#endif
     }
 }
