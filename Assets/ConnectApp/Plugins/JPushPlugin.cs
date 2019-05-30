@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using ConnectApp.Constants;
-using ConnectApp.Models.State;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
@@ -9,6 +7,12 @@ using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
+#if UNITY_IOS
+using System.Runtime.InteropServices;
+#elif UNITY_ANDROID
+using UnityEngine;
+#endif
+using EventType = ConnectApp.Models.State.EventType;
 
 namespace ConnectApp.Plugins {
     public static class JPushPlugin {

@@ -1,7 +1,11 @@
+#if UNITY_IOS
 using System.Runtime.InteropServices;
+#elif UNITY_ANDROID
+using UnityEngine;
+#endif
 
 namespace ConnectApp.Plugins {
-    public class JAnalyticsPlugin {
+    public static class JAnalyticsPlugin {
         public static void startPageView(string pageName) {
             startLogPageView(pageName);
         }
