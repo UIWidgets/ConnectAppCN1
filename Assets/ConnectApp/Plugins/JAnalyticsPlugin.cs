@@ -1,7 +1,7 @@
-using System.Runtime.InteropServices;
+using UnityEngine;
 
 namespace ConnectApp.Plugins {
-    public class JAnalyticsPlugin {
+    public static class JAnalyticsPlugin {
         public static void startPageView(string pageName) {
             startLogPageView(pageName);
         }
