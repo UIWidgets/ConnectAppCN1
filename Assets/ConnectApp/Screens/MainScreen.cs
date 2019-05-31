@@ -51,7 +51,7 @@ namespace ConnectApp.screens {
                                 return true;
                             }
 
-                            Navigator.pushNamed(context: context, routeName: MainNavigatorRoutes.Login);
+                            Router.navigator.pushNamed(routeName: MainNavigatorRoutes.Login);
                             return false;
                         }
                     )

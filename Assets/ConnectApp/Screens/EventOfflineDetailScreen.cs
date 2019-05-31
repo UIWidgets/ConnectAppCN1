@@ -182,10 +182,10 @@ namespace ConnectApp.screens {
                 var width = MediaQuery.of(context).size.width;
                 var imageHeight = 9.0f / 16.0f * width;
                 if (eventObj.type.isNotEmpty() && !(eventObj.type == "bagevent" || eventObj.type == "customize")) {
-                    this._titleHeight = imageHeight + eventTitleKey.currentContext.size.height + 16;
+                    this._titleHeight = imageHeight + eventTitleKey.currentContext.size.height + 32;
                 }
                 else {
-                    this._titleHeight = imageHeight + eventTitleKey.currentContext.size.height + 16 - 64;
+                    this._titleHeight = imageHeight + eventTitleKey.currentContext.size.height + 32 - 64;
                 }
             }
 
