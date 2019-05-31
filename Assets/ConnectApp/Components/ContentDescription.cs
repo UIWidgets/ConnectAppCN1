@@ -311,7 +311,7 @@ namespace ConnectApp.Components {
                                 child: new Icon(
                                     Icons.play_arrow,
                                     size: 45,
-                                    color: CColors.icon3
+                                    color: CColors.Icon
                                 )
                             )
                         )

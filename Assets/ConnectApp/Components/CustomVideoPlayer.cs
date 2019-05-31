@@ -13,6 +13,9 @@ using UnityEngine;
 using UnityEngine.Video;
 using Color = Unity.UIWidgets.ui.Color;
 using Texture = Unity.UIWidgets.widgets.Texture;
+#if UNITY_IOS
+using System.Runtime.InteropServices;
+#endif
 
 namespace ConnectApp.Components {
     public delegate void FullScreenCallback(bool isFullScreen);
