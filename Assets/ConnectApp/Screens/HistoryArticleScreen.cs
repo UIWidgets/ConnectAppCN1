@@ -10,6 +10,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 
 namespace ConnectApp.screens {
     public class HistoryArticleScreenConnector : StatelessWidget {
@@ -74,7 +75,12 @@ namespace ConnectApp.screens {
                         var model = this.viewModel.articleHistory[index];
                         var child = new ArticleCard(
                             model,
-                            () => this.actionModel.pushToArticleDetail(model.id),
+                            () => {
+                                this.actionModel.pushToArticleDetail(model.id);
+                                if (!Application.isEditor) {
+                                    AnalyticsManager.ClickEnterArticleDetail("Histroy_Article",model.id,model.title);
+                                }
+                            },
                             () => ReportManager.showReportView(this.viewModel.isLoggedIn,
                                 model.id,
                                 ReportType.article, this.actionModel.pushToLogin, this.actionModel.pushToReport,

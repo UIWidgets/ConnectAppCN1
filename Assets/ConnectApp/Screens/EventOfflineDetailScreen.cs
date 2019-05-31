@@ -17,6 +17,9 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
+using EventType = ConnectApp.Models.State.EventType;
 
 namespace ConnectApp.screens {
     public class EventOfflineDetailScreenConnector : StatelessWidget {
@@ -221,6 +224,9 @@ namespace ConnectApp.screens {
                 onPressed: () => ShareUtils.showShareView(new ShareView(
                     projectType: ProjectType.iEvent,
                     onPressed: type => {
+                        if (!Application.isEditor) {
+                            AnalyticsManager.ClickShare(type,"Event","Event_"+eventObj.id,eventObj.title); 
+                        }
                         var linkUrl =
                             $"{Config.apiAddress}/events/{eventObj.id}";
                         if (type == ShareType.clipBoard) {

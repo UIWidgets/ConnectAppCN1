@@ -6,11 +6,14 @@ using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using EventType = ConnectApp.Models.State.EventType;
 
 namespace ConnectApp.screens {
     public class EventCompletedScreenConnector : StatelessWidget {
@@ -123,10 +126,15 @@ namespace ConnectApp.screens {
                             return new EventCard(
                                 model,
                                 place.name,
-                                () => this.widget.actionModel.pushToEventDetail(
-                                    model.id,
-                                    model.mode == "online" ? EventType.online : EventType.offline
-                                ),
+                                () => {
+                                    this.widget.actionModel.pushToEventDetail(
+                                        model.id,
+                                        model.mode == "online" ? EventType.online : EventType.offline
+                                    );
+                                    if (!Application.isEditor) {
+                                        AnalyticsManager.ClickEnterEventDetail("Home_Past_Event",model.id,model.title,model.type);
+                                    }
+                                },
                                 new ObjectKey(model.id)
                             );
                         }

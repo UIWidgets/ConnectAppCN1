@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using ConnectApp.Constants;
 using ConnectApp.Utils;
 using RSG;

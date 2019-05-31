@@ -44,7 +44,7 @@ namespace ConnectApp.screens {
                         backgroundColor: CColors.White,
                         (fromIndex, toIndex) => {
                             if (!Application.isEditor) {
-                                AnalyticsManager.TabClick(fromIndex, toIndex);
+                                AnalyticsManager.ClickHomeTab(fromIndex, toIndex);
                             }
 
                             if (toIndex != 2 || StoreProvider.store.getState().loginState.isLoggedIn) {

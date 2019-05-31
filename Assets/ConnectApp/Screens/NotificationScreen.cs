@@ -15,6 +15,7 @@ using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 
 namespace ConnectApp.screens {
     public class NotificationScreenConnector : StatelessWidget {
@@ -139,7 +140,12 @@ namespace ConnectApp.screens {
                                     return new NotificationCard(
                                         notification,
                                         user,
-                                        () => this.widget.actionModel.pushToArticleDetail(notification.data.projectId),
+                                        () => {
+                                            this.widget.actionModel.pushToArticleDetail(notification.data.projectId);
+                                            if (!Application.isEditor) {
+                                                AnalyticsManager.ClickEnterArticleDetail("Notification_Article",notification.data.projectId,notification.data.projectTitle);
+                                            }
+                                        },
                                         new ObjectKey(notification.id)
                                     );
                                 }
