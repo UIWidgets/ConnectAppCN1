@@ -9,7 +9,7 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.Components {
-    public delegate bool SelectTabCallBack(int index);
+    public delegate bool SelectTabCallBack(int fromIndex, int toIndex);
 
     public class CustomTabBar : StatefulWidget {
         public CustomTabBar(
@@ -67,7 +67,7 @@ namespace ConnectApp.Components {
             return new Container(
                 child: new Container(
                     height: MediaQuery.of(context).size.height,
-                    color: CColors.background1,
+                    color: CColors.Background,
                     child: new PageView(
                         physics: new NeverScrollableScrollPhysics(),
                         children: this.widget.controllers,
@@ -103,7 +103,7 @@ namespace ConnectApp.Components {
                                 onTap: () => {
                                     if (this._selectedIndex != item.index) {
                                         if (this.widget.tapCallBack != null) {
-                                            if (this.widget.tapCallBack(item.index)) {
+                                            if (this.widget.tapCallBack(this._selectedIndex, item.index)) {
                                                 this.setState(() => {
                                                     this._selectedIndex = item.index;
                                                     this._pageController.animateToPage(item.index,

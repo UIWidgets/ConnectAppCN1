@@ -8,7 +8,6 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 
 namespace ConnectApp.Components {
     public class ArticleCard : StatelessWidget {
@@ -38,7 +37,7 @@ namespace ConnectApp.Components {
             const float imageWidth = 100;
             const float imageHeight = 66;
             const float borderRadius = 4;
-            
+
             var time = this.article.lastPublishedTime == null
                 ? this.article.publishedTime
                 : this.article.lastPublishedTime;

@@ -6,10 +6,7 @@ using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using ImageUtils = Unity.UIWidgets.painting.ImageUtils;
 
 namespace ConnectApp.Components {
     public class EventDetail : StatelessWidget {
@@ -72,7 +69,9 @@ namespace ConnectApp.Components {
                 child: new AspectRatio(
                     aspectRatio: 16.0f / 9.0f,
                     child: new PlaceholderImage(
-                        imageUrl.EndsWith(".gif") ? imageUrl : CImageUtils.SuitableSizeImageUrl(MediaQuery.of(context).size.width,  imageUrl),
+                        imageUrl.EndsWith(".gif")
+                            ? imageUrl
+                            : CImageUtils.SuitableSizeImageUrl(MediaQuery.of(context).size.width, imageUrl),
                         fit: BoxFit.cover
                     )
                 )

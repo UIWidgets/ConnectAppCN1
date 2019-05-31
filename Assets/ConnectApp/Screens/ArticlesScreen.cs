@@ -217,7 +217,7 @@ namespace ConnectApp.screens {
             return new NotificationListener<ScrollNotification>(
                 onNotification: this._onNotification,
                 child: new Container(
-                    color: CColors.background3,
+                    color: CColors.Background,
                     child: content
                 )
             );

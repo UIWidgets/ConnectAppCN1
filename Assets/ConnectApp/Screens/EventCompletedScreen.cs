@@ -103,7 +103,7 @@ namespace ConnectApp.screens {
             }
 
             return new Container(
-                color: CColors.background3,
+                color: CColors.Background,
                 child: new SmartRefresher(
                     controller: this._completedRefreshController,
                     enablePullDown: true,
