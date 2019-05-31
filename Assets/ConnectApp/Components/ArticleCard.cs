@@ -41,10 +41,9 @@ namespace ConnectApp.Components {
             var time = this.article.lastPublishedTime == null
                 ? this.article.publishedTime
                 : this.article.lastPublishedTime;
-//            var imageUrl = this.article.thumbnail.url.EndsWith(".gif")
-//                ? this.article.thumbnail.url
-//                : $"{this.article.thumbnail.url}.600x0x1.jpg";
-            var imageUrl = CImageUtils.SuitableSizeImageUrl(imageWidth + 1, this.article.thumbnail.url);
+            var imageUrl = this.article.thumbnail.url.EndsWith(".gif")
+                ? this.article.thumbnail.url
+                : CImageUtils.SuitableSizeImageUrl(imageWidth + 1, this.article.thumbnail.url);
             var card = new Container(
                 color: CColors.White,
                 child: new Padding(
