@@ -37,9 +37,6 @@ namespace ConnectApp.Components {
             var time = this.article.lastPublishedTime == null
                 ? this.article.publishedTime
                 : this.article.lastPublishedTime;
-//            var imageUrl = this.article.thumbnail.url.EndsWith(".gif")
-//                ? this.article.thumbnail.url
-//                : $"{this.article.thumbnail.url}.600x0x1.jpg";
             var imageUrl = $"{this.article.thumbnail.url}.400x0x1.jpg";
             var card = new Container(
                 color: CColors.White,
@@ -85,6 +82,7 @@ namespace ConnectApp.Components {
                                     )
                                 ),
                                 new Container(
+                                    height:20,
                                     child: new Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: new List<Widget> {
@@ -94,16 +92,18 @@ namespace ConnectApp.Components {
                                                     style: CTextStyle.PSmallBody3
                                                 )
                                             ),
-                                            new CustomButton(
+                                            new GestureDetector(
                                                 child: new Container(
-                                                    height: 28,
+                                                    color:CColors.White,
+                                                    height: 20,
+                                                    width: 20,
                                                     child: new Icon(
                                                         Icons.ellipsis,
                                                         size: 20,
                                                         color: CColors.BrownGrey
                                                     )
                                                 ),
-                                                onPressed: this.moreCallBack
+                                                onTap: this.moreCallBack
                                             )
                                         }
                                     )
