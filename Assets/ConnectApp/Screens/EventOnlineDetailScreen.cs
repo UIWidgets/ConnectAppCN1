@@ -175,7 +175,7 @@ namespace ConnectApp.screens {
                 if (this._titleHeight == 0.0f) {
                     var width = MediaQuery.of(context).size.width;
                     var imageHeight = 9.0f / 16.0f * width;
-                    this._titleHeight = imageHeight + eventTitleKey.currentContext.size.height + 16 - 64;
+                    this._titleHeight = imageHeight + eventTitleKey.currentContext.size.height + 32 - 64;
                 }
 
                 if (pixels >= 44) {
