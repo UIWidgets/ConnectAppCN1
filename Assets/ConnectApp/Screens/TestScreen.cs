@@ -14,7 +14,7 @@ namespace ConnectApp.screens {
                 child: new Container(
                     padding: EdgeInsets.all(10),
                     decoration: new BoxDecoration(
-                        CColors.background1,
+                        CColors.Background,
                         border: Border.all(CColors.Red)
                     ),
                     child: renderWebSocket()

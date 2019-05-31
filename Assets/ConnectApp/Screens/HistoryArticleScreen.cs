@@ -66,7 +66,7 @@ namespace ConnectApp.screens {
             }
 
             return new Container(
-                color: CColors.background3,
+                color: CColors.Background,
                 child: ListView.builder(
                     physics: new AlwaysScrollableScrollPhysics(),
                     itemCount: this.viewModel.articleHistory.Count,

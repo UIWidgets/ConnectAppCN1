@@ -118,7 +118,7 @@ namespace ConnectApp.screens {
                                 child: new Icon(
                                     Icons.close,
                                     size: 24,
-                                    color: CColors.icon3
+                                    color: CColors.Icon
                                 )
                             )
                         ),

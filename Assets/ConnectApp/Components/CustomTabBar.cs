@@ -67,7 +67,7 @@ namespace ConnectApp.Components {
             return new Container(
                 child: new Container(
                     height: MediaQuery.of(context).size.height,
-                    color: CColors.background1,
+                    color: CColors.Background,
                     child: new PageView(
                         physics: new NeverScrollableScrollPhysics(),
                         children: this.widget.controllers,

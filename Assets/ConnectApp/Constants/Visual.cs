@@ -109,6 +109,12 @@ namespace ConnectApp.Constants {
             fontFamily: "Roboto-Medium",
             color: CColors.TextBody
         );
+        
+        public static readonly TextStyle PXLargeMedium = new TextStyle(
+            fontSize: 18,
+            fontFamily: "Roboto-Medium",
+            color: CColors.TextTitle
+        );
 
         public static readonly TextStyle PXLarge = new TextStyle(
             height: 1.68f,
@@ -208,7 +214,7 @@ namespace ConnectApp.Constants {
             height: 1.33f,
             fontSize: 16,
             fontFamily: "Roboto-Regular",
-            color: CColors.text2
+            color: CColors.Disable2
         );
 
         public static readonly TextStyle PMediumBlue = new TextStyle(
@@ -361,6 +367,7 @@ namespace ConnectApp.Constants {
         public static readonly Color BgGrey = new Color(0xFFFAFAFA);
         public static readonly Color BrownGrey = new Color(0xFFB5B5B5);
         public static readonly Color Disable = new Color(0xFFB2B2B2);
+        public static readonly Color Disable2 = new Color(0xFFD8D8D8);
         public static readonly Color WechatGreen = new Color(0xFF48B34F);
         public static readonly Color ButtonActive = new Color(0xFF227ABF);
 
@@ -374,13 +381,7 @@ namespace ConnectApp.Constants {
         public static readonly Color Blue = new Color(0xFF0000FF);
         public static readonly Color Grey = new Color(0xFF9E9E9E);
 
-        public static readonly Color background1 = new Color(0xFF292929);
-        public static readonly Color background2 = new Color(0xFF383838);
-        public static readonly Color background3 = new Color(0xFFF5F5F5);
-        public static readonly Color background4 = new Color(0xFF00BCD4);
-        public static readonly Color icon2 = new Color(0xFFA4A4A4);
-        public static readonly Color icon3 = new Color(0xFF979A9E);
-        public static readonly Color text1 = new Color(0xFFFFFFFF);
-        public static readonly Color text2 = new Color(0xFFD8D8D8);
+        public static readonly Color Background = new Color(0xFFF5F5F5);
+        public static readonly Color Icon = new Color(0xFF979A9E);
     }
 }

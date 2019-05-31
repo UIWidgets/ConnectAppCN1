@@ -144,12 +144,7 @@ namespace ConnectApp.screens {
                 vsync: this
             );
             RelativeRectTween rectTween = new RelativeRectTween(
-                RelativeRect.fromLTRB(
-                    0,
-                    navBarHeight,
-                    0,
-                    0
-                ),
+                RelativeRect.fromLTRB(0, navBarHeight, 0, 0),
                 RelativeRect.fromLTRB(0, 13, 0, 0)
             );
             this._animation = rectTween.animate(this._controller);
@@ -219,7 +214,7 @@ namespace ConnectApp.screens {
             var originItems = this._article == null ? new List<Widget>() : this._buildItems(context);
 
             var child = new Container(
-                color: CColors.background3,
+                color: CColors.Background,
                 child: new Column(
                     children: new List<Widget> {
                         this._buildNavigationBar(),
@@ -296,15 +291,14 @@ namespace ConnectApp.screens {
         }
 
         List<Widget> _buildItems(BuildContext context) {
-            var originItems = new List<Widget>();
-            originItems.Add(this._buildContentHead());
-            originItems.Add(this._buildSubTitle());
+            var originItems = new List<Widget> {
+                this._buildContentHead()
+            };
             originItems.AddRange(
                 ContentDescription.map(context, this._article.body, this._contentMap, this.widget.actionModel.openUrl,
                     this.widget.actionModel.playVideo));
             originItems.Add(this._buildActionCards(this._article.like));
             originItems.Add(this._buildRelatedArticles());
-            originItems.Add(this._comments());
             originItems.AddRange(this._buildComments());
             if (!this._article.hasMore) {
                 originItems.Add(this._buildEnd());
@@ -318,11 +312,7 @@ namespace ConnectApp.screens {
             if (this._isHaveTitle) {
                 titleWidget = new Text(
                     this._article.title,
-                    style: new TextStyle(
-                        fontSize: 18,
-                        fontFamily: "Roboto-Medium",
-                        color: CColors.TextTitle
-                    ),
+                    style: CTextStyle.PXLargeMedium,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center
@@ -345,7 +335,7 @@ namespace ConnectApp.screens {
                             child: new Container(
                                 padding: EdgeInsets.only(16, 10, 0, 10),
                                 color: CColors.Transparent,
-                                child: new Icon(Icons.arrow_back, size: 24, color: CColors.icon3))
+                                child: new Icon(Icons.arrow_back, size: 24, color: CColors.Icon))
                         ),
                         new Expanded(
                             child: new Stack(
@@ -435,7 +425,7 @@ namespace ConnectApp.screens {
 
             return new Container(
                 color: CColors.White,
-                padding: EdgeInsets.only(16, right: 16, top: 16),
+                padding: EdgeInsets.only(16, 16, 16),
                 child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
@@ -472,28 +462,20 @@ namespace ConnectApp.screens {
                                     )
                                 }
                             )
+                        ),
+                        new Container(
+                            margin: EdgeInsets.only(bottom: 24),
+                            decoration: new BoxDecoration(
+                                CColors.Separator2,
+                                borderRadius: BorderRadius.all(4)
+                            ),
+                            padding: EdgeInsets.only(16, 12, 16, 12),
+                            child: new Text($"{this._article.subTitle}", style: CTextStyle.PLargeBody4)
                         )
                     }
                 )
             );
         }
-
-        Widget _buildSubTitle() {
-            return new Container(
-                color: CColors.White,
-                child: new Container(
-                    margin: EdgeInsets.only(bottom: 24, left: 16, right: 16),
-                    child: new Container(
-                        decoration: new BoxDecoration(
-                            CColors.Separator2,
-                            borderRadius: BorderRadius.all(4)
-                        ),
-                        padding: EdgeInsets.only(16, 12, 16, 12),
-                        child: new Text($"{this._article.subTitle}", style: CTextStyle.PLargeBody4)
-                    ))
-            );
-        }
-
 
         Widget _buildActionCards(bool like) {
             return new Container(
@@ -532,12 +514,12 @@ namespace ConnectApp.screens {
                     Widget card;
                     if (article.ownerType == OwnerType.user.ToString()) {
                         card = RelatedArticleCard.User(article, this._user,
-                            () => { this.widget.actionModel.pushToArticleDetail(article.id); },
+                            () => this.widget.actionModel.pushToArticleDetail(article.id),
                             new ObjectKey(article.id));
                     }
                     else {
                         card = RelatedArticleCard.Team(article, this._team,
-                            () => { this.widget.actionModel.pushToArticleDetail(article.id); },
+                            () => this.widget.actionModel.pushToArticleDetail(article.id),
                             new ObjectKey(article.id));
                     }
 
@@ -559,35 +541,27 @@ namespace ConnectApp.screens {
                                 children: widgets
                             )
                         )
-                    })
-            );
-        }
-
-        Widget _comments() {
-            if (this._channelComments.Count == 0) {
-                return new Container();
-            }
-
-            return new Container(
-                color: CColors.White,
-                padding: EdgeInsets.only(16, 16, 16),
-                child: new Text(
-                    "评论",
-                    style: CTextStyle.H5,
-                    textAlign: TextAlign.left
+                    }
                 )
             );
         }
 
         List<Widget> _buildComments() {
-            if (this._channelComments.isEmpty()) {
+            if (this._channelComments.Count == 0) {
                 return new List<Widget>();
             }
 
-            var comments = new List<Widget>();
-            if (!this.widget.viewModel.channelMessageDict.ContainsKey(this._channelId)) {
-                return comments;
-            }
+            var comments = new List<Widget> {
+                new Container(
+                    color: CColors.White,
+                    padding: EdgeInsets.only(16, 16, 16),
+                    child: new Text(
+                        "评论",
+                        style: CTextStyle.H5,
+                        textAlign: TextAlign.left
+                    )
+                )
+            };
 
             var messageDict = this.widget.viewModel.channelMessageDict[this._channelId];
             foreach (var commentId in this._channelComments) {

@@ -142,12 +142,7 @@ namespace ConnectApp.screens {
                 vsync: this
             );
             RelativeRectTween rectTween = new RelativeRectTween(
-                RelativeRect.fromLTRB(
-                    0,
-                    44,
-                    0,
-                    0
-                ),
+                RelativeRect.fromLTRB(0, 44, 0, 0),
                 RelativeRect.fromLTRB(0, 13, 0, 0)
             );
             this._titleAnimation = rectTween.animate(this._titleAnimationController);
@@ -291,7 +286,7 @@ namespace ConnectApp.screens {
                 child: new Container(
                     color: CColors.Transparent,
                     child: new Icon(Icons.share, size: 28,
-                        color: this._showNavBarShadow ? CColors.White : CColors.icon3))
+                        color: this._showNavBarShadow ? CColors.White : CColors.Icon))
             );
             Widget titleWidget = new Container();
             if (isShowTitle) {
@@ -299,11 +294,7 @@ namespace ConnectApp.screens {
                 if (this._isHaveTitle) {
                     child = new Text(
                         eventObj.title,
-                        style: new TextStyle(
-                            fontSize: 18,
-                            fontFamily: "Roboto-Medium",
-                            color: CColors.TextTitle
-                        ),
+                        style: CTextStyle.PXLargeMedium,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.center
@@ -350,7 +341,7 @@ namespace ConnectApp.screens {
                             child: new Icon(
                                 Icons.arrow_back,
                                 size: 28,
-                                color: this._showNavBarShadow ? CColors.White : CColors.icon3
+                                color: this._showNavBarShadow ? CColors.White : CColors.Icon
                             )
                         ),
                         titleWidget,
