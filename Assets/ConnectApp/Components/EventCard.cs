@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
+using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -30,6 +31,10 @@ namespace ConnectApp.Components {
             if (this.model == null) {
                 return new Container();
             }
+
+            const float imageWidth = 114;
+            const float imageHeight = 76;
+            const float borderRadius = 4;
 
             var time = Convert.ToDateTime(this.model.begin.startTime);
             var hour = $"{time.Hour.ToString().PadLeft(2, '0')}";
@@ -89,15 +94,15 @@ namespace ConnectApp.Components {
                             )
                         ),
                         new Container(
-                            width: 114,
-                            height: 76,
                             child: new Stack(
                                 children: new List<Widget> {
                                     new PlaceholderImage(
-                                        imageUrl.EndsWith(".gif") ? imageUrl : $"{imageUrl}.600x0x1.jpg",
-                                        114,
-                                        76,
-                                        4,
+                                        imageUrl.EndsWith(".gif")
+                                            ? imageUrl
+                                            : CImageUtils.SuitableSizeImageUrl(imageWidth, imageUrl),
+                                        imageWidth,
+                                        imageHeight,
+                                        borderRadius,
                                         BoxFit.cover
                                     ),
                                     new Positioned(

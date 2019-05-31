@@ -4,11 +4,10 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Newtonsoft.Json;
-
 #elif UNITY_ANDROID
 using UnityEngine;
-
 #endif
+
 
 namespace ConnectApp.Plugins {
     public static class JAnalyticsPlugin {
