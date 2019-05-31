@@ -18,7 +18,7 @@ namespace ConnectApp.Components {
             Color backgroundColor,
             SelectTabCallBack tapCallBack = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             D.assert(controllers != null && controllers.Count > 1);
             D.assert(items != null && items.Count > 1);
             D.assert(controllers.Count == items.Count);
@@ -55,7 +55,7 @@ namespace ConnectApp.Components {
                 child: new Column(
                     children: new List<Widget> {
                         new Flexible(
-                            child: this._buildContentView(context)
+                            child: this._buildContentView()
                         ),
                         this._buildBottomTabBar()
                     }
@@ -63,17 +63,14 @@ namespace ConnectApp.Components {
             );
         }
 
-        Widget _buildContentView(BuildContext context) {
+        Widget _buildContentView() {
             return new Container(
-                child: new Container(
-                    height: MediaQuery.of(context).size.height,
-                    color: CColors.Background,
-                    child: new PageView(
-                        physics: new NeverScrollableScrollPhysics(),
-                        children: this.widget.controllers,
-                        controller: this._pageController,
-                        onPageChanged: this._onPageChanged
-                    )
+                color: CColors.Background,
+                child: new PageView(
+                    physics: new NeverScrollableScrollPhysics(),
+                    children: this.widget.controllers,
+                    controller: this._pageController,
+                    onPageChanged: this._onPageChanged
                 )
             );
         }
