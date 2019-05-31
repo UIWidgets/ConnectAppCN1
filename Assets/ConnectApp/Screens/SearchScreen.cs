@@ -139,30 +139,34 @@ namespace ConnectApp.screens {
                     var pages = this.widget.viewModel.pages;
                     child = new Container(
                         color: CColors.Background,
-                        child: new SmartRefresher(
-                            controller: this._refreshController,
-                            enablePullDown: false,
-                            enablePullUp: currentPage != pages.Count - 1,
-                            onRefresh: this._onRefresh,
-                            child: ListView.builder(
-                                physics: new AlwaysScrollableScrollPhysics(),
-                                itemCount: this.widget.viewModel.searchArticles.Count,
-                                itemBuilder: (cxt, index) => {
-                                    var searchArticle = this.widget.viewModel.searchArticles[index];
-                                    if (this.widget.viewModel.blockArticleList.Contains(searchArticle.id)) {
-                                        return new Container();
-                                    }
+                        child: new CustomScrollbar(
+                            new SmartRefresher(
+                                controller: this._refreshController,
+                                enablePullDown: false,
+                                enablePullUp: currentPage != pages.Count - 1,
+                                onRefresh: this._onRefresh,
+                                child: ListView.builder(
+                                    physics: new AlwaysScrollableScrollPhysics(),
+                                    itemCount: this.widget.viewModel.searchArticles.Count,
+                                    itemBuilder: (cxt, index) => {
+                                        var searchArticle = this.widget.viewModel.searchArticles[index];
+                                        if (this.widget.viewModel.blockArticleList.Contains(searchArticle.id)) {
+                                            return new Container();
+                                        }
 
-                                    if (searchArticle.ownerType == OwnerType.user.ToString()) {
-                                        var user = this.widget.viewModel.userDict[searchArticle.userId];
-                                        return RelatedArticleCard.User(searchArticle, user,
+                                        if (searchArticle.ownerType == OwnerType.user.ToString()) {
+                                            var user = this.widget.viewModel.userDict[searchArticle.userId];
+                                            return RelatedArticleCard.User(searchArticle, user,
+                                                () => {
+                                                    this.widget.actionModel.pushToArticleDetail(searchArticle.id);
+                                                });
+                                        }
+
+                                        var team = this.widget.viewModel.teamDict[searchArticle.teamId];
+                                        return RelatedArticleCard.Team(searchArticle, team,
                                             () => { this.widget.actionModel.pushToArticleDetail(searchArticle.id); });
                                     }
-
-                                    var team = this.widget.viewModel.teamDict[searchArticle.teamId];
-                                    return RelatedArticleCard.Team(searchArticle, team,
-                                        () => { this.widget.actionModel.pushToArticleDetail(searchArticle.id); });
-                                }
+                                )
                             )
                         )
                     );

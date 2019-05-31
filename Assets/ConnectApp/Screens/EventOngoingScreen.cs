@@ -104,31 +104,34 @@ namespace ConnectApp.screens {
 
             return new Container(
                 color: CColors.Background,
-                child: new SmartRefresher(
-                    controller: this._ongoingRefreshController,
-                    enablePullDown: true,
-                    enablePullUp: this.widget.viewModel.ongoingEvents.Count < this.widget.viewModel.ongoingEventTotal,
-                    onRefresh: this._ongoingRefresh,
-                    child: ListView.builder(
-                        itemExtent: 108,
-                        physics: new AlwaysScrollableScrollPhysics(),
-                        itemCount: this.widget.viewModel.ongoingEvents.Count,
-                        itemBuilder: (cxt, index) => {
-                            var eventId = this.widget.viewModel.ongoingEvents[index];
-                            var model = this.widget.viewModel.eventsDict[eventId];
-                            var placeName = model.placeId.isEmpty()
-                                ? null
-                                : this.widget.viewModel.placeDict[model.placeId].name;
-                            return new EventCard(
-                                model,
-                                placeName,
-                                () => this.widget.actionModel.pushToEventDetail(
-                                    model.id,
-                                    model.mode == "online" ? EventType.online : EventType.offline
-                                ),
-                                new ObjectKey(model.id)
-                            );
-                        }
+                child: new CustomScrollbar(
+                    new SmartRefresher(
+                        controller: this._ongoingRefreshController,
+                        enablePullDown: true,
+                        enablePullUp: this.widget.viewModel.ongoingEvents.Count <
+                                      this.widget.viewModel.ongoingEventTotal,
+                        onRefresh: this._ongoingRefresh,
+                        child: ListView.builder(
+                            itemExtent: 108,
+                            physics: new AlwaysScrollableScrollPhysics(),
+                            itemCount: this.widget.viewModel.ongoingEvents.Count,
+                            itemBuilder: (cxt, index) => {
+                                var eventId = this.widget.viewModel.ongoingEvents[index];
+                                var model = this.widget.viewModel.eventsDict[eventId];
+                                var placeName = model.placeId.isEmpty()
+                                    ? null
+                                    : this.widget.viewModel.placeDict[model.placeId].name;
+                                return new EventCard(
+                                    model,
+                                    placeName,
+                                    () => this.widget.actionModel.pushToEventDetail(
+                                        model.id,
+                                        model.mode == "online" ? EventType.online : EventType.offline
+                                    ),
+                                    new ObjectKey(model.id)
+                                );
+                            }
+                        )
                     )
                 )
             );

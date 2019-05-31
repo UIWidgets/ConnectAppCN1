@@ -20,7 +20,7 @@ namespace ConnectApp.Components {
             return new _CustomScrollbarState();
         }
     }
-    
+
     public class _CustomScrollbarState : TickerProviderStateMixin<CustomScrollbar> {
         ScrollbarPainter _scrollbarPainter;
         TextDirection _textDirection;
@@ -46,7 +46,7 @@ namespace ConnectApp.Components {
             this._textDirection = Directionality.of(context: this.context);
             this._scrollbarPainter = this._buildScrollbarPainter();
         }
-        
+
         public override void dispose() {
             this._fadeoutAnimationController.dispose();
             this._fadeoutTimer?.cancel();
@@ -63,8 +63,8 @@ namespace ConnectApp.Components {
                 4,
                 2.5f,
                 Radius.circular(1.25f),
-                36,
-                8
+                0,
+                0
             );
         }
 
@@ -79,13 +79,15 @@ namespace ConnectApp.Components {
                     metrics: notification.metrics,
                     axisDirection: notification.metrics.axisDirection
                 );
-            } else if (notification is ScrollEndNotification) {
+            }
+            else if (notification is ScrollEndNotification) {
                 this._fadeoutTimer?.cancel();
                 this._fadeoutTimer = Window.instance.run(TimeSpan.FromMilliseconds(50), () => {
                     this._fadeoutAnimationController.reverse();
                     this._fadeoutTimer = null;
                 });
             }
+
             return false;
         }
 
