@@ -58,6 +58,10 @@ namespace ConnectApp.Components {
                 return new Container();
             }
 
+            const float imageWidth = 114;
+            const float imageHeight = 76;
+            const float borderRadius = 4;
+
             var username = this.user == null ? this.team.name : this.user.fullName;
             var time = this.article.lastPublishedTime == null
                 ? this.article.publishedTime
@@ -90,14 +94,12 @@ namespace ConnectApp.Components {
                         ),
                         new Container(
                             margin: EdgeInsets.only(8),
-                            width: 114,
-                            height: 76,
                             child: new PlaceholderImage(this.article.thumbnail.url.EndsWith(".gif")
                                     ? this.article.thumbnail.url
-                                    : $"{this.article.thumbnail.url}.450x0x1.jpg",
-                                114,
-                                76,
-                                4,
+                                    : CImageUtils.SuitableSizeImageUrl(imageWidth, this.article.thumbnail.url),
+                                imageWidth,
+                                imageHeight,
+                                borderRadius,
                                 BoxFit.cover
                             )
                         )

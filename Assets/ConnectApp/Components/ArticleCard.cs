@@ -34,10 +34,16 @@ namespace ConnectApp.Components {
                 return new Container();
             }
 
+            const float imageWidth = 100;
+            const float imageHeight = 66;
+            const float borderRadius = 4;
+
             var time = this.article.lastPublishedTime == null
                 ? this.article.publishedTime
                 : this.article.lastPublishedTime;
-            var imageUrl = $"{this.article.thumbnail.url}.400x0x1.jpg";
+            var imageUrl = this.article.thumbnail.url.EndsWith(".gif")
+                ? this.article.thumbnail.url
+                : CImageUtils.SuitableSizeImageUrl(imageWidth + 1, this.article.thumbnail.url);
             var card = new Container(
                 color: CColors.White,
                 child: new Padding(
@@ -68,13 +74,11 @@ namespace ConnectApp.Components {
                                             ),
                                             new Container(
                                                 margin: EdgeInsets.only(8.0f),
-                                                width: 100,
-                                                height: 66,
                                                 child: new PlaceholderImage(
                                                     imageUrl,
-                                                    100,
-                                                    66,
-                                                    4,
+                                                    imageWidth,
+                                                    imageHeight,
+                                                    borderRadius,
                                                     BoxFit.cover
                                                 )
                                             )
@@ -94,9 +98,9 @@ namespace ConnectApp.Components {
                                             ),
                                             new GestureDetector(
                                                 child: new Container(
-                                                    color:CColors.White,
                                                     height: 20,
                                                     width: 20,
+                                                    color:CColors.White,
                                                     child: new Icon(
                                                         Icons.ellipsis,
                                                         size: 20,
@@ -113,6 +117,7 @@ namespace ConnectApp.Components {
                     )
                 )
             );
+
             return new GestureDetector(
                 child: card,
                 onTap: this.onTap

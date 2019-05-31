@@ -121,7 +121,7 @@ namespace ConnectApp.screens {
                             child: new Icon(
                                 Icons.arrow_back,
                                 size: 24,
-                                color: CColors.icon3
+                                color: CColors.Icon
                             )
                         ),
                         new Row(
@@ -152,7 +152,7 @@ namespace ConnectApp.screens {
                         child: new Icon(
                             Icons.delete_outline,
                             size: 28,
-                            color: CColors.icon3
+                            color: CColors.Icon
                         )
                     );
                 }
@@ -167,7 +167,7 @@ namespace ConnectApp.screens {
                         child: new Icon(
                             Icons.delete_outline,
                             size: 28,
-                            color: CColors.icon3
+                            color: CColors.Icon
                         )
                     );
                 }

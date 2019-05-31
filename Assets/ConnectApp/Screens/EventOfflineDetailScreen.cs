@@ -101,12 +101,7 @@ namespace ConnectApp.screens {
                 vsync: this
             );
             RelativeRectTween rectTween = new RelativeRectTween(
-                RelativeRect.fromLTRB(
-                    0,
-                    44,
-                    0,
-                    0
-                ),
+                RelativeRect.fromLTRB(0, 44, 0, 0),
                 RelativeRect.fromLTRB(0, 13, 0, 0)
             );
             this._animation = rectTween.animate(this._controller);
@@ -187,10 +182,10 @@ namespace ConnectApp.screens {
                 var width = MediaQuery.of(context).size.width;
                 var imageHeight = 9.0f / 16.0f * width;
                 if (eventObj.type.isNotEmpty() && !(eventObj.type == "bagevent" || eventObj.type == "customize")) {
-                    this._titleHeight = imageHeight + eventTitleKey.currentContext.size.height + 16;
+                    this._titleHeight = imageHeight + eventTitleKey.currentContext.size.height + 32;
                 }
                 else {
-                    this._titleHeight = imageHeight + eventTitleKey.currentContext.size.height + 16 - 64;
+                    this._titleHeight = imageHeight + eventTitleKey.currentContext.size.height + 32 - 64;
                 }
             }
 
@@ -246,18 +241,14 @@ namespace ConnectApp.screens {
                 child: new Container(
                     color: CColors.Transparent,
                     child: new Icon(Icons.share, size: 28,
-                        color: this._showNavBarShadow ? CColors.White : CColors.icon3))
+                        color: this._showNavBarShadow ? CColors.White : CColors.Icon))
             );
 
             Widget titleWidget = new Container();
             if (this._isHaveTitle) {
                 titleWidget = new Text(
                     eventObj.title,
-                    style: new TextStyle(
-                        fontSize: 18,
-                        fontFamily: "Roboto-Medium",
-                        color: CColors.TextTitle
-                    ),
+                    style: CTextStyle.PXLargeMedium,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center
@@ -291,7 +282,7 @@ namespace ConnectApp.screens {
                             child: new Icon(
                                 Icons.arrow_back,
                                 size: 28,
-                                color: this._showNavBarShadow ? CColors.White : CColors.icon3
+                                color: this._showNavBarShadow ? CColors.White : CColors.Icon
                             )
                         ),
                         new Expanded(
