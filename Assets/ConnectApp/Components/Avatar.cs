@@ -2,10 +2,13 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
+using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.Components {
@@ -87,7 +90,7 @@ namespace ConnectApp.Components {
                         width: this.size,
                         height: this.size,
                         color: new Color(0xFFD8D8D8),
-                        child: Image.network(avatarUrl, fit: BoxFit.cover)
+                        child: Image.network( avatarUrl.Contains("thirdwx") ? avatarUrl : CImageUtils.SuitableSizeImageUrl(this.size, avatarUrl), fit: BoxFit.cover)
                     )
             );
         }

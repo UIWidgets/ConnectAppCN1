@@ -6,7 +6,10 @@ using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using ImageUtils = Unity.UIWidgets.painting.ImageUtils;
 
 namespace ConnectApp.Components {
     public class EventDetail : StatelessWidget {
@@ -40,7 +43,7 @@ namespace ConnectApp.Components {
 
         Widget _buildContent(BuildContext context) {
             var items = new List<Widget> {
-                this._buildHeadImage(), this._buildContentHead()
+                this._buildHeadImage(context), this._buildContentHead()
             };
             if (this.topWidget != null) {
                 items.Insert(0, this.topWidget);
@@ -59,7 +62,7 @@ namespace ConnectApp.Components {
             );
         }
 
-        Widget _buildHeadImage() {
+        Widget _buildHeadImage(BuildContext context) {
             if (!this.isShowImage) {
                 return new Container();
             }
@@ -69,7 +72,7 @@ namespace ConnectApp.Components {
                 child: new AspectRatio(
                     aspectRatio: 16.0f / 9.0f,
                     child: new PlaceholderImage(
-                        imageUrl.EndsWith(".gif") ? imageUrl : $"{imageUrl}.1400x0x1.jpg",
+                        imageUrl.EndsWith(".gif") ? imageUrl : CImageUtils.SuitableSizeImageUrl(MediaQuery.of(context).size.width,  imageUrl),
                         fit: BoxFit.cover
                     )
                 )

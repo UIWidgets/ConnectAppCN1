@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
+using ConnectApp.Utils;
 using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -9,6 +10,9 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
+using FontStyle = Unity.UIWidgets.ui.FontStyle;
 
 namespace ConnectApp.Components {
     public static class ContentDescription {
@@ -351,7 +355,7 @@ namespace ConnectApp.Components {
             var height = width * originalImage.height / originalImage.width;
             var imageUrl = originalImage.url;
             if (imageUrl.isNotEmpty()) {
-                imageUrl = imageUrl.EndsWith(".gif") ? imageUrl : $"{originalImage.url}.600x0x1.jpg";
+                imageUrl = imageUrl.EndsWith(".gif") ? imageUrl : CImageUtils.SuitableSizeImageUrl(MediaQuery.of(context).size.width, imageUrl);
             }
 
             var nodes = new List<Widget> {
