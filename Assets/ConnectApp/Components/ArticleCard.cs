@@ -86,6 +86,7 @@ namespace ConnectApp.Components {
                                     )
                                 ),
                                 new Container(
+                                    height:20,
                                     child: new Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: new List<Widget> {
@@ -95,16 +96,18 @@ namespace ConnectApp.Components {
                                                     style: CTextStyle.PSmallBody3
                                                 )
                                             ),
-                                            new CustomButton(
+                                            new GestureDetector(
                                                 child: new Container(
-                                                    height: 28,
+                                                    height: 20,
+                                                    width: 20,
+                                                    color:CColors.White,
                                                     child: new Icon(
                                                         Icons.ellipsis,
                                                         size: 20,
                                                         color: CColors.BrownGrey
                                                     )
                                                 ),
-                                                onPressed: this.moreCallBack
+                                                onTap: this.moreCallBack
                                             )
                                         }
                                     )
