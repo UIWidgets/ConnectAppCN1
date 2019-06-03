@@ -88,10 +88,7 @@ namespace ConnectApp.Components {
                         width: this.size,
                         height: this.size,
                         color: new Color(0xFFD8D8D8),
-                        child: Image.network(
-                            avatarUrl.Contains("thirdwx")
-                                ? avatarUrl
-                                : CImageUtils.SuitableSizeImageUrl(this.size, avatarUrl), fit: BoxFit.cover)
+                        child: Image.network(avatarUrl)
                     )
             );
         }
