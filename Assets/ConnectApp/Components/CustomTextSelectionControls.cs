@@ -51,7 +51,6 @@ namespace ConnectApp.Components {
         internal _TextSelectionToolbarNotchPainter(
             _ArrowDirection arrowDirection
         ) {
-            D.assert(arrowDirection != null);
             this.arrowDirection = arrowDirection;
         }
     
