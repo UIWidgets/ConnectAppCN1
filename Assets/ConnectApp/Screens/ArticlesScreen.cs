@@ -11,11 +11,10 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 
 namespace ConnectApp.screens {
     public class ArticlesScreenConnector : StatelessWidget {
@@ -38,9 +37,7 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new MainNavigatorPushToAction {
                                 routeName = MainNavigatorRoutes.Search
                             });
-                            if (!Application.isEditor) {
-                                AnalyticsManager.ClickEnterSearch("Home_Article"); 
-                            }
+                            AnalyticsManager.ClickEnterSearch("Home_Article");
                         },
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
@@ -208,9 +205,7 @@ namespace ConnectApp.screens {
                                 article,
                                 () => {
                                     this.widget.actionModel.pushToArticleDetail(articleId);
-                                    if (!Application.isEditor) {
-                                        AnalyticsManager.ClickEnterArticleDetail("Home_Article",article.id,article.title);
-                                    }
+                                    AnalyticsManager.ClickEnterArticleDetail("Home_Article", article.id, article.title);
                                 },
                                 () => ReportManager.showReportView(this.widget.viewModel.isLoggedIn,
                                     articleId,

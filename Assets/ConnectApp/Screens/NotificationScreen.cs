@@ -143,6 +143,8 @@ namespace ConnectApp.screens {
                                         this.widget.viewModel.mentions,
                                         () => {
                                             this.widget.actionModel.pushToArticleDetail(notification.data.projectId);
+                                            AnalyticsManager.ClickEnterArticleDetail("Notification_Article",
+                                                notification.data.projectId, notification.data.projectTitle);
                                         },
                                         new ObjectKey(notification.id)
                                     );

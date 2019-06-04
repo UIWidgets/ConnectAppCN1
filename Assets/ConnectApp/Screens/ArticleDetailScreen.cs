@@ -13,8 +13,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -78,11 +78,22 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch<IPromise>(
                                 Actions.fetchArticleComments(channelId, currOldestMessageId)
                             ),
-                        likeArticle = id => dispatcher.dispatch<IPromise>(Actions.likeArticle(id)),
-                        likeComment = message => dispatcher.dispatch<IPromise>(Actions.likeComment(message)),
+                        likeArticle = id => {
+                            AnalyticsManager.ClickLike("Article", this.articleId);
+                            return dispatcher.dispatch<IPromise>(Actions.likeArticle(id));
+                        },
+                        likeComment = message => {
+                            AnalyticsManager.ClickLike("Article_Comment", this.articleId, message.id);
+                            return dispatcher.dispatch<IPromise>(Actions.likeComment(message));
+                        },
                         removeLikeComment =
-                            message => dispatcher.dispatch<IPromise>(Actions.removeLikeComment(message)),
+                            message => {
+                                AnalyticsManager.ClickLike("Article_Remove_Comment", this.articleId, message.id);
+                                return dispatcher.dispatch<IPromise>(Actions.removeLikeComment(message));
+                            },
                         sendComment = (channelId, content, nonce, parentMessageId) => {
+                            AnalyticsManager.ClickPublishComment(
+                                parentMessageId == null ? "Article" : "Article_Comment", channelId, parentMessageId);
                             CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog());
                             return dispatcher.dispatch<IPromise>(
                                 Actions.sendComment(channelId, content, nonce, parentMessageId));
@@ -157,6 +168,11 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.fetchArticleDetail(this.widget.viewModel.articleId);
             });
         }
+
+        public override void deactivate() {
+            base.deactivate();
+        }
+
 
         public override void dispose() {
             EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
@@ -238,6 +254,8 @@ namespace ConnectApp.screens {
                                     this.widget.actionModel.pushToLogin();
                                 }
                                 else {
+                                    AnalyticsManager.ClickComment("Article", this._article.channelId,
+                                        this._article.title);
                                     ActionSheetUtils.showModalActionSheet(new CustomInput(
                                         doneCallBack: text => {
                                             ActionSheetUtils.hiddenModalPopup();
@@ -255,6 +273,8 @@ namespace ConnectApp.screens {
                                     this.widget.actionModel.pushToLogin();
                                 }
                                 else {
+                                    AnalyticsManager.ClickComment("Article", this._article.channelId,
+                                        this._article.title);
                                     ActionSheetUtils.showModalActionSheet(new CustomInput(
                                         doneCallBack: text => {
                                             ActionSheetUtils.hiddenModalPopup();
@@ -514,12 +534,20 @@ namespace ConnectApp.screens {
                     Widget card;
                     if (article.ownerType == OwnerType.user.ToString()) {
                         card = RelatedArticleCard.User(article, this._user,
-                            () => this.widget.actionModel.pushToArticleDetail(article.id),
+                            () => {
+                                AnalyticsManager.ClickEnterArticleDetail("ArticleDetail_Related", article.id,
+                                    article.title);
+                                this.widget.actionModel.pushToArticleDetail(article.id);
+                            },
                             new ObjectKey(article.id));
                     }
                     else {
                         card = RelatedArticleCard.Team(article, this._team,
-                            () => this.widget.actionModel.pushToArticleDetail(article.id),
+                            () => {
+                                AnalyticsManager.ClickEnterArticleDetail("ArticleDetail_Related", article.id,
+                                    article.title);
+                                this.widget.actionModel.pushToArticleDetail(article.id);
+                            },
                             new ObjectKey(article.id));
                     }
 
@@ -592,6 +620,8 @@ namespace ConnectApp.screens {
                             this.widget.actionModel.pushToLogin();
                         }
                         else {
+                            AnalyticsManager.ClickComment("Article_Comment", this._article.channelId,
+                                this._article.title, commentId);
                             ActionSheetUtils.showModalActionSheet(new CustomInput(
                                 message.author.fullName.isEmpty() ? "" : message.author.fullName,
                                 text => {

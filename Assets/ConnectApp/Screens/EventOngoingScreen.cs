@@ -11,8 +11,6 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using EventType = ConnectApp.Models.State.EventType;
 
 namespace ConnectApp.screens {
     public class EventOngoingScreenConnector : StatelessWidget {
@@ -130,9 +128,8 @@ namespace ConnectApp.screens {
                                         model.id,
                                         model.mode == "online" ? EventType.online : EventType.offline
                                     );
-                                    if (!Application.isEditor) {
-                                        AnalyticsManager.ClickEnterEventDetail("Home_Future_Event",model.id,model.title,model.type);
-                                    }
+                                    AnalyticsManager.ClickEnterEventDetail("Home_Future_Event", model.id, model.title,
+                                        model.mode);
                                 },
                                 new ObjectKey(model.id)
                             );

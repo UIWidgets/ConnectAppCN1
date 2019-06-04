@@ -10,8 +10,6 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using EventType = ConnectApp.Models.State.EventType;
 
 namespace ConnectApp.screens {
     public class HistoryEventScreenConnector : StatelessWidget {
@@ -70,9 +68,8 @@ namespace ConnectApp.screens {
                                 model.place,
                                 () => {
                                     this.actionModel.pushToEventDetail(model.id, eventType);
-                                    if (!Application.isEditor) {
-                                        AnalyticsManager.ClickEnterEventDetail("History_Event",model.id,model.title,model.type);
-                                    }
+                                    AnalyticsManager.ClickEnterEventDetail("History_Event", model.id, model.title,
+                                        model.mode);
                                 }
                             ),
                             new CustomDismissibleDrawerDelegate(),

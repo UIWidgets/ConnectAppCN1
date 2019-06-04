@@ -13,16 +13,13 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using Color = Unity.UIWidgets.ui.Color;
 using Config = ConnectApp.Constants.Config;
-using EventType = ConnectApp.Models.State.EventType;
 
 namespace ConnectApp.screens {
     public class EventOnlineDetailScreenConnector : StatelessWidget {
@@ -723,9 +720,8 @@ namespace ConnectApp.screens {
                 new ShareView(
                     projectType: ProjectType.iEvent,
                     onPressed: type => {
-                        if (!Application.isEditor) {
-                            AnalyticsManager.ClickShare(type,"Event","Event_"+eventObj.id,eventObj.title); 
-                        }
+                        AnalyticsManager.ClickShare(type, "Event", "Event_" + eventObj.id, eventObj.title);
+
                         var linkUrl =
                             $"{Config.apiAddress}/events/{eventObj.id}";
                         if (type == ShareType.clipBoard) {

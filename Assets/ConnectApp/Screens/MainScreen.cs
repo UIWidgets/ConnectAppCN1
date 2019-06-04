@@ -4,7 +4,6 @@ using ConnectApp.Constants;
 using ConnectApp.redux;
 using ConnectApp.Utils;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 
 namespace ConnectApp.screens {
     public class MainScreen : StatelessWidget {
@@ -43,9 +42,8 @@ namespace ConnectApp.screens {
                         },
                         backgroundColor: CColors.White,
                         (fromIndex, toIndex) => {
-                            if (!Application.isEditor) {
-                                AnalyticsManager.ClickHomeTab(fromIndex, toIndex);
-                            }
+                            AnalyticsManager.ClickHomeTab(fromIndex, toIndex);
+
 
                             if (toIndex != 2 || StoreProvider.store.getState().loginState.isLoggedIn) {
                                 return true;

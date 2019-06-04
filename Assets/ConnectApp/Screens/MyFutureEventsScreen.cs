@@ -11,8 +11,6 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using EventType = ConnectApp.Models.State.EventType;
 
 namespace ConnectApp.screens {
     public class MyFutureEventsScreenConnector : StatelessWidget {
@@ -118,9 +116,8 @@ namespace ConnectApp.screens {
                                 placeName,
                                 () => {
                                     this.widget.actionModel.pushToEventDetail(model.id, eventType);
-                                    if (!Application.isEditor) {
-                                        AnalyticsManager.ClickEnterEventDetail("My_Future_Event",model.id,model.title,model.type);
-                                    }
+                                    AnalyticsManager.ClickEnterEventDetail("My_Future_Event", model.id, model.title,
+                                        model.mode);
                                 }
                             );
                         }

@@ -12,14 +12,11 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using Color = Unity.UIWidgets.ui.Color;
-using EventType = ConnectApp.Models.State.EventType;
 
 namespace ConnectApp.screens {
     public class EventOfflineDetailScreenConnector : StatelessWidget {
@@ -120,6 +117,7 @@ namespace ConnectApp.screens {
 
         public override void dispose() {
             EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
+
             base.dispose();
         }
 
@@ -224,9 +222,8 @@ namespace ConnectApp.screens {
                 onPressed: () => ShareUtils.showShareView(new ShareView(
                     projectType: ProjectType.iEvent,
                     onPressed: type => {
-                        if (!Application.isEditor) {
-                            AnalyticsManager.ClickShare(type,"Event","Event_"+eventObj.id,eventObj.title); 
-                        }
+                        AnalyticsManager.ClickShare(type, "Event", "Event_" + eventObj.id, eventObj.title);
+
                         var linkUrl =
                             $"{Config.apiAddress}/events/{eventObj.id}";
                         if (type == ShareType.clipBoard) {
