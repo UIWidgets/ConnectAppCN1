@@ -7,12 +7,14 @@ using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using EventType = ConnectApp.Models.State.EventType;
 #if UNITY_IOS
 using System.Runtime.InteropServices;
+
 #elif UNITY_ANDROID
 using UnityEngine;
 #endif
-using EventType = ConnectApp.Models.State.EventType;
 
 namespace ConnectApp.Plugins {
     public static class JPushPlugin {
@@ -43,6 +45,8 @@ namespace ConnectApp.Plugins {
                             var id = dict["id"];
                             if (type == "project") {
                                 if (subType == "article") {
+                                    AnalyticsManager.ClickEnterArticleDetail("Push_Article", id, $"PushArticle_{id}");
+
                                     StoreProvider.store.dispatcher.dispatch(
                                         new MainNavigatorPushToArticleDetailAction {articleId = id});
                                 }
@@ -52,6 +56,8 @@ namespace ConnectApp.Plugins {
                                 if (subType == "online") {
                                     eventType = EventType.online;
                                 }
+
+                                AnalyticsManager.ClickEnterEventDetail("Push_Event", id, $"PushEvent_{id}", type);
 
                                 StoreProvider.store.dispatcher.dispatch(
                                     new MainNavigatorPushToEventDetailAction {eventId = id, eventType = eventType});
@@ -93,6 +99,10 @@ namespace ConnectApp.Plugins {
         }
 
         public static void deleteJPushAlias() {
+            if (Application.isEditor) {
+                return;
+            }
+
             deleteAlias(callbackId++);
         }
 

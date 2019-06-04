@@ -13,8 +13,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -720,6 +720,8 @@ namespace ConnectApp.screens {
                 new ShareView(
                     projectType: ProjectType.iEvent,
                     onPressed: type => {
+                        AnalyticsManager.ClickShare(type, "Event", "Event_" + eventObj.id, eventObj.title);
+
                         var linkUrl =
                             $"{Config.apiAddress}/events/{eventObj.id}";
                         if (type == ShareType.clipBoard) {

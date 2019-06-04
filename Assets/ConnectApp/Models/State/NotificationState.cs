@@ -8,5 +8,7 @@ namespace ConnectApp.Models.State {
         public bool loading { get; set; }
         public int pageTotal { get; set; }
         public List<Notification> notifications { get; set; }
+
+        public List<User> mentions;
     }
 }

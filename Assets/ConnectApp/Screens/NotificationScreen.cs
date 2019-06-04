@@ -11,8 +11,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
@@ -24,6 +24,7 @@ namespace ConnectApp.screens {
                     notificationLoading = state.notificationState.loading,
                     pageTotal = state.notificationState.pageTotal,
                     notifications = state.notificationState.notifications,
+                    mentions = state.notificationState.mentions,
                     userDict = state.userState.userDict
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -139,7 +140,12 @@ namespace ConnectApp.screens {
                                     return new NotificationCard(
                                         notification,
                                         user,
-                                        () => this.widget.actionModel.pushToArticleDetail(notification.data.projectId),
+                                        this.widget.viewModel.mentions,
+                                        () => {
+                                            this.widget.actionModel.pushToArticleDetail(notification.data.projectId);
+                                            AnalyticsManager.ClickEnterArticleDetail("Notification_Article",
+                                                notification.data.projectId, notification.data.projectTitle);
+                                        },
                                         new ObjectKey(notification.id)
                                     );
                                 }
