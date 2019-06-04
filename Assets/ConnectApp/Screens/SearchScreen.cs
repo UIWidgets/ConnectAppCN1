@@ -7,12 +7,11 @@ using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
-using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -140,34 +139,34 @@ namespace ConnectApp.screens {
                     var pages = this.widget.viewModel.pages;
                     child = new Container(
                         color: CColors.Background,
-                        child: new SmartRefresher(
-                            controller: this._refreshController,
-                            enablePullDown: false,
-                            enablePullUp: currentPage != pages.Count - 1,
-                            onRefresh: this._onRefresh,
-                            child: ListView.builder(
-                                physics: new AlwaysScrollableScrollPhysics(),
-                                itemCount: this.widget.viewModel.searchArticles.Count,
-                                itemBuilder: (cxt, index) => {
-                                    var searchArticle = this.widget.viewModel.searchArticles[index];
-                                    if (this.widget.viewModel.blockArticleList.Contains(searchArticle.id)) {
-                                        return new Container();
-                                    }
+                        child: new CustomScrollbar(
+                            new SmartRefresher(
+                                controller: this._refreshController,
+                                enablePullDown: false,
+                                enablePullUp: currentPage != pages.Count - 1,
+                                onRefresh: this._onRefresh,
+                                child: ListView.builder(
+                                    physics: new AlwaysScrollableScrollPhysics(),
+                                    itemCount: this.widget.viewModel.searchArticles.Count,
+                                    itemBuilder: (cxt, index) => {
+                                        var searchArticle = this.widget.viewModel.searchArticles[index];
+                                        if (this.widget.viewModel.blockArticleList.Contains(searchArticle.id)) {
+                                            return new Container();
+                                        }
 
-                                    if (searchArticle.ownerType == OwnerType.user.ToString()) {
-                                        var user = this.widget.viewModel.userDict[searchArticle.userId];
-                                        return RelatedArticleCard.User(searchArticle, user,
-                                            () => {
-                                                this.widget.actionModel.pushToArticleDetail(searchArticle.id);
-                                                AnalyticsManager.ClickEnterArticleDetail("Search_Article",
-                                                    searchArticle.id, searchArticle.title);
-                                            });
-                                    }
+                                        if (searchArticle.ownerType == OwnerType.user.ToString()) {
+                                            var user = this.widget.viewModel.userDict[searchArticle.userId];
+                                            return RelatedArticleCard.User(searchArticle, user,
+                                                () => {
+                                                    this.widget.actionModel.pushToArticleDetail(searchArticle.id);
+                                                });
+                                        }
 
-                                    var team = this.widget.viewModel.teamDict[searchArticle.teamId];
-                                    return RelatedArticleCard.Team(searchArticle, team,
-                                        () => { this.widget.actionModel.pushToArticleDetail(searchArticle.id); });
-                                }
+                                        var team = this.widget.viewModel.teamDict[searchArticle.teamId];
+                                        return RelatedArticleCard.Team(searchArticle, team,
+                                            () => { this.widget.actionModel.pushToArticleDetail(searchArticle.id); });
+                                    }
+                                )
                             )
                         )
                     );

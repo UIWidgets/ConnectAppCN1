@@ -184,7 +184,7 @@ namespace ConnectApp.screens {
                         new Flexible(
                             child: new NotificationListener<ScrollNotification>(
                                 onNotification: this._onNotification,
-                                child: content
+                                child: new CustomScrollbar(content)
                             )
                         )
                     }

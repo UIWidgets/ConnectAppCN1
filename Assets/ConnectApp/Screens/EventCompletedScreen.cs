@@ -6,7 +6,6 @@ using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
-using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
@@ -105,36 +104,34 @@ namespace ConnectApp.screens {
 
             return new Container(
                 color: CColors.Background,
-                child: new SmartRefresher(
-                    controller: this._completedRefreshController,
-                    enablePullDown: true,
-                    enablePullUp: this.widget.viewModel.completedEvents.Count <
-                                  this.widget.viewModel.completedEventTotal,
-                    onRefresh: this._completedRefresh,
-                    child: ListView.builder(
-                        itemExtent: 108,
-                        physics: new AlwaysScrollableScrollPhysics(),
-                        itemCount: this.widget.viewModel.completedEvents.Count,
-                        itemBuilder: (cxt, index) => {
-                            var eventId = this.widget.viewModel.completedEvents[index];
-                            var model = this.widget.viewModel.eventsDict[eventId];
-                            var place = model.placeId.isEmpty()
-                                ? new Place()
-                                : this.widget.viewModel.placeDict[model.placeId];
-                            return new EventCard(
-                                model,
-                                place.name,
-                                () => {
-                                    this.widget.actionModel.pushToEventDetail(
+                child: new CustomScrollbar(
+                    new SmartRefresher(
+                        controller: this._completedRefreshController,
+                        enablePullDown: true,
+                        enablePullUp: this.widget.viewModel.completedEvents.Count <
+                                      this.widget.viewModel.completedEventTotal,
+                        onRefresh: this._completedRefresh,
+                        child: ListView.builder(
+                            itemExtent: 108,
+                            physics: new AlwaysScrollableScrollPhysics(),
+                            itemCount: this.widget.viewModel.completedEvents.Count,
+                            itemBuilder: (cxt, index) => {
+                                var eventId = this.widget.viewModel.completedEvents[index];
+                                var model = this.widget.viewModel.eventsDict[eventId];
+                                var place = model.placeId.isEmpty()
+                                    ? new Place()
+                                    : this.widget.viewModel.placeDict[model.placeId];
+                                return new EventCard(
+                                    model,
+                                    place.name,
+                                    () => this.widget.actionModel.pushToEventDetail(
                                         model.id,
                                         model.mode == "online" ? EventType.online : EventType.offline
-                                    );
-                                    AnalyticsManager.ClickEnterEventDetail("Home_Past_Event", model.id, model.title,
-                                        model.mode);
-                                },
-                                new ObjectKey(model.id)
-                            );
-                        }
+                                    ),
+                                    new ObjectKey(model.id)
+                                );
+                            }
+                        )
                     )
                 )
             );

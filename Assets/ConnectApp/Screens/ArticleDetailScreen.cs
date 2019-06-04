@@ -235,16 +235,18 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         this._buildNavigationBar(),
                         new Expanded(
-                            child: new SmartRefresher(
-                                controller: this._refreshController,
-                                enablePullDown: false,
-                                enablePullUp: this._hasMore,
-                                onRefresh: this._onRefresh,
-                                onNotification: this._onNotification,
-                                child: ListView.builder(
-                                    physics: new AlwaysScrollableScrollPhysics(),
-                                    itemCount: originItems.Count,
-                                    itemBuilder: (cxt, index) => originItems[index]
+                            child: new CustomScrollbar(
+                                new SmartRefresher(
+                                    controller: this._refreshController,
+                                    enablePullDown: false,
+                                    enablePullUp: this._hasMore,
+                                    onRefresh: this._onRefresh,
+                                    onNotification: this._onNotification,
+                                    child: ListView.builder(
+                                        physics: new AlwaysScrollableScrollPhysics(),
+                                        itemCount: originItems.Count,
+                                        itemBuilder: (cxt, index) => originItems[index]
+                                    )
                                 )
                             )
                         ),

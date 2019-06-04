@@ -20,11 +20,22 @@ namespace ConnectApp.Components {
             return new _CustomScrollbarState();
         }
     }
-    
+
     public class _CustomScrollbarState : TickerProviderStateMixin<CustomScrollbar> {
+        
+        static readonly Color _kScrollbarColor = new Color(0x99777777);
+        static readonly float _kScrollbarMinLength = 36;
+        static readonly float _kScrollbarMinOverscrollLength = 8;
+        static readonly Radius _kScrollbarRadius = Radius.circular(1.25f);
+        static readonly TimeSpan _kScrollbarTimeToFade = TimeSpan.FromMilliseconds(50);
+        static readonly TimeSpan _kScrollbarFadeDuration = TimeSpan.FromMilliseconds(250);
+        
+        static readonly float _kScrollbarThickness = 2.5f;
+        static readonly float _kScrollbarMainAxisMargin = 3;
+        static readonly float _kScrollbarCrossAxisMargin = 3;
+        
         ScrollbarPainter _scrollbarPainter;
         TextDirection _textDirection;
-
         AnimationController _fadeoutAnimationController;
         Animation<float> _fadeoutOpacityAnimation;
         Timer _fadeoutTimer;
@@ -33,7 +44,7 @@ namespace ConnectApp.Components {
             base.initState();
             this._fadeoutAnimationController = new AnimationController(
                 vsync: this,
-                duration: TimeSpan.FromMilliseconds(250)
+                duration: _kScrollbarFadeDuration
             );
             this._fadeoutOpacityAnimation = new CurvedAnimation(
                 parent: this._fadeoutAnimationController,
@@ -46,7 +57,7 @@ namespace ConnectApp.Components {
             this._textDirection = Directionality.of(context: this.context);
             this._scrollbarPainter = this._buildScrollbarPainter();
         }
-        
+
         public override void dispose() {
             this._fadeoutAnimationController.dispose();
             this._fadeoutTimer?.cancel();
@@ -56,15 +67,15 @@ namespace ConnectApp.Components {
 
         ScrollbarPainter _buildScrollbarPainter() {
             return new ScrollbarPainter(
-                new Color(0x99777777),
+                _kScrollbarColor,
                 textDirection: this._textDirection,
-                2.5f,
+                _kScrollbarThickness,
                 fadeoutOpacityAnimation: this._fadeoutOpacityAnimation,
-                4,
-                2.5f,
-                Radius.circular(1.25f),
-                36,
-                8
+                _kScrollbarMainAxisMargin,
+                _kScrollbarCrossAxisMargin,
+                _kScrollbarRadius,
+                _kScrollbarMinLength,
+                _kScrollbarMinOverscrollLength
             );
         }
 
@@ -79,13 +90,15 @@ namespace ConnectApp.Components {
                     metrics: notification.metrics,
                     axisDirection: notification.metrics.axisDirection
                 );
-            } else if (notification is ScrollEndNotification) {
+            }
+            else if (notification is ScrollEndNotification) {
                 this._fadeoutTimer?.cancel();
-                this._fadeoutTimer = Window.instance.run(TimeSpan.FromMilliseconds(50), () => {
+                this._fadeoutTimer = Window.instance.run(_kScrollbarTimeToFade, () => {
                     this._fadeoutAnimationController.reverse();
                     this._fadeoutTimer = null;
                 });
             }
+
             return false;
         }
 

@@ -50,8 +50,8 @@ namespace ConnectApp.Components {
                 this.openUrl, this.playVideo
             ));
             items.Add(this._buildContentLecturerList());
-            return new Container(
-                child: ListView.builder(
+            return new CustomScrollbar(
+                ListView.builder(
                     physics: new AlwaysScrollableScrollPhysics(),
                     itemCount: items.Count,
                     itemBuilder: (cxt, index) => items[index]

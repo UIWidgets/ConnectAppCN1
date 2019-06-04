@@ -5,7 +5,6 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
-using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
@@ -54,48 +53,46 @@ namespace ConnectApp.screens {
 
             return new Container(
                 color: CColors.Background,
-                child: ListView.builder(
-                    physics: new AlwaysScrollableScrollPhysics(),
-                    itemCount: this.viewModel.eventHistory.Count,
-                    itemExtent: 108,
-                    itemBuilder: (cxt, index) => {
-                        var model = this.viewModel.eventHistory[index];
-                        var eventType = model.mode == "online" ? EventType.online : EventType.offline;
-                        return CustomDismissible.builder(
-                            Key.key(model.id),
-                            new EventCard(
-                                model,
-                                model.place,
-                                () => {
-                                    this.actionModel.pushToEventDetail(model.id, eventType);
-                                    AnalyticsManager.ClickEnterEventDetail("History_Event", model.id, model.title,
-                                        model.mode);
-                                }
-                            ),
-                            new CustomDismissibleDrawerDelegate(),
-                            secondaryActions: new List<Widget> {
-                                new GestureDetector(
-                                    onTap: () => this.actionModel.deleteEventHistory(model.id),
-                                    child: new Container(
-                                        color: CColors.Separator2,
-                                        width: 80,
-                                        alignment: Alignment.center,
+                child: new CustomScrollbar(
+                    ListView.builder(
+                        physics: new AlwaysScrollableScrollPhysics(),
+                        itemCount: this.viewModel.eventHistory.Count,
+                        itemExtent: 108,
+                        itemBuilder: (cxt, index) => {
+                            var model = this.viewModel.eventHistory[index];
+                            var eventType = model.mode == "online" ? EventType.online : EventType.offline;
+                            return CustomDismissible.builder(
+                                Key.key(model.id),
+                                new EventCard(
+                                    model,
+                                    model.place,
+                                    () => this.actionModel.pushToEventDetail(model.id, eventType)
+                                ),
+                                new CustomDismissibleDrawerDelegate(),
+                                secondaryActions: new List<Widget> {
+                                    new GestureDetector(
+                                        onTap: () => this.actionModel.deleteEventHistory(model.id),
                                         child: new Container(
-                                            width: 44,
-                                            height: 44,
+                                            color: CColors.Separator2,
+                                            width: 80,
                                             alignment: Alignment.center,
-                                            decoration: new BoxDecoration(
-                                                CColors.White,
-                                                borderRadius: BorderRadius.circular(22)
-                                            ),
-                                            child: new Icon(Icons.delete_outline, size: 28, color: CColors.Error)
+                                            child: new Container(
+                                                width: 44,
+                                                height: 44,
+                                                alignment: Alignment.center,
+                                                decoration: new BoxDecoration(
+                                                    CColors.White,
+                                                    borderRadius: BorderRadius.circular(22)
+                                                ),
+                                                child: new Icon(Icons.delete_outline, size: 28, color: CColors.Error)
+                                            )
                                         )
                                     )
-                                )
-                            },
-                            controller: this._controller
-                        );
-                    }
+                                },
+                                controller: this._controller
+                            );
+                        }
+                    )
                 )
             );
         }

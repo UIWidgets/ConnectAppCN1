@@ -67,53 +67,52 @@ namespace ConnectApp.screens {
 
             return new Container(
                 color: CColors.Background,
-                child: ListView.builder(
-                    physics: new AlwaysScrollableScrollPhysics(),
-                    itemCount: this.viewModel.articleHistory.Count,
-                    itemBuilder: (cxt, index) => {
-                        var model = this.viewModel.articleHistory[index];
-                        var child = new ArticleCard(
-                            model,
-                            () => {
-                                this.actionModel.pushToArticleDetail(model.id);
-                                AnalyticsManager.ClickEnterArticleDetail("Histroy_Article", model.id, model.title);
-                            },
-                            () => ReportManager.showReportView(this.viewModel.isLoggedIn,
-                                model.id,
-                                ReportType.article, this.actionModel.pushToLogin, this.actionModel.pushToReport,
-                                this.actionModel.pushToBlock
-                            ),
-                            model.fullName,
-                            new ObjectKey(model.id)
-                        );
+                child: new CustomScrollbar(
+                    ListView.builder(
+                        physics: new AlwaysScrollableScrollPhysics(),
+                        itemCount: this.viewModel.articleHistory.Count,
+                        itemBuilder: (cxt, index) => {
+                            var model = this.viewModel.articleHistory[index];
+                            var child = new ArticleCard(
+                                model,
+                                () => this.actionModel.pushToArticleDetail(model.id),
+                                () => ReportManager.showReportView(this.viewModel.isLoggedIn,
+                                    model.id,
+                                    ReportType.article, this.actionModel.pushToLogin, this.actionModel.pushToReport,
+                                    this.actionModel.pushToBlock
+                                ),
+                                model.fullName,
+                                new ObjectKey(model.id)
+                            );
 
-                        return CustomDismissible.builder(
-                            Key.key(model.id),
-                            child,
-                            new CustomDismissibleDrawerDelegate(),
-                            secondaryActions: new List<Widget> {
-                                new GestureDetector(
-                                    onTap: () => this.actionModel.deleteArticleHistory(model.id),
-                                    child: new Container(
-                                        color: CColors.Separator2,
-                                        width: 80,
-                                        alignment: Alignment.center,
+                            return CustomDismissible.builder(
+                                Key.key(model.id),
+                                child,
+                                new CustomDismissibleDrawerDelegate(),
+                                secondaryActions: new List<Widget> {
+                                    new GestureDetector(
+                                        onTap: () => this.actionModel.deleteArticleHistory(model.id),
                                         child: new Container(
-                                            width: 44,
-                                            height: 44,
+                                            color: CColors.Separator2,
+                                            width: 80,
                                             alignment: Alignment.center,
-                                            decoration: new BoxDecoration(
-                                                CColors.White,
-                                                borderRadius: BorderRadius.circular(22)
-                                            ),
-                                            child: new Icon(Icons.delete_outline, size: 28, color: CColors.Error)
+                                            child: new Container(
+                                                width: 44,
+                                                height: 44,
+                                                alignment: Alignment.center,
+                                                decoration: new BoxDecoration(
+                                                    CColors.White,
+                                                    borderRadius: BorderRadius.circular(22)
+                                                ),
+                                                child: new Icon(Icons.delete_outline, size: 28, color: CColors.Error)
+                                            )
                                         )
                                     )
-                                )
-                            },
-                            controller: this._controller
-                        );
-                    }
+                                },
+                                controller: this._controller
+                            );
+                        }
+                    )
                 )
             );
         }
