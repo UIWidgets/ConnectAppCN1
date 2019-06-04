@@ -74,7 +74,10 @@ namespace ConnectApp.screens {
                         var model = this.viewModel.articleHistory[index];
                         var child = new ArticleCard(
                             model,
-                            () => this.actionModel.pushToArticleDetail(model.id),
+                            () => {
+                                this.actionModel.pushToArticleDetail(model.id);
+                                AnalyticsManager.ClickEnterArticleDetail("Histroy_Article", model.id, model.title);
+                            },
                             () => ReportManager.showReportView(this.viewModel.isLoggedIn,
                                 model.id,
                                 ReportType.article, this.actionModel.pushToLogin, this.actionModel.pushToReport,

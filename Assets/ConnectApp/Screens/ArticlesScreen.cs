@@ -11,8 +11,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
@@ -33,9 +33,12 @@ namespace ConnectApp.screens {
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ArticlesScreenActionModel {
-                        pushToSearch = () => dispatcher.dispatch(new MainNavigatorPushToAction {
-                            routeName = MainNavigatorRoutes.Search
-                        }),
+                        pushToSearch = () => {
+                            dispatcher.dispatch(new MainNavigatorPushToAction {
+                                routeName = MainNavigatorRoutes.Search
+                            });
+                            AnalyticsManager.ClickEnterSearch("Home_Article");
+                        },
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
@@ -200,7 +203,10 @@ namespace ConnectApp.screens {
 
                             return new ArticleCard(
                                 article,
-                                () => this.widget.actionModel.pushToArticleDetail(articleId),
+                                () => {
+                                    this.widget.actionModel.pushToArticleDetail(articleId);
+                                    AnalyticsManager.ClickEnterArticleDetail("Home_Article", article.id, article.title);
+                                },
                                 () => ReportManager.showReportView(this.widget.viewModel.isLoggedIn,
                                     articleId,
                                     ReportType.article, this.widget.actionModel.pushToLogin,

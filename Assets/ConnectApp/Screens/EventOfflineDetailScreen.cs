@@ -12,8 +12,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -117,6 +117,7 @@ namespace ConnectApp.screens {
 
         public override void dispose() {
             EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
+
             base.dispose();
         }
 
@@ -221,6 +222,8 @@ namespace ConnectApp.screens {
                 onPressed: () => ShareUtils.showShareView(new ShareView(
                     projectType: ProjectType.iEvent,
                     onPressed: type => {
+                        AnalyticsManager.ClickShare(type, "Event", "Event_" + eventObj.id, eventObj.title);
+
                         var linkUrl =
                             $"{Config.apiAddress}/events/{eventObj.id}";
                         if (type == ShareType.clipBoard) {

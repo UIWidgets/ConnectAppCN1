@@ -14,17 +14,20 @@ namespace ConnectApp.Components {
         public NotificationCard(
             Notification notification,
             User user,
+            List<User> mentions,
             Action onTap = null,
             Key key = null
         ) : base(key) {
             this.notification = notification;
             this.user = user;
             this.onTap = onTap;
+            this.mentions = mentions;
         }
 
         readonly Notification notification;
         readonly User user;
         readonly Action onTap;
+        readonly List<User> mentions;
 
         public override Widget build(BuildContext context) {
             if (this.notification == null) {
@@ -90,7 +93,7 @@ namespace ConnectApp.Components {
 
             if (type == "project_message_commented") {
                 if (data.parentComment.isNotEmpty()) {
-                    content = $" “{data.parentComment}”";
+                    content = $" “{MessageUtils.AnalyzeMessage(data.parentComment, this.mentions, false)}”";
                     subTitle = new TextSpan(
                         " 回复了你的评论" + content,
                         CTextStyle.PLargeBody2
@@ -106,7 +109,7 @@ namespace ConnectApp.Components {
 
             if (type == "project_participate_comment") {
                 if (data.parentComment.isNotEmpty()) {
-                    content = $" “{data.parentComment}”";
+                    content = $" “{MessageUtils.AnalyzeMessage(data.parentComment, this.mentions, false)}”";
                 }
 
                 subTitle = new TextSpan(
@@ -117,7 +120,7 @@ namespace ConnectApp.Components {
 
             if (type == "project_message_liked") {
                 if (data.comment.isNotEmpty()) {
-                    content = $" “{data.comment}”";
+                    content = $" “{MessageUtils.AnalyzeMessage(data.comment, this.mentions, false)}”";
                 }
 
                 subTitle = new TextSpan(
@@ -128,7 +131,7 @@ namespace ConnectApp.Components {
 
             if (type == "project_message_participate_liked") {
                 if (data.comment.isNotEmpty()) {
-                    content = $" “{data.comment}”";
+                    content = $" “{MessageUtils.AnalyzeMessage(data.comment, this.mentions, false)}”";
                 }
 
                 subTitle = new TextSpan(

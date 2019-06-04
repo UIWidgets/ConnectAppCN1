@@ -5,6 +5,7 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
@@ -113,7 +114,11 @@ namespace ConnectApp.screens {
                             return new EventCard(
                                 model,
                                 placeName,
-                                () => this.widget.actionModel.pushToEventDetail(model.id, eventType)
+                                () => {
+                                    this.widget.actionModel.pushToEventDetail(model.id, eventType);
+                                    AnalyticsManager.ClickEnterEventDetail("My_Past_Event", model.id, model.title,
+                                        model.mode);
+                                }
                             );
                         }
                     )

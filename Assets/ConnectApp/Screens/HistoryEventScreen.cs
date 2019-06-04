@@ -5,6 +5,7 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
@@ -65,7 +66,11 @@ namespace ConnectApp.screens {
                             new EventCard(
                                 model,
                                 model.place,
-                                () => this.actionModel.pushToEventDetail(model.id, eventType)
+                                () => {
+                                    this.actionModel.pushToEventDetail(model.id, eventType);
+                                    AnalyticsManager.ClickEnterEventDetail("History_Event", model.id, model.title,
+                                        model.mode);
+                                }
                             ),
                             new CustomDismissibleDrawerDelegate(),
                             secondaryActions: new List<Widget> {

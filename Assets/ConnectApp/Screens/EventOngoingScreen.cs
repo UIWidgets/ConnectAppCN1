@@ -5,6 +5,7 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
@@ -122,10 +123,14 @@ namespace ConnectApp.screens {
                             return new EventCard(
                                 model,
                                 placeName,
-                                () => this.widget.actionModel.pushToEventDetail(
-                                    model.id,
-                                    model.mode == "online" ? EventType.online : EventType.offline
-                                ),
+                                () => {
+                                    this.widget.actionModel.pushToEventDetail(
+                                        model.id,
+                                        model.mode == "online" ? EventType.online : EventType.offline
+                                    );
+                                    AnalyticsManager.ClickEnterEventDetail("Home_Future_Event", model.id, model.title,
+                                        model.mode);
+                                },
                                 new ObjectKey(model.id)
                             );
                         }
