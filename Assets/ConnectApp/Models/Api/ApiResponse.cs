@@ -46,6 +46,7 @@ namespace ConnectApp.Models.Api {
         public int page;
         public int pageTotal;
         public List<Notification> results;
+        public Dictionary<string, User> userMap;
     }
 
     [Serializable]

@@ -70,7 +70,8 @@ namespace ConnectApp.Models.State {
                 },
                 notificationState = new NotificationState {
                     loading = false,
-                    notifications = new List<Notification>()
+                    notifications = new List<Notification>(),
+                    mentions = new List<User>()
                 },
                 userState = new UserState {
                     userDict = UserInfoManager.initUserDict()
