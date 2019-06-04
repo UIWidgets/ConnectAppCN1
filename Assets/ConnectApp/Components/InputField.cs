@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.material;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.service;
@@ -61,7 +61,7 @@ namespace ConnectApp.Components {
             this.height = height;
             this.clearButtonMode = clearButtonMode;
             this.enableInteractiveSelection = enableInteractiveSelection;
-            this.selectionColor = selectionColor ?? CColors.PrimaryBlue;
+            this.selectionColor = selectionColor ?? new Color(0x667FAACF);
             this.cursorColor = cursorColor;
             this.textInputAction = textInputAction;
             this.keyboardType = keyboardType;
@@ -100,11 +100,25 @@ namespace ConnectApp.Components {
         }
     }
 
-    class _InputFieldState : State<InputField> {
+    class _InputFieldState : AutomaticKeepAliveClientMixin<InputField> {
+        readonly GlobalKey<EditableTextState> _editableTextKey = new LabeledGlobalKey<EditableTextState>();
+        
         TextEditingController _textEditingController;
         FocusNode _focusNode;
         bool _isHintTextHidden;
         bool _isFocus;
+
+        EditableTextState _editableText {
+            get { return this._editableTextKey.currentState; }
+        }
+
+        RenderEditable _renderEditable {
+            get { return this._editableText.renderEditable; }
+        }
+        
+        protected override bool wantKeepAlive {
+            get { return this._textEditingController?.text?.isNotEmpty() == true; }
+        }
 
         public override void initState() {
             base.initState();
@@ -120,7 +134,12 @@ namespace ConnectApp.Components {
         public override void dispose() {
             this._textEditingController.removeListener(this._controllerListener);
             this._focusNode.removeListener(this._focusNodeListener);
+            this._focusNode.dispose();
             base.dispose();
+        }
+        
+        void _requestKeyboard() {
+            this._editableText?.requestKeyboard();
         }
 
         void _controllerListener() {
@@ -135,8 +154,51 @@ namespace ConnectApp.Components {
                 this.setState(() => { this._isFocus = this._focusNode.hasFocus; });
             }
         }
+        
+        void _handleTapDown(TapDownDetails details) {
+            this._renderEditable.handleTapDown(details);
+        }
+        
+        void _handleSingleTapUp(TapUpDetails details) {
+            this._renderEditable.selectWordEdge(cause: SelectionChangedCause.tap);
+            this._requestKeyboard();
+        }
+        
+        void _handleDoubleTapDown(TapDownDetails details) {
+            this._renderEditable.selectWord(cause: SelectionChangedCause.tap);
+            this._editableText.showToolbar();
+        }
+        
+        void _handleMouseDragSelectionStart(DragStartDetails details) {
+            this._renderEditable.selectPositionAt(
+                from: details.globalPosition,
+                cause: SelectionChangedCause.drag
+            );
+        }
+        
+        void _handleMouseDragSelectionUpdate(
+            DragStartDetails startDetails,
+            DragUpdateDetails updateDetails
+        ) {
+            this._renderEditable.selectPositionAt(
+                from: startDetails.globalPosition,
+                to: updateDetails.globalPosition,
+                cause: SelectionChangedCause.drag
+            );
+        }
+
+        void _handleMouseDragSelectionEnd(DragEndDetails details) {
+            this._requestKeyboard();
+        }
+        
+        void _handleSelectionChanged(TextSelection selection, SelectionChangedCause cause) {
+            if (cause == SelectionChangedCause.longPress) {
+                this._editableText?.bringIntoView(selection.basePos);
+            }
+        }
 
         public override Widget build(BuildContext context) {
+            base.build(context);
             return new IgnorePointer(
                 ignoring: !this.widget.enabled,
                 child: new Column(
@@ -208,6 +270,11 @@ namespace ConnectApp.Components {
 
             return new GestureDetector(
                 onTap: () => {
+                    if (!this._textEditingController.selection.isValid) {
+                        this._textEditingController.selection = TextSelection.collapsed(offset: this._textEditingController.text.Length);
+                    }
+
+                    this._requestKeyboard();
                     var focusNode = this.widget.focusNode ?? this._focusNode;
                     FocusScope.of(context).requestFocus(focusNode);
                 },
@@ -218,35 +285,51 @@ namespace ConnectApp.Components {
                     child: new Row(
                         children: new List<Widget> {
                             new Expanded(
-                                child: new EditableText(
-                                    maxLines: this.widget.maxLines,
-                                    controller: this._textEditingController,
-                                    focusNode: this._focusNode,
-                                    autofocus: this.widget.autofocus,
-                                    obscureText: this.widget.obscureText,
-                                    style: this.widget.style,
-                                    cursorColor: this.widget.cursorColor,
-                                    autocorrect: this.widget.autocorrect,
-                                    textInputAction: this.widget.textInputAction,
-                                    keyboardType: this.widget.keyboardType,
-                                    textAlign: this.widget.textAlign,
-                                    scrollPadding: this.widget.scrollPadding,
-                                    selectionControls: this.widget.enableInteractiveSelection
-                                        ? MaterialUtils.materialTextSelectionControls
-                                        : null,
-                                    enableInteractiveSelection: this.widget.enableInteractiveSelection,
-                                    selectionColor: this.widget.selectionColor,
-                                    onChanged: text => {
-                                        var isTextEmpty = text.Length > 0;
-                                        if (this._isHintTextHidden != isTextEmpty) {
-                                            this.setState(() => { this._isHintTextHidden = isTextEmpty; });
-                                        }
-
-                                        if (this.widget.onChanged != null) {
-                                            this.widget.onChanged(text);
-                                        }
-                                    },
-                                    onSubmitted: this.widget.onSubmitted
+                                child: new TextSelectionGestureDetector(
+                                    onTapDown: this._handleTapDown,
+                                    onSingleTapUp: this._handleSingleTapUp,
+                                    onDoubleTapDown: this._handleDoubleTapDown,
+                                    onDragSelectionStart: this._handleMouseDragSelectionStart,
+                                    onDragSelectionUpdate: this._handleMouseDragSelectionUpdate,
+                                    onDragSelectionEnd: this._handleMouseDragSelectionEnd,
+                                    behavior: HitTestBehavior.translucent,
+                                    child: new RepaintBoundary(
+                                        child: new EditableText(
+                                            key: this._editableTextKey,
+                                            maxLines: this.widget.maxLines,
+                                            controller: this._textEditingController,
+                                            focusNode: this._focusNode,
+                                            autofocus: this.widget.autofocus,
+                                            obscureText: this.widget.obscureText,
+                                            style: this.widget.style,
+                                            cursorColor: this.widget.cursorColor,
+                                            autocorrect: this.widget.autocorrect,
+                                            textInputAction: this.widget.textInputAction,
+                                            keyboardType: this.widget.keyboardType,
+                                            textAlign: this.widget.textAlign,
+                                            scrollPadding: this.widget.scrollPadding,
+                                            selectionControls: this.widget.enableInteractiveSelection
+                                                ? new CustomTextSelectionControls()
+                                                : null,
+                                            enableInteractiveSelection: this.widget.enableInteractiveSelection,
+                                            selectionColor: this.widget.selectionColor,
+                                            onSelectionChanged: this._handleSelectionChanged,
+                                            paintCursorAboveText: true,
+                                            cursorOpacityAnimates: true,
+                                            backgroundCursorColor: new Color(0xFF8E8E93),
+                                            onChanged: text => {
+                                                var isTextEmpty = text.Length > 0;
+                                                if (this._isHintTextHidden != isTextEmpty) {
+                                                    this.setState(() => { this._isHintTextHidden = isTextEmpty; });
+                                                }
+        
+                                                if (this.widget.onChanged != null) {
+                                                    this.widget.onChanged(text);
+                                                }
+                                            },
+                                            onSubmitted: this.widget.onSubmitted
+                                        )
+                                    )
                                 )
                             ),
                             clearButton
