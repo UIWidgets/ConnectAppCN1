@@ -513,6 +513,7 @@ namespace ConnectApp.redux.reducers {
                 case FetchNotificationsSuccessAction action: {
                     state.notificationState.pageTotal = action.pageTotal;
                     state.notificationState.notifications = action.notifications;
+                    state.notificationState.mentions = action.mentions;
                     state.notificationState.loading = false;
                     break;
                 }

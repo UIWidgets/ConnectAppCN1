@@ -13,7 +13,7 @@ namespace ConnectApp.Utils {
                 parsingContent = parsingContent.Replace("@everyone", "@所有人");
             }
 
-            if (mentions != null && mentions.Count > 0) {
+            if (parsingContent.Contains("<@") && mentions != null && mentions.Count > 0) {
                 mentions.ForEach(mention => {
                     var mentionId = mention.id;
                     var mentionFullName = mention.fullName;
