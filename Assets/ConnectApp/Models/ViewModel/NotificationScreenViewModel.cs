@@ -6,6 +6,7 @@ namespace ConnectApp.Models.ViewModel {
         public bool notificationLoading;
         public int pageTotal;
         public List<Notification> notifications;
+        public List<User> mentions;
         public Dictionary<string, User> userDict;
     }
 }
