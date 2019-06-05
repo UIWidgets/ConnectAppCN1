@@ -34,6 +34,8 @@ namespace ConnectApp.Components {
             string labelText = null,
             TextStyle labelStyle = null,
             Color cursorColor = null,
+            float cursorWidth = 2,
+            Radius cursorRadius = null,
             TextInputAction textInputAction = TextInputAction.none,
             TextInputType keyboardType = null,
             float height = 44.0f,
@@ -63,6 +65,8 @@ namespace ConnectApp.Components {
             this.enableInteractiveSelection = enableInteractiveSelection;
             this.selectionColor = selectionColor ?? new Color(0x667FAACF);
             this.cursorColor = cursorColor;
+            this.cursorWidth = cursorWidth;
+            this.cursorRadius = cursorRadius ?? Radius.circular(1.0f);
             this.textInputAction = textInputAction;
             this.keyboardType = keyboardType;
             this.onChanged = onChanged;
@@ -84,6 +88,8 @@ namespace ConnectApp.Components {
         public readonly string labelText;
         public readonly TextStyle labelStyle;
         public readonly Color cursorColor;
+        public readonly float cursorWidth;
+        public readonly Radius cursorRadius;
         public readonly TextInputAction textInputAction;
         public readonly TextInputType keyboardType;
         public readonly float height;
@@ -147,6 +153,7 @@ namespace ConnectApp.Components {
             if (this._isHintTextHidden != isTextEmpty) {
                 this.setState(() => { this._isHintTextHidden = isTextEmpty; });
             }
+            this.updateKeepAlive();
         }
 
         void _focusNodeListener() {
@@ -165,8 +172,7 @@ namespace ConnectApp.Components {
         }
         
         void _handleDoubleTapDown(TapDownDetails details) {
-            this._renderEditable.selectWord(cause: SelectionChangedCause.tap);
-            this._editableText.showToolbar();
+            this._renderEditable.selectWord(cause: SelectionChangedCause.doubleTap);
         }
         
         void _handleMouseDragSelectionStart(DragStartDetails details) {
@@ -302,7 +308,10 @@ namespace ConnectApp.Components {
                                             autofocus: this.widget.autofocus,
                                             obscureText: this.widget.obscureText,
                                             style: this.widget.style,
+                                            cursorWidth: this.widget.cursorWidth,
                                             cursorColor: this.widget.cursorColor,
+                                            cursorRadius: this.widget.cursorRadius,
+                                            cursorOffset: new Offset(-2 / MediaQuery.of(context).devicePixelRatio, 0),
                                             autocorrect: this.widget.autocorrect,
                                             textInputAction: this.widget.textInputAction,
                                             keyboardType: this.widget.keyboardType,

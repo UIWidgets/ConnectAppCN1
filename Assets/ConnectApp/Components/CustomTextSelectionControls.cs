@@ -291,7 +291,7 @@ namespace ConnectApp.Components {
 
         public override Widget buildHandle(BuildContext context, TextSelectionHandleType type, float textLineHeight) {
             Size desiredSize = new Size(
-                2.0f* CustomTextSelectionControlsUtils._kHandlesPadding,
+                2.0f * CustomTextSelectionControlsUtils._kHandlesPadding,
                 textLineHeight + 2.0f * CustomTextSelectionControlsUtils._kHandlesPadding
             );
 
@@ -310,8 +310,12 @@ namespace ConnectApp.Components {
             switch (type) {
                 case TextSelectionHandleType.left: {
                     Matrix3 matrix3 = Matrix3.makeRotate(Mathf.PI);
-                    matrix3.setTranslateX(-CustomTextSelectionControlsUtils._kHandlesPadding);
-                    matrix3.setTranslateY(-CustomTextSelectionControlsUtils._kHandlesPadding);
+                    matrix3.preConcat(
+                        Matrix3.makeTrans(
+                            -CustomTextSelectionControlsUtils._kHandlesPadding, 
+                            -CustomTextSelectionControlsUtils._kHandlesPadding
+                        )
+                    );
                     return new Transform(
                         transform: matrix3,
                         child: handle
