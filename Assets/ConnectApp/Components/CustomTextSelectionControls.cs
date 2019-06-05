@@ -28,7 +28,7 @@ namespace ConnectApp.Components {
         
         internal static readonly Color _kHandlesColor = new Color(0xFF136FE0);
         
-        internal static readonly Size _kSelectionOffset = new Size(20.0f, 30.0f);
+        internal static readonly Size _kSelectionOffset = new Size(20.0f, 40.0f);
         
         internal static readonly Size _kToolbarTriangleSize = new Size(18.0f, 9.0f);
         
@@ -232,7 +232,7 @@ namespace ConnectApp.Components {
                 color = CustomTextSelectionControlsUtils._kHandlesColor,
                 strokeWidth = 2.0f
             };
-            canvas.drawCircle(this.origin.translate(0.0f, 4.0f), 5.5f, paint);
+            canvas.drawCircle(this.origin.translate(0.0f, 6.0f), 5.5f, paint);
             canvas.drawLine(
                 this.origin,
                 this.origin.translate(
