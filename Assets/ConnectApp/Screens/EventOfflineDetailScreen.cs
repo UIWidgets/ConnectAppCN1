@@ -142,7 +142,7 @@ namespace ConnectApp.screens {
                     child: new Container(
                         color: CColors.White,
                         child: new NotificationListener<ScrollNotification>(
-                            onNotification: notification => this._onNotification(context, notification, eventObj),
+                            onNotification: notification => this._onNotification(context, notification),
                             child: new Column(
                                 children: new List<Widget> {
                                     this._buildEventDetail(eventObj),
@@ -177,17 +177,12 @@ namespace ConnectApp.screens {
             );
         }
 
-        bool _onNotification(BuildContext context, ScrollNotification notification, IEvent eventObj) {
+        bool _onNotification(BuildContext context, ScrollNotification notification) {
             var pixels = notification.metrics.pixels;
             if (this._titleHeight == 0.0f) {
                 var width = MediaQuery.of(context).size.width;
                 var imageHeight = 9.0f / 16.0f * width;
-                if (eventObj.type.isNotEmpty() && !(eventObj.type == "bagevent" || eventObj.type == "customize")) {
-                    this._titleHeight = imageHeight + eventTitleKey.currentContext.size.height + 32;
-                }
-                else {
-                    this._titleHeight = imageHeight + eventTitleKey.currentContext.size.height + 32 - 64;
-                }
+                this._titleHeight = imageHeight + eventTitleKey.currentContext.size.height - 32;
             }
 
             if (pixels >= 44) {
