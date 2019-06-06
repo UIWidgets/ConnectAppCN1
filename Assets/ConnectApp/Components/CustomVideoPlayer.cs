@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using ConnectApp.Constants;
 using ConnectApp.Utils;
 using RSG;
@@ -14,6 +13,7 @@ using UnityEngine;
 using UnityEngine.Video;
 using Color = Unity.UIWidgets.ui.Color;
 using Texture = Unity.UIWidgets.widgets.Texture;
+
 #if UNITY_IOS
 using System.Runtime.InteropServices;
 #endif
@@ -281,7 +281,7 @@ namespace ConnectApp.Components {
             player.prepareCompleted += this.prepareCompleted;
             player.frameReady += (source, frameIndex) => {
                 using (WindowProvider.of(this.widget.context).getScope()) {
-                    pauseAudioSession();
+                    this._pauseAudioSession();
                     Texture.textureFrameAvailable();
                     if (this._relative * source.frameCount < frameIndex || frameIndex == 0) {
                         this._isLoaded = true;
@@ -394,6 +394,12 @@ namespace ConnectApp.Components {
                 this.widget.fullScreenCallback(this._isFullScreen);
             }
         }
+
+        void _pauseAudioSession() {
+            if (!Application.isEditor) {
+                pauseAudioSession();
+            }
+        }
 #if UNITY_IOS
         [DllImport("__Internal")]
         static extern void pauseAudioSession();
@@ -413,7 +419,8 @@ namespace ConnectApp.Components {
             Plugin().CallStatic("pauseAudioSession");
         }
 #else
-        static void pauseAudioSession() {}
+        static void pauseAudioSession() {
+        }
 #endif
     }
 }
