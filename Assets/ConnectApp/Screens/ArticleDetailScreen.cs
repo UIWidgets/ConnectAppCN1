@@ -19,6 +19,8 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Avatar = ConnectApp.Components.Avatar;
 using Config = ConnectApp.Constants.Config;
 
 namespace ConnectApp.screens {
@@ -492,6 +494,7 @@ namespace ConnectApp.screens {
                                 borderRadius: BorderRadius.all(4)
                             ),
                             padding: EdgeInsets.only(16, 12, 16, 12),
+                            width: Screen.width - 32,
                             child: new Text($"{this._article.subTitle}", style: CTextStyle.PLargeBody4)
                         )
                     }
