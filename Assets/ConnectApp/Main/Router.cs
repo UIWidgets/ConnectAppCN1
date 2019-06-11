@@ -40,8 +40,8 @@ namespace ConnectApp.Main {
         static Dictionary<string, WidgetBuilder> mainRoutes {
             get {
                 return new Dictionary<string, WidgetBuilder> {
-                    {MainNavigatorRoutes.Root, context => new TestScreen()},
-//                    {MainNavigatorRoutes.Root, context => new MainScreen()},
+//                    {MainNavigatorRoutes.Root, context => new TestScreen()},
+                    {MainNavigatorRoutes.Root, context => new MainScreen()},
                     {MainNavigatorRoutes.Search, context => new SearchScreenConnector()},
                     {MainNavigatorRoutes.ArticleDetail, context => new ArticleDetailScreenConnector("")},
                     {MainNavigatorRoutes.Setting, context => new SettingScreenConnector()},
@@ -76,7 +76,7 @@ namespace ConnectApp.Main {
                     }
                     else if (Screen.orientation == ScreenOrientation.LandscapeLeft) {
                         //视频全屏时禁止物理返回按钮
-                        EventBus.publish(EventBusConstant.fullScreen, new List<object> { true });
+                        EventBus.publish(EventBusConstant.fullScreen, new List<object> {true});
                         promise.Resolve(false);
                     }
                     else if (navigator.canPop()) {

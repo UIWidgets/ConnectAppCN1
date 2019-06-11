@@ -1,11 +1,14 @@
 using System.Collections.Generic;
+using ConnectApp.Components.LikeButton;
 using ConnectApp.Constants;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
+using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Icons = ConnectApp.Constants.Icons;
 
 namespace ConnectApp.screens {
     public class TestScreen : StatelessWidget {
@@ -17,8 +20,40 @@ namespace ConnectApp.screens {
                         CColors.Background,
                         border: Border.all(CColors.Red)
                     ),
-                    child: renderWebSocket()
+                    child: renderLikeButton()
                 )
+            );
+        }
+
+        static LikeButton renderLikeButton() {
+            int likeCount = 99;
+            return new LikeButton(
+                isLiked => new Icon(
+                    isLiked ? Icons.favorite : Icons.favorite_border,
+                    color: isLiked ? CColors.Red : CColors.Grey,
+                    size: 30
+                ),
+                (count, isLiked, text) => {
+                    var color = isLiked ? CColors.PrimaryBlue : Colors.grey;
+                    Widget result;
+                    if (count == 0) {
+                        result = new Text(
+                            "Love",
+                            style: new TextStyle(color: color)
+                        );
+                    }
+                    else {
+                        result = new Text(
+                            count >= 1000
+                                ? count / 1000 + "k"
+                                : text,
+                            style: new TextStyle(color: color)
+                        );
+                    }
+
+                    return result;
+                },
+                likeCount: likeCount
             );
         }
 
