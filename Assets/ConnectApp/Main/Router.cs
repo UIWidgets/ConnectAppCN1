@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Plugins;
 using ConnectApp.screens;
@@ -12,7 +13,7 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
-namespace ConnectApp.Components {
+namespace ConnectApp.Main {
     static class MainNavigatorRoutes {
         public const string Root = "/";
         public const string Search = "/search";
@@ -39,7 +40,8 @@ namespace ConnectApp.Components {
         static Dictionary<string, WidgetBuilder> mainRoutes {
             get {
                 return new Dictionary<string, WidgetBuilder> {
-                    {MainNavigatorRoutes.Root, context => new MainScreen()},
+                    {MainNavigatorRoutes.Root, context => new TestScreen()},
+//                    {MainNavigatorRoutes.Root, context => new MainScreen()},
                     {MainNavigatorRoutes.Search, context => new SearchScreenConnector()},
                     {MainNavigatorRoutes.ArticleDetail, context => new ArticleDetailScreenConnector("")},
                     {MainNavigatorRoutes.Setting, context => new SettingScreenConnector()},
