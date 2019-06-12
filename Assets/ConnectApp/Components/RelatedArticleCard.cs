@@ -69,12 +69,14 @@ namespace ConnectApp.Components {
             var child = new Container(
                 color: CColors.White,
                 padding: EdgeInsets.all(16),
+                height: 108,
                 child: new Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
                         new Expanded(
                             child: new Container(
                                 child: new Column(
-                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: new List<Widget> {
                                         new Text(this.article.title,

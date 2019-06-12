@@ -40,7 +40,6 @@ namespace ConnectApp.Main {
         static Dictionary<string, WidgetBuilder> mainRoutes {
             get {
                 return new Dictionary<string, WidgetBuilder> {
-//                    {MainNavigatorRoutes.Root, context => new TestScreen()},
                     {MainNavigatorRoutes.Root, context => new MainScreen()},
                     {MainNavigatorRoutes.Search, context => new SearchScreenConnector()},
                     {MainNavigatorRoutes.ArticleDetail, context => new ArticleDetailScreenConnector("")},
