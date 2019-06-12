@@ -60,7 +60,7 @@ namespace ConnectApp.Components.LikeButton.Utils {
         }
 
         public override string ToString() {
-            return $"type: {this.period.GetType()}";
+            return $"{this.GetType()}({this.period})";
         }
     }
 

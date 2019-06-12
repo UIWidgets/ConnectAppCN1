@@ -1,18 +1,20 @@
-using System;
 using System.Collections.Generic;
 using ConnectApp.Components.LikeButton.Utils;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Canvas = Unity.UIWidgets.ui.Canvas;
+using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.Components.LikeButton.Painter {
     public class BubblesPainter : AbstractCustomPainter {
         readonly float m_OuterBubblesPositionAngle = 51.42f;
-        readonly int paintsNumber = 4;
+        const int paintsNumber = 4;
 
         float m_CenterX;
         float m_CenterY;
 
-        List<Paint> m_CirclePaints = new List<Paint>();
+        readonly List<Paint> m_CirclePaints = new List<Paint>();
 
         float m_MaxOuterDotsRadius;
         float m_MaxInnerDotsRadius;
@@ -37,7 +39,7 @@ namespace ConnectApp.Components.LikeButton.Painter {
         ) {
             this.m_OuterBubblesPositionAngle =
                 bubblesCount > 0 ? 360f / bubblesCount : this.m_OuterBubblesPositionAngle;
-            for (int i = 0; i < this.paintsNumber; i++) {
+            for (int i = 0; i < paintsNumber; i++) {
                 this.m_CirclePaints.Add(new Paint {style = PaintingStyle.fill});
             }
 
@@ -79,9 +81,9 @@ namespace ConnectApp.Components.LikeButton.Painter {
 
             for (int i = 0; i < this.m_BubblesCount; i++) {
                 float cX = this.m_CenterX + this.m_CurrentRadius1 *
-                           (float) Math.Cos(i * LikeButtonUtil.degToRad(deg: this.m_OuterBubblesPositionAngle));
+                           Mathf.Cos(i * LikeButtonUtil.degToRad(deg: this.m_OuterBubblesPositionAngle));
                 float cY = this.m_CenterY + this.m_CurrentRadius1 *
-                           (float) Math.Sin(i * LikeButtonUtil.degToRad(deg: this.m_OuterBubblesPositionAngle));
+                           Mathf.Sin(i * LikeButtonUtil.degToRad(deg: this.m_OuterBubblesPositionAngle));
                 canvas.drawCircle(new Offset(dx: cX, dy: cY), radius: this.m_CurrentDotSize1,
                     this.m_CirclePaints[i % this.m_CirclePaints.Count]);
             }
@@ -94,9 +96,9 @@ namespace ConnectApp.Components.LikeButton.Painter {
 
             for (int i = 0; i < this.m_BubblesCount; i++) {
                 float cX = this.m_CenterX + this.m_CurrentRadius2 *
-                           (float) Math.Cos(i * LikeButtonUtil.degToRad(this.m_OuterBubblesPositionAngle - 10));
+                           Mathf.Cos(i * LikeButtonUtil.degToRad(this.m_OuterBubblesPositionAngle - 10));
                 float cY = this.m_CenterY + this.m_CurrentRadius2 *
-                           (float) Math.Sin(i * LikeButtonUtil.degToRad(this.m_OuterBubblesPositionAngle - 10));
+                           Mathf.Sin(i * LikeButtonUtil.degToRad(this.m_OuterBubblesPositionAngle - 10));
                 canvas.drawCircle(new Offset(dx: cX, dy: cY), radius: this.m_CurrentDotSize2,
                     this.m_CirclePaints[(i + 1) % this.m_CirclePaints.Count]);
             }

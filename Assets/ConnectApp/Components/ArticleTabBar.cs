@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ConnectApp.Components.LikeButton.Utils;
 using ConnectApp.Constants;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
@@ -13,22 +14,19 @@ namespace ConnectApp.Components {
             GestureTapCallback addCommentCallback = null,
             GestureTapCallback commentCallback = null,
             GestureTapCallback favorCallback = null,
-            GestureTapCallback bookmarkCallback = null,
             GestureTapCallback shareCallback = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.like = like;
             this.addCommentCallback = addCommentCallback;
             this.commentCallback = commentCallback;
             this.favorCallback = favorCallback;
-            this.bookmarkCallback = bookmarkCallback;
             this.shareCallback = shareCallback;
         }
 
         readonly GestureTapCallback addCommentCallback;
         readonly GestureTapCallback commentCallback;
         readonly GestureTapCallback favorCallback;
-        readonly GestureTapCallback bookmarkCallback;
         readonly GestureTapCallback shareCallback;
         readonly bool like;
 
@@ -59,7 +57,8 @@ namespace ConnectApp.Components {
                                     child: new Text(
                                         "说点想法...",
                                         style: CTextStyle.PKeyboardTextStyle
-                                    ))
+                                    )
+                                )
                             )
                         ),
                         //评论
@@ -69,11 +68,21 @@ namespace ConnectApp.Components {
                             child: new Icon(Icons.comment, size: 24, color: CColors.Icon)
                         ),
                         //点赞
-                        new CustomButton(
-                            padding: EdgeInsets.symmetric(12, 10),
-                            onPressed: this.favorCallback,
-                            child: new Icon(this.like ? Icons.favorite : Icons.favorite_border, size: 24,
-                                color: this.like ? CColors.PrimaryBlue : CColors.Icon)
+                        new LikeButton.LikeButton(
+                            isLiked => new Icon(
+                                isLiked ? Icons.favorite : Icons.favorite_border,
+                                color: isLiked ? CColors.SecondaryPink : CColors.Icon,
+                                size: 24
+                            ),
+                            size: 24,
+                            circleColor: new CircleColor(
+                                CColors.SecondaryPink,
+                                CColors.SecondaryPink
+                            ),
+                            likeButtonPadding: EdgeInsets.symmetric(12, 10),
+                            isLiked: this.like,
+                            isShowBubbles: false,
+                            onTap: () => this.favorCallback()
                         ),
                         //分享
                         new CustomButton(
