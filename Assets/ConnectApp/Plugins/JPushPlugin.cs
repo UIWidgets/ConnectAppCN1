@@ -7,11 +7,10 @@ using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 using EventType = ConnectApp.Models.State.EventType;
 #if UNITY_IOS
 using System.Runtime.InteropServices;
-#elif UNITY_ANDROID
-using UnityEngine;
 #endif
 
 namespace ConnectApp.Plugins {
