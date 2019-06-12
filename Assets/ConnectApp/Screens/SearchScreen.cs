@@ -96,7 +96,6 @@ namespace ConnectApp.screens {
 
         public override void dispose() {
             this._controller.dispose();
-            this._focusNode.dispose();
             base.dispose();
         }
 
