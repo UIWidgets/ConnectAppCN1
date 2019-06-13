@@ -30,8 +30,8 @@ namespace ConnectApp.screens {
                                 eventId = eventId, eventType = eventType
                             }),
                         startFetchEventCompleted = () => dispatcher.dispatch(new StartFetchEventCompletedAction()),
-                        fetchEvents = (pageNumber, tab) =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchEvents(pageNumber, tab))
+                        fetchEvents = (pageNumber, tab, mode) =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchEvents(pageNumber, tab, mode))
                     };
                     return new EventCompletedScreen(viewModel, actionModel);
                 }
@@ -58,6 +58,8 @@ namespace ConnectApp.screens {
     }
 
     public class _EventCompletedScreenState : AutomaticKeepAliveClientMixin<EventCompletedScreen> {
+        const string eventTab = "completed";
+        const string eventMode = "";
         const int firstPageNumber = 1;
         RefreshController _completedRefreshController;
         int pageNumber = firstPageNumber;
@@ -72,7 +74,7 @@ namespace ConnectApp.screens {
             this._completedRefreshController = new RefreshController();
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchEventCompleted();
-                this.widget.actionModel.fetchEvents(firstPageNumber, "completed");
+                this.widget.actionModel.fetchEvents(firstPageNumber, eventTab, eventMode);
             });
 //            _loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
 //                widget.actionModel.startFetchEventCompleted();
@@ -97,7 +99,7 @@ namespace ConnectApp.screens {
                     true,
                     () => {
                         this.widget.actionModel.startFetchEventCompleted();
-                        this.widget.actionModel.fetchEvents(firstPageNumber, "completed");
+                        this.widget.actionModel.fetchEvents(firstPageNumber, eventTab, eventMode);
                     }
                 );
             }
@@ -145,7 +147,7 @@ namespace ConnectApp.screens {
                 this.pageNumber++;
             }
 
-            this.widget.actionModel.fetchEvents(this.pageNumber, "completed")
+            this.widget.actionModel.fetchEvents(this.pageNumber, eventTab, eventMode)
                 .Then(() => this._completedRefreshController.sendBack(up,
                     up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => this._completedRefreshController.sendBack(up, RefreshStatus.failed));

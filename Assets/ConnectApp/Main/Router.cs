@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Plugins;
 using ConnectApp.screens;
@@ -12,7 +13,7 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
-namespace ConnectApp.Components {
+namespace ConnectApp.Main {
     static class MainNavigatorRoutes {
         public const string Root = "/";
         public const string Main = "/main";

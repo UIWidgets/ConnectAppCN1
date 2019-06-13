@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ConnectApp.Components.LikeButton;
 using ConnectApp.Constants;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
@@ -17,8 +18,19 @@ namespace ConnectApp.screens {
                         CColors.Background,
                         border: Border.all(CColors.Red)
                     ),
-                    child: renderWebSocket()
+                    child: renderLikeButton()
                 )
+            );
+        }
+
+        static LikeButton renderLikeButton() {
+            return new LikeButton(
+                isLiked => new Icon(
+                    isLiked ? Icons.favorite : Icons.favorite_border,
+                    color: isLiked ? CColors.Red : CColors.Grey,
+                    size: 30
+                ),
+                isShowBubbles: false
             );
         }
 

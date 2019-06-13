@@ -11,9 +11,6 @@ using UnityEngine;
 using EventType = ConnectApp.Models.State.EventType;
 #if UNITY_IOS
 using System.Runtime.InteropServices;
-
-#elif UNITY_ANDROID
-using UnityEngine;
 #endif
 
 namespace ConnectApp.Plugins {

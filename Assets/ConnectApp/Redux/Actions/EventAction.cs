@@ -86,9 +86,9 @@ namespace ConnectApp.redux.actions {
     }
 
     public static partial class Actions {
-        public static object fetchEvents(int pageNumber, string tab) {
+        public static object fetchEvents(int pageNumber, string tab, string mode) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return EventApi.FetchEvents(pageNumber, tab, "offline")
+                return EventApi.FetchEvents(pageNumber, tab, mode)
                     .Then(eventsResponse => {
                         dispatcher.dispatch(new UserMapAction {userMap = eventsResponse.userMap});
                         dispatcher.dispatch(new PlaceMapAction {placeMap = eventsResponse.placeMap});

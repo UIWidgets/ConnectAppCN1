@@ -8,10 +8,6 @@ using RSG;
 namespace ConnectApp.Api {
     public static class EventApi {
         public static IPromise<FetchEventsResponse> FetchEvents(int pageNumber, string tab, string mode) {
-            if (tab == "completed") {
-                mode = "";
-            }
-
             var promise = new Promise<FetchEventsResponse>();
             var request = HttpManager.GET(Config.apiAddress +
                                           $"/api/events?tab={tab}&page={pageNumber}&mode={mode}&isPublic=true&pageSize=10");

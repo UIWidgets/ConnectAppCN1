@@ -89,6 +89,8 @@ namespace ConnectApp.screens {
     public class _BindUnityScreenState : State<BindUnityScreen> {
         readonly FocusNode _emailFocusNode = new FocusNode();
         readonly FocusNode _passwordFocusNode = new FocusNode();
+        FocusScopeNode _focusScopeNode;
+        
         bool _isEmailFocus;
         bool _isPasswordFocus;
 
@@ -96,8 +98,8 @@ namespace ConnectApp.screens {
             base.initState();
             this._isEmailFocus = true;
             this._isPasswordFocus = false;
-            this._emailFocusNode.addListener(this._emailFocusNodeListener);
-            this._passwordFocusNode.addListener(this._passwordFocusNodeListener);
+            this._emailFocusNode.addListener(this._focusNodeListener);
+            this._passwordFocusNode.addListener(this._focusNodeListener);
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 if (this.widget.viewModel.loginEmail.Length > 0 || this.widget.viewModel.loginPassword.Length > 0) {
                     this.widget.actionModel.clearEmailAndPassword();
@@ -105,29 +107,14 @@ namespace ConnectApp.screens {
             });
         }
 
-        public override void dispose() {
-            this._emailFocusNode.removeListener(this._emailFocusNodeListener);
-            this._passwordFocusNode.removeListener(this._passwordFocusNodeListener);
-            base.dispose();
-        }
-
-        void _emailFocusNodeListener() {
-            if (this._isEmailFocus == false) {
-                this.setState(() => { this._isEmailFocus = true; });
+        void _focusNodeListener() {
+            if (this._isEmailFocus == this._emailFocusNode.hasFocus && this._isPasswordFocus == this._passwordFocusNode.hasFocus ) {
+                return;
             }
-
-            if (this._isPasswordFocus) {
-                this.setState(() => { this._isPasswordFocus = false; });
-            }
-        }
-
-        void _passwordFocusNodeListener() {
-            if (this._isPasswordFocus == false) {
-                this.setState(() => { this._isPasswordFocus = true; });
-            }
-
-            if (this._isEmailFocus) {
-                this.setState(() => { this._isEmailFocus = false; });
+            if (!(this._emailFocusNode.hasFocus && this._passwordFocusNode.hasFocus)) {
+                this._isEmailFocus = this._emailFocusNode.hasFocus;
+                this._isPasswordFocus = this._passwordFocusNode.hasFocus;
+                this.setState(() => {});
             }
         }
 
@@ -135,7 +122,6 @@ namespace ConnectApp.screens {
             if (!this.widget.viewModel.loginBtnEnable || this.widget.viewModel.loginLoading) {
                 return;
             }
-
             this._emailFocusNode.unfocus();
             this._passwordFocusNode.unfocus();
             this.widget.actionModel.startLoginByEmail();
@@ -262,7 +248,8 @@ namespace ConnectApp.screens {
                             decoration: new BoxDecoration(
                                 CColors.Transparent,
                                 border: new Border(
-                                    bottom: new BorderSide(this._isEmailFocus ? CColors.PrimaryBlue : CColors.Separator,
+                                    bottom: new BorderSide(
+                                        this._isEmailFocus ? CColors.PrimaryBlue : CColors.Separator,
                                         this._isEmailFocus ? 2 : 1
                                     )
                                 )
@@ -279,8 +266,10 @@ namespace ConnectApp.screens {
                                 keyboardType: TextInputType.emailAddress,
                                 onChanged: text => this.widget.actionModel.changeEmail(text),
                                 onSubmitted: _ => {
-                                    this._emailFocusNode.unfocus();
-                                    FocusScope.of(context).requestFocus(this._passwordFocusNode);
+                                    if (null == this._focusScopeNode) {
+                                        this._focusScopeNode = FocusScope.of(context);
+                                    }
+                                    this._focusScopeNode.requestFocus(this._passwordFocusNode);
                                 }
                             )
                         ),

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
+using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
@@ -321,7 +322,7 @@ namespace ConnectApp.screens {
             originItems.AddRange(
                 ContentDescription.map(context, this._article.body, this._contentMap, this.widget.actionModel.openUrl,
                     this.widget.actionModel.playVideo));
-            originItems.Add(this._buildActionCards(this._article.like));
+            // originItems.Add(this._buildActionCards(this._article.like));
             originItems.Add(this._buildRelatedArticles());
             originItems.AddRange(this._buildComments());
             if (!this._article.hasMore) {
@@ -532,7 +533,20 @@ namespace ConnectApp.screens {
                 return new Container();
             }
 
-            var widgets = new List<Widget>();
+            var widgets = new List<Widget> {
+                new Container(
+                    height: 1,
+                    color: CColors.Separator2,
+                    margin: EdgeInsets.only(16, 16, 16, 40)
+                ),
+                new Container(
+                    margin: EdgeInsets.only(16, bottom: 16),
+                    child: new Text(
+                        "推荐阅读",
+                        style: CTextStyle.PLargeMedium
+                    )
+                )
+            };
             this._relArticles.ForEach(article => {
                 //对文章进行过滤
                 if (article.id != this._article.id) {
@@ -563,18 +577,8 @@ namespace ConnectApp.screens {
                 color: CColors.White,
                 margin: EdgeInsets.only(bottom: 16),
                 child: new Column(
-                    children: new List<Widget> {
-                        new Container(
-                            height: 1,
-                            color: CColors.Separator2,
-                            margin: EdgeInsets.only(16, right: 16, bottom: 24)
-                        ),
-                        new Container(
-                            child: new Column(
-                                children: widgets
-                            )
-                        )
-                    }
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: widgets
                 )
             );
         }
