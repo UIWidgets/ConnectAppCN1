@@ -54,6 +54,8 @@ namespace ConnectApp.Components {
                             new Column(
                                 children: new List<Widget> {
                                     new Container(
+                                        width: MediaQuery.of(context).size.width,
+                                        height: MediaQuery.of(context).size.height,
                                         child: Image.memory(SplashManager.readImage(), fit: BoxFit.cover)
                                     )
                                 }
