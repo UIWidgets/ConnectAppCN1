@@ -59,7 +59,7 @@ namespace ConnectApp.Components {
                             }
                         ),
                         new Positioned(
-                            top: MediaQuery.of(context).viewInsets.top + 24,
+                            top: MediaQuery.of(context).padding.top + 24,
                             right: 16,
                             child: new GestureDetector(
                                 child: new Container(
