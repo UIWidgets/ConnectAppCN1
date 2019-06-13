@@ -15,6 +15,7 @@ using UnityEngine;
 namespace ConnectApp.Components {
     static class MainNavigatorRoutes {
         public const string Root = "/";
+        public const string Main = "/main";
         public const string Search = "/search";
         public const string ArticleDetail = "/article-detail";
         public const string Setting = "/setting";
@@ -39,7 +40,8 @@ namespace ConnectApp.Components {
         static Dictionary<string, WidgetBuilder> mainRoutes {
             get {
                 return new Dictionary<string, WidgetBuilder> {
-                    {MainNavigatorRoutes.Root, context => new MainScreen()},
+                    {MainNavigatorRoutes.Root, context => new SplashPage()},
+                    {MainNavigatorRoutes.Main, context => new MainScreen()},
                     {MainNavigatorRoutes.Search, context => new SearchScreenConnector()},
                     {MainNavigatorRoutes.ArticleDetail, context => new ArticleDetailScreenConnector("")},
                     {MainNavigatorRoutes.Setting, context => new SettingScreenConnector()},
@@ -74,7 +76,7 @@ namespace ConnectApp.Components {
                     }
                     else if (Screen.orientation == ScreenOrientation.LandscapeLeft) {
                         //视频全屏时禁止物理返回按钮
-                        EventBus.publish(EventBusConstant.fullScreen, new List<object> { true });
+                        EventBus.publish(EventBusConstant.fullScreen, new List<object> {true});
                         promise.Resolve(false);
                     }
                     else if (navigator.canPop()) {
