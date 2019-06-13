@@ -3,6 +3,7 @@ using ConnectApp.Constants;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEditor.iOS.Xcode;
+using UnityEngine;
 
 namespace Plugins.Editor {
     public static class ConnectXCodePostprocessBuild {
@@ -47,8 +48,22 @@ namespace Plugins.Editor {
             preprocessor.Replace("#define UNITY_USES_REMOTE_NOTIFICATIONS 0",
                 "#define UNITY_USES_REMOTE_NOTIFICATIONS 1");
 
+            var blackDestDict = path + "/Unity-iPhone/Images.xcassets/unityConnectBlack.imageset";
+            var blackSourceFile = "iOS/unityConnectBlack.imageset";
+            writeFile(blackSourceFile, blackDestDict);
+
+            var madeDestDict = path + "/Unity-iPhone/Images.xcassets/madeWithUnity.imageset";
+            var madeSourceFile = "iOS/madeWithUnity.imageset";
+            writeFile(madeSourceFile, madeDestDict);
+
+
             // 执行修改操作
             File.WriteAllText(path: projPath, proj.WriteToString());
+        }
+
+
+        static void writeFile(string sourceFile, string destDict) {
+            FileUtil.CopyFileOrDirectory(Application.dataPath + "/ConnectApp/Resources/image/" + sourceFile, destDict);
         }
 
         static void ModifyPlist(string path) {

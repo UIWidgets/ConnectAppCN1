@@ -16,6 +16,7 @@ using UnityEngine;
 namespace ConnectApp.Main {
     static class MainNavigatorRoutes {
         public const string Root = "/";
+        public const string Main = "/main";
         public const string Search = "/search";
         public const string ArticleDetail = "/article-detail";
         public const string Setting = "/setting";
@@ -40,7 +41,8 @@ namespace ConnectApp.Main {
         static Dictionary<string, WidgetBuilder> mainRoutes {
             get {
                 return new Dictionary<string, WidgetBuilder> {
-                    {MainNavigatorRoutes.Root, context => new MainScreen()},
+                    {MainNavigatorRoutes.Root, context => new SplashPage()},
+                    {MainNavigatorRoutes.Main, context => new MainScreen()},
                     {MainNavigatorRoutes.Search, context => new SearchScreenConnector()},
                     {MainNavigatorRoutes.ArticleDetail, context => new ArticleDetailScreenConnector("")},
                     {MainNavigatorRoutes.Setting, context => new SettingScreenConnector()},

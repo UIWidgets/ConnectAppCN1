@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using ConnectApp.Constants;
 using ConnectApp.Utils;
 using RSG;
@@ -14,8 +13,10 @@ using UnityEngine;
 using UnityEngine.Video;
 using Color = Unity.UIWidgets.ui.Color;
 using Texture = Unity.UIWidgets.widgets.Texture;
+
 #if UNITY_IOS
 using System.Runtime.InteropServices;
+
 #endif
 
 namespace ConnectApp.Components {
@@ -72,6 +73,7 @@ namespace ConnectApp.Components {
         string _pauseVideoPlayerSubId; //收到通知暂停播放
         string _fullScreenSubId;
         Timer m_Timer;
+        static int _toolBarHeight = 64;
 
         public override void initState() {
             base.initState();
@@ -164,14 +166,14 @@ namespace ConnectApp.Components {
                             right: 0,
                             child: this._isFailure
                                 ? new Container(
-                                    height: 44,
+                                    height: _toolBarHeight,
                                     padding: EdgeInsets.only(top: 0, left: 8),
                                     color: Color.fromRGBO(0, 0, 0, 0.2f),
                                     child: new Row(children: new List<Widget> {
                                         new GestureDetector(
                                             child: new Container(
-                                                height: 44,
-                                                width: 44,
+                                                height: _toolBarHeight,
+                                                width: _toolBarHeight,
                                                 color: CColors.Transparent,
                                                 child: new Icon(Icons.replay, size: 24, color: CColors.White)
                                             ),
@@ -184,7 +186,7 @@ namespace ConnectApp.Components {
                                         ))
                                     }))
                                 : new Container(
-                                    height: 44,
+                                    height: _toolBarHeight,
                                     decoration: new BoxDecoration(gradient: new LinearGradient(
                                         colors: new List<Color> {
                                             Color.fromRGBO(0, 0, 0, 0),
@@ -199,8 +201,8 @@ namespace ConnectApp.Components {
                                         children: new List<Widget> {
                                             new GestureDetector(
                                                 child: new Container(
-                                                    height: 44,
-                                                    width: 44,
+                                                    height: _toolBarHeight,
+                                                    width: _toolBarHeight,
                                                     color: CColors.Transparent,
                                                     child: new Icon(iconData, size: 24, color: CColors.White)
                                                 ),
@@ -238,8 +240,8 @@ namespace ConnectApp.Components {
                                                     style: CTextStyle.CaptionWhite)),
                                             new GestureDetector(
                                                 child: new Container(
-                                                    height: 44,
-                                                    width: 44,
+                                                    height: _toolBarHeight,
+                                                    width: _toolBarHeight,
                                                     color: CColors.Transparent,
                                                     child: new Icon(
                                                         this._isFullScreen ? Icons.fullscreen_exit : Icons.fullscreen,
@@ -281,7 +283,7 @@ namespace ConnectApp.Components {
             player.prepareCompleted += this.prepareCompleted;
             player.frameReady += (source, frameIndex) => {
                 using (WindowProvider.of(this.widget.context).getScope()) {
-                    pauseAudioSession();
+                    this._pauseAudioSession();
                     Texture.textureFrameAvailable();
                     if (this._relative * source.frameCount < frameIndex || frameIndex == 0) {
                         this._isLoaded = true;
@@ -394,6 +396,12 @@ namespace ConnectApp.Components {
                 this.widget.fullScreenCallback(this._isFullScreen);
             }
         }
+
+        void _pauseAudioSession() {
+            if (!Application.isEditor) {
+                pauseAudioSession();
+            }
+        }
 #if UNITY_IOS
         [DllImport("__Internal")]
         static extern void pauseAudioSession();
@@ -413,7 +421,8 @@ namespace ConnectApp.Components {
             Plugin().CallStatic("pauseAudioSession");
         }
 #else
-        static void pauseAudioSession() {}
+        static void pauseAudioSession() {
+        }
 #endif
     }
 }
