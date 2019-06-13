@@ -47,41 +47,40 @@ namespace ConnectApp.Components {
 
             return new Container(
                 color: CColors.White,
-                child: new SafeArea(
-                    top: false,
-                    child: new Stack(
-                        children: new List<Widget> {
-                            new Column(
-                                children: new List<Widget> {
-                                    new Container(
-                                        child: Image.memory(SplashManager.readImage(), fit: BoxFit.cover)
-                                    )
-                                }
-                            ),
-                            new Positioned(
-                                top: MediaQuery.of(context).viewInsets.top + 24,
-                                right: 16,
-                                child: new GestureDetector(
-                                    child: new Container(
-                                        decoration: new BoxDecoration(
-                                            color: Color.fromRGBO(149, 149, 149, 0.6f),
-                                            borderRadius: BorderRadius.all(19)
-                                        ),
-                                        width: 80,
-                                        height: 38,
-                                        alignment: Alignment.center,
-                                        padding: EdgeInsets.all(2),
-                                        child: new Text($"跳过 {this._lastSecond}", style: new TextStyle(
-                                            fontSize: 16,
-                                            fontFamily: "PingFangSC-Regular",
-                                            color: CColors.White
-                                        ))
-                                    ),
-                                    onTap: this.pushCallback
+                child: new Stack(
+                    children: new List<Widget> {
+                        new Column(
+                            children: new List<Widget> {
+                                new Container(
+                                    width: MediaQuery.of(context).size.width,
+                                    height: MediaQuery.of(context).size.height,
+                                    child: Image.memory(SplashManager.readImage(), fit: BoxFit.cover)
                                 )
+                            }
+                        ),
+                        new Positioned(
+                            top: MediaQuery.of(context).padding.top + 24,
+                            right: 16,
+                            child: new GestureDetector(
+                                child: new Container(
+                                    decoration: new BoxDecoration(
+                                        color: Color.fromRGBO(149, 149, 149, 0.6f),
+                                        borderRadius: BorderRadius.all(19)
+                                    ),
+                                    width: 80,
+                                    height: 38,
+                                    alignment: Alignment.center,
+                                    padding: EdgeInsets.all(2),
+                                    child: new Text($"跳过 {this._lastSecond}", style: new TextStyle(
+                                        fontSize: 16,
+                                        fontFamily: "PingFangSC-Regular",
+                                        color: CColors.White
+                                    ))
+                                ),
+                                onTap: this.pushCallback
                             )
-                        }
-                    )
+                        )
+                    }
                 )
             );
         }
