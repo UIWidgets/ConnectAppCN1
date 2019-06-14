@@ -147,6 +147,8 @@ namespace ConnectApp.screens {
         RefreshController _refreshController;
         string _loginSubId;
 
+        int _jumpToCommentState;
+
         public override void initState() {
             base.initState();
             this._refreshController = new RefreshController();
@@ -170,6 +172,7 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.startFetchArticleDetail();
                 this.widget.actionModel.fetchArticleDetail(this.widget.viewModel.articleId);
             });
+            this._jumpToCommentState = 0;
         }
 
         public override void deactivate() {
@@ -230,7 +233,16 @@ namespace ConnectApp.screens {
             this._lastCommentId = this._article.currOldestMessageId ?? "";
             this._hasMore = this._article.hasMore;
 
-            var originItems = this._article == null ? new List<Widget>() : this._buildItems(context);
+            var commentIndex = 0;
+            var originItems = this._article == null ? new List<Widget>() : this._buildItems(context, out commentIndex);
+            commentIndex = this._jumpToCommentState == 2 ? commentIndex : 1;
+            
+            if (this._jumpToCommentState == 1) {
+                return new Container(
+                );
+            }
+
+            this._jumpToCommentState = 0;
 
             var child = new Container(
                 color: CColors.Background,
@@ -239,17 +251,14 @@ namespace ConnectApp.screens {
                         this._buildNavigationBar(),
                         new Expanded(
                             child: new CustomScrollbar(
-                                new SmartRefresher(
+                                new CenteredRefresher(
                                     controller: this._refreshController,
                                     enablePullDown: false,
                                     enablePullUp: this._hasMore,
                                     onRefresh: this._onRefresh,
                                     onNotification: this._onNotification,
-                                    child: ListView.builder(
-                                        physics: new AlwaysScrollableScrollPhysics(),
-                                        itemCount: originItems.Count,
-                                        itemBuilder: (cxt, index) => originItems[index]
-                                    )
+                                    children: originItems,
+                                    centerIndex : commentIndex
                                 )
                             )
                         ),
@@ -315,7 +324,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        List<Widget> _buildItems(BuildContext context) {
+        List<Widget> _buildItems(BuildContext context, out int commentIndex) {
             var originItems = new List<Widget> {
                 this._buildContentHead()
             };
@@ -324,6 +333,9 @@ namespace ConnectApp.screens {
                     this.widget.actionModel.playVideo));
             // originItems.Add(this._buildActionCards(this._article.like));
             originItems.Add(this._buildRelatedArticles());
+
+            commentIndex = originItems.Count + 1;
+            
             originItems.AddRange(this._buildComments());
             if (!this._article.hasMore) {
                 originItems.Add(this._buildEnd());
@@ -373,28 +385,34 @@ namespace ConnectApp.screens {
                                 }
                             )
                         ),
-                        new Container(width: 48)
-//                        new CustomButton(
-//                            padding: EdgeInsets.zero,
-//                            onPressed: () => { },
-//                            child: new Container(
-//                                width: 88,
-//                                height: 28,
-//                                alignment: Alignment.center,
-//                                decoration: new BoxDecoration(
-//                                    border: Border.all(CColors.PrimaryBlue),
-//                                    borderRadius: BorderRadius.all(14)
-//                                ),
-//                                child: new Text(
-//                                    "说点想法",
-//                                    style: new TextStyle(
-//                                        fontSize: 14,
-//                                        fontFamily: "Roboto-Medium",
-//                                        color: CColors.PrimaryBlue
-//                                    )
-//                                )
-//                            )
-//                        )
+                        new Container(width: 48),
+                        new CustomButton(
+                            padding: EdgeInsets.zero,
+                            onPressed: () => {
+                                this.setState(() => { this._jumpToCommentState = 1; });
+                                SchedulerBinding.instance.addPostFrameCallback((TimeSpan value) =>
+                                {
+                                    this.setState(() => { this._jumpToCommentState = 2;});
+                                });
+                            },
+                            child: new Container(
+                                width: 88,
+                                height: 28,
+                                alignment: Alignment.center,
+                                decoration: new BoxDecoration(
+                                    border: Border.all(CColors.PrimaryBlue),
+                                    borderRadius: BorderRadius.all(14)
+                                ),
+                                child: new Text(
+                                    "说点想法",
+                                    style: new TextStyle(
+                                        fontSize: 14,
+                                        fontFamily: "Roboto-Medium",
+                                        color: CColors.PrimaryBlue
+                                    )
+                                )
+                            )
+                        )
                     }
                 )
             );
