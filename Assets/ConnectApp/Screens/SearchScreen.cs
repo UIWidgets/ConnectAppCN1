@@ -185,23 +185,22 @@ namespace ConnectApp.screens {
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
-                    child: new GestureDetector(
-                        onTap: () => this._focusNode.unfocus(),
-                        child: new Container(
-                            child: new Column(
-                                children: new List<Widget> {
-                                    this._buildSearchBar(),
-                                    new Flexible(
-                                        child: new NotificationListener<ScrollNotification>(
-                                            onNotification: notification => {
+                    child: new Container(
+                        child: new Column(
+                            children: new List<Widget> {
+                                this._buildSearchBar(),
+                                new Flexible(
+                                    child: new NotificationListener<ScrollNotification>(
+                                        onNotification: notification => {
+                                            if (this._focusNode.hasFocus) {
                                                 this._focusNode.unfocus();
-                                                return true;
-                                            },
-                                            child: child
-                                        )
+                                            }
+                                            return true;
+                                        },
+                                        child: child
                                     )
-                                }
-                            )
+                                )
+                            }
                         )
                     )
                 )
