@@ -73,7 +73,7 @@ namespace ConnectApp.Components {
         string _pauseVideoPlayerSubId; //收到通知暂停播放
         string _fullScreenSubId;
         Timer m_Timer;
-        static int _toolBarHeight = 64;
+        const int _toolBarHeight = 64;
 
         public override void initState() {
             base.initState();
@@ -99,7 +99,7 @@ namespace ConnectApp.Components {
             EventBus.unSubscribe(EventBusConstant.fullScreen, this._fullScreenSubId);
             this._player.targetTexture.Release();
             this._player.Stop();
-            VideoPlayerManager.instance.destroyPlayer();
+            VideoPlayerManager.destroyPlayer();
             this.m_Timer?.cancel();
             this.m_Timer?.Dispose();
             base.dispose();
@@ -138,7 +138,7 @@ namespace ConnectApp.Components {
                             child: new CustomActivityIndicator(loadingColor: LoadingColor.white)
                         ),
                     this._isHiddenBar
-                        ? new Positioned(child: new Container())
+                        ? new Positioned(new Container())
                         : new Positioned(top: 0, left: 0, right: 0, child: this._isFullScreen
                             ? new Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -159,7 +159,7 @@ namespace ConnectApp.Components {
                             )
                             : this.widget.topWidget),
                     this._isHiddenBar
-                        ? new Positioned(child: new Container())
+                        ? new Positioned(new Container())
                         : new Positioned(
                             bottom: 0,
                             left: 0,
@@ -283,7 +283,7 @@ namespace ConnectApp.Components {
             player.prepareCompleted += this.prepareCompleted;
             player.frameReady += (source, frameIndex) => {
                 using (WindowProvider.of(this.widget.context).getScope()) {
-                    this._pauseAudioSession();
+                    _pauseAudioSession();
                     Texture.textureFrameAvailable();
                     if (this._relative * source.frameCount < frameIndex || frameIndex == 0) {
                         this._isLoaded = true;
@@ -385,19 +385,14 @@ namespace ConnectApp.Components {
             this.cancelTimer();
             this._isFullScreen = !this._isFullScreen;
 
-            if (this._isFullScreen) {
-                Screen.orientation = ScreenOrientation.LandscapeLeft;
-            }
-            else {
-                Screen.orientation = ScreenOrientation.Portrait;
-            }
+            Screen.orientation = this._isFullScreen ?  ScreenOrientation.LandscapeLeft : ScreenOrientation.Portrait;
 
             if (this.widget.fullScreenCallback != null) {
                 this.widget.fullScreenCallback(this._isFullScreen);
             }
         }
 
-        void _pauseAudioSession() {
+        static void _pauseAudioSession() {
             if (!Application.isEditor) {
                 pauseAudioSession();
             }

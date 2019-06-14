@@ -76,7 +76,7 @@ namespace ConnectApp.screens {
 
             if (!Application.isEditor) {
                 this._webViewObject.SetVisibility(false);
-                WebViewManager.instance.destroyWebView();
+                WebViewManager.destroyWebView();
             }
 
             base.dispose();
@@ -88,7 +88,7 @@ namespace ConnectApp.screens {
                 this._timer = null;
             }
 
-            this._timer = Window.instance.run(new TimeSpan(0, 0, 0, 0, 60), () => {
+            this._timer = Window.instance.run(TimeSpan.FromMilliseconds(60), () => {
                 if (this._progress < 0.9f) {
                     this._progress += 0.03f;
                     this.setState(() => { });
@@ -190,7 +190,7 @@ namespace ConnectApp.screens {
 
                                 if (!Application.isEditor) {
                                     this._webViewObject.SetVisibility(false);
-                                    WebViewManager.instance.destroyWebView();
+                                    WebViewManager.destroyWebView();
                                 }
                             },
                             child: new Container(

@@ -178,7 +178,7 @@ namespace ConnectApp.screens {
                     controller: this._refreshController,
                     enablePullDown: true,
                     enablePullUp: this.widget.viewModel.hottestHasMore,
-                    onRefresh: this.onRefresh,
+                    onRefresh: this._onRefresh,
                     child: ListView.builder(
                         physics: new AlwaysScrollableScrollPhysics(),
                         itemCount: this.widget.viewModel.articleList.Count,
@@ -230,7 +230,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        void onRefresh(bool up) {
+        void _onRefresh(bool up) {
             this.offset = up ? initOffset : this.widget.viewModel.hosttestOffset;
             this.widget.actionModel.fetchArticles(this.offset)
                 .Then(() => this._refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))

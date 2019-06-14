@@ -11,14 +11,11 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 namespace ConnectApp.Api {
-    public class SplashApi {
+    public static class SplashApi {
         public static Promise<Splash> FetchSplash() {
             var promise = new Promise<Splash>();
             var request = HttpManager.GET(Config.apiAddress + "/api/live/ads");
             HttpManager.resume(request).Then(responseText => {
-                if (responseText == null) {
-                }
-
                 var splashResponse = JsonConvert.DeserializeObject<Splash>(responseText);
                 promise.Resolve(splashResponse);
             }).Catch(exception => { promise.Reject(exception); });

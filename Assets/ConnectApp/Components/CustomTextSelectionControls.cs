@@ -41,6 +41,7 @@ namespace ConnectApp.Components {
             fontSize: 14.0f,
             letterSpacing: -0.11f,
             fontWeight: FontWeight.w300,
+            fontFamily: "Roboto-Regular",
             color: CColors.White
         );
     }
