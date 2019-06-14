@@ -301,8 +301,7 @@ namespace ConnectApp.screens {
                 return new Container();
             }
 
-            var widgets = new List<Widget>();
-            widgets.Add(
+            var widgets = new List<Widget> {
                 new Container(
                     margin: EdgeInsets.only(top: 24, bottom: 10),
                     child: new Row(
@@ -334,7 +333,7 @@ namespace ConnectApp.screens {
                         }
                     )
                 )
-            );
+            };
             searchHistoryList.ForEach(item => {
                 var child = new GestureDetector(
                     onTap: () => { this._searchArticle(item); },

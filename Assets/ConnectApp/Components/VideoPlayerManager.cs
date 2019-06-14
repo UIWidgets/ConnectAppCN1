@@ -37,7 +37,7 @@ namespace ConnectApp.Components {
             return instance.audioSource;
         }
 
-        public void destroyPlayer() {
+        public static void destroyPlayer() {
             Object.Destroy(instance.player);
             Object.Destroy(instance.audioSource);
         }
