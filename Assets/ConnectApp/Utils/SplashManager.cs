@@ -10,7 +10,7 @@ namespace ConnectApp.Utils {
     public static class SplashManager {
         const string SPLASHINFOKEY = "SPlashInfo";
 
-        static string PATH = Application.persistentDataPath + "/";
+        static readonly string PATH = Application.persistentDataPath + "/";
 
         static byte[] image_bytes;
 

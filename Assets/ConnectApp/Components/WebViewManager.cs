@@ -22,7 +22,7 @@ namespace ConnectApp.Components {
             return instance.webView;
         }
 
-        public void destroyWebView() {
+        public static void destroyWebView() {
             Object.Destroy(instance.webView);
         }
 

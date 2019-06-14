@@ -77,7 +77,7 @@ namespace ConnectApp.Components {
                                         color: CColors.White
                                     ))
                                 ),
-                                onTap: this.pushCallback
+                                onTap: pushCallback
                             )
                         )
                     }
@@ -85,7 +85,7 @@ namespace ConnectApp.Components {
             );
         }
 
-        void pushCallback() {
+        static void pushCallback() {
             Router.navigator.pushReplacementNamed(MainNavigatorRoutes.Main);
         }
 
@@ -93,7 +93,7 @@ namespace ConnectApp.Components {
             using (WindowProvider.of(this._context).getScope()) {
                 this.setState(() => { this._lastSecond -= 1; });
                 if (this._lastSecond < 1) {
-                    this.pushCallback();
+                    pushCallback();
                 }
             }
         }

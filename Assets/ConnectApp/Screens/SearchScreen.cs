@@ -185,21 +185,30 @@ namespace ConnectApp.screens {
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
-                    child: new Container(
-                        child: new Column(
-                            children: new List<Widget> {
-                                this._buildSearchBar(context),
-                                new Flexible(
-                                    child: child
-                                )
-                            }
+                    child: new GestureDetector(
+                        onTap: () => this._focusNode.unfocus(),
+                        child: new Container(
+                            child: new Column(
+                                children: new List<Widget> {
+                                    this._buildSearchBar(),
+                                    new Flexible(
+                                        child: new NotificationListener<ScrollNotification>(
+                                            onNotification: notification => {
+                                                this._focusNode.unfocus();
+                                                return true;
+                                            },
+                                            child: child
+                                        )
+                                    )
+                                }
+                            )
                         )
                     )
                 )
             );
         }
 
-        Widget _buildSearchBar(BuildContext context) {
+        Widget _buildSearchBar() {
             return new Container(
                 height: 94,
                 padding: EdgeInsets.only(16, 0, 16, 12),
@@ -301,8 +310,7 @@ namespace ConnectApp.screens {
                 return new Container();
             }
 
-            var widgets = new List<Widget>();
-            widgets.Add(
+            var widgets = new List<Widget> {
                 new Container(
                     margin: EdgeInsets.only(top: 24, bottom: 10),
                     child: new Row(
@@ -334,7 +342,7 @@ namespace ConnectApp.screens {
                         }
                     )
                 )
-            );
+            };
             searchHistoryList.ForEach(item => {
                 var child = new GestureDetector(
                     onTap: () => { this._searchArticle(item); },
