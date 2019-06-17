@@ -242,7 +242,7 @@ namespace ConnectApp.screens {
             
             var commentIndex = 0;
             var originItems = this._article == null ? new List<Widget>() : this._buildItems(context, out commentIndex);
-            commentIndex = this._jumpState == _ArticleJumpToCommentState.active ? commentIndex : 1;
+            commentIndex = this._jumpState == _ArticleJumpToCommentState.active ? commentIndex : 0;
             if (this._jumpState == _ArticleJumpToCommentState.ShowEmpty) {
                 return new Container(
                 );
@@ -339,7 +339,7 @@ namespace ConnectApp.screens {
             // originItems.Add(this._buildActionCards(this._article.like));
             originItems.Add(this._buildRelatedArticles());
 
-            commentIndex = originItems.Count + 1;
+            commentIndex = originItems.Count;
             
             originItems.AddRange(this._buildComments());
             if (!this._article.hasMore) {
@@ -407,7 +407,7 @@ namespace ConnectApp.screens {
                                         () => {
                                             this._jumpState = _ArticleJumpToCommentState.active;
                                             //assume that when we jump to the comment, the title should always be shown as the header
-                                            //this assumption will fail when an article is short than 16 pixels in height (as referred to in _onNotification
+                                            //this assumption will fail when an article is shorter than 16 pixels in height (as referred to in _onNotification
                                             this._controller.forward();
                                             this._isHaveTitle = true;
                                         });

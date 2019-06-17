@@ -349,7 +349,6 @@ namespace ConnectApp.Components.pull_to_refresh {
 
             int id = 0;
             foreach (var child in children) {
-                id++;
                 Widget sliver = new SliverList(
                     del: new SliverChildBuilderDelegate((BuildContext Subcontext, int index1) => {
                             return child;
@@ -358,6 +357,7 @@ namespace ConnectApp.Components.pull_to_refresh {
                     key: id == this.widget.centerIndex ? this._selectedKey : null);
                 
                 slivers.Add(sliver);
+                id++;
             }
 
             slivers.Add(new SliverToBoxAdapter(
