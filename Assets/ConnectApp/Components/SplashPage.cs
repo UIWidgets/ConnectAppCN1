@@ -25,6 +25,7 @@ namespace ConnectApp.Components {
 
         public override void initState() {
             base.initState();
+            StatusBarManager.hideStatusBar(true);
             this._isShow = SplashManager.isExistSplash();
             if (this._isShow) {
                 this._lastSecond = SplashManager.getSplash().duration;
@@ -35,6 +36,7 @@ namespace ConnectApp.Components {
         }
 
         public override void dispose() {
+            StatusBarManager.hideStatusBar(false);
             this._timer?.Dispose();
             base.dispose();
         }
