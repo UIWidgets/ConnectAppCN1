@@ -128,6 +128,12 @@ namespace ConnectApp.screens {
         }
     }
 
+    enum _ArticleJumpToCommentState {
+        Inactive,
+        ShowEmpty,
+        active
+    }
+
     class _ArticleDetailScreenState : State<ArticleDetailScreen>, TickerProvider {
         const float navBarHeight = 44;
         static readonly GlobalKey headTitleKey = GlobalKey.key("head-title");
@@ -147,7 +153,7 @@ namespace ConnectApp.screens {
         RefreshController _refreshController;
         string _loginSubId;
 
-        int _jumpToCommentState;
+        _ArticleJumpToCommentState _jumpState;
 
         public override void initState() {
             base.initState();
@@ -172,7 +178,8 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.startFetchArticleDetail();
                 this.widget.actionModel.fetchArticleDetail(this.widget.viewModel.articleId);
             });
-            this._jumpToCommentState = 0;
+            
+            this._jumpState = _ArticleJumpToCommentState.Inactive;
         }
 
         public override void deactivate() {
@@ -232,17 +239,15 @@ namespace ConnectApp.screens {
             this._contentMap = this._article.contentMap;
             this._lastCommentId = this._article.currOldestMessageId ?? "";
             this._hasMore = this._article.hasMore;
-
+            
             var commentIndex = 0;
             var originItems = this._article == null ? new List<Widget>() : this._buildItems(context, out commentIndex);
-            commentIndex = this._jumpToCommentState == 2 ? commentIndex : 1;
-            
-            if (this._jumpToCommentState == 1) {
+            commentIndex = this._jumpState == _ArticleJumpToCommentState.active ? commentIndex : 1;
+            if (this._jumpState == _ArticleJumpToCommentState.ShowEmpty) {
                 return new Container(
                 );
             }
-
-            this._jumpToCommentState = 0;
+            this._jumpState = _ArticleJumpToCommentState.Inactive;
 
             var child = new Container(
                 color: CColors.Background,
@@ -389,10 +394,23 @@ namespace ConnectApp.screens {
                         new CustomButton(
                             padding: EdgeInsets.zero,
                             onPressed: () => {
-                                this.setState(() => { this._jumpToCommentState = 1; });
+                                //first step: show an empty container to prepare for the jump action
+                                this.setState(() => {
+                                    this._jumpState = _ArticleJumpToCommentState.ShowEmpty;
+                                });
+                                
+                                //second step: in the next frame,
+                                //create a new scroll view in which the center of the viewport is the comment widget
                                 SchedulerBinding.instance.addPostFrameCallback((TimeSpan value) =>
                                 {
-                                    this.setState(() => { this._jumpToCommentState = 2;});
+                                    this.setState(
+                                        () => {
+                                            this._jumpState = _ArticleJumpToCommentState.active;
+                                            //assume that when we jump to the comment, the title should always be shown as the header
+                                            //this assumption will fail when an article is short than 16 pixels in height (as referred to in _onNotification
+                                            this._controller.forward();
+                                            this._isHaveTitle = true;
+                                        });
                                 });
                             },
                             child: new Container(
@@ -427,7 +445,9 @@ namespace ConnectApp.screens {
         }
 
         bool _onNotification(ScrollNotification notification) {
-            var pixels = notification.metrics.pixels;
+            //the offset between the current pixel and the minScrollExtent, indicating the 
+            //distance to the very top of the scroll view
+            var pixels = notification.metrics.pixels - notification.metrics.minScrollExtent;
             if (this._titleHeight == 0.0f) {
                 this._titleHeight = headTitleKey.currentContext.size.height + 16;
             }
