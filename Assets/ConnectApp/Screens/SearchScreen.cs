@@ -218,7 +218,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new CustomButton(
                             padding: EdgeInsets.only(8, 8, 0, 8),
-                            onPressed: () => { this.widget.actionModel.mainRouterPop(); },
+                            onPressed: () => this.widget.actionModel.mainRouterPop(),
                             child: new Text(
                                 "取消",
                                 style: CTextStyle.PLargeBlue
@@ -344,16 +344,20 @@ namespace ConnectApp.screens {
             };
             searchHistoryList.ForEach(item => {
                 var child = new GestureDetector(
-                    onTap: () => { this._searchArticle(item); },
+                    onTap: () => this._searchArticle(item),
                     child: new Container(
                         height: 44,
                         color: CColors.White,
                         child: new Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: new List<Widget> {
-                                new Text(
-                                    item,
-                                    style: CTextStyle.PLargeBody
+                                new Expanded(
+                                    child: new Text(
+                                        data: item,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: CTextStyle.PLargeBody
+                                    )
                                 ),
                                 new CustomButton(
                                     padding: EdgeInsets.only(8, 8, 0, 8),
