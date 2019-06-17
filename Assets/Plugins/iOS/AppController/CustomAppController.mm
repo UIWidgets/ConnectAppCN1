@@ -137,6 +137,14 @@ extern "C" {
         [session setCategory:AVAudioSessionCategoryPlayback error:nil];
         [session setActive:YES error:nil];
     }
+    void setStatusBarStyle(bool isLight){
+        AppController_SendNotificationWithArg(@"UpdateStatusBarStyle",
+                                              @{@"key":@"style",@"value":@(isLight)});
+    }
+    void hiddenStatusBar(bool hidden){
+        AppController_SendNotificationWithArg(@"UpdateStatusBarStyle",
+                                              @{@"key":@"hidden",@"value":@(hidden)});
+    }
     
 }
 
