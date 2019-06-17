@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using ConnectApp.Api;
 using ConnectApp.Models.Model;
@@ -61,8 +62,8 @@ namespace ConnectApp.Utils {
         }
 
         static void fetchImage(Splash splash) {
-            var imageUrl = $"{splash.image}.{Window.instance.physicalSize.width}x0x1.jpg";
-            SplashApi.FetchSplashImage(imageUrl).Then(imageBytes => {
+            var imageWidth = Math.Ceiling(Window.instance.physicalSize.width / 100) * 100;
+            SplashApi.FetchSplashImage($"{splash.image}.{imageWidth}x0x1.jpg").Then(imageBytes => {
                 File.WriteAllBytes(PATH + splash.image.GetHashCode(), imageBytes);
                 var splashInfo = JsonConvert.SerializeObject(splash);
                 PlayerPrefs.SetString(SPLASHINFOKEY, splashInfo);

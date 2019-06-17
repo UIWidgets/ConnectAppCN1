@@ -64,15 +64,14 @@ namespace ConnectApp.Components {
                             child: new GestureDetector(
                                 child: new Container(
                                     decoration: new BoxDecoration(
-                                        color: Color.fromRGBO(149, 149, 149, 0.6f),
-                                        borderRadius: BorderRadius.all(19)
+                                        Color.fromRGBO(0, 0, 0, 0.5f),
+                                        borderRadius: BorderRadius.all(16)
                                     ),
-                                    width: 80,
-                                    height: 38,
+                                    width: 65,
+                                    height: 32,
                                     alignment: Alignment.center,
-                                    padding: EdgeInsets.all(2),
                                     child: new Text($"跳过 {this._lastSecond}", style: new TextStyle(
-                                        fontSize: 16,
+                                        fontSize: 14,
                                         fontFamily: "PingFangSC-Regular",
                                         color: CColors.White
                                     ))
