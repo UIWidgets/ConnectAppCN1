@@ -114,10 +114,6 @@ namespace Plugins.Editor {
 
             // 出口合规信息
             rootDict.SetBoolean("ITSAppUsesNonExemptEncryption", false);
-
-//            rootDict.SetBoolean("Status bar is initially hidden",true);
-//            
-//            rootDict.SetString("Status bar style",null);
             // 写入
             File.WriteAllText(path: plistPath, plist.WriteToString());
         }
