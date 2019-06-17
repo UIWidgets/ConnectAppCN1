@@ -5,7 +5,15 @@ using ConnectApp.Plugins;
 using UnityEngine;
 
 namespace ConnectApp.Utils {
-    public class AnalyticsManager {
+    public static class AnalyticsManager {
+        public static void LoginEvent(string loginType) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            JAnalyticsPlugin.Login(loginType);
+        }
+
         // tab点击统计
         public static void ClickHomeTab(int fromIndex, int toIndex) {
             if (Application.isEditor) {

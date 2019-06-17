@@ -56,6 +56,11 @@ namespace Plugins.Editor {
             var madeSourceFile = "iOS/madeWithUnity.imageset";
             writeFile(madeSourceFile, madeDestDict);
 
+            var destFile = path + "/Classes/UI/UnityVIewControllerBase+iOS.mm";
+            FileUtil.DeleteFileOrDirectory(destFile);
+            // 自定义覆盖controller文件，动态修改状态栏
+            FileUtil.CopyFileOrDirectory(Application.dataPath + "/Plugins/Editor/UnityVIewControllerBase+iOS.mm",
+                destFile);
 
             // 执行修改操作
             File.WriteAllText(path: projPath, proj.WriteToString());
@@ -63,6 +68,7 @@ namespace Plugins.Editor {
 
 
         static void writeFile(string sourceFile, string destDict) {
+            FileUtil.DeleteFileOrDirectory(destDict);
             FileUtil.CopyFileOrDirectory(Application.dataPath + "/ConnectApp/Resources/image/" + sourceFile, destDict);
         }
 
@@ -108,7 +114,6 @@ namespace Plugins.Editor {
 
             // 出口合规信息
             rootDict.SetBoolean("ITSAppUsesNonExemptEncryption", false);
-
             // 写入
             File.WriteAllText(path: plistPath, plist.WriteToString());
         }
