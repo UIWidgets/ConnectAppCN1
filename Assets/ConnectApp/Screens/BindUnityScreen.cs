@@ -146,8 +146,12 @@ namespace ConnectApp.screens {
         Widget _buildContent(BuildContext context) {
             return new GestureDetector(
                 onTap: () => {
-                    this._emailFocusNode.unfocus();
-                    this._passwordFocusNode.unfocus();
+                    if (this._emailFocusNode.hasFocus) {
+                        this._emailFocusNode.unfocus();
+                    }
+                    if (this._passwordFocusNode.hasFocus) {
+                        this._passwordFocusNode.unfocus();
+                    }
                 },
                 child: new Container(
                     color: CColors.White,
