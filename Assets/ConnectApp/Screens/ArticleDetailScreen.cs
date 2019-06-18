@@ -390,7 +390,7 @@ namespace ConnectApp.screens {
                                 }
                             )
                         ),
-                        new Container(width: 48),
+                        new Container(width: 8),
                         new CustomButton(
                             padding: EdgeInsets.zero,
                             onPressed: () => {
@@ -430,7 +430,8 @@ namespace ConnectApp.screens {
                                     )
                                 )
                             )
-                        )
+                        ),
+                        new Container(width: 16)
                     }
                 )
             );
@@ -571,20 +572,7 @@ namespace ConnectApp.screens {
                 return new Container();
             }
 
-            var widgets = new List<Widget> {
-                new Container(
-                    height: 1,
-                    color: CColors.Separator2,
-                    margin: EdgeInsets.only(16, 16, 16, 40)
-                ),
-                new Container(
-                    margin: EdgeInsets.only(16, bottom: 16),
-                    child: new Text(
-                        "推荐阅读",
-                        style: CTextStyle.PLargeMedium
-                    )
-                )
-            };
+            var widgets = new List<Widget> ();
             this._relArticles.ForEach(article => {
                 //对文章进行过滤
                 if (article.id != this._article.id) {
@@ -611,6 +599,22 @@ namespace ConnectApp.screens {
                     widgets.Add(card);
                 }
             });
+            if (widgets.isNotEmpty()) {
+                widgets.InsertRange(0, new List<Widget> {
+                    new Container(
+                        height: 1,
+                        color: CColors.Separator2,
+                        margin: EdgeInsets.only(16, 16, 16, 40)
+                    ),
+                    new Container(
+                        margin: EdgeInsets.only(16, bottom: 16),
+                        child: new Text(
+                            "推荐阅读",
+                            style: CTextStyle.PLargeMedium
+                        )
+                    )
+                });
+            }
             return new Container(
                 color: CColors.White,
                 margin: EdgeInsets.only(bottom: 16),

@@ -45,7 +45,6 @@ namespace ConnectApp.screens {
                         (fromIndex, toIndex) => {
                             AnalyticsManager.ClickHomeTab(fromIndex, toIndex);
 
-
                             if (toIndex != 2 || StoreProvider.store.getState().loginState.isLoggedIn) {
                                 return true;
                             }
