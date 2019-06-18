@@ -19,7 +19,7 @@ namespace ConnectApp.screens {
     static class LoginNavigatorRoutes {
         public const string Root = "/";
         public const string BindUnity = "/bind-unity";
-        public const string WechatBindUnity = "/wachat-bind-unity";
+        public const string WechatBindUnity = "/wechat-bind-unity";
     }
 
     public class LoginScreen : StatelessWidget {

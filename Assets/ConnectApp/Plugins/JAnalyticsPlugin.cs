@@ -89,15 +89,15 @@ namespace ConnectApp.Plugins {
         }
 
         static void countEvent(string eventId, string extra) {
-            Plugin().Call(methodName: "countEvent", eventId, extra);
+            Plugin().Call("countEvent", eventId, extra);
         }
 
         static void calculateEvent(string eventId, string value, string extra) {
-            Plugin().Call(methodName: "calculateEvent", eventId, value, extra);
+            Plugin().Call("calculateEvent", eventId, value, extra);
         }
 
         static void browseEvent(string eventId, string name, string type, string duration, string extra) {
-            Plugin().Call(methodName: "browseEvent", eventId, name, type, duration, extra);
+            Plugin().Call("browseEvent", eventId, name, type, duration, extra);
         }
 
 #else
