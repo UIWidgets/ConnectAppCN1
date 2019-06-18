@@ -154,6 +154,7 @@ namespace ConnectApp.screens {
         string _loginSubId;
 
         _ArticleJumpToCommentState _jumpState;
+        bool _haveEnoughComment;
 
         public override void initState() {
             base.initState();
@@ -180,6 +181,7 @@ namespace ConnectApp.screens {
             });
             
             this._jumpState = _ArticleJumpToCommentState.Inactive;
+            this._haveEnoughComment = false;
         }
 
         public override void deactivate() {
@@ -394,24 +396,34 @@ namespace ConnectApp.screens {
                         new CustomButton(
                             padding: EdgeInsets.zero,
                             onPressed: () => {
-                                //first step: show an empty container to prepare for the jump action
-                                this.setState(() => {
-                                    this._jumpState = _ArticleJumpToCommentState.ShowEmpty;
-                                });
+                                //if there are not enough comments ( < 3)
+                                //just scroll to the end of the page
+                                if (!this._haveEnoughComment) {
+                                    this.setState(() => {
+                                        this._refreshController.scrollController.jumpTo(
+                                            this._refreshController.scrollController.position.maxScrollExtent);
+                                    });
+                                }
+                                else {
+                                    //first step: show an empty container to prepare for the jump action
+                                    this.setState(() => {
+                                        this._jumpState = _ArticleJumpToCommentState.ShowEmpty;
+                                    });
                                 
-                                //second step: in the next frame,
-                                //create a new scroll view in which the center of the viewport is the comment widget
-                                SchedulerBinding.instance.addPostFrameCallback((TimeSpan value) =>
-                                {
-                                    this.setState(
-                                        () => {
-                                            this._jumpState = _ArticleJumpToCommentState.active;
-                                            //assume that when we jump to the comment, the title should always be shown as the header
-                                            //this assumption will fail when an article is shorter than 16 pixels in height (as referred to in _onNotification
-                                            this._controller.forward();
-                                            this._isHaveTitle = true;
-                                        });
-                                });
+                                    //second step: in the next frame,
+                                    //create a new scroll view in which the center of the viewport is the comment widget
+                                    SchedulerBinding.instance.addPostFrameCallback((TimeSpan value) =>
+                                    {
+                                        this.setState(
+                                            () => {
+                                                this._jumpState = _ArticleJumpToCommentState.active;
+                                                //assume that when we jump to the comment, the title should always be shown as the header
+                                                //this assumption will fail when an article is shorter than 16 pixels in height (as referred to in _onNotification
+                                                this._controller.forward();
+                                                this._isHaveTitle = true;
+                                            });
+                                    });
+                                }
                             },
                             child: new Container(
                                 width: 88,
@@ -698,6 +710,12 @@ namespace ConnectApp.screens {
                 comments.Add(card);
             }
 
+            if (comments.Count >= 4) {
+                this._haveEnoughComment = true;
+            }
+            else {
+                this._haveEnoughComment = false;
+            }
             return comments;
         }
 
