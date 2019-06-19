@@ -40,9 +40,7 @@ namespace ConnectApp.Main {
 
         static Dictionary<string, WidgetBuilder> mainRoutes {
             get {
-                return new Dictionary<string, WidgetBuilder> {
-                    {MainNavigatorRoutes.Root, context => new SplashPage()},
-                    {MainNavigatorRoutes.Main, context => new MainScreen()},
+                var routes = new Dictionary<string, WidgetBuilder> {
                     {MainNavigatorRoutes.Search, context => new SearchScreenConnector()},
                     {MainNavigatorRoutes.ArticleDetail, context => new ArticleDetailScreenConnector("")},
                     {MainNavigatorRoutes.Setting, context => new SettingScreenConnector()},
@@ -54,6 +52,15 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.AboutUs, context => new AboutUsScreenConnector()},
                     {MainNavigatorRoutes.WebView, context => new WebViewScreen()}
                 };
+                var isExistSplash = SplashManager.isExistSplash();
+                if (isExistSplash) {
+                    routes.Add(MainNavigatorRoutes.Root, context => new SplashPage());
+                    routes.Add(MainNavigatorRoutes.Main, context => new MainScreen());
+                }
+                else {
+                    routes.Add(MainNavigatorRoutes.Root, context => new MainScreen());
+                }
+                return routes;
             }
         }
 
