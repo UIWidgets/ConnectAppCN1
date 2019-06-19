@@ -98,6 +98,14 @@ namespace Plugins.Editor {
             PlistElementArray jgUrlScheme = jgUrl.CreateArray("CFBundleURLSchemes");
             jgUrlScheme.AddString(val: "jiguang-" + Config.jgAppKey);
 
+            // Add URLScheme For unityconnect
+            PlistElementDict appUrl = urlTypes.AddDict();
+            appUrl.SetString("CFBundleTypeRole", "Editor");
+            appUrl.SetString("CFBundleURLName", "");
+            appUrl.SetString("CFBundleURLSchemes", val: "unityconnect");
+            PlistElementArray appUrlScheme = appUrl.CreateArray("CFBundleURLSchemes");
+            appUrlScheme.AddString(val: "unityconnect");
+
             // 白名单 for wechat
             PlistElementArray queriesSchemes = rootDict.CreateArray("LSApplicationQueriesSchemes");
             queriesSchemes.AddString("wechat");

@@ -36,7 +36,6 @@ namespace ConnectApp.Components {
         }
 
         public override void dispose() {
-            StatusBarManager.hideStatusBar(false);
             this._timer?.Dispose();
             base.dispose();
         }

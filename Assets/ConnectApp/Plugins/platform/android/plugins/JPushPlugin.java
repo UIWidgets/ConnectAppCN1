@@ -33,9 +33,14 @@ public class JPushPlugin {
 
     public String pushJson;
 
+    public String schemeUrl;
+
     public void listenCompleted(){
-        if (pushJson!=null){
+        if (pushJson != null){
             UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenNotification", Arrays.asList(pushJson));
+        }
+        if (schemeUrl != null){
+            UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenUrl", Arrays.asList(schemeUrl));
         }
     }
 

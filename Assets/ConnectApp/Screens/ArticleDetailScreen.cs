@@ -172,11 +172,6 @@ namespace ConnectApp.screens {
             });
         }
 
-        public override void deactivate() {
-            base.deactivate();
-        }
-
-
         public override void dispose() {
             EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
             base.dispose();
@@ -322,7 +317,6 @@ namespace ConnectApp.screens {
             originItems.AddRange(
                 ContentDescription.map(context, this._article.body, this._contentMap, this.widget.actionModel.openUrl,
                     this.widget.actionModel.playVideo));
-            // originItems.Add(this._buildActionCards(this._article.like));
             originItems.Add(this._buildRelatedArticles());
             originItems.AddRange(this._buildComments());
             if (!this._article.hasMore) {
@@ -374,27 +368,6 @@ namespace ConnectApp.screens {
                             )
                         ),
                         new Container(width: 48)
-//                        new CustomButton(
-//                            padding: EdgeInsets.zero,
-//                            onPressed: () => { },
-//                            child: new Container(
-//                                width: 88,
-//                                height: 28,
-//                                alignment: Alignment.center,
-//                                decoration: new BoxDecoration(
-//                                    border: Border.all(CColors.PrimaryBlue),
-//                                    borderRadius: BorderRadius.all(14)
-//                                ),
-//                                child: new Text(
-//                                    "说点想法",
-//                                    style: new TextStyle(
-//                                        fontSize: 14,
-//                                        fontFamily: "Roboto-Medium",
-//                                        color: CColors.PrimaryBlue
-//                                    )
-//                                )
-//                            )
-//                        )
                     }
                 )
             );
@@ -547,6 +520,7 @@ namespace ConnectApp.screens {
                     )
                 )
             };
+            bool _isAdd = false;
             this._relArticles.ForEach(article => {
                 //对文章进行过滤
                 if (article.id != this._article.id) {
@@ -570,9 +544,14 @@ namespace ConnectApp.screens {
                             new ObjectKey(article.id));
                     }
 
+                    _isAdd = true;
                     widgets.Add(card);
                 }
             });
+            if (!_isAdd) {
+                return new Container();
+            }
+
             return new Container(
                 color: CColors.White,
                 margin: EdgeInsets.only(bottom: 16),

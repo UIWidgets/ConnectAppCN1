@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Web;
 using ConnectApp.Constants;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
@@ -11,6 +13,7 @@ using UnityEngine;
 using EventType = ConnectApp.Models.State.EventType;
 #if UNITY_IOS
 using System.Runtime.InteropServices;
+
 #endif
 
 namespace ConnectApp.Plugins {
@@ -40,25 +43,7 @@ namespace ConnectApp.Plugins {
                             var type = dict["type"];
                             var subType = dict["subtype"];
                             var id = dict["id"];
-                            if (type == "project") {
-                                if (subType == "article") {
-                                    AnalyticsManager.ClickEnterArticleDetail("Push_Article", id, $"PushArticle_{id}");
-
-                                    StoreProvider.store.dispatcher.dispatch(
-                                        new MainNavigatorPushToArticleDetailAction {articleId = id});
-                                }
-                            }
-                            else if (type == "event") {
-                                var eventType = EventType.offline;
-                                if (subType == "online") {
-                                    eventType = EventType.online;
-                                }
-
-                                AnalyticsManager.ClickEnterEventDetail("Push_Event", id, $"PushEvent_{id}", type);
-
-                                StoreProvider.store.dispatcher.dispatch(
-                                    new MainNavigatorPushToEventDetailAction {eventId = id, eventType = eventType});
-                            }
+                            pushPage(type, subType, subType);
                         }
                             break;
                         case "OnReceiveNotification": {
@@ -70,8 +55,51 @@ namespace ConnectApp.Plugins {
                             //接收到应用内消息
                         }
                             break;
+                        case "OnOpenUrl": {
+                            if (args.isEmpty()) {
+                                return;
+                            }
+                            var uri = new Uri(args.first());
+                            var type = "";
+                            if (uri.Host.Equals("project_detail")) {
+                                type = "project";
+                            }
+                            else if (uri.Host.Equals("event_detail")) {
+                                type = "event";
+                            }
+                            else {
+                                return;
+                            }
+                            var subType = HttpUtility.ParseQueryString(uri.Query).Get("type");
+                            var id = HttpUtility.ParseQueryString(uri.Query).Get("id");
+                            pushPage(type, subType, id);
+                        }
+                            break;
                     }
                 }
+            }
+        }
+
+
+        public static void pushPage(string type, string subType, string id) {
+            if (type == "project") {
+                if (subType == "article") {
+                    AnalyticsManager.ClickEnterArticleDetail("Push_Article", id, $"PushArticle_{id}");
+
+                    StoreProvider.store.dispatcher.dispatch(
+                        new MainNavigatorPushToArticleDetailAction {articleId = id});
+                }
+            }
+            else if (type == "event") {
+                var eventType = EventType.offline;
+                if (subType == "online") {
+                    eventType = EventType.online;
+                }
+
+                AnalyticsManager.ClickEnterEventDetail("Push_Event", id, $"PushEvent_{id}", type);
+
+                StoreProvider.store.dispatcher.dispatch(
+                    new MainNavigatorPushToEventDetailAction {eventId = id, eventType = eventType});
             }
         }
 
