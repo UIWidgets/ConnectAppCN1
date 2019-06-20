@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
-using ConnectApp.Models.State;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
+using EventType = ConnectApp.Models.State.EventType;
 
 namespace ConnectApp.Components {
     public class EventDetailLoading : StatelessWidget {
@@ -22,9 +23,19 @@ namespace ConnectApp.Components {
         readonly Action mainRouterPop;
 
         public override Widget build(BuildContext context) {
+            var paddingTop = 0f;
+            var aspectRatio = 16.0f / 9;
+            var safeTop = true;
+            if (this.eventType == EventType.offline && Application.platform != RuntimePlatform.Android) {
+                paddingTop = MediaQuery.of(context).padding.top;
+                aspectRatio = 3f / 2;
+                safeTop = false;
+            }
+
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
+                    top: safeTop,
                     child: new Container(
                         color: CColors.White,
                         child: new Column(
@@ -32,7 +43,7 @@ namespace ConnectApp.Components {
                                 new Stack(
                                     children: new List<Widget> {
                                         new AspectRatio(
-                                            aspectRatio: 16.0f / 9.0f,
+                                            aspectRatio: aspectRatio,
                                             child: new Container(
                                                 color: new Color(0xFFD8D8D8)
                                             )
@@ -42,8 +53,8 @@ namespace ConnectApp.Components {
                                             top: 0,
                                             right: 0,
                                             child: new Container(
-                                                height: 44,
-                                                padding: EdgeInsets.symmetric(horizontal: 8),
+                                                height: 44 + paddingTop,
+                                                padding: EdgeInsets.only(left: 8, top: paddingTop, right: 8),
                                                 decoration: new BoxDecoration(
                                                     gradient: new LinearGradient(
                                                         colors: new List<Color> {

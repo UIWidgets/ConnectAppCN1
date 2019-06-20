@@ -12,8 +12,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
@@ -102,6 +102,7 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
+            StatusBarManager.hideStatusBar(false);
             this._refreshController = new RefreshController();
             this.navBarHeight = maxNavBarHeight;
             this.titleStyle = CTextStyle.H2;
@@ -150,7 +151,7 @@ namespace ConnectApp.screens {
                             child: new Icon(
                                 Icons.search,
                                 size: 28,
-                                color: CColors.BrownGrey
+                                color: CColors.Icon
                             )
                         )
                     }

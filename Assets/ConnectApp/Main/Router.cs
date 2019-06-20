@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.Components;
-using ConnectApp.Constants;
 using ConnectApp.Plugins;
 using ConnectApp.screens;
 using ConnectApp.Utils;
@@ -60,6 +59,7 @@ namespace ConnectApp.Main {
                 else {
                     routes.Add(MainNavigatorRoutes.Root, context => new MainScreen());
                 }
+
                 return routes;
             }
         }
@@ -92,7 +92,7 @@ namespace ConnectApp.Main {
                         promise.Resolve(false);
                     }
                     else {
-                        if (Config.platform == "android") {
+                        if (Application.platform == RuntimePlatform.Android) {
                             if (this._exitApp) {
                                 CustomToast.hidden();
                                 promise.Resolve(true);

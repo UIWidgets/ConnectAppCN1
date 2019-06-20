@@ -28,7 +28,7 @@ namespace ConnectApp.Models.Model {
         public List<User> hosts;
         public string content;
         public Dictionary<string, ContentMap> contentMap;
-        public bool isNotFirst; //加载详情后 置位true
+        public bool isNotFirst; //加载详情后 置为true
         public string record;
         public float recordDuration;
     }

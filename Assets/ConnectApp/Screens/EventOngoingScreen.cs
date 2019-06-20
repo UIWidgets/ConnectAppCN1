@@ -7,6 +7,7 @@ using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using RSG;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
@@ -114,7 +115,6 @@ namespace ConnectApp.screens {
                                       this.widget.viewModel.ongoingEventTotal,
                         onRefresh: this._ongoingRefresh,
                         child: ListView.builder(
-                            itemExtent: 108,
                             physics: new AlwaysScrollableScrollPhysics(),
                             itemCount: this.widget.viewModel.ongoingEvents.Count,
                             itemBuilder: (cxt, index) => {
@@ -130,7 +130,8 @@ namespace ConnectApp.screens {
                                         model.id,
                                         model.mode == "online" ? EventType.online : EventType.offline
                                     ),
-                                    new ObjectKey(model.id)
+                                    new ObjectKey(model.id),
+                                    index == 0
                                 );
                             }
                         )

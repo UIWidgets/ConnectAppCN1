@@ -57,7 +57,6 @@ namespace ConnectApp.screens {
                     ListView.builder(
                         physics: new AlwaysScrollableScrollPhysics(),
                         itemCount: this.viewModel.eventHistory.Count,
-                        itemExtent: 108,
                         itemBuilder: (cxt, index) => {
                             var model = this.viewModel.eventHistory[index];
                             var eventType = model.mode == "online" ? EventType.online : EventType.offline;
@@ -66,7 +65,9 @@ namespace ConnectApp.screens {
                                 new EventCard(
                                     model,
                                     model.place,
-                                    () => this.actionModel.pushToEventDetail(model.id, eventType)
+                                    () => this.actionModel.pushToEventDetail(model.id, eventType),
+                                    new ObjectKey(model.id),
+                                    index == 0
                                 ),
                                 new CustomDismissibleDrawerDelegate(),
                                 secondaryActions: new List<Widget> {
