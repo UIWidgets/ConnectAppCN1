@@ -151,7 +151,7 @@ namespace ConnectApp.screens {
                             child: new Icon(
                                 Icons.search,
                                 size: 28,
-                                color: CColors.BrownGrey
+                                color: CColors.Icon
                             )
                         )
                     }
