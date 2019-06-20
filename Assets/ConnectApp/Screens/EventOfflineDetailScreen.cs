@@ -13,11 +13,14 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
+using EventType = ConnectApp.Models.State.EventType;
 
 namespace ConnectApp.screens {
     public class EventOfflineDetailScreenConnector : StatelessWidget {
@@ -90,13 +93,21 @@ namespace ConnectApp.screens {
         Animation<RelativeRect> _animation;
         AnimationController _controller;
         float _titleHeight;
+        float _topPadding;
+        float _aspectRatio;
         static readonly GlobalKey eventTitleKey = GlobalKey.key("event-title");
 
         public override void initState() {
             base.initState();
+            StatusBarManager.statusBarStyle(true);
             this._showNavBarShadow = true;
             this._isHaveTitle = false;
             this._titleHeight = 0.0f;
+            this._aspectRatio = 16.0f / 9;
+            if (Application.platform != RuntimePlatform.Android) {
+                this._aspectRatio = 3f / 2;
+            }
+
             this._controller = new AnimationController(
                 duration: TimeSpan.FromMilliseconds(100),
                 vsync: this
@@ -117,8 +128,8 @@ namespace ConnectApp.screens {
         }
 
         public override void dispose() {
+            StatusBarManager.statusBarStyle(false);
             EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
-
             base.dispose();
         }
 
@@ -132,14 +143,21 @@ namespace ConnectApp.screens {
                 eventObj = this.widget.viewModel.eventsDict[this.widget.viewModel.eventId];
             }
 
+            if (this._topPadding != MediaQuery.of(context).padding.top &&
+                Application.platform != RuntimePlatform.Android) {
+                this._topPadding = MediaQuery.of(context).padding.top;
+            }
+
             if ((this.widget.viewModel.eventDetailLoading || eventObj?.user == null) && !eventObj.isNotFirst) {
-                return new EventDetailLoading(mainRouterPop: this.widget.actionModel.mainRouterPop);
+                return new EventDetailLoading(eventType: EventType.offline,
+                    mainRouterPop: this.widget.actionModel.mainRouterPop);
             }
 
             var eventStatus = DateConvert.GetEventStatus(eventObj.begin);
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
+                    top: false,
                     child: new Container(
                         color: CColors.White,
                         child: new NotificationListener<ScrollNotification>(
@@ -182,18 +200,21 @@ namespace ConnectApp.screens {
             var pixels = notification.metrics.pixels;
             if (this._titleHeight == 0.0f) {
                 var width = MediaQuery.of(context).size.width;
-                var imageHeight = 9.0f / 16.0f * width;
-                this._titleHeight = imageHeight + eventTitleKey.currentContext.size.height - 32;
+                var imageHeight = width / this._aspectRatio;
+                this._titleHeight = imageHeight + eventTitleKey.currentContext.size.height - (44 + this._topPadding) +
+                                    16; // (44 + this._topPadding) 是顶部的高度 16 是文字与图片的间隙
             }
 
-            if (pixels >= 44) {
+            if (pixels >= 44 + this._topPadding) {
                 if (this._showNavBarShadow) {
                     this.setState(() => { this._showNavBarShadow = false; });
+                    StatusBarManager.statusBarStyle(false);
                 }
             }
             else {
                 if (!this._showNavBarShadow) {
                     this.setState(() => { this._showNavBarShadow = true; });
+                    StatusBarManager.statusBarStyle(true);
                 }
             }
 
@@ -255,9 +276,9 @@ namespace ConnectApp.screens {
             }
 
             return new AnimatedContainer(
-                height: 44,
+                height: 44 + this._topPadding,
                 duration: TimeSpan.Zero,
-                padding: EdgeInsets.symmetric(horizontal: 8),
+                padding: EdgeInsets.only(left: 8, right: 8, top: this._topPadding),
                 decoration: new BoxDecoration(
                     CColors.White,
                     border: new Border(
