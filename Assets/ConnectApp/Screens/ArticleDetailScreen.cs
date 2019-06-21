@@ -172,11 +172,6 @@ namespace ConnectApp.screens {
             });
         }
 
-        public override void deactivate() {
-            base.deactivate();
-        }
-
-
         public override void dispose() {
             EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
             base.dispose();
