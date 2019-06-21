@@ -105,7 +105,7 @@ namespace ConnectApp.Components {
                                                     viewCount: this.article.viewCount
                                                 )
                                             ),
-                                            new SizedBox(width: 8),
+                                            new SizedBox(width: 16),
                                             new GestureDetector(
                                                 child: new Container(
                                                     height: 20,
