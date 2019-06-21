@@ -17,7 +17,7 @@ namespace ConnectApp.Components {
             Team team = null,
             GestureTapCallback onTap = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.article = article;
             this.onTap = onTap;
             this.user = user;
@@ -85,10 +85,10 @@ namespace ConnectApp.Components {
                                             overflow: TextOverflow.ellipsis,
                                             textAlign: TextAlign.left
                                         ),
-                                        new Text(
-                                            $"{username} · {DateConvert.DateStringFromNow(time)} · 阅读 {this.article.viewCount}",
-                                            style: CTextStyle.PSmallBody3,
-                                            textAlign: TextAlign.left
+                                        new ArticleInfoCard(
+                                            fullName: username,
+                                            time: time,
+                                            viewCount: this.article.viewCount
                                         )
                                     }
                                 )

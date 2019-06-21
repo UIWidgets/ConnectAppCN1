@@ -17,7 +17,7 @@ namespace ConnectApp.Components {
             GestureTapCallback moreCallBack = null,
             string fullName = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.article = article;
             this.fullName = fullName;
             this.onTap = onTap;
@@ -86,16 +86,18 @@ namespace ConnectApp.Components {
                                     )
                                 ),
                                 new Container(
-                                    height:20,
+                                    height: 20,
                                     child: new Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: new List<Widget> {
                                             new Expanded(
-                                                child: new Text(
-                                                    $"{this.fullName} · {DateConvert.DateStringFromNow(time)} · 阅读 {this.article.viewCount}",
-                                                    style: CTextStyle.PSmallBody3
+                                                child: new ArticleInfoCard(
+                                                    fullName: this.fullName,
+                                                    time: time,
+                                                    viewCount: this.article.viewCount
                                                 )
                                             ),
+                                            new SizedBox(width: 8),
                                             new GestureDetector(
                                                 child: new Container(
                                                     height: 20,
