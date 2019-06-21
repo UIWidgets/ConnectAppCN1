@@ -359,7 +359,11 @@ namespace ConnectApp.screens {
                     eventObj.record,
                     context,
                     this._buildHeadTop(false, eventObj),
-                    isFullScreen => { this.setState(() => { this._isFullScreen = isFullScreen; }); },
+                    isFullScreen => {
+                        using (WindowProvider.of(context).getScope()) {
+                            this.setState(() => { this._isFullScreen = isFullScreen; });
+                        }
+                    },
                     eventObj.recordDuration
                 );
             }

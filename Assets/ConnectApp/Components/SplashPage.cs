@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Main;
+using ConnectApp.Plugins;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.async;
@@ -31,8 +32,6 @@ namespace ConnectApp.Components {
                 this._lastSecond = SplashManager.getSplash().duration;
                 this._timer = Window.instance.run(TimeSpan.FromSeconds(1), this.t_Tick, true);
             }
-
-            SplashManager.fetchSplash();
         }
 
         public override void dispose() {
@@ -52,10 +51,13 @@ namespace ConnectApp.Components {
                     children: new List<Widget> {
                         new Column(
                             children: new List<Widget> {
-                                new Container(
-                                    width: MediaQuery.of(context).size.width,
-                                    height: MediaQuery.of(context).size.height,
-                                    child: Image.memory(SplashManager.readImage(), fit: BoxFit.cover)
+                                new GestureDetector(
+                                    child: new Container(
+                                        width: MediaQuery.of(context).size.width,
+                                        height: MediaQuery.of(context).size.height,
+                                        child: Image.memory(SplashManager.readImage(), fit: BoxFit.cover)
+                                    ),
+                                    onTap: pushPage
                                 )
                             }
                         ),
@@ -84,6 +86,11 @@ namespace ConnectApp.Components {
                     }
                 )
             );
+        }
+
+        static void pushPage() {
+            Router.navigator.pushReplacementNamed(MainNavigatorRoutes.Main);
+            JPushPlugin.openUrl(SplashManager.getSplash().url);
         }
 
         static void pushCallback() {

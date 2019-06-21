@@ -23,6 +23,10 @@ namespace ConnectApp.Plugins {
         static int callbackId = 0;
 
         public static void addListener() {
+            if (Application.isEditor) {
+                return;
+            }
+
             if (!isListen) {
                 UIWidgetsMessageManager.instance.AddChannelMessageDelegate("jpush", _handleMethodCall);
                 completed();
@@ -59,20 +63,8 @@ namespace ConnectApp.Plugins {
                             if (args.isEmpty()) {
                                 return;
                             }
-                            var uri = new Uri(args.first());
-                            var type = "";
-                            if (uri.Host.Equals("project_detail")) {
-                                type = "project";
-                            }
-                            else if (uri.Host.Equals("event_detail")) {
-                                type = "event";
-                            }
-                            else {
-                                return;
-                            }
-                            var subType = HttpUtility.ParseQueryString(uri.Query).Get("type");
-                            var id = HttpUtility.ParseQueryString(uri.Query).Get("id");
-                            pushPage(type, subType, id);
+
+                            openUrl(args.first());
                         }
                             break;
                     }
@@ -80,8 +72,36 @@ namespace ConnectApp.Plugins {
             }
         }
 
+        public static void openUrl(string schemeUrl) {
+            if (schemeUrl.isEmpty()) {
+                return;
+            }
 
-        public static void pushPage(string type, string subType, string id) {
+            var uri = new Uri(schemeUrl);
+            if (uri.Scheme.Equals("unityconnect")) {
+                if (uri.Host.Equals("connectapp")) {
+                    var type = "";
+                    if (uri.AbsolutePath.Equals("/project_detail")) {
+                        type = "project";
+                    }
+                    else if (uri.AbsolutePath.Equals("/event_detail")) {
+                        type = "event";
+                    }
+                    else {
+                        return;
+                    }
+
+                    var subType = HttpUtility.ParseQueryString(uri.Query).Get("type");
+                    var id = HttpUtility.ParseQueryString(uri.Query).Get("id");
+                    pushPage(type, subType, id);
+                }
+            }
+            else {
+                pushPage("webView", "", schemeUrl);
+            }
+        }
+
+        static void pushPage(string type, string subType, string id) {
             if (type == "project") {
                 if (subType == "article") {
                     AnalyticsManager.ClickEnterArticleDetail("Push_Article", id, $"PushArticle_{id}");
@@ -100,6 +120,10 @@ namespace ConnectApp.Plugins {
 
                 StoreProvider.store.dispatcher.dispatch(
                     new MainNavigatorPushToEventDetailAction {eventId = id, eventType = eventType});
+            }
+            else if (type == "webView") {
+                StoreProvider.store.dispatcher.dispatch(
+                    new MainNavigatorPushToWebViewAction {url = id});
             }
         }
 
