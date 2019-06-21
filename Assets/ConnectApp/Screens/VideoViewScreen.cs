@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Main;
+using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -25,6 +26,17 @@ namespace ConnectApp.screens {
 
     public class _VideoViewScreenState : State<VideoViewScreen> {
         bool _isFullScreen;
+
+        public override void initState() {
+            base.initState();
+            StatusBarManager.hideStatusBar(true);
+        }
+
+        public override void dispose() {
+            StatusBarManager.hideStatusBar(false);
+            StatusBarManager.statusBarStyle(false);
+            base.dispose();
+        }
 
         public override Widget build(BuildContext context) {
             return new Container(

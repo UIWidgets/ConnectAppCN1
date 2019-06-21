@@ -1,8 +1,10 @@
+using System;
 using System.IO;
 using ConnectApp.Api;
 using ConnectApp.Models.Model;
 using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.ui;
 using UnityEngine;
 
 namespace ConnectApp.Utils {
@@ -60,7 +62,8 @@ namespace ConnectApp.Utils {
         }
 
         static void fetchImage(Splash splash) {
-            SplashApi.FetchSplashImage(splash.image).Then(imageBytes => {
+            var imageWidth = Math.Ceiling(Window.instance.physicalSize.width / 100) * 100;
+            SplashApi.FetchSplashImage($"{splash.image}.{imageWidth}x0x1.jpg").Then(imageBytes => {
                 File.WriteAllBytes(PATH + splash.image.GetHashCode(), imageBytes);
                 var splashInfo = JsonConvert.SerializeObject(splash);
                 PlayerPrefs.SetString(SPLASHINFOKEY, splashInfo);

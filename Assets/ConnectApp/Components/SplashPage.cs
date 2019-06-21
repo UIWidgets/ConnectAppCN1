@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Main;
+using ConnectApp.Plugins;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.async;
@@ -31,12 +32,9 @@ namespace ConnectApp.Components {
                 this._lastSecond = SplashManager.getSplash().duration;
                 this._timer = Window.instance.run(TimeSpan.FromSeconds(1), this.t_Tick, true);
             }
-
-            SplashManager.fetchSplash();
         }
 
         public override void dispose() {
-            StatusBarManager.hideStatusBar(false);
             this._timer?.Dispose();
             base.dispose();
         }
@@ -53,10 +51,13 @@ namespace ConnectApp.Components {
                     children: new List<Widget> {
                         new Column(
                             children: new List<Widget> {
-                                new Container(
-                                    width: MediaQuery.of(context).size.width,
-                                    height: MediaQuery.of(context).size.height,
-                                    child: Image.memory(SplashManager.readImage(), fit: BoxFit.cover)
+                                new GestureDetector(
+                                    child: new Container(
+                                        width: MediaQuery.of(context).size.width,
+                                        height: MediaQuery.of(context).size.height,
+                                        child: Image.memory(SplashManager.readImage(), fit: BoxFit.cover)
+                                    ),
+                                    onTap: pushPage
                                 )
                             }
                         ),
@@ -66,15 +67,14 @@ namespace ConnectApp.Components {
                             child: new GestureDetector(
                                 child: new Container(
                                     decoration: new BoxDecoration(
-                                        color: Color.fromRGBO(149, 149, 149, 0.6f),
-                                        borderRadius: BorderRadius.all(19)
+                                        Color.fromRGBO(0, 0, 0, 0.5f),
+                                        borderRadius: BorderRadius.all(16)
                                     ),
-                                    width: 80,
-                                    height: 38,
+                                    width: 65,
+                                    height: 32,
                                     alignment: Alignment.center,
-                                    padding: EdgeInsets.all(2),
                                     child: new Text($"跳过 {this._lastSecond}", style: new TextStyle(
-                                        fontSize: 16,
+                                        fontSize: 14,
                                         fontFamily: "PingFangSC-Regular",
                                         color: CColors.White
                                     ))
@@ -85,6 +85,11 @@ namespace ConnectApp.Components {
                     }
                 )
             );
+        }
+
+        static void pushPage() {
+            Router.navigator.pushReplacementNamed(MainNavigatorRoutes.Main);
+            JPushPlugin.openUrl(SplashManager.getSplash().url);
         }
 
         static void pushCallback() {

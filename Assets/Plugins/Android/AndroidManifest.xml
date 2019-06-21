@@ -3,12 +3,22 @@
   <supports-screens android:smallScreens="true" android:normalScreens="true" android:largeScreens="true" android:xlargeScreens="true" android:anyDensity="true" />
   <!-- Required -->
   <permission android:name="com.unity3d.unityconnect.permission.JPUSH_MESSAGE" android:protectionLevel="signature" />
-  <application android:theme="@android:style/Theme.Material.Light.LightStatusBar" android:icon="@mipmap/app_icon" android:label="@string/app_name" android:name=".CustomApplication" tools:targetApi="m" android:roundIcon="@mipmap/app_icon_round" android:isGame="true" android:banner="@drawable/app_banner">
+  <application android:theme="@android:style/Theme.Material.Light.LightStatusBar" android:icon="@mipmap/app_icon" android:label="@string/app_name" android:name=".CustomApplication" tools:targetApi="m" android:isGame="true" android:banner="@drawable/app_banner" android:roundIcon="@mipmap/app_icon_round">
     <activity android:label="@string/app_name" android:name="com.unity3d.unityconnect.UnityPlayerActivityStatusBar" android:screenOrientation="sensorPortrait" android:launchMode="singleTask" android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale|layoutDirection|density" android:hardwareAccelerated="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
         <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+      </intent-filter>
+      <intent-filter> <!--URL Scheme启动-->
+        <!--必有项-->
+        <action android:name="android.intent.action.VIEW"/>
+        <!--如果希望该应用可以通过浏览器的连接启动，则添加该项-->
+        <category android:name="android.intent.category.BROWSABLE"/>
+        <!--表示该页面可以被隐式调用，必须加上该项-->
+        <category android:name="android.intent.category.DEFAULT"/>
+        <!--协议部分-->
+        <data android:scheme="unityconnect"/>
       </intent-filter>
       <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
     </activity>
@@ -64,11 +74,11 @@
     </receiver>
     <!-- Required SDK核心功能-->
     <receiver android:name="cn.jpush.android.service.AlarmReceiver" android:exported="false" />
-    <receiver android:name=".PushMessageReceiver" android:enabled="true"
-              android:exported="false">
+    <receiver android:name=".PushMessageReceiver" android:enabled="true" android:exported="false">
       <intent-filter>
         <action android:name="cn.jpush.android.intent.RECEIVE_MESSAGE" />
-        <category android:name="com.unity3d.unityconnect"></category>
+        <category android:name="com.unity3d.unityconnect">
+        </category>
       </intent-filter>
     </receiver>
     <!--since 3.3.0 Required SDK核心功能-->
@@ -90,7 +100,7 @@
     <meta-data android:name="JPUSH_CHANNEL" android:value="official" />
     <meta-data android:name="JPUSH_APPKEY" android:value="a50eff2d99416a0495f02766" />
     <!--  </>值来自开发者平台取得的AppKey-->
-    <meta-data android:name="unity.build-id" android:value="468897d6-9d31-4f80-86bf-e98c952926ae" />
+    <meta-data android:name="unity.build-id" android:value="e9414f45-b060-482a-8041-bffca96675a6" />
     <meta-data android:name="unity.splash-mode" android:value="0" />
     <meta-data android:name="unity.splash-enable" android:value="True" />
   </application>

@@ -72,10 +72,12 @@ extern "C" {
     };
     
     void listenCompleted(){
-        if ([JPushPlugin instance].pushJson == NULL || [JPushPlugin instance].pushJson.length == 0) {
-            return;
+        if ([JPushPlugin instance].pushJson.length > 0) {
+            UIWidgetsMethodMessage(@"jpush", @"OnOpenNotification", @[[JPushPlugin instance].pushJson]);
         }
-        UIWidgetsMethodMessage(@"jpush", @"OnOpenNotification", @[[JPushPlugin instance].pushJson]);
+        if ([JPushPlugin instance].schemeUrl.length > 0) {
+            UIWidgetsMethodMessage(@"jpush", @"OnOpenUrl", @[[JPushPlugin instance].schemeUrl]);
+        }
     }
     
     void setChannel(const char * channel){

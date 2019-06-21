@@ -116,6 +116,10 @@ NSData *APNativeJSONData(id obj) {
 
 - (BOOL)application:(UIApplication*)app openURL:(NSURL*)url options:(NSDictionary<NSString*, id>*)options
 {
+    if ([[url scheme] isEqualToString:@"unityconnect"]) {
+        [JPushPlugin instance].schemeUrl = [url absoluteString];
+        UIWidgetsMethodMessage(gameObjectName, @"OnOpenUrl", @[[url absoluteString]]);
+    }
     if ([JANALYTICSService handleUrl:url]) {
         return YES;
     }

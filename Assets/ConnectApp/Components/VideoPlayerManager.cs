@@ -8,6 +8,13 @@ namespace ConnectApp.Components {
 
         public static readonly VideoPlayerManager instance = new VideoPlayerManager();
 
+        public bool lockPortrait;
+
+        public bool lockLandscape;
+
+        public bool isRotation;
+
+
         VideoPlayer player { get; set; }
 
         AudioSource audioSource { get; set; }

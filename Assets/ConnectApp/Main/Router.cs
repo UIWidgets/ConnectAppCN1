@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.Components;
-using ConnectApp.Constants;
 using ConnectApp.Plugins;
 using ConnectApp.screens;
 using ConnectApp.Utils;
@@ -60,6 +59,7 @@ namespace ConnectApp.Main {
                 else {
                     routes.Add(MainNavigatorRoutes.Root, context => new MainScreen());
                 }
+
                 return routes;
             }
         }
@@ -82,7 +82,7 @@ namespace ConnectApp.Main {
                         LoginScreen.navigator.pop();
                         promise.Resolve(false);
                     }
-                    else if (Screen.orientation == ScreenOrientation.LandscapeLeft) {
+                    else if (Screen.orientation != ScreenOrientation.Portrait) {
                         //视频全屏时禁止物理返回按钮
                         EventBus.publish(EventBusConstant.fullScreen, new List<object> {true});
                         promise.Resolve(false);
@@ -92,7 +92,7 @@ namespace ConnectApp.Main {
                         promise.Resolve(false);
                     }
                     else {
-                        if (Config.platform == "android") {
+                        if (Application.platform == RuntimePlatform.Android) {
                             if (this._exitApp) {
                                 CustomToast.hidden();
                                 promise.Resolve(true);

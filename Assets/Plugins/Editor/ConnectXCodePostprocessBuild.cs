@@ -57,10 +57,18 @@ namespace Plugins.Editor {
             writeFile(madeSourceFile, madeDestDict);
 
             var destFile = path + "/Classes/UI/UnityVIewControllerBase+iOS.mm";
+
             FileUtil.DeleteFileOrDirectory(destFile);
             // 自定义覆盖controller文件，动态修改状态栏
             FileUtil.CopyFileOrDirectory(Application.dataPath + "/Plugins/Editor/UnityVIewControllerBase+iOS.mm",
                 destFile);
+
+            var destBaseFile = path + "/Classes/UI/UnityVIewControllerBase.mm";
+
+            FileUtil.DeleteFileOrDirectory(destBaseFile);
+            // 自定义覆盖controller文件，动态修改状态栏
+            FileUtil.CopyFileOrDirectory(Application.dataPath + "/Plugins/Editor/UnityVIewControllerBase.mm",
+                destBaseFile);
 
             // 执行修改操作
             File.WriteAllText(path: projPath, proj.WriteToString());
@@ -97,6 +105,14 @@ namespace Plugins.Editor {
             jgUrl.SetString("CFBundleURLSchemes", val: "jiguang-" + Config.jgAppKey);
             PlistElementArray jgUrlScheme = jgUrl.CreateArray("CFBundleURLSchemes");
             jgUrlScheme.AddString(val: "jiguang-" + Config.jgAppKey);
+
+            // Add URLScheme For unityconnect
+            PlistElementDict appUrl = urlTypes.AddDict();
+            appUrl.SetString("CFBundleTypeRole", "Editor");
+            appUrl.SetString("CFBundleURLName", "");
+            appUrl.SetString("CFBundleURLSchemes", val: "unityconnect");
+            PlistElementArray appUrlScheme = appUrl.CreateArray("CFBundleURLSchemes");
+            appUrlScheme.AddString(val: "unityconnect");
 
             // 白名单 for wechat
             PlistElementArray queriesSchemes = rootDict.CreateArray("LSApplicationQueriesSchemes");
