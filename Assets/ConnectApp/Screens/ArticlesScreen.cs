@@ -216,7 +216,7 @@ namespace ConnectApp.screens {
                                     this.widget.actionModel.pushToReport, this.widget.actionModel.pushToBlock
                                 ),
                                 fullName,
-                                new ObjectKey(article.id)
+                                key: new ObjectKey(article.id)
                             );
                         }
                     )
