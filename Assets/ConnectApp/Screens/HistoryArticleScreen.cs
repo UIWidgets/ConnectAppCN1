@@ -11,6 +11,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 
 namespace ConnectApp.screens {
     public class HistoryArticleScreenConnector : StatelessWidget {
@@ -74,21 +75,21 @@ namespace ConnectApp.screens {
                         itemCount: this.viewModel.articleHistory.Count,
                         itemBuilder: (cxt, index) => {
                             var model = this.viewModel.articleHistory[index];
-                            var child = new ArticleCard(
-                                model,
-                                () => this.actionModel.pushToArticleDetail(model.id),
-                                () => ReportManager.showReportView(this.viewModel.isLoggedIn,
-                                    model.id,
-                                    ReportType.article, this.actionModel.pushToLogin, this.actionModel.pushToReport,
-                                    this.actionModel.pushToBlock
-                                ),
-                                model.fullName,
-                                new ObjectKey(model.id)
-                            );
-
+                            
                             return CustomDismissible.builder(
                                 Key.key(model.id),
-                                child,
+                                new ArticleCard(
+                                    model,
+                                    () => this.actionModel.pushToArticleDetail(model.id),
+                                    () => ReportManager.showReportView(this.viewModel.isLoggedIn,
+                                        model.id,
+                                        ReportType.article, this.actionModel.pushToLogin, this.actionModel.pushToReport,
+                                        this.actionModel.pushToBlock
+                                    ),
+                                    model.fullName,
+                                    new ObjectKey(model.id),
+                                    index == 0
+                                ),
                                 new CustomDismissibleDrawerDelegate(),
                                 secondaryActions: new List<Widget> {
                                     new GestureDetector(

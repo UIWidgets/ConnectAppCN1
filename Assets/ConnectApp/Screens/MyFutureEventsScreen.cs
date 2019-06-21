@@ -105,8 +105,8 @@ namespace ConnectApp.screens {
                         child: ListView.builder(
                             physics: new AlwaysScrollableScrollPhysics(),
                             itemCount: data.Count,
-                            itemBuilder: (cxt, idx) => {
-                                var model = data[idx];
+                            itemBuilder: (cxt, index) => {
+                                var model = data[index];
                                 var eventType = model.mode == "online" ? EventType.online : EventType.offline;
                                 var placeName = model.placeId.isEmpty()
                                     ? null
@@ -114,7 +114,9 @@ namespace ConnectApp.screens {
                                 return new EventCard(
                                     model,
                                     placeName,
-                                    () => this.widget.actionModel.pushToEventDetail(model.id, eventType)
+                                    () => this.widget.actionModel.pushToEventDetail(model.id, eventType),
+                                    new ObjectKey(model.id),
+                                    index == 0
                                 );
                             }
                         )

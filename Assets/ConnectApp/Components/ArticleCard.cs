@@ -16,18 +16,21 @@ namespace ConnectApp.Components {
             GestureTapCallback onTap = null,
             GestureTapCallback moreCallBack = null,
             string fullName = null,
-            Key key = null
+            Key key = null,
+            bool topPadding = false
         ) : base(key) {
             this.article = article;
             this.fullName = fullName;
             this.onTap = onTap;
             this.moreCallBack = moreCallBack;
+            this.topPadding = topPadding;
         }
 
         readonly Article article;
         readonly string fullName;
         readonly GestureTapCallback onTap;
         readonly GestureTapCallback moreCallBack;
+        readonly bool topPadding;
 
         public override Widget build(BuildContext context) {
             if (this.article == null) {
@@ -38,6 +41,11 @@ namespace ConnectApp.Components {
             const float imageHeight = 66;
             const float borderRadius = 4;
 
+            var gap = 0f;
+            if (this.topPadding) {
+                gap = 16;
+            }
+            
             var time = this.article.lastPublishedTime == null
                 ? this.article.publishedTime
                 : this.article.lastPublishedTime;
@@ -47,7 +55,7 @@ namespace ConnectApp.Components {
             var card = new Container(
                 color: CColors.White,
                 child: new Padding(
-                    padding: EdgeInsets.all(16),
+                    padding: EdgeInsets.only(16, 16 + gap, 16, 16),
                     child: new Container(
                         child: new Column(
                             mainAxisAlignment: MainAxisAlignment.start,
