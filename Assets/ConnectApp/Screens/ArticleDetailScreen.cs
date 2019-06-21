@@ -229,7 +229,7 @@ namespace ConnectApp.screens {
             this._contentMap = this._article.contentMap;
             this._lastCommentId = this._article.currOldestMessageId ?? "";
             this._hasMore = this._article.hasMore;
-            
+
             var originItems = this._article == null ? new List<Widget>() : this._buildItems(context);
 
             var child = new Container(
@@ -489,16 +489,18 @@ namespace ConnectApp.screens {
                                 }
                             )
                         ),
-                        new Container(
-                            margin: EdgeInsets.only(bottom: 24),
-                            decoration: new BoxDecoration(
-                                CColors.Separator2,
-                                borderRadius: BorderRadius.all(4)
-                            ),
-                            padding: EdgeInsets.only(16, 12, 16, 12),
-                            width: Screen.width - 32,
-                            child: new Text($"{this._article.subTitle}", style: CTextStyle.PLargeBody4)
-                        )
+                        this._article.subTitle.isEmpty()
+                            ? new Container()
+                            : new Container(
+                                margin: EdgeInsets.only(bottom: 24),
+                                decoration: new BoxDecoration(
+                                    CColors.Separator2,
+                                    borderRadius: BorderRadius.all(4)
+                                ),
+                                padding: EdgeInsets.only(16, 12, 16, 12),
+                                width: Screen.width - 32,
+                                child: new Text($"{this._article.subTitle}", style: CTextStyle.PLargeBody4)
+                            )
                     }
                 )
             );
@@ -534,7 +536,7 @@ namespace ConnectApp.screens {
                 return new Container();
             }
 
-            var widgets = new List<Widget> ();
+            var widgets = new List<Widget>();
             this._relArticles.ForEach(article => {
                 //对文章进行过滤
                 if (article.id != this._article.id) {
@@ -577,6 +579,7 @@ namespace ConnectApp.screens {
                     )
                 });
             }
+
             return new Container(
                 color: CColors.White,
                 margin: EdgeInsets.only(bottom: 16),

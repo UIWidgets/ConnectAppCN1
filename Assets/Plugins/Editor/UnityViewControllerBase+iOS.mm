@@ -24,38 +24,6 @@
     return YES;
 }
 
-- (BOOL)prefersStatusBarHidden
-{
-    static bool _PrefersStatusBarHidden = true;
-
-    static bool _PrefersStatusBarHiddenInited = false;
-    if (!_PrefersStatusBarHiddenInited)
-    {
-        NSNumber* hidden = [[[NSBundle mainBundle] infoDictionary] objectForKey: @"UIStatusBarHidden"];
-        _PrefersStatusBarHidden = hidden ? [hidden boolValue] : YES;
-
-        _PrefersStatusBarHiddenInited = true;
-    }
-    return _PrefersStatusBarHidden;
-}
-
-- (UIStatusBarStyle)preferredStatusBarStyle
-{
-    static UIStatusBarStyle _PreferredStatusBarStyle = UIStatusBarStyleDefault;
-
-    static bool _PreferredStatusBarStyleInited = false;
-    if (!_PreferredStatusBarStyleInited)
-    {
-        NSString* style = [[[NSBundle mainBundle] infoDictionary] objectForKey: @"UIStatusBarStyle"];
-        if (style && [style isEqualToString: @"UIStatusBarStyleLightContent"])
-            _PreferredStatusBarStyle = UIStatusBarStyleLightContent;
-
-        _PreferredStatusBarStyleInited = true;
-    }
-
-    return _PreferredStatusBarStyle;
-}
-
 - (UIRectEdge)preferredScreenEdgesDeferringSystemGestures
 {
     UIRectEdge res = UIRectEdgeNone;
@@ -158,7 +126,10 @@
     [GetAppController() updateAppOrientation: UIInterfaceOrientationPortrait];
     [super viewWillAppear: animated];
 }
-
+- (BOOL)prefersStatusBarHidden
+{
+    return false;
+}
 @end
 
 @implementation UnityPortraitUpsideDownOnlyViewController

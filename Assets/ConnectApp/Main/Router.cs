@@ -82,7 +82,7 @@ namespace ConnectApp.Main {
                         LoginScreen.navigator.pop();
                         promise.Resolve(false);
                     }
-                    else if (Screen.orientation == ScreenOrientation.LandscapeLeft) {
+                    else if (Screen.orientation != ScreenOrientation.Portrait) {
                         //视频全屏时禁止物理返回按钮
                         EventBus.publish(EventBusConstant.fullScreen, new List<object> {true});
                         promise.Resolve(false);
