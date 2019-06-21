@@ -178,7 +178,7 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.startFetchArticleDetail();
                 this.widget.actionModel.fetchArticleDetail(this.widget.viewModel.articleId);
             });
-            
+
             this._jumpState = _ArticleJumpToCommentState.Inactive;
         }
 
@@ -239,7 +239,7 @@ namespace ConnectApp.screens {
             this._contentMap = this._article.contentMap;
             this._lastCommentId = this._article.currOldestMessageId ?? "";
             this._hasMore = this._article.hasMore;
-            
+
             var commentIndex = 0;
             var originItems = this._article == null ? new List<Widget>() : this._buildItems(context, out commentIndex);
             commentIndex = this._jumpState == _ArticleJumpToCommentState.active ? commentIndex : 0;
@@ -247,6 +247,7 @@ namespace ConnectApp.screens {
                 return new Container(
                 );
             }
+
             this._jumpState = _ArticleJumpToCommentState.Inactive;
 
             var child = new Container(
@@ -263,7 +264,7 @@ namespace ConnectApp.screens {
                                     onRefresh: this._onRefresh,
                                     onNotification: this._onNotification,
                                     children: originItems,
-                                    centerIndex : commentIndex
+                                    centerIndex: commentIndex
                                 )
                             )
                         ),
@@ -340,7 +341,7 @@ namespace ConnectApp.screens {
             originItems.Add(this._buildRelatedArticles());
 
             commentIndex = originItems.Count;
-            
+
             originItems.AddRange(this._buildComments());
             if (!this._article.hasMore) {
                 originItems.Add(this._buildEnd());
@@ -395,14 +396,11 @@ namespace ConnectApp.screens {
                             padding: EdgeInsets.zero,
                             onPressed: () => {
                                 //first step: show an empty container to prepare for the jump action
-                                this.setState(() => {
-                                    this._jumpState = _ArticleJumpToCommentState.ShowEmpty;
-                                });
-                                
+                                this.setState(() => { this._jumpState = _ArticleJumpToCommentState.ShowEmpty; });
+
                                 //second step: in the next frame,
                                 //create a new scroll view in which the center of the viewport is the comment widget
-                                SchedulerBinding.instance.addPostFrameCallback((TimeSpan value) =>
-                                {
+                                SchedulerBinding.instance.addPostFrameCallback((TimeSpan value) => {
                                     this.setState(
                                         () => {
                                             this._jumpState = _ArticleJumpToCommentState.active;
@@ -527,16 +525,18 @@ namespace ConnectApp.screens {
                                 }
                             )
                         ),
-                        new Container(
-                            margin: EdgeInsets.only(bottom: 24),
-                            decoration: new BoxDecoration(
-                                CColors.Separator2,
-                                borderRadius: BorderRadius.all(4)
-                            ),
-                            padding: EdgeInsets.only(16, 12, 16, 12),
-                            width: Screen.width - 32,
-                            child: new Text($"{this._article.subTitle}", style: CTextStyle.PLargeBody4)
-                        )
+                        this._article.subTitle.isEmpty()
+                            ? new Container()
+                            : new Container(
+                                margin: EdgeInsets.only(bottom: 24),
+                                decoration: new BoxDecoration(
+                                    CColors.Separator2,
+                                    borderRadius: BorderRadius.all(4)
+                                ),
+                                padding: EdgeInsets.only(16, 12, 16, 12),
+                                width: Screen.width - 32,
+                                child: new Text($"{this._article.subTitle}", style: CTextStyle.PLargeBody4)
+                            )
                     }
                 )
             );
@@ -572,7 +572,7 @@ namespace ConnectApp.screens {
                 return new Container();
             }
 
-            var widgets = new List<Widget> ();
+            var widgets = new List<Widget>();
             this._relArticles.ForEach(article => {
                 //对文章进行过滤
                 if (article.id != this._article.id) {
@@ -615,6 +615,7 @@ namespace ConnectApp.screens {
                     )
                 });
             }
+
             return new Container(
                 color: CColors.White,
                 margin: EdgeInsets.only(bottom: 16),

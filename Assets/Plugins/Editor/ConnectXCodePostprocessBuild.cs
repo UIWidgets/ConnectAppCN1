@@ -57,10 +57,18 @@ namespace Plugins.Editor {
             writeFile(madeSourceFile, madeDestDict);
 
             var destFile = path + "/Classes/UI/UnityVIewControllerBase+iOS.mm";
+
             FileUtil.DeleteFileOrDirectory(destFile);
             // 自定义覆盖controller文件，动态修改状态栏
             FileUtil.CopyFileOrDirectory(Application.dataPath + "/Plugins/Editor/UnityVIewControllerBase+iOS.mm",
                 destFile);
+
+            var destBaseFile = path + "/Classes/UI/UnityVIewControllerBase.mm";
+
+            FileUtil.DeleteFileOrDirectory(destBaseFile);
+            // 自定义覆盖controller文件，动态修改状态栏
+            FileUtil.CopyFileOrDirectory(Application.dataPath + "/Plugins/Editor/UnityVIewControllerBase.mm",
+                destBaseFile);
 
             // 执行修改操作
             File.WriteAllText(path: projPath, proj.WriteToString());
