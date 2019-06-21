@@ -7,8 +7,8 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.Components {
-    public class ArticleInfoCard : StatefulWidget {
-        public ArticleInfoCard(
+    public class ArticleCardInfo : StatefulWidget {
+        public ArticleCardInfo(
             string fullName,
             DateTime time,
             int viewCount,
@@ -23,11 +23,11 @@ namespace ConnectApp.Components {
         public readonly int viewCount;
         
         public override State createState() {
-            return new  _ArticleInfoCardState();
+            return new  _ArticleCardInfoState();
         }
     }
 
-    class _ArticleInfoCardState : State<ArticleInfoCard> {
+    class _ArticleCardInfoState : State<ArticleCardInfo> {
         readonly GlobalKey contentKey = GlobalKey.key("article-infoContent");
         readonly GlobalKey fullNameKey = GlobalKey.key("article-fullName");
         readonly GlobalKey timeKey = GlobalKey.key("article-time");

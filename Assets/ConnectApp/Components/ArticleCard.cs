@@ -99,7 +99,7 @@ namespace ConnectApp.Components {
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: new List<Widget> {
                                             new Expanded(
-                                                child: new ArticleInfoCard(
+                                                child: new ArticleCardInfo(
                                                     fullName: this.fullName,
                                                     time: time,
                                                     viewCount: this.article.viewCount

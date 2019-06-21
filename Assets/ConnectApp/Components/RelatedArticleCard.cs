@@ -85,7 +85,7 @@ namespace ConnectApp.Components {
                                             overflow: TextOverflow.ellipsis,
                                             textAlign: TextAlign.left
                                         ),
-                                        new ArticleInfoCard(
+                                        new ArticleCardInfo(
                                             fullName: username,
                                             time: time,
                                             viewCount: this.article.viewCount
