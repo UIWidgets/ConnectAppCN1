@@ -16,7 +16,7 @@ namespace ConnectApp.Constants {
 
         public const string versionNumber = "0.9.8";
 
-        public const int versionCode = 30;
+        public const int versionCode = 31;
 
 #if UNITY_IOS
         public const string platform = "ios";
