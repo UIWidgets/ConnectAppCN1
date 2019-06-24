@@ -87,8 +87,8 @@ namespace ConnectApp.screens {
                                         this.actionModel.pushToBlock
                                     ),
                                     model.fullName,
-                                    new ObjectKey(model.id),
-                                    index == 0
+                                    index == 0,
+                                    new ObjectKey(model.id)
                                 ),
                                 new CustomDismissibleDrawerDelegate(),
                                 secondaryActions: new List<Widget> {
