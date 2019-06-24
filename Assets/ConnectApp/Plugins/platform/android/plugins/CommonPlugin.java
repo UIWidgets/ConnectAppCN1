@@ -3,6 +3,7 @@ package com.unity3d.unityconnect.plugins;
 import android.content.Context;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
+import android.provider.Settings;
 
 public class CommonPlugin {
 
@@ -35,5 +36,30 @@ public class CommonPlugin {
         manager.requestAudioFocus(afChangeListener,AudioManager.STREAM_MUSIC,AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
 
     }
+
+    /**
+     * 判断屏幕旋转功能是否开启
+     */
+    public static boolean isOpenSensor(){
+        boolean isOpen = false;
+        if(getSensorState(mContext) == 1){
+            isOpen = true;
+        }else if(getSensorState(mContext) == 0){
+            isOpen = false;
+        }
+        return isOpen;
+    }
+
+    private static int getSensorState(Context context){
+        int sensorState = 0;
+        try {
+            sensorState = Settings.System.getInt(context.getContentResolver(), Settings.System.ACCELEROMETER_ROTATION);
+            return sensorState;
+        } catch (Settings.SettingNotFoundException e) {
+            e.printStackTrace();
+        }
+        return sensorState;
+    }
+
 
 }
