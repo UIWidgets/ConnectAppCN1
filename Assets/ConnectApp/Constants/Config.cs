@@ -16,13 +16,14 @@ namespace ConnectApp.Constants {
 
         public const string versionNumber = "0.9.8";
 
-        public const int versionCode = 30;
+        public const int versionCode = 35;
 
 #if UNITY_IOS
         public const string platform = "ios";
         public const string store = "appstore";
 #elif UNITY_ANDROID
         public const string platform = "android";
+
 //        public const string store = "test";
         public const string store = "official";
 //        public const string store = "xiaomi";

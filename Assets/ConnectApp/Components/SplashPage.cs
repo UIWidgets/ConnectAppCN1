@@ -9,6 +9,8 @@ using Unity.UIWidgets.async;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.Components {
@@ -45,6 +47,11 @@ namespace ConnectApp.Components {
                 return new MainScreen();
             }
 
+            var topPadding = 0f;
+            if (Application.platform != RuntimePlatform.Android) {
+                topPadding = MediaQuery.of(context).padding.top;
+            }
+
             return new Container(
                 color: CColors.White,
                 child: new Stack(
@@ -62,7 +69,7 @@ namespace ConnectApp.Components {
                             }
                         ),
                         new Positioned(
-                            top: MediaQuery.of(context).padding.top + 24,
+                            top: topPadding + 24,
                             right: 16,
                             child: new GestureDetector(
                                 child: new Container(
