@@ -409,6 +409,10 @@ namespace ConnectApp.Components {
         }
 
         void _changeOrientation(ScreenOrientation orientation) {
+            if (!_isOpenSensor()) {
+                return;
+            }
+
             this.cancelTimer();
             using (WindowProvider.of(this.widget.context).getScope()) {
                 if (orientation == ScreenOrientation.Portrait) {
@@ -431,9 +435,20 @@ namespace ConnectApp.Components {
                 pauseAudioSession();
             }
         }
+
+        static bool _isOpenSensor() {
+            if (Application.platform == RuntimePlatform.Android) {
+                return isOpenSensor();
+            }
+
+            return true;
+        }
 #if UNITY_IOS
         [DllImport("__Internal")]
         static extern void pauseAudioSession();
+
+        [DllImport("__Internal")]
+        static extern bool isOpenSensor();
 
 #elif UNITY_ANDROID
         static AndroidJavaClass _plugin;
@@ -449,8 +464,13 @@ namespace ConnectApp.Components {
         static void pauseAudioSession() {
             Plugin().CallStatic("pauseAudioSession");
         }
+        static bool isOpenSensor() {
+            return Plugin().CallStatic<bool>("isOpenSensor");
+        }
 #else
         static void pauseAudioSession() {
+        }
+        static bool isOpenSensor() {
         }
 #endif
     }
