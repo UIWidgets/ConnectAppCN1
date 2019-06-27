@@ -51,7 +51,7 @@ namespace ConnectApp.Components {
                 : this.article.lastPublishedTime;
             var imageUrl = this.article.thumbnail.url.EndsWith(".gif")
                 ? this.article.thumbnail.url
-                : CImageUtils.SuitableSizeImageUrl(imageWidth + 1, this.article.thumbnail.url);
+                : CImageUtils.SuitableSizeImageUrl(imageWidth, this.article.thumbnail.url);
             var card = new Container(
                 color: CColors.White,
                 child: new Padding(

@@ -130,6 +130,13 @@ namespace Plugins.Editor {
 
             // 出口合规信息
             rootDict.SetBoolean("ITSAppUsesNonExemptEncryption", false);
+
+            // remove exit on suspend if it exists.
+            string exitsOnSuspendKey = "UIApplicationExitsOnSuspend";
+            if (rootDict.values.ContainsKey(exitsOnSuspendKey)) {
+                rootDict.values.Remove(exitsOnSuspendKey);
+            }
+
             // 写入
             File.WriteAllText(path: plistPath, plist.WriteToString());
         }
