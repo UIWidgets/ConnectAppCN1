@@ -75,12 +75,12 @@ namespace ConnectApp.Components {
                 var size = viewCountRenderObject.paintBounds.size;
                 viewCountWidth = size.width;
             }
-            this.setState(() => {
-                this._contentWidth = contentWidth;
-                this._fullNameWidth = fullNameWidth;
-                this._timeWidth = timeWidth;
-                this._viewCountWidth = viewCountWidth;
-            });
+            
+            this._contentWidth = contentWidth;
+            this._fullNameWidth = fullNameWidth;
+            this._timeWidth = timeWidth;
+            this._viewCountWidth = viewCountWidth;
+            this.setState(() => {});
         }
 
         public override Widget build(BuildContext context) {
