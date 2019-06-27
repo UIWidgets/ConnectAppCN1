@@ -171,7 +171,15 @@ namespace ConnectApp.screens {
                     );
                 }
                 else {
-                    child = new BlankView("暂无搜索结果");
+                    child = new BlankView(
+                        "哎呀，换个关键词试试吧",
+                        "image/default-search",
+                        true,
+                        () => {
+                            this.widget.actionModel.startSearchArticle();
+                            this.widget.actionModel.searchArticle(this.widget.viewModel.searchKeyword, 0);
+                        }
+                    );
                 }
             }
             else {

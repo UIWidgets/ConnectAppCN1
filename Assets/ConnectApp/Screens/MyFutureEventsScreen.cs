@@ -42,7 +42,7 @@ namespace ConnectApp.screens {
             MyEventsScreenViewModel viewModel = null,
             MyEventsScreenActionModel actionModel = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
@@ -55,14 +55,10 @@ namespace ConnectApp.screens {
         }
     }
 
-    public class _MyFutureEventsScreenState : AutomaticKeepAliveClientMixin<MyFutureEventsScreen> {
+    public class _MyFutureEventsScreenState : State<MyFutureEventsScreen> {
         const int firstPageNumber = 1;
         int _pageNumber;
         RefreshController _refreshController;
-
-        protected override bool wantKeepAlive {
-            get { return true; }
-        }
 
         public override void initState() {
             base.initState();
@@ -75,20 +71,21 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            return this._buildMyFutureEvents();
-        }
-
-        Widget _buildMyFutureEvents() {
             var data = this.widget.viewModel.futureEventsList;
             if (this.widget.viewModel.futureListLoading && data.isEmpty()) {
                 return new GlobalLoading();
             }
 
             if (data.Count <= 0) {
-                return new BlankView("暂无我的即将开始活动", true, () => {
-                    this.widget.actionModel.startFetchMyFutureEvents();
-                    this.widget.actionModel.fetchMyFutureEvents(firstPageNumber);
-                });
+                return new BlankView(
+                    "还没有即将开始的活动", 
+                    "image/default-event",
+                    true,
+                    () => {
+                        this.widget.actionModel.startFetchMyFutureEvents();
+                        this.widget.actionModel.fetchMyFutureEvents(firstPageNumber);
+                    }
+                );
             }
 
             var futureEventTotal = this.widget.viewModel.futureEventTotal;

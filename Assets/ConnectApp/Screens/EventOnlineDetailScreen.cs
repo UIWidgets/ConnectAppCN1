@@ -620,13 +620,13 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildChatList() {
-            object child = new Container();
+            Widget child = new Container();
             if (this.widget.viewModel.messageLoading) {
                 child = new GlobalLoading();
             }
             else {
                 if (this.widget.viewModel.messageList.Count <= 0) {
-                    child = new BlankView("暂无聊天内容");
+                    child = new BlankView("暂无聊天内容", null);
                 }
                 else {
                     child = new SmartRefresher(
@@ -668,7 +668,7 @@ namespace ConnectApp.screens {
                     onTap: () => this._focusNode.unfocus(),
                     child: new Container(
                         color: CColors.White,
-                        child: (Widget) child
+                        child: child
                     )
                 )
             );
