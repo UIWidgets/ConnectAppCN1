@@ -77,7 +77,7 @@ namespace ConnectApp.screens {
             ArticlesScreenViewModel viewModel = null,
             ArticlesScreenActionModel actionModel = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
@@ -133,7 +133,7 @@ namespace ConnectApp.screens {
             return new AnimatedContainer(
                 height: this.navBarHeight,
                 color: CColors.White,
-                duration: new TimeSpan(0, 0, 0, 0, 0),
+                duration: TimeSpan.Zero,
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -170,10 +170,15 @@ namespace ConnectApp.screens {
                 );
             }
             else if (this.widget.viewModel.articleList.Count <= 0) {
-                content = new BlankView("暂无文章", true, () => {
-                    this.widget.actionModel.startFetchArticles();
-                    this.widget.actionModel.fetchArticles(initOffset);
-                });
+                content = new BlankView(
+                    "哎呀，暂无文章",
+                    "image/default-article",
+                    true,
+                    () => {
+                        this.widget.actionModel.startFetchArticles();
+                        this.widget.actionModel.fetchArticles(initOffset);
+                    }
+                );
             }
             else {
                 content = new SmartRefresher(
