@@ -78,7 +78,7 @@ namespace ConnectApp.screens {
                         new Container(
                             child: new Text(
                                 "关于",
-                                style: CTextStyle.H5
+                                style: CTextStyle.PXLargeMedium
                             )
                         ),
                         new Container(
