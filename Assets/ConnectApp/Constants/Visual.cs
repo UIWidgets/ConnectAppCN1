@@ -357,6 +357,7 @@ namespace ConnectApp.Constants {
         public static readonly Color PrimaryBlue = new Color(0xFF2196F3);
         public static readonly Color SecondaryPink = new Color(0xFFF32194);
         public static readonly Color Error = new Color(0xFFF44336);
+        public static readonly Color Cancel = new Color(0xFF797979);
         public static readonly Color TextTitle = new Color(0xFF000000);
         public static readonly Color TextBody = new Color(0xFF212121);
         public static readonly Color TextBody2 = new Color(0xFF424242);
