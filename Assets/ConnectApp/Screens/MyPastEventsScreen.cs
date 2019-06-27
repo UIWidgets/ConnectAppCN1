@@ -55,10 +55,14 @@ namespace ConnectApp.screens {
         }
     }
 
-    public class _MyPastEventsScreenState : State<MyPastEventsScreen> {
+    public class _MyPastEventsScreenState : AutomaticKeepAliveClientMixin<MyPastEventsScreen> {
         const int firstPageNumber = 1;
         int _pageNumber;
         RefreshController _refreshController;
+
+        protected override bool wantKeepAlive {
+            get { return true; }
+        }
 
         public override void initState() {
             base.initState();
@@ -71,6 +75,7 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
+            base.build(context: context);
             var data = this.widget.viewModel.pastEventsList;
             if (this.widget.viewModel.pastListLoading && data.isEmpty()) {
                 return new GlobalLoading();
