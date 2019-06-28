@@ -15,6 +15,7 @@ using UnityEngine;
 namespace ConnectApp.Main {
     static class MainNavigatorRoutes {
         public const string Root = "/";
+        public const string Splash = "/splash";
         public const string Main = "/main";
         public const string Search = "/search";
         public const string ArticleDetail = "/article-detail";
@@ -49,16 +50,24 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.BindUnity, context => new BindUnityScreenConnector(FromPage.setting)},
                     {MainNavigatorRoutes.Report, context => new ReportScreenConnector("", ReportType.article)},
                     {MainNavigatorRoutes.AboutUs, context => new AboutUsScreenConnector()},
-                    {MainNavigatorRoutes.WebView, context => new WebViewScreen()}
+                    {MainNavigatorRoutes.WebView, context => new WebViewScreen()},
                 };
-                var isExistSplash = SplashManager.isExistSplash();
-                if (isExistSplash) {
-                    routes.Add(MainNavigatorRoutes.Root, context => new SplashPage());
-                    routes.Add(MainNavigatorRoutes.Main, context => new MainScreen());
+                if (Application.isEditor) {
+                    var isExistSplash = SplashManager.isExistSplash();
+                    if (isExistSplash) {
+                        routes.Add(MainNavigatorRoutes.Root, context => new SplashPage());
+                        routes.Add(MainNavigatorRoutes.Main, context => new MainScreen());
+                    }
+                    else {
+                        routes.Add(MainNavigatorRoutes.Root, context => new MainScreen());
+                    }
                 }
                 else {
-                    routes.Add(MainNavigatorRoutes.Root, context => new MainScreen());
+                    routes.Add(MainNavigatorRoutes.Splash, context => new SplashPage());
+                    routes.Add(MainNavigatorRoutes.Main, context => new MainScreen());
+                    routes.Add(MainNavigatorRoutes.Root, context => new RootScreen());
                 }
+
 
                 return routes;
             }
@@ -68,7 +77,7 @@ namespace ConnectApp.Main {
             get {
                 return new Dictionary<string, WidgetBuilder> {
                     {MainNavigatorRoutes.Search, context => new SearchScreenConnector()},
-                    {MainNavigatorRoutes.Login, context => new LoginScreen()}
+                    {MainNavigatorRoutes.Login, context => new LoginScreen()},
                 };
             }
         }

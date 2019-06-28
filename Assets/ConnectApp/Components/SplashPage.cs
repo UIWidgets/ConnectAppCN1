@@ -95,8 +95,10 @@ namespace ConnectApp.Components {
         }
 
         static void pushPage() {
+            var splash = SplashManager.getSplash();
+            AnalyticsManager.ClickSplashPage(splash.id, splash.name, splash.url);
             Router.navigator.pushReplacementNamed(MainNavigatorRoutes.Main);
-            JPushPlugin.openUrl(SplashManager.getSplash().url);
+            JPushPlugin.openUrl(splash.url);
         }
 
         static void pushCallback() {
