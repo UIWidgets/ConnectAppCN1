@@ -140,7 +140,7 @@ namespace ConnectApp.screens {
                         new Container(
                             child: new Text(
                                 "举报",
-                                style: CTextStyle.H5
+                                style: CTextStyle.PXLargeMedium
                             )
                         ),
                         new Container(

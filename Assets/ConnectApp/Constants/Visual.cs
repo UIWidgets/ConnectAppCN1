@@ -5,11 +5,12 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.Constants {
     public static class Icons {
         public static readonly IconData UnityLogo = new IconData(0xe61d, "iconfont");
+        public static readonly IconData LogoWithUinty = new IconData(0xe622, "iconfont");
         public static readonly IconData WechatMoment = new IconData(0xe61e, "iconfont");
         public static readonly IconData WechatIcon = new IconData(0xe61f, "iconfont");
 
-        public static readonly IconData Description = new IconData(0xe607, "iconfont");
-        public static readonly IconData Notification = new IconData(0xe611, "iconfont");
+        public static readonly IconData outline_description = new IconData(0xe621, "iconfont");
+        public static readonly IconData outline_notification = new IconData(0xe620, "iconfont");
         public static readonly IconData search = new IconData(0xe612, "iconfont");
         public static readonly IconData close = new IconData(0xe605, "iconfont");
         public static readonly IconData chevron_right = new IconData(0xe5cc, "Material Icons");
@@ -18,8 +19,7 @@ namespace ConnectApp.Constants {
         public static readonly IconData share = new IconData(0xe61a, "iconfont");
         public static readonly IconData settings = new IconData(0xe61c, "iconfont");
         public static readonly IconData ellipsis = new IconData(0xe60c, "iconfont");
-        public static readonly IconData myEvent = new IconData(0xe614, "iconfont");
-        public static readonly IconData IEvent = new IconData(0xe60b, "iconfont");
+        public static readonly IconData outline_event = new IconData(0xe614, "iconfont");
         public static readonly IconData book = new IconData(0xe613, "iconfont");
         public static readonly IconData eye = new IconData(0xe61b, "iconfont");
         public static readonly IconData bookmark = new IconData(0xe603, "iconfont");
@@ -109,7 +109,7 @@ namespace ConnectApp.Constants {
             fontFamily: "Roboto-Medium",
             color: CColors.TextBody
         );
-        
+
         public static readonly TextStyle PXLargeMedium = new TextStyle(
             fontSize: 18,
             fontFamily: "Roboto-Medium",
@@ -357,6 +357,7 @@ namespace ConnectApp.Constants {
         public static readonly Color PrimaryBlue = new Color(0xFF2196F3);
         public static readonly Color SecondaryPink = new Color(0xFFF32194);
         public static readonly Color Error = new Color(0xFFF44336);
+        public static readonly Color Cancel = new Color(0xFF797979);
         public static readonly Color TextTitle = new Color(0xFF000000);
         public static readonly Color TextBody = new Color(0xFF212121);
         public static readonly Color TextBody2 = new Color(0xFF424242);

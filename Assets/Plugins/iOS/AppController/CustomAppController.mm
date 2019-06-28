@@ -149,7 +149,9 @@ extern "C" {
         AppController_SendNotificationWithArg(@"UpdateStatusBarStyle",
                                               @{@"key":@"hidden",@"value":@(hidden)});
     }
-    
+    bool isOpenSensor() {
+        return true;
+    }
 }
 
 @end

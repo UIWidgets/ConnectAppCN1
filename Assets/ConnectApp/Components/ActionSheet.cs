@@ -100,6 +100,9 @@ namespace ConnectApp.Components {
                 if (type == ActionType.destructive) {
                     titleColor = CColors.Error;
                 }
+                if (type == ActionType.cancel) {
+                    titleColor = CColors.Cancel;
+                }
 
                 Widget widget = new Column(
                     children: new List<Widget> {
@@ -130,6 +133,8 @@ namespace ConnectApp.Components {
                     destructiveWidgets.Add(widget);
                 }
                 else if (type == ActionType.cancel) {
+                    var gap = new Container(height: 4, color: CColors.Separator2);
+                    cancelWidgets.Add(gap);
                     cancelWidgets.Add(widget);
                 }
                 else {
