@@ -68,9 +68,7 @@ namespace ConnectApp.Main {
             return new StoreProvider<AppState>(
                 store: StoreProvider.store,
                 new WidgetsApp(
-                    home: new VersionUpdater(
-                        new Router()
-                    ),
+                    home: new Router(),
                     pageRouteBuilder: pageRouteBuilder
                 )
             );
