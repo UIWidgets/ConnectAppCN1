@@ -5,6 +5,7 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.Constants {
     public static class Icons {
         public static readonly IconData UnityLogo = new IconData(0xe61d, "iconfont");
+        public static readonly IconData LogoWithUinty = new IconData(0xe622, "iconfont");
         public static readonly IconData WechatMoment = new IconData(0xe61e, "iconfont");
         public static readonly IconData WechatIcon = new IconData(0xe61f, "iconfont");
 
@@ -108,7 +109,7 @@ namespace ConnectApp.Constants {
             fontFamily: "Roboto-Medium",
             color: CColors.TextBody
         );
-        
+
         public static readonly TextStyle PXLargeMedium = new TextStyle(
             fontSize: 18,
             fontFamily: "Roboto-Medium",
