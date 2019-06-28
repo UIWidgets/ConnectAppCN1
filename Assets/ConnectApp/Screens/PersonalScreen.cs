@@ -136,7 +136,7 @@ namespace ConnectApp.screens {
         List<Widget> _buildItems() {
             var personalCardItems = new List<PersonalCardItem> {
                 new PersonalCardItem(
-                    Icons.myEvent,
+                    Icons.outline_event,
                     "我的活动",
                     () => {
                         var routeName = this.widget.viewModel.isLoggedIn

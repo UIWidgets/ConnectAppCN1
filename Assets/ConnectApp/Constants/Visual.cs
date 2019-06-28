@@ -8,8 +8,8 @@ namespace ConnectApp.Constants {
         public static readonly IconData WechatMoment = new IconData(0xe61e, "iconfont");
         public static readonly IconData WechatIcon = new IconData(0xe61f, "iconfont");
 
-        public static readonly IconData Description = new IconData(0xe607, "iconfont");
-        public static readonly IconData Notification = new IconData(0xe611, "iconfont");
+        public static readonly IconData outline_description = new IconData(0xe621, "iconfont");
+        public static readonly IconData outline_notification = new IconData(0xe620, "iconfont");
         public static readonly IconData search = new IconData(0xe612, "iconfont");
         public static readonly IconData close = new IconData(0xe605, "iconfont");
         public static readonly IconData chevron_right = new IconData(0xe5cc, "Material Icons");
@@ -18,8 +18,7 @@ namespace ConnectApp.Constants {
         public static readonly IconData share = new IconData(0xe61a, "iconfont");
         public static readonly IconData settings = new IconData(0xe61c, "iconfont");
         public static readonly IconData ellipsis = new IconData(0xe60c, "iconfont");
-        public static readonly IconData myEvent = new IconData(0xe614, "iconfont");
-        public static readonly IconData IEvent = new IconData(0xe60b, "iconfont");
+        public static readonly IconData outline_event = new IconData(0xe614, "iconfont");
         public static readonly IconData book = new IconData(0xe613, "iconfont");
         public static readonly IconData eye = new IconData(0xe61b, "iconfont");
         public static readonly IconData bookmark = new IconData(0xe603, "iconfont");
