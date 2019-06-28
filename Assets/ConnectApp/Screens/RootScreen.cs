@@ -4,10 +4,16 @@ using ConnectApp.Constants;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.screens {
     public class RootScreen : StatelessWidget {
         public override Widget build(BuildContext context) {
+            if (Application.platform == RuntimePlatform.Android) {
+                return new Container(
+                    color:new Color(0x231F20));
+            }
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
