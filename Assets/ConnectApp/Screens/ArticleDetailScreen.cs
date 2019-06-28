@@ -339,60 +339,42 @@ namespace ConnectApp.screens {
                 );
             }
 
-            return new Container(
-                height: navBarHeight,
-                decoration: new BoxDecoration(
-                    CColors.White,
-                    border: new Border(
-                        bottom: new BorderSide(this._isHaveTitle ? CColors.Separator2 : CColors.Transparent))
-                ),
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: new List<Widget> {
-                        new GestureDetector(
-                            onTap: () => this.widget.actionModel.mainRouterPop(),
-                            child: new Container(
-                                padding: EdgeInsets.only(16, 10, 0, 10),
-                                color: CColors.Transparent,
-                                child: new Icon(Icons.arrow_back, size: 24, color: CColors.Icon))
-                        ),
-                        new Expanded(
-                            child: new Stack(
-                                fit: StackFit.expand,
-                                children: new List<Widget> {
-                                    new PositionedTransition(
-                                        rect: this._animation,
-                                        child: titleWidget
-                                    )
-                                }
+            return new CustomAppBar(
+                () => this.widget.actionModel.mainRouterPop(),
+                new Expanded(
+                    child: new Stack(
+                        fit: StackFit.expand,
+                        children: new List<Widget> {
+                            new PositionedTransition(
+                                rect: this._animation,
+                                child: titleWidget
                             )
-                        ),
-                        new Container(width: 8),
-//                        new CustomButton(
-//                            padding: EdgeInsets.zero,
-//                            onPressed: () => {},
-//                            child: new Container(
-//                                width: 88,
-//                                height: 28,
-//                                alignment: Alignment.center,
-//                                decoration: new BoxDecoration(
-//                                    border: Border.all(CColors.PrimaryBlue),
-//                                    borderRadius: BorderRadius.all(14)
-//                                ),
-//                                child: new Text(
-//                                    "说点想法",
-//                                    style: new TextStyle(
-//                                        fontSize: 14,
-//                                        fontFamily: "Roboto-Medium",
-//                                        color: CColors.PrimaryBlue
-//                                    )
-//                                )
-//                            )
+                        }
+                    )
+                ),
+                new Container(width: 24),
+//                new CustomButton(
+//                    padding: EdgeInsets.zero,
+//                    onPressed: () => {},
+//                    child: new Container(
+//                        width: 88,
+//                        height: 28,
+//                        alignment: Alignment.center,
+//                        decoration: new BoxDecoration(
+//                            border: Border.all(CColors.PrimaryBlue),
+//                            borderRadius: BorderRadius.all(14)
 //                        ),
-                        new Container(width: 16)
-                    }
-                )
+//                        child: new Text(
+//                            "说点想法",
+//                            style: new TextStyle(
+//                                fontSize: 14,
+//                                fontFamily: "Roboto-Medium",
+//                                color: CColors.PrimaryBlue
+//                            )
+//                        )
+//                    )
+//                ),
+                this._isHaveTitle ? CColors.Separator2 : CColors.Transparent
             );
         }
 
