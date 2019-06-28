@@ -114,39 +114,11 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildNavigationBar() {
-            return new Container(
-                decoration: new BoxDecoration(
-                    CColors.White,
-                    border: new Border(
-                        bottom: new BorderSide(
-                            CColors.Separator2
-                        )
-                    )
-                ),
-                height: 44,
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: new List<Widget> {
-                        new CustomButton(
-                            padding: EdgeInsets.only(16, 0, 16),
-                            onPressed: () => this.widget.actionModel.mainRouterPop(),
-                            child: new Icon(
-                                Icons.arrow_back,
-                                size: 24,
-                                color: CColors.Icon
-                            )
-                        ),
-                        new Container(
-                            child: new Text(
-                                "举报",
-                                style: CTextStyle.PXLargeMedium
-                            )
-                        ),
-                        new Container(
-                            width: 56
-                        )
-                    }
+            return new CustomAppBar(
+                () => this.widget.actionModel.mainRouterPop(),
+                new Text(
+                    "举报",
+                    style: CTextStyle.PXLargeMedium
                 )
             );
         }

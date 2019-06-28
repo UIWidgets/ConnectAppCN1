@@ -173,33 +173,19 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildNavigationBar() {
-            return new Container(
-                height: 44,
-                color: CColors.White,
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: new List<Widget> {
-                        new GestureDetector(
-                            onTap: () => {
-                                this._onClose = true;
-                                this.setState(() => { });
-                                if (Router.navigator.canPop()) {
-                                    Router.navigator.pop();
-                                }
-
-                                if (!Application.isEditor) {
-                                    this._webViewObject.SetVisibility(false);
-                                    WebViewManager.destroyWebView();
-                                }
-                            },
-                            child: new Container(
-                                padding: EdgeInsets.symmetric(10, 16),
-                                color: CColors.Transparent,
-                                child: new Icon(Icons.arrow_back, size: 24, color: CColors.Icon))
-                        )
+            return new CustomAppBar(
+                () => {
+                    this._onClose = true;
+                    this.setState(() => { });
+                    if (Router.navigator.canPop()) {
+                        Router.navigator.pop();
                     }
-                )
+
+                    if (!Application.isEditor) {
+                        this._webViewObject.SetVisibility(false);
+                        WebViewManager.destroyWebView();
+                    }
+                }
             );
         }
     }
