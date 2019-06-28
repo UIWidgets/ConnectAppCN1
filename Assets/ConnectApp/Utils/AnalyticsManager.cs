@@ -156,5 +156,55 @@ namespace ConnectApp.Utils {
             string duration = (endTime - startTime).TotalSeconds.ToString("0.0");
             JAnalyticsPlugin.BrowseEvent(id, name, "EventDetail", duration, null);
         }
+
+        public static void ClickNotification(string type, string subtype, string id) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            var mEventId = "Click_Notification";
+            Dictionary<string, string> extras = new Dictionary<string, string>();
+            extras.Add("type", type);
+            extras.Add("subtype", subtype);
+            extras.Add("id", id);
+            JAnalyticsPlugin.CountEvent(mEventId, extras);
+        }
+
+        public static void ClickSplashPage(string id, string name, string url) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            var mEventId = "Click_Splash_Page";
+            Dictionary<string, string> extras = new Dictionary<string, string>();
+            extras.Add("id", id);
+            extras.Add("name", name);
+            extras.Add("url", url);
+            JAnalyticsPlugin.CountEvent(mEventId, extras);
+        }
+
+        public static void EnterOnOpenUrl(string url) {
+            //通过openurl方式打开app
+            if (Application.isEditor) {
+                return;
+            }
+
+            var mEventId = "Enter_On_OpenUrl";
+            Dictionary<string, string> extras = new Dictionary<string, string>();
+            extras.Add("url", url);
+            JAnalyticsPlugin.CountEvent(mEventId, extras);
+        }
+
+        public static void EnterApp() {
+            //进入app事件
+            if (Application.isEditor) {
+                return;
+            }
+
+            var mEventId = "Enter_App";
+            Dictionary<string, string> extras = new Dictionary<string, string>();
+            extras.Add("app", "unity connect");
+            JAnalyticsPlugin.CountEvent(mEventId, extras);
+        }
     }
 }
