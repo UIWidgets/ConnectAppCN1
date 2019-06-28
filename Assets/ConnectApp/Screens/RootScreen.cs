@@ -12,8 +12,9 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             if (Application.platform == RuntimePlatform.Android) {
                 return new Container(
-                    color:new Color(0x231F20));
+                    color: new Color(0x231F20));
             }
+
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
@@ -28,7 +29,7 @@ namespace ConnectApp.screens {
                                     fit: BoxFit.cover)
                             ),
                             new Container(
-                                width: 101,
+                                width: 102,
                                 height: 22,
                                 margin: EdgeInsets.only(bottom: 16, top: 16),
                                 child: Image.asset("image/iOS/madeWithUnity.imageset/madeWithUnity", fit: BoxFit.cover))

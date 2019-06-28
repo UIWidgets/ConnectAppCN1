@@ -9,8 +9,13 @@ namespace ConnectApp.Constants {
         public static readonly IconData WechatMoment = new IconData(0xe61e, "iconfont");
         public static readonly IconData WechatIcon = new IconData(0xe61f, "iconfont");
 
+        public static readonly IconData description = new IconData(0xe873, "Material Icons");
         public static readonly IconData outline_description = new IconData(0xe621, "iconfont");
+        public static readonly IconData eventIcon = new IconData(0xe60b, "iconfont");
+        public static readonly IconData outline_event = new IconData(0xe614, "iconfont");
+        public static readonly IconData notification = new IconData(0xe7f4, "Material Icons");
         public static readonly IconData outline_notification = new IconData(0xe620, "iconfont");
+        public static readonly IconData mood = new IconData(0xe60f, "iconfont");
         public static readonly IconData search = new IconData(0xe612, "iconfont");
         public static readonly IconData close = new IconData(0xe605, "iconfont");
         public static readonly IconData chevron_right = new IconData(0xe5cc, "Material Icons");
@@ -19,7 +24,6 @@ namespace ConnectApp.Constants {
         public static readonly IconData share = new IconData(0xe61a, "iconfont");
         public static readonly IconData settings = new IconData(0xe61c, "iconfont");
         public static readonly IconData ellipsis = new IconData(0xe60c, "iconfont");
-        public static readonly IconData outline_event = new IconData(0xe614, "iconfont");
         public static readonly IconData book = new IconData(0xe613, "iconfont");
         public static readonly IconData eye = new IconData(0xe61b, "iconfont");
         public static readonly IconData bookmark = new IconData(0xe603, "iconfont");
@@ -31,7 +35,6 @@ namespace ConnectApp.Constants {
         public static readonly IconData expand_less = new IconData(0xe5ce, "Material Icons");
         public static readonly IconData expand_more = new IconData(0xe5cf, "Material Icons");
         public static readonly IconData error_outline = new IconData(0xe609, "iconfont");
-        public static readonly IconData Mood = new IconData(0xe60f, "iconfont");
         public static readonly IconData sentiment_satisfied = new IconData(0xe617, "iconfont");
         public static readonly IconData sentiment_dissatisfied = new IconData(0xe619, "iconfont");
         public static readonly IconData cancel = new IconData(0xe602, "iconfont");

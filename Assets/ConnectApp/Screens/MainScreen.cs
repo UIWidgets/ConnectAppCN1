@@ -23,21 +23,25 @@ namespace ConnectApp.screens {
                             new CustomTabBarItem(
                                 0,
                                 Icons.outline_description,
+                                Icons.description,
                                 "文章"
                             ),
                             new CustomTabBarItem(
                                 1,
                                 Icons.outline_event,
+                                Icons.eventIcon,
                                 "活动"
                             ),
                             new CustomTabBarItem(
                                 2,
                                 Icons.outline_notification,
+                                Icons.notification,
                                 "通知"
                             ),
                             new CustomTabBarItem(
                                 3,
-                                Icons.Mood,
+                                Icons.mood,
+                                Icons.mood,
                                 "我的"
                             )
                         },
