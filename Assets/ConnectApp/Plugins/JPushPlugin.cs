@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Web;
 using ConnectApp.Constants;
+using ConnectApp.Main;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
@@ -11,9 +13,8 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using EventType = ConnectApp.Models.State.EventType;
-#if UNITY_IOS
-using System.Runtime.InteropServices;
 
+#if UNITY_IOS
 #endif
 
 namespace ConnectApp.Plugins {
@@ -28,11 +29,11 @@ namespace ConnectApp.Plugins {
             }
 
             if (!isListen) {
+                isListen = true;
                 UIWidgetsMessageManager.instance.AddChannelMessageDelegate("jpush", _handleMethodCall);
                 completed();
                 setJPushChannel(Config.store);
                 setJPushTags(new List<string> {Config.versionCode.ToString()});
-                isListen = true;
             }
         }
 
@@ -47,7 +48,8 @@ namespace ConnectApp.Plugins {
                             var type = dict["type"];
                             var subType = dict["subtype"];
                             var id = dict["id"];
-                            pushPage(type, subType, subType);
+                            AnalyticsManager.ClickNotification(type, subType, id);
+                            pushPage(type, subType, id);
                         }
                             break;
                         case "OnReceiveNotification": {
@@ -67,6 +69,29 @@ namespace ConnectApp.Plugins {
                             openUrl(args.first());
                         }
                             break;
+                        case "CompletedCallback": {
+                            var node = args[0];
+                            var dict = JSON.Parse(node);
+                            var isPush = (bool) dict["push"];
+                            if (isPush) {
+                                StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToAction {
+                                    routeName = MainNavigatorRoutes.Main
+                                });
+                            }
+                            else {
+                                if (SplashManager.isExistSplash()) {
+                                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToAction {
+                                        routeName = MainNavigatorRoutes.Splash
+                                    });
+                                }
+                                else {
+                                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToAction {
+                                        routeName = MainNavigatorRoutes.Main
+                                    });
+                                }
+                            }
+                        }
+                            break;
                     }
                 }
             }
@@ -79,6 +104,7 @@ namespace ConnectApp.Plugins {
 
             var uri = new Uri(schemeUrl);
             if (uri.Scheme.Equals("unityconnect")) {
+                AnalyticsManager.EnterOnOpenUrl(schemeUrl);
                 if (uri.Host.Equals("connectapp")) {
                     var type = "";
                     if (uri.AbsolutePath.Equals("/project_detail")) {
@@ -210,7 +236,7 @@ namespace ConnectApp.Plugins {
         static void deleteAlias(int sequence) {
             Plugin().Call("deleteAlias", sequence);
         }
-        
+
         static void setTags(int sequence, string tagsJsonStr) {
             Plugin().Call("setTags", sequence, tagsJsonStr);
         }
