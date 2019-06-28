@@ -101,7 +101,7 @@ namespace ConnectApp.Components {
                     titleColor = CColors.Error;
                 }
                 if (type == ActionType.cancel) {
-                    titleColor = CColors.TextBody4;
+                    titleColor = CColors.Cancel;
                 }
 
                 Widget widget = new Column(
@@ -133,6 +133,7 @@ namespace ConnectApp.Components {
                     destructiveWidgets.Add(widget);
                 }
                 else if (type == ActionType.cancel) {
+                    cancelWidgets.Add(new CustomDivider(height: 4, color: CColors.Separator2));
                     cancelWidgets.Add(widget);
                 }
                 else {
@@ -141,10 +142,6 @@ namespace ConnectApp.Components {
             });
             widgets.AddRange(normalWidgets);
             widgets.AddRange(destructiveWidgets);
-            widgets.Add(new CustomDivider(
-                height: 4,
-                color: CColors.Separator2
-            ));
             widgets.AddRange(cancelWidgets);
             return new Column(
                 children: widgets
