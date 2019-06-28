@@ -9,7 +9,7 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.screens {
     public class MainScreen : StatelessWidget {
         public override Widget build(BuildContext context) {
-            return new Container(
+            var child = new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
                     child: new CustomTabBar(
@@ -54,6 +54,9 @@ namespace ConnectApp.screens {
                         }
                     )
                 )
+            );
+            return new VersionUpdater(
+                child
             );
         }
     }

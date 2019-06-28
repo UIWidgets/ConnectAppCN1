@@ -72,6 +72,15 @@ extern "C" {
     };
     
     void listenCompleted(){
+        BOOL needPush = false;
+        if ([JPushPlugin instance].pushJson.length > 0||[JPushPlugin instance].schemeUrl.length > 0) {
+            needPush = true;
+        }
+        NSError *error = nil;
+        NSData *data = [NSJSONSerialization dataWithJSONObject:@{@"push":@(needPush)} options:0 error:&error];
+        NSString *jsonStr = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
+        UIWidgetsMethodMessage(@"jpush", @"CompletedCallback", @[jsonStr]);
+        
         if ([JPushPlugin instance].pushJson.length > 0) {
             UIWidgetsMethodMessage(@"jpush", @"OnOpenNotification", @[[JPushPlugin instance].pushJson]);
         }
