@@ -1,17 +1,14 @@
-using System.Text;
-using ConnectApp.Constants;
 using ConnectApp.Models.Api;
 using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.foundation;
-using UnityEngine.Networking;
 
 namespace ConnectApp.Api {
     public static class MessageApi {
         public static Promise<FetchCommentsResponse> FetchMessages(string channelId, string currOldestMessageId) {
             var promise = new Promise<FetchCommentsResponse>();
-            var url = Config.apiAddress + "/api/channels/" + channelId + "/messages";
+            var url = $"/api/channels/{channelId}/messages";
             if (currOldestMessageId.isNotEmpty()) {
                 url += "?before=" + currOldestMessageId;
             }
@@ -32,12 +29,7 @@ namespace ConnectApp.Api {
                 parentMessageId = parentMessageId,
                 nonce = nonce
             };
-            var body = JsonConvert.SerializeObject(para);
-            var request =
-                HttpManager.initRequest(Config.apiAddress + "/api/channels/" + channelId + "/messages", Method.POST);
-            var bodyRaw = Encoding.UTF8.GetBytes(body);
-            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.SetRequestHeader("Content-Type", "application/json");
+            var request = HttpManager.POST($"/api/channels/{channelId}/messages", para);
             HttpManager.resume(request).Then(responseText => {
                 var sendMessageResponse = new FetchSendMessageResponse {
                     channelId = channelId,

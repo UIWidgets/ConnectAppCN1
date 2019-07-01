@@ -1,4 +1,3 @@
-using ConnectApp.Constants;
 using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Utils;
@@ -9,8 +8,7 @@ namespace ConnectApp.Api {
     public static class EventApi {
         public static IPromise<FetchEventsResponse> FetchEvents(int pageNumber, string tab, string mode) {
             var promise = new Promise<FetchEventsResponse>();
-            var request = HttpManager.GET(Config.apiAddress +
-                                          $"/api/connectapp/events?tab={tab}&page={pageNumber}&mode={mode}");
+            var request = HttpManager.GET($"/api/connectapp/events?tab={tab}&page={pageNumber}&mode={mode}");
             HttpManager.resume(request).Then(responseText => {
                 var eventsResponse = JsonConvert.DeserializeObject<FetchEventsResponse>(responseText);
                 promise.Resolve(eventsResponse);
@@ -20,7 +18,7 @@ namespace ConnectApp.Api {
 
         public static IPromise<IEvent> FetchEventDetail(string eventId) {
             var promise = new Promise<IEvent>();
-            var request = HttpManager.GET(Config.apiAddress + "/api/connectapp/events/" + eventId);
+            var request = HttpManager.GET("/api/connectapp/events/" + eventId);
             HttpManager.resume(request).Then(responseText => {
                 var liveDetail = JsonConvert.DeserializeObject<IEvent>(responseText);
                 promise.Resolve(liveDetail);
@@ -30,7 +28,7 @@ namespace ConnectApp.Api {
 
         public static Promise<string> JoinEvent(string eventId) {
             var promise = new Promise<string>();
-            var request = HttpManager.initRequest(Config.apiAddress + $"/api/connectapp/events/{eventId}/join", Method.POST);
+            var request = HttpManager.POST($"/api/connectapp/events/{eventId}/join");
             HttpManager.resume(request).Then(responseText => { promise.Resolve(eventId); })
                 .Catch(exception => { promise.Reject(exception); });
             return promise;

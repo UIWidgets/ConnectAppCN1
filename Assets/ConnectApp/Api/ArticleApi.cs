@@ -1,18 +1,14 @@
-using System.Text;
-using ConnectApp.Constants;
 using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
-using UnityEngine.Networking;
 
 namespace ConnectApp.Api {
     public static class ArticleApi {
         public static Promise<FetchArticlesResponse> FetchArticles(int offset) {
             var promise = new Promise<FetchArticlesResponse>();
-            var request = HttpManager.GET(Config.apiAddress +
-                                          "/api/getFeedList?language=zh_CN&hottestHasMore=true&feedHasMore=false&isApp=true&hottestOffset=" +
+            var request = HttpManager.GET("/api/getFeedList?language=zh_CN&hottestHasMore=true&feedHasMore=false&isApp=true&hottestOffset=" +
                                           offset);
             HttpManager.resume(request).Then(responseText => {
                 var articlesResponse = JsonConvert.DeserializeObject<FetchArticlesResponse>(responseText);
@@ -23,7 +19,7 @@ namespace ConnectApp.Api {
 
         public static Promise<FetchArticleDetailResponse> FetchArticleDetail(string articleId) {
             var promise = new Promise<FetchArticleDetailResponse>();
-            var request = HttpManager.GET(Config.apiAddress + "/api/p/" + articleId + "?view=true");
+            var request = HttpManager.GET($"/api/p/{articleId}?view=true");
             HttpManager.resume(request).Then(responseText => {
                 var articleDetailResponse = JsonConvert.DeserializeObject<FetchArticleDetailResponse>(responseText);
                 promise.Resolve(articleDetailResponse);
@@ -34,7 +30,7 @@ namespace ConnectApp.Api {
         public static Promise<FetchCommentsResponse>
             FetchArticleComments(string channelId, string currOldestMessageId) {
             var promise = new Promise<FetchCommentsResponse>();
-            var url = Config.apiAddress + "/api/channels/" + channelId + "/messages?limit=5";
+            var url = $"/api/channels/{channelId}/messages?limit=5";
             if (currOldestMessageId.Length > 0) {
                 url += "&before=" + currOldestMessageId;
             }
@@ -53,11 +49,7 @@ namespace ConnectApp.Api {
                 type = "project",
                 itemId = articleId
             };
-            var body = JsonConvert.SerializeObject(para);
-            var request = HttpManager.initRequest(Config.apiAddress + "/api/like", Method.POST);
-            var bodyRaw = Encoding.UTF8.GetBytes(body);
-            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.SetRequestHeader("Content-Type", "application/json");
+            var request = HttpManager.POST("/api/like", para);
             HttpManager.resume(request).Then(responseText => { promise.Resolve(); })
                 .Catch(exception => { promise.Reject(exception); });
             return promise;
@@ -68,12 +60,7 @@ namespace ConnectApp.Api {
             var para = new ReactionParameter {
                 reactionType = "like"
             };
-            var body = JsonConvert.SerializeObject(para);
-            var request =
-                HttpManager.initRequest(Config.apiAddress + "/api/messages/" + commentId + "/addReaction", Method.POST);
-            var bodyRaw = Encoding.UTF8.GetBytes(body);
-            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.SetRequestHeader("Content-Type", "application/json");
+            var request = HttpManager.POST($"/api/messages/{commentId}/addReaction", para);
             HttpManager.resume(request).Then(responseText => {
                 var message = JsonConvert.DeserializeObject<Message>(responseText);
                 promise.Resolve(message);
@@ -86,13 +73,7 @@ namespace ConnectApp.Api {
             var para = new ReactionParameter {
                 reactionType = "like"
             };
-            var body = JsonConvert.SerializeObject(para);
-            var request =
-                HttpManager.initRequest(Config.apiAddress + "/api/messages/" + commentId + "/removeReaction",
-                    Method.POST);
-            var bodyRaw = Encoding.UTF8.GetBytes(body);
-            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.SetRequestHeader("Content-Type", "application/json");
+            var request = HttpManager.POST($"/api/messages/{commentId}/removeReaction", para);
             HttpManager.resume(request).Then(responseText => {
                 var message = JsonConvert.DeserializeObject<Message>(responseText);
                 promise.Resolve(message);
@@ -109,12 +90,7 @@ namespace ConnectApp.Api {
                 parentMessageId = parentMessageId,
                 nonce = nonce
             };
-            var body = JsonConvert.SerializeObject(para);
-            var request =
-                HttpManager.initRequest(Config.apiAddress + "/api/channels/" + channelId + "/messages", Method.POST);
-            var bodyRaw = Encoding.UTF8.GetBytes(body);
-            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.SetRequestHeader("Content-Type", "application/json");
+            var request = HttpManager.POST($"/api/channels/{channelId}/messages", para);
             HttpManager.resume(request).Then(responseText => {
                 var message = JsonConvert.DeserializeObject<Message>(responseText);
                 promise.Resolve(message);
