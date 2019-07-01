@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ConnectApp.Constants;
 using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Utils;
@@ -13,7 +14,7 @@ namespace ConnectApp.Api {
                 email = email,
                 password = password
             };
-            var request = HttpManager.POST("/auth/live/login", para);
+            var request = HttpManager.POST($"{Config.apiAddress}/auth/live/login", para);
             HttpManager.resume(request).Then(responseText => {
                 var loginInfo = JsonConvert.DeserializeObject<LoginInfo>(responseText);
                 promise.Resolve(loginInfo);
@@ -26,7 +27,7 @@ namespace ConnectApp.Api {
             var para = new WechatLoginParameter {
                 code = code
             };
-            var request = HttpManager.POST("/auth/live/wechat", para);
+            var request = HttpManager.POST($"{Config.apiAddress}/auth/live/wechat", para);
             HttpManager.resume(request).Then(responseText => {
                 var loginInfo = JsonConvert.DeserializeObject<LoginInfo>(responseText);
                 promise.Resolve(loginInfo);
@@ -37,8 +38,13 @@ namespace ConnectApp.Api {
 
         public static IPromise<string> FetchCreateUnityIdUrl() {
             var promise = new Promise<string>();
+            var para = new Dictionary<string, object> {
+                {"redirect_to", "%2F"},
+                {"locale", "zh_CN"},
+                {"is_reg", "true"}
+            };
             var request =
-                HttpManager.GET("/api/authUrl?redirect_to=%2F&locale=zh_CN&is_reg=true");
+                HttpManager.GET($"{Config.apiAddress}/api/authUrl", para);
             HttpManager.resume(request).Then(responseText => {
                 var urlDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseText);
                 promise.Resolve(urlDictionary["url"]);

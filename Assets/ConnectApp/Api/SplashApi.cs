@@ -1,4 +1,5 @@
 using System;
+using ConnectApp.Constants;
 using ConnectApp.Models.Model;
 using ConnectApp.Utils;
 using Newtonsoft.Json;
@@ -9,7 +10,7 @@ namespace ConnectApp.Api {
     public static class SplashApi {
         public static Promise<Splash> FetchSplash() {
             var promise = new Promise<Splash>();
-            var request = HttpManager.GET("/api/connectapp/ads");
+            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/ads");
             HttpManager.resume(request).Then(responseText => {
                 var splashResponse = JsonConvert.DeserializeObject<Splash>(responseText);
                 promise.Resolve(splashResponse);

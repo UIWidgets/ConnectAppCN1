@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ConnectApp.Constants;
 using ConnectApp.Models.Api;
 using ConnectApp.Utils;
 using RSG;
@@ -12,7 +13,7 @@ namespace ConnectApp.Api {
                 itemId = itemId,
                 reasons = new List<string> {"other:" + reportContext}
             };
-            var request = HttpManager.POST("/api/report", para);
+            var request = HttpManager.POST($"{Config.apiAddress}/api/report", para);
             HttpManager.resume(request).Then(responseText => { promise.Resolve(); })
                 .Catch(exception => { promise.Reject(exception); });
             return promise;

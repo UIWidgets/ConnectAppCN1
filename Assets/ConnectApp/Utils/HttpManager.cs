@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using ConnectApp.Constants;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using Newtonsoft.Json;
@@ -24,14 +23,9 @@ namespace ConnectApp.Utils {
 
         static UnityWebRequest initRequest(
             string url,
-            string method,
-            string apiAddress = Config.apiAddress) {
-            string newUrl = url;
-            if (!newUrl.Contains(value: apiAddress)) {
-                newUrl = apiAddress + url;
-            }
+            string method) {
             var request = new UnityWebRequest {
-                url = newUrl,
+                url = url,
                 method = method,
                 downloadHandler = new DownloadHandlerBuffer()
             };
@@ -41,12 +35,24 @@ namespace ConnectApp.Utils {
             return request;
         }
 
-        public static UnityWebRequest GET(string uri, string apiAddress = Config.apiAddress) {
-            return initRequest(url: uri, method: Method.GET, apiAddress: apiAddress);
+        public static UnityWebRequest GET(string uri, object parameter = null) {
+            var newUri = uri;
+            if (parameter != null) {
+                string parameterString = "";
+                var par = JsonHelper.ToDictionary(json: parameter);
+                foreach (var keyValuePair in par) {
+                    parameterString += $"{keyValuePair.Key}={keyValuePair.Value}&";
+                }
+                if (parameterString.Length > 0) {
+                    var newParameterString = parameterString.Remove(parameterString.Length - 1);
+                    newUri += $"?{newParameterString}";
+                }
+            }
+            return initRequest(url: newUri, method: Method.GET);
         }
 
-        public static UnityWebRequest POST(string uri, object parameter = null, string apiAddress = Config.apiAddress) {
-            var request = initRequest(url: uri, method: Method.POST, apiAddress: apiAddress);
+        public static UnityWebRequest POST(string uri, object parameter = null) {
+            var request = initRequest(url: uri, method: Method.POST);
             if (parameter != null) {
                 var body = JsonConvert.SerializeObject(value: parameter);
                 var bodyRaw = Encoding.UTF8.GetBytes(s: body);

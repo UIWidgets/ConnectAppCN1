@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using ConnectApp.Constants;
 using ConnectApp.Models.Api;
 using ConnectApp.Utils;
 using Newtonsoft.Json;
@@ -8,12 +10,12 @@ namespace ConnectApp.Api {
     public static class MessageApi {
         public static Promise<FetchCommentsResponse> FetchMessages(string channelId, string currOldestMessageId) {
             var promise = new Promise<FetchCommentsResponse>();
-            var url = $"/api/channels/{channelId}/messages";
+            var para = new Dictionary<string, object> ();
             if (currOldestMessageId.isNotEmpty()) {
-                url += "?before=" + currOldestMessageId;
+                para.Add("before", currOldestMessageId);
             }
 
-            var request = HttpManager.GET(url);
+            var request = HttpManager.GET($"{Config.apiAddress}/api/channels/{channelId}/messages", para);
             HttpManager.resume(request).Then(responseText => {
                 var messagesResponse = JsonConvert.DeserializeObject<FetchCommentsResponse>(responseText);
                 promise.Resolve(messagesResponse);
@@ -29,7 +31,7 @@ namespace ConnectApp.Api {
                 parentMessageId = parentMessageId,
                 nonce = nonce
             };
-            var request = HttpManager.POST($"/api/channels/{channelId}/messages", para);
+            var request = HttpManager.POST($"{Config.apiAddress}/api/channels/{channelId}/messages", para);
             HttpManager.resume(request).Then(responseText => {
                 var sendMessageResponse = new FetchSendMessageResponse {
                     channelId = channelId,
