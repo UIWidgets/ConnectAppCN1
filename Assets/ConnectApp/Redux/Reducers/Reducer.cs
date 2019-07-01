@@ -845,6 +845,11 @@ namespace ConnectApp.redux.reducers {
                     Router.navigator.pushNamed(routeName: action.routeName);
                     break;
                 }
+                
+                case MainNavigatorReplaceToAction action: {
+                    Router.navigator.pushReplacementNamed(routeName: action.routeName);
+                    break;
+                }
 
                 case MainNavigatorPushToRouteAction action: {
                     Router.navigator.push(route: action.route);

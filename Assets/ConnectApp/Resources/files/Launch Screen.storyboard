@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -22,7 +22,7 @@
                                 <rect key="frame" x="137" y="629" width="101" height="22"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="22" id="TB5-8G-OjI"/>
-                                    <constraint firstAttribute="width" secondItem="jv8-XO-4js" secondAttribute="height" multiplier="101:22" id="YnG-8f-Dnk"/>
+                                    <constraint firstAttribute="width" secondItem="jv8-XO-4js" secondAttribute="height" multiplier="101:22" id="YnG-8f-Dnk" userLabel="aspect = 51:11"/>
                                 </constraints>
                             </imageView>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="unityConnectBlack" translatesAutoresizingMaskIntoConstraints="NO" id="Xx0-6x-9CO">
@@ -49,7 +49,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="madeWithUnity" width="16" height="16"/>
-        <image name="unityConnectBlack" width="16" height="16"/>
+        <image name="madeWithUnity" width="102" height="22"/>
+        <image name="unityConnectBlack" width="228" height="40"/>
     </resources>
 </document>
