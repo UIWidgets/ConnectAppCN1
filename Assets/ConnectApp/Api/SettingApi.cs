@@ -9,7 +9,7 @@ namespace ConnectApp.Api {
         public static IPromise<string> FetchReviewUrl(string platform, string store) {
             var promise = new Promise<string>();
             var request =
-                HttpManager.GET(Config.apiAddress + $"/api/live/reviewUrl?platform={platform}&store={store}");
+                HttpManager.GET(Config.apiAddress + $"/api/connectapp/reviewUrl?platform={platform}&store={store}");
             HttpManager.resume(request).Then(responseText => {
                 var urlDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseText);
                 promise.Resolve(urlDictionary["url"]);
@@ -21,7 +21,7 @@ namespace ConnectApp.Api {
             var promise = new Promise<Dictionary<string, string>>();
             var request =
                 HttpManager.GET(Config.apiAddress +
-                                $"/api/live/version?platform={platform}&store={store}&version={version}");
+                                $"/api/connectapp/version?platform={platform}&store={store}&version={version}");
             HttpManager.resume(request).Then(responseText => {
                 var versionDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseText);
                 promise.Resolve(versionDictionary);
