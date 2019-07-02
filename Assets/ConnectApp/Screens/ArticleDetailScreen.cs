@@ -381,11 +381,12 @@ namespace ConnectApp.screens {
                                     
                                     SchedulerBinding.instance.addPostFrameCallback((TimeSpan value2) => 
                                     {
-                                        //third frame: calculate the comment position = minScrollExtent - curPixel(0)
+                                        //calculate the comment position = curPixel(0) - minScrollExtent
                                         var commentPosition = -this._refreshController.scrollController.position
                                             .minScrollExtent;
                                         
-                                        //jump to the comment position now
+                                        //third frame: create a new scroll view which starts from the default first widget
+                                        //and then jump to the calculated comment position
                                         this.setState(() => {
                                             this._refreshController.scrollController.jumpTo(commentPosition);
                                             
