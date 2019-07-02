@@ -152,6 +152,8 @@ namespace ConnectApp.screens {
         string _loginSubId;
         _ArticleJumpToCommentState _jumpState;
 
+        float? _cachedCommentPosition;
+
         public override void initState() {
             base.initState();
             this._refreshController = new RefreshController();
@@ -176,6 +178,7 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.fetchArticleDetail(this.widget.viewModel.articleId);
             });
             this._jumpState = _ArticleJumpToCommentState.Inactive;
+            this._cachedCommentPosition = null;
         }
 
         public override void dispose() {
@@ -372,6 +375,11 @@ namespace ConnectApp.screens {
                 new CustomButton(
                     padding: EdgeInsets.zero,
                     onPressed: () => {
+                        //do not jump if we are already at the exact comment position
+                        if (this._refreshController.scrollController.position.pixels == this._cachedCommentPosition) {
+                            return;
+                        }
+                        
                         //first frame: create a new scroll view in which the center of the viewport is the comment widget
                         this.setState(
                             () => { this._jumpState = _ArticleJumpToCommentState.active; });
@@ -380,6 +388,9 @@ namespace ConnectApp.screens {
                             //calculate the comment position = curPixel(0) - minScrollExtent
                             var commentPosition = -this._refreshController.scrollController.position
                                 .minScrollExtent;
+
+                            //cache the current comment position  
+                            this._cachedCommentPosition = commentPosition;
 
                             //second frame: create a new scroll view which starts from the default first widget
                             //and then jump to the calculated comment position
