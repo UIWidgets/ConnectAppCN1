@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
+using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
@@ -19,20 +21,51 @@ namespace ConnectApp.Utils {
     public static class HttpManager {
         const string COOKIE = "Cookie";
 
-        internal static UnityWebRequest initRequest(
+        static UnityWebRequest initRequest(
             string url,
             string method) {
-            var request = new UnityWebRequest(url, method);
-            request.downloadHandler = new DownloadHandlerBuffer();
+            var request = new UnityWebRequest {
+                url = url,
+                method = method,
+                downloadHandler = new DownloadHandlerBuffer()
+            };
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             UnityWebRequest.ClearCookieCache();
             request.SetRequestHeader(COOKIE, _cookieHeader());
             return request;
         }
 
+        public static UnityWebRequest GET(string uri, object parameter = null) {
+            var newUri = uri;
+            if (parameter != null) {
+                string parameterString = "";
+                var par = JsonHelper.ToDictionary(json: parameter);
+                foreach (var keyValuePair in par) {
+                    parameterString += $"{keyValuePair.Key}={keyValuePair.Value}&";
+                }
+                if (parameterString.Length > 0) {
+                    var newParameterString = parameterString.Remove(parameterString.Length - 1);
+                    newUri += $"?{newParameterString}";
+                }
+            }
+            return initRequest(url: newUri, method: Method.GET);
+        }
 
-        public static UnityWebRequest GET(string uri) {
-            return initRequest(uri, Method.GET);
+        public static UnityWebRequest POST(string uri, object parameter = null) {
+            var request = initRequest(url: uri, method: Method.POST);
+            if (parameter != null) {
+                var body = JsonConvert.SerializeObject(value: parameter);
+                var bodyRaw = Encoding.UTF8.GetBytes(s: body);
+                request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+                request.SetRequestHeader("Content-Type", "application/json");
+            }
+            return request;
+        }
+
+        public static Promise<Texture2D> DownloadImage(string url) {
+            var promise = new Promise<Texture2D>();
+            Window.instance.startCoroutine(fetchImageBytes(promise: promise, url: url));
+            return promise;
         }
 
         public static Promise<string> resume(UnityWebRequest request) {
@@ -60,6 +93,27 @@ namespace ConnectApp.Utils {
                 }
 
                 promise.Resolve(request.downloadHandler.text);
+            }
+        }
+
+        static IEnumerator fetchImageBytes(Promise<Texture2D> promise, string url) {
+            var request = UnityWebRequestTexture.GetTexture(url);
+            request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
+            yield return request.SendWebRequest();
+            if (request.isNetworkError) {
+                promise.Reject(new Exception(request.error));
+            }
+            else if (request.responseCode != 200) {
+                promise.Reject(new Exception(request.downloadHandler.text));
+            }
+            else {
+                var texture = ((DownloadHandlerTexture) request.downloadHandler).texture;
+                if (texture) {
+                    promise.Resolve(texture);
+                }
+                else {
+                    promise.Reject(new Exception("no picture"));
+                }
             }
         }
 
