@@ -368,11 +368,11 @@ namespace ConnectApp.screens {
                             padding: EdgeInsets.zero,
                             onPressed: () => {
                                 //first frame: show an empty container to force un-mount the previous viewport
-                                this.setState(() => {
-                                    this._jumpState = _ArticleJumpToCommentState.ShowEmpty;
-                                });
-                                SchedulerBinding.instance.addPostFrameCallback((TimeSpan value) =>
-                                {
+//                                this.setState(() => {
+//                                    this._jumpState = _ArticleJumpToCommentState.ShowEmpty;
+//                                });
+                                //SchedulerBinding.instance.addPostFrameCallback((TimeSpan value) =>
+                                //{
                                     //second frame: create a new scroll view in which the center of the viewport is the comment widget
                                     this.setState(
                                         () => {
@@ -396,7 +396,7 @@ namespace ConnectApp.screens {
                                             this._isHaveTitle = true;
                                         });
                                     });
-                                });
+                                //});
                             },
                             child: new Container(
                                 width: 88,
