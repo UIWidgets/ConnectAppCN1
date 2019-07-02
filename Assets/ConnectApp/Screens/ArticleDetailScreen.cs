@@ -127,6 +127,12 @@ namespace ConnectApp.screens {
             return new _ArticleDetailScreenState();
         }
     }
+    
+    enum _ArticleJumpToCommentState {
+        Inactive,
+        ShowEmpty,
+        active
+    }
 
     class _ArticleDetailScreenState : State<ArticleDetailScreen>, TickerProvider {
         const float navBarHeight = 44;
@@ -146,6 +152,7 @@ namespace ConnectApp.screens {
         AnimationController _controller;
         RefreshController _refreshController;
         string _loginSubId;
+        _ArticleJumpToCommentState _jumpState;
 
         public override void initState() {
             base.initState();
@@ -170,6 +177,7 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.startFetchArticleDetail();
                 this.widget.actionModel.fetchArticleDetail(this.widget.viewModel.articleId);
             });
+            this._jumpState = _ArticleJumpToCommentState.Inactive;
         }
 
         public override void dispose() {
@@ -225,8 +233,14 @@ namespace ConnectApp.screens {
             this._lastCommentId = this._article.currOldestMessageId ?? "";
             this._hasMore = this._article.hasMore;
 
-            var originItems = this._article == null ? new List<Widget>() : this._buildItems(context);
-
+            var commentIndex = 0;
+            var originItems = this._article == null ? new List<Widget>() : this._buildItems(context, out commentIndex);
+            commentIndex = this._jumpState == _ArticleJumpToCommentState.active ? commentIndex : 0;
+            if (this._jumpState == _ArticleJumpToCommentState.ShowEmpty) {
+                return new Container(
+                );
+            }
+            this._jumpState = _ArticleJumpToCommentState.Inactive;
             var child = new Container(
                 color: CColors.Background,
                 child: new Column(
@@ -234,17 +248,14 @@ namespace ConnectApp.screens {
                         this._buildNavigationBar(),
                         new Expanded(
                             child: new CustomScrollbar(
-                                new SmartRefresher(
+                                new CenteredRefresher(
                                     controller: this._refreshController,
                                     enablePullDown: false,
                                     enablePullUp: this._hasMore,
                                     onRefresh: this._onRefresh,
                                     onNotification: this._onNotification,
-                                    child: ListView.builder(
-                                        physics: new AlwaysScrollableScrollPhysics(),
-                                        itemCount: originItems.Count,
-                                        itemBuilder: (cxt, index) => originItems[index]
-                                    )
+                                    children: originItems,
+                                    centerIndex : commentIndex
                                 )
                             )
                         ),
@@ -310,7 +321,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        List<Widget> _buildItems(BuildContext context) {
+        List<Widget> _buildItems(BuildContext context, out int commentIndex) {
             var originItems = new List<Widget> {
                 this._buildContentHead()
             };
@@ -319,6 +330,7 @@ namespace ConnectApp.screens {
                     this.widget.actionModel.playVideo));
             // originItems.Add(this._buildActionCards(this._article.like));
             originItems.Add(this._buildRelatedArticles());
+            commentIndex = originItems.Count;
             originItems.AddRange(this._buildComments());
             if (!this._article.hasMore) {
                 originItems.Add(this._buildEnd());
@@ -352,28 +364,57 @@ namespace ConnectApp.screens {
                         }
                     )
                 ),
-                new Container(width: 24),
-//                new CustomButton(
-//                    padding: EdgeInsets.zero,
-//                    onPressed: () => {},
-//                    child: new Container(
-//                        width: 88,
-//                        height: 28,
-//                        alignment: Alignment.center,
-//                        decoration: new BoxDecoration(
-//                            border: Border.all(CColors.PrimaryBlue),
-//                            borderRadius: BorderRadius.all(14)
-//                        ),
-//                        child: new Text(
-//                            "说点想法",
-//                            style: new TextStyle(
-//                                fontSize: 14,
-//                                fontFamily: "Roboto-Medium",
-//                                color: CColors.PrimaryBlue
-//                            )
-//                        )
-//                    )
-//                ),
+                new CustomButton(
+                            padding: EdgeInsets.zero,
+                            onPressed: () => {
+                                //first frame: show an empty container to force un-mount the previous viewport
+                                this.setState(() => {
+                                    this._jumpState = _ArticleJumpToCommentState.ShowEmpty;
+                                });
+                                SchedulerBinding.instance.addPostFrameCallback((TimeSpan value) =>
+                                {
+                                    //second frame: create a new scroll view in which the center of the viewport is the comment widget
+                                    this.setState(
+                                        () => {
+                                            this._jumpState = _ArticleJumpToCommentState.active;
+                                        });
+                                    
+                                    SchedulerBinding.instance.addPostFrameCallback((TimeSpan value2) => 
+                                    {
+                                        //third frame: calculate the comment position = minScrollExtent - curPixel(0)
+                                        var commentPosition = -this._refreshController.scrollController.position
+                                            .minScrollExtent;
+                                        
+                                        //jump to the comment position now
+                                        this.setState(() => {
+                                            this._refreshController.scrollController.jumpTo(commentPosition);
+                                            
+                                            //assume that when we jump to the comment, the title should always be shown as the header
+                                            //this assumption will fail when an article is shorter than 16 pixels in height (as referred to in _onNotification
+                                            this._controller.forward();
+                                            this._isHaveTitle = true;
+                                        });
+                                    });
+                                });
+                            },
+                            child: new Container(
+                                width: 88,
+                                height: 28,
+                                alignment: Alignment.center,
+                                decoration: new BoxDecoration(
+                                    border: Border.all(CColors.PrimaryBlue),
+                                    borderRadius: BorderRadius.all(14)
+                                ),
+                                child: new Text(
+                                    "说点想法",
+                                    style: new TextStyle(
+                                        fontSize: 14,
+                                        fontFamily: "Roboto-Medium",
+                                        color: CColors.PrimaryBlue
+                                    )
+                                )
+                            )
+                        ),
                 this._isHaveTitle ? CColors.Separator2 : CColors.Transparent
             );
         }
@@ -387,7 +428,7 @@ namespace ConnectApp.screens {
         }
 
         bool _onNotification(ScrollNotification notification) {
-            var pixels = notification.metrics.pixels;
+            var pixels = notification.metrics.pixels - notification.metrics.minScrollExtent;
             if (this._titleHeight == 0.0f) {
                 this._titleHeight = headTitleKey.currentContext.size.height + 16;
             }
@@ -698,7 +739,7 @@ namespace ConnectApp.screens {
                         string imageUrl = $"{this._article.thumbnail.url}.200x0x1.jpg";
                         this.widget.actionModel.shareToWechat(type, this._article.title, this._article.subTitle,
                                 linkUrl,
-                                imageUrl).Then(CustomDialogUtils.hiddenCustomDialog)
+                                imageUrl).Then((Action) CustomDialogUtils.hiddenCustomDialog)
                             .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
                     }
                 }
