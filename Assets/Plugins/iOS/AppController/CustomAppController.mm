@@ -116,6 +116,10 @@ NSData *APNativeJSONData(id obj) {
 
 - (BOOL)application:(UIApplication*)app openURL:(NSURL*)url options:(NSDictionary<NSString*, id>*)options
 {
+    if ([[url scheme] isEqualToString:@"unityconnect"]) {
+        [JPushPlugin instance].schemeUrl = [url absoluteString];
+        UIWidgetsMethodMessage(gameObjectName, @"OnOpenUrl", @[[url absoluteString]]);
+    }
     if ([JANALYTICSService handleUrl:url]) {
         return YES;
     }
@@ -137,7 +141,17 @@ extern "C" {
         [session setCategory:AVAudioSessionCategoryPlayback error:nil];
         [session setActive:YES error:nil];
     }
-    
+    void setStatusBarStyle(bool isLight){
+        AppController_SendNotificationWithArg(@"UpdateStatusBarStyle",
+                                              @{@"key":@"style",@"value":@(isLight)});
+    }
+    void hiddenStatusBar(bool hidden){
+        AppController_SendNotificationWithArg(@"UpdateStatusBarStyle",
+                                              @{@"key":@"hidden",@"value":@(hidden)});
+    }
+    bool isOpenSensor() {
+        return true;
+    }
 }
 
 @end

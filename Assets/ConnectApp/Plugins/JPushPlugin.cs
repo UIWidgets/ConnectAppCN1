@@ -1,5 +1,9 @@
+using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Web;
 using ConnectApp.Constants;
+using ConnectApp.Main;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
@@ -9,8 +13,8 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using EventType = ConnectApp.Models.State.EventType;
+
 #if UNITY_IOS
-using System.Runtime.InteropServices;
 #endif
 
 namespace ConnectApp.Plugins {
@@ -20,12 +24,16 @@ namespace ConnectApp.Plugins {
         static int callbackId = 0;
 
         public static void addListener() {
+            if (Application.isEditor) {
+                return;
+            }
+
             if (!isListen) {
+                isListen = true;
                 UIWidgetsMessageManager.instance.AddChannelMessageDelegate("jpush", _handleMethodCall);
                 completed();
                 setJPushChannel(Config.store);
                 setJPushTags(new List<string> {Config.versionCode.ToString()});
-                isListen = true;
             }
         }
 
@@ -40,25 +48,8 @@ namespace ConnectApp.Plugins {
                             var type = dict["type"];
                             var subType = dict["subtype"];
                             var id = dict["id"];
-                            if (type == "project") {
-                                if (subType == "article") {
-                                    AnalyticsManager.ClickEnterArticleDetail("Push_Article", id, $"PushArticle_{id}");
-
-                                    StoreProvider.store.dispatcher.dispatch(
-                                        new MainNavigatorPushToArticleDetailAction {articleId = id});
-                                }
-                            }
-                            else if (type == "event") {
-                                var eventType = EventType.offline;
-                                if (subType == "online") {
-                                    eventType = EventType.online;
-                                }
-
-                                AnalyticsManager.ClickEnterEventDetail("Push_Event", id, $"PushEvent_{id}", type);
-
-                                StoreProvider.store.dispatcher.dispatch(
-                                    new MainNavigatorPushToEventDetailAction {eventId = id, eventType = eventType});
-                            }
+                            AnalyticsManager.ClickNotification(type, subType, id);
+                            pushPage(type, subType, id);
                         }
                             break;
                         case "OnReceiveNotification": {
@@ -70,8 +61,95 @@ namespace ConnectApp.Plugins {
                             //接收到应用内消息
                         }
                             break;
+                        case "OnOpenUrl": {
+                            if (args.isEmpty()) {
+                                return;
+                            }
+
+                            openUrl(args.first());
+                        }
+                            break;
+                        case "CompletedCallback": {
+                            var node = args[0];
+                            var dict = JSON.Parse(node);
+                            var isPush = (bool) dict["push"];
+                            if (isPush) {
+                                StoreProvider.store.dispatcher.dispatch(new MainNavigatorReplaceToAction {
+                                    routeName = MainNavigatorRoutes.Main
+                                });
+                            }
+                            else {
+                                if (SplashManager.isExistSplash()) {
+                                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorReplaceToAction {
+                                        routeName = MainNavigatorRoutes.Splash
+                                    });
+                                }
+                                else {
+                                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorReplaceToAction {
+                                        routeName = MainNavigatorRoutes.Main
+                                    });
+                                }
+                            }
+                        }
+                            break;
                     }
                 }
+            }
+        }
+
+        public static void openUrl(string schemeUrl) {
+            if (schemeUrl.isEmpty()) {
+                return;
+            }
+
+            var uri = new Uri(schemeUrl);
+            if (uri.Scheme.Equals("unityconnect")) {
+                AnalyticsManager.EnterOnOpenUrl(schemeUrl);
+                if (uri.Host.Equals("connectapp")) {
+                    var type = "";
+                    if (uri.AbsolutePath.Equals("/project_detail")) {
+                        type = "project";
+                    }
+                    else if (uri.AbsolutePath.Equals("/event_detail")) {
+                        type = "event";
+                    }
+                    else {
+                        return;
+                    }
+
+                    var subType = HttpUtility.ParseQueryString(uri.Query).Get("type");
+                    var id = HttpUtility.ParseQueryString(uri.Query).Get("id");
+                    pushPage(type, subType, id);
+                }
+            }
+            else {
+                pushPage("webView", "", schemeUrl);
+            }
+        }
+
+        static void pushPage(string type, string subType, string id) {
+            if (type == "project") {
+                if (subType == "article") {
+                    AnalyticsManager.ClickEnterArticleDetail("Push_Article", id, $"PushArticle_{id}");
+
+                    StoreProvider.store.dispatcher.dispatch(
+                        new MainNavigatorPushToArticleDetailAction {articleId = id});
+                }
+            }
+            else if (type == "event") {
+                var eventType = EventType.offline;
+                if (subType == "online") {
+                    eventType = EventType.online;
+                }
+
+                AnalyticsManager.ClickEnterEventDetail("Push_Event", id, $"PushEvent_{id}", type);
+
+                StoreProvider.store.dispatcher.dispatch(
+                    new MainNavigatorPushToEventDetailAction {eventId = id, eventType = eventType});
+            }
+            else if (type == "webView") {
+                StoreProvider.store.dispatcher.dispatch(
+                    new MainNavigatorPushToWebViewAction {url = id});
             }
         }
 
@@ -158,7 +236,7 @@ namespace ConnectApp.Plugins {
         static void deleteAlias(int sequence) {
             Plugin().Call("deleteAlias", sequence);
         }
-        
+
         static void setTags(int sequence, string tagsJsonStr) {
             Plugin().Call("setTags", sequence, tagsJsonStr);
         }

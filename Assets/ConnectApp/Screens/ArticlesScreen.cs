@@ -12,8 +12,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
@@ -77,7 +77,7 @@ namespace ConnectApp.screens {
             ArticlesScreenViewModel viewModel = null,
             ArticlesScreenActionModel actionModel = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
@@ -102,6 +102,8 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
+            StatusBarManager.hideStatusBar(false);
+            SplashManager.fetchSplash();
             this._refreshController = new RefreshController();
             this.navBarHeight = maxNavBarHeight;
             this.titleStyle = CTextStyle.H2;
@@ -131,7 +133,7 @@ namespace ConnectApp.screens {
             return new AnimatedContainer(
                 height: this.navBarHeight,
                 color: CColors.White,
-                duration: new TimeSpan(0, 0, 0, 0, 0),
+                duration: TimeSpan.Zero,
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -150,7 +152,7 @@ namespace ConnectApp.screens {
                             child: new Icon(
                                 Icons.search,
                                 size: 28,
-                                color: CColors.BrownGrey
+                                color: CColors.Icon
                             )
                         )
                     }
@@ -168,17 +170,22 @@ namespace ConnectApp.screens {
                 );
             }
             else if (this.widget.viewModel.articleList.Count <= 0) {
-                content = new BlankView("暂无文章", true, () => {
-                    this.widget.actionModel.startFetchArticles();
-                    this.widget.actionModel.fetchArticles(initOffset);
-                });
+                content = new BlankView(
+                    "哎呀，暂无文章",
+                    "image/default-article",
+                    true,
+                    () => {
+                        this.widget.actionModel.startFetchArticles();
+                        this.widget.actionModel.fetchArticles(initOffset);
+                    }
+                );
             }
             else {
                 content = new SmartRefresher(
                     controller: this._refreshController,
                     enablePullDown: true,
                     enablePullUp: this.widget.viewModel.hottestHasMore,
-                    onRefresh: this.onRefresh,
+                    onRefresh: this._onRefresh,
                     child: ListView.builder(
                         physics: new AlwaysScrollableScrollPhysics(),
                         itemCount: this.widget.viewModel.articleList.Count,
@@ -214,7 +221,7 @@ namespace ConnectApp.screens {
                                     this.widget.actionModel.pushToReport, this.widget.actionModel.pushToBlock
                                 ),
                                 fullName,
-                                new ObjectKey(article.id)
+                                key: new ObjectKey(article.id)
                             );
                         }
                     )
@@ -230,7 +237,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        void onRefresh(bool up) {
+        void _onRefresh(bool up) {
             this.offset = up ? initOffset : this.widget.viewModel.hosttestOffset;
             this.widget.actionModel.fetchArticles(this.offset)
                 .Then(() => this._refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))

@@ -9,7 +9,7 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.screens {
     public class MainScreen : StatelessWidget {
         public override Widget build(BuildContext context) {
-            return new Container(
+            var child = new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
                     child: new CustomTabBar(
@@ -22,29 +22,32 @@ namespace ConnectApp.screens {
                         new List<CustomTabBarItem> {
                             new CustomTabBarItem(
                                 0,
-                                Icons.Description,
+                                Icons.outline_description,
+                                Icons.description,
                                 "文章"
                             ),
                             new CustomTabBarItem(
                                 1,
-                                Icons.IEvent,
+                                Icons.outline_event,
+                                Icons.eventIcon,
                                 "活动"
                             ),
                             new CustomTabBarItem(
                                 2,
-                                Icons.Notification,
+                                Icons.outline_notification,
+                                Icons.notification,
                                 "通知"
                             ),
                             new CustomTabBarItem(
                                 3,
-                                Icons.Mood,
+                                Icons.mood,
+                                Icons.mood,
                                 "我的"
                             )
                         },
                         backgroundColor: CColors.White,
                         (fromIndex, toIndex) => {
                             AnalyticsManager.ClickHomeTab(fromIndex, toIndex);
-
 
                             if (toIndex != 2 || StoreProvider.store.getState().loginState.isLoggedIn) {
                                 return true;
@@ -55,6 +58,9 @@ namespace ConnectApp.screens {
                         }
                     )
                 )
+            );
+            return new VersionUpdater(
+                child
             );
         }
     }

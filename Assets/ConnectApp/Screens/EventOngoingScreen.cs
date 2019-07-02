@@ -44,7 +44,7 @@ namespace ConnectApp.screens {
             EventsScreenViewModel viewModel = null,
             EventsScreenActionModel actionModel = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
@@ -63,7 +63,6 @@ namespace ConnectApp.screens {
         const int firstPageNumber = 1;
         RefreshController _ongoingRefreshController;
         int pageNumber = firstPageNumber;
-        string _loginSubId;
 
         protected override bool wantKeepAlive {
             get { return true; }
@@ -76,26 +75,18 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.startFetchEventOngoing();
                 this.widget.actionModel.fetchEvents(firstPageNumber, eventTab, eventMode);
             });
-//            _loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
-//                widget.actionModel.startFetchEventOngoing();
-//                widget.actionModel.fetchEvents(firstPageNumber, "ongoing");
-//            });
-        }
-
-        public override void dispose() {
-//            EventBus.unSubscribe(EventBusConstant.login_success, _loginSubId);
-            base.dispose();
         }
 
         public override Widget build(BuildContext context) {
-            base.build(context);
+            base.build(context: context);
             if (this.widget.viewModel.eventOngoingLoading && this.widget.viewModel.ongoingEvents.isEmpty()) {
                 return new GlobalLoading();
             }
 
             if (this.widget.viewModel.ongoingEvents.Count <= 0) {
                 return new BlankView(
-                    "暂无即将开始活动",
+                    "暂无新活动，看看往期活动吧",
+                    "image/default-event",
                     true,
                     () => {
                         this.widget.actionModel.startFetchEventOngoing();
@@ -114,7 +105,6 @@ namespace ConnectApp.screens {
                                       this.widget.viewModel.ongoingEventTotal,
                         onRefresh: this._ongoingRefresh,
                         child: ListView.builder(
-                            itemExtent: 108,
                             physics: new AlwaysScrollableScrollPhysics(),
                             itemCount: this.widget.viewModel.ongoingEvents.Count,
                             itemBuilder: (cxt, index) => {
@@ -130,7 +120,8 @@ namespace ConnectApp.screens {
                                         model.id,
                                         model.mode == "online" ? EventType.online : EventType.offline
                                     ),
-                                    new ObjectKey(model.id)
+                                    new ObjectKey(model.id),
+                                    index == 0
                                 );
                             }
                         )

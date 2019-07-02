@@ -16,18 +16,21 @@ namespace ConnectApp.Components {
             GestureTapCallback onTap = null,
             GestureTapCallback moreCallBack = null,
             string fullName = null,
+            bool topPadding = false,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.article = article;
             this.fullName = fullName;
             this.onTap = onTap;
             this.moreCallBack = moreCallBack;
+            this.topPadding = topPadding;
         }
 
         readonly Article article;
         readonly string fullName;
         readonly GestureTapCallback onTap;
         readonly GestureTapCallback moreCallBack;
+        readonly bool topPadding;
 
         public override Widget build(BuildContext context) {
             if (this.article == null) {
@@ -38,16 +41,21 @@ namespace ConnectApp.Components {
             const float imageHeight = 66;
             const float borderRadius = 4;
 
+            var gap = 0f;
+            if (this.topPadding) {
+                gap = 16;
+            }
+            
             var time = this.article.lastPublishedTime == null
                 ? this.article.publishedTime
                 : this.article.lastPublishedTime;
             var imageUrl = this.article.thumbnail.url.EndsWith(".gif")
                 ? this.article.thumbnail.url
-                : CImageUtils.SuitableSizeImageUrl(imageWidth + 1, this.article.thumbnail.url);
+                : CImageUtils.SuitableSizeImageUrl(imageWidth, this.article.thumbnail.url);
             var card = new Container(
                 color: CColors.White,
                 child: new Padding(
-                    padding: EdgeInsets.all(16),
+                    padding: EdgeInsets.only(16, 16 + gap, 16, 16),
                     child: new Container(
                         child: new Column(
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -86,16 +94,18 @@ namespace ConnectApp.Components {
                                     )
                                 ),
                                 new Container(
-                                    height:20,
+                                    height: 20,
                                     child: new Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: new List<Widget> {
                                             new Expanded(
-                                                child: new Text(
-                                                    $"{this.fullName} · {DateConvert.DateStringFromNow(time)} · 阅读 {this.article.viewCount}",
-                                                    style: CTextStyle.PSmallBody3
+                                                child: new ArticleCardInfo(
+                                                    fullName: this.fullName,
+                                                    time: time,
+                                                    viewCount: this.article.viewCount
                                                 )
                                             ),
+                                            new SizedBox(width: 16),
                                             new GestureDetector(
                                                 child: new Container(
                                                     height: 20,

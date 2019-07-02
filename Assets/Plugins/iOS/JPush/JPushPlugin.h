@@ -15,6 +15,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic,copy) NSString *pushJson;
 
+@property (nonatomic,copy) NSString *schemeUrl;
+
 @end
 
 NS_ASSUME_NONNULL_END

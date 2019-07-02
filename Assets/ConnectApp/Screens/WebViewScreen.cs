@@ -76,7 +76,7 @@ namespace ConnectApp.screens {
 
             if (!Application.isEditor) {
                 this._webViewObject.SetVisibility(false);
-                WebViewManager.instance.destroyWebView();
+                WebViewManager.destroyWebView();
             }
 
             base.dispose();
@@ -88,7 +88,7 @@ namespace ConnectApp.screens {
                 this._timer = null;
             }
 
-            this._timer = Window.instance.run(new TimeSpan(0, 0, 0, 0, 60), () => {
+            this._timer = Window.instance.run(TimeSpan.FromMilliseconds(60), () => {
                 if (this._progress < 0.9f) {
                     this._progress += 0.03f;
                     this.setState(() => { });
@@ -173,33 +173,19 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildNavigationBar() {
-            return new Container(
-                height: 44,
-                color: CColors.White,
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: new List<Widget> {
-                        new GestureDetector(
-                            onTap: () => {
-                                this._onClose = true;
-                                this.setState(() => { });
-                                if (Router.navigator.canPop()) {
-                                    Router.navigator.pop();
-                                }
-
-                                if (!Application.isEditor) {
-                                    this._webViewObject.SetVisibility(false);
-                                    WebViewManager.instance.destroyWebView();
-                                }
-                            },
-                            child: new Container(
-                                padding: EdgeInsets.symmetric(10, 16),
-                                color: CColors.Transparent,
-                                child: new Icon(Icons.arrow_back, size: 24, color: CColors.Icon))
-                        )
+            return new CustomAppBar(
+                () => {
+                    this._onClose = true;
+                    this.setState(() => { });
+                    if (Router.navigator.canPop()) {
+                        Router.navigator.pop();
                     }
-                )
+
+                    if (!Application.isEditor) {
+                        this._webViewObject.SetVisibility(false);
+                        WebViewManager.destroyWebView();
+                    }
+                }
             );
         }
     }

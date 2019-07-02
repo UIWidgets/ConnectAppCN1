@@ -56,6 +56,19 @@ namespace Plugins.Editor {
             var madeSourceFile = "iOS/madeWithUnity.imageset";
             writeFile(madeSourceFile, madeDestDict);
 
+            var destFile = path + "/Classes/UI/UnityVIewControllerBase+iOS.mm";
+
+            FileUtil.DeleteFileOrDirectory(destFile);
+            // 自定义覆盖controller文件，动态修改状态栏
+            FileUtil.CopyFileOrDirectory(Application.dataPath + "/Plugins/Editor/UnityVIewControllerBase+iOS.mm",
+                destFile);
+
+            var destBaseFile = path + "/Classes/UI/UnityVIewControllerBase.mm";
+
+            FileUtil.DeleteFileOrDirectory(destBaseFile);
+            // 自定义覆盖controller文件，动态修改状态栏
+            FileUtil.CopyFileOrDirectory(Application.dataPath + "/Plugins/Editor/UnityVIewControllerBase.mm",
+                destBaseFile);
 
             // 执行修改操作
             File.WriteAllText(path: projPath, proj.WriteToString());
@@ -63,6 +76,7 @@ namespace Plugins.Editor {
 
 
         static void writeFile(string sourceFile, string destDict) {
+            FileUtil.DeleteFileOrDirectory(destDict);
             FileUtil.CopyFileOrDirectory(Application.dataPath + "/ConnectApp/Resources/image/" + sourceFile, destDict);
         }
 
@@ -92,6 +106,14 @@ namespace Plugins.Editor {
             PlistElementArray jgUrlScheme = jgUrl.CreateArray("CFBundleURLSchemes");
             jgUrlScheme.AddString(val: "jiguang-" + Config.jgAppKey);
 
+            // Add URLScheme For unityconnect
+            PlistElementDict appUrl = urlTypes.AddDict();
+            appUrl.SetString("CFBundleTypeRole", "Editor");
+            appUrl.SetString("CFBundleURLName", "");
+            appUrl.SetString("CFBundleURLSchemes", val: "unityconnect");
+            PlistElementArray appUrlScheme = appUrl.CreateArray("CFBundleURLSchemes");
+            appUrlScheme.AddString(val: "unityconnect");
+
             // 白名单 for wechat
             PlistElementArray queriesSchemes = rootDict.CreateArray("LSApplicationQueriesSchemes");
             queriesSchemes.AddString("wechat");
@@ -108,6 +130,12 @@ namespace Plugins.Editor {
 
             // 出口合规信息
             rootDict.SetBoolean("ITSAppUsesNonExemptEncryption", false);
+
+            // remove exit on suspend if it exists.
+            string exitsOnSuspendKey = "UIApplicationExitsOnSuspend";
+            if (rootDict.values.ContainsKey(exitsOnSuspendKey)) {
+                rootDict.values.Remove(exitsOnSuspendKey);
+            }
 
             // 写入
             File.WriteAllText(path: plistPath, plist.WriteToString());

@@ -14,8 +14,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -109,11 +109,11 @@ namespace ConnectApp.screens {
         public readonly EventDetailScreenActionModel actionModel;
 
         public override State createState() {
-            return new _EventDetailScreenState();
+            return new _EventOnlineDetailScreenState();
         }
     }
 
-    class _EventDetailScreenState : State<EventOnlineDetailScreen>, TickerProvider {
+    class _EventOnlineDetailScreenState : State<EventOnlineDetailScreen>, TickerProvider {
         AnimationController _controller;
         Animation<Offset> _position;
         Animation<RelativeRect> _titleAnimation;
@@ -217,7 +217,8 @@ namespace ConnectApp.screens {
             }
 
             if ((this.widget.viewModel.eventDetailLoading || eventObj?.user == null) && !eventObj.isNotFirst) {
-                return new EventDetailLoading(mainRouterPop: this.widget.actionModel.mainRouterPop);
+                return new EventDetailLoading(eventType: EventType.online,
+                    mainRouterPop: this.widget.actionModel.mainRouterPop);
             }
 
             var eventStatus = DateConvert.GetEventStatus(eventObj.begin);
@@ -228,19 +229,15 @@ namespace ConnectApp.screens {
                     bottom: !this._isFullScreen,
                     child: new Container(
                         color: this._isFullScreen ? CColors.Black : CColors.White,
-                        child: new NotificationListener<ScrollNotification>(
-                            onNotification: notification =>
-                                this._onNotification(context, notification, eventStatus, eventObj),
-                            child: new Column(
-                                children: new List<Widget> {
-                                    this._buildEventHeader(context, eventObj, EventType.online, eventStatus,
-                                        this.widget.viewModel.isLoggedIn),
-                                    this._buildEventDetail(context, eventObj, EventType.online, eventStatus,
-                                        this.widget.viewModel.isLoggedIn),
-                                    this._buildEventBottom(eventObj, EventType.online, eventStatus,
-                                        this.widget.viewModel.isLoggedIn)
-                                }
-                            )
+                        child: new Column(
+                            children: new List<Widget> {
+                                this._buildEventHeader(context, eventObj, EventType.online, eventStatus,
+                                    this.widget.viewModel.isLoggedIn),
+                                this._buildEventDetail(context, eventObj, EventType.online, eventStatus,
+                                    this.widget.viewModel.isLoggedIn),
+                                this._buildEventBottom(eventObj, EventType.online, eventStatus,
+                                    this.widget.viewModel.isLoggedIn)
+                            }
                         )
                     )
                 )
@@ -359,14 +356,18 @@ namespace ConnectApp.screens {
                     eventObj.record,
                     context,
                     this._buildHeadTop(false, eventObj),
-                    isFullScreen => { this.setState(() => { this._isFullScreen = isFullScreen; }); },
+                    isFullScreen => {
+                        using (WindowProvider.of(context).getScope()) {
+                            this.setState(() => { this._isFullScreen = isFullScreen; });
+                        }
+                    },
                     eventObj.recordDuration
                 );
             }
 
-            if (eventStatus == EventStatus.past && eventObj.record.isEmpty()) {
-                return new Container();
-            }
+//            if (eventStatus == EventStatus.past && eventObj.record.isEmpty()) {
+//                return new Container();
+//            }
 
             return new Stack(
                 children: new List<Widget> {
@@ -383,27 +384,27 @@ namespace ConnectApp.screens {
 
         Widget _buildEventDetail(BuildContext context, IEvent eventObj, EventType eventType, EventStatus eventStatus,
             bool isLoggedIn) {
-            if (eventObj.record.isEmpty() && eventStatus == EventStatus.past) {
-                return new Expanded(
-                    child: new Stack(
-                        children: new List<Widget> {
-                            new EventDetail(
-                                false,
-                                eventObj,
-                                this.widget.actionModel.openUrl,
-                                topWidget: new EventHeader(eventObj, eventType, eventStatus, isLoggedIn),
-                                titleKey: eventTitleKey
-                            ),
-                            new Positioned(
-                                left: 0,
-                                top: 0,
-                                right: 0,
-                                child: this._buildHeadTop(true, eventObj)
-                            )
-                        }
-                    )
-                );
-            }
+//            if (eventObj.record.isEmpty() && eventStatus == EventStatus.past) {
+//                return new Expanded(
+//                    child: new Stack(
+//                        children: new List<Widget> {
+//                            new EventDetail(
+//                                false,
+//                                eventObj,
+//                                this.widget.actionModel.openUrl,
+//                                topWidget: new EventHeader(eventObj, eventType, eventStatus, isLoggedIn),
+//                                titleKey: eventTitleKey
+//                            ),
+//                            new Positioned(
+//                                left: 0,
+//                                top: 0,
+//                                right: 0,
+//                                child: this._buildHeadTop(true, eventObj)
+//                            )
+//                        }
+//                    )
+//                );
+//            }
 
             return new Expanded(
                 child: new EventDetail(
@@ -619,13 +620,13 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildChatList() {
-            object child = new Container();
+            Widget child = new Container();
             if (this.widget.viewModel.messageLoading) {
                 child = new GlobalLoading();
             }
             else {
                 if (this.widget.viewModel.messageList.Count <= 0) {
-                    child = new BlankView("暂无聊天内容");
+                    child = new BlankView("暂无聊天内容", null);
                 }
                 else {
                     child = new SmartRefresher(
@@ -667,7 +668,7 @@ namespace ConnectApp.screens {
                     onTap: () => this._focusNode.unfocus(),
                     child: new Container(
                         color: CColors.White,
-                        child: (Widget) child
+                        child: child
                     )
                 )
             );

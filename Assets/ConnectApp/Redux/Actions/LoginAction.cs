@@ -71,7 +71,7 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new MainNavigatorPopAction());
                         dispatcher.dispatch(new CleanEmailAndPasswordAction());
                         UserInfoManager.saveUserInfo(loginInfo);
-                        JAnalyticsPlugin.Login("email");
+                        AnalyticsManager.LoginEvent("email");
                         JPushPlugin.setJPushAlias(loginInfo.userId);
                     });
             });
@@ -94,7 +94,7 @@ namespace ConnectApp.redux.actions {
                             loginInfo = loginInfo
                         });
                         UserInfoManager.saveUserInfo(loginInfo);
-                        JAnalyticsPlugin.Login("wechat");
+                        AnalyticsManager.LoginEvent("wechat");
                         JPushPlugin.setJPushAlias(loginInfo.userId);
                     });
             });

@@ -144,14 +144,24 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildContent(BuildContext context) {
-            return new Container(
-                color: CColors.White,
-                child: new Column(
-                    children: new List<Widget> {
-                        this._buildTopView(),
-                        this._buildMiddleView(context),
-                        this._buildBottomView()
+            return new GestureDetector(
+                onTap: () => {
+                    if (this._emailFocusNode.hasFocus) {
+                        this._emailFocusNode.unfocus();
                     }
+                    if (this._passwordFocusNode.hasFocus) {
+                        this._passwordFocusNode.unfocus();
+                    }
+                },
+                child: new Container(
+                    color: CColors.White,
+                    child: new Column(
+                        children: new List<Widget> {
+                            this._buildTopView(),
+                            this._buildMiddleView(context),
+                            this._buildBottomView()
+                        }
+                    )
                 )
             );
         }

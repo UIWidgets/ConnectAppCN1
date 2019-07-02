@@ -9,6 +9,7 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 
 namespace ConnectApp.Components {
     public class EventCard : StatelessWidget {
@@ -16,16 +17,19 @@ namespace ConnectApp.Components {
             IEvent model,
             string place = null,
             GestureTapCallback onTap = null,
-            Key key = null
-        ) : base(key) {
+            Key key = null,
+            bool topPadding = false
+        ) :base(key) {
             this.model = model;
             this.place = place;
             this.onTap = onTap;
+            this.topPadding = topPadding;
         }
 
         readonly IEvent model;
         readonly string place;
         readonly GestureTapCallback onTap;
+        readonly bool topPadding;
 
         public override Widget build(BuildContext context) {
             if (this.model == null) {
@@ -36,6 +40,11 @@ namespace ConnectApp.Components {
             const float imageHeight = 76;
             const float borderRadius = 4;
 
+            var gap = 0f;
+            if (this.topPadding) {
+                gap = 16;
+            }
+
             var time = Convert.ToDateTime(this.model.begin.startTime);
             var hour = $"{time.Hour.ToString().PadLeft(2, '0')}";
             var minute = $"{time.Minute.ToString().PadLeft(2, '0')}";
@@ -43,7 +52,8 @@ namespace ConnectApp.Components {
             var address = this.place ?? "";
             var imageUrl = this.model.avatar ?? this.model.background;
             var card = new Container(
-                padding: EdgeInsets.all(16),
+                height: 108 + gap,
+                padding: EdgeInsets.only(16, 16 + gap, 16, 16),
                 color: CColors.White,
                 child: new Row(
                     crossAxisAlignment: CrossAxisAlignment.start,

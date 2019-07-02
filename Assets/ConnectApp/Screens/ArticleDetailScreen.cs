@@ -128,12 +128,6 @@ namespace ConnectApp.screens {
         }
     }
 
-    enum _ArticleJumpToCommentState {
-        Inactive,
-        ShowEmpty,
-        active
-    }
-
     class _ArticleDetailScreenState : State<ArticleDetailScreen>, TickerProvider {
         const float navBarHeight = 44;
         static readonly GlobalKey headTitleKey = GlobalKey.key("head-title");
@@ -152,9 +146,6 @@ namespace ConnectApp.screens {
         AnimationController _controller;
         RefreshController _refreshController;
         string _loginSubId;
-
-        _ArticleJumpToCommentState _jumpState;
-        bool _haveEnoughComment;
 
         public override void initState() {
             base.initState();
@@ -179,15 +170,7 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.startFetchArticleDetail();
                 this.widget.actionModel.fetchArticleDetail(this.widget.viewModel.articleId);
             });
-            
-            this._jumpState = _ArticleJumpToCommentState.Inactive;
-            this._haveEnoughComment = false;
         }
-
-        public override void deactivate() {
-            base.deactivate();
-        }
-
 
         public override void dispose() {
             EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
@@ -241,15 +224,8 @@ namespace ConnectApp.screens {
             this._contentMap = this._article.contentMap;
             this._lastCommentId = this._article.currOldestMessageId ?? "";
             this._hasMore = this._article.hasMore;
-            
-            var commentIndex = 0;
-            var originItems = this._article == null ? new List<Widget>() : this._buildItems(context, out commentIndex);
-            commentIndex = this._jumpState == _ArticleJumpToCommentState.active ? commentIndex : 0;
-            if (this._jumpState == _ArticleJumpToCommentState.ShowEmpty) {
-                return new Container(
-                );
-            }
-            this._jumpState = _ArticleJumpToCommentState.Inactive;
+
+            var originItems = this._article == null ? new List<Widget>() : this._buildItems(context);
 
             var child = new Container(
                 color: CColors.Background,
@@ -258,14 +234,17 @@ namespace ConnectApp.screens {
                         this._buildNavigationBar(),
                         new Expanded(
                             child: new CustomScrollbar(
-                                new CenteredRefresher(
+                                new SmartRefresher(
                                     controller: this._refreshController,
                                     enablePullDown: false,
                                     enablePullUp: this._hasMore,
                                     onRefresh: this._onRefresh,
                                     onNotification: this._onNotification,
-                                    children: originItems,
-                                    centerIndex : commentIndex
+                                    child: ListView.builder(
+                                        physics: new AlwaysScrollableScrollPhysics(),
+                                        itemCount: originItems.Count,
+                                        itemBuilder: (cxt, index) => originItems[index]
+                                    )
                                 )
                             )
                         ),
@@ -331,7 +310,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        List<Widget> _buildItems(BuildContext context, out int commentIndex) {
+        List<Widget> _buildItems(BuildContext context) {
             var originItems = new List<Widget> {
                 this._buildContentHead()
             };
@@ -340,9 +319,6 @@ namespace ConnectApp.screens {
                     this.widget.actionModel.playVideo));
             // originItems.Add(this._buildActionCards(this._article.like));
             originItems.Add(this._buildRelatedArticles());
-
-            commentIndex = originItems.Count;
-            
             originItems.AddRange(this._buildComments());
             if (!this._article.hasMore) {
                 originItems.Add(this._buildEnd());
@@ -363,88 +339,42 @@ namespace ConnectApp.screens {
                 );
             }
 
-            return new Container(
-                height: navBarHeight,
-                decoration: new BoxDecoration(
-                    CColors.White,
-                    border: new Border(
-                        bottom: new BorderSide(this._isHaveTitle ? CColors.Separator2 : CColors.Transparent))
+            return new CustomAppBar(
+                () => this.widget.actionModel.mainRouterPop(),
+                new Expanded(
+                    child: new Stack(
+                        fit: StackFit.expand,
+                        children: new List<Widget> {
+                            new PositionedTransition(
+                                rect: this._animation,
+                                child: titleWidget
+                            )
+                        }
+                    )
                 ),
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: new List<Widget> {
-                        new GestureDetector(
-                            onTap: () => this.widget.actionModel.mainRouterPop(),
-                            child: new Container(
-                                padding: EdgeInsets.only(16, 10, 0, 10),
-                                color: CColors.Transparent,
-                                child: new Icon(Icons.arrow_back, size: 24, color: CColors.Icon))
-                        ),
-                        new Expanded(
-                            child: new Stack(
-                                fit: StackFit.expand,
-                                children: new List<Widget> {
-                                    new PositionedTransition(
-                                        rect: this._animation,
-                                        child: titleWidget
-                                    )
-                                }
-                            )
-                        ),
-                        new Container(width: 48),
-                        new CustomButton(
-                            padding: EdgeInsets.zero,
-                            onPressed: () => {
-                                //if there are not enough comments ( < 3)
-                                //just scroll to the end of the page
-                                if (!this._haveEnoughComment) {
-                                    this.setState(() => {
-                                        this._refreshController.scrollController.jumpTo(
-                                            this._refreshController.scrollController.position.maxScrollExtent);
-                                    });
-                                }
-                                else {
-                                    //first step: show an empty container to prepare for the jump action
-                                    this.setState(() => {
-                                        this._jumpState = _ArticleJumpToCommentState.ShowEmpty;
-                                    });
-                                
-                                    //second step: in the next frame,
-                                    //create a new scroll view in which the center of the viewport is the comment widget
-                                    SchedulerBinding.instance.addPostFrameCallback((TimeSpan value) =>
-                                    {
-                                        this.setState(
-                                            () => {
-                                                this._jumpState = _ArticleJumpToCommentState.active;
-                                                //assume that when we jump to the comment, the title should always be shown as the header
-                                                //this assumption will fail when an article is shorter than 16 pixels in height (as referred to in _onNotification
-                                                this._controller.forward();
-                                                this._isHaveTitle = true;
-                                            });
-                                    });
-                                }
-                            },
-                            child: new Container(
-                                width: 88,
-                                height: 28,
-                                alignment: Alignment.center,
-                                decoration: new BoxDecoration(
-                                    border: Border.all(CColors.PrimaryBlue),
-                                    borderRadius: BorderRadius.all(14)
-                                ),
-                                child: new Text(
-                                    "说点想法",
-                                    style: new TextStyle(
-                                        fontSize: 14,
-                                        fontFamily: "Roboto-Medium",
-                                        color: CColors.PrimaryBlue
-                                    )
-                                )
-                            )
-                        )
-                    }
-                )
+                new Container(width: 24),
+//                new CustomButton(
+//                    padding: EdgeInsets.zero,
+//                    onPressed: () => {},
+//                    child: new Container(
+//                        width: 88,
+//                        height: 28,
+//                        alignment: Alignment.center,
+//                        decoration: new BoxDecoration(
+//                            border: Border.all(CColors.PrimaryBlue),
+//                            borderRadius: BorderRadius.all(14)
+//                        ),
+//                        child: new Text(
+//                            "说点想法",
+//                            style: new TextStyle(
+//                                fontSize: 14,
+//                                fontFamily: "Roboto-Medium",
+//                                color: CColors.PrimaryBlue
+//                            )
+//                        )
+//                    )
+//                ),
+                this._isHaveTitle ? CColors.Separator2 : CColors.Transparent
             );
         }
 
@@ -457,9 +387,7 @@ namespace ConnectApp.screens {
         }
 
         bool _onNotification(ScrollNotification notification) {
-            //the offset between the current pixel and the minScrollExtent, indicating the 
-            //distance to the very top of the scroll view
-            var pixels = notification.metrics.pixels - notification.metrics.minScrollExtent;
+            var pixels = notification.metrics.pixels;
             if (this._titleHeight == 0.0f) {
                 this._titleHeight = headTitleKey.currentContext.size.height + 16;
             }
@@ -538,16 +466,18 @@ namespace ConnectApp.screens {
                                 }
                             )
                         ),
-                        new Container(
-                            margin: EdgeInsets.only(bottom: 24),
-                            decoration: new BoxDecoration(
-                                CColors.Separator2,
-                                borderRadius: BorderRadius.all(4)
-                            ),
-                            padding: EdgeInsets.only(16, 12, 16, 12),
-                            width: Screen.width - 32,
-                            child: new Text($"{this._article.subTitle}", style: CTextStyle.PLargeBody4)
-                        )
+                        this._article.subTitle.isEmpty()
+                            ? new Container()
+                            : new Container(
+                                margin: EdgeInsets.only(bottom: 24),
+                                decoration: new BoxDecoration(
+                                    CColors.Separator2,
+                                    borderRadius: BorderRadius.all(4)
+                                ),
+                                padding: EdgeInsets.only(16, 12, 16, 12),
+                                width: Screen.width - 32,
+                                child: new Text($"{this._article.subTitle}", style: CTextStyle.PLargeBody4)
+                            )
                     }
                 )
             );
@@ -583,20 +513,7 @@ namespace ConnectApp.screens {
                 return new Container();
             }
 
-            var widgets = new List<Widget> {
-                new Container(
-                    height: 1,
-                    color: CColors.Separator2,
-                    margin: EdgeInsets.only(16, 16, 16, 40)
-                ),
-                new Container(
-                    margin: EdgeInsets.only(16, bottom: 16),
-                    child: new Text(
-                        "推荐阅读",
-                        style: CTextStyle.PLargeMedium
-                    )
-                )
-            };
+            var widgets = new List<Widget>();
             this._relArticles.ForEach(article => {
                 //对文章进行过滤
                 if (article.id != this._article.id) {
@@ -623,6 +540,23 @@ namespace ConnectApp.screens {
                     widgets.Add(card);
                 }
             });
+            if (widgets.isNotEmpty()) {
+                widgets.InsertRange(0, new List<Widget> {
+                    new Container(
+                        height: 1,
+                        color: CColors.Separator2,
+                        margin: EdgeInsets.only(16, 16, 16, 40)
+                    ),
+                    new Container(
+                        margin: EdgeInsets.only(16, bottom: 16),
+                        child: new Text(
+                            "推荐阅读",
+                            style: CTextStyle.PLargeMedium
+                        )
+                    )
+                });
+            }
+
             return new Container(
                 color: CColors.White,
                 margin: EdgeInsets.only(bottom: 16),
@@ -710,12 +644,6 @@ namespace ConnectApp.screens {
                 comments.Add(card);
             }
 
-            if (comments.Count >= 4) {
-                this._haveEnoughComment = true;
-            }
-            else {
-                this._haveEnoughComment = false;
-            }
             return comments;
         }
 

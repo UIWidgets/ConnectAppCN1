@@ -7,7 +7,7 @@ namespace ConnectApp.Components {
         public VersionUpdater(
             Widget child = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.child = child;
         }
 
@@ -23,7 +23,7 @@ namespace ConnectApp.Components {
             base.initState();
             var needCheckUpdater = VersionManager.needCheckUpdater();
             if (needCheckUpdater) {
-                VersionManager.checkForUpdates(CheckVersionType.first);
+                VersionManager.checkForUpdates(type: CheckVersionType.first);
             }
         }
 

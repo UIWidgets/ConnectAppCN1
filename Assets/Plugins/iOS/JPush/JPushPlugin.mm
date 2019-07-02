@@ -72,10 +72,21 @@ extern "C" {
     };
     
     void listenCompleted(){
-        if ([JPushPlugin instance].pushJson == NULL || [JPushPlugin instance].pushJson.length == 0) {
-            return;
+        BOOL needPush = false;
+        if ([JPushPlugin instance].pushJson.length > 0||[JPushPlugin instance].schemeUrl.length > 0) {
+            needPush = true;
         }
-        UIWidgetsMethodMessage(@"jpush", @"OnOpenNotification", @[[JPushPlugin instance].pushJson]);
+        NSError *error = nil;
+        NSData *data = [NSJSONSerialization dataWithJSONObject:@{@"push":@(needPush)} options:0 error:&error];
+        NSString *jsonStr = [[NSString alloc]initWithData:data encoding:NSUTF8StringEncoding];
+        UIWidgetsMethodMessage(@"jpush", @"CompletedCallback", @[jsonStr]);
+        
+        if ([JPushPlugin instance].pushJson.length > 0) {
+            UIWidgetsMethodMessage(@"jpush", @"OnOpenNotification", @[[JPushPlugin instance].pushJson]);
+        }
+        if ([JPushPlugin instance].schemeUrl.length > 0) {
+            UIWidgetsMethodMessage(@"jpush", @"OnOpenUrl", @[[JPushPlugin instance].schemeUrl]);
+        }
     }
     
     void setChannel(const char * channel){

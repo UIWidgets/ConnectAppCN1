@@ -1,15 +1,17 @@
+using System;
 using System.IO;
 using ConnectApp.Api;
 using ConnectApp.Models.Model;
 using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.ui;
 using UnityEngine;
 
 namespace ConnectApp.Utils {
     public static class SplashManager {
         const string SPLASHINFOKEY = "SPlashInfo";
 
-        static string PATH = Application.persistentDataPath + "/";
+        static readonly string PATH = Application.persistentDataPath + "/";
 
         static byte[] image_bytes;
 
@@ -60,7 +62,8 @@ namespace ConnectApp.Utils {
         }
 
         static void fetchImage(Splash splash) {
-            SplashApi.FetchSplashImage(splash.image).Then(imageBytes => {
+            var imageWidth = Math.Ceiling(Window.instance.physicalSize.width);
+            SplashApi.FetchSplashImage($"{splash.image}.{imageWidth}x0x1.jpg").Then(imageBytes => {
                 File.WriteAllBytes(PATH + splash.image.GetHashCode(), imageBytes);
                 var splashInfo = JsonConvert.SerializeObject(splash);
                 PlayerPrefs.SetString(SPLASHINFOKEY, splashInfo);

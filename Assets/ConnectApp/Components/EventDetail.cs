@@ -7,6 +7,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 
 namespace ConnectApp.Components {
     public class EventDetail : StatelessWidget {
@@ -65,9 +66,14 @@ namespace ConnectApp.Components {
             }
 
             var imageUrl = this.eventObj.avatar ?? "";
+            var aspectRatio = 16.0f / 9;
+            if (Application.platform != RuntimePlatform.Android) {
+                aspectRatio = 3f / 2;
+            }
+
             return new Container(
                 child: new AspectRatio(
-                    aspectRatio: 16.0f / 9.0f,
+                    aspectRatio: aspectRatio,
                     child: new PlaceholderImage(
                         imageUrl.EndsWith(".gif")
                             ? imageUrl

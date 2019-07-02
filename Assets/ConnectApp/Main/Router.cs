@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.Components;
-using ConnectApp.Constants;
 using ConnectApp.Plugins;
 using ConnectApp.screens;
 using ConnectApp.Utils;
@@ -16,6 +15,7 @@ using UnityEngine;
 namespace ConnectApp.Main {
     static class MainNavigatorRoutes {
         public const string Root = "/";
+        public const string Splash = "/splash";
         public const string Main = "/main";
         public const string Search = "/search";
         public const string ArticleDetail = "/article-detail";
@@ -40,9 +40,7 @@ namespace ConnectApp.Main {
 
         static Dictionary<string, WidgetBuilder> mainRoutes {
             get {
-                return new Dictionary<string, WidgetBuilder> {
-                    {MainNavigatorRoutes.Root, context => new SplashPage()},
-                    {MainNavigatorRoutes.Main, context => new MainScreen()},
+                var routes = new Dictionary<string, WidgetBuilder> {
                     {MainNavigatorRoutes.Search, context => new SearchScreenConnector()},
                     {MainNavigatorRoutes.ArticleDetail, context => new ArticleDetailScreenConnector("")},
                     {MainNavigatorRoutes.Setting, context => new SettingScreenConnector()},
@@ -52,8 +50,26 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.BindUnity, context => new BindUnityScreenConnector(FromPage.setting)},
                     {MainNavigatorRoutes.Report, context => new ReportScreenConnector("", ReportType.article)},
                     {MainNavigatorRoutes.AboutUs, context => new AboutUsScreenConnector()},
-                    {MainNavigatorRoutes.WebView, context => new WebViewScreen()}
+                    {MainNavigatorRoutes.WebView, context => new WebViewScreen()},
                 };
+                if (Application.isEditor) {
+                    var isExistSplash = SplashManager.isExistSplash();
+                    if (isExistSplash) {
+                        routes.Add(MainNavigatorRoutes.Root, context => new SplashPage());
+                        routes.Add(MainNavigatorRoutes.Main, context => new MainScreen());
+                    }
+                    else {
+                        routes.Add(MainNavigatorRoutes.Root, context => new MainScreen());
+                    }
+                }
+                else {
+                    routes.Add(MainNavigatorRoutes.Splash, context => new SplashPage());
+                    routes.Add(MainNavigatorRoutes.Main, context => new MainScreen());
+                    routes.Add(MainNavigatorRoutes.Root, context => new RootScreen());
+                }
+
+
+                return routes;
             }
         }
 
@@ -61,7 +77,7 @@ namespace ConnectApp.Main {
             get {
                 return new Dictionary<string, WidgetBuilder> {
                     {MainNavigatorRoutes.Search, context => new SearchScreenConnector()},
-                    {MainNavigatorRoutes.Login, context => new LoginScreen()}
+                    {MainNavigatorRoutes.Login, context => new LoginScreen()},
                 };
             }
         }
@@ -75,7 +91,7 @@ namespace ConnectApp.Main {
                         LoginScreen.navigator.pop();
                         promise.Resolve(false);
                     }
-                    else if (Screen.orientation == ScreenOrientation.LandscapeLeft) {
+                    else if (Screen.orientation != ScreenOrientation.Portrait) {
                         //视频全屏时禁止物理返回按钮
                         EventBus.publish(EventBusConstant.fullScreen, new List<object> {true});
                         promise.Resolve(false);
@@ -85,7 +101,7 @@ namespace ConnectApp.Main {
                         promise.Resolve(false);
                     }
                     else {
-                        if (Config.platform == "android") {
+                        if (Application.platform == RuntimePlatform.Android) {
                             if (this._exitApp) {
                                 CustomToast.hidden();
                                 promise.Resolve(true);

@@ -120,7 +120,10 @@ namespace ConnectApp.Components {
                                         children: new List<Widget> {
                                             new Padding(
                                                 padding: EdgeInsets.only(top: 5),
-                                                child: new Icon(item.icon, size: item.size,
+                                                child: new Icon(
+                                                    this._selectedIndex == item.index
+                                                        ? item.selectedIcon
+                                                        : item.normalIcon, size: item.size,
                                                     color: this._selectedIndex == item.index
                                                         ? item.activeColor
                                                         : item.inActiveColor)

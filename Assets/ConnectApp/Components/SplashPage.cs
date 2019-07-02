@@ -2,12 +2,15 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Main;
+using ConnectApp.Plugins;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.Components {
@@ -22,16 +25,28 @@ namespace ConnectApp.Components {
         Timer _timer;
         int _lastSecond = 5;
         BuildContext _context;
+        uint hexColor;
 
         public override void initState() {
             base.initState();
+            StatusBarManager.hideStatusBar(true);
             this._isShow = SplashManager.isExistSplash();
             if (this._isShow) {
                 this._lastSecond = SplashManager.getSplash().duration;
                 this._timer = Window.instance.run(TimeSpan.FromSeconds(1), this.t_Tick, true);
             }
 
-            SplashManager.fetchSplash();
+            var isShowLogo = SplashManager.getSplash().isShowLogo;
+            var hexColorStr = SplashManager.getSplash().color;
+            if (isShowLogo) {
+                this.hexColor = 0xFFFFFFFF;
+                try {
+                    this.hexColor = Convert.ToUInt32(value: hexColorStr, 16);
+                }
+                catch (Exception e) {
+                    Console.WriteLine(e);
+                }
+            }
         }
 
         public override void dispose() {
@@ -45,47 +60,76 @@ namespace ConnectApp.Components {
                 return new MainScreen();
             }
 
+            var topPadding = 0f;
+            if (Application.platform != RuntimePlatform.Android) {
+                topPadding = MediaQuery.of(context).padding.top;
+            }
+
+            var isShowLogo = SplashManager.getSplash().isShowLogo;
+            Widget logo = new Container();
+            if (isShowLogo) {
+                logo = new Positioned(
+                    top: topPadding + 24,
+                    left: 16,
+                    child: new Icon(
+                        Icons.LogoWithUinty,
+                        size: 35,
+                        color: new Color(value: this.hexColor)
+                    )
+                );
+            }
+
             return new Container(
                 color: CColors.White,
                 child: new Stack(
                     children: new List<Widget> {
                         new Column(
                             children: new List<Widget> {
-                                new Container(
-                                    width: MediaQuery.of(context).size.width,
-                                    height: MediaQuery.of(context).size.height,
-                                    child: Image.memory(SplashManager.readImage(), fit: BoxFit.cover)
+                                new GestureDetector(
+                                    child: new Container(
+                                        width: MediaQuery.of(context).size.width,
+                                        height: MediaQuery.of(context).size.height,
+                                        child: Image.memory(SplashManager.readImage(), fit: BoxFit.cover)
+                                    ),
+                                    onTap: pushPage
                                 )
                             }
                         ),
                         new Positioned(
-                            top: MediaQuery.of(context).padding.top + 24,
+                            top: topPadding + 24,
                             right: 16,
                             child: new GestureDetector(
                                 child: new Container(
                                     decoration: new BoxDecoration(
-                                        color: Color.fromRGBO(149, 149, 149, 0.6f),
-                                        borderRadius: BorderRadius.all(19)
+                                        Color.fromRGBO(0, 0, 0, 0.5f),
+                                        borderRadius: BorderRadius.all(16)
                                     ),
-                                    width: 80,
-                                    height: 38,
+                                    width: 65,
+                                    height: 32,
                                     alignment: Alignment.center,
-                                    padding: EdgeInsets.all(2),
                                     child: new Text($"跳过 {this._lastSecond}", style: new TextStyle(
-                                        fontSize: 16,
+                                        fontSize: 14,
                                         fontFamily: "PingFangSC-Regular",
                                         color: CColors.White
                                     ))
                                 ),
-                                onTap: this.pushCallback
+                                onTap: pushCallback
                             )
-                        )
+                        ),
+                        logo
                     }
                 )
             );
         }
 
-        void pushCallback() {
+        static void pushPage() {
+            var splash = SplashManager.getSplash();
+            AnalyticsManager.ClickSplashPage(splash.id, splash.name, splash.url);
+            Router.navigator.pushReplacementNamed(MainNavigatorRoutes.Main);
+            JPushPlugin.openUrl(splash.url);
+        }
+
+        static void pushCallback() {
             Router.navigator.pushReplacementNamed(MainNavigatorRoutes.Main);
         }
 
@@ -93,7 +137,7 @@ namespace ConnectApp.Components {
             using (WindowProvider.of(this._context).getScope()) {
                 this.setState(() => { this._lastSecond -= 1; });
                 if (this._lastSecond < 1) {
-                    this.pushCallback();
+                    pushCallback();
                 }
             }
         }

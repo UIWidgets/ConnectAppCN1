@@ -171,7 +171,15 @@ namespace ConnectApp.screens {
                     );
                 }
                 else {
-                    child = new BlankView("暂无搜索结果");
+                    child = new BlankView(
+                        "哎呀，换个关键词试试吧",
+                        "image/default-search",
+                        true,
+                        () => {
+                            this.widget.actionModel.startSearchArticle();
+                            this.widget.actionModel.searchArticle(this.widget.viewModel.searchKeyword, 0);
+                        }
+                    );
                 }
             }
             else {
@@ -188,9 +196,17 @@ namespace ConnectApp.screens {
                     child: new Container(
                         child: new Column(
                             children: new List<Widget> {
-                                this._buildSearchBar(context),
+                                this._buildSearchBar(),
                                 new Flexible(
-                                    child: child
+                                    child: new NotificationListener<ScrollNotification>(
+                                        onNotification: notification => {
+                                            if (this._focusNode.hasFocus) {
+                                                this._focusNode.unfocus();
+                                            }
+                                            return true;
+                                        },
+                                        child: child
+                                    )
                                 )
                             }
                         )
@@ -199,7 +215,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildSearchBar(BuildContext context) {
+        Widget _buildSearchBar() {
             return new Container(
                 height: 94,
                 padding: EdgeInsets.only(16, 0, 16, 12),
@@ -210,7 +226,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new CustomButton(
                             padding: EdgeInsets.only(8, 8, 0, 8),
-                            onPressed: () => { this.widget.actionModel.mainRouterPop(); },
+                            onPressed: () => this.widget.actionModel.mainRouterPop(),
                             child: new Text(
                                 "取消",
                                 style: CTextStyle.PLargeBlue
@@ -301,8 +317,7 @@ namespace ConnectApp.screens {
                 return new Container();
             }
 
-            var widgets = new List<Widget>();
-            widgets.Add(
+            var widgets = new List<Widget> {
                 new Container(
                     margin: EdgeInsets.only(top: 24, bottom: 10),
                     child: new Row(
@@ -334,19 +349,23 @@ namespace ConnectApp.screens {
                         }
                     )
                 )
-            );
+            };
             searchHistoryList.ForEach(item => {
                 var child = new GestureDetector(
-                    onTap: () => { this._searchArticle(item); },
+                    onTap: () => this._searchArticle(item),
                     child: new Container(
                         height: 44,
                         color: CColors.White,
                         child: new Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: new List<Widget> {
-                                new Text(
-                                    item,
-                                    style: CTextStyle.PLargeBody
+                                new Expanded(
+                                    child: new Text(
+                                        data: item,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: CTextStyle.PLargeBody
+                                    )
                                 ),
                                 new CustomButton(
                                     padding: EdgeInsets.only(8, 8, 0, 8),

@@ -51,7 +51,7 @@ namespace ConnectApp.screens {
             HistoryScreenViewModel viewModel = null,
             HistoryScreenActionModel actionModel = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
@@ -63,7 +63,7 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             if (this.viewModel.articleHistory.Count == 0) {
-                return new BlankView("暂无浏览文章记录");
+                return new BlankView("哎呀，还没有任何文章记录", "image/default-history");
             }
 
             return new Container(
@@ -72,49 +72,50 @@ namespace ConnectApp.screens {
                     ListView.builder(
                         physics: new AlwaysScrollableScrollPhysics(),
                         itemCount: this.viewModel.articleHistory.Count,
-                        itemBuilder: (cxt, index) => {
-                            var model = this.viewModel.articleHistory[index];
-                            var child = new ArticleCard(
-                                model,
-                                () => this.actionModel.pushToArticleDetail(model.id),
-                                () => ReportManager.showReportView(this.viewModel.isLoggedIn,
-                                    model.id,
-                                    ReportType.article, this.actionModel.pushToLogin, this.actionModel.pushToReport,
-                                    this.actionModel.pushToBlock
-                                ),
-                                model.fullName,
-                                new ObjectKey(model.id)
-                            );
-
-                            return CustomDismissible.builder(
-                                Key.key(model.id),
-                                child,
-                                new CustomDismissibleDrawerDelegate(),
-                                secondaryActions: new List<Widget> {
-                                    new GestureDetector(
-                                        onTap: () => this.actionModel.deleteArticleHistory(model.id),
-                                        child: new Container(
-                                            color: CColors.Separator2,
-                                            width: 80,
-                                            alignment: Alignment.center,
-                                            child: new Container(
-                                                width: 44,
-                                                height: 44,
-                                                alignment: Alignment.center,
-                                                decoration: new BoxDecoration(
-                                                    CColors.White,
-                                                    borderRadius: BorderRadius.circular(22)
-                                                ),
-                                                child: new Icon(Icons.delete_outline, size: 28, color: CColors.Error)
-                                            )
-                                        )
-                                    )
-                                },
-                                controller: this._controller
-                            );
-                        }
+                        itemBuilder: this._buildArticleCard
                     )
                 )
+            );
+        }
+
+        Widget _buildArticleCard(BuildContext context, int index) {
+            var model = this.viewModel.articleHistory[index];
+            return CustomDismissible.builder(
+                Key.key(model.id),
+                new ArticleCard(
+                    model,
+                    () => this.actionModel.pushToArticleDetail(model.id),
+                    () => ReportManager.showReportView(this.viewModel.isLoggedIn,
+                        model.id,
+                        ReportType.article, this.actionModel.pushToLogin, this.actionModel.pushToReport,
+                        this.actionModel.pushToBlock
+                    ),
+                    model.fullName,
+                    index == 0,
+                    new ObjectKey(model.id)
+                ),
+                new CustomDismissibleDrawerDelegate(),
+                secondaryActions: new List<Widget> {
+                    new GestureDetector(
+                        onTap: () => this.actionModel.deleteArticleHistory(model.id),
+                        child: new Container(
+                            color: CColors.Separator2,
+                            width: 80,
+                            alignment: Alignment.center,
+                            child: new Container(
+                                width: 44,
+                                height: 44,
+                                alignment: Alignment.center,
+                                decoration: new BoxDecoration(
+                                    CColors.White,
+                                    borderRadius: BorderRadius.circular(22)
+                                ),
+                                child: new Icon(Icons.delete_outline, size: 28, color: CColors.Error)
+                            )
+                        )
+                    )
+                },
+                controller: this._controller
             );
         }
     }

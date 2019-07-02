@@ -53,7 +53,7 @@ namespace ConnectApp.Components {
                     mainAxisSize: MainAxisSize.min,
                     children: new List<Widget> {
                         _buildTitle(this.title),
-                        _buildButtons(context, this.items),
+                        _buildButtons(this.items),
                         new Container(
                             height: MediaQuery.of(context).padding.bottom
                         )
@@ -85,7 +85,7 @@ namespace ConnectApp.Components {
             );
         }
 
-        static Widget _buildButtons(BuildContext context, List<ActionSheetItem> items) {
+        static Widget _buildButtons(List<ActionSheetItem> items) {
             if (items == null || items.Count <= 0) {
                 return new Container();
             }
@@ -99,6 +99,9 @@ namespace ConnectApp.Components {
                 Color titleColor = CColors.TextBody;
                 if (type == ActionType.destructive) {
                     titleColor = CColors.Error;
+                }
+                if (type == ActionType.cancel) {
+                    titleColor = CColors.Cancel;
                 }
 
                 Widget widget = new Column(
@@ -130,6 +133,7 @@ namespace ConnectApp.Components {
                     destructiveWidgets.Add(widget);
                 }
                 else if (type == ActionType.cancel) {
+                    cancelWidgets.Add(new CustomDivider(height: 4, color: CColors.Separator2));
                     cancelWidgets.Add(widget);
                 }
                 else {

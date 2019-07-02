@@ -4,12 +4,22 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
+
+import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
+import com.unity3d.unityconnect.plugins.JPushPlugin;
+
+import java.time.temporal.ValueRange;
+import java.util.Arrays;
+
 public class UnityPlayerActivityStatusBar extends UnityPlayerActivity
 {
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        if (this.getIntent().getScheme()!=null&&this.getIntent().getScheme().equals("unityconnect")){
+            JPushPlugin.getInstance().schemeUrl = this.getIntent().getDataString();
+        }
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         // Clear low profile flags to apply non-fullscreen mode before splash screen
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -17,6 +27,16 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity
         }
         showSystemUi();
         addUiVisibilityChangeListener();
+
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        if (this.getIntent().getScheme() != null && this.getIntent().getScheme().equals("unityconnect")){
+            String data = this.getIntent().getDataString();
+            UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenUrl", Arrays.asList(data));
+        }
     }
 
     private static int getLowProfileFlag()

@@ -9,5 +9,8 @@ namespace ConnectApp.Models.Model {
         public int duration;
         public bool archived;
         public DateTime createdTime;
+        public string url;
+        public bool isShowLogo;
+        public string color;
     }
 }

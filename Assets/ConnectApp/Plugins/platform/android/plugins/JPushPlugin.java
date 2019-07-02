@@ -4,6 +4,7 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.google.gson.Gson;
 import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
 
 import org.json.JSONArray;
@@ -11,7 +12,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import cn.jpush.android.api.JPushInterface;
@@ -33,9 +36,22 @@ public class JPushPlugin {
 
     public String pushJson;
 
+    public String schemeUrl;
+
     public void listenCompleted(){
-        if (pushJson!=null){
+        Boolean needPush = false;
+        if (pushJson != null||pushJson != null){
+            needPush = true;
+        }
+        Map<String, Boolean> map = new HashMap<String, Boolean>();
+        map.put("push", needPush);
+        UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "CompletedCallback", Arrays.asList(new Gson().toJson(map)));
+
+        if (pushJson != null){
             UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenNotification", Arrays.asList(pushJson));
+        }
+        if (schemeUrl != null){
+            UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenUrl", Arrays.asList(schemeUrl));
         }
     }
 

@@ -63,7 +63,6 @@ namespace ConnectApp.screens {
         const int firstPageNumber = 1;
         RefreshController _completedRefreshController;
         int pageNumber = firstPageNumber;
-        string _loginSubId;
 
         protected override bool wantKeepAlive {
             get { return true; }
@@ -76,26 +75,18 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.startFetchEventCompleted();
                 this.widget.actionModel.fetchEvents(firstPageNumber, eventTab, eventMode);
             });
-//            _loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
-//                widget.actionModel.startFetchEventCompleted();
-//                widget.actionModel.fetchEvents(firstPageNumber, "completed");
-//            });
-        }
-
-        public override void dispose() {
-//            EventBus.unSubscribe(EventBusConstant.login_success, _loginSubId);
-            base.dispose();
         }
 
         public override Widget build(BuildContext context) {
-            base.build(context);
+            base.build(context: context);
             if (this.widget.viewModel.eventCompletedLoading && this.widget.viewModel.completedEvents.isEmpty()) {
                 return new GlobalLoading();
             }
 
             if (this.widget.viewModel.completedEvents.Count <= 0) {
                 return new BlankView(
-                    "暂无往期活动",
+                    "暂无往期活动，看看新活动吧",
+                    "image/default-event",
                     true,
                     () => {
                         this.widget.actionModel.startFetchEventCompleted();
@@ -114,7 +105,6 @@ namespace ConnectApp.screens {
                                       this.widget.viewModel.completedEventTotal,
                         onRefresh: this._completedRefresh,
                         child: ListView.builder(
-                            itemExtent: 108,
                             physics: new AlwaysScrollableScrollPhysics(),
                             itemCount: this.widget.viewModel.completedEvents.Count,
                             itemBuilder: (cxt, index) => {
@@ -130,7 +120,8 @@ namespace ConnectApp.screens {
                                         model.id,
                                         model.mode == "online" ? EventType.online : EventType.offline
                                     ),
-                                    new ObjectKey(model.id)
+                                    new ObjectKey(model.id),
+                                    index == 0
                                 );
                             }
                         )
