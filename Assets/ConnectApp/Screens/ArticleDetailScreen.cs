@@ -130,7 +130,6 @@ namespace ConnectApp.screens {
 
     enum _ArticleJumpToCommentState {
         Inactive,
-        ShowEmpty,
         active
     }
 
@@ -245,12 +244,8 @@ namespace ConnectApp.screens {
             var commentIndex = 0;
             var originItems = this._article == null ? new List<Widget>() : this._buildItems(context, out commentIndex);
             commentIndex = this._jumpState == _ArticleJumpToCommentState.active ? commentIndex : 0;
-            if (this._jumpState == _ArticleJumpToCommentState.ShowEmpty) {
-                return new Container(
-                );
-            }
-
             this._jumpState = _ArticleJumpToCommentState.Inactive;
+
             var child = new Container(
                 color: CColors.Background,
                 child: new Column(
@@ -377,28 +372,24 @@ namespace ConnectApp.screens {
                 new CustomButton(
                     padding: EdgeInsets.zero,
                     onPressed: () => {
-                        //first frame: show an empty container to force un-mount the previous viewport
-                        this.setState(() => { this._jumpState = _ArticleJumpToCommentState.ShowEmpty; });
-                        SchedulerBinding.instance.addPostFrameCallback((TimeSpan value) => {
-                            //second frame: create a new scroll view in which the center of the viewport is the comment widget
-                            this.setState(
-                                () => { this._jumpState = _ArticleJumpToCommentState.active; });
+                        //first frame: create a new scroll view in which the center of the viewport is the comment widget
+                        this.setState(
+                            () => { this._jumpState = _ArticleJumpToCommentState.active; });
 
-                            SchedulerBinding.instance.addPostFrameCallback((TimeSpan value2) => {
-                                //calculate the comment position = curPixel(0) - minScrollExtent
-                                var commentPosition = -this._refreshController.scrollController.position
-                                    .minScrollExtent;
+                        SchedulerBinding.instance.addPostFrameCallback((TimeSpan value2) => {
+                            //calculate the comment position = curPixel(0) - minScrollExtent
+                            var commentPosition = -this._refreshController.scrollController.position
+                                .minScrollExtent;
 
-                                //third frame: create a new scroll view which starts from the default first widget
-                                //and then jump to the calculated comment position
-                                this.setState(() => {
-                                    this._refreshController.scrollController.jumpTo(commentPosition);
+                            //second frame: create a new scroll view which starts from the default first widget
+                            //and then jump to the calculated comment position
+                            this.setState(() => {
+                                this._refreshController.scrollController.jumpTo(commentPosition);
 
-                                    //assume that when we jump to the comment, the title should always be shown as the header
-                                    //this assumption will fail when an article is shorter than 16 pixels in height (as referred to in _onNotification
-                                    this._controller.forward();
-                                    this._isHaveTitle = true;
-                                });
+                                //assume that when we jump to the comment, the title should always be shown as the header
+                                //this assumption will fail when an article is shorter than 16 pixels in height (as referred to in _onNotification
+                                this._controller.forward();
+                                this._isHaveTitle = true;
                             });
                         });
                     },
