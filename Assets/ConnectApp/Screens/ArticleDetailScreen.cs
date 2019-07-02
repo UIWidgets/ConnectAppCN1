@@ -14,8 +14,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -127,7 +127,7 @@ namespace ConnectApp.screens {
             return new _ArticleDetailScreenState();
         }
     }
-    
+
     enum _ArticleJumpToCommentState {
         Inactive,
         ShowEmpty,
@@ -136,7 +136,6 @@ namespace ConnectApp.screens {
 
     class _ArticleDetailScreenState : State<ArticleDetailScreen>, TickerProvider {
         const float navBarHeight = 44;
-        static readonly GlobalKey headTitleKey = GlobalKey.key("head-title");
         Article _article = new Article();
         User _user = new User();
         Team _team = new Team();
@@ -229,6 +228,16 @@ namespace ConnectApp.screens {
                 this._channelComments = this.widget.viewModel.channelMessageList[this._article.channelId];
             }
 
+            if (this._titleHeight == 0f && this._article.title.isNotEmpty()) {
+                this._titleHeight = CTextUtils.CalculateTextHeight(
+                                        text: this._article.title,
+                                        textStyle: CTextStyle.H3,
+                                        MediaQuery.of(context).size.width - 16 * 2, // 16 is horizontal padding
+                                        null
+                                    ) + 16; // 16 is top padding
+                this.setState(() => { });
+            }
+
             this._contentMap = this._article.contentMap;
             this._lastCommentId = this._article.currOldestMessageId ?? "";
             this._hasMore = this._article.hasMore;
@@ -240,6 +249,7 @@ namespace ConnectApp.screens {
                 return new Container(
                 );
             }
+
             this._jumpState = _ArticleJumpToCommentState.Inactive;
             var child = new Container(
                 color: CColors.Background,
@@ -255,7 +265,7 @@ namespace ConnectApp.screens {
                                     onRefresh: this._onRefresh,
                                     onNotification: this._onNotification,
                                     children: originItems,
-                                    centerIndex : commentIndex
+                                    centerIndex: commentIndex
                                 )
                             )
                         ),
@@ -365,57 +375,51 @@ namespace ConnectApp.screens {
                     )
                 ),
                 new CustomButton(
-                            padding: EdgeInsets.zero,
-                            onPressed: () => {
-                                //first frame: show an empty container to force un-mount the previous viewport
+                    padding: EdgeInsets.zero,
+                    onPressed: () => {
+                        //first frame: show an empty container to force un-mount the previous viewport
+                        this.setState(() => { this._jumpState = _ArticleJumpToCommentState.ShowEmpty; });
+                        SchedulerBinding.instance.addPostFrameCallback((TimeSpan value) => {
+                            //second frame: create a new scroll view in which the center of the viewport is the comment widget
+                            this.setState(
+                                () => { this._jumpState = _ArticleJumpToCommentState.active; });
+
+                            SchedulerBinding.instance.addPostFrameCallback((TimeSpan value2) => {
+                                //calculate the comment position = curPixel(0) - minScrollExtent
+                                var commentPosition = -this._refreshController.scrollController.position
+                                    .minScrollExtent;
+
+                                //third frame: create a new scroll view which starts from the default first widget
+                                //and then jump to the calculated comment position
                                 this.setState(() => {
-                                    this._jumpState = _ArticleJumpToCommentState.ShowEmpty;
+                                    this._refreshController.scrollController.jumpTo(commentPosition);
+
+                                    //assume that when we jump to the comment, the title should always be shown as the header
+                                    //this assumption will fail when an article is shorter than 16 pixels in height (as referred to in _onNotification
+                                    this._controller.forward();
+                                    this._isHaveTitle = true;
                                 });
-                                SchedulerBinding.instance.addPostFrameCallback((TimeSpan value) =>
-                                {
-                                    //second frame: create a new scroll view in which the center of the viewport is the comment widget
-                                    this.setState(
-                                        () => {
-                                            this._jumpState = _ArticleJumpToCommentState.active;
-                                        });
-                                    
-                                    SchedulerBinding.instance.addPostFrameCallback((TimeSpan value2) => 
-                                    {
-                                        //calculate the comment position = curPixel(0) - minScrollExtent
-                                        var commentPosition = -this._refreshController.scrollController.position
-                                            .minScrollExtent;
-                                        
-                                        //third frame: create a new scroll view which starts from the default first widget
-                                        //and then jump to the calculated comment position
-                                        this.setState(() => {
-                                            this._refreshController.scrollController.jumpTo(commentPosition);
-                                            
-                                            //assume that when we jump to the comment, the title should always be shown as the header
-                                            //this assumption will fail when an article is shorter than 16 pixels in height (as referred to in _onNotification
-                                            this._controller.forward();
-                                            this._isHaveTitle = true;
-                                        });
-                                    });
-                                });
-                            },
-                            child: new Container(
-                                width: 88,
-                                height: 28,
-                                alignment: Alignment.center,
-                                decoration: new BoxDecoration(
-                                    border: Border.all(CColors.PrimaryBlue),
-                                    borderRadius: BorderRadius.all(14)
-                                ),
-                                child: new Text(
-                                    "说点想法",
-                                    style: new TextStyle(
-                                        fontSize: 14,
-                                        fontFamily: "Roboto-Medium",
-                                        color: CColors.PrimaryBlue
-                                    )
-                                )
-                            )
+                            });
+                        });
+                    },
+                    child: new Container(
+                        width: 88,
+                        height: 28,
+                        alignment: Alignment.center,
+                        decoration: new BoxDecoration(
+                            border: Border.all(CColors.PrimaryBlue),
+                            borderRadius: BorderRadius.all(14)
                         ),
+                        child: new Text(
+                            "说点想法",
+                            style: new TextStyle(
+                                fontSize: 14,
+                                fontFamily: "Roboto-Medium",
+                                color: CColors.PrimaryBlue
+                            )
+                        )
+                    )
+                ),
                 this._isHaveTitle ? CColors.Separator2 : CColors.Transparent
             );
         }
@@ -430,10 +434,6 @@ namespace ConnectApp.screens {
 
         bool _onNotification(ScrollNotification notification) {
             var pixels = notification.metrics.pixels - notification.metrics.minScrollExtent;
-            if (this._titleHeight == 0.0f) {
-                this._titleHeight = headTitleKey.currentContext.size.height + 16;
-            }
-
             if (pixels > this._titleHeight) {
                 if (this._isHaveTitle == false) {
                     this._controller.forward();
@@ -476,7 +476,6 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new Text(
                             this._article.title,
-                            headTitleKey,
                             style: CTextStyle.H3
                         ),
                         new Container(
