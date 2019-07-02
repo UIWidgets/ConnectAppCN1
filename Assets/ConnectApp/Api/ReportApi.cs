@@ -1,11 +1,8 @@
 using System.Collections.Generic;
-using System.Text;
 using ConnectApp.Constants;
 using ConnectApp.Models.Api;
 using ConnectApp.Utils;
-using Newtonsoft.Json;
 using RSG;
-using UnityEngine.Networking;
 
 namespace ConnectApp.Api {
     public static class ReportApi {
@@ -16,11 +13,7 @@ namespace ConnectApp.Api {
                 itemId = itemId,
                 reasons = new List<string> {"other:" + reportContext}
             };
-            var body = JsonConvert.SerializeObject(para);
-            var request = HttpManager.initRequest(Config.apiAddress + "/api/report", Method.POST);
-            var bodyRaw = Encoding.UTF8.GetBytes(body);
-            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.SetRequestHeader("Content-Type", "application/json");
+            var request = HttpManager.POST($"{Config.apiAddress}/api/report", para);
             HttpManager.resume(request).Then(responseText => { promise.Resolve(); })
                 .Catch(exception => { promise.Reject(exception); });
             return promise;
