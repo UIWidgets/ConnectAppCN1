@@ -29,7 +29,7 @@ namespace ConnectApp.screens {
         public ArticleDetailScreenConnector(
             string articleId,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.articleId = articleId;
         }
 
@@ -115,7 +115,7 @@ namespace ConnectApp.screens {
             ArticleDetailScreenViewModel viewModel = null,
             ArticleDetailScreenActionModel actionModel = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
@@ -138,12 +138,6 @@ namespace ConnectApp.screens {
         Article _article = new Article();
         User _user = new User();
         Team _team = new Team();
-        string _channelId = "";
-        List<string> _channelComments = new List<string>();
-        List<Article> _relArticles = new List<Article>();
-        Dictionary<string, ContentMap> _contentMap = new Dictionary<string, ContentMap>();
-        string _lastCommentId = "";
-        bool _hasMore;
         bool _isHaveTitle;
         float _titleHeight;
         Animation<RelativeRect> _animation;
@@ -157,7 +151,6 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             this._refreshController = new RefreshController();
-            this._hasMore = false;
             this._isHaveTitle = false;
             this._titleHeight = 0.0f;
             this._controller = new AnimationController(
@@ -198,7 +191,7 @@ namespace ConnectApp.screens {
                     child: new CustomSafeArea(
                         child: new Column(
                             children: new List<Widget> {
-                                this._buildNavigationBar(),
+                                this._buildNavigationBar(false),
                                 new ArticleDetailLoading()
                             }
                         )
@@ -224,12 +217,6 @@ namespace ConnectApp.screens {
                 }
             }
 
-            this._channelId = this._article.channelId;
-            this._relArticles = this._article.projects.FindAll(item => item.type == "article");
-            if (this.widget.viewModel.channelMessageList.ContainsKey(this._article.channelId)) {
-                this._channelComments = this.widget.viewModel.channelMessageList[this._article.channelId];
-            }
-
             if (this._titleHeight == 0f && this._article.title.isNotEmpty()) {
                 this._titleHeight = CTextUtils.CalculateTextHeight(
                                         text: this._article.title,
@@ -239,10 +226,6 @@ namespace ConnectApp.screens {
                                     ) + 16; // 16 is top padding
                 this.setState(() => { });
             }
-
-            this._contentMap = this._article.contentMap;
-            this._lastCommentId = this._article.currOldestMessageId ?? "";
-            this._hasMore = this._article.hasMore;
 
             var commentIndex = 0;
             var originItems = this._article == null ? new List<Widget>() : this._buildItems(context, out commentIndex);
@@ -259,7 +242,7 @@ namespace ConnectApp.screens {
                                 new CenteredRefresher(
                                     controller: this._refreshController,
                                     enablePullDown: false,
-                                    enablePullUp: this._hasMore,
+                                    enablePullUp: this._article.hasMore,
                                     onRefresh: this._onRefresh,
                                     onNotification: this._onNotification,
                                     children: originItems,
@@ -334,20 +317,17 @@ namespace ConnectApp.screens {
                 this._buildContentHead()
             };
             originItems.AddRange(
-                ContentDescription.map(context, this._article.body, this._contentMap, this.widget.actionModel.openUrl,
+                ContentDescription.map(context, this._article.body, this._article.contentMap, this.widget.actionModel.openUrl,
                     this.widget.actionModel.playVideo));
             // originItems.Add(this._buildActionCards(this._article.like));
             originItems.Add(this._buildRelatedArticles());
             commentIndex = originItems.Count;
-            originItems.AddRange(this._buildComments());
-            if (!this._article.hasMore) {
-                originItems.Add(this._buildEnd());
-            }
+            originItems.AddRange(this._buildComments(context: context));
 
             return originItems;
         }
 
-        Widget _buildNavigationBar() {
+        Widget _buildNavigationBar(bool isShowRightWidget = true) {
             Widget titleWidget = new Container();
             if (this._isHaveTitle) {
                 titleWidget = new Text(
@@ -359,6 +339,66 @@ namespace ConnectApp.screens {
                 );
             }
 
+            Widget rightWidget = new Container();
+            if (isShowRightWidget) {
+                string rightWidgetTitle = this._article.commentCount > 0
+                    ? $"{this._article.commentCount}个评论"
+                    : "评论";
+                rightWidget = new Container(
+                    margin: EdgeInsets.only(8, right: 16),
+                    child: new CustomButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () => {
+                            //do not jump if we are already at the exact comment position
+                            if (this._refreshController.scrollController.position.pixels ==
+                                this._cachedCommentPosition) {
+                                return;
+                            }
+
+                            //first frame: create a new scroll view in which the center of the viewport is the comment widget
+                            this.setState(
+                                () => { this._jumpState = _ArticleJumpToCommentState.active; });
+
+                            SchedulerBinding.instance.addPostFrameCallback((TimeSpan value2) => {
+                                //calculate the comment position = curPixel(0) - minScrollExtent
+                                var commentPosition = -this._refreshController.scrollController.position
+                                    .minScrollExtent;
+
+                                //cache the current comment position  
+                                this._cachedCommentPosition = commentPosition;
+
+                                //second frame: create a new scroll view which starts from the default first widget
+                                //and then jump to the calculated comment position
+                                this.setState(() => {
+                                    this._refreshController.scrollController.jumpTo(commentPosition);
+
+                                    //assume that when we jump to the comment, the title should always be shown as the header
+                                    //this assumption will fail when an article is shorter than 16 pixels in height (as referred to in _onNotification
+                                    this._controller.forward();
+                                    this._isHaveTitle = true;
+                                });
+                            });
+                        },
+                        child: new Container(
+                            width: 88,
+                            height: 28,
+                            alignment: Alignment.center,
+                            decoration: new BoxDecoration(
+                                border: Border.all(CColors.PrimaryBlue),
+                                borderRadius: BorderRadius.all(14)
+                            ),
+                            child: new Text(
+                                data: rightWidgetTitle,
+                                style: new TextStyle(
+                                    fontSize: 14,
+                                    fontFamily: "Roboto-Medium",
+                                    color: CColors.PrimaryBlue
+                                )
+                            )
+                        )
+                    )
+                );
+            }
             return new CustomAppBar(
                 () => this.widget.actionModel.mainRouterPop(),
                 new Expanded(
@@ -372,63 +412,14 @@ namespace ConnectApp.screens {
                         }
                     )
                 ),
-                new CustomButton(
-                    padding: EdgeInsets.zero,
-                    onPressed: () => {
-                        //do not jump if we are already at the exact comment position
-                        if (this._refreshController.scrollController.position.pixels == this._cachedCommentPosition) {
-                            return;
-                        }
-                        
-                        //first frame: create a new scroll view in which the center of the viewport is the comment widget
-                        this.setState(
-                            () => { this._jumpState = _ArticleJumpToCommentState.active; });
-
-                        SchedulerBinding.instance.addPostFrameCallback((TimeSpan value2) => {
-                            //calculate the comment position = curPixel(0) - minScrollExtent
-                            var commentPosition = -this._refreshController.scrollController.position
-                                .minScrollExtent;
-
-                            //cache the current comment position  
-                            this._cachedCommentPosition = commentPosition;
-
-                            //second frame: create a new scroll view which starts from the default first widget
-                            //and then jump to the calculated comment position
-                            this.setState(() => {
-                                this._refreshController.scrollController.jumpTo(commentPosition);
-
-                                //assume that when we jump to the comment, the title should always be shown as the header
-                                //this assumption will fail when an article is shorter than 16 pixels in height (as referred to in _onNotification
-                                this._controller.forward();
-                                this._isHaveTitle = true;
-                            });
-                        });
-                    },
-                    child: new Container(
-                        width: 88,
-                        height: 28,
-                        alignment: Alignment.center,
-                        decoration: new BoxDecoration(
-                            border: Border.all(CColors.PrimaryBlue),
-                            borderRadius: BorderRadius.all(14)
-                        ),
-                        child: new Text(
-                            "说点想法",
-                            style: new TextStyle(
-                                fontSize: 14,
-                                fontFamily: "Roboto-Medium",
-                                color: CColors.PrimaryBlue
-                            )
-                        )
-                    )
-                ),
+                rightWidget: rightWidget,
                 this._isHaveTitle ? CColors.Separator2 : CColors.Transparent
             );
         }
 
         void _onRefresh(bool up) {
             if (!up) {
-                this.widget.actionModel.fetchArticleComments(this._channelId, this._lastCommentId)
+                this.widget.actionModel.fetchArticleComments(this._article.channelId, this._article.currOldestMessageId)
                     .Then(() => { this._refreshController.sendBack(up, RefreshStatus.idle); })
                     .Catch(err => { this._refreshController.sendBack(up, RefreshStatus.failed); });
             }
@@ -552,12 +543,13 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildRelatedArticles() {
-            if (this._relArticles.Count == 0) {
+            var relatedArticles = this._article.projects.FindAll(item => item.type == "article");
+            if (relatedArticles.Count == 0) {
                 return new Container();
             }
 
             var widgets = new List<Widget>();
-            this._relArticles.ForEach(article => {
+            relatedArticles.ForEach(article => {
                 //对文章进行过滤
                 if (article.id != this._article.id) {
                     Widget card;
@@ -610,14 +602,16 @@ namespace ConnectApp.screens {
             );
         }
 
-        List<Widget> _buildComments() {
-            if (this._channelComments.Count == 0) {
-                return new List<Widget>();
+        IEnumerable<Widget> _buildComments(BuildContext context) {
+            List<string> channelComments = new List<string>();
+            if (this.widget.viewModel.channelMessageList.ContainsKey(this._article.channelId)) {
+                channelComments = this.widget.viewModel.channelMessageList[this._article.channelId];
             }
-
+            var mediaQuery = MediaQuery.of(context);
             var comments = new List<Widget> {
                 new Container(
                     color: CColors.White,
+                    width: mediaQuery.size.width,
                     padding: EdgeInsets.only(16, 16, 16),
                     child: new Text(
                         "评论",
@@ -627,8 +621,29 @@ namespace ConnectApp.screens {
                 )
             };
 
-            var messageDict = this.widget.viewModel.channelMessageDict[this._channelId];
-            foreach (var commentId in this._channelComments) {
+            var titleHeight = CTextUtils.CalculateTextHeight(
+                "评论",
+                CTextStyle.H5,
+                mediaQuery.size.width - 16 * 2, // 16 is horizontal padding
+                null
+            ) + 16; // 16 is top padding
+
+            var height = mediaQuery.size.height - navBarHeight - 44 - mediaQuery.padding.vertical;
+            if (channelComments.Count == 0) {
+                var blankView = new Container(
+                    height: height - titleHeight,
+                    child: new BlankView(
+                        "暂无评论",
+                        "image/default-article"
+                    )
+                );
+                comments.Add(item: blankView);
+                return comments;
+            }
+
+            var messageDict = this.widget.viewModel.channelMessageDict[this._article.channelId];
+            float contentHeights = 0;
+            foreach (var commentId in channelComments) {
                 if (!messageDict.ContainsKey(commentId)) {
                     break;
                 }
@@ -643,6 +658,18 @@ namespace ConnectApp.screens {
                     }
                 }
 
+                var content = MessageUtils.AnalyzeMessage(message.content, message.mentions,
+                    message.mentionEveryone) + (parentName.isEmpty() ? "" : $"回复@{parentName}");
+                var contentHeight = CTextUtils.CalculateTextHeight(
+                    content,
+                    CTextStyle.PLargeBody,
+                    // 16 is horizontal padding, 24 is avatar size, 8 is content left margin to avatar
+                    mediaQuery.size.width - 16 * 2 - 24 - 8,
+                    null
+                ) + 16 + 24 + 3 + 5 + 22 + 12;
+                // 16 is top padding, 24 is avatar size, 3 is content top margin to avatar, 5 is content bottom margin to commentTime
+                // 22 is commentTime height, 12 is commentTime bottom margin
+                contentHeights += contentHeight;
                 var card = new CommentCard(
                     message,
                     isPraised,
@@ -662,7 +689,7 @@ namespace ConnectApp.screens {
                                 message.author.fullName.isEmpty() ? "" : message.author.fullName,
                                 text => {
                                     ActionSheetUtils.hiddenModalPopup();
-                                    this.widget.actionModel.sendComment(this._channelId,
+                                    this.widget.actionModel.sendComment(this._article.channelId,
                                         text,
                                         Snowflake.CreateNonce(),
                                         commentId
@@ -687,6 +714,30 @@ namespace ConnectApp.screens {
                 comments.Add(card);
             }
 
+            float endHeight = 0;
+            if (!this._article.hasMore) {
+                comments.Add(new Container(
+                    height: 52,
+                    alignment: Alignment.center,
+                    child: new Text(
+                        "一 已经全部加载完毕 一",
+                        style: CTextStyle.PRegularBody4,
+                        textAlign: TextAlign.center
+                    )
+                ));
+                endHeight = 52;
+            }
+            if (titleHeight + contentHeights + endHeight < height) {
+                return new List<Widget> {
+                    new Container(
+                        height: height,
+                        child: new Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: comments
+                        )
+                    )
+                };
+            }
             return comments;
         }
 
@@ -698,19 +749,6 @@ namespace ConnectApp.screens {
             }
 
             return false;
-        }
-
-        Widget _buildEnd() {
-            if (this._channelComments.Count == 0) {
-                return new Container();
-            }
-
-            return new Container(
-                height: 52,
-                alignment: Alignment.center,
-                child: new Text("一 已经全部加载完毕 一", style: CTextStyle.PRegularBody4, textAlign: TextAlign.center
-                )
-            );
         }
 
         void share() {
@@ -741,7 +779,7 @@ namespace ConnectApp.screens {
                         string imageUrl = $"{this._article.thumbnail.url}.200x0x1.jpg";
                         this.widget.actionModel.shareToWechat(type, this._article.title, this._article.subTitle,
                                 linkUrl,
-                                imageUrl).Then((Action) CustomDialogUtils.hiddenCustomDialog)
+                                imageUrl).Then(CustomDialogUtils.hiddenCustomDialog)
                             .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
                     }
                 }
