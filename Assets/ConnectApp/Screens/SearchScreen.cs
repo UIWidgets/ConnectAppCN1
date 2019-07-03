@@ -193,6 +193,7 @@ namespace ConnectApp.screens {
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
+                    bottom: false,
                     child: new Container(
                         child: new Column(
                             children: new List<Widget> {
@@ -203,6 +204,7 @@ namespace ConnectApp.screens {
                                             if (this._focusNode.hasFocus) {
                                                 this._focusNode.unfocus();
                                             }
+
                                             return true;
                                         },
                                         child: child
