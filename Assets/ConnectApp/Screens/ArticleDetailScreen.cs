@@ -99,7 +99,7 @@ namespace ConnectApp.screens {
                                 parentMessageId == null ? "Article" : "Article_Comment", channelId, parentMessageId);
                             CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog());
                             return dispatcher.dispatch<IPromise>(
-                                Actions.sendComment(channelId, content, nonce, parentMessageId));
+                                Actions.sendComment(this.articleId, channelId, content, nonce, parentMessageId));
                         },
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
                             Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
@@ -633,8 +633,8 @@ namespace ConnectApp.screens {
                 var blankView = new Container(
                     height: height - titleHeight,
                     child: new BlankView(
-                        "暂无评论",
-                        "image/default-article"
+                        "快来写下第一条评论吧",
+                        "image/default-comment"
                     )
                 );
                 comments.Add(item: blankView);

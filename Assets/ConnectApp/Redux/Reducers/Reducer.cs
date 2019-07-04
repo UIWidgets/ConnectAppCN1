@@ -360,6 +360,12 @@ namespace ConnectApp.redux.reducers {
                         );
                     }
 
+                    if (state.articleState.articleDict.ContainsKey(key: action.articleId)) {
+                        var article = state.articleState.articleDict[key: action.articleId];
+                        article.commentCount += 1;
+                        state.articleState.articleDict[key: action.articleId] = article;
+                    }
+                    
                     break;
                 }
 
