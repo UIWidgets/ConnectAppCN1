@@ -93,6 +93,7 @@ namespace ConnectApp.redux.actions {
 
     public class SendCommentSuccessAction : BaseAction {
         public Message message;
+        public string articleId;
     }
 
     public static partial class Actions {
@@ -254,14 +255,15 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object sendComment(string channelId, string content, string nonce, string parentMessageId) {
+        public static object sendComment(string articleId, string channelId, string content, string nonce, string parentMessageId) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ArticleApi.SendComment(channelId, content, nonce, parentMessageId)
                     .Then(message => {
                         CustomDialogUtils.hiddenCustomDialog();
                         CustomDialogUtils.showToast("发送成功", Icons.sentiment_satisfied);
                         dispatcher.dispatch(new SendCommentSuccessAction {
-                            message = message
+                            message = message,
+                            articleId = articleId
                         });
                     })
                     .Catch(error => {
