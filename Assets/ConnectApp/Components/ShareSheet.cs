@@ -103,6 +103,7 @@ namespace ConnectApp.Components {
                                     },
                                     child: new Container(
                                         height: 49,
+                                        color: CColors.Transparent,
                                         alignment: Alignment.center,
                                         child: new Text("取消", style: CTextStyle.PLargeBody.copyWith(CColors.Cancel))
                                     )
