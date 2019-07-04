@@ -226,7 +226,7 @@ namespace ConnectApp.screens {
                 color: CColors.White,
                 child: new CustomSafeArea(
                     top: !this._isFullScreen,
-                    bottom: !this._isFullScreen,
+                    bottom: false,
                     child: new Container(
                         color: this._isFullScreen ? CColors.Black : CColors.White,
                         child: new Column(
