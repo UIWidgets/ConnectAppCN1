@@ -49,6 +49,11 @@ namespace ConnectApp.screens {
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
+                        pushToPersonalDetail = personalId => dispatcher.dispatch(
+                            new MainNavigatorPushToPersonalDetailAction {
+                                personalId = personalId
+                            }
+                        ),
                         openUrl = url => dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
                             url = url
                         }),
@@ -183,6 +188,7 @@ namespace ConnectApp.screens {
                             true,
                             eventObj,
                             this.widget.actionModel.openUrl,
+                            pushToPersonalDetail: this.widget.actionModel.pushToPersonalDetail,
                             titleKey: eventTitleKey
                         ),
                         new Positioned(

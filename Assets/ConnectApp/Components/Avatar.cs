@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
-using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
@@ -23,7 +22,7 @@ namespace ConnectApp.Components {
             User user = null,
             Team team = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             D.assert(id != null);
             this.id = id;
             this.user = user ?? new User();
@@ -137,14 +136,14 @@ namespace ConnectApp.Components {
             string title,
             float size = 36,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             D.assert(title != null);
             this.title = title;
             this.size = size;
         }
 
-        public readonly string title;
-        public readonly float size;
+        readonly string title;
+        readonly float size;
 
         public override Widget build(BuildContext context) {
             return new Container(
@@ -171,7 +170,8 @@ namespace ConnectApp.Components {
                             fontFamily: "Roboto-Medium",
                             fontSize: this.size * 0.45f
                         )
-                    ))
+                    )
+                )
             );
         }
     }

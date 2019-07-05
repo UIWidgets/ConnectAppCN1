@@ -50,12 +50,19 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
-    public class FetchSearchResponse {
+    public class FetchSearchArticleResponse {
         public List<Article> projects;
         public Dictionary<string, User> userMap;
         public Dictionary<string, Team> teamMap;
         public int currentPage;
         public List<int> pages;
+    }
+    
+    [Serializable]
+    public class FetchSearchUserResponse {
+        public bool hasMore;
+        public List<User> users;
+        public Dictionary<string, bool> followingMap;
     }
 
     [Serializable]
@@ -77,5 +84,50 @@ namespace ConnectApp.Models.Api {
         public string channelId;
         public string content;
         public string nonce;
+    }
+
+    [Serializable]
+    public class FetchPersonalResponse {
+        public User user;
+        public Dictionary<string, bool> followMap;
+        public int followingCount;
+        public List<User> followings;
+        public bool followingsHasMore;
+        public List<User> followers;
+        public bool followersHasMore;
+        public string currentUserId;
+        public Dictionary<string, Team> teamMap;
+        public Dictionary<string, Place> placeMap;
+        public Dictionary<string, JobRole> jobRoleMap;
+    }
+
+    [Serializable]
+    public class FetchPersonalArticleResponse {
+        public List<string> projectList;
+        public Dictionary<string, User> userMap;
+        public Dictionary<string, Team> teamMap;
+        public Dictionary<string, Place> placeMap;
+        public Dictionary<string, Article> projectMap;
+        public bool hasMore;
+    }
+
+    [Serializable]
+    public class FetchFollowingResponse {
+        public List<User> followings;
+        public bool followingsHasMore;
+        public Dictionary<string, bool> followMap;
+    }
+
+    [Serializable]
+    public class FetchFollowerResponse {
+        public List<User> followers;
+        public bool followersHasMore;
+        public Dictionary<string, bool> followMap;
+    }
+
+    [Serializable]
+    public class FetchEditPersonalInfoResponse {
+        public User user;
+        public Dictionary<string, Place> placeMap;
     }
 }

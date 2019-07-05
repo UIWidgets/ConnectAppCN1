@@ -7,5 +7,6 @@ namespace ConnectApp.Models.ActionModel {
         public Func<int, IPromise> fetchNotifications;
         public Func<IPromise> fetchMakeAllSeen;
         public Action<string> pushToArticleDetail;
+        public Action<string> pushToPersonalDetail;
     }
 }

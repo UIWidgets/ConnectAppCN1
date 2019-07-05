@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace ConnectApp.Models.Model {
     [Serializable]
@@ -12,5 +13,7 @@ namespace ConnectApp.Models.Model {
         public string avatar;
         public string coverImage;
         public string description;
+        public int followCount;
+        public List<string> jobRoleIds;
     }
 }

@@ -17,10 +17,12 @@ namespace ConnectApp.Models.State {
         public UserState userState { get; set; }
         public TeamState teamState { get; set; }
         public PlaceState placeState { get; set; }
+        public FollowState followState { get; set; }
         public MineState mineState { get; set; }
         public MessageState messageState { get; set; }
         public SettingState settingState { get; set; }
         public ReportState reportState { get; set; }
+        public PersonalState personalState { get; set; }
 
         public static AppState initialState() {
             var loginInfo = UserInfoManager.initUserInfo();
@@ -58,15 +60,23 @@ namespace ConnectApp.Models.State {
                     channelId = ""
                 },
                 popularSearchState = new PopularSearchState {
-                    popularSearchs = new List<PopularSearch>()
+                    popularSearchArticles = new List<PopularSearch>(),
+                    popularSearchUsers = new List<PopularSearch>()
                 },
                 searchState = new SearchState {
-                    loading = false,
+                    searchArticleLoading = false,
+                    searchUserLoading = false,
+                    searchFollowingLoading = false,
                     keyword = "",
+                    searchFollowingKeyword = "",
                     searchArticles = new List<Article>(),
-                    currentPage = 0,
-                    pages = new List<int>(),
-                    searchHistoryList = HistoryManager.searchHistoryList(isLogin ? loginInfo.userId : null),
+                    searchUsers = new List<User>(),
+                    searchFollowings = new List<User>(),
+                    searchArticleCurrentPage = 0,
+                    searchArticlePages = new List<int>(),
+                    searchUserHasMore = false,
+                    searchFollowingHasMore = false,
+                    searchArticleHistoryList = HistoryManager.searchArticleHistoryList(isLogin ? loginInfo.userId : null)
                 },
                 notificationState = new NotificationState {
                     loading = false,
@@ -81,6 +91,9 @@ namespace ConnectApp.Models.State {
                 },
                 placeState = new PlaceState {
                     placeDict = new Dictionary<string, Place>()
+                },
+                followState = new FollowState {
+                    followDict = new Dictionary<string, Dictionary<string, bool>>()
                 },
                 mineState = new MineState {
                     futureEventsList = new List<IEvent>(),
@@ -100,6 +113,19 @@ namespace ConnectApp.Models.State {
                 },
                 reportState = new ReportState {
                     loading = false
+                },
+                personalState = new PersonalState {
+                    personalLoading = false,
+                    personalArticleLoading = false,
+                    followingLoading = false,
+                    followerLoading = false,
+                    followUserLoading = false,
+                    personalDict = new Dictionary<string, Personal>(),
+                    currentFollowId = "",
+                    fullName = "",
+                    title = "",
+                    jobRole = new JobRole(),
+                    place = ""
                 }
             };
         }

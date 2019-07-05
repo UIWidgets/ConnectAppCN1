@@ -27,6 +27,11 @@ namespace ConnectApp.Main {
         public const string Report = "/report";
         public const string AboutUs = "/aboutUs";
         public const string WebView = "/web-view";
+        public const string PersonalDetail = "/personal-detail";
+        public const string FollowingUser = "/following-user";
+        public const string FollowerUser = "/follower-user";
+        public const string EditPersonalInfo = "/edit-personalInfo";
+        public const string PersonalRole = "/personal-role";
     }
 
     class Router : StatelessWidget {
@@ -51,6 +56,11 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.Report, context => new ReportScreenConnector("", ReportType.article)},
                     {MainNavigatorRoutes.AboutUs, context => new AboutUsScreenConnector()},
                     {MainNavigatorRoutes.WebView, context => new WebViewScreen()},
+                    {MainNavigatorRoutes.PersonalDetail, context => new PersonalDetailScreenConnector("")},
+                    {MainNavigatorRoutes.FollowingUser, context => new FollowingUserScreenConnector("")},
+                    {MainNavigatorRoutes.FollowerUser, context => new FollowerUserScreenConnector("")},
+                    {MainNavigatorRoutes.EditPersonalInfo, context => new EditPersonalInfoScreenConnector("")},
+                    {MainNavigatorRoutes.PersonalRole, context => new PersonalJobRoleScreenConnector()}
                 };
                 if (Application.isEditor) {
                     var isExistSplash = SplashManager.isExistSplash();

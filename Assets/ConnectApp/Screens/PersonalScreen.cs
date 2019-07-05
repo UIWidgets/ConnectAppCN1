@@ -27,6 +27,9 @@ namespace ConnectApp.screens {
                         viewModel,
                         routeName => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = routeName
+                        }),
+                        personalId => dispatcher.dispatch(new MainNavigatorPushToPersonalDetailAction {
+                            personalId = personalId
                         })
                     );
                 }
@@ -38,14 +41,17 @@ namespace ConnectApp.screens {
         public PersonalScreen(
             PersonalScreenViewModel viewModel = null,
             Action<string> mainRouterPushTo = null,
+            Action<string> pushToPersonalDetail = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.viewModel = viewModel;
             this.mainRouterPushTo = mainRouterPushTo;
+            this.pushToPersonalDetail = pushToPersonalDetail;
         }
 
         public readonly PersonalScreenViewModel viewModel;
         public readonly Action<string> mainRouterPushTo;
+        public readonly Action<string> pushToPersonalDetail;
 
         public override State createState() {
             return new _PersonalScreenState();
@@ -120,16 +126,19 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildLoginInNavigationBar() {
-            return new CustomNavigationBar(
-                new Expanded(
-                    child: new Text(this.widget.viewModel.userFullName, style: CTextStyle.H2)
-                ),
-                new List<Widget> {
-                    Avatar.User(this.widget.viewModel.userId,
-                        this.widget.viewModel.userDict[this.widget.viewModel.userId], 40)
-                },
-                CColors.White,
-                0
+            return new GestureDetector(
+                onTap: () => this.widget.pushToPersonalDetail(this.widget.viewModel.userId),
+                child: new CustomNavigationBar(
+                    new Expanded(
+                        child: new Text(this.widget.viewModel.userFullName, style: CTextStyle.H2)
+                    ),
+                    new List<Widget> {
+                        Avatar.User(this.widget.viewModel.userId,
+                            this.widget.viewModel.userDict[this.widget.viewModel.userId], 40)
+                    },
+                    CColors.White,
+                    0
+                )
             );
         }
 

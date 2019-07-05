@@ -7,7 +7,6 @@ using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -29,7 +28,7 @@ namespace ConnectApp.screens {
         public AboutUsScreen(
             AboutUsScreenActionModel actionModel = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.actionModel = actionModel;
         }
 

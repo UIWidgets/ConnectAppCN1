@@ -4,6 +4,7 @@ using ConnectApp.Constants;
 using ConnectApp.Models.Model;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
@@ -16,17 +17,20 @@ namespace ConnectApp.Components {
             User user,
             List<User> mentions,
             Action onTap = null,
+            Action<string> pushToPersonalDetail = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.notification = notification;
             this.user = user;
             this.onTap = onTap;
+            this.pushToPersonalDetail = pushToPersonalDetail;
             this.mentions = mentions;
         }
 
         readonly Notification notification;
         readonly User user;
         readonly Action onTap;
+        readonly Action<string> pushToPersonalDetail;
         readonly List<User> mentions;
 
         public override Widget build(BuildContext context) {
@@ -55,7 +59,10 @@ namespace ConnectApp.Components {
                         children: new List<Widget> {
                             new Container(
                                 padding: EdgeInsets.only(16, 16, 16),
-                                child: Avatar.User(this.user.id, this.user, 48)
+                                child: new GestureDetector(
+                                    onTap: () => this.pushToPersonalDetail(this.user.id),
+                                    child: Avatar.User(this.user.id, this.user, 48)
+                                )
                             ),
                             new Expanded(
                                 child: new Container(
@@ -148,8 +155,11 @@ namespace ConnectApp.Components {
                         text: new TextSpan(
                             children: new List<TextSpan> {
                                 new TextSpan(
-                                    data.fullname,
-                                    CTextStyle.PLargeMedium
+                                    text: data.fullname,
+                                    style: CTextStyle.PLargeMedium,
+                                    recognizer: new TapGestureRecognizer{
+                                        onTap = () => this.pushToPersonalDetail(data.userId)
+                                    }
                                 ),
                                 subTitle
                             }

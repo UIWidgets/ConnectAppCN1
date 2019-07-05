@@ -16,13 +16,15 @@ namespace ConnectApp.Components {
             IEvent eventObj = null,
             Action<string> openUrl = null,
             Action<string> playVideo = null,
+            Action<string> pushToPersonalDetail = null,
             Widget topWidget = null,
             Key titleKey = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.eventObj = eventObj;
             this.openUrl = openUrl;
             this.playVideo = playVideo;
+            this.pushToPersonalDetail = pushToPersonalDetail;
             this.isShowImage = isShowImage;
             this.topWidget = topWidget;
             this.titleKey = titleKey;
@@ -32,6 +34,7 @@ namespace ConnectApp.Components {
         readonly bool isShowImage;
         readonly Action<string> openUrl;
         readonly Action<string> playVideo;
+        readonly Action<string> pushToPersonalDetail;
         readonly Widget topWidget;
         readonly Key titleKey;
 
@@ -103,15 +106,21 @@ namespace ConnectApp.Components {
                                 children: new List<Widget> {
                                     new Container(
                                         margin: EdgeInsets.only(right: 8),
-                                        child: Avatar.User(user.id, user, 32)
+                                        child: new GestureDetector(
+                                            onTap: () => this.pushToPersonalDetail(user.id),
+                                            child: Avatar.User(user.id, user, 32)
+                                        )
                                     ),
                                     new Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: new List<Widget> {
-                                            new Text(
-                                                user.fullName ?? "",
-                                                style: CTextStyle.PMediumBody
+                                            new GestureDetector(
+                                                onTap: () => this.pushToPersonalDetail(user.id),
+                                                child: new Text(
+                                                    user.fullName ?? "",
+                                                    style: CTextStyle.PMediumBody
+                                                )
                                             ),
                                             new Text(
                                                 $"{DateConvert.DateStringFromNow(this.eventObj.createdTime)}发布",
@@ -167,31 +176,33 @@ namespace ConnectApp.Components {
                                     margin: EdgeInsets.only(right: 8),
                                     child: Avatar.User(host.id, host, 48)
                                 ),
-                                new Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: new List<Widget> {
-                                        new Container(
-                                            child: new Text(
-                                                host.fullName,
-                                                style: new TextStyle(
-                                                    color: CColors.TextBody,
-                                                    fontFamily: "Roboto-Medium",
-                                                    fontSize: 16
-                                                )
-                                            )
-                                        ),
-                                        host.title.isNotEmpty()
-                                            ? new Container(
+                                new Expanded(
+                                    child: new Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: new List<Widget> {
+                                            new Container(
                                                 child: new Text(
-                                                    host.title,
-                                                    maxLines: 1,
-                                                    overflow: TextOverflow.ellipsis,
-                                                    style: CTextStyle.PRegularBody3
+                                                    host.fullName,
+                                                    style: new TextStyle(
+                                                        color: CColors.TextBody,
+                                                        fontFamily: "Roboto-Medium",
+                                                        fontSize: 16
+                                                    )
                                                 )
-                                            )
-                                            : new Container()
-                                    }
+                                            ),
+                                            host.title.isNotEmpty()
+                                                ? new Container(
+                                                    child: new Text(
+                                                        host.title,
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow.ellipsis,
+                                                        style: CTextStyle.PRegularBody3
+                                                    )
+                                                )
+                                                : new Container()
+                                        }
+                                    )
                                 )
                             }
                         ),

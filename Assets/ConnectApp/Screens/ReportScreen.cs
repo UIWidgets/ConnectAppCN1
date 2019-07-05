@@ -24,7 +24,7 @@ namespace ConnectApp.screens {
             string reportId,
             ReportType reportType,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.reportId = reportId;
             this.reportType = reportType;
         }
@@ -70,7 +70,7 @@ namespace ConnectApp.screens {
             ReportScreenViewModel viewModel = null,
             ReportScreenActionModel actionModel = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }

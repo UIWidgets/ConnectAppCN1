@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
@@ -14,25 +15,31 @@ namespace ConnectApp.Components {
             Message message,
             bool isPraised,
             string parentName = null,
+            string parentAuthorId = null,
             GestureTapCallback moreCallBack = null,
             GestureTapCallback praiseCallBack = null,
             GestureTapCallback replyCallBack = null,
+            Action<string> pushToPersonalDetail = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.message = message;
             this.isPraised = isPraised;
             this.parentName = parentName;
+            this.parentAuthorId = parentAuthorId;
             this.moreCallBack = moreCallBack;
             this.praiseCallBack = praiseCallBack;
             this.replyCallBack = replyCallBack;
+            this.pushToPersonalDetail = pushToPersonalDetail;
         }
 
         readonly Message message;
         readonly bool isPraised;
         readonly string parentName;
+        readonly string parentAuthorId;
         readonly GestureTapCallback moreCallBack;
         readonly GestureTapCallback praiseCallBack;
         readonly GestureTapCallback replyCallBack;
+        readonly Action<string> pushToPersonalDetail;
 
 
         public override Widget build(BuildContext context) {
@@ -40,42 +47,16 @@ namespace ConnectApp.Components {
                 return new Container();
             }
 
-            var content = MessageUtils.AnalyzeMessage(this.message.content, this.message.mentions,
-                this.message.mentionEveryone);
-            Widget _content = this.parentName.isEmpty()
-                ? new Container(
-                    child: new Text(
-                        content,
-                        style: CTextStyle.PLargeBody
-                    ),
-                    alignment: Alignment.centerLeft
-                )
-                : new Container(alignment: Alignment.centerLeft, child: new RichText(text: new TextSpan(
-                            "回复",
-                            children: new List<TextSpan> {
-                                new TextSpan(
-                                    $"@{this.parentName}",
-                                    children: new List<TextSpan> {
-                                        new TextSpan(
-                                            $" ：{content}",
-                                            CTextStyle.PLargeBody
-                                        )
-                                    },
-                                    style: CTextStyle.PLargeBlue)
-                            },
-                            style: CTextStyle.PLargeBody4
-                        )
-                    )
-                );
             var reply = this.message.parentMessageId.isEmpty()
                 ? new GestureDetector(
                     onTap: this.replyCallBack,
                     child: new Container(
-                        margin: EdgeInsets.only(left: 10),
+                        margin: EdgeInsets.only(10),
                         child: new Text(
                             $"回复 {this.message.replyMessageIds.Count}",
                             style: CTextStyle.PRegularBody4
-                        ))
+                        )
+                    )
                 )
                 : new GestureDetector(
                     child: new Container()
@@ -86,40 +67,21 @@ namespace ConnectApp.Components {
                 child: new Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        new Container(
-                            height: 24,
-                            margin: EdgeInsets.only(right: 8),
-                            child: Avatar.User(this.message.author.id, this.message.author, 24)
+                        new GestureDetector(
+                            onTap: () => this.pushToPersonalDetail(this.message.author.id),
+                            child: new Container(
+                                height: 24,
+                                margin: EdgeInsets.only(right: 8),
+                                child: Avatar.User(this.message.author.id, this.message.author, 24)
+                            )
                         ),
                         new Expanded(
                             child: new Container(
                                 child: new Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: new List<Widget> {
-                                        new Container(
-                                            height: 24,
-                                            child: new Row(
-                                                children: new List<Widget> {
-                                                    new Expanded(
-                                                        child: new Container(
-                                                            alignment: Alignment.centerLeft,
-                                                            child: new Text(this.message.author.fullName,
-                                                                style: CTextStyle.PMediumBody3.apply(heightFactor: 0,
-                                                                    heightDelta: 1)))),
-
-                                                    new CustomButton(
-                                                        padding: EdgeInsets.only(8, 0, 0, 8),
-                                                        onPressed: this.moreCallBack,
-                                                        child: new Icon(Icons.ellipsis, size: 20,
-                                                            color: CColors.BrownGrey)
-                                                    )
-                                                }
-                                            )
-                                        ),
-
-                                        new Container(
-                                            margin: EdgeInsets.only(top: 3, bottom: 5),
-                                            child: _content
-                                        ),
+                                        this._buildCommentAvatarName(),
+                                        this._buildCommentContent(),
 
                                         new Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -156,6 +118,72 @@ namespace ConnectApp.Components {
                             )
                         )
                     }
+                )
+            );
+        }
+
+        Widget _buildCommentAvatarName() {
+            var textStyle = CTextStyle.PMediumBody3.apply(heightFactor: 0, heightDelta: 1);
+            return new Container(
+                height: 24,
+                child: new Row(
+                    children: new List<Widget> {
+                        new Expanded(
+                            child: new GestureDetector(
+                                onTap: () => this.pushToPersonalDetail(this.message.author.id),
+                                child: new Text(
+                                    data: this.message.author.fullName,
+                                    style: textStyle
+                                )
+                            )
+                        ),
+                        new CustomButton(
+                            padding: EdgeInsets.only(8, 0, 0, 8),
+                            onPressed: this.moreCallBack,
+                            child: new Icon(
+                                Icons.ellipsis,
+                                size: 20,
+                                color: CColors.BrownGrey
+                            )
+                        )
+                    }
+                )
+            );
+        }
+
+        Widget _buildCommentContent() {
+            var content = MessageUtils.AnalyzeMessage(this.message.content, this.message.mentions,
+                this.message.mentionEveryone);
+            List<TextSpan> textSpans = new List<TextSpan> ();
+            if (this.parentName.isNotEmpty()) {
+                textSpans.AddRange(new List<TextSpan> {
+                    new TextSpan(
+                        "回复",
+                        style: CTextStyle.PLargeBody4
+                    ),
+                    new TextSpan(
+                        $"@{this.parentName}",
+                        style: CTextStyle.PLargeBlue,
+                        recognizer: new TapGestureRecognizer {
+                            onTap = () => this.pushToPersonalDetail(this.parentAuthorId)
+                        }
+                    ),
+                    new TextSpan(
+                        ": ",
+                        style: CTextStyle.PLargeBody
+                    )
+                });
+            }
+            textSpans.Add(new TextSpan(
+                text: content,
+                style: CTextStyle.PLargeBody
+            ));
+            return new Container(
+                margin: EdgeInsets.only(top: 3, bottom: 5),
+                child: new RichText(
+                    text: new TextSpan(
+                        children: textSpans
+                    )
                 )
             );
         }

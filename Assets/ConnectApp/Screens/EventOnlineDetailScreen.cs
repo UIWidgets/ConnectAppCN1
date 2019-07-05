@@ -65,6 +65,11 @@ namespace ConnectApp.screens {
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
+                        pushToPersonalDetail = personalId => dispatcher.dispatch(
+                            new MainNavigatorPushToPersonalDetailAction {
+                                personalId = personalId
+                            }
+                        ),
                         openUrl = url => {
                             EventBus.publish(EventBusConstant.pauseVideoPlayer, new List<object>());
                             dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
@@ -411,6 +416,7 @@ namespace ConnectApp.screens {
                     false,
                     eventObj,
                     this.widget.actionModel.openUrl,
+                    pushToPersonalDetail: this.widget.actionModel.pushToPersonalDetail,
                     titleKey: eventTitleKey
                 )
             );

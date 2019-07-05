@@ -29,7 +29,7 @@ namespace ConnectApp.screens {
         public ArticleDetailScreenConnector(
             string articleId,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.articleId = articleId;
         }
 
@@ -63,7 +63,13 @@ namespace ConnectApp.screens {
                         pushToArticleDetail = id => dispatcher.dispatch(
                             new MainNavigatorPushToArticleDetailAction {
                                 articleId = id
-                            }),
+                            }
+                        ),
+                        pushToPersonalDetail = personalId => dispatcher.dispatch(
+                            new MainNavigatorPushToPersonalDetailAction {
+                                personalId = personalId
+                            }
+                        ),
                         pushToReport = (reportId, reportType) => dispatcher.dispatch(
                             new MainNavigatorPushToReportAction {
                                 reportId = reportId,
@@ -115,7 +121,7 @@ namespace ConnectApp.screens {
             ArticleDetailScreenViewModel viewModel = null,
             ArticleDetailScreenActionModel actionModel = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
@@ -444,26 +450,34 @@ namespace ConnectApp.screens {
                                 style: CTextStyle.PSmallBody4
                             )
                         ),
-                        new Container(
-                            margin: EdgeInsets.only(top: 24, bottom: 24),
-                            child: new Row(
-                                children: new List<Widget> {
-                                    new Container(
-                                        margin: EdgeInsets.only(right: 8),
-                                        child: _avatar
-                                    ),
-                                    new Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: new List<Widget> {
-                                            new Text(
-                                                text,
-                                                style: CTextStyle.PRegularBody
-                                            ),
-                                            descriptionWidget
-                                        }
-                                    )
+                        new GestureDetector(
+                            onTap: () => {
+                                if (this._article.ownerType == OwnerType.user.ToString()) {
+                                    this.widget.actionModel.pushToPersonalDetail(this._user.id);
                                 }
+                            },
+                            child: new Container(
+                                margin: EdgeInsets.only(top: 24, bottom: 24),
+                                child: new Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: new List<Widget> {
+                                        new Container(
+                                            margin: EdgeInsets.only(right: 8),
+                                            child: _avatar
+                                        ),
+                                        new Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: new List<Widget> {
+                                                new Text(
+                                                    text,
+                                                    style: CTextStyle.PRegularBody
+                                                ),
+                                                descriptionWidget
+                                            }
+                                        )
+                                    }
+                                )
                             )
                         ),
                         this._article.subTitle.isEmpty()
@@ -593,10 +607,12 @@ namespace ConnectApp.screens {
                 var message = messageDict[commentId];
                 bool isPraised = _isPraised(message, this.widget.viewModel.loginUserId);
                 var parentName = "";
+                var parentAuthorId = "";
                 if (message.parentMessageId.isNotEmpty()) {
                     if (messageDict.ContainsKey(message.parentMessageId)) {
                         var parentMessage = messageDict[message.parentMessageId];
                         parentName = parentMessage.author.fullName;
+                        parentAuthorId = parentMessage.author.id;
                     }
                 }
 
@@ -604,6 +620,7 @@ namespace ConnectApp.screens {
                     message,
                     isPraised,
                     parentName,
+                    parentAuthorId,
                     () => ReportManager.showReportView(this.widget.viewModel.isLoggedIn,
                         commentId,
                         ReportType.comment, this.widget.actionModel.pushToLogin, this.widget.actionModel.pushToReport
@@ -640,7 +657,9 @@ namespace ConnectApp.screens {
                                 this.widget.actionModel.likeComment(message);
                             }
                         }
-                    });
+                    },
+                    pushToPersonalDetail: this.widget.actionModel.pushToPersonalDetail
+                );
                 comments.Add(card);
             }
 

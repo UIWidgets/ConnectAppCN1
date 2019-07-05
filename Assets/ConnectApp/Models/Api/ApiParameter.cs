@@ -36,4 +36,18 @@ namespace ConnectApp.Models.Api {
         public string itemId;
         public List<string> reasons;
     }
+    
+    [Serializable]
+    public class FollowParameter {
+        public string type;
+        public string followeeId;
+    }
+    
+    [Serializable]
+    public class EditPersonalParameter {
+        public string fullName;
+        public string title;
+        public string jobRoleId;
+        public string placeId;
+    }
 }
