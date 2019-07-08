@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Web;
 using ConnectApp.Constants;
 using ConnectApp.Main;
@@ -73,18 +74,18 @@ namespace ConnectApp.Plugins {
                             var dict = JSON.Parse(node);
                             var isPush = (bool) dict["push"];
                             if (isPush) {
-                                StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToAction {
+                                StoreProvider.store.dispatcher.dispatch(new MainNavigatorReplaceToAction {
                                     routeName = MainNavigatorRoutes.Main
                                 });
                             }
                             else {
                                 if (SplashManager.isExistSplash()) {
-                                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToAction {
+                                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorReplaceToAction {
                                         routeName = MainNavigatorRoutes.Splash
                                     });
                                 }
                                 else {
-                                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToAction {
+                                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorReplaceToAction {
                                         routeName = MainNavigatorRoutes.Main
                                     });
                                 }

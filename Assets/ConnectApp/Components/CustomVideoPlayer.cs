@@ -78,7 +78,6 @@ namespace ConnectApp.Components {
         public override void initState() {
             base.initState();
             VideoPlayerManager.instance.isRotation = true;
-            StatusBarManager.statusBarStyle(true);
             this._texture = Resources.Load<RenderTexture>("texture/ConnectAppRT");
             this._player = this._videoPlayer(this.widget.url);
             this._pauseVideoPlayerSubId = EventBus.subscribe(EventBusConstant.pauseVideoPlayer, args => {
@@ -101,8 +100,6 @@ namespace ConnectApp.Components {
         }
 
         public override void dispose() {
-            StatusBarManager.hideStatusBar(false);
-            StatusBarManager.statusBarStyle(false);
             VideoPlayerManager.instance.isRotation = false;
             EventBus.unSubscribe(EventBusConstant.pauseVideoPlayer, this._pauseVideoPlayerSubId);
             EventBus.unSubscribe(EventBusConstant.fullScreen, this._fullScreenSubId);
@@ -398,13 +395,11 @@ namespace ConnectApp.Components {
                     VideoPlayerManager.instance.lockPortrait = true;
                     Screen.orientation = ScreenOrientation.LandscapeLeft;
                     this._isFullScreen = true;
-                    StatusBarManager.hideStatusBar(true);
                 }
                 else {
                     VideoPlayerManager.instance.lockLandscape = true;
                     Screen.orientation = ScreenOrientation.Portrait;
                     this._isFullScreen = false;
-                    StatusBarManager.hideStatusBar(false);
                 }
 
                 if (this.widget.fullScreenCallback != null) {
@@ -414,17 +409,19 @@ namespace ConnectApp.Components {
         }
 
         void _changeOrientation(ScreenOrientation orientation) {
+            if (!_isOpenSensor()) {
+                return;
+            }
+
             this.cancelTimer();
             using (WindowProvider.of(this.widget.context).getScope()) {
                 if (orientation == ScreenOrientation.Portrait) {
                     Screen.orientation = ScreenOrientation.Portrait;
                     this._isFullScreen = false;
-                    StatusBarManager.hideStatusBar(false);
                 }
                 else {
                     Screen.orientation = orientation;
                     this._isFullScreen = true;
-                    StatusBarManager.hideStatusBar(true);
                 }
 
                 if (this.widget.fullScreenCallback != null) {
@@ -438,9 +435,20 @@ namespace ConnectApp.Components {
                 pauseAudioSession();
             }
         }
+
+        static bool _isOpenSensor() {
+            if (Application.platform == RuntimePlatform.Android) {
+                return isOpenSensor();
+            }
+
+            return true;
+        }
 #if UNITY_IOS
         [DllImport("__Internal")]
         static extern void pauseAudioSession();
+
+        [DllImport("__Internal")]
+        static extern bool isOpenSensor();
 
 #elif UNITY_ANDROID
         static AndroidJavaClass _plugin;
@@ -456,8 +464,14 @@ namespace ConnectApp.Components {
         static void pauseAudioSession() {
             Plugin().CallStatic("pauseAudioSession");
         }
+        static bool isOpenSensor() {
+            return Plugin().CallStatic<bool>("isOpenSensor");
+        }
 #else
         static void pauseAudioSession() {
+        }
+        static bool isOpenSensor() {
+            return false;
         }
 #endif
     }

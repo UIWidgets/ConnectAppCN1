@@ -33,7 +33,7 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity
     @Override
     protected void onRestart() {
         super.onRestart();
-        if (this.getIntent().getScheme().equals("unityconnect")){
+        if (this.getIntent().getScheme() != null && this.getIntent().getScheme().equals("unityconnect")){
             String data = this.getIntent().getDataString();
             UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("jpush", "OnOpenUrl", Arrays.asList(data));
         }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace ConnectApp.Utils {
@@ -28,6 +29,17 @@ namespace ConnectApp.Utils {
                 Items = array
             };
             return JsonUtility.ToJson(wrapper, prettyPrint);
+        }
+
+        public static Dictionary<string, object> ToDictionary(object json) {
+            if (json is Dictionary<string, object> dictionary) {
+                return dictionary;
+            }
+            if (json is string jsonString) {
+                var jsonDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonString);
+                return jsonDictionary;
+            }
+            return new Dictionary<string, object>();
         }
 
         [Serializable]

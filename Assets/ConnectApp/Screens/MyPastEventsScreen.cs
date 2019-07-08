@@ -42,7 +42,7 @@ namespace ConnectApp.screens {
             MyEventsScreenViewModel viewModel = null,
             MyEventsScreenActionModel actionModel = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
@@ -75,24 +75,26 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            return this._buildMyPastEvents();
-        }
-
-        Widget _buildMyPastEvents() {
+            base.build(context: context);
             var data = this.widget.viewModel.pastEventsList;
             if (this.widget.viewModel.pastListLoading && data.isEmpty()) {
                 return new GlobalLoading();
             }
 
             if (data.Count <= 0) {
-                return new BlankView("暂无我的往期活动", true, () => {
-                    this.widget.actionModel.startFetchMyPastEvents();
-                    this.widget.actionModel.fetchMyPastEvents(firstPageNumber);
-                });
+                return new BlankView(
+                    "还没有参与过的活动",
+                    "image/default-event",
+                    true,
+                    () => {
+                        this.widget.actionModel.startFetchMyPastEvents();
+                        this.widget.actionModel.fetchMyPastEvents(firstPageNumber);
+                    }
+                );
             }
 
             var pastEventTotal = this.widget.viewModel.pastEventTotal;
-            var hasMore = pastEventTotal == data.Count;
+            var hasMore = pastEventTotal != data.Count;
 
             return new Container(
                 color: CColors.Background,
@@ -100,7 +102,7 @@ namespace ConnectApp.screens {
                     new SmartRefresher(
                         controller: this._refreshController,
                         enablePullDown: true,
-                        enablePullUp: !hasMore,
+                        enablePullUp: hasMore,
                         onRefresh: this._onRefresh,
                         child: ListView.builder(
                             physics: new AlwaysScrollableScrollPhysics(),

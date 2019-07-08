@@ -50,7 +50,7 @@ namespace ConnectApp.screens {
             NotificationScreenViewModel viewModel = null,
             NotificationScreenActionModel actionModel = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
@@ -109,7 +109,7 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            base.build(context);
+            base.build(context: context);
             Widget content = new Container();
             if (this.widget.viewModel.notificationLoading && this.widget.viewModel.notifications.Count == 0) {
                 content = new GlobalLoading();
@@ -117,10 +117,15 @@ namespace ConnectApp.screens {
             else {
                 if (this.widget.viewModel.notifications.Count <= 0) {
                     content = new Container(
-                        child: new BlankView("暂无通知消息", true, () => {
-                            this.widget.actionModel.startFetchNotifications();
-                            this.widget.actionModel.fetchNotifications(firstPageNumber);
-                        })
+                        child: new BlankView(
+                            "好冷清，多和小伙伴们互动呀",
+                            "image/default-notification",
+                            true,
+                            () => {
+                                this.widget.actionModel.startFetchNotifications();
+                                this.widget.actionModel.fetchNotifications(firstPageNumber);
+                            }
+                        )
                     );
                 }
                 else {
@@ -159,24 +164,7 @@ namespace ConnectApp.screens {
                 color: CColors.White,
                 child: new Column(
                     children: new List<Widget> {
-                        new AnimatedContainer(
-                            height: this.navBarHeight,
-                            duration: new TimeSpan(0, 0, 0, 0, 0),
-                            child: new Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: new List<Widget> {
-                                    new Container(
-                                        padding: EdgeInsets.only(16, bottom: 8),
-                                        child: new AnimatedDefaultTextStyle(
-                                            child: new Text("通知"),
-                                            style: this.titleStyle,
-                                            duration: new TimeSpan(0, 0, 0, 0, 100)
-                                        )
-                                    )
-                                }
-                            )
-                        ),
+                        this._buildNavigationBar(),
                         new CustomDivider(
                             color: CColors.Separator2,
                             height: 1
@@ -185,6 +173,27 @@ namespace ConnectApp.screens {
                             child: new NotificationListener<ScrollNotification>(
                                 onNotification: this._onNotification,
                                 child: new CustomScrollbar(content)
+                            )
+                        )
+                    }
+                )
+            );
+        }
+
+        Widget _buildNavigationBar() {
+            return new AnimatedContainer(
+                height: this.navBarHeight,
+                duration: TimeSpan.Zero,
+                child: new Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: new List<Widget> {
+                        new Container(
+                            padding: EdgeInsets.only(16, bottom: 8),
+                            child: new AnimatedDefaultTextStyle(
+                                child: new Text("通知"),
+                                style: this.titleStyle,
+                                duration: new TimeSpan(0, 0, 0, 0, 100)
                             )
                         )
                     }

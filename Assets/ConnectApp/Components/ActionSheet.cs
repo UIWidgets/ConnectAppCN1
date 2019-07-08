@@ -53,7 +53,7 @@ namespace ConnectApp.Components {
                     mainAxisSize: MainAxisSize.min,
                     children: new List<Widget> {
                         _buildTitle(this.title),
-                        _buildButtons(context, this.items),
+                        _buildButtons(this.items),
                         new Container(
                             height: MediaQuery.of(context).padding.bottom
                         )
@@ -85,7 +85,7 @@ namespace ConnectApp.Components {
             );
         }
 
-        static Widget _buildButtons(BuildContext context, List<ActionSheetItem> items) {
+        static Widget _buildButtons(List<ActionSheetItem> items) {
             if (items == null || items.Count <= 0) {
                 return new Container();
             }
@@ -101,6 +101,10 @@ namespace ConnectApp.Components {
                     titleColor = CColors.Error;
                 }
 
+                if (type == ActionType.cancel) {
+                    titleColor = CColors.Cancel;
+                }
+
                 Widget widget = new Column(
                     children: new List<Widget> {
                         new GestureDetector(
@@ -112,28 +116,31 @@ namespace ConnectApp.Components {
                             },
                             child: new Container(
                                 alignment: Alignment.center,
-                                height: 49.0f,
+                                height: 49,
                                 color: CColors.White,
                                 child: new Text(
                                     item.title,
                                     style: CTextStyle.PLargeBody.copyWith(titleColor)
                                 )
                             )
-                        ),
-                        new CustomDivider(
-                            height: 1,
-                            color: CColors.Separator2
                         )
                     }
                 );
+                var divider = new CustomDivider(
+                    height: 1,
+                    color: CColors.Separator2
+                );
                 if (type == ActionType.destructive) {
                     destructiveWidgets.Add(widget);
+                    destructiveWidgets.Add(divider);
                 }
                 else if (type == ActionType.cancel) {
+                    cancelWidgets.Add(new CustomDivider(height: 4, color: CColors.Separator2));
                     cancelWidgets.Add(widget);
                 }
                 else {
                     normalWidgets.Add(widget);
+                    normalWidgets.Add(divider);
                 }
             });
             widgets.AddRange(normalWidgets);

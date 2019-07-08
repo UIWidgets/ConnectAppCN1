@@ -353,7 +353,7 @@ namespace ConnectApp.Components {
             var height = width * originalImage.height / originalImage.width;
             var imageUrl = originalImage.url;
             if (imageUrl.isNotEmpty()) {
-                imageUrl = imageUrl.EndsWith(".gif")
+                imageUrl = imageUrl.EndsWith(".gif") || imageUrl.EndsWith(".png")
                     ? imageUrl
                     : CImageUtils.SuitableSizeImageUrl(MediaQuery.of(context).size.width, imageUrl);
             }

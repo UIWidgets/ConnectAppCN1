@@ -62,7 +62,7 @@ namespace ConnectApp.Utils {
         }
 
         static void fetchImage(Splash splash) {
-            var imageWidth = Math.Ceiling(Window.instance.physicalSize.width / 100) * 100;
+            var imageWidth = Math.Ceiling(Window.instance.physicalSize.width);
             SplashApi.FetchSplashImage($"{splash.image}.{imageWidth}x0x1.jpg").Then(imageBytes => {
                 File.WriteAllBytes(PATH + splash.image.GetHashCode(), imageBytes);
                 var splashInfo = JsonConvert.SerializeObject(splash);

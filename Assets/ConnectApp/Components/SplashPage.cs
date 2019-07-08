@@ -9,6 +9,8 @@ using Unity.UIWidgets.async;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.Components {
@@ -23,6 +25,7 @@ namespace ConnectApp.Components {
         Timer _timer;
         int _lastSecond = 5;
         BuildContext _context;
+        uint hexColor;
 
         public override void initState() {
             base.initState();
@@ -31,6 +34,18 @@ namespace ConnectApp.Components {
             if (this._isShow) {
                 this._lastSecond = SplashManager.getSplash().duration;
                 this._timer = Window.instance.run(TimeSpan.FromSeconds(1), this.t_Tick, true);
+            }
+
+            var isShowLogo = SplashManager.getSplash().isShowLogo;
+            var hexColorStr = SplashManager.getSplash().color;
+            if (isShowLogo) {
+                this.hexColor = 0xFFFFFFFF;
+                try {
+                    this.hexColor = Convert.ToUInt32(value: hexColorStr, 16);
+                }
+                catch (Exception e) {
+                    Console.WriteLine(e);
+                }
             }
         }
 
@@ -43,6 +58,25 @@ namespace ConnectApp.Components {
             this._context = context;
             if (!this._isShow) {
                 return new MainScreen();
+            }
+
+            var topPadding = 0f;
+            if (Application.platform != RuntimePlatform.Android) {
+                topPadding = MediaQuery.of(context).padding.top;
+            }
+
+            var isShowLogo = SplashManager.getSplash().isShowLogo;
+            Widget logo = new Container();
+            if (isShowLogo) {
+                logo = new Positioned(
+                    top: topPadding + 24,
+                    left: 16,
+                    child: new Icon(
+                        Icons.LogoWithUinty,
+                        size: 35,
+                        color: new Color(value: this.hexColor)
+                    )
+                );
             }
 
             return new Container(
@@ -62,7 +96,7 @@ namespace ConnectApp.Components {
                             }
                         ),
                         new Positioned(
-                            top: MediaQuery.of(context).padding.top + 24,
+                            top: topPadding + 24,
                             right: 16,
                             child: new GestureDetector(
                                 child: new Container(
@@ -81,7 +115,8 @@ namespace ConnectApp.Components {
                                 ),
                                 onTap: pushCallback
                             )
-                        )
+                        ),
+                        logo
                     }
                 )
             );

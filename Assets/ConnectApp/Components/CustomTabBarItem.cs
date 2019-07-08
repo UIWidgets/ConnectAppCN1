@@ -6,23 +6,26 @@ namespace ConnectApp.Components {
     public class CustomTabBarItem {
         public CustomTabBarItem(
             int index,
-            IconData icon,
+            IconData normalIcon,
+            IconData selectedIcon,
             string title,
             Color activeColor = null,
             Color inActiveColor = null,
             int size = 24
         ) {
             this.index = index;
-            this.icon = icon;
+            this.normalIcon = normalIcon;
+            this.selectedIcon = selectedIcon;
             this.title = title;
             this.activeColor = activeColor ?? CColors.PrimaryBlue;
-            this.inActiveColor = inActiveColor ?? CColors.BrownGrey;
+            this.inActiveColor = inActiveColor ?? CColors.TextBody4;
             this.size = size;
         }
 
         public readonly int size;
         public readonly int index;
-        public readonly IconData icon;
+        public readonly IconData normalIcon;
+        public readonly IconData selectedIcon;
         public readonly string title;
         public readonly Color activeColor;
         public readonly Color inActiveColor;

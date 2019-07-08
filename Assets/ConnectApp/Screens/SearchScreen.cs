@@ -171,7 +171,15 @@ namespace ConnectApp.screens {
                     );
                 }
                 else {
-                    child = new BlankView("暂无搜索结果");
+                    child = new BlankView(
+                        "哎呀，换个关键词试试吧",
+                        "image/default-search",
+                        true,
+                        () => {
+                            this.widget.actionModel.startSearchArticle();
+                            this.widget.actionModel.searchArticle(this.widget.viewModel.searchKeyword, 0);
+                        }
+                    );
                 }
             }
             else {
@@ -185,6 +193,7 @@ namespace ConnectApp.screens {
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
+                    bottom: false,
                     child: new Container(
                         child: new Column(
                             children: new List<Widget> {
@@ -195,6 +204,7 @@ namespace ConnectApp.screens {
                                             if (this._focusNode.hasFocus) {
                                                 this._focusNode.unfocus();
                                             }
+
                                             return true;
                                         },
                                         child: child

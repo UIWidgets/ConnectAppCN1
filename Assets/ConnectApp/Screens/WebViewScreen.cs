@@ -7,7 +7,6 @@ using ConnectApp.Utils;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -145,6 +144,7 @@ namespace ConnectApp.screens {
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
+                    bottom: false,
                     child: new Container(
                         color: CColors.Background,
                         child: new Column(
@@ -173,33 +173,19 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildNavigationBar() {
-            return new Container(
-                height: 44,
-                color: CColors.White,
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: new List<Widget> {
-                        new GestureDetector(
-                            onTap: () => {
-                                this._onClose = true;
-                                this.setState(() => { });
-                                if (Router.navigator.canPop()) {
-                                    Router.navigator.pop();
-                                }
-
-                                if (!Application.isEditor) {
-                                    this._webViewObject.SetVisibility(false);
-                                    WebViewManager.destroyWebView();
-                                }
-                            },
-                            child: new Container(
-                                padding: EdgeInsets.symmetric(10, 16),
-                                color: CColors.Transparent,
-                                child: new Icon(Icons.arrow_back, size: 24, color: CColors.Icon))
-                        )
+            return new CustomAppBar(
+                () => {
+                    this._onClose = true;
+                    this.setState(() => { });
+                    if (Router.navigator.canPop()) {
+                        Router.navigator.pop();
                     }
-                )
+
+                    if (!Application.isEditor) {
+                        this._webViewObject.SetVisibility(false);
+                        WebViewManager.destroyWebView();
+                    }
+                }
             );
         }
     }
