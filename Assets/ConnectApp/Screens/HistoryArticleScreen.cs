@@ -84,7 +84,10 @@ namespace ConnectApp.screens {
                 Key.key(model.id),
                 new ArticleCard(
                     model,
-                    () => this.actionModel.pushToArticleDetail(model.id),
+                    () => {
+                        AnalyticsManager.ClickEnterArticleDetail("Mine_History", model.id, model.title);
+                        this.actionModel.pushToArticleDetail(model.id);
+                    },
                     () => ReportManager.showReportView(this.viewModel.isLoggedIn,
                         model.id,
                         ReportType.article, this.actionModel.pushToLogin, this.actionModel.pushToReport,

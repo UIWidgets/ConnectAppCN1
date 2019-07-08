@@ -6,10 +6,11 @@ using ConnectApp.Main;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -139,6 +140,7 @@ namespace ConnectApp.screens {
                     Icons.outline_event,
                     "我的活动",
                     () => {
+                        AnalyticsManager.ClickEnterMine(AnalyticsManager.MineType.Event);
                         var routeName = this.widget.viewModel.isLoggedIn
                             ? MainNavigatorRoutes.MyEvent
                             : MainNavigatorRoutes.Login;
@@ -148,12 +150,16 @@ namespace ConnectApp.screens {
                 new PersonalCardItem(
                     Icons.eye,
                     "浏览历史",
-                    () => this.widget.mainRouterPushTo(MainNavigatorRoutes.History)
+                    () => {
+                        AnalyticsManager.ClickEnterMine(AnalyticsManager.MineType.History);
+                        this.widget.mainRouterPushTo(MainNavigatorRoutes.History);
+                    }
                 ),
                 new PersonalCardItem(
                     Icons.settings,
                     "设置",
                     () => {
+                        AnalyticsManager.ClickEnterMine(AnalyticsManager.MineType.Settings);
                         var routeName = this.widget.viewModel.isLoggedIn
                             ? MainNavigatorRoutes.Setting
                             : MainNavigatorRoutes.Login;

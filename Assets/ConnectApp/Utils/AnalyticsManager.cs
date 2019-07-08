@@ -6,14 +6,6 @@ using UnityEngine;
 
 namespace ConnectApp.Utils {
     public static class AnalyticsManager {
-        public static void LoginEvent(string loginType) {
-            if (Application.isEditor) {
-                return;
-            }
-
-            JAnalyticsPlugin.Login(loginType);
-        }
-
         // tab点击统计
         public static void ClickHomeTab(int fromIndex, int toIndex) {
             if (Application.isEditor) {
@@ -30,6 +22,19 @@ namespace ConnectApp.Utils {
             Dictionary<string, string> extras = new Dictionary<string, string>();
             extras.Add("from", tabs[fromIndex]);
             extras.Add("to", tabs[toIndex]);
+            JAnalyticsPlugin.CountEvent(mEventId, extras);
+        }
+
+        // tab点击统计
+        public static void ClickEventSegment(string from, string type) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            var mEventId = "Click_Event_Segment";
+            Dictionary<string, string> extras = new Dictionary<string, string>();
+            extras.Add("type", type);
+            extras.Add("from", from);
             JAnalyticsPlugin.CountEvent(mEventId, extras);
         }
 
@@ -54,6 +59,18 @@ namespace ConnectApp.Utils {
             var mEventId = "Click_Enter_ArticleDetail";
             Dictionary<string, string> extras = new Dictionary<string, string>();
             extras.Add("from", from);
+            extras.Add("id", articleId);
+            extras.Add("title", articleTitle);
+            JAnalyticsPlugin.CountEvent(mEventId, extras);
+        }
+
+        public static void ClickReturnArticleDetail(string articleId, string articleTitle) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            var mEventId = "Click_Return_ArticleDetail";
+            Dictionary<string, string> extras = new Dictionary<string, string>();
             extras.Add("id", articleId);
             extras.Add("title", articleTitle);
             JAnalyticsPlugin.CountEvent(mEventId, extras);
@@ -139,24 +156,6 @@ namespace ConnectApp.Utils {
             JAnalyticsPlugin.CountEvent(mEventId, extras);
         }
 
-        public static void BrowseArtileDetail(string id, string name, DateTime startTime, DateTime endTime) {
-            if (Application.isEditor) {
-                return;
-            }
-
-            string duration = (endTime - startTime).TotalSeconds.ToString("0.0");
-            JAnalyticsPlugin.BrowseEvent(id, name, "ArticleDetail", duration, null);
-        }
-
-        public static void BrowseEventDetail(string id, string name, DateTime startTime, DateTime endTime) {
-            if (Application.isEditor) {
-                return;
-            }
-
-            string duration = (endTime - startTime).TotalSeconds.ToString("0.0");
-            JAnalyticsPlugin.BrowseEvent(id, name, "EventDetail", duration, null);
-        }
-
         public static void ClickNotification(string type, string subtype, string id) {
             if (Application.isEditor) {
                 return;
@@ -183,6 +182,113 @@ namespace ConnectApp.Utils {
             JAnalyticsPlugin.CountEvent(mEventId, extras);
         }
 
+        public static void ClickSkipSplashPage(string id, string name, string url) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            var mEventId = "Click_Skip_Splash_Page";
+            Dictionary<string, string> extras = new Dictionary<string, string>();
+            extras.Add("id", id);
+            extras.Add("name", name);
+            extras.Add("url", url);
+            JAnalyticsPlugin.CountEvent(mEventId, extras);
+        }
+
+
+        public static void ClickHottestSearch(string keyWord) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            var mEventId = "Click_Search_Hottest_Search";
+            Dictionary<string, string> extras = new Dictionary<string, string>();
+            extras.Add("keyWord", keyWord);
+            JAnalyticsPlugin.CountEvent(mEventId, extras);
+        }
+
+        public static void ClickHistorySearch(string keyWord) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            var mEventId = "Click_Search_History_Search";
+            Dictionary<string, string> extras = new Dictionary<string, string>();
+            extras.Add("keyWord", keyWord);
+            JAnalyticsPlugin.CountEvent(mEventId, extras);
+        }
+
+        public static void SignUpOnlineEvent(string eventId, string title) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            var mEventId = "Sign_Up_Online_Event";
+            Dictionary<string, string> extras = new Dictionary<string, string>();
+            extras.Add("id", eventId);
+            extras.Add("title", title);
+            JAnalyticsPlugin.CountEvent(mEventId, extras);
+        }
+
+        public enum MineType {
+            Event,
+            History,
+            Settings
+        }
+
+        public static void ClickEnterMine(MineType type) {
+            //进入我的
+            if (Application.isEditor) {
+                return;
+            }
+
+            var mEventId = $"Click_Enter_Mine";
+            Dictionary<string, string> extras = new Dictionary<string, string>();
+            extras.Add("type", type.ToString());
+            JAnalyticsPlugin.CountEvent(mEventId, extras);
+        }
+
+        public static void ClickSetGrade() {
+            //评分
+            if (Application.isEditor) {
+                return;
+            }
+
+            var mEventId = "Click_Set_Grade";
+            Dictionary<string, string> extras = new Dictionary<string, string>();
+            JAnalyticsPlugin.CountEvent(mEventId, extras);
+        }
+
+        public static void ClickEnterAboutUs() {
+            if (Application.isEditor) {
+                return;
+            }
+
+            var mEventId = "Click_Enter_AboutUs";
+            Dictionary<string, string> extras = new Dictionary<string, string>();
+            JAnalyticsPlugin.CountEvent(mEventId, extras);
+        }
+
+        public static void ClickCheckUpdate() {
+            if (Application.isEditor) {
+                return;
+            }
+
+            var mEventId = "Click_Check_Update";
+            Dictionary<string, string> extras = new Dictionary<string, string>();
+            JAnalyticsPlugin.CountEvent(mEventId, extras);
+        }
+
+        public static void ClickClearCache() {
+            if (Application.isEditor) {
+                return;
+            }
+
+            var mEventId = "Click_Clear_Cache";
+            Dictionary<string, string> extras = new Dictionary<string, string>();
+            JAnalyticsPlugin.CountEvent(mEventId, extras);
+        }
+
         public static void EnterOnOpenUrl(string url) {
             //通过openurl方式打开app
             if (Application.isEditor) {
@@ -205,6 +311,43 @@ namespace ConnectApp.Utils {
             Dictionary<string, string> extras = new Dictionary<string, string>();
             extras.Add("app", "unity connect");
             JAnalyticsPlugin.CountEvent(mEventId, extras);
+        }
+
+
+        public static void LoginEvent(string loginType) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            JAnalyticsPlugin.Login(loginType);
+        }
+
+        public static void ClickLogout() {
+            if (Application.isEditor) {
+                return;
+            }
+
+            var mEventId = "Click_Logout";
+            Dictionary<string, string> extras = new Dictionary<string, string>();
+            JAnalyticsPlugin.CountEvent(mEventId, extras);
+        }
+
+        public static void BrowseArtileDetail(string id, string name, DateTime startTime, DateTime endTime) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            string duration = (endTime - startTime).TotalSeconds.ToString("0.0");
+            JAnalyticsPlugin.BrowseEvent(id, name, "ArticleDetail", duration, null);
+        }
+
+        public static void BrowseEventDetail(string id, string name, DateTime startTime, DateTime endTime) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            string duration = (endTime - startTime).TotalSeconds.ToString("0.0");
+            JAnalyticsPlugin.BrowseEvent(id, name, "EventDetail", duration, null);
         }
     }
 }

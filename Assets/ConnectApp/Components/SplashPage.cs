@@ -130,6 +130,8 @@ namespace ConnectApp.Components {
         }
 
         static void pushCallback() {
+            var splash = SplashManager.getSplash();
+            AnalyticsManager.ClickSkipSplashPage(splash.id, splash.name, splash.url);
             Router.navigator.pushReplacementNamed(MainNavigatorRoutes.Main);
         }
 

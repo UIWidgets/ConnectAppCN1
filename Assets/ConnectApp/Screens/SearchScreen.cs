@@ -7,11 +7,12 @@ using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -157,13 +158,19 @@ namespace ConnectApp.screens {
                                             var user = this.widget.viewModel.userDict[searchArticle.userId];
                                             return RelatedArticleCard.User(searchArticle, user,
                                                 () => {
+                                                    AnalyticsManager.ClickEnterArticleDetail("Search", searchArticle.id,
+                                                        searchArticle.title);
                                                     this.widget.actionModel.pushToArticleDetail(searchArticle.id);
                                                 });
                                         }
 
                                         var team = this.widget.viewModel.teamDict[searchArticle.teamId];
                                         return RelatedArticleCard.Team(searchArticle, team,
-                                            () => { this.widget.actionModel.pushToArticleDetail(searchArticle.id); });
+                                            () => {
+                                                AnalyticsManager.ClickEnterArticleDetail("Search", searchArticle.id,
+                                                    searchArticle.title);
+                                                this.widget.actionModel.pushToArticleDetail(searchArticle.id);
+                                            });
                                     }
                                 )
                             )

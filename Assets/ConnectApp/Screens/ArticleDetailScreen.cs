@@ -404,7 +404,10 @@ namespace ConnectApp.screens {
             }
 
             return new CustomAppBar(
-                () => this.widget.actionModel.mainRouterPop(),
+                () => {
+                    AnalyticsManager.ClickReturnArticleDetail(this._article?.id, this._article?.title);
+                    this.widget.actionModel.mainRouterPop();
+                },
                 new Expanded(
                     child: new Stack(
                         fit: StackFit.expand,
@@ -762,6 +765,7 @@ namespace ConnectApp.screens {
             ShareUtils.showShareView(new ShareView(
                 projectType: ProjectType.article,
                 onPressed: type => {
+                    AnalyticsManager.ClickShare(type, "Article", "Article_" + this._article.id, this._article.title);
                     string linkUrl = $"{Config.apiAddress}/p/{this._article.id}";
                     if (type == ShareType.clipBoard) {
                         Clipboard.setData(new ClipboardData(linkUrl));

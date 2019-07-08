@@ -142,7 +142,7 @@ namespace ConnectApp.Plugins {
                     eventType = EventType.online;
                 }
 
-                AnalyticsManager.ClickEnterEventDetail("Push_Event", id, $"PushEvent_{id}", type);
+                AnalyticsManager.ClickEnterEventDetail("Push_Event", id, $"PushEvent_{id}", eventType.ToString());
 
                 StoreProvider.store.dispatcher.dispatch(
                     new MainNavigatorPushToEventDetailAction {eventId = id, eventType = eventType});

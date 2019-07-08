@@ -5,6 +5,7 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
@@ -83,7 +84,7 @@ namespace ConnectApp.screens {
 
             if (data.Count <= 0) {
                 return new BlankView(
-                    "还没有即将开始的活动", 
+                    "还没有即将开始的活动",
                     "image/default-event",
                     true,
                     () => {
@@ -116,7 +117,11 @@ namespace ConnectApp.screens {
                                 return new EventCard(
                                     model,
                                     placeName,
-                                    () => this.widget.actionModel.pushToEventDetail(model.id, eventType),
+                                    () => {
+                                        AnalyticsManager.ClickEnterEventDetail("Mine_Future_Event", model.id,
+                                            model.title, model.mode);
+                                        this.widget.actionModel.pushToEventDetail(model.id, eventType);
+                                    },
                                     new ObjectKey(model.id),
                                     index == 0
                                 );
