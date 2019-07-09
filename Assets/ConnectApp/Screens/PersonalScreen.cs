@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Main;
+using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
@@ -10,6 +11,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -18,8 +20,7 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, PersonalScreenViewModel>(
                 converter: state => new PersonalScreenViewModel {
                     isLoggedIn = state.loginState.isLoggedIn,
-                    userId = state.loginState.loginInfo.userId,
-                    userFullName = state.loginState.loginInfo.userFullName,
+                    user = state.loginState.loginInfo,
                     userDict = state.userState.userDict
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -126,18 +127,80 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildLoginInNavigationBar() {
-            return new GestureDetector(
-                onTap: () => this.widget.pushToPersonalDetail(this.widget.viewModel.userId),
-                child: new CustomNavigationBar(
-                    new Expanded(
-                        child: new Text(this.widget.viewModel.userFullName, style: CTextStyle.H2)
+            var user = this.widget.viewModel.user;
+            Widget titleWidget = new Container();
+            if (user.title != null && user.title.isNotEmpty()) {
+                titleWidget = new Text(
+                    user.title,
+                    style: new TextStyle(
+                        height: 1.46f,
+                        fontSize: 14,
+                        fontFamily: "Roboto-Regular",
+                        color: new Color(0xFFCCCCCC)
                     ),
-                    new List<Widget> {
-                        Avatar.User(this.widget.viewModel.userId,
-                            this.widget.viewModel.userDict[this.widget.viewModel.userId], 40)
-                    },
-                    CColors.White,
-                    0
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis
+                );
+            }
+            return new GestureDetector(
+                onTap: () => this.widget.pushToPersonalDetail(user.userId),
+                child: new Container(
+                    height: 184,
+                    padding: EdgeInsets.only(16, right: 16, bottom: 16),
+                    color: CColors.Red,
+                    child: new Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: new List<Widget> {
+                            new Row(
+                                children: new List<Widget> {
+                                    new Container(
+                                        margin: EdgeInsets.only(right: 12),
+                                        child: Avatar.User(
+                                            user.userId,
+                                            new User {
+                                                id = user.userId,
+                                                avatar = user.userAvatar,
+                                                fullName = user.userFullName
+                                            },
+                                            64
+                                        )
+                                    ),
+                                    new Expanded(
+                                        child: new Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: new List<Widget> {
+                                                new Text(
+                                                    user.userFullName,
+                                                    style: CTextStyle.H4White,
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis
+                                                ),
+                                                titleWidget
+                                            }
+                                        )
+                                    ),
+                                    new Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: new List<Widget> {
+                                            new Text(
+                                                "个人主页",
+                                                style: new TextStyle(
+                                                    fontSize: 14,
+                                                    fontFamily: "Roboto-Regular",
+                                                    color: new Color(0xFFCCCCCC)
+                                                )
+                                            ),
+                                            new Icon(
+                                                Icons.chevron_right,
+                                                size: 24,
+                                                color: Color.fromRGBO(199, 203, 207, 1)
+                                            )
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
                 )
             );
         }

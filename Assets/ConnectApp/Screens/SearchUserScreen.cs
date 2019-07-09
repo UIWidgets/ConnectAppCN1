@@ -3,6 +3,7 @@ using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
+using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
@@ -79,18 +80,18 @@ namespace ConnectApp.screens {
     }
 
     class _SearchUserScreenState : State<SearchUserScreen> {
-        int _pageNumber;
+        const int _initPageNumber = 1;
+        int _pageNumber = _initPageNumber;
         RefreshController _refreshController;
 
         public override void initState() {
             base.initState();
-            this._pageNumber = 1;
             this._refreshController = new RefreshController();
         }
 
         void _onRefresh(bool up) {
             if (up) {
-                this._pageNumber = 1;
+                this._pageNumber = _initPageNumber;
             }
             else {
                 this._pageNumber++;
@@ -104,8 +105,19 @@ namespace ConnectApp.screens {
         void _onFollow(UserType userType, string userId) {
             if (this.widget.viewModel.isLoggedIn) {
                 if (userType == UserType.follow) {
-                    this.widget.actionModel.startUnFollowUser(userId);
-                    this.widget.actionModel.unFollowUser(userId);
+                    ActionSheetUtils.showModalActionSheet(
+                        new ActionSheet(
+                            title: "确定取消关注吗？",
+                            items: new List<ActionSheetItem> {
+                                new ActionSheetItem("确定", ActionType.normal,
+                                    () => {
+                                        this.widget.actionModel.startUnFollowUser(userId);
+                                        this.widget.actionModel.unFollowUser(userId);
+                                    }),
+                                new ActionSheetItem("取消", ActionType.cancel)
+                            }
+                        )
+                    );
                 }
                 if (userType == UserType.unFollow) {
                     this.widget.actionModel.startFollowUser(userId);
@@ -118,12 +130,17 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
+            var searchUsers = this.widget.viewModel.searchUsers;
+            var searchKeyword = this.widget.viewModel.searchKeyword ?? "";
             Widget child = new Container();
-            if (this.widget.viewModel.searchUserLoading) {
+            if (this.widget.viewModel.searchUserLoading && !searchUsers.ContainsKey(key: searchKeyword)) {
                 child = new GlobalLoading();
             }
             else if (this.widget.viewModel.searchKeyword.Length > 0) {
-                child = this.widget.viewModel.searchUsers.Count > 0
+                var searchUserList = searchUsers.ContainsKey(key: searchKeyword)
+                    ? searchUsers[key: searchKeyword]
+                    : new List<User>();
+                child = searchUserList.Count > 0
                     ? this._buildContent()
                     : new BlankView(
                         "哎呀，换个关键词试试吧",
@@ -131,7 +148,7 @@ namespace ConnectApp.screens {
                         true,
                         () => {
                             this.widget.actionModel.startSearchUser();
-                            this.widget.actionModel.searchUser(this.widget.viewModel.searchKeyword, 1);
+                            this.widget.actionModel.searchUser(arg1: this.widget.viewModel.searchKeyword, arg2: _initPageNumber);
                         }
                     );
             }
@@ -164,7 +181,7 @@ namespace ConnectApp.screens {
         }
         
         Widget _buildUserCard(BuildContext context, int index) {
-            var searchUser = this.widget.viewModel.searchUsers[index];
+            var searchUser = this.widget.viewModel.searchUsers[this.widget.viewModel.searchKeyword][index];
             UserType userType = UserType.unFollow;
             if (!this.widget.viewModel.isLoggedIn) {
                 userType = UserType.unFollow;

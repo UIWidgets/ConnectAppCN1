@@ -32,6 +32,8 @@ namespace ConnectApp.Main {
         public const string FollowerUser = "/follower-user";
         public const string EditPersonalInfo = "/edit-personalInfo";
         public const string PersonalRole = "/personal-role";
+        public const string TeamDetail = "/team-detail";
+        public const string TeamFollower = "/team-follower";
     }
 
     class Router : StatelessWidget {
@@ -60,7 +62,9 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.FollowingUser, context => new FollowingUserScreenConnector("")},
                     {MainNavigatorRoutes.FollowerUser, context => new FollowerUserScreenConnector("")},
                     {MainNavigatorRoutes.EditPersonalInfo, context => new EditPersonalInfoScreenConnector("")},
-                    {MainNavigatorRoutes.PersonalRole, context => new PersonalJobRoleScreenConnector()}
+                    {MainNavigatorRoutes.PersonalRole, context => new PersonalJobRoleScreenConnector()},
+                    {MainNavigatorRoutes.TeamDetail, context => new TeamDetailScreenConnector("")},
+                    {MainNavigatorRoutes.TeamFollower, context => new TeamFollowerScreenConnector("")}
                 };
                 if (Application.isEditor) {
                     var isExistSplash = SplashManager.isExistSplash();

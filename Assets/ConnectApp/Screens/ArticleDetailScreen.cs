@@ -70,6 +70,11 @@ namespace ConnectApp.screens {
                                 personalId = personalId
                             }
                         ),
+                        pushToTeamDetail = teamId => dispatcher.dispatch(
+                            new MainNavigatorPushToTeamDetailAction {
+                                teamId = teamId
+                            }
+                        ),
                         pushToReport = (reportId, reportType) => dispatcher.dispatch(
                             new MainNavigatorPushToReportAction {
                                 reportId = reportId,
@@ -454,6 +459,9 @@ namespace ConnectApp.screens {
                             onTap: () => {
                                 if (this._article.ownerType == OwnerType.user.ToString()) {
                                     this.widget.actionModel.pushToPersonalDetail(this._user.id);
+                                }
+                                if (this._article.ownerType == OwnerType.team.ToString()) {
+                                    this.widget.actionModel.pushToTeamDetail(this._team.id);
                                 }
                             },
                             child: new Container(

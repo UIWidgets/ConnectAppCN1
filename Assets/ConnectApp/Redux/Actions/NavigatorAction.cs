@@ -40,6 +40,14 @@ namespace ConnectApp.redux.actions {
         public string userId;
     }
 
+    public class MainNavigatorPushToTeamDetailAction : BaseAction {
+        public string teamId;
+    }
+
+    public class MainNavigatorPushToTeamFollowerAction : BaseAction {
+        public string teamId;
+    }
+
     public class MainNavigatorPushToVideoPlayerAction : BaseAction {
         public string videoUrl;
     }

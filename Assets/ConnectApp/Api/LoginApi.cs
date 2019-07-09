@@ -14,7 +14,7 @@ namespace ConnectApp.Api {
                 email = email,
                 password = password
             };
-            var request = HttpManager.POST($"{Config.apiAddress}/auth/live/login", para);
+            var request = HttpManager.POST($"{Config.apiAddress}/api/connectapp/auth/live/login", para);
             HttpManager.resume(request).Then(responseText => {
                 var loginInfo = JsonConvert.DeserializeObject<LoginInfo>(responseText);
                 promise.Resolve(loginInfo);
@@ -27,7 +27,7 @@ namespace ConnectApp.Api {
             var para = new WechatLoginParameter {
                 code = code
             };
-            var request = HttpManager.POST($"{Config.apiAddress}/auth/live/wechat", para);
+            var request = HttpManager.POST($"{Config.apiAddress}/api/connectapp/auth/live/wechat", para);
             HttpManager.resume(request).Then(responseText => {
                 var loginInfo = JsonConvert.DeserializeObject<LoginInfo>(responseText);
                 promise.Resolve(loginInfo);

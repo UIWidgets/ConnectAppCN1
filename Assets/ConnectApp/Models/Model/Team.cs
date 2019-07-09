@@ -11,5 +11,12 @@ namespace ConnectApp.Models.Model {
         public DateTime createdTime;
         public bool isManager;
         public bool isPrivate;
+        public string coverImage;
+        public TeamStats stats;
+    }
+
+    [Serializable]
+    public class TeamStats {
+        public int followCount;
     }
 }

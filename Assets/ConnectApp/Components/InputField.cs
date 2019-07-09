@@ -29,7 +29,10 @@ namespace ConnectApp.Components {
             TextStyle style = null,
             TextAlign textAlign = TextAlign.left,
             int maxLines = 1,
+            int? maxLength = null,
+            bool maxLengthEnforced = true,
             bool autofocus = false,
+            List<TextInputFormatter> inputFormatters = null,
             Widget prefix = null,
             Widget suffix = null,
             string hintText = null,
@@ -59,7 +62,10 @@ namespace ConnectApp.Components {
             this.style = style;
             this.textAlign = textAlign;
             this.maxLines = maxLines;
+            this.maxLength = maxLength;
+            this.maxLengthEnforced = maxLengthEnforced;
             this.autofocus = autofocus;
+            this.inputFormatters = inputFormatters;
             this.prefix = prefix;
             this.suffix = suffix;
             this.hintText = hintText;
@@ -89,7 +95,10 @@ namespace ConnectApp.Components {
         public readonly TextStyle style;
         public readonly TextAlign textAlign;
         public readonly int maxLines;
+        public readonly int? maxLength;
+        public readonly bool maxLengthEnforced;
         public readonly bool autofocus;
+        public readonly List<TextInputFormatter> inputFormatters;
         public readonly Widget prefix;
         public readonly Widget suffix;
         public readonly string hintText;
@@ -282,6 +291,10 @@ namespace ConnectApp.Components {
                 }
             }
 
+            List<TextInputFormatter> formatters = this.widget.inputFormatters ?? new List<TextInputFormatter>();
+            if (this.widget.maxLength != null && this.widget.maxLengthEnforced) {
+                formatters.Add(new LengthLimitingTextInputFormatter(this.widget.maxLength));
+            }
             Widget editableText = new TextSelectionGestureDetector(
                 onTapDown: this._handleTapDown,
                 onSingleTapUp: this._handleSingleTapUp,
@@ -297,6 +310,7 @@ namespace ConnectApp.Components {
                         controller: this._textEditingController,
                         focusNode: this._focusNode,
                         autofocus: this.widget.autofocus,
+                        inputFormatters: formatters,
                         obscureText: this.widget.obscureText,
                         style: this.widget.style,
                         cursorWidth: this.widget.cursorWidth,

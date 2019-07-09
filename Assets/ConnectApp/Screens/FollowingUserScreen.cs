@@ -169,8 +169,19 @@ namespace ConnectApp.screens {
         void _onFollow(UserType userType, string userId) {
             if (this.widget.viewModel.isLoggedIn) {
                 if (userType == UserType.follow) {
-                    this.widget.actionModel.startUnFollowUser(userId);
-                    this.widget.actionModel.unFollowUser(userId);
+                    ActionSheetUtils.showModalActionSheet(
+                        new ActionSheet(
+                            title: "确定取消关注吗？",
+                            items: new List<ActionSheetItem> {
+                                new ActionSheetItem("确定", ActionType.normal,
+                                    () => {
+                                        this.widget.actionModel.startUnFollowUser(userId);
+                                        this.widget.actionModel.unFollowUser(userId);
+                                    }),
+                                new ActionSheetItem("取消", ActionType.cancel)
+                            }
+                        )
+                    );
                 }
                 if (userType == UserType.unFollow) {
                     this.widget.actionModel.startFollowUser(userId);

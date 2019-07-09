@@ -130,4 +130,17 @@ namespace ConnectApp.Models.Api {
         public User user;
         public Dictionary<string, Place> placeMap;
     }
+
+    [Serializable]
+    public class FetchTeamResponse {
+        public Team team;
+        public Dictionary<string, Place> placeMap;
+    }
+
+    [Serializable]
+    public class FetchTeamArticleResponse {
+        public Dictionary<string, bool> likeMap;
+        public List<Article> projects;
+        public bool projectsHasMore;
+    }
 }

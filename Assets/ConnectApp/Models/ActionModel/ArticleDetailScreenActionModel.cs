@@ -10,6 +10,7 @@ namespace ConnectApp.Models.ActionModel {
         public Action<string> playVideo;
         public Action<string> pushToArticleDetail;
         public Action<string> pushToPersonalDetail;
+        public Action<string> pushToTeamDetail;
         public Action<string, ReportType> pushToReport;
         public Action<string> pushToBlock;
         public Action startFetchArticleDetail;

@@ -8,6 +8,7 @@ namespace ConnectApp.Models.Api {
         public string password;
     }
 
+    [Serializable]
     public class WechatLoginParameter {
         public string code;
     }

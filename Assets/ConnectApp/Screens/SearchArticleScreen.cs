@@ -1,7 +1,9 @@
+using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
+using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
@@ -86,12 +88,17 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
+            var searchArticles = this.widget.viewModel.searchArticles;
+            var searchKeyword = this.widget.viewModel.searchKeyword ?? "";
             Widget child = new Container();
-            if (this.widget.viewModel.searchArticleLoading) {
+            if (this.widget.viewModel.searchArticleLoading && !searchArticles.ContainsKey(key: searchKeyword)) {
                 child = new GlobalLoading();
             }
             else if (this.widget.viewModel.searchKeyword.Length > 0) {
-                child = this.widget.viewModel.searchArticles.Count > 0
+                var searchArticleList = searchArticles.ContainsKey(key: searchKeyword)
+                    ? searchArticles[key: searchKeyword]
+                    : new List<Article>();
+                child = searchArticleList.Count > 0
                     ? this._buildContent()
                     : new BlankView(
                         "哎呀，换个关键词试试吧",
@@ -132,7 +139,7 @@ namespace ConnectApp.screens {
         }
         
         Widget _buildArticleCard(BuildContext context, int index) {
-            var searchArticle = this.widget.viewModel.searchArticles[index];
+            var searchArticle = this.widget.viewModel.searchArticles[this.widget.viewModel.searchKeyword][index];
             if (this.widget.viewModel.blockArticleList.Contains(searchArticle.id)) {
                 return new Container();
             }

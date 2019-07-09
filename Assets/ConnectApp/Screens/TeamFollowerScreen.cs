@@ -17,34 +17,32 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
-    public class FollowerUserScreenConnector : StatelessWidget {
-        public FollowerUserScreenConnector(
-            string personalId,
+    public class TeamFollowerScreenConnector : StatelessWidget {
+        public TeamFollowerScreenConnector(
+            string teamId,
             Key key = null
         ) : base(key: key) {
-            this.personalId = personalId;
+            this.teamId = teamId;
         }
         
-        readonly string personalId;
+        readonly string teamId;
         public override Widget build(BuildContext context) {
-            return new StoreConnector<AppState, FollowerUserScreenViewModel>(
+            return new StoreConnector<AppState, TeamFollowerScreenViewModel>(
                 converter: state => {
-                    Personal personal = new Personal();
-                    if (state.personalState.personalDict.ContainsKey(key: this.personalId)) {
-                        personal = state.personalState.personalDict[key: this.personalId];
-                    }
+                    var teamFollower = state.teamState.teamFollowerDict.ContainsKey(key: this.teamId)
+                        ? state.teamState.teamFollowerDict[key: this.teamId]
+                        : new List<User>();
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
-                    var followDict = state.followState.followDict;
-                    var followMap = followDict.ContainsKey(currentUserId)
-                        ? followDict[currentUserId]
+                    var followMap = state.followState.followDict.ContainsKey(key: currentUserId)
+                        ? state.followState.followDict[key: currentUserId]
                         : new Dictionary<string, bool>();
-                    return new FollowerUserScreenViewModel {
-                        personalId = this.personalId,
-                        followerLoading = state.personalState.followerLoading,
+                    return new TeamFollowerScreenViewModel {
+                        teamId = this.teamId,
+                        followerLoading = state.teamState.teamFollowerLoading,
                         followUserLoading = state.personalState.followUserLoading,
-                        followers = personal.followers,
-                        followersHasMore = personal.followersHasMore,
-                        userOffset = personal.followers.Count,
+                        followers = teamFollower,
+                        followersHasMore = state.teamState.teamFollowerHasMore,
+                        userOffset = teamFollower.Count,
                         followMap = followMap,
                         currentFollowId = state.personalState.currentFollowId,
                         currentUserId = currentUserId,
@@ -52,9 +50,9 @@ namespace ConnectApp.screens {
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
-                    var actionModel = new FollowerUserScreenActionModel {
-                        startFetchFollower = () => dispatcher.dispatch(new StartFetchFollowerAction()),
-                        fetchFollower = offset => dispatcher.dispatch<IPromise>(Actions.fetchFollower(this.personalId, offset)),
+                    var actionModel = new TeamFollowerScreenActionModel {
+                        startFetchFollower = () => dispatcher.dispatch(new StartFetchTeamFollowerAction()),
+                        fetchFollower = offset => dispatcher.dispatch<IPromise>(Actions.fetchTeamFollower(this.teamId, offset)),
                         startFollowUser = followUserId => dispatcher.dispatch(new StartFetchFollowUserAction {
                             followUserId = followUserId
                         }),
@@ -73,31 +71,31 @@ namespace ConnectApp.screens {
                             }
                         )
                     };
-                    return new FollowerUserScreen(viewModel, actionModel);
+                    return new TeamFollowerScreen(viewModel, actionModel);
                 }
             );
         }
     }
     
-    public class FollowerUserScreen : StatefulWidget {
-        public FollowerUserScreen(
-            FollowerUserScreenViewModel viewModel = null,
-            FollowerUserScreenActionModel actionModel = null,
+    public class TeamFollowerScreen : StatefulWidget {
+        public TeamFollowerScreen(
+            TeamFollowerScreenViewModel viewModel = null,
+            TeamFollowerScreenActionModel actionModel = null,
             Key key = null
         ) : base(key: key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
 
-        public readonly FollowerUserScreenViewModel viewModel;
-        public readonly FollowerUserScreenActionModel actionModel;
+        public readonly TeamFollowerScreenViewModel viewModel;
+        public readonly TeamFollowerScreenActionModel actionModel;
         
         public override State createState() {
-            return new _FollowerUserScreenState();
+            return new _TeamFollowerScreenState();
         }
     }
     
-    class _FollowerUserScreenState : State<FollowerUserScreen> {
+    class _TeamFollowerScreenState : State<TeamFollowerScreen> {
         int _userOffset;
         RefreshController _refreshController;
         string _title;
@@ -106,7 +104,7 @@ namespace ConnectApp.screens {
             base.initState();
             this._userOffset = 0;
             this._refreshController = new RefreshController();
-            this._title = this.widget.viewModel.currentUserId == this.widget.viewModel.personalId 
+            this._title = this.widget.viewModel.currentUserId == this.widget.viewModel.teamId 
                 ? "我的粉丝"
                 : "全部粉丝";
             SchedulerBinding.instance.addPostFrameCallback(_ => {

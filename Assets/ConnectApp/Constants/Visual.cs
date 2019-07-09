@@ -229,7 +229,6 @@ namespace ConnectApp.Constants {
         );
         
         public static readonly TextStyle PMediumWhite = new TextStyle(
-            height: 1.46f,
             fontSize: 14,
             fontFamily: "Roboto-Medium",
             color: CColors.White

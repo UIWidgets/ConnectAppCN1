@@ -195,14 +195,16 @@ namespace ConnectApp.screens {
                             "请输入你的昵称",
                             controller: this._fullNameController,
                             focusNode: this._fullNameFocusNode,
-                            fullName => this.widget.actionModel.changeFullName(obj: fullName)
+                            fullName => this.widget.actionModel.changeFullName(obj: fullName),
+                            70
                         ),
                         this._buildInputItem(
                             "头衔",
                             "请输入你的头衔",
                             controller: this._titleController,
                             focusNode: this._titleFocusNode,
-                            title => this.widget.actionModel.changeTitle(obj: title)
+                            title => this.widget.actionModel.changeTitle(obj: title),
+                            45
                         ),
                         new CustomDivider(
                             color: CColors.BgGrey
@@ -252,7 +254,8 @@ namespace ConnectApp.screens {
             string placeHold,
             TextEditingController controller,
             FocusNode focusNode,
-            ValueChanged<string> onChanged
+            ValueChanged<string> onChanged,
+            int? maxLength
         ) {
             return new Container(
                 color: CColors.White,
@@ -270,6 +273,7 @@ namespace ConnectApp.screens {
                                 height: 60,
                                 controller: controller,
                                 focusNode: focusNode,
+                                maxLength: maxLength,
                                 style: CTextStyle.PLargeBody,
                                 hintText: placeHold,
                                 hintStyle: CTextStyle.PLargeBody4,

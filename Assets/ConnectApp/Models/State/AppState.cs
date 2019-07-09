@@ -69,8 +69,8 @@ namespace ConnectApp.Models.State {
                     searchFollowingLoading = false,
                     keyword = "",
                     searchFollowingKeyword = "",
-                    searchArticles = new List<Article>(),
-                    searchUsers = new List<User>(),
+                    searchArticles = new Dictionary<string, List<Article>>(),
+                    searchUsers = new Dictionary<string, List<User>>(),
                     searchFollowings = new List<User>(),
                     searchArticleCurrentPage = 0,
                     searchArticlePages = new List<int>(),
@@ -87,7 +87,14 @@ namespace ConnectApp.Models.State {
                     userDict = UserInfoManager.initUserDict()
                 },
                 teamState = new TeamState {
-                    teamDict = new Dictionary<string, Team>()
+                    teamLoading = false,
+                    teamArticleLoading = false,
+                    teamFollowerLoading = false,
+                    teamDict = new Dictionary<string, Team>(),
+                    teamArticleDict = new Dictionary<string, List<Article>>(),
+                    teamFollowerDict = new Dictionary<string, List<User>>(),
+                    teamArticleHasMore = false,
+                    teamFollowerHasMore = false
                 },
                 placeState = new PlaceState {
                     placeDict = new Dictionary<string, Place>()

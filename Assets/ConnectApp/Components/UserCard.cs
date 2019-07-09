@@ -79,6 +79,7 @@ namespace ConnectApp.Components {
                 }
                 followButton = new CustomButton(
                     onPressed: () => this.onFollow(),
+                    padding: EdgeInsets.zero,
                     child: new Container(
                         width: 60,
                         height: 28,
