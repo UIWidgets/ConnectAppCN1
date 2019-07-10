@@ -19,7 +19,7 @@ namespace ConnectApp.Components {
             GestureTapCallback moreCallBack = null,
             GestureTapCallback praiseCallBack = null,
             GestureTapCallback replyCallBack = null,
-            Action<string> pushToPersonalDetail = null,
+            Action<string> pushToUserDetail = null,
             Key key = null
         ) : base(key: key) {
             this.message = message;
@@ -29,7 +29,7 @@ namespace ConnectApp.Components {
             this.moreCallBack = moreCallBack;
             this.praiseCallBack = praiseCallBack;
             this.replyCallBack = replyCallBack;
-            this.pushToPersonalDetail = pushToPersonalDetail;
+            this.pushToUserDetail = pushToUserDetail;
         }
 
         readonly Message message;
@@ -39,7 +39,7 @@ namespace ConnectApp.Components {
         readonly GestureTapCallback moreCallBack;
         readonly GestureTapCallback praiseCallBack;
         readonly GestureTapCallback replyCallBack;
-        readonly Action<string> pushToPersonalDetail;
+        readonly Action<string> pushToUserDetail;
 
 
         public override Widget build(BuildContext context) {
@@ -68,7 +68,7 @@ namespace ConnectApp.Components {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
                         new GestureDetector(
-                            onTap: () => this.pushToPersonalDetail(this.message.author.id),
+                            onTap: () => this.pushToUserDetail(this.message.author.id),
                             child: new Container(
                                 height: 24,
                                 margin: EdgeInsets.only(right: 8),
@@ -130,7 +130,7 @@ namespace ConnectApp.Components {
                     children: new List<Widget> {
                         new Expanded(
                             child: new GestureDetector(
-                                onTap: () => this.pushToPersonalDetail(this.message.author.id),
+                                onTap: () => this.pushToUserDetail(this.message.author.id),
                                 child: new Text(
                                     data: this.message.author.fullName,
                                     style: textStyle
@@ -165,7 +165,7 @@ namespace ConnectApp.Components {
                         $"@{this.parentName}",
                         style: CTextStyle.PLargeBlue,
                         recognizer: new TapGestureRecognizer {
-                            onTap = () => this.pushToPersonalDetail(this.parentAuthorId)
+                            onTap = () => this.pushToUserDetail(this.parentAuthorId)
                         }
                     ),
                     new TextSpan(

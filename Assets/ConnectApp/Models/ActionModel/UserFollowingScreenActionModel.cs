@@ -2,8 +2,8 @@ using System;
 using RSG;
 
 namespace ConnectApp.Models.ActionModel {
-    public class FollowingUserScreenActionModel : BaseActionModel  {
-        public Action<string> pushToPersonalDetail;
+    public class UserFollowingScreenActionModel : BaseActionModel  {
+        public Action<string> pushToUserDetail;
         public Action startFetchFollowing;
         public Func<int, IPromise> fetchFollowing;
         public Action<string> startFollowUser;

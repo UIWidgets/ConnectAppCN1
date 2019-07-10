@@ -3,7 +3,7 @@ using RSG;
 
 namespace ConnectApp.Models.ActionModel {
     public class TeamFollowerScreenActionModel : BaseActionModel {
-        public Action<string> pushToPersonalDetail;
+        public Action<string> pushToUserDetail;
         public Action startFetchFollower;
         public Func<int, IPromise> fetchFollower;
         public Action<string> startFollowUser;

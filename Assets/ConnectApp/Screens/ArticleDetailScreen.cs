@@ -65,9 +65,9 @@ namespace ConnectApp.screens {
                                 articleId = id
                             }
                         ),
-                        pushToPersonalDetail = personalId => dispatcher.dispatch(
-                            new MainNavigatorPushToPersonalDetailAction {
-                                personalId = personalId
+                        pushToUserDetail = userId => dispatcher.dispatch(
+                            new MainNavigatorPushToUserDetailAction {
+                                userId = userId
                             }
                         ),
                         pushToTeamDetail = teamId => dispatcher.dispatch(
@@ -458,7 +458,7 @@ namespace ConnectApp.screens {
                         new GestureDetector(
                             onTap: () => {
                                 if (this._article.ownerType == OwnerType.user.ToString()) {
-                                    this.widget.actionModel.pushToPersonalDetail(this._user.id);
+                                    this.widget.actionModel.pushToUserDetail(this._user.id);
                                 }
                                 if (this._article.ownerType == OwnerType.team.ToString()) {
                                     this.widget.actionModel.pushToTeamDetail(this._team.id);
@@ -666,7 +666,7 @@ namespace ConnectApp.screens {
                             }
                         }
                     },
-                    pushToPersonalDetail: this.widget.actionModel.pushToPersonalDetail
+                    pushToUserDetail: this.widget.actionModel.pushToUserDetail
                 );
                 comments.Add(card);
             }

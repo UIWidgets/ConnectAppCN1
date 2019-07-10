@@ -4,7 +4,7 @@ using RSG;
 namespace ConnectApp.Models.ActionModel {
     public class SearchScreenActionModel : BaseActionModel {
         public Action<string> pushToArticleDetail;
-        public Action<string> pushToPersonalDetail;
+        public Action<string> pushToUserDetail;
         public Action<string> startSearchArticle;
         public Action startSearchUser;
         public Func<string, int, IPromise> searchArticle;

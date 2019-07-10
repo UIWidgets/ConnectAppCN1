@@ -24,15 +24,15 @@ namespace ConnectApp.redux.actions {
         public string articleId;
     }
 
-    public class MainNavigatorPushToPersonalDetailAction : BaseAction {
-        public string personalId;
-    }
-
-    public class MainNavigatorPushToFollowingUserAction : BaseAction {
+    public class MainNavigatorPushToUserDetailAction : BaseAction {
         public string userId;
     }
 
-    public class MainNavigatorPushToFollowerUserAction : BaseAction {
+    public class MainNavigatorPushToUserFollowingAction : BaseAction {
+        public string userId;
+    }
+
+    public class MainNavigatorPushToUserFollowerAction : BaseAction {
         public string userId;
     }
 

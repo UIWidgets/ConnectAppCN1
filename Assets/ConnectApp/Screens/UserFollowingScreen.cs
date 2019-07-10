@@ -18,48 +18,46 @@ using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
-    public class FollowingUserScreenConnector : StatelessWidget {
-        public FollowingUserScreenConnector(
-            string personalId,
+    public class UserFollowingScreenConnector : StatelessWidget {
+        public UserFollowingScreenConnector(
+            string userId,
             Key key = null
         ) : base(key: key) {
-            this.personalId = personalId;
+            this.userId = userId;
         }
 
-        readonly string personalId;
+        readonly string userId;
         public override Widget build(BuildContext context) {
-            return new StoreConnector<AppState, FollowingUserScreenViewModel>(
+            return new StoreConnector<AppState, UserFollowingScreenViewModel>(
                 converter: state => {
-                    Personal personal = new Personal();
-                    if (state.personalState.personalDict.ContainsKey(key: this.personalId)) {
-                        personal = state.personalState.personalDict[key: this.personalId];
-                    }
+                    var user = state.userState.userDict.ContainsKey(key: this.userId)
+                        ? state.userState.userDict[key: this.userId]
+                        : new User();
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
-                    var followDict = state.followState.followDict;
-                    var followMap = followDict.ContainsKey(currentUserId)
-                        ? followDict[currentUserId]
+                    var followMap = state.followState.followDict.ContainsKey(key: currentUserId)
+                        ? state.followState.followDict[key: currentUserId]
                         : new Dictionary<string, bool>();
-                    return new FollowingUserScreenViewModel {
-                        personalId = this.personalId,
-                        followingLoading = state.personalState.followingLoading,
+                    return new UserFollowingScreenViewModel {
+                        userId = this.userId,
+                        followingLoading = state.userState.followingLoading,
                         searchFollowingLoading = state.searchState.searchFollowingLoading,
-                        followUserLoading = state.personalState.followUserLoading,
-                        followings = personal.followings,
+                        followUserLoading = state.userState.followUserLoading,
+                        followings = user.followings,
                         searchFollowings = state.searchState.searchFollowings,
                         searchFollowingKeyword = state.searchState.searchFollowingKeyword,
                         searchFollowingHasMore = state.searchState.searchFollowingHasMore,
-                        followingsHasMore = personal.followingsHasMore,
-                        userOffset = personal.followings.Count,
+                        followingsHasMore = user.followingsHasMore,
+                        userOffset = user.followings.Count,
                         followMap = followMap,
-                        currentFollowId = state.personalState.currentFollowId,
+                        currentFollowId = state.userState.currentFollowId,
                         currentUserId = currentUserId,
                         isLoggedIn = state.loginState.isLoggedIn
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
-                    var actionModel = new FollowingUserScreenActionModel {
+                    var actionModel = new UserFollowingScreenActionModel {
                         startFetchFollowing = () => dispatcher.dispatch(new StartFetchFollowingAction()),
-                        fetchFollowing = offset => dispatcher.dispatch<IPromise>(Actions.fetchFollowing(this.personalId, offset)),
+                        fetchFollowing = offset => dispatcher.dispatch<IPromise>(Actions.fetchFollowing(this.userId, offset)),
                         startFollowUser = followUserId => dispatcher.dispatch(new StartFetchFollowUserAction {
                             followUserId = followUserId
                         }),
@@ -75,38 +73,38 @@ namespace ConnectApp.screens {
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
-                        pushToPersonalDetail = personalId => dispatcher.dispatch(
-                            new MainNavigatorPushToPersonalDetailAction {
-                                personalId = personalId
+                        pushToUserDetail = userId => dispatcher.dispatch(
+                            new MainNavigatorPushToUserDetailAction {
+                                userId = userId
                             }
                         ),
                         clearSearchFollowingResult = () => dispatcher.dispatch(new ClearSearchFollowingResultAction())
                     };
-                    return new FollowingUserScreen(viewModel, actionModel);
+                    return new UserFollowingScreen(viewModel, actionModel);
                 }
             );
         }
     }
     
-    public class FollowingUserScreen : StatefulWidget {
-        public FollowingUserScreen(
-            FollowingUserScreenViewModel viewModel = null,
-            FollowingUserScreenActionModel actionModel = null,
+    public class UserFollowingScreen : StatefulWidget {
+        public UserFollowingScreen(
+            UserFollowingScreenViewModel viewModel = null,
+            UserFollowingScreenActionModel actionModel = null,
             Key key = null
         ) : base(key: key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
 
-        public readonly FollowingUserScreenViewModel viewModel;
-        public readonly FollowingUserScreenActionModel actionModel;
+        public readonly UserFollowingScreenViewModel viewModel;
+        public readonly UserFollowingScreenActionModel actionModel;
         
         public override State createState() {
-            return new _FollowingUserScreenState();
+            return new _UserFollowingScreenState();
         }
     }
     
-    class _FollowingUserScreenState : State<FollowingUserScreen> {
+    class _UserFollowingScreenState : State<UserFollowingScreen> {
         readonly TextEditingController _controller = new TextEditingController("");
         int _userOffset;
         int _pageNumber;
@@ -120,7 +118,7 @@ namespace ConnectApp.screens {
             this._pageNumber = 0;
             this._refreshController = new RefreshController();
             this._focusNode = new FocusNode();
-            this._title = this.widget.viewModel.currentUserId == this.widget.viewModel.personalId 
+            this._title = this.widget.viewModel.currentUserId == this.widget.viewModel.userId 
                 ? "我关注的"
                 : "全部关注";
             SchedulerBinding.instance.addPostFrameCallback(_ => {
@@ -214,7 +212,7 @@ namespace ConnectApp.screens {
                                         var searchUser = this.widget.viewModel.searchFollowings[index];
                                         return new UserCard(
                                             user: searchUser,
-                                            () => this.widget.actionModel.pushToPersonalDetail(searchUser.id),
+                                            () => this.widget.actionModel.pushToUserDetail(searchUser.id),
                                             key: new ObjectKey(searchUser.id)
                                         );
                                     }
@@ -276,7 +274,7 @@ namespace ConnectApp.screens {
                                 }
                                 return new UserCard(
                                     user: user,
-                                    () => this.widget.actionModel.pushToPersonalDetail(user.id),
+                                    () => this.widget.actionModel.pushToUserDetail(user.id),
                                     userType: userType,
                                     () => this._onFollow(userType: userType, userId: user.id),
                                     new ObjectKey(user.id)

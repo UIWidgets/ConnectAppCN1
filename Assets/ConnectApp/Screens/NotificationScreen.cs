@@ -38,11 +38,11 @@ namespace ConnectApp.screens {
                                 articleId = id
                             }
                         ),
-                        pushToPersonalDetail = personalId => dispatcher.dispatch(
-                            new MainNavigatorPushToPersonalDetailAction {
-                                personalId = personalId
+                        pushToUserDetail = userId => dispatcher.dispatch(
+                            new MainNavigatorPushToUserDetailAction {
+                                userId = userId
                             }
-                        ),
+                        )
                     };
                     return new NotificationScreen(viewModel, actionModel);
                 }
@@ -156,7 +156,7 @@ namespace ConnectApp.screens {
                                             AnalyticsManager.ClickEnterArticleDetail("Notification_Article",
                                                 notification.data.projectId, notification.data.projectTitle);
                                         },
-                                        this.widget.actionModel.pushToPersonalDetail,
+                                        this.widget.actionModel.pushToUserDetail,
                                         new ObjectKey(notification.id)
                                     );
                                 }

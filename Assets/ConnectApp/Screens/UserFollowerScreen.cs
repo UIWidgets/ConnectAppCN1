@@ -17,44 +17,42 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
-    public class FollowerUserScreenConnector : StatelessWidget {
-        public FollowerUserScreenConnector(
-            string personalId,
+    public class UserFollowerScreenConnector : StatelessWidget {
+        public UserFollowerScreenConnector(
+            string userId,
             Key key = null
         ) : base(key: key) {
-            this.personalId = personalId;
+            this.userId = userId;
         }
         
-        readonly string personalId;
+        readonly string userId;
         public override Widget build(BuildContext context) {
-            return new StoreConnector<AppState, FollowerUserScreenViewModel>(
+            return new StoreConnector<AppState, UserFollowerScreenViewModel>(
                 converter: state => {
-                    Personal personal = new Personal();
-                    if (state.personalState.personalDict.ContainsKey(key: this.personalId)) {
-                        personal = state.personalState.personalDict[key: this.personalId];
-                    }
+                    var user = state.userState.userDict.ContainsKey(key: this.userId)
+                        ? state.userState.userDict[key: this.userId]
+                        : new User();
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
-                    var followDict = state.followState.followDict;
-                    var followMap = followDict.ContainsKey(currentUserId)
-                        ? followDict[currentUserId]
+                    var followMap = state.followState.followDict.ContainsKey(key: currentUserId)
+                        ? state.followState.followDict[key: currentUserId]
                         : new Dictionary<string, bool>();
-                    return new FollowerUserScreenViewModel {
-                        personalId = this.personalId,
-                        followerLoading = state.personalState.followerLoading,
-                        followUserLoading = state.personalState.followUserLoading,
-                        followers = personal.followers,
-                        followersHasMore = personal.followersHasMore,
-                        userOffset = personal.followers.Count,
+                    return new UserFollowerScreenViewModel {
+                        userId = this.userId,
+                        followerLoading = state.userState.followerLoading,
+                        followUserLoading = state.userState.followUserLoading,
+                        followers = user.followers,
+                        followersHasMore = user.followersHasMore,
+                        userOffset = user.followers.Count,
                         followMap = followMap,
-                        currentFollowId = state.personalState.currentFollowId,
+                        currentFollowId = state.userState.currentFollowId,
                         currentUserId = currentUserId,
                         isLoggedIn = state.loginState.isLoggedIn
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
-                    var actionModel = new FollowerUserScreenActionModel {
+                    var actionModel = new UserFollowerScreenActionModel {
                         startFetchFollower = () => dispatcher.dispatch(new StartFetchFollowerAction()),
-                        fetchFollower = offset => dispatcher.dispatch<IPromise>(Actions.fetchFollower(this.personalId, offset)),
+                        fetchFollower = offset => dispatcher.dispatch<IPromise>(Actions.fetchFollower(this.userId, offset)),
                         startFollowUser = followUserId => dispatcher.dispatch(new StartFetchFollowUserAction {
                             followUserId = followUserId
                         }),
@@ -67,37 +65,37 @@ namespace ConnectApp.screens {
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
-                        pushToPersonalDetail = personalId => dispatcher.dispatch(
-                            new MainNavigatorPushToPersonalDetailAction {
-                                personalId = personalId
+                        pushToUserDetail = userId => dispatcher.dispatch(
+                            new MainNavigatorPushToUserDetailAction {
+                                userId = userId
                             }
                         )
                     };
-                    return new FollowerUserScreen(viewModel, actionModel);
+                    return new UserFollowerScreen(viewModel, actionModel);
                 }
             );
         }
     }
     
-    public class FollowerUserScreen : StatefulWidget {
-        public FollowerUserScreen(
-            FollowerUserScreenViewModel viewModel = null,
-            FollowerUserScreenActionModel actionModel = null,
+    public class UserFollowerScreen : StatefulWidget {
+        public UserFollowerScreen(
+            UserFollowerScreenViewModel viewModel = null,
+            UserFollowerScreenActionModel actionModel = null,
             Key key = null
         ) : base(key: key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
 
-        public readonly FollowerUserScreenViewModel viewModel;
-        public readonly FollowerUserScreenActionModel actionModel;
+        public readonly UserFollowerScreenViewModel viewModel;
+        public readonly UserFollowerScreenActionModel actionModel;
         
         public override State createState() {
-            return new _FollowerUserScreenState();
+            return new _UserFollowerScreenState();
         }
     }
     
-    class _FollowerUserScreenState : State<FollowerUserScreen> {
+    class _UserFollowerScreenState : State<UserFollowerScreen> {
         int _userOffset;
         RefreshController _refreshController;
         string _title;
@@ -106,7 +104,7 @@ namespace ConnectApp.screens {
             base.initState();
             this._userOffset = 0;
             this._refreshController = new RefreshController();
-            this._title = this.widget.viewModel.currentUserId == this.widget.viewModel.personalId 
+            this._title = this.widget.viewModel.currentUserId == this.widget.viewModel.userId 
                 ? "我的粉丝"
                 : "全部粉丝";
             SchedulerBinding.instance.addPostFrameCallback(_ => {
@@ -242,7 +240,7 @@ namespace ConnectApp.screens {
             }
             return new UserCard(
                 user: user,
-                () => this.widget.actionModel.pushToPersonalDetail(obj: user.id),
+                () => this.widget.actionModel.pushToUserDetail(obj: user.id),
                 userType: userType,
                 () => this._onFollow(userType: userType, userId: user.id),
                 new ObjectKey(user.id)

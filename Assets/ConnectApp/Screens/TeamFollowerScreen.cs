@@ -39,12 +39,12 @@ namespace ConnectApp.screens {
                     return new TeamFollowerScreenViewModel {
                         teamId = this.teamId,
                         followerLoading = state.teamState.teamFollowerLoading,
-                        followUserLoading = state.personalState.followUserLoading,
+                        followUserLoading = state.userState.followUserLoading,
                         followers = teamFollower,
                         followersHasMore = state.teamState.teamFollowerHasMore,
                         userOffset = teamFollower.Count,
                         followMap = followMap,
-                        currentFollowId = state.personalState.currentFollowId,
+                        currentFollowId = state.userState.currentFollowId,
                         currentUserId = currentUserId,
                         isLoggedIn = state.loginState.isLoggedIn
                     };
@@ -65,9 +65,9 @@ namespace ConnectApp.screens {
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
-                        pushToPersonalDetail = personalId => dispatcher.dispatch(
-                            new MainNavigatorPushToPersonalDetailAction {
-                                personalId = personalId
+                        pushToUserDetail = userId => dispatcher.dispatch(
+                            new MainNavigatorPushToUserDetailAction {
+                                userId = userId
                             }
                         )
                     };
@@ -240,7 +240,7 @@ namespace ConnectApp.screens {
             }
             return new UserCard(
                 user: user,
-                () => this.widget.actionModel.pushToPersonalDetail(obj: user.id),
+                () => this.widget.actionModel.pushToUserDetail(obj: user.id),
                 userType: userType,
                 () => this._onFollow(userType: userType, userId: user.id),
                 new ObjectKey(user.id)

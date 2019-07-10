@@ -23,26 +23,25 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, SearchScreenViewModel>(
                 converter: state => {
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
-                    var followDict = state.followState.followDict;
-                    var followMap = followDict.ContainsKey(key: currentUserId)
-                        ? followDict[key: currentUserId]
+                    var followMap = state.followState.followDict.ContainsKey(key: currentUserId)
+                        ? state.followState.followDict[key: currentUserId]
                         : new Dictionary<string, bool>();
                     return new SearchScreenViewModel {
                         searchUserLoading = state.searchState.searchUserLoading,
-                        followUserLoading = state.personalState.followUserLoading,
+                        followUserLoading = state.userState.followUserLoading,
                         searchKeyword = state.searchState.keyword,
                         searchUsers = state.searchState.searchUsers,
                         searchUserHasMore = state.searchState.searchUserHasMore,
                         followMap = followMap,
-                        currentFollowId = state.personalState.currentFollowId,
+                        currentFollowId = state.userState.currentFollowId,
                         currentUserId = currentUserId,
                         isLoggedIn = state.loginState.isLoggedIn
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new SearchScreenActionModel {
-                        pushToPersonalDetail = personalId => dispatcher.dispatch(
-                            new MainNavigatorPushToPersonalDetailAction {personalId = personalId}),
+                        pushToUserDetail = userId => dispatcher.dispatch(
+                            new MainNavigatorPushToUserDetailAction {userId = userId}),
                         startSearchUser = () => dispatcher.dispatch(new StartSearchUserAction()),
                         searchUser = (keyword, pageNumber) => dispatcher.dispatch<IPromise>(
                             Actions.searchUsers(keyword, pageNumber)),
@@ -198,7 +197,7 @@ namespace ConnectApp.screens {
             }
             return new UserCard(
                 searchUser,
-                () => this.widget.actionModel.pushToPersonalDetail(searchUser.id),
+                () => this.widget.actionModel.pushToUserDetail(searchUser.id),
                 userType,
                 () => this._onFollow(userType: userType, userId: searchUser.id),
                 new ObjectKey(searchUser.id)

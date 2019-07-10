@@ -4,17 +4,17 @@ using ConnectApp.screens;
 using RSG;
 
 namespace ConnectApp.Models.ActionModel {
-    public class PersonalDetailScreenActionModel : BaseActionModel {
+    public class UserDetailScreenActionModel : BaseActionModel {
         public Action<string> pushToArticleDetail;
         public Action<string, ReportType> pushToReport;
         public Action<string> pushToBlock;
-        public Action<string> pushToFollowingUser;
-        public Action<string> pushToFollowerUser;
+        public Action<string> pushToUserFollowing;
+        public Action<string> pushToUserFollower;
         public Action<string> pushToEditPersonalInfo;
         public Func<ShareType, string, string, string, string, IPromise> shareToWechat;
-        public Action startFetchPersonal;
-        public Func<IPromise> fetchPersonal;
-        public Func<int, IPromise> fetchPersonalArticle;
+        public Action startFetchUserProfile;
+        public Func<IPromise> fetchUserProfile;
+        public Func<int, IPromise> fetchUserArticle;
         public Action startFollowUser;
         public Func<IPromise> followUser;
         public Action startUnFollowUser;

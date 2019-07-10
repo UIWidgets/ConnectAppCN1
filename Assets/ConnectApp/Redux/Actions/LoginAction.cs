@@ -83,7 +83,9 @@ namespace ConnectApp.redux.actions {
                         var user = new User {
                             id = loginInfo.userId,
                             fullName = loginInfo.userFullName,
-                            avatar = loginInfo.userAvatar
+                            avatar = loginInfo.userAvatar,
+                            title = loginInfo.title,
+                            coverImage = loginInfo.coverImageWithCDN
                         };
                         var dict = new Dictionary<string, User> {
                             {user.id, user}

@@ -32,15 +32,16 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, EditPersonalInfoScreenViewModel>(
                 converter: state => {
-                    Personal personal = state.personalState.personalDict.ContainsKey(this.personalId)
-                        ? state.personalState.personalDict[this.personalId] : new Personal();
+                    var user = state.userState.userDict.ContainsKey(key: this.personalId)
+                        ? state.userState.userDict[key: this.personalId]
+                        : new User();
                     return new EditPersonalInfoScreenViewModel {
                         personalId = this.personalId,
-                        personal = personal,
-                        fullName = state.personalState.fullName,
-                        title = state.personalState.title,
-                        jobRole = state.personalState.jobRole,
-                        place = state.personalState.place
+                        user = user,
+                        fullName = state.userState.fullName,
+                        title = state.userState.title,
+                        jobRole = state.userState.jobRole,
+                        place = state.userState.place
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -93,9 +94,9 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            var personal = this.widget.viewModel.personal;
-            this._fullNameController = new TextEditingController(text: personal.user.fullName);
-            this._titleController = new TextEditingController(text: personal.user.title);
+            var user = this.widget.viewModel.user;
+            this._fullNameController = new TextEditingController(text: user.fullName);
+            this._titleController = new TextEditingController(text: user.title);
 
             var jobRole = Resources.Load<TextAsset>("files/JobRole").text;
             this._jobRole = JsonConvert.DeserializeObject<Dictionary<string, string>>(jobRole);
@@ -107,10 +108,10 @@ namespace ConnectApp.screens {
                     this.widget.actionModel.cleanPersonalInfo();
                 }
 
-                this.widget.actionModel.changeFullName(obj: personal.user.fullName);
-                this.widget.actionModel.changeTitle(obj: personal.user.title);
-                var jobRoleIds = this.widget.viewModel.personal.user.jobRoleIds ?? new List<string>();
-                var jobRoleMap = this.widget.viewModel.personal.jobRoleMap ?? new Dictionary<string, JobRole>();
+                this.widget.actionModel.changeFullName(obj: user.fullName);
+                this.widget.actionModel.changeTitle(obj: user.title);
+                var jobRoleIds = user.jobRoleIds ?? new List<string>();
+                var jobRoleMap = user.jobRoleMap ?? new Dictionary<string, JobRole>();
                 jobRoleIds.ForEach(jobRoleId => {
                     if (jobRoleMap.ContainsKey(key: jobRoleId)) {
                         var jonRole = jobRoleMap[key: jobRoleId];
@@ -216,13 +217,13 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildHeader() {
-            var personal = this.widget.viewModel.personal;
+            var user = this.widget.viewModel.user;
             Widget bgWidget = new Container(
                 color: CColors.Red
             );
-            if (personal.user.coverImage.isNotEmpty()) {
+            if (user.coverImage.isNotEmpty()) {
                 bgWidget = new PlaceholderImage(
-                    personal.user.coverImage,
+                    user.coverImage,
                     height: 246,
                     fit: BoxFit.cover
                 );
@@ -237,8 +238,8 @@ namespace ConnectApp.screens {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: new List<Widget> {
                                     Avatar.User(
-                                        id: personal.user.id,
-                                        user: personal.user,
+                                        id: user.id,
+                                        user: user,
                                         120
                                     )
                                 }

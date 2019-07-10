@@ -22,7 +22,6 @@ namespace ConnectApp.Models.State {
         public MessageState messageState { get; set; }
         public SettingState settingState { get; set; }
         public ReportState reportState { get; set; }
-        public PersonalState personalState { get; set; }
 
         public static AppState initialState() {
             var loginInfo = UserInfoManager.initUserInfo();
@@ -84,7 +83,17 @@ namespace ConnectApp.Models.State {
                     mentions = new List<User>()
                 },
                 userState = new UserState {
-                    userDict = UserInfoManager.initUserDict()
+                    userLoading = false,
+                    userArticleLoading = false,
+                    followUserLoading = false,
+                    followingLoading = false,
+                    followerLoading = false,
+                    userDict = UserInfoManager.initUserDict(),
+                    currentFollowId = "",
+                    fullName = "",
+                    title = "",
+                    jobRole = new JobRole(),
+                    place = ""
                 },
                 teamState = new TeamState {
                     teamLoading = false,
@@ -120,19 +129,6 @@ namespace ConnectApp.Models.State {
                 },
                 reportState = new ReportState {
                     loading = false
-                },
-                personalState = new PersonalState {
-                    personalLoading = false,
-                    personalArticleLoading = false,
-                    followingLoading = false,
-                    followerLoading = false,
-                    followUserLoading = false,
-                    personalDict = new Dictionary<string, Personal>(),
-                    currentFollowId = "",
-                    fullName = "",
-                    title = "",
-                    jobRole = new JobRole(),
-                    place = ""
                 }
             };
         }

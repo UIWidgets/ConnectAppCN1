@@ -24,10 +24,11 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, EditPersonalInfoScreenViewModel>(
                 converter: state => {
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
-                    Personal personal = state.personalState.personalDict.ContainsKey(currentUserId)
-                        ? state.personalState.personalDict[currentUserId] : new Personal();
+                    var user = state.userState.userDict.ContainsKey(key: currentUserId)
+                        ? state.userState.userDict[key: currentUserId]
+                        : new User();
                     return new EditPersonalInfoScreenViewModel {
-                        personal = personal
+                        user = user
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -94,7 +95,7 @@ namespace ConnectApp.screens {
         
         Widget _buildContent() {
             var widgets = new List<Widget>();
-            var values = this.viewModel.personal.jobRoleMap.Values;
+            var values = this.viewModel.user.jobRoleMap.Values;
             foreach (var jobRole in values) {
                 var widget = this._buildRoleItem(jobRole: jobRole);
                 widgets.Add(item: widget);

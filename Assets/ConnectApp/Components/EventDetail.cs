@@ -16,7 +16,7 @@ namespace ConnectApp.Components {
             IEvent eventObj = null,
             Action<string> openUrl = null,
             Action<string> playVideo = null,
-            Action<string> pushToPersonalDetail = null,
+            Action<string> pushToUserDetail = null,
             Widget topWidget = null,
             Key titleKey = null,
             Key key = null
@@ -24,7 +24,7 @@ namespace ConnectApp.Components {
             this.eventObj = eventObj;
             this.openUrl = openUrl;
             this.playVideo = playVideo;
-            this.pushToPersonalDetail = pushToPersonalDetail;
+            this.pushToUserDetail = pushToUserDetail;
             this.isShowImage = isShowImage;
             this.topWidget = topWidget;
             this.titleKey = titleKey;
@@ -34,7 +34,7 @@ namespace ConnectApp.Components {
         readonly bool isShowImage;
         readonly Action<string> openUrl;
         readonly Action<string> playVideo;
-        readonly Action<string> pushToPersonalDetail;
+        readonly Action<string> pushToUserDetail;
         readonly Widget topWidget;
         readonly Key titleKey;
 
@@ -107,7 +107,7 @@ namespace ConnectApp.Components {
                                     new Container(
                                         margin: EdgeInsets.only(right: 8),
                                         child: new GestureDetector(
-                                            onTap: () => this.pushToPersonalDetail(user.id),
+                                            onTap: () => this.pushToUserDetail(user.id),
                                             child: Avatar.User(user.id, user, 32)
                                         )
                                     ),
@@ -116,7 +116,7 @@ namespace ConnectApp.Components {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: new List<Widget> {
                                             new GestureDetector(
-                                                onTap: () => this.pushToPersonalDetail(user.id),
+                                                onTap: () => this.pushToUserDetail(user.id),
                                                 child: new Text(
                                                     user.fullName ?? "",
                                                     style: CTextStyle.PMediumBody

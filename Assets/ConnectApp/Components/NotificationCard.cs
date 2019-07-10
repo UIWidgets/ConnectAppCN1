@@ -17,20 +17,20 @@ namespace ConnectApp.Components {
             User user,
             List<User> mentions,
             Action onTap = null,
-            Action<string> pushToPersonalDetail = null,
+            Action<string> pushToUserDetail = null,
             Key key = null
         ) : base(key: key) {
             this.notification = notification;
             this.user = user;
             this.onTap = onTap;
-            this.pushToPersonalDetail = pushToPersonalDetail;
+            this.pushToUserDetail = pushToUserDetail;
             this.mentions = mentions;
         }
 
         readonly Notification notification;
         readonly User user;
         readonly Action onTap;
-        readonly Action<string> pushToPersonalDetail;
+        readonly Action<string> pushToUserDetail;
         readonly List<User> mentions;
 
         public override Widget build(BuildContext context) {
@@ -60,7 +60,7 @@ namespace ConnectApp.Components {
                             new Container(
                                 padding: EdgeInsets.only(16, 16, 16),
                                 child: new GestureDetector(
-                                    onTap: () => this.pushToPersonalDetail(this.user.id),
+                                    onTap: () => this.pushToUserDetail(this.user.id),
                                     child: Avatar.User(this.user.id, this.user, 48)
                                 )
                             ),
@@ -158,7 +158,7 @@ namespace ConnectApp.Components {
                                     text: data.fullname,
                                     style: CTextStyle.PLargeMedium,
                                     recognizer: new TapGestureRecognizer{
-                                        onTap = () => this.pushToPersonalDetail(data.userId)
+                                        onTap = () => this.pushToUserDetail(data.userId)
                                     }
                                 ),
                                 subTitle

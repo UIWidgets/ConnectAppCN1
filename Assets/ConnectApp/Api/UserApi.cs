@@ -6,36 +6,36 @@ using Newtonsoft.Json;
 using RSG;
 
 namespace ConnectApp.Api {
-    public static class PersonalApi {
-        public static Promise<FetchPersonalResponse> FetchPersonal(string personalId) {
-            var promise = new Promise<FetchPersonalResponse>();
-            var request = HttpManager.GET($"{Config.apiAddress}/api/profile/{personalId}");
+    public static class UserApi {
+        public static Promise<FetchUserProfileResponse> FetchUserProfile(string userId) {
+            var promise = new Promise<FetchUserProfileResponse>();
+            var request = HttpManager.GET($"{Config.apiAddress}/api/profile/{userId}");
             HttpManager.resume(request: request).Then(responseText => {
-                var personalResponse = JsonConvert.DeserializeObject<FetchPersonalResponse>(responseText);
-                promise.Resolve(personalResponse);
+                var userProfileResponse = JsonConvert.DeserializeObject<FetchUserProfileResponse>(responseText);
+                promise.Resolve(userProfileResponse);
             }).Catch(exception => promise.Reject(exception));
             return promise;
         }
 
-        public static Promise<FetchPersonalArticleResponse> FetchPersonalArticle(string personalId, int offset) {
-            var promise = new Promise<FetchPersonalArticleResponse>();
+        public static Promise<FetchUserArticleResponse> FetchUserArticle(string userId, int offset) {
+            var promise = new Promise<FetchUserArticleResponse>();
             var para = new Dictionary<string, object> {
                 {"offset", offset},
                 {"type", "article"}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}/api/profile/{personalId}/getActivities", para);
+            var request = HttpManager.GET($"{Config.apiAddress}/api/profile/{userId}/getActivities", para);
             HttpManager.resume(request: request).Then(responseText => {
-                var personalArticleResponse = JsonConvert.DeserializeObject<FetchPersonalArticleResponse>(responseText);
-                promise.Resolve(personalArticleResponse);
+                var userArticleResponse = JsonConvert.DeserializeObject<FetchUserArticleResponse>(responseText);
+                promise.Resolve(userArticleResponse);
             }).Catch(exception => promise.Reject(exception));
             return promise;
         }
 
-        public static Promise<bool> FetchFollowUser(string personalId) {
+        public static Promise<bool> FetchFollowUser(string userId) {
             var promise = new Promise<bool>();
             var para = new FollowParameter {
                 type = "user",
-                followeeId = personalId
+                followeeId = userId
             };
             var request = HttpManager.POST($"{Config.apiAddress}/api/follow", para);
             HttpManager.resume(request: request).Then(responseText => {
@@ -46,13 +46,12 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static Promise<bool> FetchUnFollowUser(string personalId) {
+        public static Promise<bool> FetchUnFollowUser(string userId) {
             var promise = new Promise<bool>();
             var para = new FollowParameter {
-                followeeId = personalId
+                followeeId = userId
             };
             var request = HttpManager.POST($"{Config.apiAddress}/api/unfollow", para);
-            request.SetRequestHeader("Content-Type", "application/json");
             HttpManager.resume(request: request).Then(responseText => {
                 var unFollowResponse = JsonConvert.DeserializeObject<Dictionary<string, bool>>(responseText);
                 promise.Resolve(unFollowResponse["success"]);
@@ -60,10 +59,10 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static Promise<FetchFollowingResponse> FetchFollowing(string personalId, int offset) {
+        public static Promise<FetchFollowingResponse> FetchFollowing(string userId, int offset) {
             var promise = new Promise<FetchFollowingResponse>();
             var para = new Dictionary<string, object> {
-                {"userId", personalId},
+                {"userId", userId},
                 {"offset", offset}
             };
             var request = HttpManager.GET($"{Config.apiAddress}/api/u/getFollowings", para);
@@ -74,10 +73,10 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static Promise<FetchFollowerResponse> FetchFollower(string personalId, int offset) {
+        public static Promise<FetchFollowerResponse> FetchFollower(string userId, int offset) {
             var promise = new Promise<FetchFollowerResponse>();
             var para = new Dictionary<string, object> {
-                {"userId", personalId},
+                {"userId", userId},
                 {"offset", offset}
             };
             var request = HttpManager.GET($"{Config.apiAddress}/api/u/getFollowers", para);

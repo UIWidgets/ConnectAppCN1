@@ -6,28 +6,28 @@ using Unity.UIWidgets.Redux;
 using UnityEngine;
 
 namespace ConnectApp.redux.actions {
-    public class StartFetchPersonalAction : RequestAction {
+    public class StartFetchUserProfileAction : RequestAction {
     }
     
-    public class FetchPersonalSuccessAction : BaseAction {
-        public Personal personal;
-        public string personalId;
+    public class FetchUserProfileSuccessAction : BaseAction {
+        public User user;
+        public string userId;
     }
 
-    public class FetchPersonalFailureAction : BaseAction {
+    public class FetchUserProfileFailureAction : BaseAction {
     }
     
-    public class StartFetchPersonalArticleAction : RequestAction {
+    public class StartFetchUserArticleAction : RequestAction {
     }
     
-    public class FetchPersonalArticleSuccessAction : BaseAction {
+    public class FetchUserArticleSuccessAction : BaseAction {
         public List<Article> articles;
         public bool hasMore;
         public int offset;
-        public string personalId;
+        public string userId;
     }
 
-    public class FetchPersonalArticleFailureAction : BaseAction {
+    public class FetchUserArticleFailureAction : BaseAction {
     }
     
     public class StartFetchFollowUserAction : RequestAction {
@@ -63,7 +63,7 @@ namespace ConnectApp.redux.actions {
         public List<User> followings;
         public bool followingsHasMore;
         public int offset;
-        public string personalId;
+        public string userId;
     }
 
     public class FetchFollowingFailureAction : BaseAction {
@@ -76,7 +76,7 @@ namespace ConnectApp.redux.actions {
         public List<User> followers;
         public bool followersHasMore;
         public int offset;
-        public string personalId;
+        public string userId;
     }
 
     public class FetchFollowerFailureAction : BaseAction {
@@ -102,76 +102,73 @@ namespace ConnectApp.redux.actions {
     }
     
     public static partial class Actions {
-        public static object fetchPersonal(string personalId) {
+        public static object fetchUserProfile(string userId) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return PersonalApi.FetchPersonal(personalId)
-                    .Then(personalResponse => {
-                        dispatcher.dispatch(new StartFetchPersonalArticleAction());
-                        dispatcher.dispatch(fetchPersonalArticle(personalId, 0));
-                        if (personalResponse.placeMap != null) {
-                            dispatcher.dispatch(new PlaceMapAction {placeMap = personalResponse.placeMap});
+                return UserApi.FetchUserProfile(userId: userId)
+                    .Then(userProfileResponse => {
+                        if (userProfileResponse.placeMap != null) {
+                            dispatcher.dispatch(new PlaceMapAction {placeMap = userProfileResponse.placeMap});
                         }
-                        if (personalResponse.teamMap != null) {
-                            dispatcher.dispatch(new TeamMapAction {teamMap = personalResponse.teamMap});
+                        if (userProfileResponse.teamMap != null) {
+                            dispatcher.dispatch(new TeamMapAction {teamMap = userProfileResponse.teamMap});
                         }
-                        if (personalResponse.followMap != null) {
+                        if (userProfileResponse.followMap != null) {
                             dispatcher.dispatch(new FollowMapAction {
-                                followMap = personalResponse.followMap,
+                                followMap = userProfileResponse.followMap,
                                 userId = getState().loginState.loginInfo.userId ?? ""
                             });
                         }
-                        var personalDict = getState().personalState.personalDict;
-                        var personal = personalDict.ContainsKey(personalId)
-                            ? personalDict[personalId]
-                            : new Personal();
-                        
-                        dispatcher.dispatch(new FetchPersonalSuccessAction {
-                            personal = new Personal {
-                                user = personalResponse.user,
-                                followingCount = personalResponse.followingCount,
-                                followings = personalResponse.followings,
-                                followingsHasMore = personalResponse.followingsHasMore,
-                                followers = personalResponse.followers,
-                                followersHasMore = personalResponse.followersHasMore,
-                                articles = personal.articles ?? new List<Article>(),
-                                articlesHasMore = personal.articlesHasMore,
-                                currentUserId = personalResponse.currentUserId,
-                                jobRoleMap = personalResponse.jobRoleMap
-                            },
-                            personalId = personalId
+                        var userDict = getState().userState.userDict;
+                        var currentUser = userDict.ContainsKey(key: userId)
+                            ? userDict[key: userId]
+                            : new User();
+                        var user = userProfileResponse.user;
+                        user.followingCount = userProfileResponse.followingCount;
+                        user.followings = userProfileResponse.followings;
+                        user.followingsHasMore = userProfileResponse.followingsHasMore;
+                        user.followers = userProfileResponse.followers;
+                        user.followersHasMore = userProfileResponse.followersHasMore;
+                        user.articles = currentUser.articles;
+                        user.articlesHasMore = currentUser.articlesHasMore;
+                        user.jobRoleMap = userProfileResponse.jobRoleMap;
+                        dispatcher.dispatch(new FetchUserProfileSuccessAction {
+                            user = user,
+                            userId = userId
                         });
+                        dispatcher.dispatch(new StartFetchUserArticleAction());
+                        dispatcher.dispatch(fetchUserArticle(userId, 0));
                     })
                     .Catch(error => {
-                        dispatcher.dispatch(new FetchPersonalFailureAction());
+                        dispatcher.dispatch(new FetchUserProfileFailureAction());
                         Debug.Log(error);
                     }
                 );
             });
         }
         
-        public static object fetchPersonalArticle(string personalId, int offset) {
+        public static object fetchUserArticle(string userId, int offset) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return PersonalApi.FetchPersonalArticle(personalId, offset)
-                    .Then(personalArticleResponse => {
+                return UserApi.FetchUserArticle(userId, offset)
+                    .Then(userArticleResponse => {
                         var articles = new List<Article>();
-                        personalArticleResponse.projectList.ForEach(articleId => {
-                            if (personalArticleResponse.projectMap.ContainsKey(articleId)) {
-                                var article = personalArticleResponse.projectMap[articleId];
+                        userArticleResponse.projectList.ForEach(articleId => {
+                            if (userArticleResponse.projectMap.ContainsKey(key: articleId)) {
+                                var article = userArticleResponse.projectMap[key: articleId];
                                 articles.Add(article);
                             }
                         });
-                        dispatcher.dispatch(new PlaceMapAction {placeMap = personalArticleResponse.placeMap});
-                        dispatcher.dispatch(new UserMapAction {userMap = personalArticleResponse.userMap});
-                        dispatcher.dispatch(new TeamMapAction {teamMap = personalArticleResponse.teamMap});
-                        dispatcher.dispatch(new FetchPersonalArticleSuccessAction {
+                        dispatcher.dispatch(new PlaceMapAction {placeMap = userArticleResponse.placeMap});
+                        dispatcher.dispatch(new UserMapAction {userMap = userArticleResponse.userMap});
+                        dispatcher.dispatch(new TeamMapAction {teamMap = userArticleResponse.teamMap});
+                        dispatcher.dispatch(new FetchUserArticleSuccessAction {
                             articles = articles,
-                            hasMore = personalArticleResponse.hasMore,
+                            hasMore = userArticleResponse.hasMore,
                             offset = offset,
-                            personalId = personalId
+                            userId = userId
                         });
                     })
                     .Catch(error => {
-                            dispatcher.dispatch(new FetchPersonalArticleFailureAction());
+                            dispatcher.dispatch(new FetchUserArticleFailureAction());
                             Debug.Log(error);
                         }
                     );
@@ -180,7 +177,7 @@ namespace ConnectApp.redux.actions {
         
         public static object fetchFollowUser(string followUserId) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return PersonalApi.FetchFollowUser(followUserId)
+                return UserApi.FetchFollowUser(followUserId)
                     .Then(success => {
                         dispatcher.dispatch(new FetchFollowUserSuccessAction {
                             success = success,
@@ -198,7 +195,7 @@ namespace ConnectApp.redux.actions {
         
         public static object fetchUnFollowUser(string unFollowUserId) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return PersonalApi.FetchUnFollowUser(unFollowUserId)
+                return UserApi.FetchUnFollowUser(unFollowUserId)
                     .Then(success => {
                         dispatcher.dispatch(new FetchUnFollowUserSuccessAction {
                             success = success,
@@ -214,9 +211,9 @@ namespace ConnectApp.redux.actions {
             });
         }
         
-        public static object fetchFollowing(string personalId, int offset) {
+        public static object fetchFollowing(string userId, int offset) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return PersonalApi.FetchFollowing(personalId, offset)
+                return UserApi.FetchFollowing(userId, offset)
                     .Then(followingResponse => {
                         if (followingResponse.followMap != null) {
                             dispatcher.dispatch(new FollowMapAction {
@@ -228,7 +225,7 @@ namespace ConnectApp.redux.actions {
                             followings = followingResponse.followings,
                             followingsHasMore = followingResponse.followingsHasMore,
                             offset = offset,
-                            personalId = personalId
+                            userId = userId
                         });
                     })
                     .Catch(error => {
@@ -239,9 +236,9 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object fetchFollower(string personalId, int offset) {
+        public static object fetchFollower(string userId, int offset) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return PersonalApi.FetchFollower(personalId, offset)
+                return UserApi.FetchFollower(userId, offset)
                     .Then(followerResponse => {
                         if (followerResponse.followMap != null) {
                             dispatcher.dispatch(new FollowMapAction {
@@ -253,7 +250,7 @@ namespace ConnectApp.redux.actions {
                             followers = followerResponse.followers,
                             followersHasMore = followerResponse.followersHasMore,
                             offset = offset,
-                            personalId = personalId
+                            userId = userId
                         });
                     })
                     .Catch(error => {
@@ -266,7 +263,7 @@ namespace ConnectApp.redux.actions {
 
         public static object editPersonalInfo(string fullName, string title, string jobRoleId, string placeId) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return PersonalApi.EditPersonalInfo(fullName, title, jobRoleId, placeId)
+                return UserApi.EditPersonalInfo(fullName, title, jobRoleId, placeId)
                     .Then(editPersonalInfoResponse => {
                         if (editPersonalInfoResponse.placeMap != null) {
                             dispatcher.dispatch(new PlaceMapAction {placeMap = editPersonalInfoResponse.placeMap});

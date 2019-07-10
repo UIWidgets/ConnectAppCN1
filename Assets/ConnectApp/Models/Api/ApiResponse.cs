@@ -87,7 +87,7 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
-    public class FetchPersonalResponse {
+    public class FetchUserProfileResponse {
         public User user;
         public Dictionary<string, bool> followMap;
         public int followingCount;
@@ -102,7 +102,7 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
-    public class FetchPersonalArticleResponse {
+    public class FetchUserArticleResponse {
         public List<string> projectList;
         public Dictionary<string, User> userMap;
         public Dictionary<string, Team> teamMap;

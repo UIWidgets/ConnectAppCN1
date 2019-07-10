@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using ConnectApp.Models.Model;
 
 namespace ConnectApp.Models.ViewModel {
-    public class FollowingUserScreenViewModel {
-        public string personalId;
+    public class UserFollowingScreenViewModel {
+        public string userId;
         public bool followingLoading;
         public bool searchFollowingLoading;
         public bool followUserLoading;

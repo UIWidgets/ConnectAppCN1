@@ -29,8 +29,8 @@ namespace ConnectApp.screens {
                         routeName => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = routeName
                         }),
-                        personalId => dispatcher.dispatch(new MainNavigatorPushToPersonalDetailAction {
-                            personalId = personalId
+                        userId => dispatcher.dispatch(new MainNavigatorPushToUserDetailAction {
+                            userId = userId
                         })
                     );
                 }
@@ -42,17 +42,17 @@ namespace ConnectApp.screens {
         public PersonalScreen(
             PersonalScreenViewModel viewModel = null,
             Action<string> mainRouterPushTo = null,
-            Action<string> pushToPersonalDetail = null,
+            Action<string> pushToUserDetail = null,
             Key key = null
         ) : base(key: key) {
             this.viewModel = viewModel;
             this.mainRouterPushTo = mainRouterPushTo;
-            this.pushToPersonalDetail = pushToPersonalDetail;
+            this.pushToUserDetail = pushToUserDetail;
         }
 
         public readonly PersonalScreenViewModel viewModel;
         public readonly Action<string> mainRouterPushTo;
-        public readonly Action<string> pushToPersonalDetail;
+        public readonly Action<string> pushToUserDetail;
 
         public override State createState() {
             return new _PersonalScreenState();
@@ -143,7 +143,7 @@ namespace ConnectApp.screens {
                 );
             }
             return new GestureDetector(
-                onTap: () => this.widget.pushToPersonalDetail(user.userId),
+                onTap: () => this.widget.pushToUserDetail(user.userId),
                 child: new Container(
                     height: 184,
                     padding: EdgeInsets.only(16, right: 16, bottom: 16),

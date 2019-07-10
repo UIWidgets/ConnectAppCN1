@@ -14,6 +14,14 @@ namespace ConnectApp.Models.Model {
         public string coverImage;
         public string description;
         public int followCount;
+        public int followingCount;
+        public List<User> followings;
+        public bool followingsHasMore;
+        public List<User> followers;
+        public bool followersHasMore;
+        public List<Article> articles;
+        public bool articlesHasMore;
+        public Dictionary<string, JobRole> jobRoleMap;
         public List<string> jobRoleIds;
     }
 }

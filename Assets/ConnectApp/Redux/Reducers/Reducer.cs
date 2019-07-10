@@ -685,7 +685,17 @@ namespace ConnectApp.redux.reducers {
                     var userDict = state.userState.userDict;
                     foreach (var keyValuePair in action.userMap) {
                         if (userDict.ContainsKey(key: keyValuePair.Key)) {
-                            userDict[key: keyValuePair.Key] = keyValuePair.Value;
+                            var oldUser = userDict[key: keyValuePair.Key];
+                            var newUser = keyValuePair.Value;
+                            newUser.followingCount = oldUser.followingCount;
+                            newUser.followings = oldUser.followings;
+                            newUser.followingsHasMore = oldUser.followingsHasMore;
+                            newUser.followers = oldUser.followers;
+                            newUser.followersHasMore = oldUser.followersHasMore;
+                            newUser.articles = oldUser.articles;
+                            newUser.articlesHasMore = oldUser.articlesHasMore;
+                            newUser.jobRoleMap = oldUser.jobRoleMap;
+                            userDict[key: keyValuePair.Key] = newUser;
                         }
                         else {
                             userDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
@@ -902,11 +912,11 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case MainNavigatorPushToPersonalDetailAction action: {
-                    if (action.personalId != null) {
+                case MainNavigatorPushToUserDetailAction action: {
+                    if (action.userId != null) {
                         Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                                new PersonalDetailScreenConnector(personalId: action.personalId),
+                                new UserDetailScreenConnector(userId: action.userId),
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new PushPageTransition(
                                     routeAnimation: animation,
@@ -919,11 +929,11 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case MainNavigatorPushToFollowingUserAction action: {
+                case MainNavigatorPushToUserFollowingAction action: {
                     if (action.userId != null) {
                         Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                                new FollowingUserScreenConnector(personalId: action.userId), 
+                                new UserFollowingScreenConnector(userId: action.userId), 
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new PushPageTransition(
                                     routeAnimation: animation,
@@ -936,11 +946,11 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case MainNavigatorPushToFollowerUserAction action: {
+                case MainNavigatorPushToUserFollowerAction action: {
                     if (action.userId != null) {
                         Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                                new FollowerUserScreenConnector(personalId: action.userId),
+                                new UserFollowerScreenConnector(userId: action.userId),
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new PushPageTransition(
                                     routeAnimation: animation,
@@ -1165,219 +1175,232 @@ namespace ConnectApp.redux.reducers {
                         : null);
                     break;
                 }
-                
-                case StartFetchPersonalAction _: {
-                    state.personalState.personalLoading = true;
+
+                case StartFetchUserProfileAction _: {
+                    state.userState.userLoading = true;
                     break;
                 } 
-                
-                case FetchPersonalSuccessAction action: {
-                    state.personalState.personalLoading = false;
-                    if (!state.personalState.personalDict.ContainsKey(key: action.personalId)) {
-                        state.personalState.personalDict.Add(key: action.personalId, value: action.personal);
+
+                case FetchUserProfileSuccessAction action: {
+                    state.userState.userLoading = false;
+                    if (!state.userState.userDict.ContainsKey(key: action.userId)) {
+                        state.userState.userDict.Add(key: action.userId, value: action.user);
                     }
                     else {
-                        state.personalState.personalDict[key: action.personalId] = action.personal;
+                        state.userState.userDict[key: action.userId] = action.user;
                     }
                     break;
                 } 
-                
-                case FetchPersonalFailureAction _: {
-                    state.personalState.personalLoading = false;
+
+                case FetchUserProfileFailureAction _: {
+                    state.userState.userLoading = false;
                     break;
                 } 
-                
-                case StartFetchPersonalArticleAction _: {
-                    state.personalState.personalArticleLoading = true;
+
+                case StartFetchUserArticleAction _: {
+                    state.userState.userArticleLoading = true;
                     break;
                 } 
-                
-                case FetchPersonalArticleSuccessAction action: {
-                    state.personalState.personalArticleLoading = false;
-                    if (state.personalState.personalDict.ContainsKey(key: action.personalId)) {
-                        var personal = state.personalState.personalDict[key: action.personalId];
-                        personal.articlesHasMore = action.hasMore;
+
+                case FetchUserArticleSuccessAction action: {
+                    state.userState.userArticleLoading = false;
+                    if (state.userState.userDict.ContainsKey(key: action.userId)) {
+                        var user = state.userState.userDict[key: action.userId];
+                        Debug.Log(user.followCount);
+                        Debug.Log(user.followingCount);
+                        Debug.Log(user.id);
+                        user.articlesHasMore = action.hasMore;
                         if (action.offset == 0) {
-                            personal.articles = action.articles;
+                            user.articles = action.articles;
                         }
                         else {
-                            var articles = personal.articles;
+                            var articles = user.articles;
                             articles.AddRange(collection: action.articles);
-                            personal.articles = articles;
+                            user.articles = articles;
                         }
-                        state.personalState.personalDict[key: action.personalId] = personal;
+                        Debug.Log(user.followCount);
+                        Debug.Log(user.followingCount);
+                        Debug.Log(user.id);
+                        state.userState.userDict[key: action.userId] = user;
                     }
                     else {
-                        var personal = new Personal {
+                        var user = new User {
                             articlesHasMore = action.hasMore
                         };
                         if (action.offset == 0) {
-                            personal.articles = action.articles;
+                            user.articles = action.articles;
                         }
                         else {
-                            var articles = personal.articles;
+                            var articles = user.articles;
                             articles.AddRange(collection: action.articles);
-                            personal.articles = articles;
+                            user.articles = articles;
                         }
-                        state.personalState.personalDict.Add(key: action.personalId, value: personal);
+                        state.userState.userDict.Add(key: action.userId, value: user);
                     }
                     break;
-                } 
-                
-                case FetchPersonalArticleFailureAction _: {
-                    state.personalState.personalArticleLoading = false;
+                }
+
+                case FetchUserArticleFailureAction _: {
+                    state.userState.userArticleLoading = false;
                     break;
                 } 
-                
+
                 case StartFetchFollowUserAction action: {
-                    state.personalState.followUserLoading = true;
-                    state.personalState.currentFollowId = action.followUserId;
+                    state.userState.followUserLoading = true;
+                    state.userState.currentFollowId = action.followUserId;
                     break;
-                } 
-                
+                }
+
                 case FetchFollowUserSuccessAction action: {
-                    state.personalState.followUserLoading = false;
-                    if (state.followState.followDict.ContainsKey(action.currentUserId)) {
-                        var followMap = state.followState.followDict[action.currentUserId];
-                        if (!followMap.ContainsKey(action.followUserId)) {
-                            followMap.Add(action.followUserId, action.success);
+                    state.userState.followUserLoading = false;
+                    if (state.followState.followDict.ContainsKey(key: action.currentUserId)) {
+                        var followMap = state.followState.followDict[key: action.currentUserId];
+                        if (!followMap.ContainsKey(key: action.followUserId)) {
+                            followMap.Add(key: action.followUserId, value: action.success);
                         }
-                        state.followState.followDict[action.currentUserId] = followMap;
+                        state.followState.followDict[key: action.currentUserId] = followMap;
                     }
-                    if (state.personalState.personalDict.ContainsKey(action.currentUserId)) {
-                        var personal = state.personalState.personalDict[action.currentUserId];
-                        personal.followingCount += 1;
-                        state.personalState.personalDict[action.currentUserId] = personal;
+                    if (state.userState.userDict.ContainsKey(key: action.currentUserId)) {
+                        var user = state.userState.userDict[key: action.currentUserId];
+                        user.followingCount += 1;
+                        state.userState.userDict[key: action.currentUserId] = user;
                     }
-                    if (state.personalState.personalDict.ContainsKey(action.followUserId)) {
-                        var personal = state.personalState.personalDict[action.followUserId];
-                        personal.user.followCount += 1;
-                        state.personalState.personalDict[action.followUserId] = personal;
+                    if (state.userState.userDict.ContainsKey(key: action.followUserId)) {
+                        var user = state.userState.userDict[key: action.followUserId];
+                        user.followCount += 1;
+                        state.userState.userDict[key: action.followUserId] = user;
                     }
                     break;
                 } 
 
                 case FetchFollowUserFailureAction _: {
-                    state.personalState.followUserLoading = false;
+                    state.userState.followUserLoading = false;
                     break;
                 }
 
                 case StartFetchUnFollowUserAction action: {
-                    state.personalState.followUserLoading = true;
-                    state.personalState.currentFollowId = action.unFollowUserId;
+                    state.userState.followUserLoading = true;
+                    state.userState.currentFollowId = action.unFollowUserId;
                     break;
                 } 
 
                 case FetchUnFollowUserSuccessAction action: {
-                    state.personalState.followUserLoading = false;
-                    if (state.followState.followDict.ContainsKey(action.currentUserId)) {
-                        var followMap = state.followState.followDict[action.currentUserId];
-                        if (followMap.ContainsKey(action.unFollowUserId)) {
-                            followMap.Remove(action.unFollowUserId);
+                    state.userState.followUserLoading = false;
+                    if (state.followState.followDict.ContainsKey(key: action.currentUserId)) {
+                        var followMap = state.followState.followDict[key: action.currentUserId];
+                        if (followMap.ContainsKey(key: action.unFollowUserId)) {
+                            followMap.Remove(key: action.unFollowUserId);
                         }
-                        state.followState.followDict[action.currentUserId] = followMap;
+                        state.followState.followDict[key: action.currentUserId] = followMap;
                     }
-                    if (state.personalState.personalDict.ContainsKey(action.currentUserId)) {
-                        var personal = state.personalState.personalDict[action.currentUserId];
-                        personal.followingCount -= 1;
-                        state.personalState.personalDict[action.currentUserId] = personal;
+                    if (state.userState.userDict.ContainsKey(key: action.currentUserId)) {
+                        var user = state.userState.userDict[key: action.currentUserId];
+                        user.followingCount -= 1;
+                        state.userState.userDict[key: action.currentUserId] = user;
                     }
-                    if (state.personalState.personalDict.ContainsKey(action.unFollowUserId)) {
-                        var personal = state.personalState.personalDict[action.unFollowUserId];
-                        personal.user.followCount -= 1;
-                        state.personalState.personalDict[action.unFollowUserId] = personal;
+                    if (state.userState.userDict.ContainsKey(key: action.unFollowUserId)) {
+                        var user = state.userState.userDict[key: action.unFollowUserId];
+                        user.followCount -= 1;
+                        state.userState.userDict[key: action.unFollowUserId] = user;
                     }
                     break;
                 } 
 
                 case FetchUnFollowUserFailureAction _: {
-                    state.personalState.followUserLoading = false;
+                    state.userState.followUserLoading = false;
                     break;
                 }
-                
+
                 case StartFetchFollowingAction _: {
-                    state.personalState.followingLoading = true;
-                    break;
-                } 
-                
-                case FetchFollowingSuccessAction action: {
-                    state.personalState.followingLoading = false;
-                    if (state.personalState.personalDict.ContainsKey(key: action.personalId)) {
-                        var personal = state.personalState.personalDict[key: action.personalId];
-                        personal.followingsHasMore = action.followingsHasMore;
-                        if (action.offset == 0) {
-                            personal.followings = action.followings;
-                        }
-                        else {
-                            var followings = personal.followings;
-                            followings.AddRange(collection: action.followings);
-                            personal.followings = followings;
-                        }
-                        state.personalState.personalDict[key: action.personalId] = personal;
-                    }
-                    break;
-                } 
-                
-                case FetchFollowingFailureAction _: {
-                    state.personalState.followingLoading = false;
+                    state.userState.followingLoading = true;
                     break;
                 }
-                
-                case StartFetchFollowerAction _: {
-                    state.personalState.followerLoading = true;
-                    break;
-                } 
-                
-                case FetchFollowerSuccessAction action: {
-                    state.personalState.followerLoading = false;
-                    if (state.personalState.personalDict.ContainsKey(key: action.personalId)) {
-                        var personal = state.personalState.personalDict[key: action.personalId];
-                        personal.followersHasMore = action.followersHasMore;
+
+                case FetchFollowingSuccessAction action: {
+                    state.userState.followingLoading = false;
+                    if (state.userState.userDict.ContainsKey(key: action.userId)) {
+                        var user = state.userState.userDict[key: action.userId];
+                        user.followingsHasMore = action.followingsHasMore;
                         if (action.offset == 0) {
-                            personal.followers = action.followers;
+                            user.followings = action.followings;
                         }
                         else {
-                            var followers = personal.followers;
-                            followers.AddRange(collection: action.followers);
-                            personal.followers = followers;
+                            var followings = user.followings;
+                            followings.AddRange(collection: action.followings);
+                            user.followings = followings;
                         }
-                        state.personalState.personalDict[key: action.personalId] = personal;
+                        state.userState.userDict[key: action.userId] = user;
+                    }
+                    break;
+                }
+
+                case FetchFollowingFailureAction _: {
+                    state.userState.followingLoading = false;
+                    break;
+                }
+
+                case StartFetchFollowerAction _: {
+                    state.userState.followerLoading = true;
+                    break;
+                } 
+
+                case FetchFollowerSuccessAction action: {
+                    state.userState.followerLoading = false;
+                    if (state.userState.userDict.ContainsKey(key: action.userId)) {
+                        var user = state.userState.userDict[key: action.userId];
+                        user.followersHasMore = action.followersHasMore;
+                        if (action.offset == 0) {
+                            user.followers = action.followers;
+                        }
+                        else {
+                            var followers = user.followers;
+                            followers.AddRange(collection: action.followers);
+                            user.followers = followers;
+                        }
+                        state.userState.userDict[key: action.userId] = user;
                     }
                     break;
                 } 
-                
+
                 case FetchFollowerFailureAction _: {
-                    state.personalState.followerLoading = false;
+                    state.userState.followerLoading = false;
                     break;
                 }
 
                 case ChangePersonalFullNameAction action: {
-                    state.personalState.fullName = action.fullName;
+                    state.userState.fullName = action.fullName;
                     break;
                 }
 
                 case ChangePersonalTitleAction action: {
-                    state.personalState.title = action.title;
+                    state.userState.title = action.title;
                     break;
                 }
 
                 case ChangePersonalRoleAction action: {
-                    state.personalState.jobRole = action.jobRole;
+                    state.userState.jobRole = action.jobRole;
                     break;
                 }
 
                 case CleanPersonalInfoAction _: {
-                    state.personalState.fullName = "";
-                    state.personalState.title = "";
-                    state.personalState.jobRole = new JobRole();
+                    state.userState.fullName = "";
+                    state.userState.title = "";
+                    state.userState.jobRole = new JobRole();
                     break;
                 }
 
                 case EditPersonalInfoSuccessAction action: {
-                    if (state.personalState.personalDict.ContainsKey(key: action.user.id)) {
-                        var personal = state.personalState.personalDict[key: action.user.id];
-                        personal.user = action.user;
-                        state.personalState.personalDict[key: action.user.id] = personal;
+                    if (state.userState.userDict.ContainsKey(key: action.user.id)) {
+                        var oldUser = state.userState.userDict[key: action.user.id];
+                        var newUser = action.user;
+                        newUser.followingCount = oldUser.followingCount;
+                        newUser.followings = oldUser.followings;
+                        newUser.followingsHasMore = oldUser.followingsHasMore;
+                        newUser.followers = oldUser.followers;
+                        newUser.followersHasMore = oldUser.followersHasMore;
+                        newUser.articles = oldUser.articles;
+                        newUser.articlesHasMore = oldUser.articlesHasMore;
+                        state.userState.userDict[key: action.user.id] = newUser;
                     }
                     break;
                 }
