@@ -628,7 +628,11 @@ namespace ConnectApp.screens {
                 null
             ) + 16; // 16 is top padding
 
-            var height = mediaQuery.size.height - navBarHeight - 44 - mediaQuery.padding.vertical;
+            float safeAreaPadding = 0;
+            if (Application.platform != RuntimePlatform.Android) {
+                safeAreaPadding = mediaQuery.padding.vertical;
+            }
+            var height = mediaQuery.size.height - navBarHeight - 44 - safeAreaPadding;
             if (channelComments.Count == 0) {
                 var blankView = new Container(
                     height: height - titleHeight,
