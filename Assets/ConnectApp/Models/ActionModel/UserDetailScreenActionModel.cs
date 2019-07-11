@@ -14,6 +14,7 @@ namespace ConnectApp.Models.ActionModel {
         public Func<ShareType, string, string, string, string, IPromise> shareToWechat;
         public Action startFetchUserProfile;
         public Func<IPromise> fetchUserProfile;
+        public Action startFetchUserArticle;
         public Func<int, IPromise> fetchUserArticle;
         public Action startFollowUser;
         public Func<IPromise> followUser;

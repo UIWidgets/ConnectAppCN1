@@ -64,16 +64,16 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildEventCard(BuildContext context, int index) {
-            var model = this.viewModel.eventHistory[index];
+            var model = this.viewModel.eventHistory[index: index];
             var eventType = model.mode == "online" ? EventType.online : EventType.offline;
             return CustomDismissible.builder(
                 Key.key(model.id),
                 new EventCard(
-                    model,
-                    model.place,
+                    model: model,
+                    place: model.place,
                     () => this.actionModel.pushToEventDetail(model.id, eventType),
-                    new ObjectKey(model.id),
-                    index == 0
+                    index == 0,
+                    new ObjectKey(value: model.id)
                 ),
                 new CustomDismissibleDrawerDelegate(),
                 secondaryActions: new List<Widget> {

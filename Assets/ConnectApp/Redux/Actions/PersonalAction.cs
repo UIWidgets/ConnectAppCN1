@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using ConnectApp.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
+using ConnectApp.Utils;
 using Unity.UIWidgets.Redux;
 using UnityEngine;
 
@@ -112,10 +113,27 @@ namespace ConnectApp.redux.actions {
                         if (userProfileResponse.teamMap != null) {
                             dispatcher.dispatch(new TeamMapAction {teamMap = userProfileResponse.teamMap});
                         }
+                        var userMap = new Dictionary<string, User>();
+                        (userProfileResponse.followings ?? new List<User>()).ForEach(followingUser => {
+                            if (userMap.ContainsKey(key: followingUser.id)) {
+                                userMap[key: followingUser.id] = followingUser;
+                            }
+                            else {
+                                userMap.Add(key: followingUser.id, value: followingUser);
+                            }
+                        });
+                        (userProfileResponse.followers ?? new List<User>()).ForEach(followerUser => {
+                            if (userMap.ContainsKey(key: followerUser.id)) {
+                                userMap[key: followerUser.id] = followerUser;
+                            }
+                            else {
+                                userMap.Add(key: followerUser.id, value: followerUser);
+                            }
+                        });
+                        dispatcher.dispatch(new UserMapAction {userMap = userMap});
                         if (userProfileResponse.followMap != null) {
                             dispatcher.dispatch(new FollowMapAction {
-                                followMap = userProfileResponse.followMap,
-                                userId = getState().loginState.loginInfo.userId ?? ""
+                                followMap = userProfileResponse.followMap
                             });
                         }
                         var userDict = getState().userState.userDict;
@@ -135,8 +153,6 @@ namespace ConnectApp.redux.actions {
                             user = user,
                             userId = userId
                         });
-                        dispatcher.dispatch(new StartFetchUserArticleAction());
-                        dispatcher.dispatch(fetchUserArticle(userId, 0));
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchUserProfileFailureAction());
@@ -217,8 +233,7 @@ namespace ConnectApp.redux.actions {
                     .Then(followingResponse => {
                         if (followingResponse.followMap != null) {
                             dispatcher.dispatch(new FollowMapAction {
-                                followMap = followingResponse.followMap,
-                                userId = getState().loginState.loginInfo.userId ?? ""
+                                followMap = followingResponse.followMap
                             });
                         }
                         dispatcher.dispatch(new FetchFollowingSuccessAction {
@@ -242,8 +257,7 @@ namespace ConnectApp.redux.actions {
                     .Then(followerResponse => {
                         if (followerResponse.followMap != null) {
                             dispatcher.dispatch(new FollowMapAction {
-                                followMap = followerResponse.followMap,
-                                userId = getState().loginState.loginInfo.userId ?? ""
+                                followMap = followerResponse.followMap
                             });
                         }
                         dispatcher.dispatch(new FetchFollowerSuccessAction {
@@ -271,6 +285,18 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new EditPersonalInfoSuccessAction {
                             user = editPersonalInfoResponse.user
                         });
+                        var oldLoginInfo = getState().loginState.loginInfo;
+                        var loginInfo = new LoginInfo {
+                            LSKey = oldLoginInfo.LSKey,
+                            userId = oldLoginInfo.userId,
+                            userFullName = editPersonalInfoResponse.user.fullName,
+                            userAvatar = editPersonalInfoResponse.user.avatar,
+                            authId = oldLoginInfo.authId,
+                            anonymous = oldLoginInfo.anonymous,
+                            title = editPersonalInfoResponse.user.title,
+                            coverImageWithCDN = editPersonalInfoResponse.user.coverImage
+                        };
+                        UserInfoManager.saveUserInfo(loginInfo);
                     })
                     .Catch(error => Debug.Log($"{error}")
                     );

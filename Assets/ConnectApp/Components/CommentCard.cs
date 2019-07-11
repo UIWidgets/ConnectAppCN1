@@ -72,7 +72,7 @@ namespace ConnectApp.Components {
                             child: new Container(
                                 height: 24,
                                 margin: EdgeInsets.only(right: 8),
-                                child: Avatar.User(this.message.author.id, this.message.author, 24)
+                                child: Avatar.User(this.message.author, 24)
                             )
                         ),
                         new Expanded(

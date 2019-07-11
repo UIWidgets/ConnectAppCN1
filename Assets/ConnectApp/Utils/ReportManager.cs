@@ -16,15 +16,15 @@ namespace ConnectApp.Utils {
             var items = new List<ActionSheetItem> {
                 new ActionSheetItem(
                     "举报",
-                    ActionType.normal,
+                    type: ActionType.normal,
                     () => report(isLoggedIn, reportId, reportType, pushToLogin, pushToReport)
                 ),
-                new ActionSheetItem("取消", ActionType.cancel)
+                new ActionSheetItem("取消", type: ActionType.cancel)
             };
             if (reportType == ReportType.article) {
                 items.Insert(0, new ActionSheetItem(
                     "屏蔽",
-                    ActionType.normal,
+                    type: ActionType.normal,
                     () => block(isLoggedIn, reportId, pushToLogin, pushToBlock)
                 ));
             }
@@ -66,7 +66,7 @@ namespace ConnectApp.Utils {
                 items: new List<ActionSheetItem> {
                     new ActionSheetItem(
                         "确定",
-                        ActionType.destructive,
+                        type: ActionType.destructive,
                         () => {
                             pushToBlock(reportId);
                             if (mainRouterPop != null) {
@@ -74,7 +74,7 @@ namespace ConnectApp.Utils {
                             }
                         }
                     ),
-                    new ActionSheetItem("取消", ActionType.cancel)
+                    new ActionSheetItem("取消", type: ActionType.cancel)
                 }
             ));
         }

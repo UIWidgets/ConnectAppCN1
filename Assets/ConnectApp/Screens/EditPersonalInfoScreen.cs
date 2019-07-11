@@ -122,20 +122,6 @@ namespace ConnectApp.screens {
         }
 
         void _editPersonalInfo() {
-            if (this.widget.viewModel.fullName.isEmpty()) {
-                var customSnackBar = new CustomSnackBar(
-                    "昵称不能为空"
-                );
-                customSnackBar.show();
-                return;
-            }
-            if (this.widget.viewModel.jobRole.id.isEmpty()) {
-                var customSnackBar = new CustomSnackBar(
-                    "身份不能为空"
-                );
-                customSnackBar.show();
-                return;
-            }
             CustomDialogUtils.showCustomDialog(
                 child: new CustomLoadingDialog(
                     message: "正在编辑个人信息"
@@ -169,6 +155,8 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildNavigationBar() {
+            var disEnabled = this.widget.viewModel.fullName.isEmpty()
+                            || this.widget.viewModel.jobRole.name.isEmpty();
             return new CustomAppBar(
                 () => this.widget.actionModel.mainRouterPop(),
                 new Text(
@@ -177,10 +165,16 @@ namespace ConnectApp.screens {
                 ),
                 new CustomButton(
                     padding: EdgeInsets.only(16, 0, 16),
-                    onPressed: this._editPersonalInfo,
+                    onPressed: () => {
+                        if (!disEnabled) {
+                            this._editPersonalInfo();
+                        }
+                    },
                     child: new Text(
                         "提交",
-                        style: CTextStyle.PLargeMediumBlue
+                        style: disEnabled 
+                            ? CTextStyle.PLargeMediumBlue.copyWith(new Color(0xFF9D9D9D))
+                            : CTextStyle.PLargeMediumBlue
                     )
                 )
             );
@@ -190,7 +184,7 @@ namespace ConnectApp.screens {
             return new Container(
                 child: new ListView(
                     children: new List<Widget> {
-                        this._buildHeader(),
+                        // this._buildHeader(),
                         this._buildInputItem(
                             "昵称",
                             "请输入你的昵称",
@@ -218,32 +212,15 @@ namespace ConnectApp.screens {
 
         Widget _buildHeader() {
             var user = this.widget.viewModel.user;
-            Widget bgWidget = new Container(
-                color: CColors.Red
-            );
-            if (user.coverImage.isNotEmpty()) {
-                bgWidget = new PlaceholderImage(
-                    user.coverImage,
-                    height: 246,
-                    fit: BoxFit.cover
-                );
-            }
-            return new Container(
-                height: 246,
-                child: new Stack(
+            return new CoverImage(
+                user.coverImage,
+                246,
+                new Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: new List<Widget> {
-                        bgWidget,
-                        Positioned.fill(
-                            new Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: new List<Widget> {
-                                    Avatar.User(
-                                        id: user.id,
-                                        user: user,
-                                        120
-                                    )
-                                }
-                            )
+                        Avatar.User(
+                            user: user,
+                            120
                         )
                     }
                 )
@@ -266,7 +243,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new Expanded(
                             flex: 1,
-                            child: new Text(tipText, style: CTextStyle.PLargeBody4)
+                            child: new Text(data: tipText, style: CTextStyle.PLargeBody4)
                         ),
                         new Expanded(
                             flex: 3,

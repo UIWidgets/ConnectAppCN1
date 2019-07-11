@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
+using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
@@ -28,10 +29,14 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, SearchScreenViewModel>(
                 converter: state => new SearchScreenViewModel {
                     searchKeyword = state.searchState.keyword,
-                    searchArticles = state.searchState.searchArticles,
+                    searchArticles = state.searchState.searchArticles.ContainsKey(key: state.searchState.keyword)
+                        ? state.searchState.searchArticles[key: state.searchState.keyword]
+                        : new List<Article>(),
                     searchArticleHistoryList = state.searchState.searchArticleHistoryList,
                     popularSearchArticleList = state.popularSearchState.popularSearchArticles,
-                    searchUsers = state.searchState.searchUsers
+                    searchUsers = state.searchState.searchUsers.ContainsKey(key: state.searchState.keyword)
+                        ? state.searchState.searchUsers[key: state.searchState.keyword]
+                        : new List<User>()
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new SearchScreenActionModel {
@@ -231,7 +236,6 @@ namespace ConnectApp.screens {
                 new List<string> {"文章", "用户"},
                 newValue => {
                     this.setState(() => this._selectedIndex = newValue);
-                    this._searchResult(this.widget.viewModel.searchKeyword);
                     this._pageController.animateToPage(
                         page: newValue,
                         TimeSpan.FromMilliseconds(250),

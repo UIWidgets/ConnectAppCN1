@@ -111,9 +111,18 @@ namespace ConnectApp.redux.actions {
                 return SearchApi.SearchUser(keyword, pageNumber)
                     .Then(searchUserResponse => {
                         dispatcher.dispatch(new FollowMapAction {
-                            followMap = searchUserResponse.followingMap,
-                            userId = getState().loginState.loginInfo.userId ?? ""
+                            followMap = searchUserResponse.followingMap
                         });
+                        var userMap = new Dictionary<string, User>();
+                        (searchUserResponse.users ?? new List<User>()).ForEach(searchUser => {
+                            if (userMap.ContainsKey(key: searchUser.id)) {
+                                userMap[key: searchUser.id] = searchUser;
+                            }
+                            else {
+                                userMap.Add(key: searchUser.id, value: searchUser);
+                            }
+                        });
+                        dispatcher.dispatch(new UserMapAction {userMap = userMap});
                         dispatcher.dispatch(new SearchUserSuccessAction {
                             keyword = keyword,
                             pageNumber = pageNumber,

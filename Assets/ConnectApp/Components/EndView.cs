@@ -20,6 +20,7 @@ namespace ConnectApp.Components {
         public override Widget build(BuildContext context) {
             return new Container(
                 height: 52,
+                color: CColors.Background,
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: new List<Widget> {

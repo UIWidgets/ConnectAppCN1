@@ -80,10 +80,8 @@ namespace ConnectApp.screens {
                             height: 1
                         ),
                         new Flexible(
-                            child: new Container(
-                                child: new ListView(
-                                    children: this._buildItems()
-                                )
+                            child: new Column(
+                                children: this._buildItems()
                             )
                         )
                     }
@@ -144,62 +142,63 @@ namespace ConnectApp.screens {
             }
             return new GestureDetector(
                 onTap: () => this.widget.pushToUserDetail(user.userId),
-                child: new Container(
-                    height: 184,
-                    padding: EdgeInsets.only(16, right: 16, bottom: 16),
-                    color: CColors.Red,
-                    child: new Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: new List<Widget> {
-                            new Row(
-                                children: new List<Widget> {
-                                    new Container(
-                                        margin: EdgeInsets.only(right: 12),
-                                        child: Avatar.User(
-                                            user.userId,
-                                            new User {
-                                                id = user.userId,
-                                                avatar = user.userAvatar,
-                                                fullName = user.userFullName
-                                            },
-                                            64
-                                        )
-                                    ),
-                                    new Expanded(
-                                        child: new Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                child: new CoverImage(
+                    coverImage: user.coverImageWithCDN,
+                    184,
+                    new Container(
+                        padding: EdgeInsets.only(16, right: 16, bottom: 16),
+                        child: new Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: new List<Widget> {
+                                new Row(
+                                    children: new List<Widget> {
+                                        new Container(
+                                            margin: EdgeInsets.only(right: 12),
+                                            child: Avatar.User(
+                                                new User {
+                                                    id = user.userId,
+                                                    avatar = user.userAvatar,
+                                                    fullName = user.userFullName
+                                                },
+                                                64
+                                            )
+                                        ),
+                                        new Expanded(
+                                            child: new Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: new List<Widget> {
+                                                    new Text(
+                                                        user.userFullName,
+                                                        style: CTextStyle.H4White,
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow.ellipsis
+                                                    ),
+                                                    titleWidget
+                                                }
+                                            )
+                                        ),
+                                        new Row(
+                                            mainAxisSize: MainAxisSize.min,
                                             children: new List<Widget> {
                                                 new Text(
-                                                    user.userFullName,
-                                                    style: CTextStyle.H4White,
-                                                    maxLines: 1,
-                                                    overflow: TextOverflow.ellipsis
+                                                    "个人主页",
+                                                    style: new TextStyle(
+                                                        fontSize: 14,
+                                                        fontFamily: "Roboto-Regular",
+                                                        color: new Color(0xFFCCCCCC)
+                                                    )
                                                 ),
-                                                titleWidget
+                                                new Icon(
+                                                    Icons.chevron_right,
+                                                    size: 24,
+                                                    color: Color.fromRGBO(199, 203, 207, 1)
+                                                )
                                             }
                                         )
-                                    ),
-                                    new Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: new List<Widget> {
-                                            new Text(
-                                                "个人主页",
-                                                style: new TextStyle(
-                                                    fontSize: 14,
-                                                    fontFamily: "Roboto-Regular",
-                                                    color: new Color(0xFFCCCCCC)
-                                                )
-                                            ),
-                                            new Icon(
-                                                Icons.chevron_right,
-                                                size: 24,
-                                                color: Color.fromRGBO(199, 203, 207, 1)
-                                            )
-                                        }
-                                    )
-                                }
-                            )
-                        }
+                                    }
+                                )
+                            }
+                        )
                     )
                 )
             );

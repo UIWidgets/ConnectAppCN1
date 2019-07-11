@@ -18,20 +18,23 @@ namespace ConnectApp.Components {
             List<User> mentions,
             Action onTap = null,
             Action<string> pushToUserDetail = null,
+            bool isLast = false,
             Key key = null
         ) : base(key: key) {
             this.notification = notification;
             this.user = user;
+            this.mentions = mentions;
             this.onTap = onTap;
             this.pushToUserDetail = pushToUserDetail;
-            this.mentions = mentions;
+            this.isLast = isLast;
         }
 
         readonly Notification notification;
         readonly User user;
+        readonly List<User> mentions;
         readonly Action onTap;
         readonly Action<string> pushToUserDetail;
-        readonly List<User> mentions;
+        readonly bool isLast;
 
         public override Widget build(BuildContext context) {
             if (this.notification == null) {
@@ -46,7 +49,7 @@ namespace ConnectApp.Components {
                 "project_message_liked",
                 "project_message_participate_liked"
             };
-            if (!types.Contains(type)) {
+            if (!types.Contains(item: type)) {
                 return new Container();
             }
 
@@ -60,16 +63,17 @@ namespace ConnectApp.Components {
                             new Container(
                                 padding: EdgeInsets.only(16, 16, 16),
                                 child: new GestureDetector(
-                                    onTap: () => this.pushToUserDetail(this.user.id),
-                                    child: Avatar.User(this.user.id, this.user, 48)
+                                    onTap: () => this.pushToUserDetail(obj: this.user.id),
+                                    child: Avatar.User(user: this.user, 48)
                                 )
                             ),
                             new Expanded(
                                 child: new Container(
                                     padding: EdgeInsets.only(0, 16, 16, 16),
                                     decoration: new BoxDecoration(
-                                        border: new Border(bottom: new BorderSide(CColors.Separator2)
-                                        )
+                                        border: this.isLast
+                                            ? null
+                                            : new Border(bottom: new BorderSide(CColors.Separator2))
                                     ),
                                     child: new Column(
                                         mainAxisAlignment: MainAxisAlignment.start,

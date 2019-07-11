@@ -95,8 +95,7 @@ namespace ConnectApp.redux.actions {
                     .Then(teamFollowerResponse => {
                         if (teamFollowerResponse.followMap != null) {
                             dispatcher.dispatch(new FollowMapAction {
-                                followMap = teamFollowerResponse.followMap,
-                                userId = getState().loginState.loginInfo.userId ?? ""
+                                followMap = teamFollowerResponse.followMap
                             });
                         }
                         dispatcher.dispatch(new FetchTeamFollowerSuccessAction {

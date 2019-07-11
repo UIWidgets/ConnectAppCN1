@@ -18,7 +18,8 @@ namespace ConnectApp.Components {
 
     public enum LoadingSize {
         normal,
-        small
+        small,
+        xSmall
     }
 
     public class CustomActivityIndicator : StatefulWidget {
@@ -27,7 +28,7 @@ namespace ConnectApp.Components {
             AnimatingType animating = AnimatingType.repeat,
             LoadingColor loadingColor = LoadingColor.black,
             LoadingSize size = LoadingSize.normal
-        ) : base(key) {
+        ) : base(key: key) {
             this.animating = animating;
             this.loadingColor = loadingColor;
             this.size = size;
@@ -90,8 +91,14 @@ namespace ConnectApp.Components {
                     ? "image/white-loading24"
                     : "image/black-loading24";
             }
-            else {
+            else if (this.widget.size == LoadingSize.small) {
                 sideLength = 20;
+                imageName = this.widget.loadingColor == LoadingColor.white
+                    ? "image/white-loading20"
+                    : "image/black-loading20";
+            }
+            else {
+                sideLength = 16;
                 imageName = this.widget.loadingColor == LoadingColor.white
                     ? "image/white-loading20"
                     : "image/black-loading20";

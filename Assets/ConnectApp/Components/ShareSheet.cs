@@ -37,14 +37,17 @@ namespace ConnectApp.Components {
         public ShareView(
             Key key = null,
             OnPressed onPressed = null,
-            ProjectType projectType = ProjectType.article
-        ) : base(key) {
+            ProjectType projectType = ProjectType.article,
+            bool showReportAndBlock = true
+        ) : base(key: key) {
             this.onPressed = onPressed;
             this.projectType = projectType;
+            this.showReportAndBlock = showReportAndBlock;
         }
 
         readonly OnPressed onPressed;
         readonly ProjectType projectType;
+        readonly bool showReportAndBlock;
 
         public override Widget build(BuildContext context) {
             var mediaQueryData = MediaQuery.of(context);
@@ -54,7 +57,7 @@ namespace ConnectApp.Components {
                     new Container(
                         color: CColors.White,
                         width: mediaQueryData.size.width,
-                        height: this.projectType == ProjectType.article ? 319 : 211 + mediaQueryData.padding.bottom,
+                        height: this.projectType == ProjectType.article && this.showReportAndBlock ? 319 : 211 + mediaQueryData.padding.bottom,
                         child: new Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,7 +81,7 @@ namespace ConnectApp.Components {
                                         children: this._buildShareItems()
                                     )
                                 ),
-                                this.projectType == ProjectType.article
+                                this.projectType == ProjectType.article && this.showReportAndBlock
                                     ? new Container(
                                         height: 108,
                                         padding: EdgeInsets.only(top: 16),

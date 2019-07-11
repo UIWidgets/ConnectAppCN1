@@ -108,7 +108,7 @@ namespace ConnectApp.Components {
                                         margin: EdgeInsets.only(right: 8),
                                         child: new GestureDetector(
                                             onTap: () => this.pushToUserDetail(user.id),
-                                            child: Avatar.User(user.id, user, 32)
+                                            child: Avatar.User(user, 32)
                                         )
                                     ),
                                     new Column(
@@ -174,7 +174,7 @@ namespace ConnectApp.Components {
                             children: new List<Widget> {
                                 new Container(
                                     margin: EdgeInsets.only(right: 8),
-                                    child: Avatar.User(host.id, host, 48)
+                                    child: Avatar.User(host, 48)
                                 ),
                                 new Expanded(
                                     child: new Column(

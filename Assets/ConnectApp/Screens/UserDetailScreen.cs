@@ -63,6 +63,7 @@ namespace ConnectApp.screens {
                     var actionModel = new UserDetailScreenActionModel {
                         startFetchUserProfile = () => dispatcher.dispatch(new StartFetchUserProfileAction()),
                         fetchUserProfile = () => dispatcher.dispatch<IPromise>(Actions.fetchUserProfile(this.userId)),
+                        startFetchUserArticle = () => dispatcher.dispatch(new StartFetchUserArticleAction()),
                         fetchUserArticle = offset => dispatcher.dispatch<IPromise>(Actions.fetchUserArticle(this.userId, offset)),
                         startFollowUser = () => dispatcher.dispatch(new StartFetchFollowUserAction()),
                         followUser = () => dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(this.userId)),
@@ -130,13 +131,11 @@ namespace ConnectApp.screens {
     }
 
     class _UserDetailScreenState : State<UserDetailScreen>, TickerProvider {
-        readonly GlobalKey personAvatarKey = GlobalKey.key("person-avatar");
         const float headerHeight = 256;
         const float _transformSpeed = 0.005f;
         int _articleOffset;
         RefreshController _refreshController;
         float _factor = 1;
-        float _avatarHeight;
         bool _isHaveTitle;
         bool _showNavBarShadow;
         float _topPadding;
@@ -147,7 +146,6 @@ namespace ConnectApp.screens {
             StatusBarManager.statusBarStyle(true);
             this._articleOffset = 0;
             this._refreshController = new RefreshController();
-            this._avatarHeight = 0.0f;
             this._isHaveTitle = false;
             this._showNavBarShadow = true;
             this._controller = new AnimationController(
@@ -162,6 +160,9 @@ namespace ConnectApp.screens {
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchUserProfile();
                 this.widget.actionModel.fetchUserProfile();
+
+                this.widget.actionModel.startFetchUserArticle();
+                this.widget.actionModel.fetchUserArticle(0);
             });
         }
 
@@ -188,12 +189,6 @@ namespace ConnectApp.screens {
 
         bool _onNotification(ScrollNotification notification) {
             var pixels = notification.metrics.pixels;
-            if (this._avatarHeight == 0.0f) {
-                var renderBox = this.personAvatarKey.currentContext.findRenderObject();
-                this._avatarHeight = renderBox.getTransformTo(null).getTranslateY()
-                                     - (44 + this._topPadding) // (44 + this._topPadding) 是顶部的高度
-                                     + 80;  // 80 是头像的高度;
-            }
 
             if (pixels >= 44 + this._topPadding) {
                 if (this._showNavBarShadow) {
@@ -208,7 +203,7 @@ namespace ConnectApp.screens {
                 }
             }
 
-            if (pixels > this._avatarHeight) {
+            if (pixels > headerHeight - 24 - (44 + this._topPadding)) {
                 if (!this._isHaveTitle) {
                     this._controller.forward();
                     this.setState(() => this._isHaveTitle = true);
@@ -229,41 +224,6 @@ namespace ConnectApp.screens {
             this.widget.actionModel.fetchUserArticle(this._articleOffset)
                 .Then(() => this._refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => this._refreshController.sendBack(up, RefreshStatus.failed));
-        }
-
-        void _share(Article article) {
-            ShareUtils.showShareView(new ShareView(
-                projectType: ProjectType.article,
-                onPressed: type => {
-                    string linkUrl = $"{Config.apiAddress}/p/{article.id}";
-                    if (type == ShareType.clipBoard) {
-                        Clipboard.setData(new ClipboardData(linkUrl));
-                        CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
-                    }
-                    else if (type == ShareType.block) {
-                        ReportManager.block(this.widget.viewModel.isLoggedIn, article.id,
-                            this.widget.actionModel.pushToLogin, this.widget.actionModel.pushToBlock,
-                            this.widget.actionModel.mainRouterPop
-                        );
-                    }
-                    else if (type == ShareType.report) {
-                        ReportManager.report(this.widget.viewModel.isLoggedIn, article.id,
-                            ReportType.article, this.widget.actionModel.pushToLogin,
-                            this.widget.actionModel.pushToReport
-                        );
-                    }
-                    else {
-                        CustomDialogUtils.showCustomDialog(
-                            child: new CustomLoadingDialog()
-                        );
-                        string imageUrl = $"{article.thumbnail.url}.200x0x1.jpg";
-                        this.widget.actionModel.shareToWechat(type, article.title, article.subTitle,
-                                linkUrl,
-                                imageUrl).Then(CustomDialogUtils.hiddenCustomDialog)
-                            .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
-                    }
-                }
-            ));
         }
 
         public override Widget build(BuildContext context) {
@@ -299,12 +259,17 @@ namespace ConnectApp.screens {
                 var user = this.widget.viewModel.user ?? new User();
                 titleWidget = new Row(
                     children: new List<Widget> {
-                        Avatar.User(
-                            this.widget.viewModel.userId,
-                            user
+                        new Expanded(
+                            child: new Text(
+                                data: user.fullName,
+                                style: CTextStyle.PXLargeMedium,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis
+                            )
                         ),
-                        new SizedBox(width: 16),
-                        this._buildFollowButton()
+                        new SizedBox(width: 8),
+                        this._buildFollowButton(true),
+                        new SizedBox(width: 16)
                     }
                 );
             }
@@ -315,19 +280,9 @@ namespace ConnectApp.screens {
                 height: 44 + this._topPadding,
                 child: new Container(
                     decoration: new BoxDecoration(
-                        CColors.White,
+                        this._showNavBarShadow ? CColors.Transparent : CColors.White,
                         border: new Border(
-                            bottom: new BorderSide(this._isHaveTitle ? CColors.Separator2 : CColors.Transparent)),
-                        gradient: this._showNavBarShadow
-                            ? new LinearGradient(
-                                colors: new List<Color> {
-                                    new Color(0x80000000),
-                                    new Color(0x0)
-                                },
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter
-                            )
-                            : null
+                            bottom: new BorderSide(this._isHaveTitle ? CColors.Separator2 : CColors.Transparent))
                     ),
                     child: new Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -362,17 +317,24 @@ namespace ConnectApp.screens {
         }
         
         Widget _buildUserContent(BuildContext context) {
-            var articles = this.widget.viewModel.user.articles ?? new List<Article>();
+            var articles = this.widget.viewModel.user.articles;
             var articlesHasMore = this.widget.viewModel.user.articlesHasMore;
+            var userArticleLoading = this.widget.viewModel.userArticleLoading && articles == null;
             int itemCount;
-            if (this.widget.viewModel.userArticleLoading && articles.Count == 0) {
-                itemCount = 2;
+            if (userArticleLoading) {
+                itemCount = 3;
             }
             else {
-                var articleCount = articlesHasMore ? articles.Count : articles.Count + 1;
-                itemCount = 2 + (articles.Count == 0 ? 1 : articleCount);
+                if (articles == null) {
+                    itemCount = 3;
+                }
+                else {
+                    var articleCount = articlesHasMore ? articles.Count : articles.Count + 1;
+                    itemCount = 2 + (articles.Count == 0 ? 1 : articleCount);
+                }
             }
             return new Container(
+                color: CColors.Background,
                 child: new CustomScrollbar(
                     new SmartRefresher(
                         controller: this._refreshController,
@@ -395,7 +357,15 @@ namespace ConnectApp.screens {
                                     return _buildUserArticleTitle();
                                 }
 
-                                if (articles.Count == 0 && index == 2) {
+                                if (userArticleLoading && index == 2) {
+                                    var height = MediaQuery.of(context: context).size.height - headerHeight - 44;
+                                    return new Container(
+                                        height: height,
+                                        child: new GlobalLoading()
+                                    );
+                                }
+
+                                if ((articles == null || articles.Count == 0) && index == 2) {
                                     var height = MediaQuery.of(context: context).size.height - headerHeight - 44;
                                     return new Container(
                                         height: height,
@@ -406,17 +376,26 @@ namespace ConnectApp.screens {
                                     );
                                 }
 
-                                if (index == itemCount - 1) {
+                                if (index == itemCount - 1 && !articlesHasMore) {
                                     return new EndView();
                                 }
 
                                 var article = articles[index - 2];
                                 return new ArticleCard(
-                                    article,
-                                    () => this.widget.actionModel.pushToArticleDetail(article.id),
-                                    () => this._share(article: article),
-                                    this.widget.viewModel.user.fullName,
-                                    key: new ObjectKey(article.id)
+                                    article: article,
+                                    () => this.widget.actionModel.pushToArticleDetail(obj: article.id),
+                                    () => ShareManager.showArticleShareView(
+                                        article: article,
+                                        this.widget.viewModel.currentUserId != article.userId,
+                                        isLoggedIn: this.widget.viewModel.isLoggedIn,
+                                        pushToLogin: this.widget.actionModel.pushToLogin,
+                                        pushToBlock: this.widget.actionModel.pushToBlock,
+                                        pushToReport: this.widget.actionModel.pushToReport,
+                                        shareToWechat: this.widget.actionModel.shareToWechat,
+                                        mainRouterPop: this.widget.actionModel.mainRouterPop
+                                    ),
+                                    fullName: this.widget.viewModel.user.fullName,
+                                    key: new ObjectKey(value: article.id)
                                 );
                             }
                         )
@@ -430,7 +409,7 @@ namespace ConnectApp.screens {
             Widget titleWidget = new Container();
             if (user.title != null && user.title.isNotEmpty()) {
                 titleWidget = new Text(
-                    user.title,
+                    data: user.title,
                     style: new TextStyle(
                         height: 1.46f,
                         fontSize: 14,
@@ -441,92 +420,70 @@ namespace ConnectApp.screens {
                     overflow: TextOverflow.ellipsis
                 );
             }
-            
-            Widget bgWidget = new Container(
-                color: CColors.Red
-            );
-            if (user.coverImage.isNotEmpty()) {
-                bgWidget = new PlaceholderImage(
-                    user.coverImage,
-                    height: headerHeight,
-                    fit: BoxFit.cover
-                );
-            }
 
-            return new Container(
+            return new CoverImage(
+                coverImage: user.coverImage,
                 height: headerHeight,
-                child: new Stack(
-                    children: new List<Widget> {
-                        bgWidget,
-                        Positioned.fill(
+                new Container(
+                    padding: EdgeInsets.only(16, 0, 16, 24),
+                    child: new Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: new List<Widget> {
+                            new Row(
+                                children: new List<Widget> {
+                                    new Container(
+                                        margin: EdgeInsets.only(right: 16),
+                                        child: Avatar.User(
+                                            user: user,
+                                            80
+                                        )
+                                    ),
+                                    new Expanded(
+                                        child: new Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: new List<Widget> {
+                                                new Text(
+                                                    data: user.fullName,
+                                                    style: CTextStyle.H4White,
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis
+                                                ),
+                                                titleWidget
+                                            }
+                                        )
+                                    )
+                                }
+                            ),
                             new Container(
-                                color: Color.fromRGBO(0, 0, 0, 0.08f),
-                                padding: EdgeInsets.only(16, 0, 16, 24),
-                                child: new Column(
-                                    mainAxisAlignment: MainAxisAlignment.end,
+                                margin: EdgeInsets.only(top: 16),
+                                child: new Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: new List<Widget> {
                                         new Row(
                                             children: new List<Widget> {
-                                                new Container(
-                                                    margin: EdgeInsets.only(right: 16),
-                                                    child: Avatar.User(
-                                                        this.widget.viewModel.userId,
-                                                        user,
-                                                        80,
-                                                        this.personAvatarKey
-                                                    )
+                                                _buildFollowButton(
+                                                    "关注",
+                                                    $"{user.followingCount}",
+                                                    () =>
+                                                        this.widget.actionModel.pushToUserFollowing(
+                                                            this.widget.viewModel.userId)
                                                 ),
-                                                new Expanded(
-                                                    child: new Column(
-                                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                                        children: new List<Widget> {
-                                                            new Text(
-                                                                user.fullName,
-                                                                style: CTextStyle.H4White,
-                                                                maxLines: 1,
-                                                                overflow: TextOverflow.ellipsis
-                                                            ),
-                                                            titleWidget
-                                                        }
-                                                    )
+                                                new SizedBox(width: 16),
+                                                _buildFollowButton(
+                                                    "粉丝",
+                                                    $"{user.followCount}",
+                                                    () =>
+                                                        this.widget.actionModel.pushToUserFollower(
+                                                            this.widget.viewModel.userId)
                                                 )
                                             }
                                         ),
-                                        new Container(
-                                            margin: EdgeInsets.only(top: 16),
-                                            child: new Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                children: new List<Widget> {
-                                                    new Container(
-                                                        child: new Row(
-                                                            children: new List<Widget> {
-                                                                _buildPersonalButton(
-                                                                    "关注",
-                                                                    $"{user.followingCount}",
-                                                                    () =>
-                                                                        this.widget.actionModel.pushToUserFollowing(
-                                                                            this.widget.viewModel.userId)
-                                                                ),
-                                                                new SizedBox(width: 16),
-                                                                _buildPersonalButton(
-                                                                    "粉丝",
-                                                                    $"{user.followCount}",
-                                                                    () =>
-                                                                        this.widget.actionModel.pushToUserFollower(
-                                                                            this.widget.viewModel.userId)
-                                                                )
-                                                            }
-                                                        )
-                                                    ),
-                                                    this._buildFollowButton()
-                                                }
-                                            )
-                                        )
+                                        this._buildFollowButton()
                                     }
                                 )
                             )
-                        )
-                    }
+                        }
+                    )
                 )
             );
         }
@@ -536,9 +493,10 @@ namespace ConnectApp.screens {
                 padding: EdgeInsets.only(16),
                 height: 44,
                 decoration: new BoxDecoration(
+                    color: CColors.White,
                     border: new Border(
                         bottom: new BorderSide(
-                            CColors.Separator2
+                            color: CColors.Separator2
                         )
                     )
                 ),
@@ -547,7 +505,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        static Widget _buildPersonalButton(string title, string subTitle, GestureTapCallback onTap) {
+        static Widget _buildFollowButton(string title, string subTitle, GestureTapCallback onTap) {
             return new GestureDetector(
                 onTap: onTap,
                 child: new Container(
@@ -573,9 +531,12 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildFollowButton() {
+        Widget _buildFollowButton(bool isTop = false) {
             if (this.widget.viewModel.isLoggedIn
                 && this.widget.viewModel.currentUserId == this.widget.viewModel.userId) {
+                if (isTop) {
+                    return new Container();
+                }
                 return new CustomButton(
                     padding: EdgeInsets.zero,
                     child: new Container(
@@ -610,14 +571,14 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.followUser();
             };
             if (this.widget.viewModel.isLoggedIn
-                && this.widget.viewModel.followMap.ContainsKey(this.widget.viewModel.userId)) {
+                && this.widget.viewModel.followMap.ContainsKey(key: this.widget.viewModel.userId)) {
                 isFollow = true;
                 followText = "已关注";
                 followBgColor = CColors.Transparent;
                 onTap = () => {
                     ActionSheetUtils.showModalActionSheet(
                         new ActionSheet(
-                            title: "确定取消关注吗？",
+                            title: "确定不在关注？",
                             items: new List<ActionSheetItem> {
                                 new ActionSheetItem("确定", ActionType.normal,
                                     () => {
@@ -630,18 +591,55 @@ namespace ConnectApp.screens {
                     );
                 };
             }
-            Widget rightChild = new Container();
+            Widget buttonChild;
             bool isEnable;
             if (this.widget.viewModel.followUserLoading) {
-                rightChild = new CustomActivityIndicator(
-                    loadingColor: LoadingColor.white,
+                buttonChild = new CustomActivityIndicator(
+                    loadingColor: isTop ? LoadingColor.black : LoadingColor.white,
                     size: LoadingSize.small
                 );
                 isEnable = false;
             }
             else {
-                rightChild = new Text(data: followText, style: CTextStyle.PMediumWhite);
+                buttonChild = new Text(
+                    data: followText,
+                    style: isTop 
+                        ? new TextStyle(
+                            fontSize: 14,
+                            fontFamily: "Roboto-Medium",
+                            color: isFollow ? new Color(0xFF959595) : CColors.PrimaryBlue
+                        )
+                        : CTextStyle.PMediumWhite
+                );
                 isEnable = true;
+            }
+
+            if (isTop) {
+                return new CustomButton(
+                    padding: EdgeInsets.zero,
+                    child: new Container(
+                        width: 60,
+                        height: 28,
+                        alignment: Alignment.center,
+                        decoration: new BoxDecoration(
+                            color: CColors.Transparent,
+                            borderRadius: BorderRadius.circular(14),
+                            border: isFollow ? Border.all(color: CColors.Disable2) : Border.all(color: CColors.PrimaryBlue)
+                        ),
+                        child: buttonChild
+                    ),
+                    onPressed: () => {
+                        if (!isEnable) {
+                            return;
+                        }
+                        if (this.widget.viewModel.isLoggedIn) {
+                            onTap();
+                        }
+                        else {
+                            this.widget.actionModel.pushToLogin();
+                        }
+                    }
+                );
             }
             return new CustomButton(
                 padding: EdgeInsets.zero,
@@ -654,7 +652,7 @@ namespace ConnectApp.screens {
                         borderRadius: BorderRadius.all(4),
                         border: isFollow ? Border.all(CColors.White) : null
                     ),
-                    child: rightChild
+                    child: buttonChild
                 ),
                 onPressed: () => {
                     if (!isEnable) {

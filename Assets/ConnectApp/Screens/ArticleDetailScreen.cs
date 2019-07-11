@@ -421,8 +421,8 @@ namespace ConnectApp.screens {
 
         Widget _buildContentHead() {
             Widget _avatar = this._article.ownerType == OwnerType.user.ToString()
-                ? Avatar.User(this._user.id, this._user, 32)
-                : Avatar.Team(this._team.id, this._team, 32);
+                ? Avatar.User(this._user, 32)
+                : Avatar.Team(this._team, 32);
 
             var text = this._article.ownerType == "user" ? this._user.fullName : this._team.name;
             var description = this._article.ownerType == "user" ? this._user.title : "";
@@ -539,26 +539,23 @@ namespace ConnectApp.screens {
             this._relArticles.ForEach(article => {
                 //对文章进行过滤
                 if (article.id != this._article.id) {
-                    Widget card;
+                    var fullName = "";
                     if (article.ownerType == OwnerType.user.ToString()) {
-                        card = RelatedArticleCard.User(article, this._user,
-                            () => {
-                                AnalyticsManager.ClickEnterArticleDetail("ArticleDetail_Related", article.id,
-                                    article.title);
-                                this.widget.actionModel.pushToArticleDetail(article.id);
-                            },
-                            new ObjectKey(article.id));
-                    }
-                    else {
-                        card = RelatedArticleCard.Team(article, this._team,
-                            () => {
-                                AnalyticsManager.ClickEnterArticleDetail("ArticleDetail_Related", article.id,
-                                    article.title);
-                                this.widget.actionModel.pushToArticleDetail(article.id);
-                            },
-                            new ObjectKey(article.id));
+                        fullName = this._user.fullName;
                     }
 
+                    if (article.ownerType == OwnerType.team.ToString()) {
+                        fullName = this._team.name;
+                    }
+                    Widget card = new RelatedArticleCard(
+                        article: article,
+                        fullName: fullName,
+                        () => {
+                            AnalyticsManager.ClickEnterArticleDetail("ArticleDetail_Related", article.id,
+                                article.title);
+                            this.widget.actionModel.pushToArticleDetail(article.id);
+                        },
+                        key: new ObjectKey(article.id));
                     widgets.Add(card);
                 }
             });
@@ -698,38 +695,23 @@ namespace ConnectApp.screens {
         }
 
         void share() {
-            ShareUtils.showShareView(new ShareView(
-                projectType: ProjectType.article,
-                onPressed: type => {
-                    string linkUrl = $"{Config.apiAddress}/p/{this._article.id}";
-                    if (type == ShareType.clipBoard) {
-                        Clipboard.setData(new ClipboardData(linkUrl));
-                        CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
-                    }
-                    else if (type == ShareType.block) {
-                        ReportManager.block(this.widget.viewModel.isLoggedIn, this._article.id,
-                            this.widget.actionModel.pushToLogin, this.widget.actionModel.pushToBlock,
-                            this.widget.actionModel.mainRouterPop
-                        );
-                    }
-                    else if (type == ShareType.report) {
-                        ReportManager.report(this.widget.viewModel.isLoggedIn, this._article.id,
-                            ReportType.article, this.widget.actionModel.pushToLogin,
-                            this.widget.actionModel.pushToReport
-                        );
-                    }
-                    else {
-                        CustomDialogUtils.showCustomDialog(
-                            child: new CustomLoadingDialog()
-                        );
-                        string imageUrl = $"{this._article.thumbnail.url}.200x0x1.jpg";
-                        this.widget.actionModel.shareToWechat(type, this._article.title, this._article.subTitle,
-                                linkUrl,
-                                imageUrl).Then(CustomDialogUtils.hiddenCustomDialog)
-                            .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
-                    }
-                }
-            ));
+            var userId = "";
+            if (this._article.ownerType == OwnerType.user.ToString()) {
+                userId = this._article.userId;
+            }
+            if (this._article.ownerType == OwnerType.team.ToString()) {
+                userId = this._article.teamId;
+            }
+            ShareManager.showArticleShareView(
+                article: this._article,
+                this.widget.viewModel.loginUserId != userId,
+                isLoggedIn: this.widget.viewModel.isLoggedIn,
+                pushToLogin: this.widget.actionModel.pushToLogin,
+                pushToBlock: this.widget.actionModel.pushToBlock,
+                pushToReport: this.widget.actionModel.pushToReport,
+                shareToWechat: this.widget.actionModel.shareToWechat,
+                mainRouterPop: this.widget.actionModel.mainRouterPop
+            );
         }
     }
 }

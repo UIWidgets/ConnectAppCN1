@@ -116,11 +116,12 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             base.build(context: context);
             Widget content = new Container();
-            if (this.widget.viewModel.notificationLoading && this.widget.viewModel.notifications.Count == 0) {
+            var notifications = this.widget.viewModel.notifications;
+            if (this.widget.viewModel.notificationLoading && notifications.Count == 0) {
                 content = new GlobalLoading();
             }
             else {
-                if (this.widget.viewModel.notifications.Count <= 0) {
+                if (notifications.Count <= 0) {
                     content = new Container(
                         child: new BlankView(
                             "好冷清，多和小伙伴们互动呀",
@@ -134,32 +135,19 @@ namespace ConnectApp.screens {
                     );
                 }
                 else {
+                    var enablePullUp = this._pageNumber < this.widget.viewModel.pageTotal;
+                    var itemCount = enablePullUp ? notifications.Count : notifications.Count + 1;
                     content = new Container(
                         color: CColors.Background,
                         child: new SmartRefresher(
                             controller: this._refreshController,
                             enablePullDown: true,
-                            enablePullUp: this._pageNumber < this.widget.viewModel.pageTotal,
+                            enablePullUp: enablePullUp,
                             onRefresh: this._onRefresh,
                             child: ListView.builder(
                                 physics: new AlwaysScrollableScrollPhysics(),
-                                itemCount: this.widget.viewModel.notifications.Count,
-                                itemBuilder: (cxt, index) => {
-                                    var notification = this.widget.viewModel.notifications[index];
-                                    var user = this.widget.viewModel.userDict[notification.data.userId];
-                                    return new NotificationCard(
-                                        notification,
-                                        user,
-                                        this.widget.viewModel.mentions,
-                                        () => {
-                                            this.widget.actionModel.pushToArticleDetail(notification.data.projectId);
-                                            AnalyticsManager.ClickEnterArticleDetail("Notification_Article",
-                                                notification.data.projectId, notification.data.projectTitle);
-                                        },
-                                        this.widget.actionModel.pushToUserDetail,
-                                        new ObjectKey(notification.id)
-                                    );
-                                }
+                                itemCount: itemCount,
+                                itemBuilder: this._buildNotificationCard
                             )
                         )
                     );
@@ -204,6 +192,31 @@ namespace ConnectApp.screens {
                         )
                     }
                 )
+            );
+        }
+
+        Widget _buildNotificationCard(BuildContext context, int index) {
+            var notifications = this.widget.viewModel.notifications;
+            if (index == notifications.Count) {
+                return new EndView();
+            }
+            var notification = notifications[index: index];
+            var user = this.widget.viewModel.userDict[key: notification.data.userId];
+            return new NotificationCard(
+                notification: notification,
+                user: user,
+                mentions: this.widget.viewModel.mentions,
+                () => {
+                    this.widget.actionModel.pushToArticleDetail(obj: notification.data.projectId);
+                    AnalyticsManager.ClickEnterArticleDetail(
+                        "Notification_Article",
+                        articleId: notification.data.projectId,
+                        articleTitle: notification.data.projectTitle
+                    );
+                },
+                pushToUserDetail: this.widget.actionModel.pushToUserDetail,
+                index == notifications.Count - 1,
+                new ObjectKey(value: notification.id)
             );
         }
 

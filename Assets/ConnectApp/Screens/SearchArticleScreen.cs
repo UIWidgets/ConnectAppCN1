@@ -1,9 +1,7 @@
-using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
-using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
@@ -23,7 +21,9 @@ namespace ConnectApp.screens {
                 converter: state => new SearchScreenViewModel {
                     searchArticleLoading = state.searchState.searchArticleLoading,
                     searchKeyword = state.searchState.keyword,
-                    searchArticles = state.searchState.searchArticles,
+                    searchArticles = state.searchState.searchArticles.ContainsKey(key: state.searchState.keyword)
+                        ? state.searchState.searchArticles[key: state.searchState.keyword]
+                        : null,
                     searchArticleCurrentPage = state.searchState.searchArticleCurrentPage,
                     searchArticlePages = state.searchState.searchArticlePages,
                     userDict = state.userState.userDict,
@@ -91,23 +91,15 @@ namespace ConnectApp.screens {
             var searchArticles = this.widget.viewModel.searchArticles;
             var searchKeyword = this.widget.viewModel.searchKeyword ?? "";
             Widget child = new Container();
-            if (this.widget.viewModel.searchArticleLoading && !searchArticles.ContainsKey(key: searchKeyword)) {
+            if (this.widget.viewModel.searchArticleLoading && searchArticles == null) {
                 child = new GlobalLoading();
             }
-            else if (this.widget.viewModel.searchKeyword.Length > 0) {
-                var searchArticleList = searchArticles.ContainsKey(key: searchKeyword)
-                    ? searchArticles[key: searchKeyword]
-                    : new List<Article>();
-                child = searchArticleList.Count > 0
+            else if (searchKeyword.Length > 0) {
+                child = searchArticles != null && searchArticles.Count > 0
                     ? this._buildContent()
                     : new BlankView(
                         "哎呀，换个关键词试试吧",
-                        "image/default-search",
-                        true,
-                        () => {
-                            this.widget.actionModel.startSearchArticle(this.widget.viewModel.searchKeyword);
-                            this.widget.actionModel.searchArticle(this.widget.viewModel.searchKeyword, 0);
-                        }
+                        "image/default-search"
                     );
             }
 
@@ -118,19 +110,22 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildContent() {
+            var searchArticles = this.widget.viewModel.searchArticles;
             var currentPage = this.widget.viewModel.searchArticleCurrentPage;
             var pages = this.widget.viewModel.searchArticlePages;
+            var hasMore = currentPage != pages.Count - 1;
+            var itemCount = hasMore ? searchArticles.Count : searchArticles.Count + 1;
             return new Container(
                 color: CColors.Background,
                 child: new CustomScrollbar(
                     new SmartRefresher(
                         controller: this._refreshController,
                         enablePullDown: false,
-                        enablePullUp: currentPage != pages.Count - 1,
+                        enablePullUp: hasMore,
                         onRefresh: this._onRefresh,
                         child: ListView.builder(
                             physics: new AlwaysScrollableScrollPhysics(),
-                            itemCount: this.widget.viewModel.searchArticles.Count,
+                            itemCount: itemCount,
                             itemBuilder: this._buildArticleCard
                         )
                     )
@@ -139,20 +134,33 @@ namespace ConnectApp.screens {
         }
         
         Widget _buildArticleCard(BuildContext context, int index) {
-            var searchArticle = this.widget.viewModel.searchArticles[this.widget.viewModel.searchKeyword][index];
+            var searchArticles = this.widget.viewModel.searchArticles;
+            if (index == searchArticles.Count) {
+                return new EndView();
+            }
+            var searchArticle = searchArticles[index: index];
             if (this.widget.viewModel.blockArticleList.Contains(searchArticle.id)) {
                 return new Container();
             }
 
+            var fullName = "";
             if (searchArticle.ownerType == OwnerType.user.ToString()) {
-                var user = this.widget.viewModel.userDict[searchArticle.userId];
-                return RelatedArticleCard.User(searchArticle, user,
-                    () => this.widget.actionModel.pushToArticleDetail(searchArticle.id));
+                if (this.widget.viewModel.userDict.ContainsKey(key: searchArticle.userId)) {
+                    fullName = this.widget.viewModel.userDict[key: searchArticle.userId].fullName;
+                }
             }
 
-            var team = this.widget.viewModel.teamDict[searchArticle.teamId];
-            return RelatedArticleCard.Team(searchArticle, team,
-                () => this.widget.actionModel.pushToArticleDetail(searchArticle.id));
+            if (searchArticle.ownerType == OwnerType.team.ToString()) {
+                if (this.widget.viewModel.teamDict.ContainsKey(key: searchArticle.teamId)) {
+                    fullName = this.widget.viewModel.teamDict[key: searchArticle.teamId].name;
+                }
+            }
+            return new RelatedArticleCard(
+                article: searchArticle,
+                fullName: fullName,
+                () => this.widget.actionModel.pushToArticleDetail(obj: searchArticle.id),
+                index == 0
+            );
         }
     }
 }

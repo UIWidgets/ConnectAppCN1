@@ -22,7 +22,6 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Avatar = ConnectApp.Components.Avatar;
-using Color = Unity.UIWidgets.ui.Color;
 using Config = ConnectApp.Constants.Config;
 using Transform = Unity.UIWidgets.widgets.Transform;
 
@@ -269,8 +268,7 @@ namespace ConnectApp.screens {
                 titleWidget = new Row(
                     children: new List<Widget> {
                         Avatar.Team(
-                            this.widget.viewModel.teamId,
-                            this.widget.viewModel.team
+                            team: this.widget.viewModel.team
                         ),
                         new SizedBox(width: 16),
                         this._buildFollowButton(true)
@@ -284,19 +282,9 @@ namespace ConnectApp.screens {
                 height: 44 + this._topPadding,
                 child: new Container(
                     decoration: new BoxDecoration(
-                        CColors.White,
+                        this._showNavBarShadow ? CColors.Transparent : CColors.White,
                         border: new Border(
-                            bottom: new BorderSide(this._isHaveTitle ? CColors.Separator2 : CColors.Transparent)),
-                        gradient: this._showNavBarShadow
-                            ? new LinearGradient(
-                                colors: new List<Color> {
-                                    new Color(0x80000000),
-                                    new Color(0x0)
-                                },
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter
-                            )
-                            : null
+                            bottom: new BorderSide(this._isHaveTitle ? CColors.Separator2 : CColors.Transparent))
                     ),
                     child: new Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -345,6 +333,7 @@ namespace ConnectApp.screens {
                 itemCount = 2 + (articles.Count == 0 ? 1 : articleCount);
             }
             return new Container(
+                color: CColors.Background,
                 child: new CustomScrollbar(
                     new SmartRefresher(
                         controller: this._refreshController,
@@ -378,7 +367,7 @@ namespace ConnectApp.screens {
                                     );
                                 }
 
-                                if (index == itemCount - 1) {
+                                if (index == itemCount - 1 && !articlesHasMore) {
                                     return new EndView();
                                 }
 
@@ -400,75 +389,57 @@ namespace ConnectApp.screens {
         Widget _buildTeamInfo() {
             var team = this.widget.viewModel.team;
             
-            Widget bgWidget = new Container(
-                color: CColors.Red
-            );
-            if (team.coverImage.isNotEmpty()) {
-                bgWidget = new PlaceholderImage(
-                    team.coverImage,
-                    height: headerHeight,
-                    fit: BoxFit.cover
-                );
-            }
-
-            return new Container(
+            return new CoverImage(
+                coverImage: team.coverImage,
                 height: headerHeight,
-                child: new Stack(
-                    children: new List<Widget> {
-                        bgWidget,
-                        Positioned.fill(
-                            new Container(
-                                color: Color.fromRGBO(0, 0, 0, 0.08f),
-                                padding: EdgeInsets.only(16, 0, 16, 24),
-                                child: new Column(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: new List<Widget> {
-                                        new Row(
+                new Container(
+                    padding: EdgeInsets.only(16, 0, 16, 24),
+                    child: new Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: new List<Widget> {
+                            new Row(
+                                children: new List<Widget> {
+                                    new Container(
+                                        margin: EdgeInsets.only(right: 16),
+                                        child: Avatar.Team(
+                                            team: team,
+                                            80
+                                        )
+                                    ),
+                                    new Expanded(
+                                        child: new Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: new List<Widget> {
-                                                new Container(
-                                                    margin: EdgeInsets.only(right: 16),
-                                                    child: Avatar.Team(
-                                                        this.widget.viewModel.teamId,
-                                                        team,
-                                                        80
-                                                    )
-                                                ),
-                                                new Expanded(
-                                                    child: new Column(
-                                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                                        children: new List<Widget> {
-                                                            new Text(
-                                                                team.name,
-                                                                style: CTextStyle.H4White,
-                                                                maxLines: 1,
-                                                                overflow: TextOverflow.ellipsis
-                                                            )
-                                                        }
-                                                    )
+                                                new Text(
+                                                    team.name,
+                                                    style: CTextStyle.H4White,
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis
                                                 )
                                             }
-                                        ),
-                                        new Container(
-                                            margin: EdgeInsets.only(top: 16),
-                                            child: this._buildFollowButton()
                                         )
-                                    }
-                                )
+                                    )
+                                }
+                            ),
+                            new Container(
+                                margin: EdgeInsets.only(top: 16),
+                                child: this._buildFollowButton()
                             )
-                        )
-                    }
+                        }
+                    )
                 )
             );
         }
 
         static Widget _buildTeamArticleTitle() {
             return new Container(
+                color: CColors.White,
                 padding: EdgeInsets.only(16),
                 height: 44,
                 decoration: new BoxDecoration(
                     border: new Border(
                         bottom: new BorderSide(
-                            CColors.Separator2
+                            color: CColors.Separator2
                         )
                     )
                 ),
@@ -480,19 +451,12 @@ namespace ConnectApp.screens {
         Widget _buildFollowButton(bool isTop = false) {
             var team = this.widget.viewModel.team;
             var titleColor = isTop ? CTextStyle.PRegularBody : CTextStyle.PRegularWhite;
-            var subTitleColor = isTop 
-                ? new TextStyle(
-                    height: 1.27f,
-                    fontSize: 20,
-                    fontFamily: "Roboto-Bold",
-                    color: CColors.TextBody
-                )
-                : new TextStyle(
-                    height: 1.27f,
-                    fontSize: 20,
-                    fontFamily: "Roboto-Bold",
-                    color: CColors.White
-                );
+            var subTitleColor = new TextStyle(
+                height: 1.27f,
+                fontSize: 20,
+                fontFamily: "Roboto-Bold",
+                color: isTop ? CColors.TextBody : CColors.White
+            );
             return new GestureDetector(
                 onTap: () => this.widget.actionModel.pushToTeamFollower(this.widget.viewModel.teamId),
                 child: new Container(

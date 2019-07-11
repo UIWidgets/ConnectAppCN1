@@ -7,8 +7,8 @@ namespace ConnectApp.Models.ViewModel {
         public bool searchUserLoading;
         public bool followUserLoading;
         public string searchKeyword;
-        public Dictionary<string, List<Article>> searchArticles;
-        public Dictionary<string, List<User>> searchUsers;
+        public List<Article> searchArticles;
+        public List<User> searchUsers;
         public int searchArticleCurrentPage;
         public List<int> searchArticlePages;
         public bool searchUserHasMore;

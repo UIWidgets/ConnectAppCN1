@@ -737,23 +737,26 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case FollowMapAction action: {
-                    var followDict = state.followState.followDict;
-                    Dictionary<string, bool> followMap = followDict.ContainsKey(key: action.userId)
-                        ? followDict[key: action.userId]
-                        : new Dictionary<string, bool>();
-                    foreach (var keyValuePair in action.followMap) {
-                        if (!followMap.ContainsKey(key: keyValuePair.Key)) {
-                            followMap.Add(key: keyValuePair.Key, value: keyValuePair.Value);
+                    var userId = state.loginState.loginInfo.userId ?? "";
+                    if (userId.isNotEmpty()) {
+                        var followDict = state.followState.followDict;
+                        Dictionary<string, bool> followMap = followDict.ContainsKey(key: userId)
+                            ? followDict[key: userId]
+                            : new Dictionary<string, bool>();
+                        foreach (var keyValuePair in action.followMap) {
+                            if (!followMap.ContainsKey(key: keyValuePair.Key)) {
+                                followMap.Add(key: keyValuePair.Key, value: keyValuePair.Value);
+                            }
                         }
-                    }
 
-                    if (action.userId.isNotEmpty() && followDict.ContainsKey(key: action.userId)) {
-                        followDict[key: action.userId] = followMap;
+                        if (followDict.ContainsKey(key: userId)) {
+                            followDict[key: userId] = followMap;
+                        }
+                        else {
+                            followDict.Add(key: userId, value: followMap);
+                        }
+                        state.followState.followDict = followDict;
                     }
-                    else {
-                        followDict.Add(action.userId, followMap);
-                    }
-                    state.followState.followDict = followDict;
                     break;
                 }
 
@@ -839,7 +842,7 @@ namespace ConnectApp.redux.reducers {
                     state.searchState.searchUserLoading = false;
                     state.searchState.keyword = action.keyword;
                     state.searchState.searchUserHasMore = action.hasMore;
-                    if (state.searchState.searchArticles.ContainsKey(key: action.keyword)) {
+                    if (state.searchState.searchUsers.ContainsKey(key: action.keyword)) {
                         if (action.pageNumber == 1) {
                             state.searchState.searchUsers[key: action.keyword] = action.users;
                         }
@@ -850,7 +853,7 @@ namespace ConnectApp.redux.reducers {
                         }
                     }
                     else {
-                        state.searchState.searchUsers.Add(action.keyword, action.users);
+                        state.searchState.searchUsers.Add(key: action.keyword, value: action.users);
                     }
 
                     break;
@@ -1206,9 +1209,6 @@ namespace ConnectApp.redux.reducers {
                     state.userState.userArticleLoading = false;
                     if (state.userState.userDict.ContainsKey(key: action.userId)) {
                         var user = state.userState.userDict[key: action.userId];
-                        Debug.Log(user.followCount);
-                        Debug.Log(user.followingCount);
-                        Debug.Log(user.id);
                         user.articlesHasMore = action.hasMore;
                         if (action.offset == 0) {
                             user.articles = action.articles;
@@ -1218,9 +1218,6 @@ namespace ConnectApp.redux.reducers {
                             articles.AddRange(collection: action.articles);
                             user.articles = articles;
                         }
-                        Debug.Log(user.followCount);
-                        Debug.Log(user.followingCount);
-                        Debug.Log(user.id);
                         state.userState.userDict[key: action.userId] = user;
                     }
                     else {
@@ -1400,6 +1397,7 @@ namespace ConnectApp.redux.reducers {
                         newUser.followersHasMore = oldUser.followersHasMore;
                         newUser.articles = oldUser.articles;
                         newUser.articlesHasMore = oldUser.articlesHasMore;
+                        newUser.jobRoleMap = oldUser.jobRoleMap;
                         state.userState.userDict[key: action.user.id] = newUser;
                     }
                     break;

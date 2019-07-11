@@ -9,6 +9,7 @@ using ConnectApp.redux.actions;
 using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -28,7 +29,8 @@ namespace ConnectApp.screens {
                         ? state.userState.userDict[key: currentUserId]
                         : new User();
                     return new EditPersonalInfoScreenViewModel {
-                        user = user
+                        user = user,
+                        jobRole = state.userState.jobRole
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -94,15 +96,19 @@ namespace ConnectApp.screens {
         }
         
         Widget _buildContent() {
-            var widgets = new List<Widget>();
+            var widgets = new List<Widget> {
+                new CustomDivider(
+                    color: CColors.White
+                )
+            };
             var values = this.viewModel.user.jobRoleMap.Values;
             foreach (var jobRole in values) {
                 var widget = this._buildRoleItem(jobRole: jobRole);
                 widgets.Add(item: widget);
             }
             return new Container(
+                color: CColors.Background,
                 child: new ListView(
-                    padding: EdgeInsets.only(top: 16),
                     children: widgets
                 )
             );
@@ -112,15 +118,30 @@ namespace ConnectApp.screens {
             var name = _jobRole.ContainsKey(key: jobRole.name)
                 ? _jobRole[key: jobRole.name]
                 : jobRole.name;
+            var isCheck = this.viewModel.jobRole.id == jobRole.id;
+            Widget checkWidget = new Container();
+            if (isCheck) {
+                checkWidget = new Icon(
+                    icon: Icons.check,
+                    size: 24,
+                    color: CColors.PrimaryBlue
+                );
+            }
             return new GestureDetector(
                 onTap: () => this.changeJobRole(obj: jobRole),
                 child: new Container(
                     color: CColors.White,
                     height: 44,
                     padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: new Text(
-                        data: name,
-                        style: CTextStyle.PLargeBody
+                    child: new Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: new List<Widget> {
+                            new Text(
+                                data: name,
+                                style: isCheck ? CTextStyle.PLargeBlue : CTextStyle.PLargeBody
+                            ),
+                            checkWidget
+                        }
                     )
                 )
             );

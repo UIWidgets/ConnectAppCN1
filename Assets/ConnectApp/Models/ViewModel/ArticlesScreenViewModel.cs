@@ -12,5 +12,6 @@ namespace ConnectApp.Models.ViewModel {
         public bool hottestHasMore;
         public int hosttestOffset;
         public bool isLoggedIn;
+        public string currentUserId;
     }
 }

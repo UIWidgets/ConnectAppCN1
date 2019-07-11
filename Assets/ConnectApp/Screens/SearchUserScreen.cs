@@ -2,14 +2,13 @@ using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
+using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
-using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using RSG;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
 
@@ -22,6 +21,9 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, SearchScreenViewModel>(
                 converter: state => {
+                    var searchUsers = state.searchState.searchUsers.ContainsKey(key: state.searchState.keyword)
+                        ? state.searchState.searchUsers[key: state.searchState.keyword]
+                        : null;
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
                     var followMap = state.followState.followDict.ContainsKey(key: currentUserId)
                         ? state.followState.followDict[key: currentUserId]
@@ -30,7 +32,7 @@ namespace ConnectApp.screens {
                         searchUserLoading = state.searchState.searchUserLoading,
                         followUserLoading = state.userState.followUserLoading,
                         searchKeyword = state.searchState.keyword,
-                        searchUsers = state.searchState.searchUsers,
+                        searchUsers = searchUsers,
                         searchUserHasMore = state.searchState.searchUserHasMore,
                         followMap = followMap,
                         currentFollowId = state.userState.currentFollowId,
@@ -42,6 +44,9 @@ namespace ConnectApp.screens {
                     var actionModel = new SearchScreenActionModel {
                         pushToUserDetail = userId => dispatcher.dispatch(
                             new MainNavigatorPushToUserDetailAction {userId = userId}),
+                        pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
+                            routeName = MainNavigatorRoutes.Login
+                        }),
                         startSearchUser = () => dispatcher.dispatch(new StartSearchUserAction()),
                         searchUser = (keyword, pageNumber) => dispatcher.dispatch<IPromise>(
                             Actions.searchUsers(keyword, pageNumber)),
@@ -106,7 +111,7 @@ namespace ConnectApp.screens {
                 if (userType == UserType.follow) {
                     ActionSheetUtils.showModalActionSheet(
                         new ActionSheet(
-                            title: "确定取消关注吗？",
+                            title: "确定不太关注？",
                             items: new List<ActionSheetItem> {
                                 new ActionSheetItem("确定", ActionType.normal,
                                     () => {
@@ -132,35 +137,30 @@ namespace ConnectApp.screens {
             var searchUsers = this.widget.viewModel.searchUsers;
             var searchKeyword = this.widget.viewModel.searchKeyword ?? "";
             Widget child = new Container();
-            if (this.widget.viewModel.searchUserLoading && !searchUsers.ContainsKey(key: searchKeyword)) {
+            if (this.widget.viewModel.searchUserLoading && searchUsers == null) {
                 child = new GlobalLoading();
             }
-            else if (this.widget.viewModel.searchKeyword.Length > 0) {
-                var searchUserList = searchUsers.ContainsKey(key: searchKeyword)
-                    ? searchUsers[key: searchKeyword]
-                    : new List<User>();
-                child = searchUserList.Count > 0
+            else if (searchKeyword.Length > 0) {
+                child = searchUsers != null && searchUsers.Count > 0
                     ? this._buildContent()
                     : new BlankView(
                         "哎呀，换个关键词试试吧",
-                        "image/default-search",
-                        true,
-                        () => {
-                            this.widget.actionModel.startSearchUser();
-                            this.widget.actionModel.searchUser(arg1: this.widget.viewModel.searchKeyword, arg2: _initPageNumber);
-                        }
+                        "image/default-search"
                     );
             }
 
             return new Container(
-                color: CColors.Background,
+                color: CColors.White,
                 child: child
             );
         }
         
         Widget _buildContent() {
+            var itemCount = this.widget.viewModel.searchUserHasMore
+                ? this.widget.viewModel.searchUsers.Count + 1
+                : this.widget.viewModel.searchUsers.Count + 2;
             return new Container(
-                color: CColors.White,
+                color: CColors.Background,
                 child: new CustomScrollbar(
                     new SmartRefresher(
                         controller: this._refreshController,
@@ -169,9 +169,7 @@ namespace ConnectApp.screens {
                         onRefresh: this._onRefresh,
                         child: ListView.builder(
                             physics: new AlwaysScrollableScrollPhysics(),
-                            padding: EdgeInsets.only(top: 16),
-                            itemExtent: 72,
-                            itemCount: this.widget.viewModel.searchUsers.Count,
+                            itemCount: itemCount,
                             itemBuilder: this._buildUserCard
                         )
                     )
@@ -180,7 +178,17 @@ namespace ConnectApp.screens {
         }
         
         Widget _buildUserCard(BuildContext context, int index) {
-            var searchUser = this.widget.viewModel.searchUsers[this.widget.viewModel.searchKeyword][index];
+            if (index == 0) {
+                return new CustomDivider(
+                    color: CColors.White
+                );
+            }
+            var searchUsers = this.widget.viewModel.searchUsers;
+            if (index == searchUsers.Count + 1) {
+                return new EndView();
+            }
+
+            var searchUser = searchUsers[index - 1];
             UserType userType = UserType.unFollow;
             if (!this.widget.viewModel.isLoggedIn) {
                 userType = UserType.unFollow;
@@ -191,16 +199,16 @@ namespace ConnectApp.screens {
                 }  else if (this.widget.viewModel.followUserLoading
                            && this.widget.viewModel.currentFollowId == searchUser.id) {
                     userType = UserType.loading;
-                } else if (this.widget.viewModel.followMap.ContainsKey(searchUser.id)) {
+                } else if (this.widget.viewModel.followMap.ContainsKey(key: searchUser.id)) {
                     userType = UserType.follow;
                 }
             }
             return new UserCard(
-                searchUser,
+                user: searchUser,
                 () => this.widget.actionModel.pushToUserDetail(searchUser.id),
-                userType,
+                userType: userType,
                 () => this._onFollow(userType: userType, userId: searchUser.id),
-                new ObjectKey(searchUser.id)
+                new ObjectKey(value: searchUser.id)
             );
         }
     }
