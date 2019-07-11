@@ -125,59 +125,51 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildLoginInNavigationBar() {
-            var user = this.widget.viewModel.user;
+            var user = this.widget.viewModel.userDict[key: this.widget.viewModel.user.userId];
             Widget titleWidget = new Container();
             if (user.title != null && user.title.isNotEmpty()) {
                 titleWidget = new Text(
-                    user.title,
-                    style: new TextStyle(
-                        height: 1.46f,
-                        fontSize: 14,
-                        fontFamily: "Roboto-Regular",
-                        color: new Color(0xFFCCCCCC)
-                    ),
+                    data: user.title,
+                    style: CTextStyle.PRegularBody4,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis
                 );
             }
+
             return new GestureDetector(
-                onTap: () => this.widget.pushToUserDetail(user.userId),
-                child: new CoverImage(
-                    coverImage: user.coverImageWithCDN,
-                    184,
-                    new Container(
-                        padding: EdgeInsets.only(16, right: 16, bottom: 16),
-                        child: new Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: new List<Widget> {
-                                new Row(
-                                    children: new List<Widget> {
-                                        new Container(
-                                            margin: EdgeInsets.only(right: 12),
-                                            child: Avatar.User(
-                                                new User {
-                                                    id = user.userId,
-                                                    avatar = user.userAvatar,
-                                                    fullName = user.userFullName
-                                                },
-                                                64
-                                            )
-                                        ),
-                                        new Expanded(
-                                            child: new Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: new List<Widget> {
-                                                    new Text(
-                                                        user.userFullName,
-                                                        style: CTextStyle.H4White,
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow.ellipsis
-                                                    ),
-                                                    titleWidget
-                                                }
-                                            )
-                                        ),
-                                        new Row(
+                onTap: () => this.widget.pushToUserDetail(user.id),
+                child: new Container(
+                    height: 184,
+                    padding: EdgeInsets.only(16, right: 16, bottom: 16),
+                    child: new Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: new List<Widget> {
+                            new Row(
+                                children: new List<Widget> {
+                                    new Container(
+                                        margin: EdgeInsets.only(right: 12),
+                                        child: Avatar.User(
+                                            user: user,
+                                            64
+                                        )
+                                    ),
+                                    new Expanded(
+                                        child: new Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: new List<Widget> {
+                                                new Text(
+                                                    data: user.fullName,
+                                                    style: CTextStyle.H4,
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis
+                                                ),
+                                                titleWidget
+                                            }
+                                        )
+                                    ),
+                                    new Container(
+                                        margin: EdgeInsets.only(12),
+                                        child: new Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: new List<Widget> {
                                                 new Text(
@@ -185,20 +177,20 @@ namespace ConnectApp.screens {
                                                     style: new TextStyle(
                                                         fontSize: 14,
                                                         fontFamily: "Roboto-Regular",
-                                                        color: new Color(0xFFCCCCCC)
+                                                        color: CColors.TextBody4
                                                     )
                                                 ),
                                                 new Icon(
-                                                    Icons.chevron_right,
+                                                    icon: Icons.chevron_right,
                                                     size: 24,
                                                     color: Color.fromRGBO(199, 203, 207, 1)
                                                 )
                                             }
                                         )
-                                    }
-                                )
-                            }
-                        )
+                                    )
+                                }
+                            )
+                        }
                     )
                 )
             );
