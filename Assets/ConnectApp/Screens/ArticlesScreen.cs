@@ -206,7 +206,8 @@ namespace ConnectApp.screens {
                             if (article.ownerType == OwnerType.user.ToString()) {
                                 userId = article.userId;
                                 if (this.widget.viewModel.userDict.ContainsKey(key: article.userId)) {
-                                    fullName = this.widget.viewModel.userDict[key: article.userId].fullName;
+                                    fullName = this.widget.viewModel.userDict[key: article.userId].fullName
+                                        ?? this.widget.viewModel.userDict[key: article.userId].name;
                                 }
                             }
 

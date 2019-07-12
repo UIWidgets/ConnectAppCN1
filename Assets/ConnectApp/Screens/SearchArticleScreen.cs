@@ -139,14 +139,15 @@ namespace ConnectApp.screens {
                 return new EndView();
             }
             var searchArticle = searchArticles[index: index];
-            if (this.widget.viewModel.blockArticleList.Contains(searchArticle.id)) {
+            if (this.widget.viewModel.blockArticleList.Contains(item: searchArticle.id)) {
                 return new Container();
             }
 
             var fullName = "";
             if (searchArticle.ownerType == OwnerType.user.ToString()) {
                 if (this.widget.viewModel.userDict.ContainsKey(key: searchArticle.userId)) {
-                    fullName = this.widget.viewModel.userDict[key: searchArticle.userId].fullName;
+                    fullName = this.widget.viewModel.userDict[key: searchArticle.userId].fullName
+                        ?? this.widget.viewModel.userDict[key: searchArticle.userId].name;
                 }
             }
 

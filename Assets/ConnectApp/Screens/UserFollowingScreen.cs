@@ -33,6 +33,7 @@ namespace ConnectApp.screens {
                     var user = state.userState.userDict.ContainsKey(key: this.userId)
                         ? state.userState.userDict[key: this.userId]
                         : new User();
+                    var followings = user.followings ?? new List<User>();
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
                     var followMap = state.followState.followDict.ContainsKey(key: currentUserId)
                         ? state.followState.followDict[key: currentUserId]
@@ -42,12 +43,12 @@ namespace ConnectApp.screens {
                         followingLoading = state.userState.followingLoading,
                         searchFollowingLoading = state.searchState.searchFollowingLoading,
                         followUserLoading = state.userState.followUserLoading,
-                        followings = user.followings,
+                        followings = followings,
                         searchFollowings = state.searchState.searchFollowings,
                         searchFollowingKeyword = state.searchState.searchFollowingKeyword,
                         searchFollowingHasMore = state.searchState.searchFollowingHasMore,
                         followingsHasMore = user.followingsHasMore,
-                        userOffset = user.followings.Count,
+                        userOffset = followings.Count,
                         followMap = followMap,
                         currentFollowId = state.userState.currentFollowId,
                         currentUserId = currentUserId,
