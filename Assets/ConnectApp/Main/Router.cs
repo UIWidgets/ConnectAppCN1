@@ -27,15 +27,27 @@ namespace ConnectApp.Main {
         public const string Report = "/report";
         public const string AboutUs = "/aboutUs";
         public const string WebView = "/web-view";
+        public const string UserDetail = "/user-detail";
+        public const string UserFollowing = "/user-following";
+        public const string UserFollower = "/user-follower";
+        public const string EditPersonalInfo = "/edit-personalInfo";
+        public const string PersonalRole = "/personal-role";
+        public const string TeamDetail = "/team-detail";
+        public const string TeamFollower = "/team-follower";
     }
 
     class Router : StatelessWidget {
         static readonly GlobalKey globalKey = GlobalKey.key("main-router");
+        static readonly RouteObserve<PageRoute> _routeObserve = new RouteObserve<PageRoute>();
         bool _exitApp;
         Timer _timer;
 
         public static NavigatorState navigator {
             get { return globalKey.currentState as NavigatorState; }
+        }
+        
+        public static RouteObserve<PageRoute> routeObserve {
+            get { return _routeObserve; }
         }
 
         static Dictionary<string, WidgetBuilder> mainRoutes {
@@ -51,6 +63,13 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.Report, context => new ReportScreenConnector("", ReportType.article)},
                     {MainNavigatorRoutes.AboutUs, context => new AboutUsScreenConnector()},
                     {MainNavigatorRoutes.WebView, context => new WebViewScreen()},
+                    {MainNavigatorRoutes.UserDetail, context => new UserDetailScreenConnector("")},
+                    {MainNavigatorRoutes.UserFollowing, context => new UserFollowingScreenConnector("")},
+                    {MainNavigatorRoutes.UserFollower, context => new UserFollowerScreenConnector("")},
+                    {MainNavigatorRoutes.EditPersonalInfo, context => new EditPersonalInfoScreenConnector("")},
+                    {MainNavigatorRoutes.PersonalRole, context => new PersonalJobRoleScreenConnector()},
+                    {MainNavigatorRoutes.TeamDetail, context => new TeamDetailScreenConnector("")},
+                    {MainNavigatorRoutes.TeamFollower, context => new TeamFollowerScreenConnector("")}
                 };
                 if (Application.isEditor) {
                     var isExistSplash = SplashManager.isExistSplash();
@@ -131,6 +150,9 @@ namespace ConnectApp.Main {
                 },
                 child: new Navigator(
                     key: globalKey,
+                    observers: new List<NavigatorObserver> {
+                        _routeObserve
+                    },
                     onGenerateRoute: settings => {
                         return new PageRouteBuilder(
                             settings: settings,

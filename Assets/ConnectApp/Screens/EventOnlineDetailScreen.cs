@@ -27,7 +27,7 @@ namespace ConnectApp.screens {
         public EventOnlineDetailScreenConnector(
             string eventId,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.eventId = eventId;
         }
 
@@ -65,6 +65,11 @@ namespace ConnectApp.screens {
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
+                        pushToUserDetail = userId => dispatcher.dispatch(
+                            new MainNavigatorPushToUserDetailAction {
+                                userId = userId
+                            }
+                        ),
                         openUrl = url => {
                             EventBus.publish(EventBusConstant.pauseVideoPlayer, new List<object>());
                             dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
@@ -411,6 +416,7 @@ namespace ConnectApp.screens {
                     false,
                     eventObj,
                     this.widget.actionModel.openUrl,
+                    pushToUserDetail: this.widget.actionModel.pushToUserDetail,
                     titleKey: eventTitleKey
                 )
             );

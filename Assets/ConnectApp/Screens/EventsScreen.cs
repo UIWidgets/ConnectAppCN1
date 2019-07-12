@@ -66,7 +66,7 @@ namespace ConnectApp.screens {
                     child: new PageView(
                         physics: new BouncingScrollPhysics(),
                         controller: this._pageController,
-                        onPageChanged: index => { this.setState(() => { this._selectedIndex = index; }); },
+                        onPageChanged: index => this.setState(() => this._selectedIndex = index),
                         children: new List<Widget> {
                             new EventOngoingScreenConnector(),
                             new EventCompletedScreenConnector()

@@ -40,7 +40,8 @@ namespace ConnectApp.Components {
                         new Container(
                             height: 6,
                             margin: EdgeInsets.only(right: 100),
-                            color: new Color(0xFFF8F8F8)),
+                            color: new Color(0xFFF8F8F8)
+                        )
                     }
                 )
             );

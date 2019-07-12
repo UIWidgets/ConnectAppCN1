@@ -17,9 +17,9 @@ namespace ConnectApp.Components {
             IEvent model,
             string place = null,
             GestureTapCallback onTap = null,
-            Key key = null,
-            bool topPadding = false
-        ) :base(key) {
+            bool topPadding = false,
+            Key key = null
+        ) :base(key: key) {
             this.model = model;
             this.place = place;
             this.onTap = onTap;
@@ -40,11 +40,7 @@ namespace ConnectApp.Components {
             const float imageHeight = 76;
             const float borderRadius = 4;
 
-            var gap = 0f;
-            if (this.topPadding) {
-                gap = 16;
-            }
-
+            var gap = this.topPadding ? 16 : 0;
             var time = Convert.ToDateTime(this.model.begin.startTime);
             var hour = $"{time.Hour.ToString().PadLeft(2, '0')}";
             var minute = $"{time.Minute.ToString().PadLeft(2, '0')}";

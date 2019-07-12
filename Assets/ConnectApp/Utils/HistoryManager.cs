@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace ConnectApp.Utils {
     public static class HistoryManager {
-        const string _searchHistoryKey = "searchHistoryKey";
+        const string _searchArticleHistoryKey = "searchArticleHistoryKey";
         const string _articleHistoryKey = "articleHistoryKey";
         const string _eventHistoryKey = "eventHistoryKey";
         const string _blockArticleKey = "blockArticleKey";
@@ -118,58 +118,58 @@ namespace ConnectApp.Utils {
             }
         }
 
-        public static List<string> searchHistoryList(string userId = _visitorId) {
-            var searchHistory = PlayerPrefs.GetString(_searchHistoryKey + userId);
-            var searchHistoryList = new List<string>();
-            if (searchHistory.isNotEmpty()) {
-                searchHistoryList = JsonConvert.DeserializeObject<List<string>>(searchHistory);
+        public static List<string> searchArticleHistoryList(string userId = _visitorId) {
+            var searchArticleHistory = PlayerPrefs.GetString(_searchArticleHistoryKey + userId);
+            var searchArticleHistoryList = new List<string>();
+            if (searchArticleHistory.isNotEmpty()) {
+                searchArticleHistoryList = JsonConvert.DeserializeObject<List<string>>(searchArticleHistory);
             }
 
-            return searchHistoryList;
+            return searchArticleHistoryList;
         }
 
-        public static List<string> saveSearchHistoryList(string keyword, string userId = _visitorId) {
-            var searchHistory = PlayerPrefs.GetString(_searchHistoryKey + userId);
-            var searchHistoryList = new List<string>();
-            if (searchHistory.isNotEmpty()) {
-                searchHistoryList = JsonConvert.DeserializeObject<List<string>>(searchHistory);
+        public static List<string> saveSearchArticleHistoryList(string keyword, string userId = _visitorId) {
+            var searchArticleHistory = PlayerPrefs.GetString(_searchArticleHistoryKey + userId);
+            var searchArticleHistoryList = new List<string>();
+            if (searchArticleHistory.isNotEmpty()) {
+                searchArticleHistoryList = JsonConvert.DeserializeObject<List<string>>(searchArticleHistory);
             }
 
-            if (searchHistoryList.Contains(keyword)) {
-                searchHistoryList.Remove(keyword);
+            if (searchArticleHistoryList.Contains(keyword)) {
+                searchArticleHistoryList.Remove(keyword);
             }
 
-            searchHistoryList.Insert(0, keyword);
-            if (searchHistoryList.Count > 5) {
-                searchHistoryList.RemoveRange(5, searchHistoryList.Count - 5);
+            searchArticleHistoryList.Insert(0, keyword);
+            if (searchArticleHistoryList.Count > 5) {
+                searchArticleHistoryList.RemoveRange(5, searchArticleHistoryList.Count - 5);
             }
 
-            var newSearchHistory = JsonConvert.SerializeObject(searchHistoryList);
-            PlayerPrefs.SetString(_searchHistoryKey + userId, newSearchHistory);
+            var newSearchHistory = JsonConvert.SerializeObject(searchArticleHistoryList);
+            PlayerPrefs.SetString(_searchArticleHistoryKey + userId, newSearchHistory);
             PlayerPrefs.Save();
-            return searchHistoryList;
+            return searchArticleHistoryList;
         }
 
-        public static List<string> deleteSearchHistoryList(string keyword, string userId = _visitorId) {
-            var searchHistory = PlayerPrefs.GetString(_searchHistoryKey + userId);
-            var searchHistoryList = new List<string>();
-            if (searchHistory.isNotEmpty()) {
-                searchHistoryList = JsonConvert.DeserializeObject<List<string>>(searchHistory);
+        public static List<string> deleteSearchArticleHistoryList(string keyword, string userId = _visitorId) {
+            var searchArticleHistory = PlayerPrefs.GetString(_searchArticleHistoryKey + userId);
+            var searchArticleHistoryList = new List<string>();
+            if (searchArticleHistory.isNotEmpty()) {
+                searchArticleHistoryList = JsonConvert.DeserializeObject<List<string>>(searchArticleHistory);
             }
 
-            if (searchHistoryList.Contains(keyword)) {
-                searchHistoryList.Remove(keyword);
+            if (searchArticleHistoryList.Contains(keyword)) {
+                searchArticleHistoryList.Remove(keyword);
             }
 
-            var newSearchHistory = JsonConvert.SerializeObject(searchHistoryList);
-            PlayerPrefs.SetString(_searchHistoryKey + userId, newSearchHistory);
+            var newSearchHistory = JsonConvert.SerializeObject(searchArticleHistoryList);
+            PlayerPrefs.SetString(_searchArticleHistoryKey + userId, newSearchHistory);
             PlayerPrefs.Save();
-            return searchHistoryList;
+            return searchArticleHistoryList;
         }
 
-        public static void deleteAllSearchHistory(string userId = _visitorId) {
-            if (PlayerPrefs.HasKey(_searchHistoryKey + userId)) {
-                PlayerPrefs.DeleteKey(_searchHistoryKey + userId);
+        public static void deleteAllSearchArticleHistory(string userId = _visitorId) {
+            if (PlayerPrefs.HasKey(_searchArticleHistoryKey + userId)) {
+                PlayerPrefs.DeleteKey(_searchArticleHistoryKey + userId);
             }
         }
 

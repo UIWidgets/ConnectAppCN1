@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Main;
+using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
@@ -10,6 +11,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -18,8 +20,7 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, PersonalScreenViewModel>(
                 converter: state => new PersonalScreenViewModel {
                     isLoggedIn = state.loginState.isLoggedIn,
-                    userId = state.loginState.loginInfo.userId,
-                    userFullName = state.loginState.loginInfo.userFullName,
+                    user = state.loginState.loginInfo,
                     userDict = state.userState.userDict
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -27,6 +28,9 @@ namespace ConnectApp.screens {
                         viewModel,
                         routeName => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = routeName
+                        }),
+                        userId => dispatcher.dispatch(new MainNavigatorPushToUserDetailAction {
+                            userId = userId
                         })
                     );
                 }
@@ -38,14 +42,17 @@ namespace ConnectApp.screens {
         public PersonalScreen(
             PersonalScreenViewModel viewModel = null,
             Action<string> mainRouterPushTo = null,
+            Action<string> pushToUserDetail = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.viewModel = viewModel;
             this.mainRouterPushTo = mainRouterPushTo;
+            this.pushToUserDetail = pushToUserDetail;
         }
 
         public readonly PersonalScreenViewModel viewModel;
         public readonly Action<string> mainRouterPushTo;
+        public readonly Action<string> pushToUserDetail;
 
         public override State createState() {
             return new _PersonalScreenState();
@@ -73,10 +80,8 @@ namespace ConnectApp.screens {
                             height: 1
                         ),
                         new Flexible(
-                            child: new Container(
-                                child: new ListView(
-                                    children: this._buildItems()
-                                )
+                            child: new Column(
+                                children: this._buildItems()
                             )
                         )
                     }
@@ -120,16 +125,75 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildLoginInNavigationBar() {
-            return new CustomNavigationBar(
-                new Expanded(
-                    child: new Text(this.widget.viewModel.userFullName, style: CTextStyle.H2)
-                ),
-                new List<Widget> {
-                    Avatar.User(this.widget.viewModel.userId,
-                        this.widget.viewModel.userDict[this.widget.viewModel.userId], 40)
-                },
-                CColors.White,
-                0
+            var user = this.widget.viewModel.userDict[key: this.widget.viewModel.user.userId];
+            Widget titleWidget = new Container();
+            if (user.title != null && user.title.isNotEmpty()) {
+                titleWidget = new Text(
+                    data: user.title,
+                    style: CTextStyle.PRegularBody4,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis
+                );
+            }
+
+            return new GestureDetector(
+                onTap: () => this.widget.pushToUserDetail(user.id),
+                child: new Container(
+                    height: 184,
+                    padding: EdgeInsets.only(16, right: 16, bottom: 16),
+                    color: CColors.White,
+                    child: new Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: new List<Widget> {
+                            new Row(
+                                children: new List<Widget> {
+                                    new Container(
+                                        margin: EdgeInsets.only(right: 12),
+                                        child: Avatar.User(
+                                            user: user,
+                                            64
+                                        )
+                                    ),
+                                    new Expanded(
+                                        child: new Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: new List<Widget> {
+                                                new Text(
+                                                    user.fullName ?? user.name,
+                                                    style: CTextStyle.H4,
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis
+                                                ),
+                                                titleWidget
+                                            }
+                                        )
+                                    ),
+                                    new Container(
+                                        margin: EdgeInsets.only(12),
+                                        child: new Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: new List<Widget> {
+                                                new Text(
+                                                    "个人主页",
+                                                    style: new TextStyle(
+                                                        fontSize: 14,
+                                                        fontFamily: "Roboto-Regular",
+                                                        color: CColors.TextBody4
+                                                    )
+                                                ),
+                                                new Icon(
+                                                    icon: Icons.chevron_right,
+                                                    size: 24,
+                                                    color: Color.fromRGBO(199, 203, 207, 1)
+                                                )
+                                            }
+                                        )
+                                    )
+                                }
+                            )
+                        }
+                    )
+                )
             );
         }
 

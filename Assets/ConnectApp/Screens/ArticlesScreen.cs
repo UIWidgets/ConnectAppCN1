@@ -15,7 +15,9 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
+using Config = ConnectApp.Constants.Config;
 
 namespace ConnectApp.screens {
     public class ArticlesScreenConnector : StatelessWidget {
@@ -30,7 +32,8 @@ namespace ConnectApp.screens {
                     userDict = state.userState.userDict,
                     teamDict = state.teamState.teamDict,
                     isLoggedIn = state.loginState.isLoggedIn,
-                    hosttestOffset = state.articleState.articleList.Count
+                    hosttestOffset = state.articleState.articleList.Count,
+                    currentUserId = state.loginState.loginInfo.userId
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ArticlesScreenActionModel {
@@ -58,6 +61,8 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new BlockArticleAction {articleId = articleId});
                             dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = articleId});
                         },
+                        shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
+                            Actions.shareToWechat(type, title, description, linkUrl, imageUrl)),
                         startFetchArticles = () => dispatcher.dispatch(new StartFetchArticlesAction()),
                         fetchArticles = offset => dispatcher.dispatch<IPromise>(Actions.fetchArticles(offset)),
                         fetchReviewUrl = () => dispatcher.dispatch<IPromise>(Actions.fetchReviewUrl())
@@ -115,7 +120,7 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            base.build(context);
+            base.build(context: context);
             return new Container(
                 color: CColors.BgGrey,
                 child: new Column(
@@ -190,38 +195,60 @@ namespace ConnectApp.screens {
                         physics: new AlwaysScrollableScrollPhysics(),
                         itemCount: this.widget.viewModel.articleList.Count,
                         itemBuilder: (cxt, index) => {
-                            var articleId = this.widget.viewModel.articleList[index];
-                            if (this.widget.viewModel.blockArticleList.Contains(articleId)) {
+                            var articleId = this.widget.viewModel.articleList[index: index];
+                            if (this.widget.viewModel.blockArticleList.Contains(item: articleId)) {
                                 return new Container();
                             }
 
-                            var article = this.widget.viewModel.articleDict[articleId];
+                            var article = this.widget.viewModel.articleDict[key: articleId];
                             var fullName = "";
+                            var userId = "";
                             if (article.ownerType == OwnerType.user.ToString()) {
-                                if (this.widget.viewModel.userDict.ContainsKey(article.userId)) {
-                                    fullName = this.widget.viewModel.userDict[article.userId].fullName;
+                                userId = article.userId;
+                                if (this.widget.viewModel.userDict.ContainsKey(key: article.userId)) {
+                                    fullName = this.widget.viewModel.userDict[key: article.userId].fullName
+                                        ?? this.widget.viewModel.userDict[key: article.userId].name;
                                 }
                             }
 
                             if (article.ownerType == OwnerType.team.ToString()) {
-                                if (this.widget.viewModel.teamDict.ContainsKey(article.teamId)) {
-                                    fullName = this.widget.viewModel.teamDict[article.teamId].name;
+                                userId = article.teamId;
+                                if (this.widget.viewModel.teamDict.ContainsKey(key: article.teamId)) {
+                                    fullName = this.widget.viewModel.teamDict[key: article.teamId].name;
                                 }
                             }
 
                             return new ArticleCard(
-                                article,
+                                article: article,
                                 () => {
-                                    this.widget.actionModel.pushToArticleDetail(articleId);
+                                    this.widget.actionModel.pushToArticleDetail(obj: articleId);
                                     AnalyticsManager.ClickEnterArticleDetail("Home_Article", article.id, article.title);
                                 },
-                                () => ReportManager.showReportView(this.widget.viewModel.isLoggedIn,
-                                    articleId,
-                                    ReportType.article, this.widget.actionModel.pushToLogin,
-                                    this.widget.actionModel.pushToReport, this.widget.actionModel.pushToBlock
+                                () => ShareManager.showArticleShareView(
+                                    this.widget.viewModel.currentUserId != userId,
+                                    isLoggedIn: this.widget.viewModel.isLoggedIn,
+                                    () => {
+                                        string linkUrl = $"{Config.apiAddress}/p/{article.id}";
+                                        Clipboard.setData(new ClipboardData(text: linkUrl));
+                                        CustomDialogUtils.showToast("复制链接成功", iconData: Icons.check_circle_outline);
+                                    },
+                                    () => this.widget.actionModel.pushToLogin(),
+                                    () => this.widget.actionModel.pushToBlock(articleId),
+                                    () => this.widget.actionModel.pushToReport(articleId, ReportType.article),
+                                    type => {
+                                        CustomDialogUtils.showCustomDialog(
+                                            child: new CustomLoadingDialog()
+                                        );
+                                        string linkUrl = $"{Config.apiAddress}/p/{article.id}";
+                                        string imageUrl = $"{article.thumbnail.url}.200x0x1.jpg";
+                                        this.widget.actionModel.shareToWechat(arg1: type, arg2: article.title,
+                                                arg3: article.subTitle, arg4: linkUrl, arg5: imageUrl)
+                                            .Then(onResolved: CustomDialogUtils.hiddenCustomDialog)
+                                            .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
+                                    }
                                 ),
-                                fullName,
-                                key: new ObjectKey(article.id)
+                                fullName: fullName,
+                                key: new ObjectKey(value: article.id)
                             );
                         }
                     )

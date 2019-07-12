@@ -8,7 +8,6 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
-
 namespace ConnectApp.Components {
     public static class CustomAppBarUtil {
         public const float appBarHeight = 44;

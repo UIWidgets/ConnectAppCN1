@@ -7,6 +7,7 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Plugins;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
@@ -14,6 +15,7 @@ using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 
 namespace ConnectApp.screens {
     static class LoginNavigatorRoutes {
@@ -74,7 +76,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    public class LoginSwitchScreen : StatelessWidget {
+    public class LoginSwitchScreen : StatefulWidget {
         public LoginSwitchScreen(
             bool anonymous,
             LoginSwitchScreenActionModel actionModel
@@ -83,8 +85,20 @@ namespace ConnectApp.screens {
             this.actionModel = actionModel;
         }
 
-        readonly bool anonymous;
-        readonly LoginSwitchScreenActionModel actionModel;
+        public readonly bool anonymous;
+        public readonly LoginSwitchScreenActionModel actionModel;
+        
+        public override State createState() {
+            return new _LoginSwitchScreen();
+        }
+    }
+
+    class _LoginSwitchScreen : State<LoginSwitchScreen> {
+        
+        public override void initState() {
+            base.initState();
+            StatusBarManager.statusBarStyle(false);
+        }
 
         public override Widget build(BuildContext context) {
             return new Container(
@@ -115,7 +129,7 @@ namespace ConnectApp.screens {
                             left: 0,
                             child: new CustomButton(
                                 padding: EdgeInsets.symmetric(10, 16),
-                                onPressed: () => this.actionModel.mainRouterPop(),
+                                onPressed: () => this.widget.actionModel.mainRouterPop(),
                                 child: new Icon(
                                     Icons.close,
                                     size: 24,
@@ -158,7 +172,7 @@ namespace ConnectApp.screens {
                         this._buildWechatButton(context),
                         new Container(height: 16),
                         new CustomButton(
-                            onPressed: () => this.actionModel.loginRouterPushToBindUnity(),
+                            onPressed: () => this.widget.actionModel.loginRouterPushToBindUnity(),
                             padding: EdgeInsets.zero,
                             child: new Container(
                                 height: 48,
@@ -192,7 +206,7 @@ namespace ConnectApp.screens {
                                             "用户协议",
                                             CTextStyle.PSmallBody4.copyWith(decoration: TextDecoration.underline),
                                             recognizer: new TapGestureRecognizer {
-                                                onTap = () => this.actionModel.openUrl(Config.termsOfService)
+                                                onTap = () => this.widget.actionModel.openUrl(Config.termsOfService)
                                             }
                                         ),
                                         new TextSpan(
@@ -203,7 +217,7 @@ namespace ConnectApp.screens {
                                             "隐私政策",
                                             CTextStyle.PSmallBody4.copyWith(decoration: TextDecoration.underline),
                                             recognizer: new TapGestureRecognizer {
-                                                onTap = () => this.actionModel.openUrl(Config.privacyPolicy)
+                                                onTap = () => this.widget.actionModel.openUrl(Config.privacyPolicy)
                                             }
                                         )
                                     }
@@ -230,14 +244,14 @@ namespace ConnectApp.screens {
                             CustomDialogUtils.showCustomDialog(
                                 child: new CustomLoadingDialog()
                             );
-                            this.actionModel.loginByWechatAction(code).Then(() => {
+                            this.widget.actionModel.loginByWechatAction(code).Then(() => {
                                     CustomDialogUtils.hiddenCustomDialog();
-                                    if (this.anonymous) {
+                                    if (this.widget.anonymous) {
                                         LoginScreen.navigator.pushReplacementNamed(LoginNavigatorRoutes
                                             .WechatBindUnity);
                                     }
                                     else {
-                                        this.actionModel.mainRouterPop();
+                                        this.widget.actionModel.mainRouterPop();
                                     }
                                 })
                                 .Catch(_ => CustomDialogUtils.hiddenCustomDialog());

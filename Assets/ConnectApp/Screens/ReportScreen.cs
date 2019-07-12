@@ -5,6 +5,7 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -24,7 +25,7 @@ namespace ConnectApp.screens {
             string reportId,
             ReportType reportType,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.reportId = reportId;
             this.reportType = reportType;
         }
@@ -70,7 +71,7 @@ namespace ConnectApp.screens {
             ReportScreenViewModel viewModel = null,
             ReportScreenActionModel actionModel = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
@@ -95,6 +96,7 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
+            StatusBarManager.statusBarStyle(false);
             this._selectedIndex = 0;
         }
 
