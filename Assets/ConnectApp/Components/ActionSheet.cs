@@ -100,6 +100,7 @@ namespace ConnectApp.Components {
                 if (type == ActionType.destructive) {
                     titleColor = CColors.Error;
                 }
+
                 if (type == ActionType.cancel) {
                     titleColor = CColors.Cancel;
                 }
@@ -115,22 +116,23 @@ namespace ConnectApp.Components {
                             },
                             child: new Container(
                                 alignment: Alignment.center,
-                                height: 49.0f,
+                                height: 49,
                                 color: CColors.White,
                                 child: new Text(
                                     item.title,
                                     style: CTextStyle.PLargeBody.copyWith(titleColor)
                                 )
                             )
-                        ),
-                        new CustomDivider(
-                            height: 1,
-                            color: CColors.Separator2
                         )
                     }
                 );
+                var divider = new CustomDivider(
+                    height: 1,
+                    color: CColors.Separator2
+                );
                 if (type == ActionType.destructive) {
                     destructiveWidgets.Add(widget);
+                    destructiveWidgets.Add(divider);
                 }
                 else if (type == ActionType.cancel) {
                     cancelWidgets.Add(new CustomDivider(height: 4, color: CColors.Separator2));
@@ -138,6 +140,7 @@ namespace ConnectApp.Components {
                 }
                 else {
                     normalWidgets.Add(widget);
+                    normalWidgets.Add(divider);
                 }
             });
             widgets.AddRange(normalWidgets);

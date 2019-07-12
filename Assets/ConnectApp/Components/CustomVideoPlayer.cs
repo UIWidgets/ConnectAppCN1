@@ -471,6 +471,7 @@ namespace ConnectApp.Components {
         static void pauseAudioSession() {
         }
         static bool isOpenSensor() {
+            return false;
         }
 #endif
     }

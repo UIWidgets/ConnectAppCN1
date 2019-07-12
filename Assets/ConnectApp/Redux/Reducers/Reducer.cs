@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using ConnectApp.Components;
 using ConnectApp.Main;
 using ConnectApp.Models.Model;
@@ -260,7 +261,8 @@ namespace ConnectApp.redux.reducers {
                             }
 
                             oldList.AddRange(collection: keyValuePair.Value);
-                            state.messageState.channelMessageList[key: keyValuePair.Key] = oldList;
+                            var newList = oldList.Distinct().ToList();
+                            state.messageState.channelMessageList[key: keyValuePair.Key] = newList;
                         }
                         else {
                             state.messageState.channelMessageList.Add(key: keyValuePair.Key, value: keyValuePair.Value);
@@ -356,6 +358,12 @@ namespace ConnectApp.redux.reducers {
                         );
                     }
 
+                    if (state.articleState.articleDict.ContainsKey(key: action.articleId)) {
+                        var article = state.articleState.articleDict[key: action.articleId];
+                        article.commentCount += 1;
+                        state.articleState.articleDict[key: action.articleId] = article;
+                    }
+                    
                     break;
                 }
 

@@ -57,7 +57,9 @@ namespace ConnectApp.Components {
                     new Container(
                         color: CColors.White,
                         width: mediaQueryData.size.width,
-                        height: this.projectType == ProjectType.article && this.showReportAndBlock ? 319 : 211 + mediaQueryData.padding.bottom,
+                        height: this.projectType == ProjectType.article
+                            ? 319 + mediaQueryData.padding.bottom
+                            : 211 + mediaQueryData.padding.bottom,
                         child: new Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,7 +108,7 @@ namespace ConnectApp.Components {
                                         height: 49,
                                         color: CColors.Transparent,
                                         alignment: Alignment.center,
-                                        child: new Text("取消", style: CTextStyle.PLargeBody)
+                                        child: new Text("取消", style: CTextStyle.PLargeBody.copyWith(CColors.Cancel))
                                     )
                                 ),
                                 new Container(
