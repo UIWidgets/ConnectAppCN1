@@ -459,7 +459,9 @@ namespace ConnectApp.screens {
                 ? Avatar.User(this._user, 32)
                 : Avatar.Team(this._team, 32);
 
-            var text = this._article.ownerType == "user" ? this._user.fullName : this._team.name;
+            var text = this._article.ownerType == "user"
+                ? this._user.fullName ?? this._user.name
+                : this._team.name;
             var description = this._article.ownerType == "user" ? this._user.title : "";
             var time = this._article.lastPublishedTime == null
                 ? this._article.publishedTime
@@ -573,7 +575,7 @@ namespace ConnectApp.screens {
                 if (article.id != this._article.id) {
                     var fullName = "";
                     if (article.ownerType == OwnerType.user.ToString()) {
-                        fullName = this._user.fullName;
+                        fullName = this._user.fullName ?? this._user.name;
                     }
 
                     if (article.ownerType == OwnerType.team.ToString()) {

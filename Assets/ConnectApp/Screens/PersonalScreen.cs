@@ -141,6 +141,7 @@ namespace ConnectApp.screens {
                 child: new Container(
                     height: 184,
                     padding: EdgeInsets.only(16, right: 16, bottom: 16),
+                    color: CColors.White,
                     child: new Column(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: new List<Widget> {
@@ -158,7 +159,7 @@ namespace ConnectApp.screens {
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: new List<Widget> {
                                                 new Text(
-                                                    data: user.fullName,
+                                                    user.fullName ?? user.name,
                                                     style: CTextStyle.H4,
                                                     maxLines: 1,
                                                     overflow: TextOverflow.ellipsis

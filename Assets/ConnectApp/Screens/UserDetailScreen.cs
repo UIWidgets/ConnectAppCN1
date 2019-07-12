@@ -261,7 +261,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new Expanded(
                             child: new Text(
-                                data: user.fullName,
+                                user.fullName ?? user.name,
                                 style: CTextStyle.PXLargeMedium,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis
@@ -408,7 +408,7 @@ namespace ConnectApp.screens {
                                         },
                                         () => this.widget.actionModel.mainRouterPop()
                                     ),
-                                    fullName: this.widget.viewModel.user.fullName,
+                                    this.widget.viewModel.user.fullName ?? this.widget.viewModel.user.name,
                                     key: new ObjectKey(value: article.id)
                                 );
                             }
@@ -457,7 +457,7 @@ namespace ConnectApp.screens {
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: new List<Widget> {
                                                 new Text(
-                                                    data: user.fullName,
+                                                    user.fullName ?? user.name,
                                                     style: CTextStyle.H4White,
                                                     maxLines: 1,
                                                     overflow: TextOverflow.ellipsis
@@ -568,6 +568,9 @@ namespace ConnectApp.screens {
                     ),
                     onPressed: () => {
                         if (this.widget.viewModel.isLoggedIn) {
+                            if (this.widget.viewModel.user.jobRoleMap == null) {
+                                return;
+                            }
                             this.widget.actionModel.pushToEditPersonalInfo(this.widget.viewModel.userId);
                         }
                         else {
