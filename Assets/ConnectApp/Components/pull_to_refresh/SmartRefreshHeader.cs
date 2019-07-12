@@ -3,6 +3,7 @@ using ConnectApp.Constants;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 
 namespace ConnectApp.Components.pull_to_refresh {
     public enum RefreshHeaderType {
@@ -86,7 +87,8 @@ namespace ConnectApp.Components.pull_to_refresh {
                 secondChild: Image.asset(
                     "image/loading.gif",
                     width: 235,
-                    height: 40
+                    height: 40,
+                    filterMode: FilterMode.Point
                 ),
                 duration: TimeSpan.FromMilliseconds(500),
                 crossFadeState: crossFadeState,

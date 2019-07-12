@@ -111,7 +111,7 @@ namespace ConnectApp.screens {
                 if (userType == UserType.follow) {
                     ActionSheetUtils.showModalActionSheet(
                         new ActionSheet(
-                            title: "确定不太关注？",
+                            title: "确定不再关注？",
                             items: new List<ActionSheetItem> {
                                 new ActionSheetItem("确定", ActionType.normal,
                                     () => {

@@ -7,6 +7,7 @@ using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.foundation;
@@ -93,7 +94,8 @@ namespace ConnectApp.screens {
         Dictionary<string, string> _jobRole;
 
         public override void initState() {
-            base.initState();
+            base.initState(); 
+            StatusBarManager.statusBarStyle(false);
             var user = this.widget.viewModel.user;
             this._fullNameController = new TextEditingController(text: user.fullName);
             this._titleController = new TextEditingController(text: user.title);
@@ -140,15 +142,18 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             return new Container(
-                color: CColors.BgGrey,
+                color: CColors.White,
                 child: new CustomSafeArea(
-                    child: new Column(
-                        children: new List<Widget> {
-                            this._buildNavigationBar(),
-                            new Flexible(
-                                child: this._buildContent()
-                            )
-                        }
+                    child: new Container(
+                        color: CColors.Background,
+                        child: new Column(
+                            children: new List<Widget> {
+                                this._buildNavigationBar(),
+                                new Flexible(
+                                    child: this._buildContent()
+                                )
+                            }
+                        )
                     )
                 )
             );

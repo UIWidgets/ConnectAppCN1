@@ -161,6 +161,7 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
+            StatusBarManager.statusBarStyle(false);
             this._refreshController = new RefreshController();
             this._isHaveTitle = false;
             this._titleHeight = 0.0f;

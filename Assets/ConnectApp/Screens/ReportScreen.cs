@@ -5,6 +5,7 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -95,6 +96,7 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
+            StatusBarManager.statusBarStyle(false);
             this._selectedIndex = 0;
         }
 

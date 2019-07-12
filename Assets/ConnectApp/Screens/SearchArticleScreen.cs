@@ -159,7 +159,7 @@ namespace ConnectApp.screens {
             return new RelatedArticleCard(
                 article: searchArticle,
                 fullName: fullName,
-                () => this.widget.actionModel.pushToArticleDetail(obj: searchArticle.id),
+                () => this.widget.actionModel.pushToArticleDetail(searchArticle.id),
                 index == 0
             );
         }

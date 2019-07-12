@@ -38,11 +38,16 @@ namespace ConnectApp.Main {
 
     class Router : StatelessWidget {
         static readonly GlobalKey globalKey = GlobalKey.key("main-router");
+        static readonly RouteObserve<PageRoute> _routeObserve = new RouteObserve<PageRoute>();
         bool _exitApp;
         Timer _timer;
 
         public static NavigatorState navigator {
             get { return globalKey.currentState as NavigatorState; }
+        }
+        
+        public static RouteObserve<PageRoute> routeObserve {
+            get { return _routeObserve; }
         }
 
         static Dictionary<string, WidgetBuilder> mainRoutes {
@@ -145,6 +150,9 @@ namespace ConnectApp.Main {
                 },
                 child: new Navigator(
                     key: globalKey,
+                    observers: new List<NavigatorObserver> {
+                        _routeObserve
+                    },
                     onGenerateRoute: settings => {
                         return new PageRouteBuilder(
                             settings: settings,

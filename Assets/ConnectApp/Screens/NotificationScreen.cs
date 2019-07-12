@@ -207,7 +207,7 @@ namespace ConnectApp.screens {
                 user: user,
                 mentions: this.widget.viewModel.mentions,
                 () => {
-                    this.widget.actionModel.pushToArticleDetail(obj: notification.data.projectId);
+                    this.widget.actionModel.pushToArticleDetail(notification.data.projectId);
                     AnalyticsManager.ClickEnterArticleDetail(
                         "Notification_Article",
                         articleId: notification.data.projectId,

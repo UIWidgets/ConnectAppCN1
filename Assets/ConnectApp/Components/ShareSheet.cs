@@ -57,7 +57,7 @@ namespace ConnectApp.Components {
                     new Container(
                         color: CColors.White,
                         width: mediaQueryData.size.width,
-                        height: this.projectType == ProjectType.article
+                        height: this.projectType == ProjectType.article && this.showReportAndBlock
                             ? 319 + mediaQueryData.padding.bottom
                             : 211 + mediaQueryData.padding.bottom,
                         child: new Column(

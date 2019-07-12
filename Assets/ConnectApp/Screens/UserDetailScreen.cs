@@ -130,14 +130,14 @@ namespace ConnectApp.screens {
         }
     }
 
-    class _UserDetailScreenState : State<UserDetailScreen>, TickerProvider {
+    class _UserDetailScreenState : State<UserDetailScreen>, TickerProvider, RouteAware {
         const float headerHeight = 256;
         const float _transformSpeed = 0.005f;
         int _articleOffset;
         RefreshController _refreshController;
         float _factor = 1;
         bool _isHaveTitle;
-        bool _showNavBarShadow;
+        bool _hideNavBar;
         float _topPadding;
         Animation<RelativeRect> _animation;
         AnimationController _controller;
@@ -147,7 +147,7 @@ namespace ConnectApp.screens {
             this._articleOffset = 0;
             this._refreshController = new RefreshController();
             this._isHaveTitle = false;
-            this._showNavBarShadow = true;
+            this._hideNavBar = true;
             this._controller = new AnimationController(
                 duration: TimeSpan.FromMilliseconds(100),
                 vsync: this
@@ -165,9 +165,15 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.fetchUserArticle(0);
             });
         }
+        
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute)ModalRoute.of(this.context));
+        }
 
         public override void dispose() {
             StatusBarManager.statusBarStyle(false);
+            Router.routeObserve.unsubscribe(this);
             base.dispose();
         }
 
@@ -191,14 +197,14 @@ namespace ConnectApp.screens {
             var pixels = notification.metrics.pixels;
 
             if (pixels >= 44 + this._topPadding) {
-                if (this._showNavBarShadow) {
-                    this.setState(() => this._showNavBarShadow = false);
+                if (this._hideNavBar) {
+                    this.setState(() => this._hideNavBar = false);
                     StatusBarManager.statusBarStyle(false);
                 }
             }
             else {
-                if (!this._showNavBarShadow) {
-                    this.setState(() => this._showNavBarShadow = true);
+                if (!this._hideNavBar) {
+                    this.setState(() => this._hideNavBar = true);
                     StatusBarManager.statusBarStyle(true);
                 }
             }
@@ -243,6 +249,7 @@ namespace ConnectApp.screens {
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
+                    top: false,
                     child: new Stack(
                         children: new List<Widget> {
                             content,
@@ -279,23 +286,26 @@ namespace ConnectApp.screens {
                 right: 0,
                 height: 44 + this._topPadding,
                 child: new Container(
+                    padding: EdgeInsets.only(top: this._topPadding),
                     decoration: new BoxDecoration(
-                        this._showNavBarShadow ? CColors.Transparent : CColors.White,
+                        this._hideNavBar ? CColors.Transparent : CColors.White,
                         border: new Border(
                             bottom: new BorderSide(this._isHaveTitle ? CColors.Separator2 : CColors.Transparent))
                     ),
                     child: new Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: new List<Widget> {
                             new GestureDetector(
                                 onTap: () => this.widget.actionModel.mainRouterPop(),
-                                child: new Container(
-                                    padding: EdgeInsets.only(16, 10, 0, 10),
-                                    color: CColors.Transparent,
+                                child: new CustomButton(
+                                    backgroundColor: CColors.Blue,
+                                    padding: EdgeInsets.only(16, 8, 8, 8),
+                                    onPressed: () => this.widget.actionModel.mainRouterPop(),
                                     child: new Icon(
-                                        Icons.arrow_back,
+                                        icon: Icons.arrow_back,
                                         size: 24,
-                                        color: this._showNavBarShadow ? CColors.White : CColors.Icon
+                                        color: this._hideNavBar ? CColors.White : CColors.Icon
                                     )
                                 )
                             ),
@@ -595,7 +605,7 @@ namespace ConnectApp.screens {
                 onTap = () => {
                     ActionSheetUtils.showModalActionSheet(
                         new ActionSheet(
-                            title: "确定不在关注？",
+                            title: "确定不再关注？",
                             items: new List<ActionSheetItem> {
                                 new ActionSheetItem("确定", ActionType.normal,
                                     () => {
@@ -684,5 +694,15 @@ namespace ConnectApp.screens {
                 }
             );
         }
+        
+        public void didPopNext() {
+            StatusBarManager.statusBarStyle(this._hideNavBar);
+        }
+
+        public void didPush() {}
+
+        public void didPop() {}
+
+        public void didPushNext() {}
     }
 }

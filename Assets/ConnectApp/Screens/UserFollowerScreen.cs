@@ -8,6 +8,7 @@ using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -102,7 +103,8 @@ namespace ConnectApp.screens {
         string _title;
         
         public override void initState() {
-            base.initState();
+            base.initState(); 
+            StatusBarManager.statusBarStyle(false);
             this._userOffset = 0;
             this._refreshController = new RefreshController();
             this._title = this.widget.viewModel.currentUserId == this.widget.viewModel.userId 
@@ -126,7 +128,7 @@ namespace ConnectApp.screens {
                 if (userType == UserType.follow) {
                     ActionSheetUtils.showModalActionSheet(
                         new ActionSheet(
-                            title: "确定不太关注？",
+                            title: "确定不再关注？",
                             items: new List<ActionSheetItem> {
                                 new ActionSheetItem("确定", ActionType.normal,
                                     () => {
@@ -179,15 +181,18 @@ namespace ConnectApp.screens {
                 );
             }
             return new Container(
-                color: CColors.Background,
+                color: CColors.White,
                 child: new CustomSafeArea(
-                    child: new Column(
-                        children: new List<Widget> {
-                            this._buildNavigationBar(context),
-                            new Expanded(
-                                child: content
-                            )
-                        }
+                    child: new Container(
+                        color: CColors.Background,
+                        child: new Column(
+                            children: new List<Widget> {
+                                this._buildNavigationBar(context),
+                                new Expanded(
+                                    child: content
+                                )
+                            }
+                        )
                     )
                 )
             );
