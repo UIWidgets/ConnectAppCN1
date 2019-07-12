@@ -11,6 +11,7 @@ using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -89,13 +90,27 @@ namespace ConnectApp.screens {
                     article: article,
                     () => this.actionModel.pushToArticleDetail(obj: article.id),
                     () => ShareManager.showArticleShareView(
-                        article: article,
                         true,
                         isLoggedIn: this.viewModel.isLoggedIn,
-                        pushToLogin: this.actionModel.pushToLogin,
-                        pushToBlock: this.actionModel.pushToBlock,
-                        pushToReport: this.actionModel.pushToReport,
-                        shareToWechat: this.actionModel.shareToWechat
+                        () => {
+                            string linkUrl = $"{Config.apiAddress}/p/{article.id}";
+                            Clipboard.setData(new ClipboardData(text: linkUrl));
+                            CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
+                        },
+                        () => this.actionModel.pushToLogin(),
+                        () => this.actionModel.pushToBlock(article.id),
+                        () => this.actionModel.pushToReport(article.id, ReportType.article),
+                        type => {
+                            CustomDialogUtils.showCustomDialog(
+                                child: new CustomLoadingDialog()
+                            );
+                            string linkUrl = $"{Config.apiAddress}/p/{article.id}";
+                            string imageUrl = $"{article.thumbnail.url}.200x0x1.jpg";
+                            this.actionModel.shareToWechat(arg1: type, arg2: article.title,
+                                    arg3: article.subTitle, arg4: linkUrl, arg5: imageUrl)
+                                .Then(onResolved: CustomDialogUtils.hiddenCustomDialog)
+                                .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
+                        }
                     ),
                     fullName: article.fullName,
                     index == 0,

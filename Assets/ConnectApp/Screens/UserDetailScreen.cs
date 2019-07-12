@@ -385,14 +385,28 @@ namespace ConnectApp.screens {
                                     article: article,
                                     () => this.widget.actionModel.pushToArticleDetail(obj: article.id),
                                     () => ShareManager.showArticleShareView(
-                                        article: article,
                                         this.widget.viewModel.currentUserId != article.userId,
                                         isLoggedIn: this.widget.viewModel.isLoggedIn,
-                                        pushToLogin: this.widget.actionModel.pushToLogin,
-                                        pushToBlock: this.widget.actionModel.pushToBlock,
-                                        pushToReport: this.widget.actionModel.pushToReport,
-                                        shareToWechat: this.widget.actionModel.shareToWechat,
-                                        mainRouterPop: this.widget.actionModel.mainRouterPop
+                                        () => {
+                                            string linkUrl = $"{Config.apiAddress}/p/{article.id}";
+                                            Clipboard.setData(new ClipboardData(text: linkUrl));
+                                            CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
+                                        },
+                                        () => this.widget.actionModel.pushToLogin(),
+                                        () => this.widget.actionModel.pushToBlock(article.id),
+                                        () => this.widget.actionModel.pushToReport(article.id, ReportType.article),
+                                        type => {
+                                            CustomDialogUtils.showCustomDialog(
+                                                child: new CustomLoadingDialog()
+                                            );
+                                            string linkUrl = $"{Config.apiAddress}/p/{article.id}";
+                                            string imageUrl = $"{article.thumbnail.url}.200x0x1.jpg";
+                                            this.widget.actionModel.shareToWechat(arg1: type, arg2: article.title,
+                                                    arg3: article.subTitle, arg4: linkUrl, arg5: imageUrl)
+                                                .Then(onResolved: CustomDialogUtils.hiddenCustomDialog)
+                                                .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
+                                        },
+                                        () => this.widget.actionModel.mainRouterPop()
                                     ),
                                     fullName: this.widget.viewModel.user.fullName,
                                     key: new ObjectKey(value: article.id)

@@ -23,20 +23,20 @@ namespace ConnectApp.Components {
         iEvent
     }
 
-    public delegate void OnPressed(ShareType type);
+    public delegate void OnShareType(ShareType type);
 
     public static class ShareUtils {
         public static void showShareView(
             Widget child
         ) {
-            ActionSheetUtils.showModalActionSheet(child);
+            ActionSheetUtils.showModalActionSheet(child: child);
         }
     }
 
     public class ShareView : StatelessWidget {
         public ShareView(
             Key key = null,
-            OnPressed onPressed = null,
+            OnShareType onPressed = null,
             ProjectType projectType = ProjectType.article,
             bool showReportAndBlock = true
         ) : base(key: key) {
@@ -45,12 +45,12 @@ namespace ConnectApp.Components {
             this.showReportAndBlock = showReportAndBlock;
         }
 
-        readonly OnPressed onPressed;
+        readonly OnShareType onPressed;
         readonly ProjectType projectType;
         readonly bool showReportAndBlock;
 
         public override Widget build(BuildContext context) {
-            var mediaQueryData = MediaQuery.of(context);
+            var mediaQueryData = MediaQuery.of(context: context);
             return new Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: new List<Widget> {
@@ -72,8 +72,8 @@ namespace ConnectApp.Components {
                                     padding: EdgeInsets.only(top: 16),
                                     decoration: new BoxDecoration(
                                         border: new Border(
-                                            new BorderSide(CColors.Separator2),
-                                            bottom: new BorderSide(CColors.Separator2)
+                                            new BorderSide(color: CColors.Separator2),
+                                            bottom: new BorderSide(color: CColors.Separator2)
                                         )
                                     ),
                                     child: new Row(
@@ -87,7 +87,7 @@ namespace ConnectApp.Components {
                                         padding: EdgeInsets.only(top: 16),
                                         decoration: new BoxDecoration(
                                             border: new Border(
-                                                bottom: new BorderSide(CColors.Separator2)
+                                                bottom: new BorderSide(color: CColors.Separator2)
                                             )
                                         ),
                                         child: new Row(
@@ -124,31 +124,31 @@ namespace ConnectApp.Components {
             if (WechatPlugin.instance().inInstalled()) {
                 shareItems.Add(
                     _buildShareItem(
-                        Icons.WechatIcon,
+                        icon: Icons.WechatIcon,
                         "微信好友",
-                        CColors.White,
-                        CColors.WechatGreen,
-                        () => this.onPressed(ShareType.friends)
+                        color: CColors.White,
+                        background: CColors.WechatGreen,
+                        () => this.onPressed(type: ShareType.friends)
                     )
                 );
                 shareItems.Add(
                     _buildShareItem(
-                        Icons.WechatMoment,
+                        icon: Icons.WechatMoment,
                         "朋友圈",
-                        CColors.White,
-                        CColors.WechatGreen,
-                        () => this.onPressed(ShareType.moments)
+                        color: CColors.White,
+                        background: CColors.WechatGreen,
+                        () => this.onPressed(type: ShareType.moments)
                     )
                 );
             }
 
             shareItems.Add(
                 _buildShareItem(
-                    Icons.insert_link,
+                    icon: Icons.insert_link,
                     "复制链接",
-                    CColors.White,
-                    CColors.PrimaryBlue,
-                    () => this.onPressed(ShareType.clipBoard)
+                    color: CColors.White,
+                    background: CColors.PrimaryBlue,
+                    () => this.onPressed(type: ShareType.clipBoard)
                 )
             );
             return shareItems;
@@ -157,19 +157,19 @@ namespace ConnectApp.Components {
         List<Widget> _buildOtherItems() {
             return new List<Widget> {
                 _buildShareItem(
-                    Icons.block,
+                    icon: Icons.block,
                     "屏蔽",
-                    CColors.BrownGrey,
-                    CColors.White,
-                    () => this.onPressed(ShareType.block),
+                    color: CColors.BrownGrey,
+                    background: CColors.White,
+                    () => this.onPressed(type: ShareType.block),
                     true
                 ),
                 _buildShareItem(
-                    Icons.report,
+                    icon: Icons.report,
                     "投诉",
-                    CColors.BrownGrey,
-                    CColors.White,
-                    () => this.onPressed(ShareType.report),
+                    color: CColors.BrownGrey,
+                    background: CColors.White,
+                    () => this.onPressed(type: ShareType.report),
                     true
                 )
             };
@@ -192,20 +192,18 @@ namespace ConnectApp.Components {
                 },
                 child: new Container(
                     padding: EdgeInsets.symmetric(horizontal: 16),
-                    decoration: new BoxDecoration(
-                        CColors.White
-                    ),
+                    color: CColors.White,
                     child: new Column(children: new List<Widget> {
                         new Container(
                             width: 48,
                             height: 48,
                             decoration: new BoxDecoration(
-                                background,
+                                color: background,
                                 borderRadius: BorderRadius.all(24),
                                 border: border
                             ),
                             child: new Icon(
-                                icon,
+                                icon: icon,
                                 size: 30,
                                 color: color
                             )
@@ -214,7 +212,7 @@ namespace ConnectApp.Components {
                             margin: EdgeInsets.only(top: 8),
                             height: 20,
                             child: new Text(
-                                title,
+                                data: title,
                                 style: CTextStyle.PSmallBody4
                             )
                         )

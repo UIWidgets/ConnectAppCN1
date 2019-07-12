@@ -213,15 +213,18 @@ namespace ConnectApp.screens {
                         CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
                     }
                     else if (type == ShareType.block) {
-                        ReportManager.block(this.widget.viewModel.isLoggedIn, article.id,
-                            this.widget.actionModel.pushToLogin, this.widget.actionModel.pushToBlock,
-                            this.widget.actionModel.mainRouterPop
+                        ReportManager.block(
+                            isLoggedIn: this.widget.viewModel.isLoggedIn,
+                            () => this.widget.actionModel.pushToLogin(),
+                            () => this.widget.actionModel.pushToBlock(article.id),
+                            () => this.widget.actionModel.mainRouterPop()
                         );
                     }
                     else if (type == ShareType.report) {
-                        ReportManager.report(this.widget.viewModel.isLoggedIn, article.id,
-                            ReportType.article, this.widget.actionModel.pushToLogin,
-                            this.widget.actionModel.pushToReport
+                        ReportManager.report(
+                            isLoggedIn: this.widget.viewModel.isLoggedIn,
+                            () => this.widget.actionModel.pushToLogin(),
+                            () => this.widget.actionModel.pushToReport(arg1: article.id, arg2: ReportType.article)
                         );
                     }
                     else {

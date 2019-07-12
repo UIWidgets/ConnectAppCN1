@@ -623,9 +623,11 @@ namespace ConnectApp.screens {
                     isPraised,
                     parentName,
                     parentAuthorId,
-                    () => ReportManager.showReportView(this.widget.viewModel.isLoggedIn,
-                        commentId,
-                        ReportType.comment, this.widget.actionModel.pushToLogin, this.widget.actionModel.pushToReport
+                    () => ReportManager.showReportView(
+                        this.widget.viewModel.isLoggedIn,
+                        ReportType.comment,
+                        () => this.widget.actionModel.pushToLogin(),
+                        () => this.widget.actionModel.pushToReport(commentId, ReportType.comment)
                     ),
                     replyCallBack: () => {
                         if (!this.widget.viewModel.isLoggedIn) {
@@ -700,14 +702,28 @@ namespace ConnectApp.screens {
                 userId = this._article.teamId;
             }
             ShareManager.showArticleShareView(
-                article: this._article,
                 this.widget.viewModel.loginUserId != userId,
                 isLoggedIn: this.widget.viewModel.isLoggedIn,
-                pushToLogin: this.widget.actionModel.pushToLogin,
-                pushToBlock: this.widget.actionModel.pushToBlock,
-                pushToReport: this.widget.actionModel.pushToReport,
-                shareToWechat: this.widget.actionModel.shareToWechat,
-                mainRouterPop: this.widget.actionModel.mainRouterPop
+                () => {
+                    string linkUrl = $"{Config.apiAddress}/p/{this._article.id}";
+                    Clipboard.setData(new ClipboardData(text: linkUrl));
+                    CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
+                },
+                () => this.widget.actionModel.pushToLogin(),
+                () => this.widget.actionModel.pushToBlock(this._article.id),
+                () => this.widget.actionModel.pushToReport(this._article.id, ReportType.article),
+                type => {
+                    CustomDialogUtils.showCustomDialog(
+                        child: new CustomLoadingDialog()
+                    );
+                    string linkUrl = $"{Config.apiAddress}/p/{this._article.id}";
+                    string imageUrl = $"{this._article.thumbnail.url}.200x0x1.jpg";
+                    this.widget.actionModel.shareToWechat(arg1: type, arg2: this._article.title,
+                            arg3: this._article.subTitle, arg4: linkUrl, arg5: imageUrl)
+                        .Then(onResolved: CustomDialogUtils.hiddenCustomDialog)
+                        .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
+                },
+                () => this.widget.actionModel.mainRouterPop()
             );
         }
     }

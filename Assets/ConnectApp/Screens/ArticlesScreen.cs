@@ -15,7 +15,9 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
+using Config = ConnectApp.Constants.Config;
 
 namespace ConnectApp.screens {
     public class ArticlesScreenConnector : StatelessWidget {
@@ -222,13 +224,27 @@ namespace ConnectApp.screens {
                                     AnalyticsManager.ClickEnterArticleDetail("Home_Article", article.id, article.title);
                                 },
                                 () => ShareManager.showArticleShareView(
-                                    article: article,
                                     this.widget.viewModel.currentUserId != userId,
                                     isLoggedIn: this.widget.viewModel.isLoggedIn,
-                                    pushToLogin: this.widget.actionModel.pushToLogin,
-                                    pushToBlock: this.widget.actionModel.pushToBlock,
-                                    pushToReport: this.widget.actionModel.pushToReport,
-                                    shareToWechat: this.widget.actionModel.shareToWechat
+                                    () => {
+                                        string linkUrl = $"{Config.apiAddress}/p/{article.id}";
+                                        Clipboard.setData(new ClipboardData(text: linkUrl));
+                                        CustomDialogUtils.showToast("复制链接成功", iconData: Icons.check_circle_outline);
+                                    },
+                                    () => this.widget.actionModel.pushToLogin(),
+                                    () => this.widget.actionModel.pushToBlock(articleId),
+                                    () => this.widget.actionModel.pushToReport(articleId, ReportType.article),
+                                    type => {
+                                        CustomDialogUtils.showCustomDialog(
+                                            child: new CustomLoadingDialog()
+                                        );
+                                        string linkUrl = $"{Config.apiAddress}/p/{article.id}";
+                                        string imageUrl = $"{article.thumbnail.url}.200x0x1.jpg";
+                                        this.widget.actionModel.shareToWechat(arg1: type, arg2: article.title,
+                                                arg3: article.subTitle, arg4: linkUrl, arg5: imageUrl)
+                                            .Then(onResolved: CustomDialogUtils.hiddenCustomDialog)
+                                            .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
+                                    }
                                 ),
                                 fullName: fullName,
                                 key: new ObjectKey(value: article.id)
