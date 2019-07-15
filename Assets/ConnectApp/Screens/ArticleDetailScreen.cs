@@ -14,8 +14,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -28,12 +28,15 @@ namespace ConnectApp.screens {
     public class ArticleDetailScreenConnector : StatelessWidget {
         public ArticleDetailScreenConnector(
             string articleId,
+            bool isPush = false,
             Key key = null
         ) : base(key: key) {
             this.articleId = articleId;
+            this.isPush = isPush;
         }
 
-        readonly string articleId;
+        public readonly string articleId;
+        public readonly bool isPush;
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ArticleDetailScreenViewModel>(
@@ -87,7 +90,7 @@ namespace ConnectApp.screens {
                         },
                         startFetchArticleDetail = () => dispatcher.dispatch(new StartFetchArticleDetailAction()),
                         fetchArticleDetail = id =>
-                            dispatcher.dispatch<IPromise>(Actions.FetchArticleDetail(id)),
+                            dispatcher.dispatch<IPromise>(Actions.FetchArticleDetail(id, this.isPush)),
                         fetchArticleComments = (channelId, currOldestMessageId) =>
                             dispatcher.dispatch<IPromise>(
                                 Actions.fetchArticleComments(channelId, currOldestMessageId)
@@ -329,7 +332,8 @@ namespace ConnectApp.screens {
                 this._buildContentHead()
             };
             originItems.AddRange(
-                ContentDescription.map(context, this._article.body, this._article.contentMap, this.widget.actionModel.openUrl,
+                ContentDescription.map(context, this._article.body, this._article.contentMap,
+                    this.widget.actionModel.openUrl,
                     this.widget.actionModel.playVideo));
             // originItems.Add(this._buildActionCards(this._article.like));
             originItems.Add(this._buildRelatedArticles());
@@ -411,6 +415,7 @@ namespace ConnectApp.screens {
                     )
                 );
             }
+
             return new CustomAppBar(
                 () => this.widget.actionModel.mainRouterPop(),
                 new Expanded(
@@ -582,6 +587,7 @@ namespace ConnectApp.screens {
                     if (article.ownerType == OwnerType.team.ToString()) {
                         fullName = this._team.name;
                     }
+
                     Widget card = new RelatedArticleCard(
                         article: article,
                         fullName: fullName,
@@ -626,6 +632,7 @@ namespace ConnectApp.screens {
             if (this.widget.viewModel.channelMessageList.ContainsKey(this._article.channelId)) {
                 channelComments = this.widget.viewModel.channelMessageList[this._article.channelId];
             }
+
             var mediaQuery = MediaQuery.of(context);
             var comments = new List<Widget> {
                 new Container(
@@ -641,16 +648,17 @@ namespace ConnectApp.screens {
             };
 
             var titleHeight = CTextUtils.CalculateTextHeight(
-                "评论",
-                CTextStyle.H5,
-                mediaQuery.size.width - 16 * 2, // 16 is horizontal padding
-                null
-            ) + 16; // 16 is top padding
+                                  "评论",
+                                  CTextStyle.H5,
+                                  mediaQuery.size.width - 16 * 2, // 16 is horizontal padding
+                                  null
+                              ) + 16; // 16 is top padding
 
             float safeAreaPadding = 0;
             if (Application.platform != RuntimePlatform.Android) {
                 safeAreaPadding = mediaQuery.padding.vertical;
             }
+
             var height = mediaQuery.size.height - navBarHeight - 44 - safeAreaPadding;
             if (channelComments.Count == 0) {
                 var blankView = new Container(
@@ -684,14 +692,14 @@ namespace ConnectApp.screens {
                 }
 
                 var content = MessageUtils.AnalyzeMessage(message.content, message.mentions,
-                    message.mentionEveryone) + (parentName.isEmpty() ? "" : $"回复@{parentName}");
+                                  message.mentionEveryone) + (parentName.isEmpty() ? "" : $"回复@{parentName}");
                 var contentHeight = CTextUtils.CalculateTextHeight(
-                    content,
-                    CTextStyle.PLargeBody,
-                    // 16 is horizontal padding, 24 is avatar size, 8 is content left margin to avatar
-                    mediaQuery.size.width - 16 * 2 - 24 - 8,
-                    null
-                ) + 16 + 24 + 3 + 5 + 22 + 12;
+                                        content,
+                                        CTextStyle.PLargeBody,
+                                        // 16 is horizontal padding, 24 is avatar size, 8 is content left margin to avatar
+                                        mediaQuery.size.width - 16 * 2 - 24 - 8,
+                                        null
+                                    ) + 16 + 24 + 3 + 5 + 22 + 12;
                 // 16 is top padding, 24 is avatar size, 3 is content top margin to avatar, 5 is content bottom margin to commentTime
                 // 22 is commentTime height, 12 is commentTime bottom margin
                 contentHeights += contentHeight;
@@ -757,6 +765,7 @@ namespace ConnectApp.screens {
                 ));
                 endHeight = 52;
             }
+
             if (titleHeight + contentHeights + endHeight < height) {
                 return new List<Widget> {
                     new Container(
@@ -768,6 +777,7 @@ namespace ConnectApp.screens {
                     )
                 };
             }
+
             return comments;
         }
 
@@ -786,9 +796,11 @@ namespace ConnectApp.screens {
             if (this._article.ownerType == OwnerType.user.ToString()) {
                 userId = this._article.userId;
             }
+
             if (this._article.ownerType == OwnerType.team.ToString()) {
                 userId = this._article.teamId;
             }
+
             ShareManager.showArticleShareView(
                 this.widget.viewModel.loginUserId != userId,
                 isLoggedIn: this.widget.viewModel.isLoggedIn,

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Web;
 using ConnectApp.Constants;
 using ConnectApp.Main;
@@ -49,7 +48,7 @@ namespace ConnectApp.Plugins {
                             var subType = dict["subtype"];
                             var id = dict["id"];
                             AnalyticsManager.ClickNotification(type, subType, id);
-                            pushPage(type, subType, id);
+                            pushPage(type, subType, id, true);
                         }
                             break;
                         case "OnReceiveNotification": {
@@ -127,13 +126,12 @@ namespace ConnectApp.Plugins {
             }
         }
 
-        static void pushPage(string type, string subType, string id) {
+        static void pushPage(string type, string subType, string id, bool isPush = false) {
             if (type == "project") {
                 if (subType == "article") {
                     AnalyticsManager.ClickEnterArticleDetail("Push_Article", id, $"PushArticle_{id}");
-
                     StoreProvider.store.dispatcher.dispatch(
-                        new MainNavigatorPushToArticleDetailAction {articleId = id});
+                        new MainNavigatorPushToArticleDetailAction {articleId = id, isPush = isPush});
                 }
             }
             else if (type == "event") {
