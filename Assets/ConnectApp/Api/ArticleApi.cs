@@ -25,11 +25,15 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static Promise<FetchArticleDetailResponse> FetchArticleDetail(string articleId) {
+        public static Promise<FetchArticleDetailResponse> FetchArticleDetail(string articleId, bool isPush = false) {
             var promise = new Promise<FetchArticleDetailResponse>();
             var para = new Dictionary<string, object> {
                 {"view", "true"}
             };
+            if (isPush) {
+                para.Add("isPush", "true");
+            }
+
             var request = HttpManager.GET($"{Config.apiAddress}/api/p/{articleId}", parameter: para);
             HttpManager.resume(request).Then(responseText => {
                 var articleDetailResponse = JsonConvert.DeserializeObject<FetchArticleDetailResponse>(responseText);
@@ -62,7 +66,7 @@ namespace ConnectApp.Api {
                 type = "project",
                 itemId = articleId
             };
-            var request = HttpManager.POST( $"{Config.apiAddress}/api/like", parameter: para);
+            var request = HttpManager.POST($"{Config.apiAddress}/api/like", parameter: para);
             HttpManager.resume(request).Then(responseText => { promise.Resolve(); })
                 .Catch(exception => { promise.Reject(exception); });
             return promise;

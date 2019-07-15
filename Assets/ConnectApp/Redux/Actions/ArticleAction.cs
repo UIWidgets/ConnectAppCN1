@@ -158,9 +158,9 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object FetchArticleDetail(string articleId) {
+        public static object FetchArticleDetail(string articleId, bool isPush = false) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ArticleApi.FetchArticleDetail(articleId)
+                return ArticleApi.FetchArticleDetail(articleId, isPush)
                     .Then(articleDetailResponse => {
                         if (articleDetailResponse.project.comments.items.Count > 0) {
                             var itemIds = new List<string>();
@@ -255,7 +255,8 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object sendComment(string articleId, string channelId, string content, string nonce, string parentMessageId) {
+        public static object sendComment(string articleId, string channelId, string content, string nonce,
+            string parentMessageId) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ArticleApi.SendComment(channelId, content, nonce, parentMessageId)
                     .Then(message => {

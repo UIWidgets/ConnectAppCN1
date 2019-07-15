@@ -5,11 +5,12 @@ using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -109,6 +110,7 @@ namespace ConnectApp.screens {
             return new CustomSegmentedControl(
                 new List<string> {"即将开始", "往期活动"},
                 newValue => {
+                    AnalyticsManager.ClickEventSegment("MineEvent", 0 == newValue ? "ongoing" : "completed");
                     this.setState(() => this._selectedIndex = newValue);
                     this._pageController.animateToPage(
                         newValue,
