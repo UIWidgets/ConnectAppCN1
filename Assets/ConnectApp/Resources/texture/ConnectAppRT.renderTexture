@@ -12,19 +12,21 @@ RenderTexture:
     Hash: 00000000000000000000000000000000
   m_ForcedFallbackFormat: 4
   m_DownscaleFallback: 0
+  serializedVersion: 3
   m_Width: 2560
   m_Height: 1440
   m_AntiAliasing: 1
   m_DepthFormat: 2
-  m_ColorFormat: 0
+  m_ColorFormat: 8
   m_MipMap: 0
   m_GenerateMips: 1
   m_SRGB: 0
   m_UseDynamicScale: 0
   m_BindMS: 0
+  m_EnableCompatibleFormat: 1
   m_TextureSettings:
     serializedVersion: 2
-    m_FilterMode: 0
+    m_FilterMode: 1
     m_Aniso: 0
     m_MipBias: 0
     m_WrapU: 1
