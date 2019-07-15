@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
+using ConnectApp.Utils;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.widgets;
 
@@ -49,6 +50,7 @@ namespace ConnectApp.screens {
             return new CustomSegmentedControl(
                 new List<string> {"即将开始", "往期活动"},
                 newValue => {
+                    AnalyticsManager.ClickEventSegment("Event", 0 == newValue ? "ongoing" : "completed");
                     this.setState(() => this._selectedIndex = newValue);
                     this._pageController.animateToPage(
                         newValue,
