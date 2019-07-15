@@ -19,7 +19,7 @@ namespace ConnectApp.Utils {
                 "Article_EnterArticle", "Event_EnterEvent", "Notification_EnterNotification", "Mine_EnterMine"
             };
             var mEventId = $"Click_Tab_{entries[toIndex]}";
-            Dictionary<string, string> extras = new Dictionary<string, string>();
+            var extras = new Dictionary<string, string>();
             extras.Add("from", tabs[fromIndex]);
             extras.Add("to", tabs[toIndex]);
             JAnalyticsPlugin.CountEvent(mEventId, extras);
@@ -32,7 +32,7 @@ namespace ConnectApp.Utils {
             }
 
             var mEventId = "Click_Event_Segment";
-            Dictionary<string, string> extras = new Dictionary<string, string>();
+            var extras = new Dictionary<string, string>();
             extras.Add("type", type);
             extras.Add("from", from);
             JAnalyticsPlugin.CountEvent(mEventId, extras);
@@ -45,7 +45,7 @@ namespace ConnectApp.Utils {
             }
 
             var mEventId = "Click_Enter_Search";
-            Dictionary<string, string> extras = new Dictionary<string, string>();
+            var extras = new Dictionary<string, string>();
             extras.Add("from", from);
             JAnalyticsPlugin.CountEvent(mEventId, extras);
         }
@@ -57,7 +57,7 @@ namespace ConnectApp.Utils {
             }
 
             var mEventId = "Click_Enter_ArticleDetail";
-            Dictionary<string, string> extras = new Dictionary<string, string>();
+            var extras = new Dictionary<string, string>();
             extras.Add("from", from);
             extras.Add("id", articleId);
             extras.Add("title", articleTitle);
@@ -70,7 +70,7 @@ namespace ConnectApp.Utils {
             }
 
             var mEventId = "Click_Return_ArticleDetail";
-            Dictionary<string, string> extras = new Dictionary<string, string>();
+            var extras = new Dictionary<string, string>();
             extras.Add("id", articleId);
             extras.Add("title", articleTitle);
             JAnalyticsPlugin.CountEvent(mEventId, extras);
@@ -83,7 +83,7 @@ namespace ConnectApp.Utils {
             }
 
             var mEventId = "Click_Enter_EventDetail";
-            Dictionary<string, string> extras = new Dictionary<string, string>();
+            var extras = new Dictionary<string, string>();
             extras.Add("from", from);
             extras.Add("id", eventId);
             extras.Add("title", eventTitle);
@@ -98,7 +98,7 @@ namespace ConnectApp.Utils {
             }
 
             var mEventId = "Click_Event_Share";
-            Dictionary<string, string> extras = new Dictionary<string, string>();
+            var extras = new Dictionary<string, string>();
             extras.Add("shareType", shareType.ToString());
             extras.Add("type", type);
             extras.Add("id", objectId);
@@ -113,7 +113,7 @@ namespace ConnectApp.Utils {
             }
 
             var mEventId = "Click_Event_Like";
-            Dictionary<string, string> extras = new Dictionary<string, string>();
+            var extras = new Dictionary<string, string>();
             extras.Add("type", type);
             extras.Add("id", articleId);
             if (commentId != null) {
@@ -129,7 +129,7 @@ namespace ConnectApp.Utils {
             }
 
             var mEventId = "Click_Event_Comment";
-            Dictionary<string, string> extras = new Dictionary<string, string>();
+            var extras = new Dictionary<string, string>();
             extras.Add("type", type);
             extras.Add("channelId", channelId);
             extras.Add("title", title);
@@ -146,7 +146,7 @@ namespace ConnectApp.Utils {
             }
 
             var mEventId = "Click_Event_PublishComment";
-            Dictionary<string, string> extras = new Dictionary<string, string>();
+            var extras = new Dictionary<string, string>();
             extras.Add("type", type);
             extras.Add("channelId", channelId);
             if (commentId != null) {
@@ -162,7 +162,7 @@ namespace ConnectApp.Utils {
             }
 
             var mEventId = "Click_Notification";
-            Dictionary<string, string> extras = new Dictionary<string, string>();
+            var extras = new Dictionary<string, string>();
             extras.Add("type", type);
             extras.Add("subtype", subtype);
             extras.Add("id", id);
@@ -175,7 +175,7 @@ namespace ConnectApp.Utils {
             }
 
             var mEventId = "Click_Splash_Page";
-            Dictionary<string, string> extras = new Dictionary<string, string>();
+            var extras = new Dictionary<string, string>();
             extras.Add("id", id);
             extras.Add("name", name);
             extras.Add("url", url);
@@ -188,7 +188,7 @@ namespace ConnectApp.Utils {
             }
 
             var mEventId = "Click_Skip_Splash_Page";
-            Dictionary<string, string> extras = new Dictionary<string, string>();
+            var extras = new Dictionary<string, string>();
             extras.Add("id", id);
             extras.Add("name", name);
             extras.Add("url", url);
@@ -202,7 +202,7 @@ namespace ConnectApp.Utils {
             }
 
             var mEventId = "Click_Search_Hottest_Search";
-            Dictionary<string, string> extras = new Dictionary<string, string>();
+            var extras = new Dictionary<string, string>();
             extras.Add("keyWord", keyWord);
             JAnalyticsPlugin.CountEvent(mEventId, extras);
         }
@@ -213,7 +213,7 @@ namespace ConnectApp.Utils {
             }
 
             var mEventId = "Click_Search_History_Search";
-            Dictionary<string, string> extras = new Dictionary<string, string>();
+            var extras = new Dictionary<string, string>();
             extras.Add("keyWord", keyWord);
             JAnalyticsPlugin.CountEvent(mEventId, extras);
         }
@@ -224,7 +224,7 @@ namespace ConnectApp.Utils {
             }
 
             var mEventId = "Sign_Up_Online_Event";
-            Dictionary<string, string> extras = new Dictionary<string, string>();
+            var extras = new Dictionary<string, string>();
             extras.Add("id", eventId);
             extras.Add("title", title);
             JAnalyticsPlugin.CountEvent(mEventId, extras);
@@ -243,7 +243,7 @@ namespace ConnectApp.Utils {
             }
 
             var mEventId = $"Click_Enter_Mine";
-            Dictionary<string, string> extras = new Dictionary<string, string>();
+            var extras = new Dictionary<string, string>();
             extras.Add("type", type.ToString());
             JAnalyticsPlugin.CountEvent(mEventId, extras);
         }
@@ -255,7 +255,7 @@ namespace ConnectApp.Utils {
             }
 
             var mEventId = "Click_Set_Grade";
-            Dictionary<string, string> extras = new Dictionary<string, string>();
+            var extras = new Dictionary<string, string>();
             JAnalyticsPlugin.CountEvent(mEventId, extras);
         }
 
@@ -265,7 +265,7 @@ namespace ConnectApp.Utils {
             }
 
             var mEventId = "Click_Enter_AboutUs";
-            Dictionary<string, string> extras = new Dictionary<string, string>();
+            var extras = new Dictionary<string, string>();
             JAnalyticsPlugin.CountEvent(mEventId, extras);
         }
 
@@ -275,7 +275,7 @@ namespace ConnectApp.Utils {
             }
 
             var mEventId = "Click_Check_Update";
-            Dictionary<string, string> extras = new Dictionary<string, string>();
+            var extras = new Dictionary<string, string>();
             JAnalyticsPlugin.CountEvent(mEventId, extras);
         }
 
@@ -285,7 +285,7 @@ namespace ConnectApp.Utils {
             }
 
             var mEventId = "Click_Clear_Cache";
-            Dictionary<string, string> extras = new Dictionary<string, string>();
+            var extras = new Dictionary<string, string>();
             JAnalyticsPlugin.CountEvent(mEventId, extras);
         }
 
@@ -296,7 +296,7 @@ namespace ConnectApp.Utils {
             }
 
             var mEventId = "Enter_On_OpenUrl";
-            Dictionary<string, string> extras = new Dictionary<string, string>();
+            var extras = new Dictionary<string, string>();
             extras.Add("url", url);
             JAnalyticsPlugin.CountEvent(mEventId, extras);
         }
@@ -308,7 +308,7 @@ namespace ConnectApp.Utils {
             }
 
             var mEventId = "Enter_App";
-            Dictionary<string, string> extras = new Dictionary<string, string>();
+            var extras = new Dictionary<string, string>();
             extras.Add("app", "unity connect");
             JAnalyticsPlugin.CountEvent(mEventId, extras);
         }
@@ -328,7 +328,7 @@ namespace ConnectApp.Utils {
             }
 
             var mEventId = "Click_Logout";
-            Dictionary<string, string> extras = new Dictionary<string, string>();
+            var extras = new Dictionary<string, string>();
             JAnalyticsPlugin.CountEvent(mEventId, extras);
         }
 

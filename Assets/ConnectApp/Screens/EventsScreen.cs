@@ -50,7 +50,7 @@ namespace ConnectApp.screens {
             return new CustomSegmentedControl(
                 new List<string> {"即将开始", "往期活动"},
                 newValue => {
-                    AnalyticsManager.ClickEventSegment("Event", newValue == 0 ? "ongoing" : "completed");
+                    AnalyticsManager.ClickEventSegment("Event", 0 == newValue ? "ongoing" : "completed");
                     this.setState(() => this._selectedIndex = newValue);
                     this._pageController.animateToPage(
                         newValue,
