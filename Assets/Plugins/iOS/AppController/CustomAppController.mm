@@ -15,6 +15,7 @@
 #include "UIWidgetsMessageManager.h"
 #import "JPushPlugin.h"
 #import <AVFoundation/AVFoundation.h>
+#import "UUIDUtils.h"
 
 static NSString *gameObjectName = @"jpush";
 
@@ -40,7 +41,7 @@ IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
     config.channel = @"appstore";
     [JANALYTICSService setupWithConfig:config];
     [JANALYTICSService crashLogON];
-
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(networkDidRecieveMessage:)
                                                  name:kJPFNetworkDidReceiveMessageNotification
@@ -56,6 +57,7 @@ IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
                                                  name:@"JPushPluginOpenNotification"
                                                object:nil];
     [[JPushEventCache sharedInstance] scheduleNotificationQueue];
+    
     return YES;
 }
 
@@ -152,6 +154,18 @@ extern "C" {
     bool isOpenSensor() {
         return true;
     }
+    const char *getDeviceID()
+    {
+        NSString *result = [UUIDUtils getUUID];
+        if (!result) {
+            return NULL;
+        }
+        const char *s = [result UTF8String];
+        char *r = (char *)malloc(strlen(s) + 1);
+        strcpy(r, s);
+        return r;
+    }
+    
 }
 
 @end

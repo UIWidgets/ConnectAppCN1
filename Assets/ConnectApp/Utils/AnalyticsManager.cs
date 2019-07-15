@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.Api;
 using ConnectApp.Components;
 using ConnectApp.Plugins;
 using UnityEngine;
@@ -302,7 +303,7 @@ namespace ConnectApp.Utils {
         }
 
         public static void EnterApp() {
-            //进入app事件
+//            进入app事件
             if (Application.isEditor) {
                 return;
             }
@@ -349,5 +350,40 @@ namespace ConnectApp.Utils {
             string duration = (endTime - startTime).TotalSeconds.ToString("0.0");
             JAnalyticsPlugin.BrowseEvent(id, name, "EventDetail", duration, null);
         }
+
+        public static void AnalyticsOpenApp() {
+            if (Application.isEditor) {
+                return;
+            }
+
+            AnalyticsApi.OpenApp(UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null, deviceId(),
+                "OpenApp", DateTime.Now, null);
+        }
+
+        public static string deviceId() {
+            return getDeviceID();
+        }
+
+#if UNITY_IOS
+        [DllImport("__Internal")]
+        static extern string getDeviceID();
+
+#elif UNITY_ANDROID
+        static AndroidJavaClass _plugin;
+
+        static AndroidJavaClass Plugin() {
+            if (_plugin == null) {
+                _plugin = new AndroidJavaClass("com.unity3d.unityconnect.plugins.CommonPlugin");
+            }
+
+            return _plugin;
+        }
+
+        static string getDeviceID() {
+            return Plugin().CallStatic<string>("getDeviceID");
+        }
+#else
+        static string getDeviceID() {}
+#endif
     }
 }
