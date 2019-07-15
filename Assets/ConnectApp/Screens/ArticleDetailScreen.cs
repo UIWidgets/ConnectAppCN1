@@ -70,9 +70,12 @@ namespace ConnectApp.screens {
                                 reportType = reportType
                             }
                         ),
-                        browserImage = () => dispatcher.dispatch(new MainNavigatorPushToAction {
-                            routeName = MainNavigatorRoutes.ImageBrowser
-                        }),
+                        browserImage = () => {
+                            return;
+                            dispatcher.dispatch(new MainNavigatorPushToAction {
+                                routeName = MainNavigatorRoutes.ImageBrowser
+                            });
+                        },
                         pushToBlock = articleId => {
                             dispatcher.dispatch(new BlockArticleAction {articleId = articleId});
                             dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = articleId});
