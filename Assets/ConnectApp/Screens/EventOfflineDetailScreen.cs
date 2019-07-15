@@ -27,7 +27,7 @@ namespace ConnectApp.screens {
         public EventOfflineDetailScreenConnector(
             string eventId,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.eventId = eventId;
         }
 
@@ -49,6 +49,11 @@ namespace ConnectApp.screens {
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
+                        pushToUserDetail = userId => dispatcher.dispatch(
+                            new MainNavigatorPushToUserDetailAction {
+                                userId = userId
+                            }
+                        ),
                         openUrl = url => dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
                             url = url
                         }),
@@ -73,7 +78,7 @@ namespace ConnectApp.screens {
             EventDetailScreenViewModel viewModel = null,
             EventDetailScreenActionModel actionModel = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
@@ -183,6 +188,7 @@ namespace ConnectApp.screens {
                             true,
                             eventObj,
                             this.widget.actionModel.openUrl,
+                            pushToUserDetail: this.widget.actionModel.pushToUserDetail,
                             titleKey: eventTitleKey
                         ),
                         new Positioned(

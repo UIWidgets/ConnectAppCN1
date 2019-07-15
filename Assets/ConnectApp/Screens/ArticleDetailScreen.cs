@@ -14,8 +14,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -63,19 +63,24 @@ namespace ConnectApp.screens {
                         pushToArticleDetail = id => dispatcher.dispatch(
                             new MainNavigatorPushToArticleDetailAction {
                                 articleId = id
-                            }),
+                            }
+                        ),
+                        pushToUserDetail = userId => dispatcher.dispatch(
+                            new MainNavigatorPushToUserDetailAction {
+                                userId = userId
+                            }
+                        ),
+                        pushToTeamDetail = teamId => dispatcher.dispatch(
+                            new MainNavigatorPushToTeamDetailAction {
+                                teamId = teamId
+                            }
+                        ),
                         pushToReport = (reportId, reportType) => dispatcher.dispatch(
                             new MainNavigatorPushToReportAction {
                                 reportId = reportId,
                                 reportType = reportType
                             }
                         ),
-                        browserImage = () => {
-                            return;
-                            dispatcher.dispatch(new MainNavigatorPushToAction {
-                                routeName = MainNavigatorRoutes.ImageBrowser
-                            });
-                        },
                         pushToBlock = articleId => {
                             dispatcher.dispatch(new BlockArticleAction {articleId = articleId});
                             dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = articleId});
@@ -156,6 +161,7 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
+            StatusBarManager.statusBarStyle(false);
             this._refreshController = new RefreshController();
             this._isHaveTitle = false;
             this._titleHeight = 0.0f;
@@ -323,9 +329,9 @@ namespace ConnectApp.screens {
                 this._buildContentHead()
             };
             originItems.AddRange(
-                ContentDescription.map(context, this._article.body, this._article.contentMap,
-                    this.widget.actionModel.openUrl,
-                    this.widget.actionModel.playVideo, () => { this.widget.actionModel.browserImage(); }));
+                ContentDescription.map(context, this._article.body, this._article.contentMap, this.widget.actionModel.openUrl,
+                    this.widget.actionModel.playVideo));
+            // originItems.Add(this._buildActionCards(this._article.like));
             originItems.Add(this._buildRelatedArticles());
             commentIndex = originItems.Count;
             originItems.AddRange(this._buildComments(context: context));
@@ -405,12 +411,8 @@ namespace ConnectApp.screens {
                     )
                 );
             }
-
             return new CustomAppBar(
-                () => {
-                    AnalyticsManager.ClickReturnArticleDetail(this._article?.id, this._article?.title);
-                    this.widget.actionModel.mainRouterPop();
-                },
+                () => this.widget.actionModel.mainRouterPop(),
                 new Expanded(
                     child: new Stack(
                         fit: StackFit.expand,
@@ -455,10 +457,12 @@ namespace ConnectApp.screens {
 
         Widget _buildContentHead() {
             Widget _avatar = this._article.ownerType == OwnerType.user.ToString()
-                ? Avatar.User(this._user.id, this._user, 32)
-                : Avatar.Team(this._team.id, this._team, 32);
+                ? Avatar.User(this._user, 32)
+                : Avatar.Team(this._team, 32);
 
-            var text = this._article.ownerType == "user" ? this._user.fullName : this._team.name;
+            var text = this._article.ownerType == "user"
+                ? this._user.fullName ?? this._user.name
+                : this._team.name;
             var description = this._article.ownerType == "user" ? this._user.title : "";
             var time = this._article.lastPublishedTime == null
                 ? this._article.publishedTime
@@ -488,26 +492,34 @@ namespace ConnectApp.screens {
                                 style: CTextStyle.PSmallBody4
                             )
                         ),
-                        new Container(
-                            margin: EdgeInsets.only(top: 24, bottom: 24),
-                            child: new Row(
-                                children: new List<Widget> {
-                                    new Container(
-                                        margin: EdgeInsets.only(right: 8),
-                                        child: _avatar
-                                    ),
-                                    new Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: new List<Widget> {
-                                            new Text(
-                                                text,
-                                                style: CTextStyle.PRegularBody
-                                            ),
-                                            descriptionWidget
-                                        }
-                                    )
+                        new GestureDetector(
+                            onTap: () => {
+                                if (this._article.ownerType == OwnerType.user.ToString()) {
+                                    this.widget.actionModel.pushToUserDetail(this._user.id);
                                 }
+                            },
+                            child: new Container(
+                                margin: EdgeInsets.only(top: 24, bottom: 24),
+                                child: new Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: new List<Widget> {
+                                        new Container(
+                                            margin: EdgeInsets.only(right: 8),
+                                            child: _avatar
+                                        ),
+                                        new Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: new List<Widget> {
+                                                new Text(
+                                                    text,
+                                                    style: CTextStyle.PRegularBody
+                                                ),
+                                                descriptionWidget
+                                            }
+                                        )
+                                    }
+                                )
                             )
                         ),
                         this._article.subTitle.isEmpty()
@@ -562,26 +574,23 @@ namespace ConnectApp.screens {
             relatedArticles.ForEach(article => {
                 //对文章进行过滤
                 if (article.id != this._article.id) {
-                    Widget card;
+                    var fullName = "";
                     if (article.ownerType == OwnerType.user.ToString()) {
-                        card = RelatedArticleCard.User(article, this._user,
-                            () => {
-                                AnalyticsManager.ClickEnterArticleDetail("ArticleDetail_Related", article.id,
-                                    article.title);
-                                this.widget.actionModel.pushToArticleDetail(article.id);
-                            },
-                            new ObjectKey(article.id));
-                    }
-                    else {
-                        card = RelatedArticleCard.Team(article, this._team,
-                            () => {
-                                AnalyticsManager.ClickEnterArticleDetail("ArticleDetail_Related", article.id,
-                                    article.title);
-                                this.widget.actionModel.pushToArticleDetail(article.id);
-                            },
-                            new ObjectKey(article.id));
+                        fullName = this._user.fullName ?? this._user.name;
                     }
 
+                    if (article.ownerType == OwnerType.team.ToString()) {
+                        fullName = this._team.name;
+                    }
+                    Widget card = new RelatedArticleCard(
+                        article: article,
+                        fullName: fullName,
+                        () => {
+                            AnalyticsManager.ClickEnterArticleDetail("ArticleDetail_Related", article.id,
+                                article.title);
+                            this.widget.actionModel.pushToArticleDetail(article.id);
+                        },
+                        key: new ObjectKey(article.id));
                     widgets.Add(card);
                 }
             });
@@ -617,7 +626,6 @@ namespace ConnectApp.screens {
             if (this.widget.viewModel.channelMessageList.ContainsKey(this._article.channelId)) {
                 channelComments = this.widget.viewModel.channelMessageList[this._article.channelId];
             }
-
             var mediaQuery = MediaQuery.of(context);
             var comments = new List<Widget> {
                 new Container(
@@ -633,13 +641,17 @@ namespace ConnectApp.screens {
             };
 
             var titleHeight = CTextUtils.CalculateTextHeight(
-                                  "评论",
-                                  CTextStyle.H5,
-                                  mediaQuery.size.width - 16 * 2, // 16 is horizontal padding
-                                  null
-                              ) + 16; // 16 is top padding
+                "评论",
+                CTextStyle.H5,
+                mediaQuery.size.width - 16 * 2, // 16 is horizontal padding
+                null
+            ) + 16; // 16 is top padding
 
-            var height = mediaQuery.size.height - navBarHeight - 44 - mediaQuery.padding.vertical;
+            float safeAreaPadding = 0;
+            if (Application.platform != RuntimePlatform.Android) {
+                safeAreaPadding = mediaQuery.padding.vertical;
+            }
+            var height = mediaQuery.size.height - navBarHeight - 44 - safeAreaPadding;
             if (channelComments.Count == 0) {
                 var blankView = new Container(
                     height: height - titleHeight,
@@ -662,22 +674,24 @@ namespace ConnectApp.screens {
                 var message = messageDict[commentId];
                 bool isPraised = _isPraised(message, this.widget.viewModel.loginUserId);
                 var parentName = "";
+                var parentAuthorId = "";
                 if (message.parentMessageId.isNotEmpty()) {
                     if (messageDict.ContainsKey(message.parentMessageId)) {
                         var parentMessage = messageDict[message.parentMessageId];
                         parentName = parentMessage.author.fullName;
+                        parentAuthorId = parentMessage.author.id;
                     }
                 }
 
                 var content = MessageUtils.AnalyzeMessage(message.content, message.mentions,
-                                  message.mentionEveryone) + (parentName.isEmpty() ? "" : $"回复@{parentName}");
+                    message.mentionEveryone) + (parentName.isEmpty() ? "" : $"回复@{parentName}");
                 var contentHeight = CTextUtils.CalculateTextHeight(
-                                        content,
-                                        CTextStyle.PLargeBody,
-                                        // 16 is horizontal padding, 24 is avatar size, 8 is content left margin to avatar
-                                        mediaQuery.size.width - 16 * 2 - 24 - 8,
-                                        null
-                                    ) + 16 + 24 + 3 + 5 + 22 + 12;
+                    content,
+                    CTextStyle.PLargeBody,
+                    // 16 is horizontal padding, 24 is avatar size, 8 is content left margin to avatar
+                    mediaQuery.size.width - 16 * 2 - 24 - 8,
+                    null
+                ) + 16 + 24 + 3 + 5 + 22 + 12;
                 // 16 is top padding, 24 is avatar size, 3 is content top margin to avatar, 5 is content bottom margin to commentTime
                 // 22 is commentTime height, 12 is commentTime bottom margin
                 contentHeights += contentHeight;
@@ -685,9 +699,12 @@ namespace ConnectApp.screens {
                     message,
                     isPraised,
                     parentName,
-                    () => ReportManager.showReportView(this.widget.viewModel.isLoggedIn,
-                        commentId,
-                        ReportType.comment, this.widget.actionModel.pushToLogin, this.widget.actionModel.pushToReport
+                    parentAuthorId,
+                    () => ReportManager.showReportView(
+                        this.widget.viewModel.isLoggedIn,
+                        ReportType.comment,
+                        () => this.widget.actionModel.pushToLogin(),
+                        () => this.widget.actionModel.pushToReport(commentId, ReportType.comment)
                     ),
                     replyCallBack: () => {
                         if (!this.widget.viewModel.isLoggedIn) {
@@ -721,7 +738,9 @@ namespace ConnectApp.screens {
                                 this.widget.actionModel.likeComment(message);
                             }
                         }
-                    });
+                    },
+                    pushToUserDetail: this.widget.actionModel.pushToUserDetail
+                );
                 comments.Add(card);
             }
 
@@ -738,7 +757,6 @@ namespace ConnectApp.screens {
                 ));
                 endHeight = 52;
             }
-
             if (titleHeight + contentHeights + endHeight < height) {
                 return new List<Widget> {
                     new Container(
@@ -750,7 +768,6 @@ namespace ConnectApp.screens {
                     )
                 };
             }
-
             return comments;
         }
 
@@ -765,39 +782,37 @@ namespace ConnectApp.screens {
         }
 
         void share() {
-            ShareUtils.showShareView(new ShareView(
-                projectType: ProjectType.article,
-                onPressed: type => {
-                    AnalyticsManager.ClickShare(type, "Article", "Article_" + this._article.id, this._article.title);
+            var userId = "";
+            if (this._article.ownerType == OwnerType.user.ToString()) {
+                userId = this._article.userId;
+            }
+            if (this._article.ownerType == OwnerType.team.ToString()) {
+                userId = this._article.teamId;
+            }
+            ShareManager.showArticleShareView(
+                this.widget.viewModel.loginUserId != userId,
+                isLoggedIn: this.widget.viewModel.isLoggedIn,
+                () => {
                     string linkUrl = $"{Config.apiAddress}/p/{this._article.id}";
-                    if (type == ShareType.clipBoard) {
-                        Clipboard.setData(new ClipboardData(linkUrl));
-                        CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
-                    }
-                    else if (type == ShareType.block) {
-                        ReportManager.block(this.widget.viewModel.isLoggedIn, this._article.id,
-                            this.widget.actionModel.pushToLogin, this.widget.actionModel.pushToBlock,
-                            this.widget.actionModel.mainRouterPop
-                        );
-                    }
-                    else if (type == ShareType.report) {
-                        ReportManager.report(this.widget.viewModel.isLoggedIn, this._article.id,
-                            ReportType.article, this.widget.actionModel.pushToLogin,
-                            this.widget.actionModel.pushToReport
-                        );
-                    }
-                    else {
-                        CustomDialogUtils.showCustomDialog(
-                            child: new CustomLoadingDialog()
-                        );
-                        string imageUrl = $"{this._article.thumbnail.url}.200x0x1.jpg";
-                        this.widget.actionModel.shareToWechat(type, this._article.title, this._article.subTitle,
-                                linkUrl,
-                                imageUrl).Then(CustomDialogUtils.hiddenCustomDialog)
-                            .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
-                    }
-                }
-            ));
+                    Clipboard.setData(new ClipboardData(text: linkUrl));
+                    CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
+                },
+                () => this.widget.actionModel.pushToLogin(),
+                () => this.widget.actionModel.pushToBlock(this._article.id),
+                () => this.widget.actionModel.pushToReport(this._article.id, ReportType.article),
+                type => {
+                    CustomDialogUtils.showCustomDialog(
+                        child: new CustomLoadingDialog()
+                    );
+                    string linkUrl = $"{Config.apiAddress}/p/{this._article.id}";
+                    string imageUrl = $"{this._article.thumbnail.url}.200x0x1.jpg";
+                    this.widget.actionModel.shareToWechat(arg1: type, arg2: this._article.title,
+                            arg3: this._article.subTitle, arg4: linkUrl, arg5: imageUrl)
+                        .Then(onResolved: CustomDialogUtils.hiddenCustomDialog)
+                        .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
+                },
+                () => this.widget.actionModel.mainRouterPop()
+            );
         }
     }
 }

@@ -23,7 +23,7 @@ namespace ConnectApp.Main {
         }
 
         static void CustomFrameRateCoolDown() {
-            Application.targetFrameRate = 30;
+            Application.targetFrameRate = 60;
         }
 
         static void LoadFonts() {

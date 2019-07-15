@@ -5,7 +5,6 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
-using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
@@ -77,12 +76,12 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             base.build(context: context);
-            var data = this.widget.viewModel.pastEventsList;
-            if (this.widget.viewModel.pastListLoading && data.isEmpty()) {
+            var pastEventsList = this.widget.viewModel.pastEventsList;
+            if (this.widget.viewModel.pastListLoading && pastEventsList.isEmpty()) {
                 return new GlobalLoading();
             }
 
-            if (data.Count <= 0) {
+            if (pastEventsList.Count <= 0) {
                 return new BlankView(
                     "还没有参与过的活动",
                     "image/default-event",
@@ -95,7 +94,8 @@ namespace ConnectApp.screens {
             }
 
             var pastEventTotal = this.widget.viewModel.pastEventTotal;
-            var hasMore = pastEventTotal != data.Count;
+            var hasMore = pastEventTotal != pastEventsList.Count;
+            var itemCount = hasMore ? pastEventsList.Count : pastEventsList.Count + 1;
 
             return new Container(
                 color: CColors.Background,
@@ -107,28 +107,30 @@ namespace ConnectApp.screens {
                         onRefresh: this._onRefresh,
                         child: ListView.builder(
                             physics: new AlwaysScrollableScrollPhysics(),
-                            itemCount: data.Count,
-                            itemBuilder: (cxt, index) => {
-                                var model = data[index];
-                                var eventType = model.mode == "online" ? EventType.online : EventType.offline;
-                                var placeName = model.placeId.isEmpty()
-                                    ? null
-                                    : this.widget.viewModel.placeDict[model.placeId].name;
-                                return new EventCard(
-                                    model,
-                                    placeName,
-                                    () => {
-                                        AnalyticsManager.ClickEnterEventDetail("MinePastEvent", model.id, model.title,
-                                            model.mode);
-                                        this.widget.actionModel.pushToEventDetail(model.id, eventType);
-                                    },
-                                    new ObjectKey(model.id),
-                                    index == 0
-                                );
-                            }
+                            itemCount: itemCount,
+                            itemBuilder: this._buildEventCard
                         )
                     )
                 )
+            );
+        }
+
+        Widget _buildEventCard(BuildContext context, int index) {
+            var pastEventsList = this.widget.viewModel.pastEventsList;
+            if (index == pastEventsList.Count) {
+                return new EndView();
+            }
+            var model = pastEventsList[index: index];
+            var eventType = model.mode == "online" ? EventType.online : EventType.offline;
+            var placeName = model.placeId.isEmpty()
+                ? null
+                : this.widget.viewModel.placeDict[key: model.placeId].name;
+            return new EventCard(
+                model: model,
+                place: placeName,
+                () => this.widget.actionModel.pushToEventDetail(arg1: model.id, arg2: eventType),
+                index == 0,
+                new ObjectKey(value: model.id)
             );
         }
 

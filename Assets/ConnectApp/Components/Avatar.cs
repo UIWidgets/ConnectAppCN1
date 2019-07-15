@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
-using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
@@ -17,56 +16,48 @@ namespace ConnectApp.Components {
 
     public class Avatar : StatelessWidget {
         Avatar(
-            string id,
+            string avatarUrl,
+            string fullName,
             float size = 36,
             OwnerType type = OwnerType.user,
-            User user = null,
-            Team team = null,
             Key key = null
-        ) : base(key) {
-            D.assert(id != null);
-            this.id = id;
-            this.user = user ?? new User();
-            this.team = team ?? new Team();
+        ) : base(key: key) {
+            this.avatarUrl = avatarUrl ?? "";
+            this.fullName = fullName ?? "";
             this.size = size;
             this.type = type;
         }
 
         public static Avatar User(
-            string id,
-            User user = null,
+            User user,
             float size = 36,
             Key key = null
         ) {
             return new Avatar(
-                id,
-                size,
-                OwnerType.user,
-                user,
+                avatarUrl: user.avatar,
+                user.fullName ?? user.name,
+                size: size,
+                type: OwnerType.user,
                 key: key
             );
         }
 
         public static Avatar Team(
-            string id,
-            Team team = null,
+            Team team,
             float size = 36,
             Key key = null
         ) {
             return new Avatar(
-                id,
-                size,
-                OwnerType.team,
-                null,
-                team,
-                key
+                avatarUrl: team.avatar,
+                fullName: team.name,
+                size: size,
+                type: OwnerType.team,
+                key: key
             );
         }
 
-
-        readonly string id;
-        readonly User user;
-        readonly Team team;
+        readonly string avatarUrl;
+        readonly string fullName;
         readonly float size;
         readonly OwnerType type;
 
@@ -75,37 +66,48 @@ namespace ConnectApp.Components {
                 return this._buildTeamAvatar();
             }
 
-            var avatarUrl = this.user.avatar ?? "";
-            var fullName = this.user.fullName ?? this.user.name;
-            var result = _extractName(fullName) ?? "";
-            return new ClipRRect(
-                borderRadius: BorderRadius.circular(this.size / 2),
-                child: avatarUrl.isEmpty()
-                    ? new Container(
-                        child: new _Placeholder(result, this.size)
+            return new Container(
+                width: this.size,
+                height: this.size,
+                decoration: new BoxDecoration(
+                    borderRadius: BorderRadius.circular(this.size / 2),
+                    border: Border.all(
+                        color: CColors.White,
+                        2
                     )
-                    : new Container(
-                        width: this.size,
-                        height: this.size,
-                        color: new Color(0xFFD8D8D8),
-                        child: Image.network(avatarUrl)
-                    )
+                ),
+                child: new ClipRRect(
+                    borderRadius: BorderRadius.circular(this.size / 2),
+                    child: this.avatarUrl.isEmpty()
+                        ? new Container(
+                            child: new _Placeholder(
+                                _extractName(name: this.fullName) ?? "",
+                                this.size - 4
+                            )
+                        )
+                        : new Container(
+                            width: this.size - 4,
+                            height: this.size - 4,
+                            color: new Color(0xFFD8D8D8),
+                            child: Image.network(src: this.avatarUrl)
+                        )
+                )
             );
         }
 
         Widget _buildTeamAvatar() {
-            var avatarUrl = this.team.avatar ?? "";
-            var name = this.team.name;
-            var result = _extractName(name) ?? "";
-            if (avatarUrl.Length <= 0) {
-                return new _Placeholder(result, this.size);
+            if (this.avatarUrl.isEmpty()) {
+                return new _Placeholder(
+                    _extractName(name: this.fullName) ?? "",
+                    size: this.size
+                );
             }
 
             return new Container(
                 width: this.size,
                 height: this.size,
                 color: new Color(0xFFD8D8D8),
-                child: Image.network(avatarUrl)
+                child: Image.network(src: this.avatarUrl)
             );
         }
 
@@ -137,14 +139,14 @@ namespace ConnectApp.Components {
             string title,
             float size = 36,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             D.assert(title != null);
             this.title = title;
             this.size = size;
         }
 
-        public readonly string title;
-        public readonly float size;
+        readonly string title;
+        readonly float size;
 
         public override Widget build(BuildContext context) {
             return new Container(
@@ -171,7 +173,8 @@ namespace ConnectApp.Components {
                             fontFamily: "Roboto-Medium",
                             fontSize: this.size * 0.45f
                         )
-                    ))
+                    )
+                )
             );
         }
     }

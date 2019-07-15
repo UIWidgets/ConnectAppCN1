@@ -47,6 +47,8 @@ namespace ConnectApp.Constants {
         public static readonly IconData fullscreen = new IconData(0xe5d0, "Material Icons");
         public static readonly IconData fullscreen_exit = new IconData(0xe5d1, "Material Icons");
         public static readonly IconData pause = new IconData(0xe034, "Material Icons");
+        public static readonly IconData more_horiz = new IconData(0xe5d3, "Material Icons");
+        public static readonly IconData check = new IconData(0xe5ca, "Material Icons");
     }
 
     public static class CTextStyle {
@@ -97,6 +99,13 @@ namespace ConnectApp.Constants {
             fontSize: 24,
             fontFamily: "Roboto-Medium",
             color: CColors.TextTitle
+        );
+        
+        public static readonly TextStyle H4White = new TextStyle(
+            height: 1.18f,
+            fontSize: 24,
+            fontFamily: "Roboto-Medium",
+            color: CColors.White
         );
 
         public static readonly TextStyle H5 = new TextStyle(
@@ -218,6 +227,12 @@ namespace ConnectApp.Constants {
             fontSize: 16,
             fontFamily: "Roboto-Regular",
             color: CColors.Disable2
+        );
+        
+        public static readonly TextStyle PMediumWhite = new TextStyle(
+            fontSize: 14,
+            fontFamily: "Roboto-Medium",
+            color: CColors.White
         );
 
         public static readonly TextStyle PMediumBlue = new TextStyle(

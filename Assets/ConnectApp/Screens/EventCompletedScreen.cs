@@ -6,7 +6,6 @@ using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
-using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
@@ -45,7 +44,7 @@ namespace ConnectApp.screens {
             EventsScreenViewModel viewModel = null,
             EventsScreenActionModel actionModel = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
@@ -80,11 +79,12 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             base.build(context: context);
-            if (this.widget.viewModel.eventCompletedLoading && this.widget.viewModel.completedEvents.isEmpty()) {
+            var completedEvents = this.widget.viewModel.completedEvents;
+            if (this.widget.viewModel.eventCompletedLoading && completedEvents.isEmpty()) {
                 return new GlobalLoading();
             }
 
-            if (this.widget.viewModel.completedEvents.Count <= 0) {
+            if (completedEvents.Count <= 0) {
                 return new BlankView(
                     "暂无往期活动，看看新活动吧",
                     "image/default-event",
@@ -96,42 +96,45 @@ namespace ConnectApp.screens {
                 );
             }
 
+            var enablePullUp = completedEvents.Count < this.widget.viewModel.completedEventTotal;
+            var itemCount = enablePullUp ? completedEvents.Count : completedEvents.Count + 1;
             return new Container(
                 color: CColors.Background,
                 child: new CustomScrollbar(
                     new SmartRefresher(
                         controller: this._completedRefreshController,
                         enablePullDown: true,
-                        enablePullUp: this.widget.viewModel.completedEvents.Count <
-                                      this.widget.viewModel.completedEventTotal,
+                        enablePullUp: enablePullUp,
                         onRefresh: this._completedRefresh,
                         child: ListView.builder(
                             physics: new AlwaysScrollableScrollPhysics(),
-                            itemCount: this.widget.viewModel.completedEvents.Count,
-                            itemBuilder: (cxt, index) => {
-                                var eventId = this.widget.viewModel.completedEvents[index];
-                                var model = this.widget.viewModel.eventsDict[eventId];
-                                var place = model.placeId.isEmpty()
-                                    ? new Place()
-                                    : this.widget.viewModel.placeDict[model.placeId];
-                                return new EventCard(
-                                    model,
-                                    place.name,
-                                    () => {
-                                        AnalyticsManager.ClickEnterEventDetail("Home_Event_Completed", model.id,
-                                            model.title, model.mode);
-                                        this.widget.actionModel.pushToEventDetail(
-                                            model.id,
-                                            model.mode == "online" ? EventType.online : EventType.offline
-                                        );
-                                    },
-                                    new ObjectKey(model.id),
-                                    index == 0
-                                );
-                            }
+                            itemCount: itemCount,
+                            itemBuilder: this._buildEventCard
                         )
                     )
                 )
+            );
+        }
+
+        Widget _buildEventCard(BuildContext context, int index) {
+            var completedEvents = this.widget.viewModel.completedEvents;
+            if (index == completedEvents.Count) {
+                return new EndView();
+            }
+            var eventId = completedEvents[index: index];
+            var model = this.widget.viewModel.eventsDict[key: eventId];
+            var place = model.placeId.isEmpty()
+                ? new Place()
+                : this.widget.viewModel.placeDict[key: model.placeId];
+            return new EventCard(
+                model: model,
+                place: place.name,
+                () => this.widget.actionModel.pushToEventDetail(
+                    arg1: model.id,
+                    model.mode == "online" ? EventType.online : EventType.offline
+                ),
+                index == 0,
+                new ObjectKey(value: model.id)
             );
         }
 

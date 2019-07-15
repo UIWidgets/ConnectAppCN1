@@ -5,7 +5,6 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
-using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
@@ -65,19 +64,16 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildEventCard(BuildContext context, int index) {
-            var model = this.viewModel.eventHistory[index];
+            var model = this.viewModel.eventHistory[index: index];
             var eventType = model.mode == "online" ? EventType.online : EventType.offline;
             return CustomDismissible.builder(
                 Key.key(model.id),
                 new EventCard(
-                    model,
-                    model.place,
-                    () => {
-                        AnalyticsManager.ClickEnterEventDetail("MineHistory", model.id, model.title, model.mode);
-                        this.actionModel.pushToEventDetail(model.id, eventType);
-                    },
-                    new ObjectKey(model.id),
-                    index == 0
+                    model: model,
+                    place: model.place,
+                    () => this.actionModel.pushToEventDetail(model.id, eventType),
+                    index == 0,
+                    new ObjectKey(value: model.id)
                 ),
                 new CustomDismissibleDrawerDelegate(),
                 secondaryActions: new List<Widget> {

@@ -44,7 +44,9 @@ namespace ConnectApp.Utils {
             var user = new User {
                 fullName = info.userFullName,
                 id = info.userId,
-                avatar = info.userAvatar
+                avatar = info.userAvatar,
+                title = info.title,
+                coverImage = info.coverImageWithCDN
             };
             return new Dictionary<string, User> {{user.id, user}};
         }

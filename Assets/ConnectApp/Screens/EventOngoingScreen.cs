@@ -5,7 +5,6 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
-using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
@@ -80,11 +79,12 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             base.build(context: context);
-            if (this.widget.viewModel.eventOngoingLoading && this.widget.viewModel.ongoingEvents.isEmpty()) {
+            var ongoingEvents = this.widget.viewModel.ongoingEvents;
+            if (this.widget.viewModel.eventOngoingLoading && ongoingEvents.isEmpty()) {
                 return new GlobalLoading();
             }
 
-            if (this.widget.viewModel.ongoingEvents.Count <= 0) {
+            if (ongoingEvents.Count <= 0) {
                 return new BlankView(
                     "暂无新活动，看看往期活动吧",
                     "image/default-event",
@@ -96,42 +96,45 @@ namespace ConnectApp.screens {
                 );
             }
 
+            var enablePullUp = ongoingEvents.Count < this.widget.viewModel.ongoingEventTotal;
+            var itemCount = enablePullUp ? ongoingEvents.Count : ongoingEvents.Count + 1;
             return new Container(
                 color: CColors.Background,
                 child: new CustomScrollbar(
                     new SmartRefresher(
                         controller: this._ongoingRefreshController,
                         enablePullDown: true,
-                        enablePullUp: this.widget.viewModel.ongoingEvents.Count <
-                                      this.widget.viewModel.ongoingEventTotal,
+                        enablePullUp: enablePullUp,
                         onRefresh: this._ongoingRefresh,
                         child: ListView.builder(
                             physics: new AlwaysScrollableScrollPhysics(),
-                            itemCount: this.widget.viewModel.ongoingEvents.Count,
-                            itemBuilder: (cxt, index) => {
-                                var eventId = this.widget.viewModel.ongoingEvents[index];
-                                var model = this.widget.viewModel.eventsDict[eventId];
-                                var placeName = model.placeId.isEmpty()
-                                    ? null
-                                    : this.widget.viewModel.placeDict[model.placeId].name;
-                                return new EventCard(
-                                    model,
-                                    placeName,
-                                    () => {
-                                        AnalyticsManager.ClickEnterEventDetail("Home_Event_Ongoing", model.id,
-                                            model.title, model.mode);
-                                        this.widget.actionModel.pushToEventDetail(
-                                            model.id,
-                                            model.mode == "online" ? EventType.online : EventType.offline
-                                        );
-                                    },
-                                    new ObjectKey(model.id),
-                                    index == 0
-                                );
-                            }
+                            itemCount: itemCount,
+                            itemBuilder: this._buildEventCard
                         )
                     )
                 )
+            );
+        }
+
+        Widget _buildEventCard(BuildContext context, int index) {
+            var ongoingEvents = this.widget.viewModel.ongoingEvents;
+            if (index == ongoingEvents.Count) {
+                return new EndView();
+            }
+            var eventId = ongoingEvents[index: index];
+            var model = this.widget.viewModel.eventsDict[key: eventId];
+            var placeName = model.placeId.isEmpty()
+                ? null
+                : this.widget.viewModel.placeDict[key: model.placeId].name;
+            return new EventCard(
+                model: model,
+                place: placeName,
+                () => this.widget.actionModel.pushToEventDetail(
+                    arg1: model.id,
+                    model.mode == "online" ? EventType.online : EventType.offline
+                ),
+                index == 0,
+                new ObjectKey(value: model.id)
             );
         }
 

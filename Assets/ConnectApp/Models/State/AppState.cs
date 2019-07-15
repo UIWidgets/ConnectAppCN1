@@ -17,6 +17,7 @@ namespace ConnectApp.Models.State {
         public UserState userState { get; set; }
         public TeamState teamState { get; set; }
         public PlaceState placeState { get; set; }
+        public FollowState followState { get; set; }
         public MineState mineState { get; set; }
         public MessageState messageState { get; set; }
         public SettingState settingState { get; set; }
@@ -58,15 +59,23 @@ namespace ConnectApp.Models.State {
                     channelId = ""
                 },
                 popularSearchState = new PopularSearchState {
-                    popularSearchs = new List<PopularSearch>()
+                    popularSearchArticles = new List<PopularSearch>(),
+                    popularSearchUsers = new List<PopularSearch>()
                 },
                 searchState = new SearchState {
-                    loading = false,
+                    searchArticleLoading = false,
+                    searchUserLoading = false,
+                    searchFollowingLoading = false,
                     keyword = "",
-                    searchArticles = new List<Article>(),
-                    currentPage = 0,
-                    pages = new List<int>(),
-                    searchHistoryList = HistoryManager.searchHistoryList(isLogin ? loginInfo.userId : null),
+                    searchFollowingKeyword = "",
+                    searchArticles = new Dictionary<string, List<Article>>(),
+                    searchUsers = new Dictionary<string, List<User>>(),
+                    searchFollowings = new List<User>(),
+                    searchArticleCurrentPage = 0,
+                    searchArticlePages = new List<int>(),
+                    searchUserHasMore = false,
+                    searchFollowingHasMore = false,
+                    searchArticleHistoryList = HistoryManager.searchArticleHistoryList(isLogin ? loginInfo.userId : null)
                 },
                 notificationState = new NotificationState {
                     loading = false,
@@ -74,13 +83,33 @@ namespace ConnectApp.Models.State {
                     mentions = new List<User>()
                 },
                 userState = new UserState {
-                    userDict = UserInfoManager.initUserDict()
+                    userLoading = false,
+                    userArticleLoading = false,
+                    followUserLoading = false,
+                    followingLoading = false,
+                    followerLoading = false,
+                    userDict = UserInfoManager.initUserDict(),
+                    currentFollowId = "",
+                    fullName = "",
+                    title = "",
+                    jobRole = new JobRole(),
+                    place = ""
                 },
                 teamState = new TeamState {
-                    teamDict = new Dictionary<string, Team>()
+                    teamLoading = false,
+                    teamArticleLoading = false,
+                    teamFollowerLoading = false,
+                    teamDict = new Dictionary<string, Team>(),
+                    teamArticleDict = new Dictionary<string, List<Article>>(),
+                    teamFollowerDict = new Dictionary<string, List<User>>(),
+                    teamArticleHasMore = false,
+                    teamFollowerHasMore = false
                 },
                 placeState = new PlaceState {
                     placeDict = new Dictionary<string, Place>()
+                },
+                followState = new FollowState {
+                    followDict = new Dictionary<string, Dictionary<string, bool>>()
                 },
                 mineState = new MineState {
                     futureEventsList = new List<IEvent>(),
