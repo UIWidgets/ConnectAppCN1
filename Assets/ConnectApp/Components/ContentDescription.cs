@@ -367,7 +367,11 @@ namespace ConnectApp.Components {
                                 width,
                                 height,
                                 fit: BoxFit.cover
-                            ), onTap: () => { browserImage(); }),
+                            ), onTap: () => {
+                                if (browserImage!=null) {
+                                    browserImage();
+                                }
+                            }),
 
                         playButton
                     }

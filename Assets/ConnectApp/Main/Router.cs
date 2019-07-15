@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.Components;
-using ConnectApp.Components.ImageBrowser;
 using ConnectApp.Plugins;
 using ConnectApp.screens;
 using ConnectApp.Utils;
@@ -28,7 +27,6 @@ namespace ConnectApp.Main {
         public const string Report = "/report";
         public const string AboutUs = "/aboutUs";
         public const string WebView = "/web-view";
-        public const string ImageBrowser = "/image-browser";
         public const string UserDetail = "/user-detail";
         public const string UserFollowing = "/user-following";
         public const string UserFollower = "/user-follower";
@@ -65,7 +63,6 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.Report, context => new ReportScreenConnector("", ReportType.article)},
                     {MainNavigatorRoutes.AboutUs, context => new AboutUsScreenConnector()},
                     {MainNavigatorRoutes.WebView, context => new WebViewScreen()},
-                    {MainNavigatorRoutes.ImageBrowser, context => new ImageBrowser()},
                     {MainNavigatorRoutes.UserDetail, context => new UserDetailScreenConnector("")},
                     {MainNavigatorRoutes.UserFollowing, context => new UserFollowingScreenConnector("")},
                     {MainNavigatorRoutes.UserFollower, context => new UserFollowerScreenConnector("")},
@@ -99,8 +96,7 @@ namespace ConnectApp.Main {
             get {
                 return new Dictionary<string, WidgetBuilder> {
                     {MainNavigatorRoutes.Search, context => new SearchScreenConnector()},
-                    {MainNavigatorRoutes.Login, context => new LoginScreen()},
-                    {MainNavigatorRoutes.ImageBrowser, context => new ImageBrowser()}
+                    {MainNavigatorRoutes.Login, context => new LoginScreen()}
                 };
             }
         }
