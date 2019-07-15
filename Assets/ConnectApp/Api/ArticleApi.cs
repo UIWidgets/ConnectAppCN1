@@ -30,12 +30,11 @@ namespace ConnectApp.Api {
             var para = new Dictionary<string, object> {
                 {"view", "true"}
             };
-            var url = $"{Config.apiAddress}/api/p/{articleId}";
             if (isPush) {
-                url = url + "?isPush=true";
+                para.Add("isPush", "true");
             }
 
-            var request = HttpManager.GET(url, parameter: para);
+            var request = HttpManager.GET($"{Config.apiAddress}/api/p/{articleId}", parameter: para);
             HttpManager.resume(request).Then(responseText => {
                 var articleDetailResponse = JsonConvert.DeserializeObject<FetchArticleDetailResponse>(responseText);
                 promise.Resolve(articleDetailResponse);
