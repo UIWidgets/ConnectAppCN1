@@ -12,8 +12,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
@@ -109,6 +109,7 @@ namespace ConnectApp.screens {
             base.initState();
             StatusBarManager.hideStatusBar(false);
             SplashManager.fetchSplash();
+            AnalyticsManager.AnalyticsOpenApp();
             this._refreshController = new RefreshController();
             this.navBarHeight = maxNavBarHeight;
             this.titleStyle = CTextStyle.H2;
@@ -207,7 +208,7 @@ namespace ConnectApp.screens {
                                 userId = article.userId;
                                 if (this.widget.viewModel.userDict.ContainsKey(key: article.userId)) {
                                     fullName = this.widget.viewModel.userDict[key: article.userId].fullName
-                                        ?? this.widget.viewModel.userDict[key: article.userId].name;
+                                               ?? this.widget.viewModel.userDict[key: article.userId].name;
                                 }
                             }
 

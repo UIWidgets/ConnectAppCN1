@@ -96,7 +96,7 @@ namespace ConnectApp.Main {
             get {
                 return new Dictionary<string, WidgetBuilder> {
                     {MainNavigatorRoutes.Search, context => new SearchScreenConnector()},
-                    {MainNavigatorRoutes.Login, context => new LoginScreen()},
+                    {MainNavigatorRoutes.Login, context => new LoginScreen()}
                 };
             }
         }

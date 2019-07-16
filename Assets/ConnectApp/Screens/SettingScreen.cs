@@ -12,8 +12,8 @@ using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
@@ -126,18 +126,28 @@ namespace ConnectApp.screens {
                             _buildGapView(),
                             this.widget.viewModel.hasReviewUrl
                                 ? _buildCellView("评分",
-                                    () => this.widget.actionModel.openUrl(this.widget.viewModel.reviewUrl))
+                                    () => {
+                                        AnalyticsManager.ClickSetGrade();
+                                        this.widget.actionModel.openUrl(this.widget.viewModel.reviewUrl);
+                                    })
                                 : new Container(),
                             this.widget.viewModel.anonymous
                                 ? _buildCellView("绑定 Unity ID",
                                     () => this.widget.actionModel.mainRouterPushTo(MainNavigatorRoutes.BindUnity))
                                 : new Container(),
                             _buildCellView("关于我们",
-                                () => this.widget.actionModel.mainRouterPushTo(MainNavigatorRoutes.AboutUs)),
+                                () => {
+                                    AnalyticsManager.ClickEnterAboutUs();
+                                    this.widget.actionModel.mainRouterPushTo(MainNavigatorRoutes.AboutUs);
+                                }),
                             _buildGapView(),
-                            _buildCellView("检查更新", () => VersionManager.checkForUpdates(CheckVersionType.setting)),
+                            _buildCellView("检查更新", () => {
+                                AnalyticsManager.ClickCheckUpdate();
+                                VersionManager.checkForUpdates(CheckVersionType.setting);
+                            }),
                             _buildGapView(),
                             _buildCellView("清理缓存", () => {
+                                AnalyticsManager.ClickClearCache();
                                 CustomDialogUtils.showCustomDialog(
                                     child: new CustomLoadingDialog(
                                         message: "正在清理缓存"
@@ -173,6 +183,7 @@ namespace ConnectApp.screens {
                         items: new List<ActionSheetItem> {
                             new ActionSheetItem("退出", ActionType.destructive,
                                 () => {
+                                    AnalyticsManager.ClickLogout();
                                     this.widget.actionModel.logout();
                                     JPushPlugin.deleteJPushAlias();
                                 }),

@@ -6,7 +6,7 @@ namespace ConnectApp.redux.actions {
     public class MainNavigatorPushToAction : BaseAction {
         public string routeName;
     }
-    
+
     public class MainNavigatorReplaceToAction : BaseAction {
         public string routeName;
     }
@@ -22,6 +22,7 @@ namespace ConnectApp.redux.actions {
 
     public class MainNavigatorPushToArticleDetailAction : BaseAction {
         public string articleId;
+        public bool isPush = false;
     }
 
     public class MainNavigatorPushToUserDetailAction : BaseAction {
