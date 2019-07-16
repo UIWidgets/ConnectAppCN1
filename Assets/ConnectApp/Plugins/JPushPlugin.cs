@@ -69,6 +69,14 @@ namespace ConnectApp.Plugins {
                             openUrl(args.first());
                         }
                             break;
+                        case "OnOpenUniversalLinks": {
+                            if (args.isEmpty()) {
+                                return;
+                            }
+
+                            openUniversalLink(args.first());
+                        }
+                            break;
                         case "CompletedCallback": {
                             var node = args[0];
                             var dict = JSON.Parse(node);
@@ -94,6 +102,33 @@ namespace ConnectApp.Plugins {
                             break;
                     }
                 }
+            }
+        }
+
+        public static void openUniversalLink(string link) {
+            if (link.isEmpty()) {
+                return;
+            }
+
+            var uri = new Uri(link);
+            if (uri.Scheme.Equals("connectapplink")) {
+                var type = "";
+                if (uri.AbsolutePath.Equals("/project_detail")) {
+                    type = "project";
+                }
+                else if (uri.AbsolutePath.Equals("/event_detail")) {
+                    type = "event";
+                }
+                else {
+                    return;
+                }
+
+                var subType = HttpUtility.ParseQueryString(uri.Query).Get("type");
+                var id = HttpUtility.ParseQueryString(uri.Query).Get("id");
+                pushPage(type, subType, id);
+            }
+            else {
+                pushPage("webView", "", link);
             }
         }
 

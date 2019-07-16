@@ -116,6 +116,21 @@ NSData *APNativeJSONData(id obj) {
 }
 #pragma mark wechat
 
+
+- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler{
+    
+    if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb]) {
+        NSURL *webpageURL = userActivity.webpageURL;
+        NSString *host = webpageURL.host;
+        if ([host isEqualToString:@"connect-download.unity.com"]) {
+            //判断域名是自己的网站，进行我们需要的处理
+            [JPushPlugin instance].universalLink = [webpageURL absoluteString];
+            UIWidgetsMethodMessage(gameObjectName, @"OnOpenUniversalLinks", @[[webpageURL absoluteString]]);
+        }
+    }
+    return YES;
+}
+
 - (BOOL)application:(UIApplication*)app openURL:(NSURL*)url options:(NSDictionary<NSString*, id>*)options
 {
     if ([[url scheme] isEqualToString:@"unityconnect"]) {

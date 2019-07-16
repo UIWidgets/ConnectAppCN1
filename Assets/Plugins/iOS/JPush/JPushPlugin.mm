@@ -87,6 +87,9 @@ extern "C" {
         if ([JPushPlugin instance].schemeUrl.length > 0) {
             UIWidgetsMethodMessage(@"jpush", @"OnOpenUrl", @[[JPushPlugin instance].schemeUrl]);
         }
+        if ([JPushPlugin instance].universalLink.length > 0) {
+            UIWidgetsMethodMessage(@"jpush", @"OnOpenUniversalLinks", @[[JPushPlugin instance].universalLink]);
+        }
     }
     
     void setChannel(const char * channel){
