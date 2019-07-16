@@ -14,7 +14,7 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.Components {
     public static class ContentDescription {
         public static List<Widget> map(BuildContext context, string cont, Dictionary<string, ContentMap> contentMap,
-            Action<string> openUrl, Action<string> playVideo) {
+            Action<string> openUrl, Action<string> playVideo, Action browserImage = null) {
             if (cont == null) {
                 return new List<Widget>();
             }
@@ -127,7 +127,7 @@ namespace ConnectApp.Components {
                                         : map.originalImage;
                                     widgets.Add(_Atomic(context, dataMap.type, contentType, data.title, originalImage,
                                         url, downloadUrl,
-                                        openUrl, playVideo));
+                                        openUrl, playVideo, browserImage));
                                 }
                             }
                         }
@@ -277,7 +277,8 @@ namespace ConnectApp.Components {
 
         static Widget _Atomic(BuildContext context, string type, string contentType, string title,
             _OriginalImage originalImage,
-            string url, string downloadUrl, Action<string> openUrl, Action<string> playVideo) {
+            string url, string downloadUrl, Action<string> openUrl, Action<string> playVideo,
+            Action browserImage = null) {
             if (type == "ATTACHMENT" && contentType != "video/mp4") {
                 return new Container();
             }
@@ -360,12 +361,18 @@ namespace ConnectApp.Components {
             var nodes = new List<Widget> {
                 new Stack(
                     children: new List<Widget> {
-                        new PlaceholderImage(
-                            imageUrl,
-                            width,
-                            height,
-                            fit: BoxFit.cover
-                        ),
+                        new GestureDetector(
+                            child: new PlaceholderImage(
+                                imageUrl,
+                                width,
+                                height,
+                                fit: BoxFit.cover
+                            ), onTap: () => {
+                                if (browserImage!=null) {
+                                    browserImage();
+                                }
+                            }),
+
                         playButton
                     }
                 )
