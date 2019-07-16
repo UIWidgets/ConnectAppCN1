@@ -356,7 +356,8 @@ namespace ConnectApp.Utils {
                 return;
             }
 
-            AnalyticsApi.OpenApp(UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null, deviceId(),
+            AnalyticsApi.OpenApp(UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null,
+                deviceId() + (SystemInfo.deviceModel ?? ""),
                 "OpenApp", DateTime.Now, null);
         }
 
