@@ -426,7 +426,8 @@ namespace ConnectApp.redux.reducers {
                         }
 
                         if (state.eventState.eventsDict.ContainsKey(key: eventObj.id)) {
-                            state.eventState.eventsDict[key: eventObj.id] = eventObj;
+                            var oldEventObj = state.eventState.eventsDict[key: eventObj.id];
+                            state.eventState.eventsDict[key: eventObj.id] = oldEventObj.Merge(eventObj);
                         }
                         else {
                             state.eventState.eventsDict.Add(key: eventObj.id, value: eventObj);
@@ -444,7 +445,8 @@ namespace ConnectApp.redux.reducers {
                     state.eventState.eventDetailLoading = false;
                     state.eventState.channelId = action.eventObj.channelId;
                     if (state.eventState.eventsDict.ContainsKey(key: action.eventObj.id)) {
-                        state.eventState.eventsDict[key: action.eventObj.id] = action.eventObj;
+                        var oldEvent = state.eventState.eventsDict[key: action.eventObj.id];
+                        state.eventState.eventsDict[key: action.eventObj.id] = oldEvent.Merge(action.eventObj);
                     }
                     else {
                         state.eventState.eventsDict.Add(key: action.eventObj.id, value: action.eventObj);
