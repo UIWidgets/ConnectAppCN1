@@ -299,7 +299,6 @@ namespace ConnectApp.screens {
                             new GestureDetector(
                                 onTap: () => this.widget.actionModel.mainRouterPop(),
                                 child: new CustomButton(
-                                    backgroundColor: CColors.Blue,
                                     padding: EdgeInsets.only(16, 8, 8, 8),
                                     onPressed: () => this.widget.actionModel.mainRouterPop(),
                                     child: new Icon(

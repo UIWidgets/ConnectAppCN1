@@ -78,8 +78,6 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return TeamApi.FetchTeam(teamId)
                     .Then(teamResponse => {
-                        dispatcher.dispatch(new StartFetchTeamArticleAction());
-                        dispatcher.dispatch(fetchTeamArticle(teamId, 0));
                         if (teamResponse.placeMap != null) {
                             dispatcher.dispatch(new PlaceMapAction {placeMap = teamResponse.placeMap});
                         }

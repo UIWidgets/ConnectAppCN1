@@ -550,6 +550,9 @@ namespace ConnectApp.screens {
                                             if (this._article.ownerType == OwnerType.user.ToString()) {
                                                 this.widget.actionModel.pushToUserDetail(obj: this._user.id);
                                             }
+                                            if (this._article.ownerType == OwnerType.team.ToString()) {
+                                                this.widget.actionModel.pushToTeamDetail(obj: this._team.id);
+                                            }
                                         },
                                         child: new Container(
                                             margin: EdgeInsets.only(top: 24, bottom: 24),
