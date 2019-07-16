@@ -103,13 +103,14 @@ namespace ConnectApp.redux.actions {
                     .Then(articlesResponse => {
                         var articleList = new List<Article>();
                         articlesResponse.hottests.ForEach(item => {
-                            if (articlesResponse.projectMap.ContainsKey(item.itemId)) {
-                                var article = articlesResponse.projectMap[item.itemId];
-                                articleList.Add(article);
+                            if (articlesResponse.projectMap.ContainsKey(key: item.itemId)) {
+                                var article = articlesResponse.projectMap[key: item.itemId];
+                                articleList.Add(item: article);
                             }
                         });
                         dispatcher.dispatch(new UserMapAction {userMap = articlesResponse.userMap});
                         dispatcher.dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
+                        dispatcher.dispatch(new FollowMapAction {followMap = articlesResponse.followMap});
                         dispatcher.dispatch(new FetchArticleSuccessAction {
                             offset = offset,
                             hottestHasMore = articlesResponse.hottestHasMore,
@@ -167,13 +168,13 @@ namespace ConnectApp.redux.actions {
                             var messageItems = new Dictionary<string, Message>();
                             var userMap = new Dictionary<string, User>();
                             articleDetailResponse.project.comments.items.ForEach(message => {
-                                itemIds.Add(message.id);
-                                messageItems[message.id] = message;
-                                if (userMap.ContainsKey(message.author.id)) {
-                                    userMap[message.author.id] = message.author;
+                                itemIds.Add(item: message.id);
+                                messageItems[key: message.id] = message;
+                                if (userMap.ContainsKey(key: message.author.id)) {
+                                    userMap[key: message.author.id] = message.author;
                                 }
                                 else {
-                                    userMap.Add(message.author.id, message.author);
+                                    userMap.Add(key: message.author.id, value: message.author);
                                 }
                             });
                             dispatcher.dispatch(new UserMapAction {
@@ -195,6 +196,7 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new TeamMapAction {
                             teamMap = articleDetailResponse.project.teamMap
                         });
+                        dispatcher.dispatch(new FollowMapAction {followMap = articleDetailResponse.project.followMap});
                         dispatcher.dispatch(new FetchArticleDetailSuccessAction {
                             articleDetail = articleDetailResponse.project
                         });
