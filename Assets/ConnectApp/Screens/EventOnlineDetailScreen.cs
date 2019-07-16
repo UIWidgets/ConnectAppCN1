@@ -118,7 +118,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    class _EventOnlineDetailScreenState : State<EventOnlineDetailScreen>, TickerProvider {
+    class _EventOnlineDetailScreenState : State<EventOnlineDetailScreen>, TickerProvider, RouteAware {
         AnimationController _controller;
         Animation<Offset> _position;
         Animation<RelativeRect> _titleAnimation;
@@ -163,8 +163,14 @@ namespace ConnectApp.screens {
             });
         }
 
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute)ModalRoute.of(this.context));
+        }
+        
         public override void dispose() {
             EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
+            Router.routeObserve.unsubscribe(this);
             this._textController.dispose();
             this._controller.dispose();
             base.dispose();
@@ -749,6 +755,18 @@ namespace ConnectApp.screens {
                     }
                 )
             );
+        }
+
+        public void didPopNext() {
+            VideoPlayerManager.instance.isRotation = true;
+        }
+
+        public void didPush() {}
+
+        public void didPop() {}
+
+        public void didPushNext() {
+            VideoPlayerManager.instance.isRotation = false;
         }
     }
 }

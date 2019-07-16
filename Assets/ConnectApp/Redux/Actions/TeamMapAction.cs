@@ -47,13 +47,37 @@ namespace ConnectApp.redux.actions {
     public class FetchTeamFollowerFailureAction : BaseAction {
     }
 
+    public class StartFetchFollowTeamAction : RequestAction {
+        public string followTeamId;
+    }
+
+    public class FetchFollowTeamSuccessAction : BaseAction {
+        public bool success;
+        public string currentUserId;
+        public string followTeamId;
+    }
+
+    public class FetchFollowTeamFailureAction : BaseAction {
+    }
+
+    public class StartFetchUnFollowTeamAction : RequestAction {
+        public string unFollowTeamId;
+    }
+
+    public class FetchUnFollowTeamSuccessAction : BaseAction {
+        public bool success;
+        public string currentUserId;
+        public string unFollowTeamId;
+    }
+
+    public class FetchUnFollowTeamFailureAction : BaseAction {
+    }
+
     public static partial class Actions {
         public static object fetchTeam(string teamId) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return TeamApi.FetchTeam(teamId)
                     .Then(teamResponse => {
-                        dispatcher.dispatch(new StartFetchTeamArticleAction());
-                        dispatcher.dispatch(fetchTeamArticle(teamId, 0));
                         if (teamResponse.placeMap != null) {
                             dispatcher.dispatch(new PlaceMapAction {placeMap = teamResponse.placeMap});
                         }
@@ -98,6 +122,11 @@ namespace ConnectApp.redux.actions {
                                 followMap = teamFollowerResponse.followMap
                             });
                         }
+                        var userMap = new Dictionary<string, User>();
+                        teamFollowerResponse.followers.ForEach(follower => {
+                            userMap.Add(key: follower.id, value: follower);
+                        });
+                        dispatcher.dispatch(new UserMapAction { userMap = userMap });
                         dispatcher.dispatch(new FetchTeamFollowerSuccessAction {
                             followers = teamFollowerResponse.followers,
                             followersHasMore = teamFollowerResponse.followersHasMore,
@@ -107,6 +136,42 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                             dispatcher.dispatch(new FetchTeamFollowerFailureAction());
+                            Debug.Log(error);
+                        }
+                    );
+            });
+        }
+
+        public static object fetchFollowTeam(string followTeamId) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return TeamApi.FetchFollowTeam(followTeamId)
+                    .Then(success => {
+                        dispatcher.dispatch(new FetchFollowTeamSuccessAction {
+                            success = success,
+                            currentUserId = getState().loginState.loginInfo.userId ?? "",
+                            followTeamId = followTeamId
+                        });
+                    })
+                    .Catch(error => {
+                            dispatcher.dispatch(new FetchFollowTeamFailureAction ());
+                            Debug.Log(error);
+                        }
+                    );
+            });
+        }
+
+        public static object fetchUnFollowTeam(string unFollowTeamId) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return TeamApi.FetchUnFollowTeam(unFollowTeamId)
+                    .Then(success => {
+                        dispatcher.dispatch(new FetchUnFollowTeamSuccessAction {
+                            success = success,
+                            currentUserId = getState().loginState.loginInfo.userId ?? "",
+                            unFollowTeamId = unFollowTeamId
+                        });
+                    })
+                    .Catch(error => {
+                            dispatcher.dispatch(new FetchUnFollowTeamFailureAction());
                             Debug.Log(error);
                         }
                     );

@@ -426,7 +426,8 @@ namespace ConnectApp.redux.reducers {
                         }
 
                         if (state.eventState.eventsDict.ContainsKey(key: eventObj.id)) {
-                            state.eventState.eventsDict[key: eventObj.id] = eventObj;
+                            var oldEventObj = state.eventState.eventsDict[key: eventObj.id];
+                            state.eventState.eventsDict[key: eventObj.id] = oldEventObj.Merge(eventObj);
                         }
                         else {
                             state.eventState.eventsDict.Add(key: eventObj.id, value: eventObj);
@@ -444,7 +445,8 @@ namespace ConnectApp.redux.reducers {
                     state.eventState.eventDetailLoading = false;
                     state.eventState.channelId = action.eventObj.channelId;
                     if (state.eventState.eventsDict.ContainsKey(key: action.eventObj.id)) {
-                        state.eventState.eventsDict[key: action.eventObj.id] = action.eventObj;
+                        var oldEvent = state.eventState.eventsDict[key: action.eventObj.id];
+                        state.eventState.eventsDict[key: action.eventObj.id] = oldEvent.Merge(action.eventObj);
                     }
                     else {
                         state.eventState.eventsDict.Add(key: action.eventObj.id, value: action.eventObj);
@@ -1515,6 +1517,72 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchTeamFollowerFailureAction _: {
                     state.teamState.teamFollowerLoading = false;
+                    break;
+                }
+
+                case StartFetchFollowTeamAction action: {
+                    state.teamState.followTeamLoading = true;
+                    state.teamState.currentFollowId = action.followTeamId;
+                    break;
+                }
+
+                case FetchFollowTeamSuccessAction action: {
+                    state.teamState.followTeamLoading = false;
+                    if (state.followState.followDict.ContainsKey(key: action.currentUserId)) {
+                        var followMap = state.followState.followDict[key: action.currentUserId];
+                        if (!followMap.ContainsKey(key: action.followTeamId)) {
+                            followMap.Add(key: action.followTeamId, value: action.success);
+                        }
+                        state.followState.followDict[key: action.currentUserId] = followMap;
+                    }
+                    if (state.userState.userDict.ContainsKey(key: action.currentUserId)) {
+                        var user = state.userState.userDict[key: action.currentUserId];
+                        user.followingCount += 1;
+                        state.userState.userDict[key: action.currentUserId] = user;
+                    }
+                    if (state.teamState.teamDict.ContainsKey(key: action.followTeamId)) {
+                        var team = state.teamState.teamDict[key: action.followTeamId];
+                        team.stats.followCount += 1;
+                        state.teamState.teamDict[key: action.followTeamId] = team;
+                    }
+                    break;
+                } 
+
+                case FetchFollowTeamFailureAction _: {
+                    state.teamState.followTeamLoading = false;
+                    break;
+                }
+
+                case StartFetchUnFollowTeamAction action: {
+                    state.teamState.followTeamLoading = true;
+                    state.teamState.currentFollowId = action.unFollowTeamId;
+                    break;
+                } 
+
+                case FetchUnFollowTeamSuccessAction action: {
+                    state.teamState.followTeamLoading = false;
+                    if (state.followState.followDict.ContainsKey(key: action.currentUserId)) {
+                        var followMap = state.followState.followDict[key: action.currentUserId];
+                        if (followMap.ContainsKey(key: action.unFollowTeamId)) {
+                            followMap.Remove(key: action.unFollowTeamId);
+                        }
+                        state.followState.followDict[key: action.currentUserId] = followMap;
+                    }
+                    if (state.userState.userDict.ContainsKey(key: action.currentUserId)) {
+                        var user = state.userState.userDict[key: action.currentUserId];
+                        user.followingCount -= 1;
+                        state.userState.userDict[key: action.currentUserId] = user;
+                    }
+                    if (state.teamState.teamDict.ContainsKey(key: action.unFollowTeamId)) {
+                        var team = state.teamState.teamDict[key: action.unFollowTeamId];
+                        team.stats.followCount -= 1;
+                        state.teamState.teamDict[key: action.unFollowTeamId] = team;
+                    }
+                    break;
+                } 
+
+                case FetchUnFollowTeamFailureAction _: {
+                    state.teamState.followTeamLoading = false;
                     break;
                 }
             }

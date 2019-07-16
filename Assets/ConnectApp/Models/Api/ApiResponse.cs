@@ -9,6 +9,7 @@ namespace ConnectApp.Models.Api {
         public Dictionary<string, Article> projectMap;
         public Dictionary<string, User> userMap;
         public Dictionary<string, Team> teamMap;
+        public Dictionary<string, bool> followMap;
         public bool hottestHasMore;
     }
 

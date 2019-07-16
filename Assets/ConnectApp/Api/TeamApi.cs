@@ -44,5 +44,33 @@ namespace ConnectApp.Api {
             }).Catch(exception => promise.Reject(exception));
             return promise;
         }
+
+        public static Promise<bool> FetchFollowTeam(string teamId) {
+            var promise = new Promise<bool>();
+            var para = new FollowParameter {
+                type = "team",
+                followeeId = teamId
+            };
+            var request = HttpManager.POST($"{Config.apiAddress}/api/follow", para);
+            HttpManager.resume(request: request).Then(responseText => {
+                var followResponse = JsonConvert.DeserializeObject<Dictionary<string, bool>>(responseText);
+                promise.Resolve(followResponse["success"]);
+                
+            }).Catch(exception => promise.Reject(exception));
+            return promise;
+        }
+
+        public static Promise<bool> FetchUnFollowTeam(string teamId) {
+            var promise = new Promise<bool>();
+            var para = new FollowParameter {
+                followeeId = teamId
+            };
+            var request = HttpManager.POST($"{Config.apiAddress}/api/unfollow", para);
+            HttpManager.resume(request: request).Then(responseText => {
+                var unFollowResponse = JsonConvert.DeserializeObject<Dictionary<string, bool>>(responseText);
+                promise.Resolve(unFollowResponse["success"]);
+            }).Catch(exception => promise.Reject(exception));
+            return promise;
+        }
     }
 }
