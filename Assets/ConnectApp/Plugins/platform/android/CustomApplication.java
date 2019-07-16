@@ -7,6 +7,7 @@ import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 import com.unity3d.unityconnect.plugins.CommonPlugin;
 import com.unity3d.unityconnect.plugins.JAnalyticsPlugin;
 import com.unity3d.unityconnect.plugins.JPushPlugin;
+import com.unity3d.unityconnect.plugins.UUIDUtils;
 import com.unity3d.unityconnect.plugins.WechatPlugin;
 
 import cn.jiguang.analytics.android.api.JAnalyticsInterface;
@@ -26,5 +27,7 @@ public class CustomApplication extends Application {
 
         JPushInterface.init(this);     		// 初始化 JPush
         JAnalyticsInterface.init(this);
+
+        UUIDUtils.buidleID(this).check();
     }
 }

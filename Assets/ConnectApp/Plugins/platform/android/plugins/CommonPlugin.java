@@ -1,7 +1,5 @@
 package com.unity3d.unityconnect.plugins;
-
 import android.content.Context;
-import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.provider.Settings;
 
@@ -61,5 +59,8 @@ public class CommonPlugin {
         return sensorState;
     }
 
-
+    public static String getDeviceID() {
+        String uuid = UUIDUtils.getUUID();
+        return uuid;
+    }
 }
