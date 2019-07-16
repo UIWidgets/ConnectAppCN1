@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+#if UNITY_IOS
+using System.Runtime.InteropServices;
+#endif
 using ConnectApp.Api;
 using ConnectApp.Components;
 using ConnectApp.Plugins;
