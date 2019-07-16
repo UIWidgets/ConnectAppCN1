@@ -370,8 +370,8 @@ namespace ConnectApp.screens {
             Widget rightWidget = new Container();
             if (isShowRightWidget) {
                 string rightWidgetTitle = this._article.commentCount > 0
-                    ? $"{this._article.commentCount}个评论"
-                    : "评论";
+                    ? $"{this._article.commentCount} 评论"
+                    : "抢个沙发";
                 rightWidget = new Container(
                     margin: EdgeInsets.only(8, right: 16),
                     child: new CustomButton(
@@ -408,11 +408,11 @@ namespace ConnectApp.screens {
                             });
                         },
                         child: new Container(
-                            width: 88,
                             height: 28,
+                            padding: EdgeInsets.symmetric(horizontal: 16),
                             alignment: Alignment.center,
                             decoration: new BoxDecoration(
-                                border: Border.all(CColors.PrimaryBlue),
+                                color: CColors.PrimaryBlue,
                                 borderRadius: BorderRadius.all(14)
                             ),
                             child: new Text(
@@ -420,7 +420,7 @@ namespace ConnectApp.screens {
                                 style: new TextStyle(
                                     fontSize: 14,
                                     fontFamily: "Roboto-Medium",
-                                    color: CColors.PrimaryBlue
+                                    color: CColors.White
                                 )
                             )
                         )
