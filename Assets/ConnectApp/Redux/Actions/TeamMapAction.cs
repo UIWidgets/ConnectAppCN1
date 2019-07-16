@@ -122,6 +122,11 @@ namespace ConnectApp.redux.actions {
                                 followMap = teamFollowerResponse.followMap
                             });
                         }
+                        var userMap = new Dictionary<string, User>();
+                        teamFollowerResponse.followers.ForEach(follower => {
+                            userMap.Add(key: follower.id, value: follower);
+                        });
+                        dispatcher.dispatch(new UserMapAction { userMap = userMap });
                         dispatcher.dispatch(new FetchTeamFollowerSuccessAction {
                             followers = teamFollowerResponse.followers,
                             followersHasMore = teamFollowerResponse.followersHasMore,
