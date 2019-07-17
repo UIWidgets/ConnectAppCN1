@@ -14,15 +14,14 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Avatar = ConnectApp.Components.Avatar;
-using Config = ConnectApp.Constants.Config;
 
 namespace ConnectApp.screens {
     public class ArticleDetailScreenConnector : StatelessWidget {
@@ -52,7 +51,7 @@ namespace ConnectApp.screens {
                     userDict = state.userState.userDict,
                     teamDict = state.teamState.teamDict,
                     followMap = state.followState.followDict.ContainsKey(state.loginState.loginInfo.userId ?? "")
-                        ? state.followState.followDict[state.loginState.loginInfo.userId ?? ""]  
+                        ? state.followState.followDict[state.loginState.loginInfo.userId ?? ""]
                         : new Dictionary<string, bool>()
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -466,6 +465,7 @@ namespace ConnectApp.screens {
                                         this.widget.actionModel.startUnFollowUser();
                                         this.widget.actionModel.unFollowUser(arg: userId);
                                     }
+
                                     if (this._article.ownerType == OwnerType.team.ToString()) {
                                         this.widget.actionModel.startUnFollowTeam();
                                         this.widget.actionModel.unFollowTeam(arg: userId);
@@ -476,11 +476,13 @@ namespace ConnectApp.screens {
                         )
                     );
                 }
+
                 if (userType == UserType.unFollow) {
                     if (this._article.ownerType == OwnerType.user.ToString()) {
                         this.widget.actionModel.startFollowUser();
                         this.widget.actionModel.followUser(arg: userId);
                     }
+
                     if (this._article.ownerType == OwnerType.team.ToString()) {
                         this.widget.actionModel.startFollowTeam();
                         this.widget.actionModel.followTeam(arg: userId);
@@ -555,6 +557,7 @@ namespace ConnectApp.screens {
                                             if (this._article.ownerType == OwnerType.user.ToString()) {
                                                 this.widget.actionModel.pushToUserDetail(obj: this._user.id);
                                             }
+
                                             if (this._article.ownerType == OwnerType.team.ToString()) {
                                                 this.widget.actionModel.pushToTeamDetail(obj: this._team.id);
                                             }
@@ -615,9 +618,11 @@ namespace ConnectApp.screens {
             else {
                 if (this.widget.viewModel.loginUserId == id) {
                     userType = UserType.me;
-                } else if (this.widget.viewModel.followLoading) {
+                }
+                else if (this.widget.viewModel.followLoading) {
                     userType = UserType.loading;
-                } else if (this.widget.viewModel.followMap.ContainsKey(key: id)) {
+                }
+                else if (this.widget.viewModel.followMap.ContainsKey(key: id)) {
                     userType = UserType.follow;
                 }
             }
@@ -885,11 +890,12 @@ namespace ConnectApp.screens {
                 userId = this._article.teamId;
             }
 
+            var linkUrl = CStringUtils.JointProjectShareLink(projectId: this._article.id);
+
             ShareManager.showArticleShareView(
                 this.widget.viewModel.loginUserId != userId,
                 isLoggedIn: this.widget.viewModel.isLoggedIn,
                 () => {
-                    string linkUrl = $"{Config.apiAddress}/p/{this._article.id}";
                     Clipboard.setData(new ClipboardData(text: linkUrl));
                     CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
                 },
@@ -900,7 +906,6 @@ namespace ConnectApp.screens {
                     CustomDialogUtils.showCustomDialog(
                         child: new CustomLoadingDialog()
                     );
-                    string linkUrl = $"{Config.apiAddress}/p/{this._article.id}";
                     string imageUrl = $"{this._article.thumbnail.url}.200x0x1.jpg";
                     this.widget.actionModel.shareToWechat(arg1: type, arg2: this._article.title,
                             arg3: this._article.subTitle, arg4: linkUrl, arg5: imageUrl)

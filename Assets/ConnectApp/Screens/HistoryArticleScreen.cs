@@ -84,6 +84,7 @@ namespace ConnectApp.screens {
 
         Widget _buildArticleCard(BuildContext context, int index) {
             var article = this.viewModel.articleHistory[index: index];
+            var linkUrl = CStringUtils.JointProjectShareLink(projectId: article.id);
             return CustomDismissible.builder(
                 Key.key(value: article.id),
                 new ArticleCard(
@@ -93,7 +94,6 @@ namespace ConnectApp.screens {
                         true,
                         isLoggedIn: this.viewModel.isLoggedIn,
                         () => {
-                            string linkUrl = $"{Config.apiAddress}/p/{article.id}";
                             Clipboard.setData(new ClipboardData(text: linkUrl));
                             CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
                         },
@@ -104,7 +104,6 @@ namespace ConnectApp.screens {
                             CustomDialogUtils.showCustomDialog(
                                 child: new CustomLoadingDialog()
                             );
-                            string linkUrl = $"{Config.apiAddress}/p/{article.id}";
                             string imageUrl = $"{article.thumbnail.url}.200x0x1.jpg";
                             this.actionModel.shareToWechat(arg1: type, arg2: article.title,
                                     arg3: article.subTitle, arg4: linkUrl, arg5: imageUrl)
