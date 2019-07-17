@@ -1,7 +1,9 @@
 package com.unity3d.unityconnect;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -28,6 +30,25 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity
         showSystemUi();
         addUiVisibilityChangeListener();
 
+
+        applePermission();
+
+    }
+
+    public void applePermission(){
+
+        final int REQUEST_EXTERNAL_STORAGE = 1;
+        String[] PERMISSIONS_STORAGE = {
+                "android.permission.READ_EXTERNAL_STORAGE",
+                "android.permission.WRITE_EXTERNAL_STORAGE" };
+
+        if (Build.VERSION.SDK_INT>=23){
+            int permission = ActivityCompat.checkSelfPermission(getApplicationContext(),"android.permission.WRITE_EXTERNAL_STORAGE");
+            if (permission != PackageManager.PERMISSION_GRANTED) {
+                // 没有写的权限，去申请写的权限，会弹出对话框
+                ActivityCompat.requestPermissions(UnityPlayerActivityStatusBar.this, PERMISSIONS_STORAGE,REQUEST_EXTERNAL_STORAGE);
+            }
+        }
     }
 
     @Override
