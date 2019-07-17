@@ -123,7 +123,7 @@ namespace ConnectApp.Components {
                                                 )
                                             ),
                                             new Text(
-                                                $"{DateConvert.DateStringFromNow(this.eventObj.createdTime)}发布",
+                                                $"{DateConvert.DateStringFromNow(this.eventObj.createdTime ?? DateTime.Now)}发布",
                                                 style: CTextStyle.PSmallBody3
                                             )
                                         }
