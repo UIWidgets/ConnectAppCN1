@@ -62,10 +62,13 @@ namespace ConnectApp.screens {
     public class _ArticlesScreenState : AutomaticKeepAliveClientMixin<ArticlesScreen> {
         const float _maxNavBarHeight = 96;
         const float _minNavBarHeight = 44;
+        const float _maxTitleFontSize = 32;
+        const float _minTitleFontSize = 20;
         PageController _pageController;
         int _selectedIndex;
         float _titleFontSize;
         float _navBarHeight;
+        string _loginSubId;
 
         protected override bool wantKeepAlive {
             get { return true; }
@@ -75,7 +78,7 @@ namespace ConnectApp.screens {
             base.initState();
             this._selectedIndex = 1;
             this._pageController = new PageController(initialPage: this._selectedIndex);
-            this._titleFontSize = 32;
+            this._titleFontSize = _maxTitleFontSize;
             this._navBarHeight = _maxNavBarHeight;
             StatusBarManager.hideStatusBar(false);
             SplashManager.fetchSplash();
@@ -83,6 +86,17 @@ namespace ConnectApp.screens {
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.fetchReviewUrl();
             });
+            this._loginSubId = EventBus.subscribe(sName: EventBusConstant.login_success, args => {
+                if (this._selectedIndex != 1) {
+                    this._selectedIndex = 1;
+                    this._pageController = new PageController(initialPage: this._selectedIndex);
+                }
+            });
+        }
+
+        public override void dispose() {
+            EventBus.unSubscribe(sName: EventBusConstant.login_success, id: this._loginSubId);
+            base.dispose();
         }
 
         bool _onNotification(ScrollNotification notification) {
@@ -92,21 +106,23 @@ namespace ConnectApp.screens {
             }
             var pixels = notification.metrics.pixels;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
-                if (pixels > 0 && pixels <= 52) {
-                    this._titleFontSize = 32.0f - 12.0f / 52.0f * pixels;
+                if (pixels > 0 && pixels <= _maxNavBarHeight - _minNavBarHeight) {
+                    this._titleFontSize = _maxTitleFontSize
+                                          - (_maxTitleFontSize - _minTitleFontSize) / (_maxNavBarHeight - _minNavBarHeight)
+                                          * pixels;
                     this._navBarHeight = _maxNavBarHeight - pixels;
                     this.setState(() => { });
                 }
                 else if (pixels <= 0) {
                     if (this._navBarHeight <= _maxNavBarHeight) {
-                        this._titleFontSize = 32;
+                        this._titleFontSize = _maxTitleFontSize;
                         this._navBarHeight = _maxNavBarHeight;
                         this.setState(() => { });
                     }
                 }
                 else if (pixels > 52) {
                     if (!(this._navBarHeight <= _minNavBarHeight)) {
-                        this._titleFontSize = 20;
+                        this._titleFontSize = _minTitleFontSize;
                         this._navBarHeight = _minNavBarHeight;
                         this.setState(() => { });
                     }
@@ -188,7 +204,7 @@ namespace ConnectApp.screens {
 
         Widget _buildSelectItem(string title, int index) {
             var textColor = CColors.TextTitle;
-            float titleFontSize = 20;
+            float titleFontSize = _minTitleFontSize;
             float lineHeight = this._navBarHeight <= _minNavBarHeight ? 2 : 4;
             Widget lineView = new Positioned(
                 bottom: 0,

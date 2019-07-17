@@ -19,6 +19,7 @@ namespace ConnectApp.Components {
             UserType userType = UserType.me,
             OwnerType type = OwnerType.user,
             GestureTapCallback onTap = null,
+            GestureTapCallback avatarCallBack = null,
             GestureTapCallback followCallBack = null,
             GestureTapCallback likeCallBack = null,
             GestureTapCallback commentCallBack = null,
@@ -32,6 +33,7 @@ namespace ConnectApp.Components {
             this.userType = userType;
             this.type = type;
             this.onTap = onTap;
+            this.avatarCallBack = avatarCallBack;
             this.followCallBack = followCallBack;
             this.likeCallBack = likeCallBack;
             this.commentCallBack = commentCallBack;
@@ -44,6 +46,7 @@ namespace ConnectApp.Components {
             bool isLike = false,
             UserType userType = UserType.me,
             GestureTapCallback onTap = null,
+            GestureTapCallback avatarCallBack = null,
             GestureTapCallback followCallBack = null,
             GestureTapCallback likeCallBack = null,
             GestureTapCallback commentCallBack = null,
@@ -57,6 +60,7 @@ namespace ConnectApp.Components {
                 userType: userType,
                 type: OwnerType.user,
                 onTap: onTap,
+                avatarCallBack: avatarCallBack,
                 followCallBack: followCallBack,
                 likeCallBack: likeCallBack,
                 commentCallBack: commentCallBack,
@@ -71,6 +75,7 @@ namespace ConnectApp.Components {
             bool isLike = false,
             UserType userType = UserType.me,
             GestureTapCallback onTap = null,
+            GestureTapCallback avatarCallBack = null,
             GestureTapCallback followCallBack = null,
             GestureTapCallback likeCallBack = null,
             GestureTapCallback commentCallBack = null,
@@ -84,6 +89,7 @@ namespace ConnectApp.Components {
                 userType: userType,
                 type: OwnerType.team,
                 onTap: onTap,
+                avatarCallBack: avatarCallBack,
                 followCallBack: followCallBack,
                 likeCallBack: likeCallBack,
                 commentCallBack: commentCallBack,
@@ -99,6 +105,7 @@ namespace ConnectApp.Components {
         readonly UserType userType;
         readonly OwnerType type;
         readonly GestureTapCallback onTap;
+        readonly GestureTapCallback avatarCallBack;
         readonly GestureTapCallback followCallBack;
         readonly GestureTapCallback likeCallBack;
         readonly GestureTapCallback commentCallBack;
@@ -172,25 +179,31 @@ namespace ConnectApp.Components {
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: new List<Widget> {
-                        new Row(
-                            children: new List<Widget> {
-                                avatar,
-                                new Container(
-                                    margin: EdgeInsets.only(8),
-                                    child: new Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: new List<Widget> {
-                                            new Text(
-                                                this.type == OwnerType.user
-                                                    ? this.user.fullName ?? this.user.name
-                                                    : this.team.name,
-                                                style: CTextStyle.PLargeBody
-                                            ),
-                                            titleWidget
-                                        }
-                                    )
+                        new GestureDetector(
+                            onTap: this.avatarCallBack,
+                            child: new Container(
+                                color: CColors.Transparent,
+                                child: new Row(
+                                    children: new List<Widget> {
+                                        avatar,
+                                        new Container(
+                                            margin: EdgeInsets.only(8),
+                                            child: new Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: new List<Widget> {
+                                                    new Text(
+                                                        this.type == OwnerType.user
+                                                            ? this.user.fullName ?? this.user.name
+                                                            : this.team.name,
+                                                        style: CTextStyle.PLargeBody
+                                                    ),
+                                                    titleWidget
+                                                }
+                                            )
+                                        )
+                                    }
                                 )
-                            }
+                            )
                         ),
                         rightWidget
                     }

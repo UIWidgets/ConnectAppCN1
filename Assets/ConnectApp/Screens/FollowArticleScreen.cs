@@ -33,6 +33,12 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, ArticlesScreenViewModel>(
                 converter: state => {
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
+                    var followArticleList = state.articleState.followArticleDict.ContainsKey(key: currentUserId)
+                        ? state.articleState.followArticleDict[key: currentUserId]
+                        : new List<string>();
+                    var hotArticleList = state.articleState.hotArticleDict.ContainsKey(key: currentUserId)
+                        ? state.articleState.hotArticleDict[key: currentUserId]
+                        : new List<string>();
                     var user = state.userState.userDict.ContainsKey(key: currentUserId)
                         ? state.userState.userDict[key: currentUserId]
                         : new User();
@@ -46,8 +52,8 @@ namespace ConnectApp.screens {
                     return new ArticlesScreenViewModel {
                         followArticlesLoading = state.articleState.followArticlesLoading,
                         followingLoading = state.userState.followingLoading,
-                        followArticleList = state.articleState.followArticleList,
-                        hotArticleList = state.articleState.hotArticleList,
+                        followArticleList = followArticleList,
+                        hotArticleList = hotArticleList,
                         followingList = followings,
                         articleDict = state.articleState.articleDict,
                         blockArticleList = state.articleState.blockArticleList,
@@ -485,6 +491,7 @@ namespace ConnectApp.screens {
                     this.widget.viewModel.likeMap.ContainsKey(key: articleId),
                     userType: userType,
                     () => this.widget.actionModel.pushToArticleDetail(obj: articleId),
+                    () => this.widget.actionModel.pushToUserDetail(obj: user.id),
                     () => this._onFollow(article: article, userType: userType),
                     () => this._onLike(article: article),
                     () => this._onComment(article: article),
@@ -517,6 +524,7 @@ namespace ConnectApp.screens {
                     this.widget.viewModel.likeMap.ContainsKey(key: articleId),
                     userType: userType,
                     () => this.widget.actionModel.pushToArticleDetail(obj: articleId),
+                    () => this.widget.actionModel.pushToTeamDetail(obj: team.id),
                     () => this._onFollow(article: article, userType: userType),
                     () => this._onLike(article: article),
                     () => this._onComment(article: article),

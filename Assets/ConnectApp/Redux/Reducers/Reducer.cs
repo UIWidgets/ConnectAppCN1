@@ -146,27 +146,39 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case FetchFollowArticleSuccessAction action: {
-                    if (action.pageNumber == 1) {
-                        state.articleState.followArticleList.Clear();
-                        state.articleState.hotArticleList.Clear();
-                    }
-
-                    foreach (var article in action.projects) {
-                        state.articleState.followArticleList.Add(item: article.id);
-                        if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
-                            state.articleState.articleDict.Add(key: article.id, value: article);
+                    var currentUserId = state.loginState.loginInfo.userId ?? "";
+                    if (currentUserId.isNotEmpty()) {
+                        if (action.pageNumber == 1) {
+                            if (state.articleState.followArticleDict.ContainsKey(key: currentUserId)) {
+                                state.articleState.followArticleDict.Remove(key: currentUserId);
+                            }
+                            if (state.articleState.hotArticleDict.ContainsKey(key: currentUserId)) {
+                                state.articleState.hotArticleDict.Remove(key: currentUserId);
+                            }
                         }
-                    }
 
-                    foreach (var article in action.hottests) {
-                        state.articleState.hotArticleList.Add(item: article.id);
-                        if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
-                            state.articleState.articleDict.Add(key: article.id, value: article);
+                        var followArticleList = new List<string>();
+                        foreach (var article in action.projects) {
+                            followArticleList.Add(item: article.id);
+                            if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
+                                state.articleState.articleDict.Add(key: article.id, value: article);
+                            }
                         }
+                        state.articleState.followArticleDict.Add(key: currentUserId, value: followArticleList);
+
+                        var hotArticleList = new List<string>();
+                        foreach (var article in action.hottests) {
+                            hotArticleList.Add(item: article.id);
+                            if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
+                                state.articleState.articleDict.Add(key: article.id, value: article);
+                            }
+                        }
+                        state.articleState.hotArticleDict.Add(key: currentUserId, value: hotArticleList);
+
+                        state.articleState.followArticleHasMore = action.projectHasMore;
+                        state.articleState.hotArticleHasMore = action.hottestHasMore;
                     }
 
-                    state.articleState.followArticleHasMore = action.projectHasMore;
-                    state.articleState.hotArticleHasMore = action.hottestHasMore;
                     state.articleState.followArticlesLoading = false;
                     break;
                 }
@@ -257,7 +269,7 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
-                    if (state.likeState.likeDict.ContainsKey(key: currentUserId) && currentUserId.isNotEmpty()) {
+                    if (currentUserId.isNotEmpty() && state.likeState.likeDict.ContainsKey(key: currentUserId)) {
                         var likeMap = state.likeState.likeDict[key: currentUserId];
                         if (!likeMap.ContainsKey(key: action.articleId)) {
                             likeMap.Add(key: action.articleId, true);

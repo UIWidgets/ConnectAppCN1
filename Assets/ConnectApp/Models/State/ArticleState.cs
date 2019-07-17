@@ -9,8 +9,8 @@ namespace ConnectApp.Models.State {
         public bool followArticlesLoading { get; set; }
         public bool articleDetailLoading { get; set; }
         public List<string> articleList { get; set; }
-        public List<string> followArticleList { get; set; }
-        public List<string> hotArticleList { get; set; }
+        public Dictionary<string, List<string>> followArticleDict { get; set; }
+        public Dictionary<string, List<string>> hotArticleDict { get; set; }
         public bool hottestHasMore { get; set; }
         public bool followArticleHasMore { get; set; }
         public bool hotArticleHasMore { get; set; }
