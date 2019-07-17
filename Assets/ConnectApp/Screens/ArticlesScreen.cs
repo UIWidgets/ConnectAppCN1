@@ -12,12 +12,11 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
-using Config = ConnectApp.Constants.Config;
 
 namespace ConnectApp.screens {
     public class ArticlesScreenConnector : StatelessWidget {

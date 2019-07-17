@@ -15,8 +15,8 @@ using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -24,7 +24,6 @@ using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Avatar = ConnectApp.Components.Avatar;
 using Color = Unity.UIWidgets.ui.Color;
-using Config = ConnectApp.Constants.Config;
 using Transform = Unity.UIWidgets.widgets.Transform;
 
 namespace ConnectApp.screens {
@@ -37,12 +36,14 @@ namespace ConnectApp.screens {
         }
 
         readonly string teamId;
+
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, TeamDetailScreenViewModel>(
                 converter: state => {
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
                     var team = state.teamState.teamDict.ContainsKey(key: this.teamId)
-                        ? state.teamState.teamDict[key: this.teamId] : null;
+                        ? state.teamState.teamDict[key: this.teamId]
+                        : null;
                     var teamArticleOffset = state.teamState.teamArticleDict.ContainsKey(key: this.teamId)
                         ? state.teamState.teamArticleDict[key: this.teamId].Count
                         : 0;
@@ -68,7 +69,8 @@ namespace ConnectApp.screens {
                         startFetchTeam = () => dispatcher.dispatch(new StartFetchTeamAction()),
                         fetchTeam = () => dispatcher.dispatch<IPromise>(Actions.fetchTeam(this.teamId)),
                         startFetchTeamArticle = () => dispatcher.dispatch(new StartFetchTeamArticleAction()),
-                        fetchTeamArticle = offset => dispatcher.dispatch<IPromise>(Actions.fetchTeamArticle(this.teamId, offset)),
+                        fetchTeamArticle = offset =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchTeamArticle(this.teamId, offset)),
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
@@ -105,7 +107,7 @@ namespace ConnectApp.screens {
             );
         }
     }
-    
+
     public class TeamDetailScreen : StatefulWidget {
         public TeamDetailScreen(
             TeamDetailScreenViewModel viewModel = null,
@@ -118,7 +120,7 @@ namespace ConnectApp.screens {
 
         public readonly TeamDetailScreenViewModel viewModel;
         public readonly TeamDetailScreenActionModel actionModel;
-        
+
         public override State createState() {
             return new _TeamDetailScreenState();
         }
@@ -135,6 +137,7 @@ namespace ConnectApp.screens {
         float _topPadding;
         Animation<RelativeRect> _animation;
         AnimationController _controller;
+
         public override void initState() {
             base.initState();
             StatusBarManager.statusBarStyle(true);
@@ -154,7 +157,7 @@ namespace ConnectApp.screens {
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchTeam();
                 this.widget.actionModel.fetchTeam();
-                
+
                 this.widget.actionModel.startFetchTeamArticle();
                 this.widget.actionModel.fetchTeamArticle(0);
             });
@@ -162,7 +165,7 @@ namespace ConnectApp.screens {
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            Router.routeObserve.subscribe(this, (PageRoute)ModalRoute.of(this.context));
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
         }
 
         public override void dispose() {
@@ -180,7 +183,8 @@ namespace ConnectApp.screens {
             if (scrollController.offset < 0) {
                 this._factor = 1 + scrollController.offset.abs() * _transformSpeed;
                 this.setState(() => { });
-            } else {
+            }
+            else {
                 if (this._factor != 1) {
                     this.setState(() => this._factor = 1);
                 }
@@ -230,7 +234,7 @@ namespace ConnectApp.screens {
             ShareUtils.showShareView(new ShareView(
                 projectType: ProjectType.article,
                 onPressed: type => {
-                    string linkUrl = $"{Config.apiAddress}/p/{article.id}";
+                    var linkUrl = CStringUtils.JointProjectShareLink(projectId: article.id);
                     if (type == ShareType.clipBoard) {
                         Clipboard.setData(new ClipboardData(text: linkUrl));
                         CustomDialogUtils.showToast("复制链接成功", iconData: Icons.check_circle_outline);
@@ -269,12 +273,15 @@ namespace ConnectApp.screens {
                 Application.platform != RuntimePlatform.Android) {
                 this._topPadding = MediaQuery.of(context).padding.top;
             }
+
             Widget content = new Container();
             if (this.widget.viewModel.teamLoading && this.widget.viewModel.team == null) {
                 content = new GlobalLoading();
-            } else if (this.widget.viewModel.team != null) {
+            }
+            else if (this.widget.viewModel.team != null) {
                 content = this._buildContent(context: context);
             }
+
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
@@ -309,6 +316,7 @@ namespace ConnectApp.screens {
                     }
                 );
             }
+
             return new Positioned(
                 left: 0,
                 top: 0,
@@ -351,7 +359,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         Widget _buildContent(BuildContext context) {
             var teamId = this.widget.viewModel.teamId;
             var articles = this.widget.viewModel.teamArticleDict.ContainsKey(key: teamId)
@@ -372,6 +380,7 @@ namespace ConnectApp.screens {
                     itemCount = 2 + (articles.Count == 0 ? 1 : articleCount);
                 }
             }
+
             return new Container(
                 color: CColors.Background,
                 child: new CustomScrollbar(
@@ -403,7 +412,7 @@ namespace ConnectApp.screens {
                                         child: new GlobalLoading()
                                     );
                                 }
-                           
+
                                 if ((articles == null || articles.Count == 0) && index == 2) {
                                     var height = MediaQuery.of(context: context).size.height - headerHeight - 44;
                                     return new Container(
@@ -436,7 +445,7 @@ namespace ConnectApp.screens {
 
         Widget _buildTeamInfo() {
             var team = this.widget.viewModel.team;
-            
+
             return new CoverImage(
                 coverImage: team.coverImage,
                 height: headerHeight,
@@ -562,6 +571,7 @@ namespace ConnectApp.screens {
                     );
                 };
             }
+
             Widget buttonChild;
             bool isEnable;
             if (this.widget.viewModel.followTeamLoading) {
@@ -574,7 +584,7 @@ namespace ConnectApp.screens {
             else {
                 buttonChild = new Text(
                     data: followText,
-                    style: isTop 
+                    style: isTop
                         ? new TextStyle(
                             fontSize: 14,
                             fontFamily: "Roboto-Medium",
@@ -595,7 +605,9 @@ namespace ConnectApp.screens {
                         decoration: new BoxDecoration(
                             color: CColors.Transparent,
                             borderRadius: BorderRadius.circular(14),
-                            border: isFollow ? Border.all(color: CColors.Disable2) : Border.all(color: CColors.PrimaryBlue)
+                            border: isFollow
+                                ? Border.all(color: CColors.Disable2)
+                                : Border.all(color: CColors.PrimaryBlue)
                         ),
                         child: buttonChild
                     ),
@@ -603,6 +615,7 @@ namespace ConnectApp.screens {
                         if (!isEnable) {
                             return;
                         }
+
                         if (this.widget.viewModel.isLoggedIn) {
                             onTap();
                         }
@@ -612,6 +625,7 @@ namespace ConnectApp.screens {
                     }
                 );
             }
+
             return new CustomButton(
                 padding: EdgeInsets.zero,
                 child: new Container(
@@ -629,6 +643,7 @@ namespace ConnectApp.screens {
                     if (!isEnable) {
                         return;
                     }
+
                     if (this.widget.viewModel.isLoggedIn) {
                         onTap();
                     }
@@ -643,10 +658,13 @@ namespace ConnectApp.screens {
             StatusBarManager.statusBarStyle(this._hideNavBar);
         }
 
-        public void didPush() {}
+        public void didPush() {
+        }
 
-        public void didPop() {}
+        public void didPop() {
+        }
 
-        public void didPushNext() {}
+        public void didPushNext() {
+        }
     }
 }

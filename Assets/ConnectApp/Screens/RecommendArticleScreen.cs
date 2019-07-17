@@ -213,6 +213,7 @@ namespace ConnectApp.screens {
                                 }
                             }
 
+                            var linkUrl = CStringUtils.JointProjectShareLink(projectId: article.id);
                             return new ArticleCard(
                                 article: article,
                                 () => {
@@ -223,7 +224,6 @@ namespace ConnectApp.screens {
                                     this.widget.viewModel.currentUserId != userId,
                                     isLoggedIn: this.widget.viewModel.isLoggedIn,
                                     () => {
-                                        string linkUrl = $"{Config.apiAddress}/p/{article.id}";
                                         Clipboard.setData(new ClipboardData(text: linkUrl));
                                         CustomDialogUtils.showToast("复制链接成功", iconData: Icons.check_circle_outline);
                                     },
@@ -234,7 +234,6 @@ namespace ConnectApp.screens {
                                         CustomDialogUtils.showCustomDialog(
                                             child: new CustomLoadingDialog()
                                         );
-                                        string linkUrl = $"{Config.apiAddress}/p/{article.id}";
                                         string imageUrl = $"{article.thumbnail.url}.200x0x1.jpg";
                                         this.widget.actionModel.shareToWechat(arg1: type, arg2: article.title,
                                                 arg3: article.subTitle, arg4: linkUrl, arg5: imageUrl)
