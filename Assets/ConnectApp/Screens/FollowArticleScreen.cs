@@ -357,7 +357,7 @@ namespace ConnectApp.screens {
             }
             var followButtons = new List<Widget>();
             if (followingList.Count > 5) {
-                followingList.RemoveRange(5, followingList.Count - 5);
+                followingList = followingList.GetRange(0, 5);
             }
             followingList.ForEach(followingUser => {
                 var followButton = _buildFollowButton(
