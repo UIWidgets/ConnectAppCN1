@@ -98,8 +98,10 @@ namespace ConnectApp.Models.State {
                 teamState = new TeamState {
                     teamLoading = false,
                     teamArticleLoading = false,
+                    followTeamLoading = false,
                     teamFollowerLoading = false,
                     teamDict = new Dictionary<string, Team>(),
+                    currentFollowId = "",
                     teamArticleDict = new Dictionary<string, List<Article>>(),
                     teamFollowerDict = new Dictionary<string, List<User>>(),
                     teamArticleHasMore = false,

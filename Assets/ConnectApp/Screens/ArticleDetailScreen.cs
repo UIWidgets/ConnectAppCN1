@@ -14,15 +14,14 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Avatar = ConnectApp.Components.Avatar;
-using Config = ConnectApp.Constants.Config;
 
 namespace ConnectApp.screens {
     public class ArticleDetailScreenConnector : StatelessWidget {
@@ -45,11 +44,15 @@ namespace ConnectApp.screens {
                     loginUserId = state.loginState.loginInfo.userId,
                     isLoggedIn = state.loginState.isLoggedIn,
                     articleDetailLoading = state.articleState.articleDetailLoading,
+                    followLoading = state.userState.followUserLoading || state.teamState.followTeamLoading,
                     articleDict = state.articleState.articleDict,
                     channelMessageList = state.messageState.channelMessageList,
                     channelMessageDict = state.messageState.channelMessageDict,
                     userDict = state.userState.userDict,
-                    teamDict = state.teamState.teamDict
+                    teamDict = state.teamState.teamDict,
+                    followMap = state.followState.followDict.ContainsKey(state.loginState.loginInfo.userId ?? "")
+                        ? state.followState.followDict[state.loginState.loginInfo.userId ?? ""]
+                        : new Dictionary<string, bool>()
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ArticleDetailScreenActionModel {
@@ -115,6 +118,14 @@ namespace ConnectApp.screens {
                             return dispatcher.dispatch<IPromise>(
                                 Actions.sendComment(this.articleId, channelId, content, nonce, parentMessageId));
                         },
+                        startFollowUser = () => dispatcher.dispatch(new StartFetchFollowUserAction()),
+                        followUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(userId)),
+                        startUnFollowUser = () => dispatcher.dispatch(new StartFetchUnFollowUserAction()),
+                        unFollowUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(userId)),
+                        startFollowTeam = () => dispatcher.dispatch(new StartFetchFollowTeamAction()),
+                        followTeam = teamId => dispatcher.dispatch<IPromise>(Actions.fetchFollowTeam(teamId)),
+                        startUnFollowTeam = () => dispatcher.dispatch(new StartFetchUnFollowTeamAction()),
+                        unFollowTeam = teamId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowTeam(teamId)),
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
                             Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
                     };
@@ -358,8 +369,8 @@ namespace ConnectApp.screens {
             Widget rightWidget = new Container();
             if (isShowRightWidget) {
                 string rightWidgetTitle = this._article.commentCount > 0
-                    ? $"{this._article.commentCount}个评论"
-                    : "评论";
+                    ? $"{this._article.commentCount} 评论"
+                    : "抢个沙发";
                 rightWidget = new Container(
                     margin: EdgeInsets.only(8, right: 16),
                     child: new CustomButton(
@@ -396,11 +407,11 @@ namespace ConnectApp.screens {
                             });
                         },
                         child: new Container(
-                            width: 88,
                             height: 28,
+                            padding: EdgeInsets.symmetric(horizontal: 16),
                             alignment: Alignment.center,
                             decoration: new BoxDecoration(
-                                border: Border.all(CColors.PrimaryBlue),
+                                color: CColors.PrimaryBlue,
                                 borderRadius: BorderRadius.all(14)
                             ),
                             child: new Text(
@@ -408,7 +419,7 @@ namespace ConnectApp.screens {
                                 style: new TextStyle(
                                     fontSize: 14,
                                     fontFamily: "Roboto-Medium",
-                                    color: CColors.PrimaryBlue
+                                    color: CColors.White
                                 )
                             )
                         )
@@ -439,6 +450,47 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.fetchArticleComments(this._article.channelId, this._article.currOldestMessageId)
                     .Then(() => { this._refreshController.sendBack(up, RefreshStatus.idle); })
                     .Catch(err => { this._refreshController.sendBack(up, RefreshStatus.failed); });
+            }
+        }
+
+        void _onFollow(UserType userType, string userId) {
+            if (this.widget.viewModel.isLoggedIn) {
+                if (userType == UserType.follow) {
+                    ActionSheetUtils.showModalActionSheet(
+                        new ActionSheet(
+                            title: "确定不再关注？",
+                            items: new List<ActionSheetItem> {
+                                new ActionSheetItem("确定", type: ActionType.normal, () => {
+                                    if (this._article.ownerType == OwnerType.user.ToString()) {
+                                        this.widget.actionModel.startUnFollowUser();
+                                        this.widget.actionModel.unFollowUser(arg: userId);
+                                    }
+
+                                    if (this._article.ownerType == OwnerType.team.ToString()) {
+                                        this.widget.actionModel.startUnFollowTeam();
+                                        this.widget.actionModel.unFollowTeam(arg: userId);
+                                    }
+                                }),
+                                new ActionSheetItem("取消", type: ActionType.cancel)
+                            }
+                        )
+                    );
+                }
+
+                if (userType == UserType.unFollow) {
+                    if (this._article.ownerType == OwnerType.user.ToString()) {
+                        this.widget.actionModel.startFollowUser();
+                        this.widget.actionModel.followUser(arg: userId);
+                    }
+
+                    if (this._article.ownerType == OwnerType.team.ToString()) {
+                        this.widget.actionModel.startFollowTeam();
+                        this.widget.actionModel.followTeam(arg: userId);
+                    }
+                }
+            }
+            else {
+                this.widget.actionModel.pushToLogin();
             }
         }
 
@@ -475,7 +527,7 @@ namespace ConnectApp.screens {
             Widget descriptionWidget = new Container();
             if (description.isNotEmpty()) {
                 descriptionWidget = new Text(
-                    description,
+                    data: description,
                     style: CTextStyle.PSmallBody3
                 );
             }
@@ -487,7 +539,7 @@ namespace ConnectApp.screens {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
                         new Text(
-                            this._article.title,
+                            data: this._article.title,
                             style: CTextStyle.H3
                         ),
                         new Container(
@@ -497,42 +549,55 @@ namespace ConnectApp.screens {
                                 style: CTextStyle.PSmallBody4
                             )
                         ),
-                        new GestureDetector(
-                            onTap: () => {
-                                if (this._article.ownerType == OwnerType.user.ToString()) {
-                                    this.widget.actionModel.pushToUserDetail(this._user.id);
-                                }
-                            },
-                            child: new Container(
-                                margin: EdgeInsets.only(top: 24, bottom: 24),
-                                child: new Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: new List<Widget> {
-                                        new Container(
-                                            margin: EdgeInsets.only(right: 8),
-                                            child: _avatar
-                                        ),
-                                        new Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: new List<Widget> {
-                                                new Text(
-                                                    text,
-                                                    style: CTextStyle.PRegularBody
-                                                ),
-                                                descriptionWidget
+                        new Row(
+                            children: new List<Widget> {
+                                new Expanded(
+                                    child: new GestureDetector(
+                                        onTap: () => {
+                                            if (this._article.ownerType == OwnerType.user.ToString()) {
+                                                this.widget.actionModel.pushToUserDetail(obj: this._user.id);
                                             }
+
+                                            if (this._article.ownerType == OwnerType.team.ToString()) {
+                                                this.widget.actionModel.pushToTeamDetail(obj: this._team.id);
+                                            }
+                                        },
+                                        child: new Container(
+                                            margin: EdgeInsets.only(top: 24, bottom: 24),
+                                            color: CColors.Transparent,
+                                            child: new Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: new List<Widget> {
+                                                    new Container(
+                                                        margin: EdgeInsets.only(right: 8),
+                                                        child: _avatar
+                                                    ),
+                                                    new Column(
+                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: new List<Widget> {
+                                                            new Text(
+                                                                data: text,
+                                                                style: CTextStyle.PRegularBody
+                                                            ),
+                                                            descriptionWidget
+                                                        }
+                                                    )
+                                                }
+                                            )
                                         )
-                                    }
-                                )
-                            )
+                                    )
+                                ),
+                                new SizedBox(width: 8),
+                                this._buildFollowButton()
+                            }
                         ),
                         this._article.subTitle.isEmpty()
                             ? new Container()
                             : new Container(
                                 margin: EdgeInsets.only(bottom: 24),
                                 decoration: new BoxDecoration(
-                                    CColors.Separator2,
+                                    color: CColors.Separator2,
                                     borderRadius: BorderRadius.all(4)
                                 ),
                                 padding: EdgeInsets.only(16, 12, 16, 12),
@@ -541,6 +606,30 @@ namespace ConnectApp.screens {
                             )
                     }
                 )
+            );
+        }
+
+        Widget _buildFollowButton() {
+            var id = this._article.ownerType == OwnerType.user.ToString() ? this._user.id : this._team.id;
+            UserType userType = UserType.unFollow;
+            if (!this.widget.viewModel.isLoggedIn) {
+                userType = UserType.unFollow;
+            }
+            else {
+                if (this.widget.viewModel.loginUserId == id) {
+                    userType = UserType.me;
+                }
+                else if (this.widget.viewModel.followLoading) {
+                    userType = UserType.loading;
+                }
+                else if (this.widget.viewModel.followMap.ContainsKey(key: id)) {
+                    userType = UserType.follow;
+                }
+            }
+
+            return new FollowButton(
+                userType: userType,
+                () => this._onFollow(userType: userType, userId: id)
             );
         }
 
@@ -801,11 +890,12 @@ namespace ConnectApp.screens {
                 userId = this._article.teamId;
             }
 
+            var linkUrl = CStringUtils.JointProjectShareLink(projectId: this._article.id);
+
             ShareManager.showArticleShareView(
                 this.widget.viewModel.loginUserId != userId,
                 isLoggedIn: this.widget.viewModel.isLoggedIn,
                 () => {
-                    string linkUrl = $"{Config.apiAddress}/p/{this._article.id}";
                     Clipboard.setData(new ClipboardData(text: linkUrl));
                     CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
                 },
@@ -816,7 +906,6 @@ namespace ConnectApp.screens {
                     CustomDialogUtils.showCustomDialog(
                         child: new CustomLoadingDialog()
                     );
-                    string linkUrl = $"{Config.apiAddress}/p/{this._article.id}";
                     string imageUrl = $"{this._article.thumbnail.url}.200x0x1.jpg";
                     this.widget.actionModel.shareToWechat(arg1: type, arg2: this._article.title,
                             arg3: this._article.subTitle, arg4: linkUrl, arg5: imageUrl)
