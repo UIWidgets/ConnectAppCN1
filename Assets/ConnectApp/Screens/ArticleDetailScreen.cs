@@ -51,8 +51,8 @@ namespace ConnectApp.screens {
                     channelMessageDict = state.messageState.channelMessageDict,
                     userDict = state.userState.userDict,
                     teamDict = state.teamState.teamDict,
-                    followMap = state.followState.followDict.ContainsKey(key: state.loginState.loginInfo.userId)
-                        ? state.followState.followDict[key: state.loginState.loginInfo.userId]
+                    followMap = state.followState.followDict.ContainsKey(state.loginState.loginInfo.userId ?? "")
+                        ? state.followState.followDict[state.loginState.loginInfo.userId ?? ""]  
                         : new Dictionary<string, bool>()
                 },
                 builder: (context1, viewModel, dispatcher) => {
