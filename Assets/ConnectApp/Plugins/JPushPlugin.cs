@@ -111,12 +111,12 @@ namespace ConnectApp.Plugins {
             }
 
             var uri = new Uri(link);
-            if (uri.Scheme.Equals("connectapplink")) {
+            if (uri.AbsolutePath.StartsWith("/connectapplink/")) {
                 var type = "";
-                if (uri.AbsolutePath.Equals("/project_detail")) {
+                if (uri.AbsolutePath.Equals("/connectapplink/project_detail")) {
                     type = "project";
                 }
-                else if (uri.AbsolutePath.Equals("/event_detail")) {
+                else if (uri.AbsolutePath.Equals("/connectapplink/event_detail")) {
                     type = "event";
                 }
                 else {
