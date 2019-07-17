@@ -140,6 +140,42 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case StartFetchFollowArticlesAction _: {
+                    state.articleState.followArticlesLoading = true;
+                    break;
+                }
+
+                case FetchFollowArticleSuccessAction action: {
+                    if (action.pageNumber == 1) {
+                        state.articleState.followArticleList.Clear();
+                        state.articleState.hotArticleList.Clear();
+                    }
+
+                    foreach (var article in action.projects) {
+                        state.articleState.followArticleList.Add(item: article.id);
+                        if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
+                            state.articleState.articleDict.Add(key: article.id, value: article);
+                        }
+                    }
+
+                    foreach (var article in action.hottests) {
+                        state.articleState.hotArticleList.Add(item: article.id);
+                        if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
+                            state.articleState.articleDict.Add(key: article.id, value: article);
+                        }
+                    }
+
+                    state.articleState.followArticleHasMore = action.projectHasMore;
+                    state.articleState.hotArticleHasMore = action.hottestHasMore;
+                    state.articleState.followArticlesLoading = false;
+                    break;
+                }
+
+                case FetchFollowArticleFailureAction _: {
+                    state.articleState.followArticlesLoading = false;
+                    break;
+                }
+
                 case StartFetchArticleDetailAction _: {
                     state.articleState.articleDetailLoading = true;
                     break;
@@ -218,6 +254,15 @@ namespace ConnectApp.redux.reducers {
                 case LikeArticleSuccessAction action: {
                     if (state.articleState.articleDict.ContainsKey(key: action.articleId)) {
                         state.articleState.articleDict[key: action.articleId].like = true;
+                    }
+
+                    var currentUserId = state.loginState.loginInfo.userId ?? "";
+                    if (state.likeState.likeDict.ContainsKey(key: currentUserId) && currentUserId.isNotEmpty()) {
+                        var likeMap = state.likeState.likeDict[key: currentUserId];
+                        if (!likeMap.ContainsKey(key: action.articleId)) {
+                            likeMap.Add(key: action.articleId, true);
+                        }
+                        state.likeState.likeDict[key: currentUserId] = likeMap;
                     }
 
                     break;
@@ -691,83 +736,109 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case UserMapAction action: {
-                    var userDict = state.userState.userDict;
-                    foreach (var keyValuePair in action.userMap) {
-                        if (userDict.ContainsKey(key: keyValuePair.Key)) {
-                            var oldUser = userDict[key: keyValuePair.Key];
-                            var newUser = keyValuePair.Value;
-                            newUser.followingCount = oldUser.followingCount;
-                            newUser.followings = oldUser.followings;
-                            newUser.followingsHasMore = oldUser.followingsHasMore;
-                            newUser.followers = oldUser.followers;
-                            newUser.followersHasMore = oldUser.followersHasMore;
-                            newUser.articles = oldUser.articles;
-                            newUser.articlesHasMore = oldUser.articlesHasMore;
-                            newUser.jobRoleMap = oldUser.jobRoleMap;
-                            userDict[key: keyValuePair.Key] = newUser;
+                    if (action.userMap != null && action.userMap.isNotEmpty()) {
+                        var userDict = state.userState.userDict;
+                        foreach (var keyValuePair in action.userMap) {
+                            if (userDict.ContainsKey(key: keyValuePair.Key)) {
+                                var oldUser = userDict[key: keyValuePair.Key];
+                                userDict[key: keyValuePair.Key] = oldUser.Merge(other: keyValuePair.Value);
+                            }
+                            else {
+                                userDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
+                            }
                         }
-                        else {
-                            userDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
-                        }
-                    }
 
-                    state.userState.userDict = userDict;
+                        state.userState.userDict = userDict;
+                    }
                     break;
                 }
 
                 case TeamMapAction action: {
-                    var teamDict = state.teamState.teamDict;
-                    foreach (var keyValuePair in action.teamMap) {
-                        if (teamDict.ContainsKey(key: keyValuePair.Key)) {
-                            teamDict[key: keyValuePair.Key] = keyValuePair.Value;
+                    if (action.teamMap != null && action.teamMap.isNotEmpty()) {
+                        var teamDict = state.teamState.teamDict;
+                        foreach (var keyValuePair in action.teamMap) {
+                            if (teamDict.ContainsKey(key: keyValuePair.Key)) {
+                                teamDict[key: keyValuePair.Key] = keyValuePair.Value;
+                            }
+                            else {
+                                teamDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
+                            }
                         }
-                        else {
-                            teamDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
-                        }
-                    }
 
-                    state.teamState.teamDict = teamDict;
+                        state.teamState.teamDict = teamDict;
+                    }
                     break;
                 }
 
                 case PlaceMapAction action: {
-                    var placeDict = state.placeState.placeDict;
-                    foreach (var keyValuePair in action.placeMap) {
-                        if (placeDict.ContainsKey(key: keyValuePair.Key)) {
-                            placeDict[key: keyValuePair.Key] = keyValuePair.Value;
+                    if (action.placeMap != null && action.placeMap.isNotEmpty()) {
+                        var placeDict = state.placeState.placeDict;
+                        foreach (var keyValuePair in action.placeMap) {
+                            if (placeDict.ContainsKey(key: keyValuePair.Key)) {
+                                placeDict[key: keyValuePair.Key] = keyValuePair.Value;
+                            }
+                            else {
+                                placeDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
+                            }
                         }
-                        else {
-                            placeDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
-                        }
-                    }
 
-                    state.placeState.placeDict = placeDict;
+                        state.placeState.placeDict = placeDict;
+                    }
                     break;
                 }
 
                 case FollowMapAction action: {
-                    var userId = state.loginState.loginInfo.userId ?? "";
-                    if (userId.isNotEmpty()) {
-                        var followDict = state.followState.followDict;
-                        Dictionary<string, bool> followMap = followDict.ContainsKey(key: userId)
-                            ? followDict[key: userId]
-                            : new Dictionary<string, bool>();
-                        foreach (var keyValuePair in action.followMap) {
-                            if (!followMap.ContainsKey(key: keyValuePair.Key)) {
-                                followMap.Add(key: keyValuePair.Key, value: keyValuePair.Value);
+                    if (action.followMap != null && action.followMap.isNotEmpty()) {
+                        var userId = state.loginState.loginInfo.userId ?? "";
+                        if (userId.isNotEmpty()) {
+                            var followDict = state.followState.followDict;
+                            Dictionary<string, bool> followMap = followDict.ContainsKey(key: userId)
+                                ? followDict[key: userId]
+                                : new Dictionary<string, bool>();
+                            foreach (var keyValuePair in action.followMap) {
+                                if (!followMap.ContainsKey(key: keyValuePair.Key)) {
+                                    followMap.Add(key: keyValuePair.Key, value: keyValuePair.Value);
+                                }
                             }
-                        }
 
-                        if (followDict.ContainsKey(key: userId)) {
-                            followDict[key: userId] = followMap;
-                        }
-                        else {
-                            followDict.Add(key: userId, value: followMap);
-                        }
+                            if (followDict.ContainsKey(key: userId)) {
+                                followDict[key: userId] = followMap;
+                            }
+                            else {
+                                followDict.Add(key: userId, value: followMap);
+                            }
 
-                        state.followState.followDict = followDict;
+                            state.followState.followDict = followDict;
+                        }
                     }
+                    
+                    break;
+                }
 
+                case LikeMapAction action: {
+                    if (action.likeMap != null && action.likeMap.isNotEmpty()) {
+                        var userId = state.loginState.loginInfo.userId ?? "";
+                        if (userId.isNotEmpty()) {
+                            var likeDict = state.likeState.likeDict;
+                            Dictionary<string, bool> likeMap = likeDict.ContainsKey(key: userId)
+                                ? likeDict[key: userId]
+                                : new Dictionary<string, bool>();
+                            foreach (var keyValuePair in action.likeMap) {
+                                if (!likeMap.ContainsKey(key: keyValuePair.Key)) {
+                                    likeMap.Add(key: keyValuePair.Key, value: keyValuePair.Value);
+                                }
+                            }
+
+                            if (likeDict.ContainsKey(key: userId)) {
+                                likeDict[key: userId] = likeMap;
+                            }
+                            else {
+                                likeDict.Add(key: userId, value: likeMap);
+                            }
+
+                            state.likeState.likeDict = likeDict;
+                        }
+                    }
                     break;
                 }
 
@@ -1261,13 +1332,21 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case StartFetchFollowUserAction action: {
-                    state.userState.followUserLoading = true;
-                    state.userState.currentFollowId = action.followUserId;
+                    if (state.userState.userDict.ContainsKey(key: action.followUserId)) {
+                        var user = state.userState.userDict[key: action.followUserId];
+                        user.followUserLoading = true;
+                        state.userState.userDict[key: action.followUserId] = user;
+                    }
                     break;
                 }
 
                 case FetchFollowUserSuccessAction action: {
-                    state.userState.followUserLoading = false;
+                    if (state.userState.userDict.ContainsKey(key: action.followUserId)) {
+                        var user = state.userState.userDict[key: action.followUserId];
+                        user.followUserLoading = false;
+                        state.userState.userDict[key: action.followUserId] = user;
+                    }
+
                     if (state.followState.followDict.ContainsKey(key: action.currentUserId)) {
                         var followMap = state.followState.followDict[key: action.currentUserId];
                         if (!followMap.ContainsKey(key: action.followUserId)) {
@@ -1275,6 +1354,13 @@ namespace ConnectApp.redux.reducers {
                         }
 
                         state.followState.followDict[key: action.currentUserId] = followMap;
+                    }
+                    else {
+                        var followMap = new Dictionary<string, bool>();
+                        if (!followMap.ContainsKey(key: action.followUserId)) {
+                            followMap.Add(key: action.followUserId, value: action.success);
+                        }
+                        state.followState.followDict.Add(key: action.currentUserId, value: followMap);
                     }
 
                     if (state.userState.userDict.ContainsKey(key: action.currentUserId)) {
@@ -1292,19 +1378,30 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case FetchFollowUserFailureAction _: {
-                    state.userState.followUserLoading = false;
+                case FetchFollowUserFailureAction action: {
+                    if (state.userState.userDict.ContainsKey(key: action.followUserId)) {
+                        var user = state.userState.userDict[key: action.followUserId];
+                        user.followUserLoading = false;
+                        state.userState.userDict[key: action.followUserId] = user;
+                    }
                     break;
                 }
 
                 case StartFetchUnFollowUserAction action: {
-                    state.userState.followUserLoading = true;
-                    state.userState.currentFollowId = action.unFollowUserId;
+                    if (state.userState.userDict.ContainsKey(key: action.unFollowUserId)) {
+                        var user = state.userState.userDict[key: action.unFollowUserId];
+                        user.followUserLoading = true;
+                        state.userState.userDict[key: action.unFollowUserId] = user;
+                    }
                     break;
                 }
 
                 case FetchUnFollowUserSuccessAction action: {
-                    state.userState.followUserLoading = false;
+                    if (state.userState.userDict.ContainsKey(key: action.unFollowUserId)) {
+                        var user = state.userState.userDict[key: action.unFollowUserId];
+                        user.followUserLoading = false;
+                        state.userState.userDict[key: action.unFollowUserId] = user;
+                    }
                     if (state.followState.followDict.ContainsKey(key: action.currentUserId)) {
                         var followMap = state.followState.followDict[key: action.currentUserId];
                         if (followMap.ContainsKey(key: action.unFollowUserId)) {
@@ -1329,8 +1426,12 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case FetchUnFollowUserFailureAction _: {
-                    state.userState.followUserLoading = false;
+                case FetchUnFollowUserFailureAction action: {
+                    if (state.userState.userDict.ContainsKey(key: action.unFollowUserId)) {
+                        var user = state.userState.userDict[key: action.unFollowUserId];
+                        user.followUserLoading = false;
+                        state.userState.userDict[key: action.unFollowUserId] = user;
+                    }
                     break;
                 }
 
@@ -1419,16 +1520,7 @@ namespace ConnectApp.redux.reducers {
                 case EditPersonalInfoSuccessAction action: {
                     if (state.userState.userDict.ContainsKey(key: action.user.id)) {
                         var oldUser = state.userState.userDict[key: action.user.id];
-                        var newUser = action.user;
-                        newUser.followingCount = oldUser.followingCount;
-                        newUser.followings = oldUser.followings;
-                        newUser.followingsHasMore = oldUser.followingsHasMore;
-                        newUser.followers = oldUser.followers;
-                        newUser.followersHasMore = oldUser.followersHasMore;
-                        newUser.articles = oldUser.articles;
-                        newUser.articlesHasMore = oldUser.articlesHasMore;
-                        newUser.jobRoleMap = oldUser.jobRoleMap;
-                        state.userState.userDict[key: action.user.id] = newUser;
+                        state.userState.userDict[key: action.user.id] = oldUser.Merge(action.user);
                     }
 
                     break;
@@ -1534,6 +1626,13 @@ namespace ConnectApp.redux.reducers {
                             followMap.Add(key: action.followTeamId, value: action.success);
                         }
                         state.followState.followDict[key: action.currentUserId] = followMap;
+                    }
+                    else {
+                        var followMap = new Dictionary<string, bool>();
+                        if (!followMap.ContainsKey(key: action.followTeamId)) {
+                            followMap.Add(key: action.followTeamId, value: action.success);
+                        }
+                        state.followState.followDict.Add(key: action.currentUserId, value: followMap);
                     }
                     if (state.userState.userDict.ContainsKey(key: action.currentUserId)) {
                         var user = state.userState.userDict[key: action.currentUserId];

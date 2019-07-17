@@ -35,8 +35,8 @@ namespace ConnectApp.screens {
             this.isPush = isPush;
         }
 
-        public readonly string articleId;
-        public readonly bool isPush;
+        readonly string articleId;
+        readonly bool isPush;
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ArticleDetailScreenViewModel>(
@@ -45,7 +45,7 @@ namespace ConnectApp.screens {
                     loginUserId = state.loginState.loginInfo.userId,
                     isLoggedIn = state.loginState.isLoggedIn,
                     articleDetailLoading = state.articleState.articleDetailLoading,
-                    followLoading = state.userState.followUserLoading || state.teamState.followTeamLoading,
+                    followTeamLoading = state.teamState.followTeamLoading,
                     articleDict = state.articleState.articleDict,
                     channelMessageList = state.messageState.channelMessageList,
                     channelMessageDict = state.messageState.channelMessageDict,
@@ -613,9 +613,19 @@ namespace ConnectApp.screens {
                 userType = UserType.unFollow;
             }
             else {
+                bool followLoading = false;
+                if (this._article.ownerType == OwnerType.user.ToString()) {
+                    if (this.widget.viewModel.userDict.ContainsKey(key: id)) {
+                        var user = this.widget.viewModel.userDict[key: id];
+                        followLoading = user.followUserLoading;
+                    }
+                }
+                else {
+                    followLoading = this.widget.viewModel.followTeamLoading;
+                }
                 if (this.widget.viewModel.loginUserId == id) {
                     userType = UserType.me;
-                } else if (this.widget.viewModel.followLoading) {
+                } else if (followLoading) {
                     userType = UserType.loading;
                 } else if (this.widget.viewModel.followMap.ContainsKey(key: id)) {
                     userType = UserType.follow;

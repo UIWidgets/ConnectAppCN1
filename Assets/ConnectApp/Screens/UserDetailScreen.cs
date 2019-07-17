@@ -51,7 +51,6 @@ namespace ConnectApp.screens {
                         userId = this.userId,
                         userLoading = state.userState.userLoading,
                         userArticleLoading = state.userState.userArticleLoading,
-                        followUserLoading = state.userState.followUserLoading,
                         user = user,
                         followMap = followMap,
                         articleOffset = articleOffset,
@@ -65,9 +64,9 @@ namespace ConnectApp.screens {
                         fetchUserProfile = () => dispatcher.dispatch<IPromise>(Actions.fetchUserProfile(this.userId)),
                         startFetchUserArticle = () => dispatcher.dispatch(new StartFetchUserArticleAction()),
                         fetchUserArticle = offset => dispatcher.dispatch<IPromise>(Actions.fetchUserArticle(this.userId, offset)),
-                        startFollowUser = () => dispatcher.dispatch(new StartFetchFollowUserAction()),
+                        startFollowUser = () => dispatcher.dispatch(new StartFetchFollowUserAction {followUserId = this.userId}),
                         followUser = () => dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(this.userId)),
-                        startUnFollowUser = () => dispatcher.dispatch(new StartFetchUnFollowUserAction()),
+                        startUnFollowUser = () => dispatcher.dispatch(new StartFetchUnFollowUserAction {unFollowUserId = this.userId}),
                         unFollowUser = () => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(this.userId)),
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
@@ -486,7 +485,7 @@ namespace ConnectApp.screens {
                                             children: new List<Widget> {
                                                 _buildFollowButton(
                                                     "关注",
-                                                    $"{user.followingCount}",
+                                                    $"{user.followingCount ?? 0}",
                                                     () =>
                                                         this.widget.actionModel.pushToUserFollowing(
                                                             this.widget.viewModel.userId)
@@ -494,7 +493,7 @@ namespace ConnectApp.screens {
                                                 new SizedBox(width: 16),
                                                 _buildFollowButton(
                                                     "粉丝",
-                                                    $"{user.followCount}",
+                                                    $"{user.followCount ?? 0}",
                                                     () =>
                                                         this.widget.actionModel.pushToUserFollower(
                                                             this.widget.viewModel.userId)
@@ -606,12 +605,12 @@ namespace ConnectApp.screens {
                         new ActionSheet(
                             title: "确定不再关注？",
                             items: new List<ActionSheetItem> {
-                                new ActionSheetItem("确定", ActionType.normal,
+                                new ActionSheetItem("确定", type: ActionType.normal,
                                     () => {
                                         this.widget.actionModel.startUnFollowUser();
                                         this.widget.actionModel.unFollowUser();
                                     }),
-                                new ActionSheetItem("取消", ActionType.cancel)
+                                new ActionSheetItem("取消", type: ActionType.cancel)
                             }
                         )
                     );
@@ -619,7 +618,7 @@ namespace ConnectApp.screens {
             }
             Widget buttonChild;
             bool isEnable;
-            if (this.widget.viewModel.followUserLoading) {
+            if (this.widget.viewModel.user.followUserLoading) {
                 buttonChild = new CustomActivityIndicator(
                     loadingColor: isTop ? LoadingColor.black : LoadingColor.white,
                     size: LoadingSize.small
@@ -695,7 +694,7 @@ namespace ConnectApp.screens {
         }
         
         public void didPopNext() {
-            StatusBarManager.statusBarStyle(this._hideNavBar);
+            StatusBarManager.statusBarStyle(isLight: this._hideNavBar);
         }
 
         public void didPush() {}

@@ -7,7 +7,7 @@ namespace ConnectApp.Models.ViewModel {
         public string loginUserId;
         public bool isLoggedIn;
         public bool articleDetailLoading;
-        public bool followLoading;
+        public bool followTeamLoading;
         public Dictionary<string, Article> articleDict;
         public Dictionary<string, List<string>> channelMessageList;
         public Dictionary<string, Dictionary<string, Message>> channelMessageDict;

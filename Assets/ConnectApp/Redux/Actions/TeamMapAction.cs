@@ -78,9 +78,8 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return TeamApi.FetchTeam(teamId)
                     .Then(teamResponse => {
-                        if (teamResponse.placeMap != null) {
-                            dispatcher.dispatch(new PlaceMapAction {placeMap = teamResponse.placeMap});
-                        }
+                        dispatcher.dispatch(new PlaceMapAction {placeMap = teamResponse.placeMap});
+                        dispatcher.dispatch(new FollowMapAction {followMap = teamResponse.followMap});
                         dispatcher.dispatch(new FetchTeamSuccessAction {
                             team = teamResponse.team,
                             teamId = teamId
@@ -98,6 +97,7 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return TeamApi.FetchTeamArticle(teamId, offset)
                     .Then(teamArticleResponse => {
+                        dispatcher.dispatch(new LikeMapAction {likeMap = teamArticleResponse.likeMap});
                         dispatcher.dispatch(new FetchTeamArticleSuccessAction {
                             articles = teamArticleResponse.projects,
                             hasMore = teamArticleResponse.projectsHasMore,

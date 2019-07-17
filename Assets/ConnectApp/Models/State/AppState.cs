@@ -18,6 +18,7 @@ namespace ConnectApp.Models.State {
         public TeamState teamState { get; set; }
         public PlaceState placeState { get; set; }
         public FollowState followState { get; set; }
+        public LikeState likeState { get; set; }
         public MineState mineState { get; set; }
         public MessageState messageState { get; set; }
         public SettingState settingState { get; set; }
@@ -38,10 +39,15 @@ namespace ConnectApp.Models.State {
                 },
                 articleState = new ArticleState {
                     articleList = new List<string>(),
+                    followArticleList = new List<string>(),
+                    hotArticleList = new List<string>(),
                     articleDict = new Dictionary<string, Article>(),
                     articlesLoading = false,
+                    followArticlesLoading = false,
                     articleDetailLoading = false,
                     hottestHasMore = true,
+                    followArticleHasMore = false,
+                    hotArticleHasMore = false,
                     articleHistory = HistoryManager.articleHistoryList(isLogin ? loginInfo.userId : null),
                     blockArticleList = HistoryManager.blockArticleList(isLogin ? loginInfo.userId : null)
                 },
@@ -85,11 +91,9 @@ namespace ConnectApp.Models.State {
                 userState = new UserState {
                     userLoading = false,
                     userArticleLoading = false,
-                    followUserLoading = false,
                     followingLoading = false,
                     followerLoading = false,
                     userDict = UserInfoManager.initUserDict(),
-                    currentFollowId = "",
                     fullName = "",
                     title = "",
                     jobRole = new JobRole(),
@@ -112,6 +116,9 @@ namespace ConnectApp.Models.State {
                 },
                 followState = new FollowState {
                     followDict = new Dictionary<string, Dictionary<string, bool>>()
+                },
+                likeState = new LikeState {
+                    likeDict = new Dictionary<string, Dictionary<string, bool>>()
                 },
                 mineState = new MineState {
                     futureEventsList = new List<IEvent>(),

@@ -25,6 +25,19 @@ namespace ConnectApp.Api {
             return promise;
         }
 
+        public static Promise<FetchFollowArticlesResponse> FetchFollowArticles(int pageNumber) {
+            var promise = new Promise<FetchFollowArticlesResponse>();
+            var para = new Dictionary<string, object> {
+                {"page", pageNumber}
+            };
+            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/followingUsersArticles", parameter: para);
+            HttpManager.resume(request).Then(responseText => {
+                var followArticlesResponse = JsonConvert.DeserializeObject<FetchFollowArticlesResponse>(responseText);
+                promise.Resolve(followArticlesResponse);
+            }).Catch(exception => { promise.Reject(exception); });
+            return promise;
+        }
+
         public static Promise<FetchArticleDetailResponse> FetchArticleDetail(string articleId, bool isPush = false) {
             var promise = new Promise<FetchArticleDetailResponse>();
             var para = new Dictionary<string, object> {

@@ -30,12 +30,11 @@ namespace ConnectApp.screens {
                         : new Dictionary<string, bool>();
                     return new SearchScreenViewModel {
                         searchUserLoading = state.searchState.searchUserLoading,
-                        followUserLoading = state.userState.followUserLoading,
                         searchKeyword = state.searchState.keyword,
                         searchUsers = searchUsers,
                         searchUserHasMore = state.searchState.searchUserHasMore,
+                        userDict = state.userState.userDict,
                         followMap = followMap,
-                        currentFollowId = state.userState.currentFollowId,
                         currentUserId = currentUserId,
                         isLoggedIn = state.loginState.isLoggedIn
                     };
@@ -101,9 +100,9 @@ namespace ConnectApp.screens {
                 this._pageNumber++;
             }
 
-            this.widget.actionModel.searchUser(this.widget.viewModel.searchKeyword, this._pageNumber)
-                .Then(() => this._refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
-                .Catch(_ => this._refreshController.sendBack(up, RefreshStatus.failed));
+            this.widget.actionModel.searchUser(arg1: this.widget.viewModel.searchKeyword, arg2: this._pageNumber)
+                .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }
         
         void _onFollow(UserType userType, string userId) {
@@ -113,19 +112,19 @@ namespace ConnectApp.screens {
                         new ActionSheet(
                             title: "确定不再关注？",
                             items: new List<ActionSheetItem> {
-                                new ActionSheetItem("确定", ActionType.normal,
+                                new ActionSheetItem("确定", type: ActionType.normal,
                                     () => {
-                                        this.widget.actionModel.startUnFollowUser(userId);
-                                        this.widget.actionModel.unFollowUser(userId);
+                                        this.widget.actionModel.startUnFollowUser(obj: userId);
+                                        this.widget.actionModel.unFollowUser(arg: userId);
                                     }),
-                                new ActionSheetItem("取消", ActionType.cancel)
+                                new ActionSheetItem("取消", type: ActionType.cancel)
                             }
                         )
                     );
                 }
                 if (userType == UserType.unFollow) {
-                    this.widget.actionModel.startFollowUser(userId);
-                    this.widget.actionModel.followUser(userId);
+                    this.widget.actionModel.startFollowUser(obj: userId);
+                    this.widget.actionModel.followUser(arg: userId);
                 }
             }
             else {
@@ -194,10 +193,14 @@ namespace ConnectApp.screens {
                 userType = UserType.unFollow;
             }
             else {
+                var followUserLoading = false;
+                if (this.widget.viewModel.userDict.ContainsKey(key: searchUser.id)) {
+                    var user = this.widget.viewModel.userDict[key: searchUser.id];
+                    followUserLoading = user.followUserLoading;
+                }
                 if (this.widget.viewModel.currentUserId == searchUser.id) {
                     userType = UserType.me;
-                }  else if (this.widget.viewModel.followUserLoading
-                           && this.widget.viewModel.currentFollowId == searchUser.id) {
+                } else if (followUserLoading) {
                     userType = UserType.loading;
                 } else if (this.widget.viewModel.followMap.ContainsKey(key: searchUser.id)) {
                     userType = UserType.follow;
@@ -205,7 +208,7 @@ namespace ConnectApp.screens {
             }
             return new UserCard(
                 user: searchUser,
-                () => this.widget.actionModel.pushToUserDetail(searchUser.id),
+                () => this.widget.actionModel.pushToUserDetail(obj: searchUser.id),
                 userType: userType,
                 () => this._onFollow(userType: userType, userId: searchUser.id),
                 new ObjectKey(value: searchUser.id)

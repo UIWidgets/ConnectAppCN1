@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
@@ -6,7 +5,6 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
-using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -32,7 +30,7 @@ namespace ConnectApp.screens {
         public MyEventsScreen(
             MyEventsScreenActionModel actionModel = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.actionModel = actionModel;
         }
 
@@ -44,15 +42,6 @@ namespace ConnectApp.screens {
     }
 
     class _MyEventsScreenState : State<MyEventsScreen> {
-        PageController _pageController;
-        int _selectedIndex;
-
-        public override void initState() {
-            base.initState();
-            this._pageController = new PageController();
-            this._selectedIndex = 0;
-        }
-
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
@@ -63,8 +52,9 @@ namespace ConnectApp.screens {
                         child: new Column(
                             children: new List<Widget> {
                                 this._buildNavigationBar(context),
-                                this._buildSelectView(),
-                                this._buildContentView()
+                                new Expanded(
+                                    child: _buildContentView()
+                                )
                             }
                         )
                     )
@@ -106,40 +96,15 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildSelectView() {
+        static Widget _buildContentView() {
             return new CustomSegmentedControl(
                 new List<string> {"即将开始", "往期活动"},
-                newValue => {
-                    AnalyticsManager.ClickEventSegment("MineEvent", 0 == newValue ? "ongoing" : "completed");
-                    this.setState(() => this._selectedIndex = newValue);
-                    this._pageController.animateToPage(
-                        newValue,
-                        new TimeSpan(0, 0, 0, 0, 250),
-                        Curves.ease
-                    );
-                }, this._selectedIndex
+                new List<Widget> {
+                    new MyFutureEventsScreenConnector(),
+                    new MyPastEventsScreenConnector()
+                },
+                newValue => AnalyticsManager.ClickEventSegment("MineEvent", 0 == newValue ? "ongoing" : "completed")
             );
-        }
-
-        Widget _buildContentView() {
-            return new Flexible(
-                child: new Container(
-                    child: new PageView(
-                        physics: new BouncingScrollPhysics(),
-                        controller: this._pageController,
-                        onPageChanged: index => { this.setState(() => { this._selectedIndex = index; }); },
-                        children: new List<Widget> {
-                            new MyFutureEventsScreenConnector(),
-                            new MyPastEventsScreenConnector()
-                        }
-                    )
-                )
-            );
-        }
-
-        public override void dispose() {
-            this._pageController.dispose();
-            base.dispose();
         }
     }
 }
