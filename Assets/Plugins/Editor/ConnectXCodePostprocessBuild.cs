@@ -43,6 +43,32 @@ namespace Plugins.Editor {
             proj.AddBuildProperty(targetGuid: target, "OTHER_LDFLAGS", "-ObjC");
             proj.AddBuildProperty(targetGuid: target, "OTHER_LDFLAGS", "-all_load");
 
+            //associated-domains
+
+            string fileName = "unityconnect.entitlements";
+            string filePath = Path.Combine(path, fileName);
+            //Debug.Log ("filePath: " + filePath);
+            string fileContent = @"<?xml version=""1.0"" encoding=""UTF-8""?>
+<!DOCTYPE plist PUBLIC ""-//Apple//DTD PLIST 1.0//EN"" ""http://www.apple.com/DTDs/PropertyList-1.0.dtd 
+
+"">
+<plist version=""1.0"">
+<dict>
+    <key>com.apple.developer.associated-domains</key>
+    <array>
+        <string>applinks:connect-download.unity.com 
+
+</string>
+    </array>
+</dict>
+</plist>";
+            File.WriteAllText(filePath, fileContent);
+            proj.AddFile(filePath, fileName);
+            proj.SetBuildProperty(target, "CODE_SIGN_ENTITLEMENTS", fileName);
+            // save changed
+            File.WriteAllText(projPath, proj.WriteToString());
+
+
             // 读取 Preprocessor.h 文件
             var preprocessor = new XClass(path + "/Classes/Preprocessor.h");
             preprocessor.Replace("#define UNITY_USES_REMOTE_NOTIFICATIONS 0",
