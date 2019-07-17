@@ -15,8 +15,8 @@ using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -24,7 +24,6 @@ using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Avatar = ConnectApp.Components.Avatar;
 using Color = Unity.UIWidgets.ui.Color;
-using Config = ConnectApp.Constants.Config;
 using Transform = Unity.UIWidgets.widgets.Transform;
 
 namespace ConnectApp.screens {
@@ -37,11 +36,13 @@ namespace ConnectApp.screens {
         }
 
         readonly string userId;
+
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, UserDetailScreenViewModel>(
                 converter: state => {
                     var user = state.userState.userDict.ContainsKey(key: this.userId)
-                        ? state.userState.userDict[key: this.userId] : null;
+                        ? state.userState.userDict[key: this.userId]
+                        : null;
                     var articleOffset = user == null ? 0 : user.articles == null ? 0 : user.articles.Count;
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
                     var followMap = state.followState.followDict.ContainsKey(key: currentUserId)
@@ -64,7 +65,8 @@ namespace ConnectApp.screens {
                         startFetchUserProfile = () => dispatcher.dispatch(new StartFetchUserProfileAction()),
                         fetchUserProfile = () => dispatcher.dispatch<IPromise>(Actions.fetchUserProfile(this.userId)),
                         startFetchUserArticle = () => dispatcher.dispatch(new StartFetchUserArticleAction()),
-                        fetchUserArticle = offset => dispatcher.dispatch<IPromise>(Actions.fetchUserArticle(this.userId, offset)),
+                        fetchUserArticle = offset =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchUserArticle(this.userId, offset)),
                         startFollowUser = () => dispatcher.dispatch(new StartFetchFollowUserAction()),
                         followUser = () => dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(this.userId)),
                         startUnFollowUser = () => dispatcher.dispatch(new StartFetchUnFollowUserAction()),
@@ -111,7 +113,7 @@ namespace ConnectApp.screens {
             );
         }
     }
-    
+
     public class UserDetailScreen : StatefulWidget {
         public UserDetailScreen(
             UserDetailScreenViewModel viewModel = null,
@@ -124,7 +126,7 @@ namespace ConnectApp.screens {
 
         public readonly UserDetailScreenViewModel viewModel;
         public readonly UserDetailScreenActionModel actionModel;
-        
+
         public override State createState() {
             return new _UserDetailScreenState();
         }
@@ -141,6 +143,7 @@ namespace ConnectApp.screens {
         float _topPadding;
         Animation<RelativeRect> _animation;
         AnimationController _controller;
+
         public override void initState() {
             base.initState();
             StatusBarManager.statusBarStyle(true);
@@ -165,10 +168,10 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.fetchUserArticle(0);
             });
         }
-        
+
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            Router.routeObserve.subscribe(this, (PageRoute)ModalRoute.of(this.context));
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
         }
 
         public override void dispose() {
@@ -186,7 +189,8 @@ namespace ConnectApp.screens {
             if (scrollController.offset < 0) {
                 this._factor = 1 + scrollController.offset.abs() * _transformSpeed;
                 this.setState(() => { });
-            } else {
+            }
+            else {
                 if (this._factor != 1) {
                     this.setState(() => this._factor = 1);
                 }
@@ -237,15 +241,18 @@ namespace ConnectApp.screens {
                 Application.platform != RuntimePlatform.Android) {
                 this._topPadding = MediaQuery.of(context).padding.top;
             }
+
             Widget content = new Container();
             if (this.widget.viewModel.userLoading && this.widget.viewModel.user == null) {
                 content = new GlobalLoading();
-            } else if (this.widget.viewModel.user == null) {
+            }
+            else if (this.widget.viewModel.user == null) {
                 content = new Container();
             }
             else {
                 content = this._buildUserContent(context: context);
             }
+
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
@@ -280,6 +287,7 @@ namespace ConnectApp.screens {
                     }
                 );
             }
+
             return new Positioned(
                 left: 0,
                 top: 0,
@@ -324,7 +332,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         Widget _buildUserContent(BuildContext context) {
             var articles = this.widget.viewModel.user.articles;
             var articlesHasMore = this.widget.viewModel.user.articlesHasMore;
@@ -342,6 +350,7 @@ namespace ConnectApp.screens {
                     itemCount = 2 + (articles.Count == 0 ? 1 : articleCount);
                 }
             }
+
             return new Container(
                 color: CColors.Background,
                 child: new CustomScrollbar(
@@ -390,6 +399,9 @@ namespace ConnectApp.screens {
                                 }
 
                                 var article = articles[index - 2];
+
+                                var linkUrl = CStringUtils.JointProjectShareLink(projectId: article.id);
+
                                 return new ArticleCard(
                                     article: article,
                                     () => this.widget.actionModel.pushToArticleDetail(obj: article.id),
@@ -397,7 +409,6 @@ namespace ConnectApp.screens {
                                         this.widget.viewModel.currentUserId != article.userId,
                                         isLoggedIn: this.widget.viewModel.isLoggedIn,
                                         () => {
-                                            string linkUrl = $"{Config.apiAddress}/p/{article.id}";
                                             Clipboard.setData(new ClipboardData(text: linkUrl));
                                             CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
                                         },
@@ -408,7 +419,6 @@ namespace ConnectApp.screens {
                                             CustomDialogUtils.showCustomDialog(
                                                 child: new CustomLoadingDialog()
                                             );
-                                            string linkUrl = $"{Config.apiAddress}/p/{article.id}";
                                             string imageUrl = $"{article.thumbnail.url}.200x0x1.jpg";
                                             this.widget.actionModel.shareToWechat(arg1: type, arg2: article.title,
                                                     arg3: article.subTitle, arg4: linkUrl, arg5: imageUrl)
@@ -560,6 +570,7 @@ namespace ConnectApp.screens {
                 if (isTop) {
                     return new Container();
                 }
+
                 return new CustomButton(
                     padding: EdgeInsets.zero,
                     child: new Container(
@@ -580,6 +591,7 @@ namespace ConnectApp.screens {
                             if (this.widget.viewModel.user.jobRoleMap == null) {
                                 return;
                             }
+
                             this.widget.actionModel.pushToEditPersonalInfo(this.widget.viewModel.userId);
                         }
                         else {
@@ -617,6 +629,7 @@ namespace ConnectApp.screens {
                     );
                 };
             }
+
             Widget buttonChild;
             bool isEnable;
             if (this.widget.viewModel.followUserLoading) {
@@ -629,7 +642,7 @@ namespace ConnectApp.screens {
             else {
                 buttonChild = new Text(
                     data: followText,
-                    style: isTop 
+                    style: isTop
                         ? new TextStyle(
                             fontSize: 14,
                             fontFamily: "Roboto-Medium",
@@ -650,7 +663,9 @@ namespace ConnectApp.screens {
                         decoration: new BoxDecoration(
                             color: CColors.Transparent,
                             borderRadius: BorderRadius.circular(14),
-                            border: isFollow ? Border.all(color: CColors.Disable2) : Border.all(color: CColors.PrimaryBlue)
+                            border: isFollow
+                                ? Border.all(color: CColors.Disable2)
+                                : Border.all(color: CColors.PrimaryBlue)
                         ),
                         child: buttonChild
                     ),
@@ -658,6 +673,7 @@ namespace ConnectApp.screens {
                         if (!isEnable) {
                             return;
                         }
+
                         if (this.widget.viewModel.isLoggedIn) {
                             onTap();
                         }
@@ -667,6 +683,7 @@ namespace ConnectApp.screens {
                     }
                 );
             }
+
             return new CustomButton(
                 padding: EdgeInsets.zero,
                 child: new Container(
@@ -684,6 +701,7 @@ namespace ConnectApp.screens {
                     if (!isEnable) {
                         return;
                     }
+
                     if (this.widget.viewModel.isLoggedIn) {
                         onTap();
                     }
@@ -693,15 +711,18 @@ namespace ConnectApp.screens {
                 }
             );
         }
-        
+
         public void didPopNext() {
             StatusBarManager.statusBarStyle(this._hideNavBar);
         }
 
-        public void didPush() {}
+        public void didPush() {
+        }
 
-        public void didPop() {}
+        public void didPop() {
+        }
 
-        public void didPushNext() {}
+        public void didPushNext() {
+        }
     }
 }
