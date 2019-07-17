@@ -42,6 +42,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchFollowUserFailureAction : BaseAction {
+        public string followUserId;
     }
     
     public class StartFetchUnFollowUserAction : RequestAction {
@@ -55,6 +56,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchUnFollowUserFailureAction : BaseAction {
+        public string unFollowUserId;
     }
     
     public class StartFetchFollowingAction : RequestAction {
@@ -107,12 +109,8 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return UserApi.FetchUserProfile(userId: userId)
                     .Then(userProfileResponse => {
-                        if (userProfileResponse.placeMap != null) {
-                            dispatcher.dispatch(new PlaceMapAction {placeMap = userProfileResponse.placeMap});
-                        }
-                        if (userProfileResponse.teamMap != null) {
-                            dispatcher.dispatch(new TeamMapAction {teamMap = userProfileResponse.teamMap});
-                        }
+                        dispatcher.dispatch(new PlaceMapAction {placeMap = userProfileResponse.placeMap});
+                        dispatcher.dispatch(new TeamMapAction {teamMap = userProfileResponse.teamMap});
                         var userMap = new Dictionary<string, User>();
                         (userProfileResponse.followings ?? new List<User>()).ForEach(followingUser => {
                             if (userMap.ContainsKey(key: followingUser.id)) {
@@ -170,12 +168,14 @@ namespace ConnectApp.redux.actions {
                         userArticleResponse.projectList.ForEach(articleId => {
                             if (userArticleResponse.projectMap.ContainsKey(key: articleId)) {
                                 var article = userArticleResponse.projectMap[key: articleId];
-                                articles.Add(article);
+                                articles.Add(item: article);
                             }
                         });
                         dispatcher.dispatch(new PlaceMapAction {placeMap = userArticleResponse.placeMap});
                         dispatcher.dispatch(new UserMapAction {userMap = userArticleResponse.userMap});
                         dispatcher.dispatch(new TeamMapAction {teamMap = userArticleResponse.teamMap});
+                        dispatcher.dispatch(new FollowMapAction {followMap = userArticleResponse.followMap});
+                        dispatcher.dispatch(new LikeMapAction {likeMap = userArticleResponse.likeMap});
                         dispatcher.dispatch(new FetchUserArticleSuccessAction {
                             articles = articles,
                             hasMore = userArticleResponse.hasMore,
@@ -202,7 +202,7 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => {
-                            dispatcher.dispatch(new FetchFollowUserFailureAction ());
+                            dispatcher.dispatch(new FetchFollowUserFailureAction {followUserId = followUserId});
                             Debug.Log(error);
                         }
                     );
@@ -220,7 +220,7 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => {
-                            dispatcher.dispatch(new FetchUnFollowUserFailureAction());
+                            dispatcher.dispatch(new FetchUnFollowUserFailureAction {unFollowUserId = unFollowUserId});
                             Debug.Log(error);
                         }
                     );
@@ -236,6 +236,11 @@ namespace ConnectApp.redux.actions {
                                 followMap = followingResponse.followMap
                             });
                         }
+                        var userMap = new Dictionary<string, User>();
+                        followingResponse.followings.ForEach(following => {
+                            userMap.Add(key: following.id, value: following);
+                        });
+                        dispatcher.dispatch(new UserMapAction {userMap = userMap});
                         dispatcher.dispatch(new FetchFollowingSuccessAction {
                             followings = followingResponse.followings,
                             followingsHasMore = followingResponse.followingsHasMore,
@@ -260,6 +265,11 @@ namespace ConnectApp.redux.actions {
                                 followMap = followerResponse.followMap
                             });
                         }
+                        var userMap = new Dictionary<string, User>();
+                        followerResponse.followers.ForEach(follower => {
+                            userMap.Add(key: follower.id, value: follower);
+                        });
+                        dispatcher.dispatch(new UserMapAction {userMap = userMap});
                         dispatcher.dispatch(new FetchFollowerSuccessAction {
                             followers = followerResponse.followers,
                             followersHasMore = followerResponse.followersHasMore,
@@ -296,7 +306,7 @@ namespace ConnectApp.redux.actions {
                             title = editPersonalInfoResponse.user.title,
                             coverImageWithCDN = editPersonalInfoResponse.user.coverImage
                         };
-                        UserInfoManager.saveUserInfo(loginInfo);
+                        UserInfoManager.saveUserInfo(loginInfo: loginInfo);
                     })
                     .Catch(error => Debug.Log($"{error}")
                     );

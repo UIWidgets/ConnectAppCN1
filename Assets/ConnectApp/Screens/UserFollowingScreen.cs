@@ -43,15 +43,14 @@ namespace ConnectApp.screens {
                         userId = this.userId,
                         followingLoading = state.userState.followingLoading,
                         searchFollowingLoading = state.searchState.searchFollowingLoading,
-                        followUserLoading = state.userState.followUserLoading,
                         followings = followings,
                         searchFollowings = state.searchState.searchFollowings,
                         searchFollowingKeyword = state.searchState.searchFollowingKeyword,
                         searchFollowingHasMore = state.searchState.searchFollowingHasMore,
-                        followingsHasMore = user.followingsHasMore,
+                        followingsHasMore = user.followingsHasMore ?? false,
                         userOffset = followings.Count,
+                        userDict = state.userState.userDict,
                         followMap = followMap,
-                        currentFollowId = state.userState.currentFollowId,
                         currentUserId = currentUserId,
                         isLoggedIn = state.loginState.isLoggedIn
                     };
@@ -145,14 +144,14 @@ namespace ConnectApp.screens {
 
             this._controller.text = text;
             this.widget.actionModel.startSearchFollowing();
-            this.widget.actionModel.searchFollowing(text, 0);
+            this.widget.actionModel.searchFollowing(arg1: text, 0);
         }
         
         void _onRefreshFollowing(bool up) {
             this._userOffset = up ? 0 : this.widget.viewModel.userOffset;
-            this.widget.actionModel.fetchFollowing(this._userOffset)
-                .Then(() => this._refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
-                .Catch(_ => this._refreshController.sendBack(up, RefreshStatus.failed));
+            this.widget.actionModel.fetchFollowing(arg: this._userOffset)
+                .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }
         
         void _onRefreshSearchFollowing(bool up) {
@@ -162,9 +161,9 @@ namespace ConnectApp.screens {
             else {
                 this._pageNumber++;
             }
-            this.widget.actionModel.searchFollowing(this.widget.viewModel.searchFollowingKeyword, this._pageNumber)
-                .Then(() => this._refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
-                .Catch(_ => this._refreshController.sendBack(up, RefreshStatus.failed));
+            this.widget.actionModel.searchFollowing(arg1: this.widget.viewModel.searchFollowingKeyword, arg2: this._pageNumber)
+                .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }
         
         void _onFollow(UserType userType, string userId) {
@@ -174,19 +173,19 @@ namespace ConnectApp.screens {
                         new ActionSheet(
                             title: "确定不再关注？",
                             items: new List<ActionSheetItem> {
-                                new ActionSheetItem("确定", ActionType.normal,
+                                new ActionSheetItem("确定", type: ActionType.normal,
                                     () => {
-                                        this.widget.actionModel.startUnFollowUser(userId);
-                                        this.widget.actionModel.unFollowUser(userId);
+                                        this.widget.actionModel.startUnFollowUser(obj: userId);
+                                        this.widget.actionModel.unFollowUser(arg: userId);
                                     }),
-                                new ActionSheetItem("取消", ActionType.cancel)
+                                new ActionSheetItem("取消", type: ActionType.cancel)
                             }
                         )
                     );
                 }
                 if (userType == UserType.unFollow) {
-                    this.widget.actionModel.startFollowUser(userId);
-                    this.widget.actionModel.followUser(userId);
+                    this.widget.actionModel.startFollowUser(obj: userId);
+                    this.widget.actionModel.followUser(arg: userId);
                 }
             }
             else {
@@ -195,7 +194,7 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            Widget content = new Container();
+            Widget content;
             if (this.widget.viewModel.searchFollowingLoading) {
                 content = new GlobalLoading();
             } else if (this.widget.viewModel.searchFollowingKeyword.Length > 0) {
@@ -212,11 +211,11 @@ namespace ConnectApp.screens {
                                     physics: new AlwaysScrollableScrollPhysics(),
                                     itemCount: this.widget.viewModel.searchFollowings.Count,
                                     itemBuilder: (cxt, index) => {
-                                        var searchUser = this.widget.viewModel.searchFollowings[index];
+                                        var searchUser = this.widget.viewModel.searchFollowings[index: index];
                                         return new UserCard(
                                             user: searchUser,
-                                            () => this.widget.actionModel.pushToUserDetail(searchUser.id),
-                                            key: new ObjectKey(searchUser.id)
+                                            () => this.widget.actionModel.pushToUserDetail(obj: searchUser.id),
+                                            key: new ObjectKey(value: searchUser.id)
                                         );
                                     }
                                 )
@@ -260,27 +259,31 @@ namespace ConnectApp.screens {
                             physics: new AlwaysScrollableScrollPhysics(),
                             itemCount: this.widget.viewModel.followings.Count,
                             itemBuilder: (cxt, index) => {
-                                var user = this.widget.viewModel.followings[index];
+                                var following = this.widget.viewModel.followings[index: index];
                                 UserType userType = UserType.unFollow;
                                 if (!this.widget.viewModel.isLoggedIn) {
                                     userType = UserType.unFollow;
                                 }
                                 else {
-                                    if (this.widget.viewModel.currentUserId == user.id) {
+                                    var followUserLoading = false;
+                                    if (this.widget.viewModel.userDict.ContainsKey(key: following.id)) {
+                                        var user = this.widget.viewModel.userDict[key: following.id];
+                                        followUserLoading = user.followUserLoading ?? false;
+                                    }
+                                    if (this.widget.viewModel.currentUserId == following.id) {
                                         userType = UserType.me;
-                                    }  else if (this.widget.viewModel.followUserLoading
-                                               && this.widget.viewModel.currentFollowId == user.id) {
+                                    } else if (followUserLoading) {
                                         userType = UserType.loading;
-                                    } else if (this.widget.viewModel.followMap.ContainsKey(key: user.id)) {
+                                    } else if (this.widget.viewModel.followMap.ContainsKey(key: following.id)) {
                                         userType = UserType.follow;
                                     }
                                 }
                                 return new UserCard(
-                                    user: user,
-                                    () => this.widget.actionModel.pushToUserDetail(user.id),
+                                    user: following,
+                                    () => this.widget.actionModel.pushToUserDetail(obj: following.id),
                                     userType: userType,
-                                    () => this._onFollow(userType: userType, userId: user.id),
-                                    new ObjectKey(user.id)
+                                    () => this._onFollow(userType: userType, userId: following.id),
+                                    new ObjectKey(value: following.id)
                                 );
                             }
                         )
@@ -352,7 +355,7 @@ namespace ConnectApp.screens {
                     prefix: new Container(
                         padding: EdgeInsets.only(11, 9, 7, 9),
                         child: new Icon(
-                            Icons.search,
+                            icon: Icons.search,
                             color: CColors.BrownGrey
                         )
                     ),

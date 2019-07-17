@@ -29,22 +29,22 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, TeamFollowerScreenViewModel>(
                 converter: state => {
-                    var teamFollower = state.teamState.teamFollowerDict.ContainsKey(key: this.teamId)
-                        ? state.teamState.teamFollowerDict[key: this.teamId]
-                        : new List<User>();
+                    var team = state.teamState.teamDict.ContainsKey(key: this.teamId)
+                        ? state.teamState.teamDict[key: this.teamId]
+                        : new Team();
+                    var followers = team.followers ?? new List<User>();
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
                     var followMap = state.followState.followDict.ContainsKey(key: currentUserId)
                         ? state.followState.followDict[key: currentUserId]
                         : new Dictionary<string, bool>();
                     return new TeamFollowerScreenViewModel {
                         teamId = this.teamId,
-                        followerLoading = state.teamState.teamFollowerLoading,
-                        followUserLoading = state.userState.followUserLoading,
-                        followers = teamFollower,
-                        followersHasMore = state.teamState.teamFollowerHasMore,
-                        userOffset = teamFollower.Count,
+                        followerLoading = state.teamState.followerLoading,
+                        followers = followers,
+                        followersHasMore = team.followersHasMore ?? false,
+                        userOffset = followers.Count,
+                        userDict = state.userState.userDict,
                         followMap = followMap,
-                        currentFollowId = state.userState.currentFollowId,
                         currentUserId = currentUserId,
                         isLoggedIn = state.loginState.isLoggedIn
                     };
@@ -113,11 +113,11 @@ namespace ConnectApp.screens {
             });
         }
         
-        void _onRefreshFollower(bool up) {
+        void _onRefresh(bool up) {
             this._userOffset = up ? 0 : this.widget.viewModel.userOffset;
-            this.widget.actionModel.fetchFollower(this._userOffset)
-                .Then(() => this._refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
-                .Catch(_ => this._refreshController.sendBack(up, RefreshStatus.failed));
+            this.widget.actionModel.fetchFollower(arg: this._userOffset)
+                .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }
 
         void _onFollow(UserType userType, string userId) {
@@ -127,19 +127,19 @@ namespace ConnectApp.screens {
                         new ActionSheet(
                             title: "确定不再关注？",
                             items: new List<ActionSheetItem> {
-                                new ActionSheetItem("确定", ActionType.normal,
+                                new ActionSheetItem("确定", type: ActionType.normal,
                                     () => {
-                                        this.widget.actionModel.startUnFollowUser(userId);
-                                        this.widget.actionModel.unFollowUser(userId);
+                                        this.widget.actionModel.startUnFollowUser(obj: userId);
+                                        this.widget.actionModel.unFollowUser(arg: userId);
                                     }),
-                                new ActionSheetItem("取消", ActionType.cancel)
+                                new ActionSheetItem("取消", type: ActionType.cancel)
                             }
                         )
                     );
                 }
                 if (userType == UserType.unFollow) {
-                    this.widget.actionModel.startFollowUser(userId);
-                    this.widget.actionModel.followUser(userId);
+                    this.widget.actionModel.startFollowUser(obj: userId);
+                    this.widget.actionModel.followUser(arg: userId);
                 }
             }
             else {
@@ -148,10 +148,11 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            Widget content = new Container();
-            if (this.widget.viewModel.followerLoading && this.widget.viewModel.followers.isEmpty()) {
+            var followers = this.widget.viewModel.followers;
+            Widget content;
+            if (this.widget.viewModel.followerLoading && followers.isEmpty()) {
                 content = new GlobalLoading();
-            } else if (this.widget.viewModel.followers.Count <= 0) {
+            } else if (followers.Count <= 0) {
                 content = new BlankView(
                     $"暂无{this._title}用户",
                     "image/default-following",
@@ -168,25 +169,28 @@ namespace ConnectApp.screens {
                         controller: this._refreshController,
                         enablePullDown: true,
                         enablePullUp: this.widget.viewModel.followersHasMore,
-                        onRefresh: this._onRefreshFollower,
+                        onRefresh: this._onRefresh,
                         child: ListView.builder(
                             physics: new AlwaysScrollableScrollPhysics(),
-                            itemCount: this.widget.viewModel.followers.Count,
+                            itemCount: followers.Count,
                             itemBuilder: this._buildUserCard
                         )
                     )
                 );
             }
             return new Container(
-                color: CColors.Background,
+                color: CColors.White,
                 child: new CustomSafeArea(
-                    child: new Column(
-                        children: new List<Widget> {
-                            this._buildNavigationBar(context),
-                            new Expanded(
-                                child: content
-                            )
-                        }
+                    child: new Container(
+                        color: CColors.Background,
+                        child: new Column(
+                            children: new List<Widget> {
+                                this._buildNavigationBar(context: context),
+                                new Expanded(
+                                    child: content
+                                )
+                            }
+                        )
                     )
                 )
             );
@@ -223,27 +227,31 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildUserCard(BuildContext context, int index) {
-            var user = this.widget.viewModel.followers[index: index];
+            var follower = this.widget.viewModel.followers[index: index];
             UserType userType = UserType.unFollow;
             if (!this.widget.viewModel.isLoggedIn) {
                 userType = UserType.unFollow;
             }
             else {
-                if (this.widget.viewModel.currentUserId == user.id) {
+                var followUserLoading = false;
+                if (this.widget.viewModel.userDict.ContainsKey(key: follower.id)) {
+                    var user = this.widget.viewModel.userDict[key: follower.id];
+                    followUserLoading = user.followUserLoading ?? false;
+                }
+                if (this.widget.viewModel.currentUserId == follower.id) {
                     userType = UserType.me;
-                }  else if (this.widget.viewModel.followUserLoading
-                           && this.widget.viewModel.currentFollowId == user.id) {
+                } else if (followUserLoading) {
                     userType = UserType.loading;
-                } else if (this.widget.viewModel.followMap.ContainsKey(key: user.id)) {
+                } else if (this.widget.viewModel.followMap.ContainsKey(key: follower.id)) {
                     userType = UserType.follow;
                 }
             }
             return new UserCard(
-                user: user,
-                () => this.widget.actionModel.pushToUserDetail(obj: user.id),
+                user: follower,
+                () => this.widget.actionModel.pushToUserDetail(obj: follower.id),
                 userType: userType,
-                () => this._onFollow(userType: userType, userId: user.id),
-                new ObjectKey(user.id)
+                () => this._onFollow(userType: userType, userId: follower.id),
+                new ObjectKey(value: follower.id)
             );
         }
     }

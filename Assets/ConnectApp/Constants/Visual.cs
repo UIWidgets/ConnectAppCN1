@@ -249,6 +249,13 @@ namespace ConnectApp.Constants {
             color: CColors.TextBody
         );
 
+        public static readonly TextStyle PMediumBody2 = new TextStyle(
+            height: 1.46f,
+            fontSize: 14,
+            fontFamily: "Roboto-Medium",
+            color: CColors.TextBody2
+        );
+
         public static readonly TextStyle PMediumBody3 = new TextStyle(
             height: 1.46f,
             fontSize: 14,

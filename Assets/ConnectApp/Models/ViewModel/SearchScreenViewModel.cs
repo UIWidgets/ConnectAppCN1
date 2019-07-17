@@ -5,7 +5,6 @@ namespace ConnectApp.Models.ViewModel {
     public class SearchScreenViewModel {
         public bool searchArticleLoading;
         public bool searchUserLoading;
-        public bool followUserLoading;
         public string searchKeyword;
         public List<Article> searchArticles;
         public List<User> searchUsers;
@@ -20,7 +19,6 @@ namespace ConnectApp.Models.ViewModel {
         public List<PopularSearch> popularSearchArticleList;
         public List<PopularSearch> popularSearchUserList;
         public List<string> blockArticleList;
-        public string currentFollowId;
         public string currentUserId;
         public bool isLoggedIn;
     }

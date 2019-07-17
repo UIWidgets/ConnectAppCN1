@@ -14,6 +14,18 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
+    public class FetchFollowArticlesResponse {
+        public Dictionary<string, User> userMap;
+        public Dictionary<string, Team> teamMap;
+        public Dictionary<string, bool> followMap;
+        public Dictionary<string, bool> likeMap;
+        public List<Article> projects;
+        public bool projectHasMore;
+        public List<Article> hottests;
+        public bool hottestHasMore;
+    }
+
+    [Serializable]
     public class hottestItem {
         public string id;
         public string itemId;
@@ -108,6 +120,8 @@ namespace ConnectApp.Models.Api {
         public Dictionary<string, User> userMap;
         public Dictionary<string, Team> teamMap;
         public Dictionary<string, Place> placeMap;
+        public Dictionary<string, bool> likeMap;
+        public Dictionary<string, bool> followMap;
         public Dictionary<string, Article> projectMap;
         public bool hasMore;
     }
@@ -136,6 +150,7 @@ namespace ConnectApp.Models.Api {
     public class FetchTeamResponse {
         public Team team;
         public Dictionary<string, Place> placeMap;
+        public Dictionary<string, bool> followMap;
     }
 
     [Serializable]

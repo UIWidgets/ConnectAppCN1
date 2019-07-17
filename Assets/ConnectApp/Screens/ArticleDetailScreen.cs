@@ -34,8 +34,8 @@ namespace ConnectApp.screens {
             this.isPush = isPush;
         }
 
-        public readonly string articleId;
-        public readonly bool isPush;
+        readonly string articleId;
+        readonly bool isPush;
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ArticleDetailScreenViewModel>(
@@ -44,7 +44,6 @@ namespace ConnectApp.screens {
                     loginUserId = state.loginState.loginInfo.userId,
                     isLoggedIn = state.loginState.isLoggedIn,
                     articleDetailLoading = state.articleState.articleDetailLoading,
-                    followLoading = state.userState.followUserLoading || state.teamState.followTeamLoading,
                     articleDict = state.articleState.articleDict,
                     channelMessageList = state.messageState.channelMessageList,
                     channelMessageDict = state.messageState.channelMessageDict,
@@ -118,13 +117,13 @@ namespace ConnectApp.screens {
                             return dispatcher.dispatch<IPromise>(
                                 Actions.sendComment(this.articleId, channelId, content, nonce, parentMessageId));
                         },
-                        startFollowUser = () => dispatcher.dispatch(new StartFetchFollowUserAction()),
+                        startFollowUser = userId => dispatcher.dispatch(new StartFetchFollowUserAction {followUserId = userId}),
                         followUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(userId)),
-                        startUnFollowUser = () => dispatcher.dispatch(new StartFetchUnFollowUserAction()),
+                        startUnFollowUser = userId => dispatcher.dispatch(new StartFetchUnFollowUserAction {unFollowUserId = userId}),
                         unFollowUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(userId)),
-                        startFollowTeam = () => dispatcher.dispatch(new StartFetchFollowTeamAction()),
+                        startFollowTeam = teamId => dispatcher.dispatch(new StartFetchFollowTeamAction {followTeamId = teamId}),
                         followTeam = teamId => dispatcher.dispatch<IPromise>(Actions.fetchFollowTeam(teamId)),
-                        startUnFollowTeam = () => dispatcher.dispatch(new StartFetchUnFollowTeamAction()),
+                        startUnFollowTeam = teamId => dispatcher.dispatch(new StartFetchUnFollowTeamAction {unFollowTeamId = teamId}),
                         unFollowTeam = teamId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowTeam(teamId)),
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
                             Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
@@ -462,12 +461,12 @@ namespace ConnectApp.screens {
                             items: new List<ActionSheetItem> {
                                 new ActionSheetItem("确定", type: ActionType.normal, () => {
                                     if (this._article.ownerType == OwnerType.user.ToString()) {
-                                        this.widget.actionModel.startUnFollowUser();
+                                        this.widget.actionModel.startUnFollowUser(obj: userId);
                                         this.widget.actionModel.unFollowUser(arg: userId);
                                     }
 
                                     if (this._article.ownerType == OwnerType.team.ToString()) {
-                                        this.widget.actionModel.startUnFollowTeam();
+                                        this.widget.actionModel.startUnFollowTeam(obj: userId);
                                         this.widget.actionModel.unFollowTeam(arg: userId);
                                     }
                                 }),
@@ -479,12 +478,12 @@ namespace ConnectApp.screens {
 
                 if (userType == UserType.unFollow) {
                     if (this._article.ownerType == OwnerType.user.ToString()) {
-                        this.widget.actionModel.startFollowUser();
+                        this.widget.actionModel.startFollowUser(obj: userId);
                         this.widget.actionModel.followUser(arg: userId);
                     }
 
                     if (this._article.ownerType == OwnerType.team.ToString()) {
-                        this.widget.actionModel.startFollowTeam();
+                        this.widget.actionModel.startFollowTeam(obj: userId);
                         this.widget.actionModel.followTeam(arg: userId);
                     }
                 }
@@ -616,13 +615,14 @@ namespace ConnectApp.screens {
                 userType = UserType.unFollow;
             }
             else {
+                bool? followLoading = this._article.ownerType == OwnerType.user.ToString()
+                    ? this._user.followUserLoading
+                    : this._team.followTeamLoading;
                 if (this.widget.viewModel.loginUserId == id) {
                     userType = UserType.me;
-                }
-                else if (this.widget.viewModel.followLoading) {
+                } else if (followLoading ?? false) {
                     userType = UserType.loading;
-                }
-                else if (this.widget.viewModel.followMap.ContainsKey(key: id)) {
+                } else if (this.widget.viewModel.followMap.ContainsKey(key: id)) {
                     userType = UserType.follow;
                 }
             }

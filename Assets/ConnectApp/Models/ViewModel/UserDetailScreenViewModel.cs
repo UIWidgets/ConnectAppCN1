@@ -6,7 +6,6 @@ namespace ConnectApp.Models.ViewModel {
         public string userId;
         public bool userLoading;
         public bool userArticleLoading;
-        public bool followUserLoading;
         public User user;
         public Dictionary<string, bool> followMap;
         public int articleOffset;
