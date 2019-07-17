@@ -93,7 +93,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    class _RecommendArticleScreenState : State<RecommendArticleScreen> {
+    class _RecommendArticleScreenState : AutomaticKeepAliveClientMixin<RecommendArticleScreen> {
         const int initOffset = 0;
         int offset = initOffset;
         RefreshController _refreshController;
@@ -113,7 +113,12 @@ namespace ConnectApp.screens {
             });
         }
 
+        protected override bool wantKeepAlive {
+            get { return true; }
+        }
+
         public override Widget build(BuildContext context) {
+            base.build(context: context);
             return new Container(
                 color: CColors.White,
                 child: new Column(

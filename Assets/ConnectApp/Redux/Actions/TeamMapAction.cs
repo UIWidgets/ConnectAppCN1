@@ -58,6 +58,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchFollowTeamFailureAction : BaseAction {
+        public string followTeamId;
     }
 
     public class StartFetchUnFollowTeamAction : RequestAction {
@@ -71,6 +72,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchUnFollowTeamFailureAction : BaseAction {
+        public string unFollowTeamId;
     }
 
     public static partial class Actions {
@@ -80,8 +82,13 @@ namespace ConnectApp.redux.actions {
                     .Then(teamResponse => {
                         dispatcher.dispatch(new PlaceMapAction {placeMap = teamResponse.placeMap});
                         dispatcher.dispatch(new FollowMapAction {followMap = teamResponse.followMap});
+                        var teamDict = getState().teamState.teamDict;
+                        var currentTeam = teamDict.ContainsKey(key: teamId)
+                            ? teamDict[key: teamId]
+                            : new Team();
+                        var team = teamResponse.team;
                         dispatcher.dispatch(new FetchTeamSuccessAction {
-                            team = teamResponse.team,
+                            team = team.Merge(other: currentTeam),
                             teamId = teamId
                         });
                     })
@@ -153,7 +160,7 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => {
-                            dispatcher.dispatch(new FetchFollowTeamFailureAction ());
+                            dispatcher.dispatch(new FetchFollowTeamFailureAction {followTeamId = followTeamId});
                             Debug.Log(error);
                         }
                     );
@@ -171,7 +178,7 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => {
-                            dispatcher.dispatch(new FetchUnFollowTeamFailureAction());
+                            dispatcher.dispatch(new FetchUnFollowTeamFailureAction {unFollowTeamId = unFollowTeamId});
                             Debug.Log(error);
                         }
                     );

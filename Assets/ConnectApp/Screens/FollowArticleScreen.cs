@@ -46,7 +46,6 @@ namespace ConnectApp.screens {
                     return new ArticlesScreenViewModel {
                         followArticlesLoading = state.articleState.followArticlesLoading,
                         followingLoading = state.userState.followingLoading,
-                        followTeamLoading = state.teamState.followTeamLoading,
                         followArticleList = state.articleState.followArticleList,
                         hotArticleList = state.articleState.hotArticleList,
                         followingList = followings,
@@ -101,9 +100,9 @@ namespace ConnectApp.screens {
                         followUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(userId)),
                         startUnFollowUser = userId => dispatcher.dispatch(new StartFetchUnFollowUserAction {unFollowUserId = userId}),
                         unFollowUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(userId)),
-                        startFollowTeam = () => dispatcher.dispatch(new StartFetchFollowTeamAction()),
+                        startFollowTeam = teamId => dispatcher.dispatch(new StartFetchFollowTeamAction {followTeamId = teamId}),
                         followTeam = teamId => dispatcher.dispatch<IPromise>(Actions.fetchFollowTeam(teamId)),
-                        startUnFollowTeam = () => dispatcher.dispatch(new StartFetchUnFollowTeamAction()),
+                        startUnFollowTeam = teamId => dispatcher.dispatch(new StartFetchUnFollowTeamAction {unFollowTeamId = teamId}),
                         unFollowTeam = teamId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowTeam(teamId)),
                         sendComment = (articleId, channelId, content, nonce, parentMessageId) => {
                             CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog());
@@ -140,7 +139,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    class _FollowArticleScreenState : State<FollowArticleScreen> {
+    class _FollowArticleScreenState : AutomaticKeepAliveClientMixin<FollowArticleScreen> {
         const int firstPageNumber = 1;
         int _pageNumber = firstPageNumber;
         RefreshController _refreshController;
@@ -154,6 +153,10 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.startFetchFollowArticles();
                 this.widget.actionModel.fetchFollowArticles(firstPageNumber);
             });
+        }
+
+        protected override bool wantKeepAlive {
+            get { return true; }
         }
 
         void _onRefresh(bool up) {
@@ -183,7 +186,7 @@ namespace ConnectApp.screens {
                                         this.widget.actionModel.unFollowUser(arg: article.userId);
                                     }
                                     if (article.ownerType == OwnerType.team.ToString()) {
-                                        this.widget.actionModel.startUnFollowTeam();
+                                        this.widget.actionModel.startUnFollowTeam(obj: article.teamId);
                                         this.widget.actionModel.unFollowTeam(arg: article.teamId);
                                     }
                                 }),
@@ -198,7 +201,7 @@ namespace ConnectApp.screens {
                         this.widget.actionModel.followUser(arg: article.userId);
                     }
                     if (article.ownerType == OwnerType.team.ToString()) {
-                        this.widget.actionModel.startFollowTeam();
+                        this.widget.actionModel.startFollowTeam(obj: article.teamId);
                         this.widget.actionModel.followTeam(arg: article.teamId);
                     }
                 }
@@ -264,6 +267,7 @@ namespace ConnectApp.screens {
             );
         }
         public override Widget build(BuildContext context) {
+            base.build(context: context);
             return new Container(
                 color: CColors.White,
                 child: this._buildContent()
@@ -280,18 +284,7 @@ namespace ConnectApp.screens {
                 && this.widget.viewModel.followingLoading
                 && followingList.isEmpty()
                 && hotArticleList.isEmpty()) {
-                content = ListView.builder(
-                    itemCount: 5,
-                    itemBuilder: (cxt, index) => {
-                        if (index == 0) {
-                            return new Container(
-                                height: 154,
-                                child: new GlobalLoading()
-                            ); 
-                        }
-                        return new ArticleLoading();
-                    }
-                );
+                content = new FollowArticleLoading();
             }
             else if (followArticleList.isEmpty()) {
                 var itemCount = followingList.isEmpty()
@@ -479,7 +472,7 @@ namespace ConnectApp.screens {
                 else {
                     if (this.widget.viewModel.currentUserId == article.userId) {
                         userType = UserType.me;
-                    } else if (user.followUserLoading) {
+                    } else if (user.followUserLoading ?? false) {
                         userType = UserType.loading;
                     } else if (this.widget.viewModel.followMap.ContainsKey(key: article.userId)) {
                         userType = UserType.follow;
@@ -512,7 +505,7 @@ namespace ConnectApp.screens {
                 else {
                     if (this.widget.viewModel.currentUserId == article.teamId) {
                         userType = UserType.me;
-                    } else if (this.widget.viewModel.followTeamLoading) {
+                    } else if (team.followTeamLoading ?? false) {
                         userType = UserType.loading;
                     } else if (this.widget.viewModel.followMap.ContainsKey(key: article.teamId)) {
                         userType = UserType.follow;

@@ -6,7 +6,6 @@ namespace ConnectApp.Models.ViewModel {
         public bool articlesLoading;
         public bool followArticlesLoading;
         public bool followingLoading;
-        public bool followTeamLoading;
         public List<string> articleList;
         public List<string> followArticleList;
         public List<string> hotArticleList;

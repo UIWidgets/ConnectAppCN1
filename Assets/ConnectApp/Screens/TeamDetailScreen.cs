@@ -44,9 +44,9 @@ namespace ConnectApp.screens {
                     var team = state.teamState.teamDict.ContainsKey(key: this.teamId)
                         ? state.teamState.teamDict[key: this.teamId]
                         : null;
-                    var teamArticleOffset = state.teamState.teamArticleDict.ContainsKey(key: this.teamId)
-                        ? state.teamState.teamArticleDict[key: this.teamId].Count
-                        : 0;
+                    var teamArticleOffset = team == null
+                        ? 0
+                        : team.articles == null ? 0 : team.articles.Count;
                     var followMap = state.followState.followDict.ContainsKey(key: currentUserId)
                         ? state.followState.followDict[key: currentUserId]
                         : new Dictionary<string, bool>();
@@ -54,10 +54,7 @@ namespace ConnectApp.screens {
                         teamId = this.teamId,
                         teamLoading = state.teamState.teamLoading,
                         teamArticleLoading = state.teamState.teamArticleLoading,
-                        followTeamLoading = state.teamState.followTeamLoading,
                         team = team,
-                        teamArticleDict = state.teamState.teamArticleDict,
-                        teamArticleHasMore = state.teamState.teamArticleHasMore,
                         teamArticleOffset = teamArticleOffset,
                         followMap = followMap,
                         currentUserId = state.loginState.loginInfo.userId ?? "",
@@ -95,9 +92,9 @@ namespace ConnectApp.screens {
                                 teamId = teamId
                             }
                         ),
-                        startFollowTeam = () => dispatcher.dispatch(new StartFetchFollowTeamAction()),
+                        startFollowTeam = () => dispatcher.dispatch(new StartFetchFollowTeamAction {followTeamId = this.teamId}),
                         followTeam = teamId => dispatcher.dispatch<IPromise>(Actions.fetchFollowTeam(teamId)),
-                        startUnFollowTeam = () => dispatcher.dispatch(new StartFetchUnFollowTeamAction()),
+                        startUnFollowTeam = () => dispatcher.dispatch(new StartFetchUnFollowTeamAction {unFollowTeamId = this.teamId}),
                         unFollowTeam = teamId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowTeam(teamId)),
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
                             Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
@@ -361,11 +358,8 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildContent(BuildContext context) {
-            var teamId = this.widget.viewModel.teamId;
-            var articles = this.widget.viewModel.teamArticleDict.ContainsKey(key: teamId)
-                ? this.widget.viewModel.teamArticleDict[key: teamId]
-                : null;
-            var articlesHasMore = this.widget.viewModel.teamArticleHasMore;
+            var articles = this.widget.viewModel.team.articles;
+            var articlesHasMore = this.widget.viewModel.team.articlesHasMore ?? false;
             var teamArticleLoading = this.widget.viewModel.teamArticleLoading && articles == null;
             int itemCount;
             if (teamArticleLoading) {
@@ -514,7 +508,14 @@ namespace ConnectApp.screens {
         Widget _buildFollowerCount() {
             var team = this.widget.viewModel.team;
             return new GestureDetector(
-                onTap: () => this.widget.actionModel.pushToTeamFollower(obj: this.widget.viewModel.teamId),
+                onTap: () => {
+                    if (this.widget.viewModel.isLoggedIn) {
+                        this.widget.actionModel.pushToTeamFollower(obj: this.widget.viewModel.teamId);
+                    }
+                    else {
+                        this.widget.actionModel.pushToLogin();
+                    }
+                },
                 child: new Container(
                     height: 32,
                     alignment: Alignment.center,
@@ -574,7 +575,7 @@ namespace ConnectApp.screens {
 
             Widget buttonChild;
             bool isEnable;
-            if (this.widget.viewModel.followTeamLoading) {
+            if (this.widget.viewModel.team.followTeamLoading ?? false) {
                 buttonChild = new CustomActivityIndicator(
                     loadingColor: isTop ? LoadingColor.black : LoadingColor.white,
                     size: LoadingSize.small

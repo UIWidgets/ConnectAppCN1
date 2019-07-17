@@ -29,19 +29,20 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, TeamFollowerScreenViewModel>(
                 converter: state => {
-                    var teamFollower = state.teamState.teamFollowerDict.ContainsKey(key: this.teamId)
-                        ? state.teamState.teamFollowerDict[key: this.teamId]
-                        : new List<User>();
+                    var team = state.teamState.teamDict.ContainsKey(key: this.teamId)
+                        ? state.teamState.teamDict[key: this.teamId]
+                        : new Team();
+                    var followers = team.followers ?? new List<User>();
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
                     var followMap = state.followState.followDict.ContainsKey(key: currentUserId)
                         ? state.followState.followDict[key: currentUserId]
                         : new Dictionary<string, bool>();
                     return new TeamFollowerScreenViewModel {
                         teamId = this.teamId,
-                        followerLoading = state.teamState.teamFollowerLoading,
-                        followers = teamFollower,
-                        followersHasMore = state.teamState.teamFollowerHasMore,
-                        userOffset = teamFollower.Count,
+                        followerLoading = state.teamState.followerLoading,
+                        followers = followers,
+                        followersHasMore = team.followersHasMore ?? false,
+                        userOffset = followers.Count,
                         userDict = state.userState.userDict,
                         followMap = followMap,
                         currentUserId = currentUserId,
@@ -235,7 +236,7 @@ namespace ConnectApp.screens {
                 var followUserLoading = false;
                 if (this.widget.viewModel.userDict.ContainsKey(key: follower.id)) {
                     var user = this.widget.viewModel.userDict[key: follower.id];
-                    followUserLoading = user.followUserLoading;
+                    followUserLoading = user.followUserLoading ?? false;
                 }
                 if (this.widget.viewModel.currentUserId == follower.id) {
                     userType = UserType.me;

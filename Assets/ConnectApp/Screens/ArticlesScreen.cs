@@ -73,7 +73,7 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            this._selectedIndex = 0;
+            this._selectedIndex = 1;
             this._pageController = new PageController(initialPage: this._selectedIndex);
             this._titleFontSize = 32;
             this._navBarHeight = _maxNavBarHeight;

@@ -16,14 +16,14 @@ namespace ConnectApp.Models.Model {
         public int? followCount;
         public int? followingCount;
         public List<User> followings;
-        public bool followingsHasMore;
+        public bool? followingsHasMore;
         public List<User> followers;
-        public bool followersHasMore;
+        public bool? followersHasMore;
         public List<Article> articles;
-        public bool articlesHasMore;
+        public bool? articlesHasMore;
         public Dictionary<string, JobRole> jobRoleMap;
         public List<string> jobRoleIds;
-        public bool followUserLoading;
+        public bool? followUserLoading;
 
         User copyWith(
             string id = null,

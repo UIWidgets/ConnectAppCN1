@@ -241,7 +241,7 @@ namespace ConnectApp.screens {
                 this._topPadding = MediaQuery.of(context).padding.top;
             }
 
-            Widget content = new Container();
+            Widget content;
             if (this.widget.viewModel.userLoading && this.widget.viewModel.user == null) {
                 content = new GlobalLoading();
             }
@@ -334,7 +334,7 @@ namespace ConnectApp.screens {
 
         Widget _buildUserContent(BuildContext context) {
             var articles = this.widget.viewModel.user.articles;
-            var articlesHasMore = this.widget.viewModel.user.articlesHasMore;
+            var articlesHasMore = this.widget.viewModel.user.articlesHasMore ?? false;
             var userArticleLoading = this.widget.viewModel.userArticleLoading && articles == null;
             int itemCount;
             if (userArticleLoading) {
@@ -631,7 +631,7 @@ namespace ConnectApp.screens {
 
             Widget buttonChild;
             bool isEnable;
-            if (this.widget.viewModel.user.followUserLoading) {
+            if (this.widget.viewModel.user.followUserLoading ?? false) {
                 buttonChild = new CustomActivityIndicator(
                     loadingColor: isTop ? LoadingColor.black : LoadingColor.white,
                     size: LoadingSize.small

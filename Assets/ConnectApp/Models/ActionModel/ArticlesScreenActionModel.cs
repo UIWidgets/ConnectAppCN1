@@ -17,9 +17,9 @@ namespace ConnectApp.Models.ActionModel {
         public Func<string, IPromise> followUser;
         public Action<string> startUnFollowUser;
         public Func<string, IPromise> unFollowUser;
-        public Action startFollowTeam;
+        public Action<string> startFollowTeam;
         public Func<string, IPromise> followTeam;
-        public Action startUnFollowTeam;
+        public Action<string> startUnFollowTeam;
         public Func<string, IPromise> unFollowTeam;
         public Func<string, string, string, string, string, IPromise> sendComment;
         public Func<string, IPromise> likeArticle;

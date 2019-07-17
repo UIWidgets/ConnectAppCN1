@@ -196,7 +196,7 @@ namespace ConnectApp.screens {
                 var followUserLoading = false;
                 if (this.widget.viewModel.userDict.ContainsKey(key: searchUser.id)) {
                     var user = this.widget.viewModel.userDict[key: searchUser.id];
-                    followUserLoading = user.followUserLoading;
+                    followUserLoading = user.followUserLoading ?? false;
                 }
                 if (this.widget.viewModel.currentUserId == searchUser.id) {
                     userType = UserType.me;

@@ -47,7 +47,7 @@ namespace ConnectApp.screens {
                         searchFollowings = state.searchState.searchFollowings,
                         searchFollowingKeyword = state.searchState.searchFollowingKeyword,
                         searchFollowingHasMore = state.searchState.searchFollowingHasMore,
-                        followingsHasMore = user.followingsHasMore,
+                        followingsHasMore = user.followingsHasMore ?? false,
                         userOffset = followings.Count,
                         userDict = state.userState.userDict,
                         followMap = followMap,
@@ -268,7 +268,7 @@ namespace ConnectApp.screens {
                                     var followUserLoading = false;
                                     if (this.widget.viewModel.userDict.ContainsKey(key: following.id)) {
                                         var user = this.widget.viewModel.userDict[key: following.id];
-                                        followUserLoading = user.followUserLoading;
+                                        followUserLoading = user.followUserLoading ?? false;
                                     }
                                     if (this.widget.viewModel.currentUserId == following.id) {
                                         userType = UserType.me;
