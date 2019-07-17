@@ -21,6 +21,20 @@ namespace ConnectApp.redux.actions {
     public class FetchArticleFailureAction : BaseAction {
     }
 
+    public class StartFetchFollowArticlesAction : RequestAction {
+    }
+
+    public class FetchFollowArticleSuccessAction : BaseAction {
+        public List<Article> projects;
+        public bool projectHasMore;
+        public List<Article> hottests;
+        public bool hottestHasMore;
+        public int pageNumber;
+    }
+
+    public class FetchFollowArticleFailureAction : BaseAction {
+    }
+
     public class StartFetchArticleDetailAction : RequestAction {
     }
 
@@ -119,6 +133,29 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchArticleFailureAction());
+                        Debug.Log(error);
+                    });
+            });
+        }
+
+        public static object fetchFollowArticles(int pageNumber) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ArticleApi.FetchFollowArticles(pageNumber)
+                    .Then(followArticlesResponse => {
+                        dispatcher.dispatch(new UserMapAction {userMap = followArticlesResponse.userMap});
+                        dispatcher.dispatch(new TeamMapAction {teamMap = followArticlesResponse.teamMap});
+                        dispatcher.dispatch(new FollowMapAction {followMap = followArticlesResponse.followMap});
+                        dispatcher.dispatch(new LikeMapAction {likeMap = followArticlesResponse.likeMap});
+                        dispatcher.dispatch(new FetchFollowArticleSuccessAction {
+                            pageNumber = pageNumber,
+                            projects = followArticlesResponse.projects,
+                            projectHasMore = followArticlesResponse.projectHasMore,
+                            hottests = followArticlesResponse.hottests,
+                            hottestHasMore = followArticlesResponse.hottestHasMore
+                        });
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new FetchFollowArticleFailureAction());
                         Debug.Log(error);
                     });
             });

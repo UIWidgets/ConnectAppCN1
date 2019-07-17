@@ -58,6 +58,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchFollowTeamFailureAction : BaseAction {
+        public string followTeamId;
     }
 
     public class StartFetchUnFollowTeamAction : RequestAction {
@@ -71,6 +72,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchUnFollowTeamFailureAction : BaseAction {
+        public string unFollowTeamId;
     }
 
     public static partial class Actions {
@@ -78,11 +80,15 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return TeamApi.FetchTeam(teamId)
                     .Then(teamResponse => {
-                        if (teamResponse.placeMap != null) {
-                            dispatcher.dispatch(new PlaceMapAction {placeMap = teamResponse.placeMap});
-                        }
+                        dispatcher.dispatch(new PlaceMapAction {placeMap = teamResponse.placeMap});
+                        dispatcher.dispatch(new FollowMapAction {followMap = teamResponse.followMap});
+                        var teamDict = getState().teamState.teamDict;
+                        var currentTeam = teamDict.ContainsKey(key: teamId)
+                            ? teamDict[key: teamId]
+                            : new Team();
+                        var team = teamResponse.team;
                         dispatcher.dispatch(new FetchTeamSuccessAction {
-                            team = teamResponse.team,
+                            team = team.Merge(other: currentTeam),
                             teamId = teamId
                         });
                     })
@@ -98,6 +104,7 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return TeamApi.FetchTeamArticle(teamId, offset)
                     .Then(teamArticleResponse => {
+                        dispatcher.dispatch(new LikeMapAction {likeMap = teamArticleResponse.likeMap});
                         dispatcher.dispatch(new FetchTeamArticleSuccessAction {
                             articles = teamArticleResponse.projects,
                             hasMore = teamArticleResponse.projectsHasMore,
@@ -153,7 +160,7 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => {
-                            dispatcher.dispatch(new FetchFollowTeamFailureAction ());
+                            dispatcher.dispatch(new FetchFollowTeamFailureAction {followTeamId = followTeamId});
                             Debug.Log(error);
                         }
                     );
@@ -171,7 +178,7 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => {
-                            dispatcher.dispatch(new FetchUnFollowTeamFailureAction());
+                            dispatcher.dispatch(new FetchUnFollowTeamFailureAction {unFollowTeamId = unFollowTeamId});
                             Debug.Log(error);
                         }
                     );

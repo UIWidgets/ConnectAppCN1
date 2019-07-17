@@ -6,21 +6,21 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.Components {
-    public class ArticleFocusListLoading : StatelessWidget {
+    public class FollowArticleLoading : StatelessWidget {
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.Separator2,
                 child: new ListView(
                     children: new List<Widget> {
                         this._buildHead(),
-                        this._buildContent(context),
-                        this._buildContent(context),
-                        this._buildContent(context),
-                        this._buildContent(context)
-                    })
+                        this._buildContent(),
+                        this._buildContent(),
+                        this._buildContent(),
+                        this._buildContent()
+                    }
+                )
             );
         }
-
 
         Widget _buildHead() {
             return new Container(
@@ -39,11 +39,11 @@ namespace ConnectApp.Components {
                             child: new Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: new List<Widget> {
-                                    this._Avatar(),
-                                    this._Avatar(),
-                                    this._Avatar(),
-                                    this._Avatar(),
-                                    this._Avatar()
+                                    _Avatar(),
+                                    _Avatar(),
+                                    _Avatar(),
+                                    _Avatar(),
+                                    _Avatar()
                                 }
                             )
                         )
@@ -52,18 +52,18 @@ namespace ConnectApp.Components {
             );
         }
 
-        Widget _Avatar() {
+        static Widget _Avatar() {
             return new Container(
                 width: 52,
                 height: 52,
                 decoration: new BoxDecoration(
-                    color: new Color(0xFFF8F8F8),
+                    new Color(0xFFF8F8F8),
                     borderRadius: BorderRadius.circular(26)
                 )
             );
         }
 
-        Widget _buildContent(BuildContext context) {
+        Widget _buildContent() {
             return new Container(
                 margin: EdgeInsets.only(top: 8),
                 padding: EdgeInsets.only(16, 16, 16, 56),
@@ -109,8 +109,8 @@ namespace ConnectApp.Components {
                                                 new Container(color: new Color(0xFFF8F8F8), height: 6)
                                             })),
                                     new Container(color: new Color(0xFFF8F8F8), width: 100, height: 66,
-                                        margin: EdgeInsets.only(left: 16))
-                                })),
+                                        margin: EdgeInsets.only(16))
+                                }))
                     }));
         }
     }

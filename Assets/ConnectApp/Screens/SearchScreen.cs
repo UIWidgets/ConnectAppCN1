@@ -85,13 +85,11 @@ namespace ConnectApp.screens {
     class _SearchScreenState : State<SearchScreen> {
         readonly TextEditingController _controller = new TextEditingController("");
         FocusNode _focusNode;
-        PageController _pageController;
         int _selectedIndex;
 
         public override void initState() {
             base.initState();
             this._focusNode = new FocusNode();
-            this._pageController = new PageController();
             this._selectedIndex = 0;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 if (this.widget.viewModel.searchKeyword.Length > 0
@@ -106,7 +104,6 @@ namespace ConnectApp.screens {
 
         public override void dispose() {
             this._controller.dispose();
-            this._pageController.dispose();
             base.dispose();
         }
 
@@ -223,47 +220,16 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildSearchResult() {
-            return new Container(
-                child: new Column(
-                    children: new List<Widget> {
-                        this._buildSelectView(),
-                        this._buildContentView()
-                    }
-                )
-            );
-        }
-
-        Widget _buildSelectView() {
             return new CustomSegmentedControl(
                 new List<string> {"文章", "用户"},
-                newValue => {
-                    this.setState(() => this._selectedIndex = newValue);
-                    this._pageController.animateToPage(
-                        page: newValue,
-                        TimeSpan.FromMilliseconds(250),
-                        curve: Curves.ease
-                    );
+                new List<Widget> {
+                    new SearchArticleScreenConnector(),
+                    new SearchUserScreenConnector()
                 },
-                currentIndex: this._selectedIndex
-            );
-        }
-
-        Widget _buildContentView() {
-            return new Flexible(
-                child: new Container(
-                    child: new PageView(
-                        physics: new BouncingScrollPhysics(),
-                        controller: this._pageController,
-                        onPageChanged: index => {
-                            this.setState(() => this._selectedIndex = index);
-                            this._searchResult(this.widget.viewModel.searchKeyword);
-                        },
-                        children: new List<Widget> {
-                            new SearchArticleScreenConnector(),
-                            new SearchUserScreenConnector()
-                        }
-                    )
-                )
+                newValue => {
+                    this._selectedIndex = newValue;
+                    this._searchResult(text: this.widget.viewModel.searchKeyword);
+                }
             );
         }
 
