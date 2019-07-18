@@ -1502,6 +1502,7 @@ namespace ConnectApp.redux.reducers {
                         user.followCount += 1;
                         state.userState.userDict[key: action.followUserId] = user;
                     }
+                    EventBus.publish(sName: EventBusConstant.follow_user, new List<object>());
 
                     break;
                 }
@@ -1553,6 +1554,7 @@ namespace ConnectApp.redux.reducers {
                         user.followCount -= 1;
                         state.userState.userDict[key: action.unFollowUserId] = user;
                     }
+                    EventBus.publish(sName: EventBusConstant.follow_user, new List<object>());
 
                     break;
                 }
@@ -1860,6 +1862,7 @@ namespace ConnectApp.redux.reducers {
                         team.stats.followCount += 1;
                         state.teamState.teamDict[key: action.followTeamId] = team;
                     }
+                    EventBus.publish(sName: EventBusConstant.follow_user, new List<object>());
 
                     break;
                 }
@@ -1911,6 +1914,7 @@ namespace ConnectApp.redux.reducers {
                         team.stats.followCount -= 1;
                         state.teamState.teamDict[key: action.unFollowTeamId] = team;
                     }
+                    EventBus.publish(sName: EventBusConstant.follow_user, new List<object>());
 
                     break;
                 }

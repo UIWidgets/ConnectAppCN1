@@ -148,18 +148,30 @@ namespace ConnectApp.screens {
         const int cardNumber = 5;
         int _pageNumber = firstPageNumber;
         RefreshController _refreshController;
-        float cardWidth = 0;
-        float avatarSize = 0;
+        float cardWidth;
+        float avatarSize;
+        string _followUserSubId;
 
         public override void initState() {
             base.initState();
             this._refreshController = new RefreshController();
+            this.cardWidth = 0;
+            this.avatarSize = 0;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchFollowing();
                 this.widget.actionModel.fetchFollowing(0);
                 this.widget.actionModel.startFetchFollowArticles();
-                this.widget.actionModel.fetchFollowArticles(firstPageNumber);
+                this.widget.actionModel.fetchFollowArticles(arg: firstPageNumber);
             });
+            this._followUserSubId = EventBus.subscribe(sName: EventBusConstant.follow_user, args => {
+                this.widget.actionModel.fetchFollowing(0);
+                this.widget.actionModel.fetchFollowArticles(arg: firstPageNumber);
+            });
+        }
+
+        public override void dispose() {
+            EventBus.unSubscribe(sName: EventBusConstant.follow_user, id: this._followUserSubId);
+            base.dispose();
         }
 
         protected override bool wantKeepAlive {
