@@ -64,5 +64,19 @@ namespace ConnectApp.Api {
             }).Catch(exception => promise.Reject(exception));
             return promise;
         }
+
+        public static Promise<FetchSearchTeamResponse> SearchTeam(string keyword, int pageNumber) {
+            var promise = new Promise<FetchSearchTeamResponse>();
+            var para = new Dictionary<string, object> {
+                {"q", keyword},
+                {"page", pageNumber}
+            };
+            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/search/teams", para);
+            HttpManager.resume(request).Then(responseText => {
+                var searchTeamResponse = JsonConvert.DeserializeObject<FetchSearchTeamResponse>(responseText);
+                promise.Resolve(searchTeamResponse);
+            }).Catch(exception => promise.Reject(exception));
+            return promise;
+        }
     }
 }

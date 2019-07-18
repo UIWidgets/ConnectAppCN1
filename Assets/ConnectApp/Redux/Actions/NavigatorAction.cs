@@ -37,6 +37,7 @@ namespace ConnectApp.redux.actions {
 
     public class MainNavigatorPushToUserFollowingAction : BaseAction {
         public string userId;
+        public int initialPage = 0;
     }
 
     public class MainNavigatorPushToUserFollowerAction : BaseAction {
@@ -52,6 +53,10 @@ namespace ConnectApp.redux.actions {
     }
 
     public class MainNavigatorPushToTeamFollowerAction : BaseAction {
+        public string teamId;
+    }
+
+    public class MainNavigatorPushToTeamMemberAction : BaseAction {
         public string teamId;
     }
 

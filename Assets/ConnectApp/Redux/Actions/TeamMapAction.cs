@@ -47,6 +47,19 @@ namespace ConnectApp.redux.actions {
     public class FetchTeamFollowerFailureAction : BaseAction {
     }
 
+    public class StartFetchTeamMemberAction : RequestAction {
+    }
+
+    public class FetchTeamMemberSuccessAction : BaseAction {
+        public List<Member> members;
+        public bool membersHasMore;
+        public int pageNumber;
+        public string teamId;
+    }
+
+    public class FetchTeamMemberFailureAction : BaseAction {
+    }
+
     public class StartFetchFollowTeamAction : RequestAction {
         public string followTeamId;
     }
@@ -124,11 +137,7 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return TeamApi.FetchTeamFollower(teamId, offset)
                     .Then(teamFollowerResponse => {
-                        if (teamFollowerResponse.followMap != null) {
-                            dispatcher.dispatch(new FollowMapAction {
-                                followMap = teamFollowerResponse.followMap
-                            });
-                        }
+                        dispatcher.dispatch(new FollowMapAction {followMap = teamFollowerResponse.followMap});
                         var userMap = new Dictionary<string, User>();
                         teamFollowerResponse.followers.ForEach(follower => {
                             userMap.Add(key: follower.id, value: follower);
@@ -143,6 +152,27 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                             dispatcher.dispatch(new FetchTeamFollowerFailureAction());
+                            Debug.Log(error);
+                        }
+                    );
+            });
+        }
+
+        public static object fetchTeamMember(string teamId, int pageNumber) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return TeamApi.FetchTeamMember(teamId, pageNumber)
+                    .Then(teamMemberResponse => {
+                        dispatcher.dispatch(new FollowMapAction {followMap = teamMemberResponse.followMap});
+                        dispatcher.dispatch(new UserMapAction {userMap = teamMemberResponse.userMap});
+                        dispatcher.dispatch(new FetchTeamMemberSuccessAction {
+                            members = teamMemberResponse.members,
+                            membersHasMore = teamMemberResponse.hasMore,
+                            pageNumber = pageNumber,
+                            teamId = teamId
+                        });
+                    })
+                    .Catch(error => {
+                            dispatcher.dispatch(new FetchTeamMemberFailureAction());
                             Debug.Log(error);
                         }
                     );

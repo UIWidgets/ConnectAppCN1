@@ -79,6 +79,13 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
+    public class FetchSearchTeamResponse {
+        public List<Team> teams;
+        public Dictionary<string, bool> followingMap;
+        public bool hasMore;
+    }
+
+    [Serializable]
     public class FetchSocketUrlResponse {
         public string url;
     }
@@ -108,6 +115,9 @@ namespace ConnectApp.Models.Api {
         public bool followingsHasMore;
         public List<User> followers;
         public bool followersHasMore;
+        public int followingTeamsCount;
+        public List<Team> followingTeams;
+        public bool followingTeamsHasMore;
         public string currentUserId;
         public Dictionary<string, Team> teamMap;
         public Dictionary<string, Place> placeMap;
@@ -127,7 +137,7 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
-    public class FetchFollowingResponse {
+    public class FetchFollowingUserResponse {
         public List<User> followings;
         public bool followingsHasMore;
         public Dictionary<string, bool> followMap;
@@ -138,6 +148,14 @@ namespace ConnectApp.Models.Api {
         public List<User> followers;
         public bool followersHasMore;
         public Dictionary<string, bool> followMap;
+    }
+
+    [Serializable]
+    public class FetchFollowingTeamResponse {
+        public List<Team> followingTeams;
+        public bool followingTeamsHasMore;
+        public Dictionary<string, bool> followMap;
+        public Dictionary<string, Place> placeMap;
     }
 
     [Serializable]
@@ -158,6 +176,14 @@ namespace ConnectApp.Models.Api {
         public Dictionary<string, bool> likeMap;
         public List<Article> projects;
         public bool projectsHasMore;
+    }
+
+    [Serializable]
+    public class FetchTeamMemberResponse {
+        public List<Member> members;
+        public Dictionary<string, User> userMap;
+        public Dictionary<string, bool> followMap;
+        public bool hasMore;
     }
 
     [Serializable]

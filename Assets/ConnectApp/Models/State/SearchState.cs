@@ -8,14 +8,17 @@ namespace ConnectApp.Models.State {
         public bool searchArticleLoading { get; set; }
         public bool searchUserLoading { get; set; }
         public bool searchFollowingLoading { get; set; }
+        public bool searchTeamLoading { get; set; }
         public string keyword { get; set; }
         public string searchFollowingKeyword { get; set; }
         public Dictionary<string, List<Article>> searchArticles { get; set; }
         public Dictionary<string, List<User>> searchUsers { get; set; }
+        public Dictionary<string, List<Team>> searchTeams { get; set; }
         public List<User> searchFollowings { get; set; }
         public int searchArticleCurrentPage { get; set; }
         public List<int> searchArticlePages { get; set; }
         public bool searchUserHasMore { get; set; }
+        public bool searchTeamHasMore { get; set; }
         public bool searchFollowingHasMore { get; set; }
         public List<string> searchArticleHistoryList { get; set; }
     }

@@ -91,9 +91,10 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new BlockArticleAction {articleId = articleId});
                             dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = articleId});
                         },
-                        pushToUserFollowing = userId => dispatcher.dispatch(
+                        pushToUserFollowing = (userId, initialPage) => dispatcher.dispatch(
                             new MainNavigatorPushToUserFollowingAction {
-                                userId = userId
+                                userId = userId,
+                                initialPage = initialPage
                             }
                         ),
                         pushToUserFollower = userId => dispatcher.dispatch(
@@ -504,20 +505,20 @@ namespace ConnectApp.screens {
                                     children: new List<Widget> {
                                         new Row(
                                             children: new List<Widget> {
-                                                _buildFollowButton(
+                                                _buildFollowCount(
                                                     "关注",
-                                                    $"{user.followingCount ?? 0}",
+                                                    $"{(user.followingCount ?? 0) + (user.followingTeamsCount ?? 0)}",
                                                     () =>
                                                         this.widget.actionModel.pushToUserFollowing(
-                                                            this.widget.viewModel.userId)
+                                                            arg1: this.widget.viewModel.userId, 0)
                                                 ),
                                                 new SizedBox(width: 16),
-                                                _buildFollowButton(
+                                                _buildFollowCount(
                                                     "粉丝",
                                                     $"{user.followCount ?? 0}",
                                                     () =>
                                                         this.widget.actionModel.pushToUserFollower(
-                                                            this.widget.viewModel.userId)
+                                                            obj: this.widget.viewModel.userId)
                                                 )
                                             }
                                         ),
@@ -548,7 +549,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        static Widget _buildFollowButton(string title, string subTitle, GestureTapCallback onTap) {
+        static Widget _buildFollowCount(string title, string subTitle, GestureTapCallback onTap) {
             return new GestureDetector(
                 onTap: onTap,
                 child: new Container(

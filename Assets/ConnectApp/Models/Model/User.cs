@@ -15,10 +15,13 @@ namespace ConnectApp.Models.Model {
         public string description;
         public int? followCount;
         public int? followingCount;
+        public int? followingTeamsCount;
         public List<User> followings;
         public bool? followingsHasMore;
         public List<User> followers;
         public bool? followersHasMore;
+        public List<Team> followingTeams;
+        public bool? followingTeamsHasMore;
         public List<Article> articles;
         public bool? articlesHasMore;
         public Dictionary<string, JobRole> jobRoleMap;
@@ -38,10 +41,13 @@ namespace ConnectApp.Models.Model {
             string description = null,
             int? followCount = null,
             int? followingCount = null,
+            int? followingTeamsCount = null,
             List<User> followings = null,
             bool? followingsHasMore = null,
             List<User> followers = null,
             bool? followersHasMore = null,
+            List<Team> followingTeams = null,
+            bool? followingTeamsHasMore = null,
             List<Article> articles = null,
             bool? articlesHasMore = null,
             Dictionary<string, JobRole> jobRoleMap = null,
@@ -61,10 +67,13 @@ namespace ConnectApp.Models.Model {
                 description = description ?? this.description,
                 followCount = followCount ?? this.followCount,
                 followingCount = followingCount ?? this.followingCount,
+                followingTeamsCount = followingTeamsCount ?? this.followingTeamsCount,
                 followings = followings ?? this.followings,
                 followingsHasMore = followingsHasMore ?? this.followingsHasMore,
                 followers = followers ?? this.followers,
                 followersHasMore = followersHasMore ?? this.followersHasMore,
+                followingTeams = followingTeams ?? this.followingTeams,
+                followingTeamsHasMore = followingTeamsHasMore ?? this.followingTeamsHasMore,
                 articles = articles ?? this.articles,
                 articlesHasMore = articlesHasMore ?? this.articlesHasMore,
                 jobRoleMap = jobRoleMap ?? this.jobRoleMap,
@@ -91,10 +100,13 @@ namespace ConnectApp.Models.Model {
                 description: other.description,
                 followCount: other.followCount,
                 followingCount: other.followingCount,
+                followingTeamsCount: other.followingTeamsCount,
                 followings: other.followings,
                 followingsHasMore: other.followingsHasMore,
                 followers: other.followers,
                 followersHasMore: other.followersHasMore,
+                followingTeams: other.followingTeams,
+                followingTeamsHasMore: other.followingTeamsHasMore,
                 articles: other.articles,
                 articlesHasMore: other.articlesHasMore,
                 jobRoleMap: other.jobRoleMap,
