@@ -159,4 +159,9 @@ namespace ConnectApp.Models.Api {
         public List<Article> projects;
         public bool projectsHasMore;
     }
+
+    [Serializable]
+    public class ErrorResponse {
+        public string errorCode;
+    }
 }

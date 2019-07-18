@@ -7,8 +7,8 @@ namespace ConnectApp.Models.ViewModel {
         public bool followArticlesLoading;
         public bool followingLoading;
         public List<string> articleList;
-        public List<string> followArticleList;
-        public List<string> hotArticleList;
+        public List<Article> followArticleList;
+        public List<Article> hotArticleList;
         public List<User> followingList;
         public Dictionary<string, Article> articleDict;
         public Dictionary<string, User> userDict;
