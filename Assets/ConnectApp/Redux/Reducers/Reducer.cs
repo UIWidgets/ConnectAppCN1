@@ -915,6 +915,7 @@ namespace ConnectApp.redux.reducers {
                     state.searchState.keyword = "";
                     state.searchState.searchArticles = new Dictionary<string, List<Article>>();
                     state.searchState.searchUsers = new Dictionary<string, List<User>>();
+                    state.searchState.searchTeams = new Dictionary<string, List<Team>>();
                     break;
                 }
 
@@ -982,7 +983,7 @@ namespace ConnectApp.redux.reducers {
                     state.searchState.searchFollowingLoading = false;
                     state.searchState.searchFollowingKeyword = action.keyword;
                     state.searchState.searchFollowingHasMore = action.hasMore;
-                    if (action.pageNumber == 0) {
+                    if (action.pageNumber == 1) {
                         state.searchState.searchFollowings = action.users;
                     }
                     else {
@@ -1003,6 +1004,39 @@ namespace ConnectApp.redux.reducers {
                 case ClearSearchFollowingResultAction _: {
                     state.searchState.searchFollowingKeyword = "";
                     state.searchState.searchFollowings = new List<User>();
+                    break;
+                }
+
+                case StartSearchTeamAction _: {
+                    state.searchState.searchTeamLoading = true;
+                    break;
+                }
+
+                case SearchTeamSuccessAction action: {
+                    state.searchState.searchTeamLoading = false;
+                    state.searchState.keyword = action.keyword;
+                    state.searchState.searchTeamHasMore = action.searchTeamResponse.hasMore;
+                    if (state.searchState.searchTeams.ContainsKey(key: action.keyword)) {
+                        if (action.pageNumber == 1) {
+                            state.searchState.searchTeams[key: action.keyword] =
+                                action.searchTeamResponse.teams;
+                        }
+                        else {
+                            var searchTeams = state.searchState.searchTeams[key: action.keyword];
+                            searchTeams.AddRange(collection: action.searchTeamResponse.teams);
+                            state.searchState.searchTeams[key: action.keyword] = searchTeams;
+                        }
+                    }
+                    else {
+                        state.searchState.searchTeams.Add(key: action.keyword, value: action.searchTeamResponse.teams);
+                    }
+
+                    break;
+                }
+
+                case SearchTeamFailureAction action: {
+                    state.searchState.searchTeamLoading = false;
+                    state.searchState.keyword = action.keyword;
                     break;
                 }
 
@@ -1045,7 +1079,7 @@ namespace ConnectApp.redux.reducers {
                     if (action.userId != null) {
                         Router.navigator.push(new PageRouteBuilder(
                                 pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new UserFollowingScreenConnector(userId: action.userId),
+                                    new UserFollowingScreenConnector(userId: action.userId, initialPage: action.initialPage),
                                 transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                     new PushPageTransition(
                                         routeAnimation: animation,
@@ -1114,6 +1148,23 @@ namespace ConnectApp.redux.reducers {
                         Router.navigator.push(new PageRouteBuilder(
                                 pageBuilder: (context, animation, secondaryAnimation) =>
                                     new TeamFollowerScreenConnector(teamId: action.teamId),
+                                transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
+                                    new PushPageTransition(
+                                        routeAnimation: animation,
+                                        child: child
+                                    )
+                            )
+                        );
+                    }
+
+                    break;
+                }
+
+                case MainNavigatorPushToTeamMemberAction action: {
+                    if (action.teamId != null) {
+                        Router.navigator.push(new PageRouteBuilder(
+                                pageBuilder: (context, animation, secondaryAnimation) =>
+                                    new TeamMemberScreenConnector(teamId: action.teamId),
                                 transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                     new PushPageTransition(
                                         routeAnimation: animation,
@@ -1470,23 +1521,23 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case StartFetchFollowingAction _: {
-                    state.userState.followingLoading = true;
+                case StartFetchFollowingUserAction _: {
+                    state.userState.followingUserLoading = true;
                     break;
                 }
 
-                case FetchFollowingSuccessAction action: {
-                    state.userState.followingLoading = false;
+                case FetchFollowingUserSuccessAction action: {
+                    state.userState.followingUserLoading = false;
                     if (state.userState.userDict.ContainsKey(key: action.userId)) {
                         var user = state.userState.userDict[key: action.userId];
-                        user.followingsHasMore = action.followingsHasMore;
+                        user.followingsHasMore = action.followingUsersHasMore;
                         if (action.offset == 0) {
-                            user.followings = action.followings;
+                            user.followings = action.followingUsers;
                         }
                         else {
-                            var followings = user.followings;
-                            followings.AddRange(collection: action.followings);
-                            user.followings = followings;
+                            var followingUsers = user.followings;
+                            followingUsers.AddRange(collection: action.followingUsers);
+                            user.followings = followingUsers;
                         }
 
                         state.userState.userDict[key: action.userId] = user;
@@ -1495,8 +1546,8 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case FetchFollowingFailureAction _: {
-                    state.userState.followingLoading = false;
+                case FetchFollowingUserFailureAction _: {
+                    state.userState.followingUserLoading = false;
                     break;
                 }
 
@@ -1527,6 +1578,36 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchFollowerFailureAction _: {
                     state.userState.followerLoading = false;
+                    break;
+                }
+
+                case StartFetchFollowingTeamAction _: {
+                    state.userState.followingTeamLoading = true;
+                    break;
+                }
+
+                case FetchFollowingTeamSuccessAction action: {
+                    state.userState.followingTeamLoading = false;
+                    if (state.userState.userDict.ContainsKey(key: action.userId)) {
+                        var user = state.userState.userDict[key: action.userId];
+                        user.followingTeamsHasMore = action.followingTeamsHasMore;
+                        if (action.offset == 0) {
+                            user.followingTeams = action.followingTeams;
+                        }
+                        else {
+                            var followingTeams = user.followingTeams;
+                            followingTeams.AddRange(collection: action.followingTeams);
+                            user.followingTeams = followingTeams;
+                        }
+
+                        state.userState.userDict[key: action.userId] = user;
+                    }
+
+                    break;
+                }
+
+                case FetchFollowingTeamFailureAction _: {
+                    state.userState.followingTeamLoading = false;
                     break;
                 }
 
@@ -1655,6 +1736,36 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchTeamFollowerFailureAction _: {
                     state.teamState.followerLoading = false;
+                    break;
+                }
+
+                case StartFetchTeamMemberAction _: {
+                    state.teamState.memberLoading = true;
+                    break;
+                }
+
+                case FetchTeamMemberSuccessAction action: {
+                    state.teamState.memberLoading = false;
+                    if (state.teamState.teamDict.ContainsKey(key: action.teamId)) {
+                        var team = state.teamState.teamDict[key: action.teamId];
+                        team.membersHasMore = action.membersHasMore;
+                        if (action.pageNumber == 1) {
+                            team.members = action.members;
+                        }
+                        else {
+                            var members = team.members;
+                            members.AddRange(collection: action.members);
+                            team.members = members;
+                        }
+
+                        state.teamState.teamDict[key: action.teamId] = team;
+                    }
+
+                    break;
+                }
+
+                case FetchTeamMemberFailureAction _: {
+                    state.teamState.memberLoading = false;
                     break;
                 }
 

@@ -104,7 +104,7 @@ namespace ConnectApp.screens {
                 .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }
-        
+
         void _onFollow(UserType userType, string userId) {
             if (this.widget.viewModel.isLoggedIn) {
                 if (userType == UserType.follow) {
@@ -155,16 +155,18 @@ namespace ConnectApp.screens {
         }
         
         Widget _buildContent() {
-            var itemCount = this.widget.viewModel.searchUserHasMore
-                ? this.widget.viewModel.searchUsers.Count + 1
-                : this.widget.viewModel.searchUsers.Count + 2;
+            var searchUsers = this.widget.viewModel.searchUsers;
+            var enablePullUp = this.widget.viewModel.searchUserHasMore;
+            var itemCount = enablePullUp
+                ? searchUsers.Count + 1
+                : searchUsers.Count + 2;
             return new Container(
                 color: CColors.Background,
                 child: new CustomScrollbar(
                     new SmartRefresher(
                         controller: this._refreshController,
                         enablePullDown: false,
-                        enablePullUp: this.widget.viewModel.searchUserHasMore,
+                        enablePullUp: enablePullUp,
                         onRefresh: this._onRefresh,
                         child: ListView.builder(
                             physics: new AlwaysScrollableScrollPhysics(),

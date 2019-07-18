@@ -10,7 +10,7 @@ namespace ConnectApp.redux.actions {
     public class PopularSearchArticleSuccessAction : RequestAction {
         public List<PopularSearch> popularSearchArticles;
     }
-    
+
     public class PopularSearchUserSuccessAction : RequestAction {
         public List<PopularSearch> popularSearchUsers;
     }
@@ -45,7 +45,7 @@ namespace ConnectApp.redux.actions {
 
     public class DeleteAllSearchArticleHistoryAction : BaseAction {
     }
-    
+
     public class StartSearchUserAction : RequestAction {
     }
 
@@ -59,7 +59,7 @@ namespace ConnectApp.redux.actions {
     public class SearchUserFailureAction : BaseAction {
         public string keyword;
     }
-    
+
     public class StartSearchFollowingAction : RequestAction {
     }
 
@@ -71,6 +71,19 @@ namespace ConnectApp.redux.actions {
     }
 
     public class SearchFollowingFailureAction : BaseAction {
+        public string keyword;
+    }
+
+    public class StartSearchTeamAction : RequestAction {
+    }
+
+    public class SearchTeamSuccessAction : BaseAction {
+        public string keyword;
+        public int pageNumber;
+        public FetchSearchTeamResponse searchTeamResponse;
+    }
+
+    public class SearchTeamFailureAction : BaseAction {
         public string keyword;
     }
 
@@ -164,6 +177,34 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => Debug.Log($"{error}"));
+            });
+        }
+
+        public static object searchTeams(string keyword, int pageNumber) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return SearchApi.SearchTeam(keyword, pageNumber)
+                    .Then(searchTeamResponse => {
+                        dispatcher.dispatch(new FollowMapAction {followMap = searchTeamResponse.followingMap});
+                        var teamMap = new Dictionary<string, Team>();
+                        (searchTeamResponse.teams ?? new List<Team>()).ForEach(searchTeam => {
+                            if (teamMap.ContainsKey(key: searchTeam.id)) {
+                                teamMap[key: searchTeam.id] = searchTeam;
+                            }
+                            else {
+                                teamMap.Add(key: searchTeam.id, value: searchTeam);
+                            }
+                        });
+                        dispatcher.dispatch(new TeamMapAction {teamMap = teamMap});
+                        dispatcher.dispatch(new SearchTeamSuccessAction {
+                            keyword = keyword,
+                            pageNumber = pageNumber,
+                            searchTeamResponse = searchTeamResponse
+                        });
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new SearchTeamFailureAction {keyword = keyword});
+                        Debug.Log(error);
+                    });
             });
         }
     }

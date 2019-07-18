@@ -92,6 +92,11 @@ namespace ConnectApp.screens {
                                 teamId = teamId
                             }
                         ),
+                        pushToTeamMember = teamId => dispatcher.dispatch(
+                            new MainNavigatorPushToTeamMemberAction {
+                                teamId = teamId
+                            }
+                        ),
                         startFollowTeam = () => dispatcher.dispatch(new StartFetchFollowTeamAction {followTeamId = this.teamId}),
                         followTeam = teamId => dispatcher.dispatch<IPromise>(Actions.fetchFollowTeam(teamId)),
                         startUnFollowTeam = () => dispatcher.dispatch(new StartFetchUnFollowTeamAction {unFollowTeamId = this.teamId}),
@@ -477,7 +482,28 @@ namespace ConnectApp.screens {
                                 child: new Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: new List<Widget> {
-                                        this._buildFollowerCount(),
+                                        new Row(
+                                            children: new List<Widget> {
+                                                _buildFollowCount(
+                                                    "粉丝",
+                                                    $"{team.stats?.followCount ?? 0}",
+                                                    () => {
+                                                        if (this.widget.viewModel.isLoggedIn) {
+                                                            this.widget.actionModel.pushToTeamFollower(obj: this.widget.viewModel.teamId);
+                                                        }
+                                                        else {
+                                                            this.widget.actionModel.pushToLogin();
+                                                        }
+                                                    }
+                                                ),
+                                                new SizedBox(width: 16),
+                                                _buildFollowCount(
+                                                    "成员",
+                                                    $"{team.stats?.membersCount ?? 0}",
+                                                    () => this.widget.actionModel.pushToTeamMember(obj: this.widget.viewModel.teamId)
+                                                )
+                                            }
+                                        ),
                                         this._buildFollowButton()
                                     }
                                 )
@@ -505,27 +531,19 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildFollowerCount() {
-            var team = this.widget.viewModel.team;
+        static Widget _buildFollowCount(string title, string subTitle, GestureTapCallback onTap) {
             return new GestureDetector(
-                onTap: () => {
-                    if (this.widget.viewModel.isLoggedIn) {
-                        this.widget.actionModel.pushToTeamFollower(obj: this.widget.viewModel.teamId);
-                    }
-                    else {
-                        this.widget.actionModel.pushToLogin();
-                    }
-                },
+                onTap: onTap,
                 child: new Container(
                     height: 32,
                     alignment: Alignment.center,
                     color: CColors.Transparent,
                     child: new Row(
                         children: new List<Widget> {
-                            new Text("粉丝", style: CTextStyle.PRegularWhite),
+                            new Text(data: title, style: CTextStyle.PRegularWhite),
                             new SizedBox(width: 2),
                             new Text(
-                                $"{team.stats.followCount}",
+                                data: subTitle,
                                 style: new TextStyle(
                                     height: 1.27f,
                                     fontSize: 20,

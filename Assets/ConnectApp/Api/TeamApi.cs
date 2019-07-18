@@ -45,6 +45,19 @@ namespace ConnectApp.Api {
             return promise;
         }
 
+        public static Promise<FetchTeamMemberResponse> FetchTeamMember(string teamId, int pageNumber) {
+            var promise = new Promise<FetchTeamMemberResponse>();
+            var para = new Dictionary<string, object> {
+                {"page", pageNumber}
+            };
+            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/teams/{teamId}/members", para);
+            HttpManager.resume(request: request).Then(responseText => {
+                var teamMemberResponse = JsonConvert.DeserializeObject<FetchTeamMemberResponse>(responseText);
+                promise.Resolve(teamMemberResponse);
+            }).Catch(exception => promise.Reject(exception));
+            return promise;
+        }
+
         public static Promise<bool> FetchFollowTeam(string teamId) {
             var promise = new Promise<bool>();
             var para = new FollowParameter {

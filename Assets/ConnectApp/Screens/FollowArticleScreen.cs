@@ -41,7 +41,7 @@ namespace ConnectApp.screens {
                     var user = state.userState.userDict.ContainsKey(key: currentUserId)
                         ? state.userState.userDict[key: currentUserId]
                         : new User();
-                    var followings = user.followings ?? new List<User>();
+                    var followingUsers = user.followings ?? new List<User>();
                     var likeMap = state.likeState.likeDict.ContainsKey(key: currentUserId)
                         ? state.likeState.likeDict[key: currentUserId]
                         : new Dictionary<string, bool>();
@@ -50,10 +50,10 @@ namespace ConnectApp.screens {
                         : new Dictionary<string, bool>();
                     return new ArticlesScreenViewModel {
                         followArticlesLoading = state.articleState.followArticlesLoading,
-                        followingLoading = state.userState.followingLoading,
+                        followingLoading = state.userState.followingUserLoading,
                         followArticleList = followArticleList,
                         hotArticleList = hotArticleList,
-                        followingList = followings,
+                        followingList = followingUsers,
                         blockArticleList = state.articleState.blockArticleList,
                         followArticleHasMore = state.articleState.followArticleHasMore,
                         hotArticleHasMore = state.articleState.hotArticleHasMore,
@@ -114,8 +114,8 @@ namespace ConnectApp.screens {
                                 Actions.sendComment(articleId, channelId, content, nonce, parentMessageId));
                         },
                         likeArticle = articleId => dispatcher.dispatch<IPromise>(Actions.likeArticle(articleId)),
-                        startFetchFollowing = () => dispatcher.dispatch(new StartFetchFollowingAction()),
-                        fetchFollowing = offset => dispatcher.dispatch<IPromise>(Actions.fetchFollowing(viewModel.currentUserId, offset)),
+                        startFetchFollowing = () => dispatcher.dispatch(new StartFetchFollowingUserAction()),
+                        fetchFollowing = offset => dispatcher.dispatch<IPromise>(Actions.fetchFollowingUser(viewModel.currentUserId, offset)),
                         startFetchFollowArticles = () => dispatcher.dispatch(new StartFetchFollowArticlesAction()),
                         fetchFollowArticles = pageNumber => dispatcher.dispatch<IPromise>(Actions.fetchFollowArticles(pageNumber))
                     };

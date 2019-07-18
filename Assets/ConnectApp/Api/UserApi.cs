@@ -59,16 +59,16 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static Promise<FetchFollowingResponse> FetchFollowing(string userId, int offset) {
-            var promise = new Promise<FetchFollowingResponse>();
+        public static Promise<FetchFollowingUserResponse> FetchFollowingUser(string userId, int offset) {
+            var promise = new Promise<FetchFollowingUserResponse>();
             var para = new Dictionary<string, object> {
                 {"userId", userId},
                 {"offset", offset}
             };
             var request = HttpManager.GET($"{Config.apiAddress}/api/u/getFollowings", para);
             HttpManager.resume(request: request).Then(responseText => {
-                var followingResponse = JsonConvert.DeserializeObject<FetchFollowingResponse>(responseText);
-                promise.Resolve(followingResponse);
+                var followingUserResponse = JsonConvert.DeserializeObject<FetchFollowingUserResponse>(responseText);
+                promise.Resolve(followingUserResponse);
             }).Catch(exception => promise.Reject(exception));
             return promise;
         }
@@ -83,6 +83,19 @@ namespace ConnectApp.Api {
             HttpManager.resume(request: request).Then(responseText => {
                 var followerResponse = JsonConvert.DeserializeObject<FetchFollowerResponse>(responseText);
                 promise.Resolve(followerResponse);
+            }).Catch(exception => promise.Reject(exception));
+            return promise;
+        }
+
+        public static Promise<FetchFollowingTeamResponse> FetchFollowingTeam(string userId, int offset) {
+            var promise = new Promise<FetchFollowingTeamResponse>();
+            var para = new Dictionary<string, object> {
+                {"offset", offset}
+            };
+            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/u/{userId}/followingTeams", para);
+            HttpManager.resume(request: request).Then(responseText => {
+                var followingTeamResponse = JsonConvert.DeserializeObject<FetchFollowingTeamResponse>(responseText);
+                promise.Resolve(followingTeamResponse);
             }).Catch(exception => promise.Reject(exception));
             return promise;
         }

@@ -36,7 +36,10 @@ namespace ConnectApp.screens {
                     popularSearchArticleList = state.popularSearchState.popularSearchArticles,
                     searchUsers = state.searchState.searchUsers.ContainsKey(key: state.searchState.keyword)
                         ? state.searchState.searchUsers[key: state.searchState.keyword]
-                        : new List<User>()
+                        : new List<User>(),
+                    searchTeams = state.searchState.searchTeams.ContainsKey(key: state.searchState.keyword)
+                        ? state.searchState.searchTeams[key: state.searchState.keyword]
+                        : new List<Team>()
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new SearchScreenActionModel {
@@ -50,6 +53,9 @@ namespace ConnectApp.screens {
                         startSearchUser = () => dispatcher.dispatch(new StartSearchUserAction()),
                         searchUser = (keyword, pageNumber) => dispatcher.dispatch<IPromise>(
                             Actions.searchUsers(keyword, pageNumber)),
+                        startSearchTeam = () => dispatcher.dispatch(new StartSearchTeamAction()),
+                        searchTeam = (keyword, pageNumber) => dispatcher.dispatch<IPromise>(
+                            Actions.searchTeams(keyword, pageNumber)),
                         clearSearchResult = () => dispatcher.dispatch(new ClearSearchResultAction()),
                         saveSearchArticleHistory = keyword =>
                             dispatcher.dispatch(new SaveSearchArticleHistoryAction {keyword = keyword}),
@@ -94,7 +100,8 @@ namespace ConnectApp.screens {
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 if (this.widget.viewModel.searchKeyword.Length > 0
                     || this.widget.viewModel.searchArticles.Count > 0
-                    || this.widget.viewModel.searchUsers.Count > 0) {
+                    || this.widget.viewModel.searchUsers.Count > 0
+                    || this.widget.viewModel.searchTeams.Count > 0) {
                     this.widget.actionModel.clearSearchResult();
                 }
 
@@ -124,21 +131,29 @@ namespace ConnectApp.screens {
             if (this._selectedIndex == 1) {
                 this._searchUser(text: text);
             }
+            if (this._selectedIndex == 2) {
+                this._searchTeam(text: text);
+            }
         }
 
         void _searchArticle(string text) {
-            this.widget.actionModel.saveSearchArticleHistory(text);
-            this.widget.actionModel.startSearchArticle(text);
-            this.widget.actionModel.searchArticle(text, 0);
+            this.widget.actionModel.saveSearchArticleHistory(obj: text);
+            this.widget.actionModel.startSearchArticle(obj: text);
+            this.widget.actionModel.searchArticle(arg1: text, 0);
         }
         
         void _searchUser(string text) {
             this.widget.actionModel.startSearchUser();
-            this.widget.actionModel.searchUser(text, 1);
+            this.widget.actionModel.searchUser(arg1: text, 1);
+        }
+
+        void _searchTeam(string text) {
+            this.widget.actionModel.startSearchTeam();
+            this.widget.actionModel.searchTeam(arg1: text, 1);
         }
 
         public override Widget build(BuildContext context) {
-            Widget child = new Container();
+            Widget child;
             if (this.widget.viewModel.searchKeyword.Length > 0) {
                 child = this._buildSearchResult();
             }
@@ -221,10 +236,11 @@ namespace ConnectApp.screens {
 
         Widget _buildSearchResult() {
             return new CustomSegmentedControl(
-                new List<string> {"文章", "用户"},
+                new List<string> {"文章", "用户", "公司"},
                 new List<Widget> {
                     new SearchArticleScreenConnector(),
-                    new SearchUserScreenConnector()
+                    new SearchUserScreenConnector(),
+                    new SearchTeamScreenConnector()
                 },
                 newValue => {
                     this._selectedIndex = newValue;

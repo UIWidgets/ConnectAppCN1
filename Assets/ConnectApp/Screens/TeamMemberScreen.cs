@@ -17,8 +17,8 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
-    public class TeamFollowerScreenConnector : StatelessWidget {
-        public TeamFollowerScreenConnector(
+    public class TeamMemberScreenConnector : StatelessWidget {
+        public TeamMemberScreenConnector(
             string teamId,
             Key key = null
         ) : base(key: key) {
@@ -27,22 +27,21 @@ namespace ConnectApp.screens {
         
         readonly string teamId;
         public override Widget build(BuildContext context) {
-            return new StoreConnector<AppState, TeamFollowerScreenViewModel>(
+            return new StoreConnector<AppState, TeamMemberScreenViewModel>(
                 converter: state => {
                     var team = state.teamState.teamDict.ContainsKey(key: this.teamId)
                         ? state.teamState.teamDict[key: this.teamId]
                         : new Team();
-                    var followers = team.followers ?? new List<User>();
+                    var members = team.members ?? new List<Member>();
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
                     var followMap = state.followState.followDict.ContainsKey(key: currentUserId)
                         ? state.followState.followDict[key: currentUserId]
                         : new Dictionary<string, bool>();
-                    return new TeamFollowerScreenViewModel {
+                    return new TeamMemberScreenViewModel {
                         teamId = this.teamId,
-                        followerLoading = state.teamState.followerLoading,
-                        followers = followers,
-                        followersHasMore = team.followersHasMore ?? false,
-                        userOffset = followers.Count,
+                        memberLoading = state.teamState.memberLoading,
+                        members = members,
+                        membersHasMore = team.membersHasMore ?? false,
                         userDict = state.userState.userDict,
                         followMap = followMap,
                         currentUserId = currentUserId,
@@ -50,9 +49,9 @@ namespace ConnectApp.screens {
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
-                    var actionModel = new TeamFollowerScreenActionModel {
-                        startFetchFollower = () => dispatcher.dispatch(new StartFetchTeamFollowerAction()),
-                        fetchFollower = offset => dispatcher.dispatch<IPromise>(Actions.fetchTeamFollower(this.teamId, offset)),
+                    var actionModel = new TeamMemberScreenActionModel {
+                        startFetchMember = () => dispatcher.dispatch(new StartFetchTeamMemberAction()),
+                        fetchMember = pageNumber => dispatcher.dispatch<IPromise>(Actions.fetchTeamMember(this.teamId, pageNumber)),
                         startFollowUser = followUserId => dispatcher.dispatch(new StartFetchFollowUserAction {
                             followUserId = followUserId
                         }),
@@ -71,51 +70,52 @@ namespace ConnectApp.screens {
                             }
                         )
                     };
-                    return new TeamFollowerScreen(viewModel, actionModel);
+                    return new TeamMemberScreen(viewModel, actionModel);
                 }
             );
         }
     }
 
-    public class TeamFollowerScreen : StatefulWidget {
-        public TeamFollowerScreen(
-            TeamFollowerScreenViewModel viewModel = null,
-            TeamFollowerScreenActionModel actionModel = null,
+    public class TeamMemberScreen : StatefulWidget {
+        public TeamMemberScreen(
+            TeamMemberScreenViewModel viewModel = null,
+            TeamMemberScreenActionModel actionModel = null,
             Key key = null
         ) : base(key: key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
 
-        public readonly TeamFollowerScreenViewModel viewModel;
-        public readonly TeamFollowerScreenActionModel actionModel;
+        public readonly TeamMemberScreenViewModel viewModel;
+        public readonly TeamMemberScreenActionModel actionModel;
         
         public override State createState() {
-            return new _TeamFollowerScreenState();
+            return new _TeamMemberScreenState();
         }
     }
-
-    class _TeamFollowerScreenState : State<TeamFollowerScreen> {
-        int _userOffset;
+    
+    class _TeamMemberScreenState : State<TeamMemberScreen> {
+        int _pageNumber;
         RefreshController _refreshController;
-        string _title;
         
         public override void initState() {
             base.initState();
-            this._userOffset = 0;
+            this._pageNumber = 1;
             this._refreshController = new RefreshController();
-            this._title = this.widget.viewModel.currentUserId == this.widget.viewModel.teamId 
-                ? "我的粉丝"
-                : "全部粉丝";
             SchedulerBinding.instance.addPostFrameCallback(_ => {
-                this.widget.actionModel.startFetchFollower();
-                this.widget.actionModel.fetchFollower(0);
+                this.widget.actionModel.startFetchMember();
+                this.widget.actionModel.fetchMember(1);
             });
         }
         
         void _onRefresh(bool up) {
-            this._userOffset = up ? 0 : this.widget.viewModel.userOffset;
-            this.widget.actionModel.fetchFollower(arg: this._userOffset)
+            if (up) {
+                this._pageNumber = 1;
+            }
+            else {
+                this._pageNumber++;
+            }
+            this.widget.actionModel.fetchMember(arg: this._pageNumber)
                 .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }
@@ -148,19 +148,14 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            var followers = this.widget.viewModel.followers;
+            var members = this.widget.viewModel.members;
             Widget content;
-            if (this.widget.viewModel.followerLoading && followers.isEmpty()) {
+            if (this.widget.viewModel.memberLoading && members.isEmpty()) {
                 content = new GlobalLoading();
-            } else if (followers.Count <= 0) {
+            } else if (members.Count <= 0) {
                 content = new BlankView(
-                    $"暂无{this._title}用户",
-                    "image/default-following",
-                    true,
-                    () => {
-                        this.widget.actionModel.startFetchFollower();
-                        this.widget.actionModel.fetchFollower(0);
-                    }
+                    "暂无更多公司成员",
+                    "image/default-following"
                 );
             }
             else {
@@ -168,12 +163,12 @@ namespace ConnectApp.screens {
                     new SmartRefresher(
                         controller: this._refreshController,
                         enablePullDown: true,
-                        enablePullUp: this.widget.viewModel.followersHasMore,
+                        enablePullUp: this.widget.viewModel.membersHasMore,
                         onRefresh: this._onRefresh,
                         child: ListView.builder(
                             physics: new AlwaysScrollableScrollPhysics(),
-                            itemCount: followers.Count,
-                            itemBuilder: this._buildUserCard
+                            itemCount: members.Count,
+                            itemBuilder: this._buildMemberCard
                         )
                     )
                 );
@@ -217,7 +212,7 @@ namespace ConnectApp.screens {
                         new Container(
                             margin: EdgeInsets.only(16, bottom: 8),
                             child: new Text(
-                                data: this._title,
+                                "公司成员",
                                 style: CTextStyle.H2
                             )
                         )
@@ -226,32 +221,29 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildUserCard(BuildContext context, int index) {
-            var follower = this.widget.viewModel.followers[index: index];
+        Widget _buildMemberCard(BuildContext context, int index) {
+            var members = this.widget.viewModel.members[index: index];
+            var user = this.widget.viewModel.userDict[key: members.userId];
             UserType userType = UserType.unFollow;
             if (!this.widget.viewModel.isLoggedIn) {
                 userType = UserType.unFollow;
             }
             else {
-                var followUserLoading = false;
-                if (this.widget.viewModel.userDict.ContainsKey(key: follower.id)) {
-                    var user = this.widget.viewModel.userDict[key: follower.id];
-                    followUserLoading = user.followUserLoading ?? false;
-                }
-                if (this.widget.viewModel.currentUserId == follower.id) {
+                var followUserLoading = user.followUserLoading ?? false;
+                if (this.widget.viewModel.currentUserId == user.id) {
                     userType = UserType.me;
                 } else if (followUserLoading) {
                     userType = UserType.loading;
-                } else if (this.widget.viewModel.followMap.ContainsKey(key: follower.id)) {
+                } else if (this.widget.viewModel.followMap.ContainsKey(key: user.id)) {
                     userType = UserType.follow;
                 }
             }
             return new UserCard(
-                user: follower,
-                () => this.widget.actionModel.pushToUserDetail(obj: follower.id),
+                user: user,
+                () => this.widget.actionModel.pushToUserDetail(obj: user.id),
                 userType: userType,
-                () => this._onFollow(userType: userType, userId: follower.id),
-                new ObjectKey(value: follower.id)
+                () => this._onFollow(userType: userType, userId: user.id),
+                new ObjectKey(value: user.id)
             );
         }
     }
