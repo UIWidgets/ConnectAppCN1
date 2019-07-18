@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using ConnectApp.Components;
 using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
@@ -152,6 +154,7 @@ namespace ConnectApp.redux.reducers {
                             if (state.articleState.followArticleDict.ContainsKey(key: currentUserId)) {
                                 state.articleState.followArticleDict.Remove(key: currentUserId);
                             }
+
                             if (state.articleState.hotArticleDict.ContainsKey(key: currentUserId)) {
                                 state.articleState.hotArticleDict.Remove(key: currentUserId);
                             }
@@ -164,6 +167,7 @@ namespace ConnectApp.redux.reducers {
                                 state.articleState.articleDict.Add(key: article.id, value: article);
                             }
                         }
+
                         state.articleState.followArticleDict.Add(key: currentUserId, value: followArticleList);
 
                         var hotArticleList = new List<string>();
@@ -173,6 +177,7 @@ namespace ConnectApp.redux.reducers {
                                 state.articleState.articleDict.Add(key: article.id, value: article);
                             }
                         }
+
                         state.articleState.hotArticleDict.Add(key: currentUserId, value: hotArticleList);
 
                         state.articleState.followArticleHasMore = action.projectHasMore;
@@ -274,6 +279,7 @@ namespace ConnectApp.redux.reducers {
                         if (!likeMap.ContainsKey(key: action.articleId)) {
                             likeMap.Add(key: action.articleId, true);
                         }
+
                         state.likeState.likeDict[key: currentUserId] = likeMap;
                     }
 
@@ -762,6 +768,7 @@ namespace ConnectApp.redux.reducers {
 
                         state.userState.userDict = userDict;
                     }
+
                     break;
                 }
 
@@ -780,6 +787,7 @@ namespace ConnectApp.redux.reducers {
 
                         state.teamState.teamDict = teamDict;
                     }
+
                     break;
                 }
 
@@ -797,6 +805,7 @@ namespace ConnectApp.redux.reducers {
 
                         state.placeState.placeDict = placeDict;
                     }
+
                     break;
                 }
 
@@ -824,7 +833,7 @@ namespace ConnectApp.redux.reducers {
                             state.followState.followDict = followDict;
                         }
                     }
-                    
+
                     break;
                 }
 
@@ -852,6 +861,7 @@ namespace ConnectApp.redux.reducers {
                             state.likeState.likeDict = likeDict;
                         }
                     }
+
                     break;
                 }
 
@@ -1160,6 +1170,34 @@ namespace ConnectApp.redux.reducers {
                     Router.navigator.pushReplacementNamed(routeName: action.routeName);
                     break;
                 }
+                case MainNavigatorPushToSplashAction action: {
+                    Router.navigator.pushReplacement(new PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) =>
+                                new SplashPage(),
+                            transitionDuration: TimeSpan.FromMilliseconds(600),
+                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
+                                new FadeTransition( //使用渐隐渐入过渡, 
+                                    opacity: animation,
+                                    child: child
+                                )
+                        )
+                    );
+                    break;
+                }
+                case MainNavigatorPushToMainAction action: {
+                    Router.navigator.pushReplacement(new PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) =>
+                                new MainScreen(),
+                            transitionDuration: TimeSpan.FromMilliseconds(600),
+                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
+                                new FadeTransition( //使用渐隐渐入过渡, 
+                                    opacity: animation,
+                                    child: child
+                                )
+                        )
+                    );
+                    break;
+                }
 
                 case MainNavigatorPushToRouteAction action: {
                     Router.navigator.push(route: action.route);
@@ -1350,6 +1388,7 @@ namespace ConnectApp.redux.reducers {
                         user.followUserLoading = true;
                         state.userState.userDict[key: action.followUserId] = user;
                     }
+
                     break;
                 }
 
@@ -1373,6 +1412,7 @@ namespace ConnectApp.redux.reducers {
                         if (!followMap.ContainsKey(key: action.followUserId)) {
                             followMap.Add(key: action.followUserId, value: action.success);
                         }
+
                         state.followState.followDict.Add(key: action.currentUserId, value: followMap);
                     }
 
@@ -1397,6 +1437,7 @@ namespace ConnectApp.redux.reducers {
                         user.followUserLoading = false;
                         state.userState.userDict[key: action.followUserId] = user;
                     }
+
                     break;
                 }
 
@@ -1406,6 +1447,7 @@ namespace ConnectApp.redux.reducers {
                         user.followUserLoading = true;
                         state.userState.userDict[key: action.unFollowUserId] = user;
                     }
+
                     break;
                 }
 
@@ -1415,6 +1457,7 @@ namespace ConnectApp.redux.reducers {
                         user.followUserLoading = false;
                         state.userState.userDict[key: action.unFollowUserId] = user;
                     }
+
                     if (state.followState.followDict.ContainsKey(key: action.currentUserId)) {
                         var followMap = state.followState.followDict[key: action.currentUserId];
                         if (followMap.ContainsKey(key: action.unFollowUserId)) {
@@ -1445,6 +1488,7 @@ namespace ConnectApp.redux.reducers {
                         user.followUserLoading = false;
                         state.userState.userDict[key: action.unFollowUserId] = user;
                     }
+
                     break;
                 }
 
@@ -1642,6 +1686,7 @@ namespace ConnectApp.redux.reducers {
                         team.followTeamLoading = true;
                         state.teamState.teamDict[key: action.followTeamId] = team;
                     }
+
                     break;
                 }
 
@@ -1651,11 +1696,13 @@ namespace ConnectApp.redux.reducers {
                         team.followTeamLoading = false;
                         state.teamState.teamDict[key: action.followTeamId] = team;
                     }
+
                     if (state.followState.followDict.ContainsKey(key: action.currentUserId)) {
                         var followMap = state.followState.followDict[key: action.currentUserId];
                         if (!followMap.ContainsKey(key: action.followTeamId)) {
                             followMap.Add(key: action.followTeamId, value: action.success);
                         }
+
                         state.followState.followDict[key: action.currentUserId] = followMap;
                     }
                     else {
@@ -1663,20 +1710,24 @@ namespace ConnectApp.redux.reducers {
                         if (!followMap.ContainsKey(key: action.followTeamId)) {
                             followMap.Add(key: action.followTeamId, value: action.success);
                         }
+
                         state.followState.followDict.Add(key: action.currentUserId, value: followMap);
                     }
+
                     if (state.userState.userDict.ContainsKey(key: action.currentUserId)) {
                         var user = state.userState.userDict[key: action.currentUserId];
                         user.followingCount += 1;
                         state.userState.userDict[key: action.currentUserId] = user;
                     }
+
                     if (state.teamState.teamDict.ContainsKey(key: action.followTeamId)) {
                         var team = state.teamState.teamDict[key: action.followTeamId];
                         team.stats.followCount += 1;
                         state.teamState.teamDict[key: action.followTeamId] = team;
                     }
+
                     break;
-                } 
+                }
 
                 case FetchFollowTeamFailureAction action: {
                     if (state.teamState.teamDict.ContainsKey(key: action.followTeamId)) {
@@ -1684,6 +1735,7 @@ namespace ConnectApp.redux.reducers {
                         team.followTeamLoading = false;
                         state.teamState.teamDict[key: action.followTeamId] = team;
                     }
+
                     break;
                 }
 
@@ -1693,8 +1745,9 @@ namespace ConnectApp.redux.reducers {
                         team.followTeamLoading = true;
                         state.teamState.teamDict[key: action.unFollowTeamId] = team;
                     }
+
                     break;
-                } 
+                }
 
                 case FetchUnFollowTeamSuccessAction action: {
                     if (state.teamState.teamDict.ContainsKey(key: action.unFollowTeamId)) {
@@ -1702,25 +1755,30 @@ namespace ConnectApp.redux.reducers {
                         team.followTeamLoading = false;
                         state.teamState.teamDict[key: action.unFollowTeamId] = team;
                     }
+
                     if (state.followState.followDict.ContainsKey(key: action.currentUserId)) {
                         var followMap = state.followState.followDict[key: action.currentUserId];
                         if (followMap.ContainsKey(key: action.unFollowTeamId)) {
                             followMap.Remove(key: action.unFollowTeamId);
                         }
+
                         state.followState.followDict[key: action.currentUserId] = followMap;
                     }
+
                     if (state.userState.userDict.ContainsKey(key: action.currentUserId)) {
                         var user = state.userState.userDict[key: action.currentUserId];
                         user.followingCount -= 1;
                         state.userState.userDict[key: action.currentUserId] = user;
                     }
+
                     if (state.teamState.teamDict.ContainsKey(key: action.unFollowTeamId)) {
                         var team = state.teamState.teamDict[key: action.unFollowTeamId];
                         team.stats.followCount -= 1;
                         state.teamState.teamDict[key: action.unFollowTeamId] = team;
                     }
+
                     break;
-                } 
+                }
 
                 case FetchUnFollowTeamFailureAction action: {
                     if (state.teamState.teamDict.ContainsKey(key: action.unFollowTeamId)) {
@@ -1728,6 +1786,7 @@ namespace ConnectApp.redux.reducers {
                         team.followTeamLoading = false;
                         state.teamState.teamDict[key: action.unFollowTeamId] = team;
                     }
+
                     break;
                 }
             }
