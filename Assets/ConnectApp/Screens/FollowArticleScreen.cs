@@ -19,7 +19,6 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Config = ConnectApp.Constants.Config;
 
 namespace ConnectApp.screens {
     public class FollowArticleScreenConnector : StatelessWidget {
@@ -35,10 +34,10 @@ namespace ConnectApp.screens {
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
                     var followArticleList = state.articleState.followArticleDict.ContainsKey(key: currentUserId)
                         ? state.articleState.followArticleDict[key: currentUserId]
-                        : new List<string>();
+                        : new List<Article>();
                     var hotArticleList = state.articleState.hotArticleDict.ContainsKey(key: currentUserId)
                         ? state.articleState.hotArticleDict[key: currentUserId]
-                        : new List<string>();
+                        : new List<Article>();
                     var user = state.userState.userDict.ContainsKey(key: currentUserId)
                         ? state.userState.userDict[key: currentUserId]
                         : new User();
@@ -55,7 +54,6 @@ namespace ConnectApp.screens {
                         followArticleList = followArticleList,
                         hotArticleList = hotArticleList,
                         followingList = followings,
-                        articleDict = state.articleState.articleDict,
                         blockArticleList = state.articleState.blockArticleList,
                         followArticleHasMore = state.articleState.followArticleHasMore,
                         hotArticleHasMore = state.articleState.hotArticleHasMore,
@@ -168,7 +166,6 @@ namespace ConnectApp.screens {
         void _onRefresh(bool up) {
             if (up) {
                 this._pageNumber = firstPageNumber;
-                this.widget.actionModel.startFetchFollowing();
                 this.widget.actionModel.fetchFollowing(0);
             }
             else {
@@ -284,18 +281,22 @@ namespace ConnectApp.screens {
             var followArticleList = this.widget.viewModel.followArticleList;
             var followingList = this.widget.viewModel.followingList;
             var hotArticleList = this.widget.viewModel.hotArticleList;
+            var followArticleLoading = this.widget.viewModel.followArticlesLoading
+                                       && followArticleList.isEmpty()
+                                       && hotArticleList.isEmpty();
+            var followingLoading = this.widget.viewModel.followingLoading
+                                   && followingList.isEmpty();
             Widget content;
-            if (this.widget.viewModel.followArticlesLoading
-                && followArticleList.isEmpty()
-                && this.widget.viewModel.followingLoading
-                && followingList.isEmpty()
-                && hotArticleList.isEmpty()) {
+            if (followArticleLoading || followingLoading) {
                 content = new FollowArticleLoading();
             }
             else if (followArticleList.isEmpty()) {
                 var itemCount = followingList.isEmpty()
                     ? hotArticleList.Count
                     : hotArticleList.Count + 1;
+                if (!this.widget.viewModel.hotArticleHasMore) {
+                    itemCount = itemCount + 1;
+                }
                 content = new SmartRefresher(
                     controller: this._refreshController,
                     enablePullDown: true,
@@ -304,16 +305,7 @@ namespace ConnectApp.screens {
                     child: ListView.builder(
                         physics: new AlwaysScrollableScrollPhysics(),
                         itemCount: itemCount,
-                        itemBuilder: (cxt, index) => {
-                            if (followingList.isNotEmpty() && index == 0) {
-                                return this._buildFollowingList(context: cxt);
-                            }
-
-                            var newIndex = followingList.isNotEmpty()
-                                ? index - 1
-                                : index;
-                            return this._buildFollowArticleCard(index: newIndex, false);
-                        }
+                        itemBuilder: (cxt, index) => this._buildFollowArticleCard(context: cxt, index: index, false)
                     )
                 );
             }
@@ -321,6 +313,9 @@ namespace ConnectApp.screens {
                 var itemCount = followingList.isEmpty()
                     ? followArticleList.Count
                     : followArticleList.Count + 1;
+                if (!this.widget.viewModel.followArticleHasMore) {
+                    itemCount = itemCount + 1;
+                }
                 content = new SmartRefresher(
                     controller: this._refreshController,
                     enablePullDown: true,
@@ -329,16 +324,7 @@ namespace ConnectApp.screens {
                     child: ListView.builder(
                         physics: new AlwaysScrollableScrollPhysics(),
                         itemCount: itemCount,
-                        itemBuilder: (cxt, index) => {
-                            if (followingList.isNotEmpty() && index == 0) {
-                                return this._buildFollowingList(context: cxt);
-                            }
-
-                            var newIndex = followingList.isNotEmpty()
-                                ? index - 1
-                                : index;
-                            return this._buildFollowArticleCard(index: newIndex);
-                        }
+                        itemBuilder: (cxt, index) => this._buildFollowArticleCard(context: cxt, index: index)
                     )
                 );
             }
@@ -453,16 +439,26 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildFollowArticleCard(int index, bool isFollow = true) {
+        Widget _buildFollowArticleCard(BuildContext context, int index, bool isFollow = true) {
+            if (this.widget.viewModel.followingList.isNotEmpty() && index == 0) {
+                return this._buildFollowingList(context: context);
+            }
+
             var articleList = isFollow
                 ? this.widget.viewModel.followArticleList
                 : this.widget.viewModel.hotArticleList;
-            var articleId = articleList[index: index];
-            if (this.widget.viewModel.blockArticleList.Contains(item: articleId)) {
+            var newIndex = this.widget.viewModel.followingList.isNotEmpty()
+                ? index - 1
+                : index;
+            if (newIndex == articleList.Count) {
+                return new EndView();
+            }
+
+            var article = articleList[index: newIndex];
+            if (this.widget.viewModel.blockArticleList.Contains(item: article.id)) {
                 return new Container();
             }
 
-            var article = this.widget.viewModel.articleDict[key: articleId];
             if (article.ownerType == OwnerType.user.ToString()) {
                 if (this.widget.viewModel.currentUserId == article.userId) {
                     return new Container();
@@ -488,15 +484,15 @@ namespace ConnectApp.screens {
                 return FollowArticleCard.User(
                     article: article,
                     user: user,
-                    this.widget.viewModel.likeMap.ContainsKey(key: articleId),
+                    this.widget.viewModel.likeMap.ContainsKey(key: article.id),
                     userType: userType,
-                    () => this.widget.actionModel.pushToArticleDetail(obj: articleId),
+                    () => this.widget.actionModel.pushToArticleDetail(obj: article.id),
                     () => this.widget.actionModel.pushToUserDetail(obj: user.id),
                     () => this._onFollow(article: article, userType: userType),
                     () => this._onLike(article: article),
                     () => this._onComment(article: article),
                     () => this._onShare(article: article),
-                    new ObjectKey(value: articleId)
+                    new ObjectKey(value: article.id)
                 );
             }
 
@@ -521,15 +517,15 @@ namespace ConnectApp.screens {
                 return FollowArticleCard.Team(
                     article: article,
                     team: team,
-                    this.widget.viewModel.likeMap.ContainsKey(key: articleId),
+                    this.widget.viewModel.likeMap.ContainsKey(key: article.id),
                     userType: userType,
-                    () => this.widget.actionModel.pushToArticleDetail(obj: articleId),
+                    () => this.widget.actionModel.pushToArticleDetail(obj: article.id),
                     () => this.widget.actionModel.pushToTeamDetail(obj: team.id),
                     () => this._onFollow(article: article, userType: userType),
                     () => this._onLike(article: article),
                     () => this._onComment(article: article),
                     () => this._onShare(article: article),
-                    new ObjectKey(value: articleId)
+                    new ObjectKey(value: article.id)
                 );
             }
             return new Container();

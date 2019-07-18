@@ -148,32 +148,43 @@ namespace ConnectApp.redux.reducers {
                 case FetchFollowArticleSuccessAction action: {
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
                     if (currentUserId.isNotEmpty()) {
-                        if (action.pageNumber == 1) {
-                            if (state.articleState.followArticleDict.ContainsKey(key: currentUserId)) {
-                                state.articleState.followArticleDict.Remove(key: currentUserId);
-                            }
-                            if (state.articleState.hotArticleDict.ContainsKey(key: currentUserId)) {
-                                state.articleState.hotArticleDict.Remove(key: currentUserId);
-                            }
-                        }
-
-                        var followArticleList = new List<string>();
                         foreach (var article in action.projects) {
-                            followArticleList.Add(item: article.id);
                             if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
                                 state.articleState.articleDict.Add(key: article.id, value: article);
                             }
                         }
-                        state.articleState.followArticleDict.Add(key: currentUserId, value: followArticleList);
+                        if (state.articleState.followArticleDict.ContainsKey(key: currentUserId)) {
+                            if (action.pageNumber == 1) {
+                                state.articleState.followArticleDict[key: currentUserId] = action.projects;
+                            }
+                            else {
+                                var projects = state.articleState.followArticleDict[key: currentUserId];
+                                projects.AddRange(collection: action.projects);
+                                state.articleState.followArticleDict[key: currentUserId] = projects;
+                            }
+                        }
+                        else {
+                            state.articleState.followArticleDict.Add(key: currentUserId, value: action.projects);
+                        }
 
-                        var hotArticleList = new List<string>();
                         foreach (var article in action.hottests) {
-                            hotArticleList.Add(item: article.id);
                             if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
                                 state.articleState.articleDict.Add(key: article.id, value: article);
                             }
                         }
-                        state.articleState.hotArticleDict.Add(key: currentUserId, value: hotArticleList);
+                        if (state.articleState.hotArticleDict.ContainsKey(key: currentUserId)) {
+                            if (action.pageNumber == 1) {
+                                state.articleState.hotArticleDict[key: currentUserId] = action.hottests;
+                            }
+                            else {
+                                var hottest = state.articleState.hotArticleDict[key: currentUserId];
+                                hottest.AddRange(collection: action.hottests);
+                                state.articleState.hotArticleDict[key: currentUserId] = hottest;
+                            }
+                        }
+                        else {
+                            state.articleState.hotArticleDict.Add(key: currentUserId, value: action.hottests);
+                        }
 
                         state.articleState.followArticleHasMore = action.projectHasMore;
                         state.articleState.hotArticleHasMore = action.hottestHasMore;
@@ -1294,8 +1305,19 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case FetchUserProfileFailureAction _: {
+                case FetchUserProfileFailureAction action: {
                     state.userState.userLoading = false;
+                    if (!state.userState.userDict.ContainsKey(key: action.userId)) {
+                        var user = new User {
+                            errorCode = action.errorCode
+                        };
+                        state.userState.userDict.Add(key: action.userId, value: user);
+                    }
+                    else {
+                        var user = state.userState.userDict[key: action.userId];
+                        user.errorCode = action.errorCode;
+                        state.userState.userDict[key: action.userId] = user;
+                    }
                     break;
                 }
 

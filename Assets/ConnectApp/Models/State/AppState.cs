@@ -39,8 +39,8 @@ namespace ConnectApp.Models.State {
                 },
                 articleState = new ArticleState {
                     articleList = new List<string>(),
-                    followArticleDict = new Dictionary<string, List<string>>(),
-                    hotArticleDict = new Dictionary<string, List<string>>(),
+                    followArticleDict = new Dictionary<string, List<Article>>(),
+                    hotArticleDict = new Dictionary<string, List<Article>>(),
                     articleDict = new Dictionary<string, Article>(),
                     articlesLoading = false,
                     followArticlesLoading = false,
