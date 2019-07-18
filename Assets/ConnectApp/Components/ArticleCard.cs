@@ -42,7 +42,7 @@ namespace ConnectApp.Components {
             const float borderRadius = 4;
 
             var gap = this.topPadding ? 16 : 0;
-            var time = this.article.publishedTime;
+            var time = this.article.createdTime;
             var imageUrl = this.article.thumbnail.url.EndsWith(".gif")
                 ? this.article.thumbnail.url
                 : CImageUtils.SuitableSizeImageUrl(imageWidth, this.article.thumbnail.url);

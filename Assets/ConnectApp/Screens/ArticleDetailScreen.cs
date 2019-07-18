@@ -524,7 +524,7 @@ namespace ConnectApp.screens {
                 ? this._user.fullName ?? this._user.name
                 : this._team.name;
             var description = this._article.ownerType == "user" ? this._user.title : "";
-            var time = this._article.publishedTime;
+            var time = this._article.createdTime;
             Widget descriptionWidget = new Container();
             if (description.isNotEmpty()) {
                 descriptionWidget = new Text(

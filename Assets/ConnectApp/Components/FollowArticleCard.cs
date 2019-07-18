@@ -144,7 +144,7 @@ namespace ConnectApp.Components {
         Widget _buildAvatar() {
             Widget rightWidget;
             if (this.userType == UserType.me) {
-                var time = this.article.publishedTime;
+                var time = this.article.createdTime;
                 rightWidget = new Text(
                     $"{DateConvert.DateStringFromNow(dt: time)}",
                     style: CTextStyle.PSmallBody3
