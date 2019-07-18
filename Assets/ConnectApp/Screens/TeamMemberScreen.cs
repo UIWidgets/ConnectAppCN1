@@ -8,11 +8,12 @@ using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
@@ -24,8 +25,9 @@ namespace ConnectApp.screens {
         ) : base(key: key) {
             this.teamId = teamId;
         }
-        
+
         readonly string teamId;
+
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, TeamMemberScreenViewModel>(
                 converter: state => {
@@ -51,15 +53,18 @@ namespace ConnectApp.screens {
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new TeamMemberScreenActionModel {
                         startFetchMember = () => dispatcher.dispatch(new StartFetchTeamMemberAction()),
-                        fetchMember = pageNumber => dispatcher.dispatch<IPromise>(Actions.fetchTeamMember(this.teamId, pageNumber)),
+                        fetchMember = pageNumber =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchTeamMember(this.teamId, pageNumber)),
                         startFollowUser = followUserId => dispatcher.dispatch(new StartFetchFollowUserAction {
                             followUserId = followUserId
                         }),
-                        followUser = followUserId => dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(followUserId)),
+                        followUser = followUserId =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(followUserId)),
                         startUnFollowUser = unFollowUserId => dispatcher.dispatch(new StartFetchUnFollowUserAction {
                             unFollowUserId = unFollowUserId
                         }),
-                        unFollowUser = unFollowUserId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(unFollowUserId)),
+                        unFollowUser = unFollowUserId =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(unFollowUserId)),
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
@@ -88,18 +93,19 @@ namespace ConnectApp.screens {
 
         public readonly TeamMemberScreenViewModel viewModel;
         public readonly TeamMemberScreenActionModel actionModel;
-        
+
         public override State createState() {
             return new _TeamMemberScreenState();
         }
     }
-    
+
     class _TeamMemberScreenState : State<TeamMemberScreen> {
         int _pageNumber;
         RefreshController _refreshController;
-        
+
         public override void initState() {
             base.initState();
+            StatusBarManager.statusBarStyle(false);
             this._pageNumber = 1;
             this._refreshController = new RefreshController();
             SchedulerBinding.instance.addPostFrameCallback(_ => {
@@ -107,7 +113,7 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.fetchMember(1);
             });
         }
-        
+
         void _onRefresh(bool up) {
             if (up) {
                 this._pageNumber = 1;
@@ -115,6 +121,7 @@ namespace ConnectApp.screens {
             else {
                 this._pageNumber++;
             }
+
             this.widget.actionModel.fetchMember(arg: this._pageNumber)
                 .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
@@ -137,6 +144,7 @@ namespace ConnectApp.screens {
                         )
                     );
                 }
+
                 if (userType == UserType.unFollow) {
                     this.widget.actionModel.startFollowUser(obj: userId);
                     this.widget.actionModel.followUser(arg: userId);
@@ -152,7 +160,8 @@ namespace ConnectApp.screens {
             Widget content;
             if (this.widget.viewModel.memberLoading && members.isEmpty()) {
                 content = new GlobalLoading();
-            } else if (members.Count <= 0) {
+            }
+            else if (members.Count <= 0) {
                 content = new BlankView(
                     "暂无更多公司成员",
                     "image/default-following"
@@ -173,6 +182,7 @@ namespace ConnectApp.screens {
                     )
                 );
             }
+
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
@@ -191,7 +201,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         Widget _buildNavigationBar(BuildContext context) {
             return new Container(
                 color: CColors.White,
@@ -233,12 +243,15 @@ namespace ConnectApp.screens {
                 var followUserLoading = user.followUserLoading ?? false;
                 if (this.widget.viewModel.currentUserId == user.id) {
                     userType = UserType.me;
-                } else if (followUserLoading) {
+                }
+                else if (followUserLoading) {
                     userType = UserType.loading;
-                } else if (this.widget.viewModel.followMap.ContainsKey(key: user.id)) {
+                }
+                else if (this.widget.viewModel.followMap.ContainsKey(key: user.id)) {
                     userType = UserType.follow;
                 }
             }
+
             return new UserCard(
                 user: user,
                 () => this.widget.actionModel.pushToUserDetail(obj: user.id),
