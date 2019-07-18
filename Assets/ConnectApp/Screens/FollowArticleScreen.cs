@@ -145,8 +145,11 @@ namespace ConnectApp.screens {
 
     class _FollowArticleScreenState : AutomaticKeepAliveClientMixin<FollowArticleScreen> {
         const int firstPageNumber = 1;
+        const int cardNumber = 5;
         int _pageNumber = firstPageNumber;
         RefreshController _refreshController;
+        float cardWidth = 0;
+        float avatarSize = 0;
 
         public override void initState() {
             base.initState();
@@ -271,6 +274,10 @@ namespace ConnectApp.screens {
         }
         public override Widget build(BuildContext context) {
             base.build(context: context);
+            if (0 == this.cardWidth || 0 == this.avatarSize) {
+                this.cardWidth = (MediaQuery.of(context: context).size.width - 18 * 2 - 10 * (cardNumber - 1)) / cardNumber; // 18 是边缘的 padding, 10 是 卡片间的间距
+                this.avatarSize = this.cardWidth - 4 * 2; // 4 是头像的水平 padding
+            }
             return new Container(
                 color: CColors.White,
                 child: this._buildContent()
@@ -335,7 +342,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildFollowingList(BuildContext context) {
+        Widget _buildFollowingList() {
             var followingList = this.widget.viewModel.followingList;
             if (followingList.isEmpty()) {
                 return new Container();
@@ -344,16 +351,19 @@ namespace ConnectApp.screens {
             if (followingList.Count > 5) {
                 followingList = followingList.GetRange(0, 5);
             }
-            followingList.ForEach(followingUser => {
-                var followButton = _buildFollowButton(
-                    context: context,
-                    user: followingUser,
+
+            for (int i = 0; i < followingList.Count; i++) {
+                var followingUser = followingList[index: i];
+                var followButton = this._buildFollowButton(user: followingUser,
                     () => this.widget.actionModel.pushToUserDetail(obj: followingUser.id)
                 );
                 followButtons.Add(item: followButton);
-            });
+                if (i < followingList.Count) {
+                    followButtons.Add(new Container(width: 10));
+                }
+            }
             return new Container(
-                height: 162,
+                padding: EdgeInsets.symmetric(16),
                 decoration: new BoxDecoration(
                     color: CColors.White,
                     border: new Border(
@@ -367,7 +377,7 @@ namespace ConnectApp.screens {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
                         new Container(
-                            padding: EdgeInsets.only(16, 16, 8, 12),
+                            padding: EdgeInsets.only(16, 0, 8, 12),
                             child: new Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: new List<Widget> {
@@ -378,21 +388,25 @@ namespace ConnectApp.screens {
                                     new GestureDetector(
                                         onTap: () => this.widget.actionModel.pushToUserFollowing(obj: this.widget.viewModel.currentUserId),
                                         child: new Container(
-                                            color: CColors.Transparent,
                                             child: new Row(
                                                 children: new List<Widget> {
-                                                    new Text(
-                                                        "查看全部",
-                                                        style: new TextStyle(
-                                                            fontSize: 12,
-                                                            fontFamily: "Roboto-Regular",
-                                                            color: CColors.TextBody4
+                                                    new Container(
+                                                        padding: EdgeInsets.only(top: 2),
+                                                        child: new Text(
+                                                            "查看全部",
+                                                            style: new TextStyle(
+                                                                fontSize: 12,
+                                                                fontFamily: "Roboto-Regular",
+                                                                color: CColors.TextBody4
+                                                            )
                                                         )
                                                     ),
-                                                    new Icon(
-                                                        icon: Icons.chevron_right,
-                                                        size: 24,
-                                                        color: Color.fromRGBO(199, 203, 207, 1)
+                                                    new Container(
+                                                        child: new Icon(
+                                                            icon: Icons.chevron_right,
+                                                            size: 20,
+                                                            color: Color.fromRGBO(199, 203, 207, 1)
+                                                        )
                                                     )
                                                 }
                                             )
@@ -401,7 +415,8 @@ namespace ConnectApp.screens {
                                 }
                             )
                         ),
-                        new Expanded(
+                        new Container(
+                            padding: EdgeInsets.symmetric(horizontal: 18),
                             child: new Row(
                                 children: followButtons
                             )
@@ -411,20 +426,21 @@ namespace ConnectApp.screens {
             );
         }
 
-        static Widget _buildFollowButton(BuildContext context, User user, GestureTapCallback onTap) {
+        Widget _buildFollowButton(User user, GestureTapCallback onTap) {
             return new GestureDetector(
                 onTap: onTap,
                 child: new Container(
-                    color: CColors.Transparent,
-                    width: MediaQuery.of(context: context).size.width / 5.0f,
+                    width: this.cardWidth,
                     child: new Column(
                         children: new List<Widget> {
-                            Avatar.User(
-                                user: user,
-                                52
+                            new Container(
+                                padding: EdgeInsets.symmetric(horizontal: 4),
+                                child: Avatar.User(
+                                    user: user,
+                                    size: this.avatarSize
+                                )
                             ),
                             new Container(
-                                margin: EdgeInsets.only(top: 6),
                                 child: new Text(
                                     user.fullName ?? user.name,
                                     style: CTextStyle.PRegularBody,
@@ -441,7 +457,7 @@ namespace ConnectApp.screens {
 
         Widget _buildFollowArticleCard(BuildContext context, int index, bool isFollow = true) {
             if (this.widget.viewModel.followingList.isNotEmpty() && index == 0) {
-                return this._buildFollowingList(context: context);
+                return this._buildFollowingList();
             }
 
             var articleList = isFollow

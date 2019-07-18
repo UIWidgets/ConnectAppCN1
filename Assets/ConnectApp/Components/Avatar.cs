@@ -20,17 +20,30 @@ namespace ConnectApp.Components {
             string fullName,
             float size = 36,
             OwnerType type = OwnerType.user,
+            bool hasWhiteBorder = false,
+            float whiteBorderWidth = 0,
             Key key = null
         ) : base(key: key) {
             this.avatarUrl = avatarUrl ?? "";
             this.fullName = fullName ?? "";
             this.size = size;
             this.type = type;
+            this.hasWhiteBorder = hasWhiteBorder;
+            this.whiteBorderWidth = whiteBorderWidth;
         }
-
+        
+        readonly string avatarUrl;
+        readonly string fullName;
+        readonly float size;
+        readonly OwnerType type;
+        readonly bool hasWhiteBorder;
+        readonly float whiteBorderWidth;
+        
         public static Avatar User(
             User user,
-            float size = 36,
+            float size,
+            bool hasWhiteBorder = false,
+            float whiteBorderWidth = 2,
             Key key = null
         ) {
             return new Avatar(
@@ -38,13 +51,17 @@ namespace ConnectApp.Components {
                 user.fullName ?? user.name,
                 size: size,
                 type: OwnerType.user,
+                hasWhiteBorder: hasWhiteBorder,
+                whiteBorderWidth: whiteBorderWidth,
                 key: key
             );
         }
 
         public static Avatar Team(
             Team team,
-            float size = 36,
+            float size,
+            bool hasWhiteBorder = false,
+            float whiteBorderWidth = 2,
             Key key = null
         ) {
             return new Avatar(
@@ -52,42 +69,43 @@ namespace ConnectApp.Components {
                 fullName: team.name,
                 size: size,
                 type: OwnerType.team,
+                hasWhiteBorder: hasWhiteBorder,
+                whiteBorderWidth: whiteBorderWidth,
                 key: key
             );
         }
-
-        readonly string avatarUrl;
-        readonly string fullName;
-        readonly float size;
-        readonly OwnerType type;
 
         public override Widget build(BuildContext context) {
             if (this.type == OwnerType.team) {
                 return this._buildTeamAvatar();
             }
 
+            var avatarSize = this.hasWhiteBorder ? this.size - this.whiteBorderWidth * 2 : this.size;
+            
+            var border = this.hasWhiteBorder ? Border.all(
+                color: CColors.White,
+                width: this.whiteBorderWidth
+            ) : null;
+            
             return new Container(
                 width: this.size,
                 height: this.size,
                 decoration: new BoxDecoration(
                     borderRadius: BorderRadius.circular(this.size / 2),
-                    border: Border.all(
-                        color: CColors.White,
-                        2
-                    )
+                    border: border
                 ),
                 child: new ClipRRect(
-                    borderRadius: BorderRadius.circular(this.size / 2),
+                    borderRadius: BorderRadius.circular(avatarSize / 2),
                     child: this.avatarUrl.isEmpty()
                         ? new Container(
                             child: new _Placeholder(
                                 _extractName(name: this.fullName) ?? "",
-                                this.size - 4
+                                size: avatarSize
                             )
                         )
                         : new Container(
-                            width: this.size - 4,
-                            height: this.size - 4,
+                            width: avatarSize,
+                            height: avatarSize,
                             color: new Color(0xFFD8D8D8),
                             child: Image.network(src: this.avatarUrl)
                         )
@@ -102,12 +120,29 @@ namespace ConnectApp.Components {
                     size: this.size
                 );
             }
+            
+            var avatarSize = this.hasWhiteBorder ? this.size : this.size - this.whiteBorderWidth * 2;
+            var border = this.hasWhiteBorder ? Border.all(
+                color: CColors.White,
+                width: this.whiteBorderWidth
+            ) : null;
 
             return new Container(
                 width: this.size,
                 height: this.size,
-                color: new Color(0xFFD8D8D8),
-                child: Image.network(src: this.avatarUrl)
+                decoration: new BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    border: border
+                ),
+                child: new ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: new Container(
+                        width: avatarSize,
+                        height: avatarSize,
+                        color: new Color(0xFFD8D8D8),
+                        child: Image.network(src: this.avatarUrl)
+                    )
+                )
             );
         }
 

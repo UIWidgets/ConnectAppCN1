@@ -22,9 +22,9 @@ namespace ConnectApp.screens {
                         new List<CustomTabBarItem> {
                             new CustomTabBarItem(
                                 0,
-                                Icons.outline_description,
-                                Icons.description,
-                                "文章"
+                                Icons.UnityTabIcon,
+                                Icons.UnityTabIcon,
+                                "首页"
                             ),
                             new CustomTabBarItem(
                                 1,

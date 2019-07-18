@@ -227,7 +227,7 @@ namespace ConnectApp.screens {
                 eventObj = this.widget.viewModel.eventsDict[this.widget.viewModel.eventId];
             }
 
-            if ((this.widget.viewModel.eventDetailLoading || eventObj?.user == null) && !eventObj.isNotFirst) {
+            if ((this.widget.viewModel.eventDetailLoading || eventObj?.user == null) && !(eventObj?.isNotFirst ?? false)) {
                 return new EventDetailLoading(eventType: EventType.online,
                     mainRouterPop: this.widget.actionModel.mainRouterPop);
             }
@@ -462,7 +462,7 @@ namespace ConnectApp.screens {
             var backgroundColor = CColors.PrimaryBlue;
             var joinInText = "立即加入";
             var textStyle = CTextStyle.PLargeMediumWhite;
-            if (userIsCheckedIn && isLoggedIn) {
+            if ((userIsCheckedIn ?? false) && isLoggedIn) {
                 backgroundColor = CColors.Disable;
                 joinInText = "已加入";
                 textStyle = CTextStyle.PLargeMediumWhite;
@@ -514,7 +514,7 @@ namespace ConnectApp.screens {
                                     this.widget.actionModel.pushToLogin();
                                 }
                                 else {
-                                    if (!userIsCheckedIn) {
+                                    if (!(userIsCheckedIn ?? false)) {
                                         this.widget.actionModel.startJoinEvent();
                                         this.widget.actionModel.joinEvent(this.widget.viewModel.eventId);
                                     }

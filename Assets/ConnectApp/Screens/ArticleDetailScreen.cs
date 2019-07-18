@@ -14,8 +14,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -117,13 +117,17 @@ namespace ConnectApp.screens {
                             return dispatcher.dispatch<IPromise>(
                                 Actions.sendComment(this.articleId, channelId, content, nonce, parentMessageId));
                         },
-                        startFollowUser = userId => dispatcher.dispatch(new StartFetchFollowUserAction {followUserId = userId}),
+                        startFollowUser = userId =>
+                            dispatcher.dispatch(new StartFetchFollowUserAction {followUserId = userId}),
                         followUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(userId)),
-                        startUnFollowUser = userId => dispatcher.dispatch(new StartFetchUnFollowUserAction {unFollowUserId = userId}),
+                        startUnFollowUser = userId =>
+                            dispatcher.dispatch(new StartFetchUnFollowUserAction {unFollowUserId = userId}),
                         unFollowUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(userId)),
-                        startFollowTeam = teamId => dispatcher.dispatch(new StartFetchFollowTeamAction {followTeamId = teamId}),
+                        startFollowTeam = teamId =>
+                            dispatcher.dispatch(new StartFetchFollowTeamAction {followTeamId = teamId}),
                         followTeam = teamId => dispatcher.dispatch<IPromise>(Actions.fetchFollowTeam(teamId)),
-                        startUnFollowTeam = teamId => dispatcher.dispatch(new StartFetchUnFollowTeamAction {unFollowTeamId = teamId}),
+                        startUnFollowTeam = teamId =>
+                            dispatcher.dispatch(new StartFetchUnFollowTeamAction {unFollowTeamId = teamId}),
                         unFollowTeam = teamId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowTeam(teamId)),
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
                             Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
@@ -520,9 +524,7 @@ namespace ConnectApp.screens {
                 ? this._user.fullName ?? this._user.name
                 : this._team.name;
             var description = this._article.ownerType == "user" ? this._user.title : "";
-            var time = this._article.lastPublishedTime == null
-                ? this._article.publishedTime
-                : this._article.lastPublishedTime;
+            var time = this._article.createdTime;
             Widget descriptionWidget = new Container();
             if (description.isNotEmpty()) {
                 descriptionWidget = new Text(
@@ -620,9 +622,11 @@ namespace ConnectApp.screens {
                     : this._team.followTeamLoading;
                 if (this.widget.viewModel.loginUserId == id) {
                     userType = UserType.me;
-                } else if (followLoading ?? false) {
+                }
+                else if (followLoading ?? false) {
                     userType = UserType.loading;
-                } else if (this.widget.viewModel.followMap.ContainsKey(key: id)) {
+                }
+                else if (this.widget.viewModel.followMap.ContainsKey(key: id)) {
                     userType = UserType.follow;
                 }
             }
@@ -843,15 +847,7 @@ namespace ConnectApp.screens {
 
             float endHeight = 0;
             if (!this._article.hasMore) {
-                comments.Add(new Container(
-                    height: 52,
-                    alignment: Alignment.center,
-                    child: new Text(
-                        "一 已经全部加载完毕 一",
-                        style: CTextStyle.PRegularBody4,
-                        textAlign: TextAlign.center
-                    )
-                ));
+                comments.Add(new EndView());
                 endHeight = 52;
             }
 

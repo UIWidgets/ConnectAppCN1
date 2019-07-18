@@ -9,8 +9,8 @@ using ConnectApp.redux.actions;
 using Newtonsoft.Json;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
@@ -46,7 +46,7 @@ namespace ConnectApp.screens {
             );
         }
     }
-    
+
     public class PersonalJobRoleScreen : StatelessWidget {
         public PersonalJobRoleScreen(
             EditPersonalInfoScreenViewModel viewModel = null,
@@ -62,6 +62,7 @@ namespace ConnectApp.screens {
         readonly EditPersonalInfoScreenViewModel viewModel;
         readonly Action mainRouterPop;
         readonly Action<JobRole> changeJobRole;
+
         static Dictionary<string, string> _jobRole {
             get {
                 var jobRole = Resources.Load<TextAsset>("files/JobRole").text;
@@ -73,6 +74,7 @@ namespace ConnectApp.screens {
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
+                    bottom: false,
                     child: new Column(
                         children: new List<Widget> {
                             this._buildNavigationBar(),
@@ -94,7 +96,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         Widget _buildContent() {
             var widgets = new List<Widget> {
                 new CustomDivider(
@@ -106,6 +108,7 @@ namespace ConnectApp.screens {
                 var widget = this._buildRoleItem(jobRole: jobRole);
                 widgets.Add(item: widget);
             }
+
             return new Container(
                 color: CColors.Background,
                 child: new ListView(
@@ -127,6 +130,7 @@ namespace ConnectApp.screens {
                     color: CColors.PrimaryBlue
                 );
             }
+
             return new GestureDetector(
                 onTap: () => this.changeJobRole(obj: jobRole),
                 child: new Container(

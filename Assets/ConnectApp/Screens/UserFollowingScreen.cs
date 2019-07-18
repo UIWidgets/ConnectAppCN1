@@ -8,8 +8,8 @@ using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
@@ -27,6 +27,7 @@ namespace ConnectApp.screens {
 
         readonly string userId;
         readonly int initialPage;
+
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, UserFollowingScreenViewModel>(
                 converter: state => new UserFollowingScreenViewModel {
@@ -46,7 +47,7 @@ namespace ConnectApp.screens {
             );
         }
     }
-    
+
     public class UserFollowingScreen : StatefulWidget {
         public UserFollowingScreen(
             UserFollowingScreenViewModel viewModel = null,
@@ -59,22 +60,22 @@ namespace ConnectApp.screens {
 
         public readonly UserFollowingScreenViewModel viewModel;
         public readonly UserFollowingScreenActionModel actionModel;
-        
+
         public override State createState() {
             return new _UserFollowingScreenState();
         }
     }
-    
+
     class _UserFollowingScreenState : State<UserFollowingScreen> {
         readonly TextEditingController _controller = new TextEditingController("");
         FocusNode _focusNode;
         string _title;
-        
+
         public override void initState() {
-            base.initState(); 
+            base.initState();
             StatusBarManager.statusBarStyle(false);
             this._focusNode = new FocusNode();
-            this._title = this.widget.viewModel.currentUserId == this.widget.viewModel.userId 
+            this._title = this.widget.viewModel.currentUserId == this.widget.viewModel.userId
                 ? "我关注的"
                 : "全部关注";
             SchedulerBinding.instance.addPostFrameCallback(_ => {
@@ -101,6 +102,7 @@ namespace ConnectApp.screens {
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
+                    bottom: false,
                     child: new Container(
                         color: CColors.Background,
                         child: new Column(
@@ -116,7 +118,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         Widget _buildNavigationBar(BuildContext context) {
             return new Container(
                 color: CColors.White,

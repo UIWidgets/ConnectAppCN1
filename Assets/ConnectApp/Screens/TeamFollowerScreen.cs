@@ -8,11 +8,12 @@ using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
@@ -24,8 +25,9 @@ namespace ConnectApp.screens {
         ) : base(key: key) {
             this.teamId = teamId;
         }
-        
+
         readonly string teamId;
+
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, TeamFollowerScreenViewModel>(
                 converter: state => {
@@ -52,15 +54,18 @@ namespace ConnectApp.screens {
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new TeamFollowerScreenActionModel {
                         startFetchFollower = () => dispatcher.dispatch(new StartFetchTeamFollowerAction()),
-                        fetchFollower = offset => dispatcher.dispatch<IPromise>(Actions.fetchTeamFollower(this.teamId, offset)),
+                        fetchFollower = offset =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchTeamFollower(this.teamId, offset)),
                         startFollowUser = followUserId => dispatcher.dispatch(new StartFetchFollowUserAction {
                             followUserId = followUserId
                         }),
-                        followUser = followUserId => dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(followUserId)),
+                        followUser = followUserId =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(followUserId)),
                         startUnFollowUser = unFollowUserId => dispatcher.dispatch(new StartFetchUnFollowUserAction {
                             unFollowUserId = unFollowUserId
                         }),
-                        unFollowUser = unFollowUserId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(unFollowUserId)),
+                        unFollowUser = unFollowUserId =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(unFollowUserId)),
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
@@ -89,7 +94,7 @@ namespace ConnectApp.screens {
 
         public readonly TeamFollowerScreenViewModel viewModel;
         public readonly TeamFollowerScreenActionModel actionModel;
-        
+
         public override State createState() {
             return new _TeamFollowerScreenState();
         }
@@ -99,12 +104,13 @@ namespace ConnectApp.screens {
         int _userOffset;
         RefreshController _refreshController;
         string _title;
-        
+
         public override void initState() {
             base.initState();
+            StatusBarManager.statusBarStyle(false);
             this._userOffset = 0;
             this._refreshController = new RefreshController();
-            this._title = this.widget.viewModel.currentUserId == this.widget.viewModel.teamId 
+            this._title = this.widget.viewModel.currentUserId == this.widget.viewModel.teamId
                 ? "我的粉丝"
                 : "全部粉丝";
             SchedulerBinding.instance.addPostFrameCallback(_ => {
@@ -112,7 +118,7 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.fetchFollower(0);
             });
         }
-        
+
         void _onRefresh(bool up) {
             this._userOffset = up ? 0 : this.widget.viewModel.userOffset;
             this.widget.actionModel.fetchFollower(arg: this._userOffset)
@@ -137,6 +143,7 @@ namespace ConnectApp.screens {
                         )
                     );
                 }
+
                 if (userType == UserType.unFollow) {
                     this.widget.actionModel.startFollowUser(obj: userId);
                     this.widget.actionModel.followUser(arg: userId);
@@ -152,7 +159,8 @@ namespace ConnectApp.screens {
             Widget content;
             if (this.widget.viewModel.followerLoading && followers.isEmpty()) {
                 content = new GlobalLoading();
-            } else if (followers.Count <= 0) {
+            }
+            else if (followers.Count <= 0) {
                 content = new BlankView(
                     $"暂无{this._title}用户",
                     "image/default-following",
@@ -178,9 +186,11 @@ namespace ConnectApp.screens {
                     )
                 );
             }
+
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
+                    bottom: false,
                     child: new Container(
                         color: CColors.Background,
                         child: new Column(
@@ -195,7 +205,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         Widget _buildNavigationBar(BuildContext context) {
             return new Container(
                 color: CColors.White,
@@ -238,14 +248,18 @@ namespace ConnectApp.screens {
                     var user = this.widget.viewModel.userDict[key: follower.id];
                     followUserLoading = user.followUserLoading ?? false;
                 }
+
                 if (this.widget.viewModel.currentUserId == follower.id) {
                     userType = UserType.me;
-                } else if (followUserLoading) {
+                }
+                else if (followUserLoading) {
                     userType = UserType.loading;
-                } else if (this.widget.viewModel.followMap.ContainsKey(key: follower.id)) {
+                }
+                else if (this.widget.viewModel.followMap.ContainsKey(key: follower.id)) {
                     userType = UserType.follow;
                 }
             }
+
             return new UserCard(
                 user: follower,
                 () => this.widget.actionModel.pushToUserDetail(obj: follower.id),

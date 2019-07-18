@@ -11,6 +11,12 @@ namespace ConnectApp.redux.actions {
         public string routeName;
     }
 
+    public class MainNavigatorPushReplaceSplashAction : BaseAction {
+    }
+
+    public class MainNavigatorPushReplaceMainAction : BaseAction {
+    }
+
     public class MainNavigatorPushToRouteAction : BaseAction {
         public Route route;
     }
