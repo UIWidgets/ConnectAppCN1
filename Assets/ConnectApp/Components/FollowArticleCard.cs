@@ -144,9 +144,7 @@ namespace ConnectApp.Components {
         Widget _buildAvatar() {
             Widget rightWidget;
             if (this.userType == UserType.me) {
-                var time = this.article.lastPublishedTime == null
-                    ? this.article.publishedTime
-                    : this.article.lastPublishedTime;
+                var time = this.article.createdTime;
                 rightWidget = new Text(
                     $"{DateConvert.DateStringFromNow(dt: time)}",
                     style: CTextStyle.PSmallBody3
@@ -175,6 +173,7 @@ namespace ConnectApp.Components {
                     style: CTextStyle.PSmallBody4
                 );
             }
+
             return new Container(
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -250,7 +249,7 @@ namespace ConnectApp.Components {
                                             borderRadius: borderRadius,
                                             fit: BoxFit.cover
                                         )
-                                    ) 
+                                    )
                                 }
                             )
                         )
@@ -264,6 +263,7 @@ namespace ConnectApp.Components {
             if (this.article.likeCount > 0) {
                 articleLikeCount = this.article.likeCount;
             }
+
             return new Container(
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -316,7 +316,7 @@ namespace ConnectApp.Components {
                             child: new Container(
                                 height: 20,
                                 width: 20,
-                                color:CColors.White,
+                                color: CColors.White,
                                 child: new Icon(
                                     icon: Icons.ellipsis,
                                     size: 20,

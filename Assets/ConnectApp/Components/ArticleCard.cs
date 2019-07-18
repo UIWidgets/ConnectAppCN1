@@ -42,9 +42,7 @@ namespace ConnectApp.Components {
             const float borderRadius = 4;
 
             var gap = this.topPadding ? 16 : 0;
-            var time = this.article.lastPublishedTime == null
-                ? this.article.publishedTime
-                : this.article.lastPublishedTime;
+            var time = this.article.createdTime;
             var imageUrl = this.article.thumbnail.url.EndsWith(".gif")
                 ? this.article.thumbnail.url
                 : CImageUtils.SuitableSizeImageUrl(imageWidth, this.article.thumbnail.url);
@@ -106,7 +104,7 @@ namespace ConnectApp.Components {
                                                 child: new Container(
                                                     height: 20,
                                                     width: 20,
-                                                    color:CColors.White,
+                                                    color: CColors.White,
                                                     child: new Icon(
                                                         Icons.ellipsis,
                                                         size: 20,

@@ -11,7 +11,7 @@ namespace ConnectApp.Utils {
 
     public static class DateConvert {
         public static string DateStringFromNow(DateTime dt) {
-            TimeSpan span = DateTime.UtcNow - dt;
+            TimeSpan span = DateTime.Now - dt;
             if (span.TotalDays > 3) {
                 return dt.ToString("yyyy-MM-dd");
             }
@@ -35,7 +35,7 @@ namespace ConnectApp.Utils {
             }
 
             var date = DateTime.Parse(formattedString);
-            var timeSpan = date - DateTime.UtcNow;
+            var timeSpan = date - DateTime.Now;
             var days = timeSpan.Days;
             var hours = timeSpan.Hours;
             var minutes = timeSpan.Minutes;
@@ -75,8 +75,8 @@ namespace ConnectApp.Utils {
 
             var startDateTime = DateTime.Parse(begin.startTime);
             var endDateTime = DateTime.Parse(begin.endTime);
-            var subStartTime = (startDateTime - DateTime.UtcNow).TotalHours;
-            var subEndTime = (DateTime.UtcNow - endDateTime).TotalHours;
+            var subStartTime = (startDateTime - DateTime.Now).TotalHours;
+            var subEndTime = (DateTime.Now - endDateTime).TotalHours;
             if (subStartTime > 1) {
                 return EventStatus.future;
             }
