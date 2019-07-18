@@ -24,6 +24,7 @@ namespace ConnectApp.Models.Model {
         public Dictionary<string, JobRole> jobRoleMap;
         public List<string> jobRoleIds;
         public bool? followUserLoading;
+        public string errorCode;
 
         User copyWith(
             string id = null,
@@ -45,7 +46,8 @@ namespace ConnectApp.Models.Model {
             bool? articlesHasMore = null,
             Dictionary<string, JobRole> jobRoleMap = null,
             List<string> jobRoleIds = null,
-            bool? followUserLoading = null
+            bool? followUserLoading = null,
+            string errorCode = null
         ) {
             return new User {
                 id = id ?? this.id,
@@ -67,7 +69,8 @@ namespace ConnectApp.Models.Model {
                 articlesHasMore = articlesHasMore ?? this.articlesHasMore,
                 jobRoleMap = jobRoleMap ?? this.jobRoleMap,
                 jobRoleIds = jobRoleIds ?? this.jobRoleIds,
-                followUserLoading = followUserLoading ?? this.followUserLoading
+                followUserLoading = followUserLoading ?? this.followUserLoading,
+                errorCode = errorCode ?? this.errorCode
             };
         }
 
@@ -96,7 +99,8 @@ namespace ConnectApp.Models.Model {
                 articlesHasMore: other.articlesHasMore,
                 jobRoleMap: other.jobRoleMap,
                 jobRoleIds: other.jobRoleIds,
-                followUserLoading: other.followUserLoading
+                followUserLoading: other.followUserLoading,
+                errorCode: other.errorCode
             );
         }
     }

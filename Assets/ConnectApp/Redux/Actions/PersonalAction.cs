@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using ConnectApp.Api;
+using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Utils;
+using Newtonsoft.Json;
 using Unity.UIWidgets.Redux;
 using UnityEngine;
 
@@ -16,6 +18,8 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchUserProfileFailureAction : BaseAction {
+        public string userId;
+        public string errorCode;
     }
     
     public class StartFetchUserArticleAction : RequestAction {
@@ -153,7 +157,12 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => {
-                        dispatcher.dispatch(new FetchUserProfileFailureAction());
+                        var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(error.Message);
+                        var errorCode = errorResponse.errorCode;
+                        dispatcher.dispatch(new FetchUserProfileFailureAction {
+                            userId = userId,
+                            errorCode = errorCode
+                        });
                         Debug.Log(error);
                     }
                 );

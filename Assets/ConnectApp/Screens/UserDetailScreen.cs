@@ -245,8 +245,11 @@ namespace ConnectApp.screens {
             if (this.widget.viewModel.userLoading && this.widget.viewModel.user == null) {
                 content = new GlobalLoading();
             }
-            else if (this.widget.viewModel.user == null) {
-                content = new Container();
+            else if (this.widget.viewModel.user == null || this.widget.viewModel.user.errorCode == "ResourceNotFound") {
+                content = new BlankView(
+                    "用户不存在",
+                    "image/default-following"
+                );
             }
             else {
                 content = this._buildUserContent(context: context);
@@ -287,6 +290,7 @@ namespace ConnectApp.screens {
                 );
             }
 
+            var hasUser = !(this.widget.viewModel.user == null || this.widget.viewModel.user.errorCode == "ResourceNotFound");
             return new Positioned(
                 left: 0,
                 top: 0,
@@ -311,7 +315,7 @@ namespace ConnectApp.screens {
                                     child: new Icon(
                                         icon: Icons.arrow_back,
                                         size: 24,
-                                        color: this._hideNavBar ? CColors.White : CColors.Icon
+                                        color: hasUser ? (this._hideNavBar ? CColors.White : CColors.Icon) : CColors.Icon
                                     )
                                 )
                             ),
