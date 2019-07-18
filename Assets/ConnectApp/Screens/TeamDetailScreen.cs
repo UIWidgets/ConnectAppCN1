@@ -460,7 +460,8 @@ namespace ConnectApp.screens {
                                         margin: EdgeInsets.only(right: 16),
                                         child: Avatar.Team(
                                             team: team,
-                                            80
+                                            80,
+                                            true
                                         )
                                     ),
                                     new Expanded(

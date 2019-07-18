@@ -477,7 +477,8 @@ namespace ConnectApp.screens {
                                         margin: EdgeInsets.only(right: 16),
                                         child: Avatar.User(
                                             user: user,
-                                            80
+                                            80,
+                                            true
                                         )
                                     ),
                                     new Expanded(
