@@ -274,6 +274,7 @@ namespace ConnectApp.Components {
                             child: new GestureDetector(
                                 onTap: () => this.likeCallBack(),
                                 child: new Container(
+                                    color: CColors.Transparent,
                                     height: 56,
                                     padding: EdgeInsets.only(16, right: 20),
                                     child: new IgnorePointer(
@@ -291,6 +292,7 @@ namespace ConnectApp.Components {
                                             isLiked: this.isLike,
                                             size: 24,
                                             isShowBubbles: false,
+                                            showLikeCount: true,
                                             likeButtonPadding: EdgeInsets.zero
                                         )
                                     )
@@ -303,6 +305,7 @@ namespace ConnectApp.Components {
                                 child: new GestureDetector(
                                     onTap: this.commentCallBack,
                                     child: new Container(
+                                        color: CColors.Transparent,
                                         height: 56,
                                         padding: EdgeInsets.only(right: 20),
                                         child: new Row(
@@ -327,9 +330,9 @@ namespace ConnectApp.Components {
                             alignment: Alignment.centerRight,
                             child: new GestureDetector(
                                 child: new Container(
+                                    color: CColors.Transparent,
                                     height: 56,
                                     padding: EdgeInsets.symmetric(horizontal: 16),
-                                    color: CColors.White,
                                     child: new Icon(
                                         icon: Icons.ellipsis,
                                         size: 20,

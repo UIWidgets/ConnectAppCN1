@@ -15,7 +15,7 @@ namespace ConnectApp.Components.LikeButton {
     public class LikeButton : StatefulWidget {
         public LikeButton(
             LikeWidgetBuilder likeBuilder = null,
-            LikeCountWidgetBuilder countBuilder = null,
+            bool showLikeCount = false,
             int? likeCount = null,
             float size = 30,
             float? bubblesSize = null,
@@ -34,7 +34,7 @@ namespace ConnectApp.Components.LikeButton {
             Key key = null
         ) : base(key: key) {
             this.likeBuilder = likeBuilder;
-            this.countBuilder = countBuilder;
+            this.showLikeCount = showLikeCount;
             this.likeCount = likeCount;
             this.size = size;
             this.bubblesSize = bubblesSize ?? size * 2.0f;
@@ -61,7 +61,7 @@ namespace ConnectApp.Components.LikeButton {
         }
 
         public readonly LikeWidgetBuilder likeBuilder;
-        public readonly LikeCountWidgetBuilder countBuilder;
+        public readonly bool showLikeCount;
         public readonly int? likeCount;
         public readonly float size;
         public readonly float bubblesSize;
@@ -135,7 +135,7 @@ namespace ConnectApp.Components.LikeButton {
                     mainAxisAlignment: this.widget.mainAxisAlignment,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: new List<Widget> {
-                        this._buildLikeButtonWidget(),
+                        this._buildLikeButtonWidget(), 
                         this._buildLikeCountWidget()
                     }
                 )
@@ -143,7 +143,7 @@ namespace ConnectApp.Components.LikeButton {
         }
 
         Widget _buildLikeCountWidget() {
-            return this._likeCount == 0
+            return !this.widget.showLikeCount || this._likeCount == 0
                 ? new Container()
                 : new Container(
                     margin: EdgeInsets.only(4),
