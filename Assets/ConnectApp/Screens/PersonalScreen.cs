@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Main;
-using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
@@ -66,19 +65,20 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             base.build(context);
-            var navigationBar = this.widget.viewModel.isLoggedIn
-                ? this._buildLoginInNavigationBar()
-                : this._buildNotLoginInNavigationBar(context);
-
             return new Container(
                 color: CColors.White,
                 child: new Column(
                     children: new List<Widget> {
-                        navigationBar,
-                        new CustomDivider(
-                            color: CColors.Separator2,
-                            height: 1
-                        ),
+                        this.widget.viewModel.isLoggedIn
+                            ? this._buildLoginInNavigationBar()
+                            : this._buildNotLoginInNavigationBar(context),
+                        this.widget.viewModel.isLoggedIn
+                            ? (Widget) new Container()
+                            : new CustomDivider(
+                                color: CColors.Separator2,
+                                height: 1
+                            ),
+                        new Container(height: 16),
                         new Flexible(
                             child: new Column(
                                 children: this._buildItems()
@@ -139,7 +139,7 @@ namespace ConnectApp.screens {
             return new GestureDetector(
                 onTap: () => this.widget.pushToUserDetail(user.id),
                 child: new Container(
-                    height: 184,
+                    height: 144,
                     padding: EdgeInsets.only(16, right: 16, bottom: 16),
                     color: CColors.White,
                     child: new Column(

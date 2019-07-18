@@ -15,7 +15,6 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
-using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -83,9 +82,7 @@ namespace ConnectApp.screens {
             StatusBarManager.hideStatusBar(false);
             SplashManager.fetchSplash();
             AnalyticsManager.AnalyticsOpenApp();
-            SchedulerBinding.instance.addPostFrameCallback(_ => {
-                this.widget.actionModel.fetchReviewUrl();
-            });
+            SchedulerBinding.instance.addPostFrameCallback(_ => { this.widget.actionModel.fetchReviewUrl(); });
             this._loginSubId = EventBus.subscribe(sName: EventBusConstant.login_success, args => {
                 if (this._selectedIndex != 1) {
                     this._selectedIndex = 1;
@@ -104,11 +101,13 @@ namespace ConnectApp.screens {
             if (axisDirection == AxisDirection.left || axisDirection == AxisDirection.right) {
                 return true;
             }
+
             var pixels = notification.metrics.pixels;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 if (pixels > 0 && pixels <= _maxNavBarHeight - _minNavBarHeight) {
                     this._titleFontSize = _maxTitleFontSize
-                                          - (_maxTitleFontSize - _minTitleFontSize) / (_maxNavBarHeight - _minNavBarHeight)
+                                          - (_maxTitleFontSize - _minTitleFontSize) /
+                                          (_maxNavBarHeight - _minNavBarHeight)
                                           * pixels;
                     this._navBarHeight = _maxNavBarHeight - pixels;
                     this.setState(() => { });
@@ -136,6 +135,7 @@ namespace ConnectApp.screens {
             if (!this.widget.viewModel.isLoggedIn) {
                 return new RecommendArticleScreenConnector();
             }
+
             return new Container(
                 color: CColors.White,
                 child: new Column(
@@ -148,7 +148,7 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildSelectView() {
-            var items = new List<string> { "关注", "推荐"};
+            var items = new List<string> {"关注", "推荐"};
             var widgets = new List<Widget>();
             items.ForEach(item => {
                 var itemIndex = items.IndexOf(item: item);
@@ -160,6 +160,12 @@ namespace ConnectApp.screens {
                 color: CColors.White,
                 padding: EdgeInsets.only(16),
                 height: this._navBarHeight,
+                decoration: new BoxDecoration(
+                    color: CColors.White,
+                    border: new Border(bottom: new BorderSide(this._navBarHeight < _maxNavBarHeight
+                        ? CColors.Separator2
+                        : CColors.Transparent))
+                ),
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -189,9 +195,7 @@ namespace ConnectApp.screens {
                         child: new PageView(
                             physics: new BouncingScrollPhysics(),
                             controller: this._pageController,
-                            onPageChanged: index => {
-                                this.setState(() => this._selectedIndex = index);
-                            },
+                            onPageChanged: index => { this.setState(() => this._selectedIndex = index); },
                             children: new List<Widget> {
                                 new FollowArticleScreenConnector(),
                                 new RecommendArticleScreenConnector()
@@ -206,6 +210,7 @@ namespace ConnectApp.screens {
             var textColor = CColors.TextTitle;
             float titleFontSize = _minTitleFontSize;
             float lineHeight = this._navBarHeight <= _minNavBarHeight ? 2 : 4;
+            float radius = this._navBarHeight <= _minNavBarHeight ? 0 : 2;
             Widget lineView = new Positioned(
                 bottom: 0,
                 left: 0,
@@ -216,6 +221,7 @@ namespace ConnectApp.screens {
                 if (this._navBarHeight <= _minNavBarHeight) {
                     textColor = CColors.PrimaryBlue;
                 }
+
                 titleFontSize = this._titleFontSize;
                 lineView = new Positioned(
                     bottom: 0,
@@ -225,7 +231,7 @@ namespace ConnectApp.screens {
                         height: lineHeight,
                         decoration: new BoxDecoration(
                             color: CColors.PrimaryBlue,
-                            borderRadius: BorderRadius.circular(lineHeight / 2)
+                            borderRadius: BorderRadius.circular(radius: radius)
                         )
                     )
                 );

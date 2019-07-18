@@ -106,8 +106,22 @@ namespace ConnectApp.Components {
             return new Container(
                 width: this.size,
                 height: this.size,
-                color: new Color(0xFFD8D8D8),
-                child: Image.network(src: this.avatarUrl)
+                decoration: new BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(
+                        color: CColors.White,
+                        2
+                    )
+                ),
+                child: new ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: new Container(
+                        width: this.size,
+                        height: this.size,
+                        color: new Color(0xFFD8D8D8),
+                        child: Image.network(src: this.avatarUrl)
+                    )
+                )
             );
         }
 

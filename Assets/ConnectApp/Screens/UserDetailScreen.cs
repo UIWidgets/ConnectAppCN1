@@ -66,9 +66,11 @@ namespace ConnectApp.screens {
                         startFetchUserArticle = () => dispatcher.dispatch(new StartFetchUserArticleAction()),
                         fetchUserArticle = offset =>
                             dispatcher.dispatch<IPromise>(Actions.fetchUserArticle(this.userId, offset)),
-                        startFollowUser = () => dispatcher.dispatch(new StartFetchFollowUserAction {followUserId = this.userId}),
+                        startFollowUser = () =>
+                            dispatcher.dispatch(new StartFetchFollowUserAction {followUserId = this.userId}),
                         followUser = () => dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(this.userId)),
-                        startUnFollowUser = () => dispatcher.dispatch(new StartFetchUnFollowUserAction {unFollowUserId = this.userId}),
+                        startUnFollowUser = () => dispatcher.dispatch(new StartFetchUnFollowUserAction
+                            {unFollowUserId = this.userId}),
                         unFollowUser = () => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(this.userId)),
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
@@ -259,6 +261,7 @@ namespace ConnectApp.screens {
                 color: CColors.White,
                 child: new CustomSafeArea(
                     top: false,
+                    bottom: false,
                     child: new Stack(
                         children: new List<Widget> {
                             content,
@@ -290,7 +293,8 @@ namespace ConnectApp.screens {
                 );
             }
 
-            var hasUser = !(this.widget.viewModel.user == null || this.widget.viewModel.user.errorCode == "ResourceNotFound");
+            var hasUser = !(this.widget.viewModel.user == null ||
+                            this.widget.viewModel.user.errorCode == "ResourceNotFound");
             return new Positioned(
                 left: 0,
                 top: 0,
@@ -315,7 +319,9 @@ namespace ConnectApp.screens {
                                     child: new Icon(
                                         icon: Icons.arrow_back,
                                         size: 24,
-                                        color: hasUser ? (this._hideNavBar ? CColors.White : CColors.Icon) : CColors.Icon
+                                        color: hasUser
+                                            ? (this._hideNavBar ? CColors.White : CColors.Icon)
+                                            : CColors.Icon
                                     )
                                 )
                             ),
