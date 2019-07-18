@@ -18,6 +18,11 @@ namespace ConnectApp.Constants {
 
         public const int versionCode = 40;
 
+        public const string originCodeUrl = "https://github.com/UnityTech/ConnectAppCN";
+
+        public const string widgetOriginCoceUrl = "https://github.com/UnityTech/UIWidgets";
+
+
 #if UNITY_IOS
         public const string platform = "ios";
         public const string store = "appstore";
