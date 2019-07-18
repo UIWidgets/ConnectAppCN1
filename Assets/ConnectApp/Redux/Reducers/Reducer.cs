@@ -1016,7 +1016,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
 
-                case MainNavigatorPushToSplashAction action: {
+                case MainNavigatorPushReplaceSplashAction action: {
                     Router.navigator.pushReplacement(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
                                 new SplashPage(),
@@ -1030,7 +1030,7 @@ namespace ConnectApp.redux.reducers {
                     );
                     break;
                 }
-                case MainNavigatorPushToMainAction action: {
+                case MainNavigatorPushReplaceMainAction action: {
                     Router.navigator.pushReplacement(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
                                 new MainScreen(),

@@ -10,7 +10,6 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.screens {
     public class AboutUsScreenConnector : StatelessWidget {
@@ -75,23 +74,16 @@ namespace ConnectApp.screens {
                         new Container(
                             margin: EdgeInsets.only(bottom: 16),
                             alignment: Alignment.center,
-                            width: 120,
-                            height: 120,
-                            decoration: new BoxDecoration(
-                                borderRadius: BorderRadius.all(14),
-                                border: Border.all(CColors.Separator)
-                            ),
                             child: new Icon(
                                 Icons.UnityLogo,
-                                size: 80
+                                size: 64
                             )
                         ),
-                        new Container(
-                            margin: EdgeInsets.only(bottom: 8),
-                            width: 149,
-                            height: 24,
-                            child: Image.asset("image/img-unity_text_logo@4x", fit: BoxFit.cover)
+                        new Text(
+                            "unity Connect",
+                            style: CTextStyle.H4
                         ),
+                        new Container(height: 8),
                         new Text(
                             $"版本号：{Config.versionNumber}",
                             style: CTextStyle.PRegularBody4

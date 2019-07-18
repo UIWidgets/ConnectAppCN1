@@ -136,7 +136,7 @@ namespace ConnectApp.Components {
             this.cancelTimer();
             var splash = SplashManager.getSplash();
             AnalyticsManager.ClickSkipSplashPage(splash.id, splash.name, splash.url);
-            StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToMainAction());
+            StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushReplaceMainAction());
         }
 
 

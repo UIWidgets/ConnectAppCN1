@@ -88,10 +88,10 @@ namespace ConnectApp.Plugins {
                             }
                             else {
                                 if (SplashManager.isExistSplash()) {
-                                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToSplashAction());
+                                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushReplaceSplashAction());
                                 }
                                 else {
-                                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToMainAction());
+                                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushReplaceMainAction());
                                 }
                             }
                         }
