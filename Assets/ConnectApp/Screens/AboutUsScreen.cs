@@ -68,7 +68,7 @@ namespace ConnectApp.screens {
         Widget _buildContent() {
             return new Container(
                 color: CColors.White,
-                padding: EdgeInsets.only(top: 28),
+                padding: EdgeInsets.only(top: 44),
                 child: new Column(
                     children: new List<Widget> {
                         new Container(
