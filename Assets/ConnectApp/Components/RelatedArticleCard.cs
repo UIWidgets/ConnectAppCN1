@@ -39,9 +39,7 @@ namespace ConnectApp.Components {
             const float borderRadius = 4;
 
             var gap = this.topPadding ? 16 : 0;
-            var time = this.article.lastPublishedTime == null
-                ? this.article.publishedTime
-                : this.article.lastPublishedTime;
+            var time = this.article.publishedTime;
             var child = new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(16, 16 + gap, 16, 16),
