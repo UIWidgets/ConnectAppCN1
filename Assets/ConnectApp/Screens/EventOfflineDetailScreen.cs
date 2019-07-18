@@ -153,7 +153,7 @@ namespace ConnectApp.screens {
                 this._topPadding = MediaQuery.of(context).padding.top;
             }
 
-            if ((this.widget.viewModel.eventDetailLoading || eventObj?.user == null) && !eventObj.isNotFirst) {
+            if ((this.widget.viewModel.eventDetailLoading || eventObj?.user == null) && !(eventObj?.isNotFirst ?? false)) {
                 return new EventDetailLoading(eventType: EventType.offline,
                     mainRouterPop: this.widget.actionModel.mainRouterPop);
             }
