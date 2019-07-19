@@ -51,7 +51,7 @@ namespace ConnectApp.Components {
                 ? new GestureDetector(
                     onTap: this.replyCallBack,
                     child: new Container(
-                        margin: EdgeInsets.only(10),
+                        margin: EdgeInsets.only(15),
                         child: new Text(
                             $"回复 {CStringUtils.likeCountToString(likeCount: this.message.replyMessageIds.Count)}",
                             style: CTextStyle.PRegularBody4
