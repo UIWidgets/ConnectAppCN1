@@ -440,6 +440,15 @@ namespace ConnectApp.redux.reducers {
                         state.articleState.articleDict[key: action.articleId] = article;
                     }
 
+                    if (state.messageState.channelMessageDict.ContainsKey(key: action.channelId)) {
+                        var messageDict = state.messageState.channelMessageDict[key: action.channelId];
+                        if (messageDict.ContainsKey(key: action.parentMessageId)) {
+                            var message = messageDict[key: action.parentMessageId];
+                            message.replyMessageIds.Add(item: action.message.id);
+                            messageDict[key: action.parentMessageId] = message;
+                        }
+                        state.messageState.channelMessageDict[key: action.channelId] = messageDict;
+                    }
                     break;
                 }
 
