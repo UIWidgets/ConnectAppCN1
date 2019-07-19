@@ -122,7 +122,9 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch<IPromise>(Actions.fetchFollowingUser(viewModel.currentUserId, offset)),
                         startFetchFollowArticles = () => dispatcher.dispatch(new StartFetchFollowArticlesAction()),
                         fetchFollowArticles = pageNumber =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchFollowArticles(pageNumber))
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowArticles(pageNumber)),
+                        shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
+                            Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
                     };
                     return new FollowArticleScreen(viewModel, actionModel);
                 }
