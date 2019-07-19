@@ -66,9 +66,11 @@ namespace ConnectApp.screens {
                         startFetchUserArticle = () => dispatcher.dispatch(new StartFetchUserArticleAction()),
                         fetchUserArticle = offset =>
                             dispatcher.dispatch<IPromise>(Actions.fetchUserArticle(this.userId, offset)),
-                        startFollowUser = () => dispatcher.dispatch(new StartFetchFollowUserAction {followUserId = this.userId}),
+                        startFollowUser = () =>
+                            dispatcher.dispatch(new StartFetchFollowUserAction {followUserId = this.userId}),
                         followUser = () => dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(this.userId)),
-                        startUnFollowUser = () => dispatcher.dispatch(new StartFetchUnFollowUserAction {unFollowUserId = this.userId}),
+                        startUnFollowUser = () => dispatcher.dispatch(new StartFetchUnFollowUserAction
+                            {unFollowUserId = this.userId}),
                         unFollowUser = () => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(this.userId)),
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
@@ -89,9 +91,10 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new BlockArticleAction {articleId = articleId});
                             dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = articleId});
                         },
-                        pushToUserFollowing = userId => dispatcher.dispatch(
+                        pushToUserFollowing = (userId, initialPage) => dispatcher.dispatch(
                             new MainNavigatorPushToUserFollowingAction {
-                                userId = userId
+                                userId = userId,
+                                initialPage = initialPage
                             }
                         ),
                         pushToUserFollower = userId => dispatcher.dispatch(
@@ -259,6 +262,7 @@ namespace ConnectApp.screens {
                 color: CColors.White,
                 child: new CustomSafeArea(
                     top: false,
+                    bottom: false,
                     child: new Stack(
                         children: new List<Widget> {
                             content,
@@ -290,7 +294,8 @@ namespace ConnectApp.screens {
                 );
             }
 
-            var hasUser = !(this.widget.viewModel.user == null || this.widget.viewModel.user.errorCode == "ResourceNotFound");
+            var hasUser = !(this.widget.viewModel.user == null ||
+                            this.widget.viewModel.user.errorCode == "ResourceNotFound");
             return new Positioned(
                 left: 0,
                 top: 0,
@@ -315,7 +320,9 @@ namespace ConnectApp.screens {
                                     child: new Icon(
                                         icon: Icons.arrow_back,
                                         size: 24,
-                                        color: hasUser ? (this._hideNavBar ? CColors.White : CColors.Icon) : CColors.Icon
+                                        color: hasUser
+                                            ? (this._hideNavBar ? CColors.White : CColors.Icon)
+                                            : CColors.Icon
                                     )
                                 )
                             ),
@@ -471,7 +478,8 @@ namespace ConnectApp.screens {
                                         margin: EdgeInsets.only(right: 16),
                                         child: Avatar.User(
                                             user: user,
-                                            80
+                                            80,
+                                            true
                                         )
                                     ),
                                     new Expanded(
@@ -497,20 +505,20 @@ namespace ConnectApp.screens {
                                     children: new List<Widget> {
                                         new Row(
                                             children: new List<Widget> {
-                                                _buildFollowButton(
+                                                _buildFollowCount(
                                                     "关注",
-                                                    $"{user.followingCount ?? 0}",
+                                                    $"{(user.followingCount ?? 0) + (user.followingTeamsCount ?? 0)}",
                                                     () =>
                                                         this.widget.actionModel.pushToUserFollowing(
-                                                            this.widget.viewModel.userId)
+                                                            arg1: this.widget.viewModel.userId, 0)
                                                 ),
                                                 new SizedBox(width: 16),
-                                                _buildFollowButton(
+                                                _buildFollowCount(
                                                     "粉丝",
                                                     $"{user.followCount ?? 0}",
                                                     () =>
                                                         this.widget.actionModel.pushToUserFollower(
-                                                            this.widget.viewModel.userId)
+                                                            obj: this.widget.viewModel.userId)
                                                 )
                                             }
                                         ),
@@ -541,7 +549,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        static Widget _buildFollowButton(string title, string subTitle, GestureTapCallback onTap) {
+        static Widget _buildFollowCount(string title, string subTitle, GestureTapCallback onTap) {
             return new GestureDetector(
                 onTap: onTap,
                 child: new Container(

@@ -46,7 +46,9 @@ namespace ConnectApp.screens {
                         : null;
                     var teamArticleOffset = team == null
                         ? 0
-                        : team.articles == null ? 0 : team.articles.Count;
+                        : team.articles == null
+                            ? 0
+                            : team.articles.Count;
                     var followMap = state.followState.followDict.ContainsKey(key: currentUserId)
                         ? state.followState.followDict[key: currentUserId]
                         : new Dictionary<string, bool>();
@@ -92,9 +94,16 @@ namespace ConnectApp.screens {
                                 teamId = teamId
                             }
                         ),
-                        startFollowTeam = () => dispatcher.dispatch(new StartFetchFollowTeamAction {followTeamId = this.teamId}),
+                        pushToTeamMember = teamId => dispatcher.dispatch(
+                            new MainNavigatorPushToTeamMemberAction {
+                                teamId = teamId
+                            }
+                        ),
+                        startFollowTeam = () =>
+                            dispatcher.dispatch(new StartFetchFollowTeamAction {followTeamId = this.teamId}),
                         followTeam = teamId => dispatcher.dispatch<IPromise>(Actions.fetchFollowTeam(teamId)),
-                        startUnFollowTeam = () => dispatcher.dispatch(new StartFetchUnFollowTeamAction {unFollowTeamId = this.teamId}),
+                        startUnFollowTeam = () => dispatcher.dispatch(new StartFetchUnFollowTeamAction
+                            {unFollowTeamId = this.teamId}),
                         unFollowTeam = teamId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowTeam(teamId)),
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
                             Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
@@ -283,6 +292,7 @@ namespace ConnectApp.screens {
                 color: CColors.White,
                 child: new CustomSafeArea(
                     top: false,
+                    bottom: false,
                     child: new Stack(
                         children: new List<Widget> {
                             content,
@@ -320,6 +330,7 @@ namespace ConnectApp.screens {
                 right: 0,
                 height: 44 + this._topPadding,
                 child: new Container(
+                    padding: EdgeInsets.only(top: this._topPadding),
                     decoration: new BoxDecoration(
                         this._hideNavBar ? CColors.Transparent : CColors.White,
                         border: new Border(
@@ -454,7 +465,8 @@ namespace ConnectApp.screens {
                                         margin: EdgeInsets.only(right: 16),
                                         child: Avatar.Team(
                                             team: team,
-                                            80
+                                            80,
+                                            true
                                         )
                                     ),
                                     new Expanded(
@@ -477,7 +489,28 @@ namespace ConnectApp.screens {
                                 child: new Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: new List<Widget> {
-                                        this._buildFollowerCount(),
+                                        new Row(
+                                            children: new List<Widget> {
+                                                _buildFollowCount(
+                                                    "粉丝",
+                                                    $"{team.stats?.followCount ?? 0}",
+                                                    () => {
+                                                        if (this.widget.viewModel.isLoggedIn) {
+                                                            this.widget.actionModel.pushToTeamFollower(obj: this.widget.viewModel.teamId);
+                                                        }
+                                                        else {
+                                                            this.widget.actionModel.pushToLogin();
+                                                        }
+                                                    }
+                                                ),
+                                                new SizedBox(width: 16),
+                                                _buildFollowCount(
+                                                    "成员",
+                                                    $"{team.stats?.membersCount ?? 0}",
+                                                    () => this.widget.actionModel.pushToTeamMember(obj: this.widget.viewModel.teamId)
+                                                )
+                                            }
+                                        ),
                                         this._buildFollowButton()
                                     }
                                 )
@@ -505,27 +538,19 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildFollowerCount() {
-            var team = this.widget.viewModel.team;
+        static Widget _buildFollowCount(string title, string subTitle, GestureTapCallback onTap) {
             return new GestureDetector(
-                onTap: () => {
-                    if (this.widget.viewModel.isLoggedIn) {
-                        this.widget.actionModel.pushToTeamFollower(obj: this.widget.viewModel.teamId);
-                    }
-                    else {
-                        this.widget.actionModel.pushToLogin();
-                    }
-                },
+                onTap: onTap,
                 child: new Container(
                     height: 32,
                     alignment: Alignment.center,
                     color: CColors.Transparent,
                     child: new Row(
                         children: new List<Widget> {
-                            new Text("粉丝", style: CTextStyle.PRegularWhite),
+                            new Text(data: title, style: CTextStyle.PRegularWhite),
                             new SizedBox(width: 2),
                             new Text(
-                                $"{team.stats.followCount}",
+                                data: subTitle,
                                 style: new TextStyle(
                                     height: 1.27f,
                                     fontSize: 20,

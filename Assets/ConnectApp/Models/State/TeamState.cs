@@ -8,6 +8,7 @@ namespace ConnectApp.Models.State {
         public bool teamLoading { get; set; }
         public bool teamArticleLoading { get; set; }
         public bool followerLoading { get; set; }
+        public bool memberLoading { get; set; }
         public Dictionary<string, Team> teamDict { get; set; }
     }
 }

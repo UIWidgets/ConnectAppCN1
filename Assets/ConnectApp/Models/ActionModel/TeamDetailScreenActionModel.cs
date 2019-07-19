@@ -9,6 +9,7 @@ namespace ConnectApp.Models.ActionModel {
         public Action<string, ReportType> pushToReport;
         public Action<string> pushToBlock;
         public Action<string> pushToTeamFollower;
+        public Action<string> pushToTeamMember;
         public Func<ShareType, string, string, string, string, IPromise> shareToWechat;
         public Action startFetchTeam;
         public Func<IPromise> fetchTeam;

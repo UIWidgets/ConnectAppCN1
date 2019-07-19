@@ -847,15 +847,7 @@ namespace ConnectApp.screens {
 
             float endHeight = 0;
             if (!this._article.hasMore) {
-                comments.Add(new Container(
-                    height: 52,
-                    alignment: Alignment.center,
-                    child: new Text(
-                        "一 已经全部加载完毕 一",
-                        style: CTextStyle.PRegularBody4,
-                        textAlign: TextAlign.center
-                    )
-                ));
+                comments.Add(new EndView());
                 endHeight = 52;
             }
 

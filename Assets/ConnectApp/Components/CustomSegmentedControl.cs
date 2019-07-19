@@ -114,7 +114,8 @@ namespace ConnectApp.Components {
                                 }
                             }
                         },
-                        children: this.widget.children
+                        itemBuilder: (cxt, index) => this.widget.children[index: index],
+                        itemCount: this.widget.children.Count
                     )
                 )
             );
@@ -146,12 +147,14 @@ namespace ConnectApp.Components {
             return new CustomButton(
                 onPressed: () => {
                     if (this._selectedIndex != index) {
-                        this.setState(() => this._selectedIndex = index);
-                        this._pageController.animateToPage(
-                            page: index,
-                            TimeSpan.FromMilliseconds(250),
-                            curve: Curves.ease
-                        );
+                        this.setState(() => {
+                            this._pageController.animateToPage(
+                                page: index,
+                                TimeSpan.FromMilliseconds(this.widget.items.Count > 2 ? 1 : 250),
+                                curve: Curves.ease
+                            );
+                            this._selectedIndex = index;
+                        });
                         if (this.widget.onValueChanged != null) {
                             this.widget.onValueChanged(value: index);
                         }

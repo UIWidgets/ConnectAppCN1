@@ -12,23 +12,23 @@ namespace ConnectApp.Models.Model {
         public string background;
         public string type;
         public string typeParam;
-        public bool isPublic;
+        public bool? isPublic;
         public string mode;
         public TimeMap begin;
         public string placeId;
         public string place;
         public string address;
-        public int participantsCount;
-        public int onlineMemberCount;
-        public int recordWatchCount;
-        public DateTime createdTime;
+        public int? participantsCount;
+        public int? onlineMemberCount;
+        public int? recordWatchCount;
+        public DateTime? createdTime;
         public string shortDescription;
-        public bool userIsCheckedIn;
+        public bool? userIsCheckedIn;
         public string channelId;
         public List<User> hosts;
         public string content;
         public Dictionary<string, ContentMap> contentMap;
-        public bool isNotFirst; //加载详情后 置为true
+        public bool? isNotFirst; //加载详情后 置为true
         public string record;
         public float recordDuration;
 

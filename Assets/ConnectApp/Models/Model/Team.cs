@@ -11,6 +11,8 @@ namespace ConnectApp.Models.Model {
         public TeamStats stats;
         public List<User> followers;
         public bool? followersHasMore;
+        public List<Member> members;
+        public bool? membersHasMore;
         public List<Article> articles;
         public bool? articlesHasMore;
         public bool? followTeamLoading;
@@ -23,6 +25,8 @@ namespace ConnectApp.Models.Model {
             TeamStats stats = null,
             List<User> followers = null,
             bool? followersHasMore = null,
+            List<Member> members = null,
+            bool? membersHasMore = null,
             List<Article> articles = null,
             bool? articlesHasMore = null,
             bool? followTeamLoading = null
@@ -35,6 +39,8 @@ namespace ConnectApp.Models.Model {
                 stats = stats ?? this.stats,
                 followers = followers ?? this.followers,
                 followersHasMore = followersHasMore ?? this.followersHasMore,
+                members = members ?? this.members,
+                membersHasMore = membersHasMore ?? this.membersHasMore,
                 articles = articles ?? this.articles,
                 articlesHasMore = articlesHasMore ?? this.articlesHasMore,
                 followTeamLoading = followTeamLoading ?? this.followTeamLoading
@@ -54,6 +60,8 @@ namespace ConnectApp.Models.Model {
                 stats: other.stats,
                 followers: other.followers,
                 followersHasMore: other.followersHasMore,
+                members: other.members,
+                membersHasMore: other.membersHasMore,
                 articles: other.articles,
                 articlesHasMore: other.articlesHasMore,
                 followTeamLoading: other.followTeamLoading
@@ -64,5 +72,6 @@ namespace ConnectApp.Models.Model {
     [Serializable]
     public class TeamStats {
         public int followCount;
+        public int membersCount;
     }
 }
