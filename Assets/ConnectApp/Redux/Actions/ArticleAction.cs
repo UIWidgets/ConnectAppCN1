@@ -108,6 +108,8 @@ namespace ConnectApp.redux.actions {
     public class SendCommentSuccessAction : BaseAction {
         public Message message;
         public string articleId;
+        public string channelId;
+        public string parentMessageId;
     }
 
     public static partial class Actions {
@@ -171,27 +173,23 @@ namespace ConnectApp.redux.actions {
                         var messageItems = new Dictionary<string, Message>();
                         var userMap = new Dictionary<string, User>();
                         responseComments.items.ForEach(message => {
-                            itemIds.Add(message.id);
-                            messageItems[message.id] = message;
-                            if (userMap.ContainsKey(message.author.id)) {
-                                userMap[message.author.id] = message.author;
+                            itemIds.Add(item: message.id);
+                            messageItems[key: message.id] = message;
+                            if (userMap.ContainsKey(key: message.author.id)) {
+                                userMap[key: message.author.id] = message.author;
                             }
                             else {
-                                userMap.Add(message.author.id, message.author);
+                                userMap.Add(key: message.author.id, value: message.author);
                             }
                         });
-                        dispatcher.dispatch(new UserMapAction {
-                            userMap = userMap
-                        });
-                        var hasMore = responseComments.hasMore;
-                        var lastCommentId = responseComments.currOldestMessageId;
+                        dispatcher.dispatch(new UserMapAction {userMap = userMap});
                         dispatcher.dispatch(new FetchArticleCommentsSuccessAction {
                             channelId = channelId,
                             itemIds = itemIds,
                             messageItems = messageItems,
                             isRefreshList = false,
-                            hasMore = hasMore,
-                            currOldestMessageId = lastCommentId
+                            hasMore = responseComments.hasMore,
+                            currOldestMessageId = responseComments.currOldestMessageId
                         });
                     })
                     .Catch(Debug.Log);
@@ -302,15 +300,17 @@ namespace ConnectApp.redux.actions {
                 return ArticleApi.SendComment(channelId, content, nonce, parentMessageId)
                     .Then(message => {
                         CustomDialogUtils.hiddenCustomDialog();
-                        CustomDialogUtils.showToast("发送成功", Icons.sentiment_satisfied);
+                        CustomDialogUtils.showToast("发送成功", iconData: Icons.sentiment_satisfied);
                         dispatcher.dispatch(new SendCommentSuccessAction {
                             message = message,
-                            articleId = articleId
+                            articleId = articleId,
+                            channelId = channelId,
+                            parentMessageId = parentMessageId
                         });
                     })
                     .Catch(error => {
                         CustomDialogUtils.hiddenCustomDialog();
-                        CustomDialogUtils.showToast("发送失败", Icons.sentiment_dissatisfied);
+                        CustomDialogUtils.showToast("发送失败", iconData: Icons.sentiment_dissatisfied);
                     });
             });
         }
