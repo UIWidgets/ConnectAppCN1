@@ -663,6 +663,10 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildRelatedArticles() {
+            if (this._article.projects == null) {
+                return new Container();
+            }
+
             var relatedArticles = this._article.projects.FindAll(item => item.type == "article");
             if (relatedArticles.Count == 0) {
                 return new Container();

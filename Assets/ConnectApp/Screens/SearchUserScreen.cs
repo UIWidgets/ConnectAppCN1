@@ -21,8 +21,8 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, SearchScreenViewModel>(
                 converter: state => {
-                    var searchUsers = state.searchState.searchUsers.ContainsKey(key: state.searchState.keyword)
-                        ? state.searchState.searchUsers[key: state.searchState.keyword]
+                    var searchUserIds = state.searchState.searchUserIdDict.ContainsKey(key: state.searchState.keyword)
+                        ? state.searchState.searchUserIdDict[key: state.searchState.keyword]
                         : null;
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
                     var followMap = state.followState.followDict.ContainsKey(key: currentUserId)
@@ -31,7 +31,7 @@ namespace ConnectApp.screens {
                     return new SearchScreenViewModel {
                         searchUserLoading = state.searchState.searchUserLoading,
                         searchKeyword = state.searchState.keyword,
-                        searchUsers = searchUsers,
+                        searchUserIds = searchUserIds,
                         searchUserHasMore = state.searchState.searchUserHasMore,
                         userDict = state.userState.userDict,
                         followMap = followMap,
@@ -133,14 +133,14 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            var searchUsers = this.widget.viewModel.searchUsers;
+            var searchUserIds = this.widget.viewModel.searchUserIds;
             var searchKeyword = this.widget.viewModel.searchKeyword ?? "";
             Widget child = new Container();
-            if (this.widget.viewModel.searchUserLoading && searchUsers == null) {
+            if (this.widget.viewModel.searchUserLoading && searchUserIds == null) {
                 child = new GlobalLoading();
             }
             else if (searchKeyword.Length > 0) {
-                child = searchUsers != null && searchUsers.Count > 0
+                child = searchUserIds != null && searchUserIds.Count > 0
                     ? this._buildContent()
                     : new BlankView(
                         "哎呀，换个关键词试试吧",
@@ -155,11 +155,9 @@ namespace ConnectApp.screens {
         }
         
         Widget _buildContent() {
-            var searchUsers = this.widget.viewModel.searchUsers;
+            var searchUserIds = this.widget.viewModel.searchUserIds;
             var enablePullUp = this.widget.viewModel.searchUserHasMore;
-            var itemCount = enablePullUp
-                ? searchUsers.Count + 1
-                : searchUsers.Count + 2;
+            var itemCount = enablePullUp ? searchUserIds.Count + 1 : searchUserIds.Count + 2;
             return new Container(
                 color: CColors.Background,
                 child: new CustomScrollbar(
@@ -184,25 +182,25 @@ namespace ConnectApp.screens {
                     color: CColors.White
                 );
             }
-            var searchUsers = this.widget.viewModel.searchUsers;
-            if (index == searchUsers.Count + 1) {
+            var searchUserIds = this.widget.viewModel.searchUserIds;
+            if (index == searchUserIds.Count + 1) {
                 return new EndView();
             }
 
-            var searchUser = searchUsers[index - 1];
+            var searchUserId = searchUserIds[index - 1];
+            if (!this.widget.viewModel.userDict.ContainsKey(key: searchUserId)) {
+                return new Container();
+            }
+
+            var searchUser = this.widget.viewModel.userDict[key: searchUserId];
             UserType userType = UserType.unFollow;
             if (!this.widget.viewModel.isLoggedIn) {
                 userType = UserType.unFollow;
             }
             else {
-                var followUserLoading = false;
-                if (this.widget.viewModel.userDict.ContainsKey(key: searchUser.id)) {
-                    var user = this.widget.viewModel.userDict[key: searchUser.id];
-                    followUserLoading = user.followUserLoading ?? false;
-                }
                 if (this.widget.viewModel.currentUserId == searchUser.id) {
                     userType = UserType.me;
-                } else if (followUserLoading) {
+                } else if (searchUser.followUserLoading ?? false) {
                     userType = UserType.loading;
                 } else if (this.widget.viewModel.followMap.ContainsKey(key: searchUser.id)) {
                     userType = UserType.follow;

@@ -6,10 +6,10 @@ namespace ConnectApp.Models.ViewModel {
         public bool articlesLoading;
         public bool followArticlesLoading;
         public bool followingLoading;
-        public List<string> articleList;
-        public List<Article> followArticleList;
-        public List<Article> hotArticleList;
-        public List<User> followingList;
+        public List<string> recommendArticleIds;
+        public List<string> followArticleIds;
+        public List<string> hotArticleIds;
+        public List<Following> followings;
         public Dictionary<string, Article> articleDict;
         public Dictionary<string, User> userDict;
         public Dictionary<string, Team> teamDict;

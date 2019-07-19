@@ -63,6 +63,19 @@ namespace ConnectApp.redux.actions {
         public string unFollowUserId;
     }
 
+    public class StartFetchFollowingAction : RequestAction {
+    }
+
+    public class FetchFollowingSuccessAction : BaseAction {
+        public List<Following> followings;
+        public bool followingHasMore;
+        public int offset;
+        public string userId;
+    }
+
+    public class FetchFollowingFailureAction : BaseAction {
+    }
+
     public class StartFetchFollowingUserAction : RequestAction {
     }
 
@@ -152,15 +165,15 @@ namespace ConnectApp.redux.actions {
                             ? userDict[key: userId]
                             : new User();
                         var user = userProfileResponse.user;
-                        user.followingCount = userProfileResponse.followingCount;
-                        user.followings = userProfileResponse.followings;
-                        user.followingsHasMore = userProfileResponse.followingsHasMore;
+                        user.followingUsersCount = userProfileResponse.followingCount;
+                        user.followingUsers = userProfileResponse.followings;
+                        user.followingUsersHasMore = userProfileResponse.followingsHasMore;
                         user.followers = userProfileResponse.followers;
                         user.followersHasMore = userProfileResponse.followersHasMore;
                         user.followingTeamsCount = userProfileResponse.followingTeamsCount;
                         user.followingTeams = userProfileResponse.followingTeams;
                         user.followingTeamsHasMore = userProfileResponse.followingTeamsHasMore;
-                        user.articles = currentUser.articles;
+                        user.articleIds = currentUser.articleIds;
                         user.articlesHasMore = currentUser.articlesHasMore;
                         user.jobRoleMap = userProfileResponse.jobRoleMap;
                         dispatcher.dispatch(new FetchUserProfileSuccessAction {
@@ -183,6 +196,13 @@ namespace ConnectApp.redux.actions {
 
         public static object fetchUserArticle(string userId, int offset) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
+                var user = getState().userState.userDict.ContainsKey(key: userId)
+                    ? getState().userState.userDict[key: userId]
+                    : null;
+                var articleOffset = user == null ? 0 : user.articleIds == null ? 0 : user.articleIds.Count;
+                if (offset != 0 && offset != articleOffset) {
+                    offset = articleOffset;
+                }
                 return UserApi.FetchUserArticle(userId, offset)
                     .Then(userArticleResponse => {
                         var articles = new List<Article>();
@@ -248,11 +268,40 @@ namespace ConnectApp.redux.actions {
             });
         }
 
+        public static object fetchFollowing(string userId, int offset) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return UserApi.FetchFollowing(userId, offset)
+                    .Then(followingResponse => {
+                        dispatcher.dispatch(new FollowMapAction {followMap = followingResponse.followMap});
+                        dispatcher.dispatch(new UserMapAction {userMap = followingResponse.userMap});
+                        dispatcher.dispatch(new TeamMapAction {teamMap = followingResponse.teamMap});
+                        dispatcher.dispatch(new FetchFollowingSuccessAction {
+                            followings = followingResponse.followings,
+                            followingHasMore = followingResponse.hasMore,
+                            offset = offset,
+                            userId = userId
+                        });
+                    })
+                    .Catch(error => {
+                            dispatcher.dispatch(new FetchFollowingFailureAction());
+                            Debug.Log(error);
+                        }
+                    );
+            });
+        }
+
         public static object fetchFollowingUser(string userId, int offset) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
+                var user = getState().userState.userDict.ContainsKey(key: userId)
+                    ? getState().userState.userDict[key: userId]
+                    : new User();
+                var followingOffset = (user.followingUsers ?? new List<User>()).Count;
+                if (offset != 0 && offset != followingOffset) {
+                    offset = followingOffset;
+                }
                 return UserApi.FetchFollowingUser(userId, offset)
                     .Then(followingUserResponse => {
-                        dispatcher.dispatch(new FollowMapAction { followMap = followingUserResponse.followMap});
+                        dispatcher.dispatch(new FollowMapAction {followMap = followingUserResponse.followMap});
                         var userMap = new Dictionary<string, User>();
                         followingUserResponse.followings.ForEach(followingUser => {
                             userMap.Add(key: followingUser.id, value: followingUser);
@@ -275,6 +324,13 @@ namespace ConnectApp.redux.actions {
 
         public static object fetchFollower(string userId, int offset) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
+                var user = getState().userState.userDict.ContainsKey(key: userId)
+                    ? getState().userState.userDict[key: userId]
+                    : new User();
+                var followerOffset = (user.followers ?? new List<User>()).Count;
+                if (offset != 0 && offset != followerOffset) {
+                    offset = followerOffset;
+                }
                 return UserApi.FetchFollower(userId, offset)
                     .Then(followerResponse => {
                         dispatcher.dispatch(new FollowMapAction {followMap = followerResponse.followMap});
@@ -300,6 +356,13 @@ namespace ConnectApp.redux.actions {
 
         public static object fetchFollowingTeam(string userId, int offset) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
+                var user = getState().userState.userDict.ContainsKey(key: userId)
+                    ? getState().userState.userDict[key: userId]
+                    : new User();
+                var followingOffset = (user.followingTeams ?? new List<Team>()).Count;
+                if (offset != 0 && offset != followingOffset) {
+                    offset = followingOffset;
+                }
                 return UserApi.FetchFollowingTeam(userId, offset)
                     .Then(followingTeamResponse => {
                         dispatcher.dispatch(new FollowMapAction {followMap = followingTeamResponse.followMap});

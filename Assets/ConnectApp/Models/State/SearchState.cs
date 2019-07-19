@@ -11,9 +11,9 @@ namespace ConnectApp.Models.State {
         public bool searchTeamLoading { get; set; }
         public string keyword { get; set; }
         public string searchFollowingKeyword { get; set; }
-        public Dictionary<string, List<Article>> searchArticles { get; set; }
-        public Dictionary<string, List<User>> searchUsers { get; set; }
-        public Dictionary<string, List<Team>> searchTeams { get; set; }
+        public Dictionary<string, List<string>> searchArticleIdDict { get; set; }
+        public Dictionary<string, List<string>> searchUserIdDict { get; set; }
+        public Dictionary<string, List<string>> searchTeamIdDict { get; set; }
         public List<User> searchFollowings { get; set; }
         public int searchArticleCurrentPage { get; set; }
         public List<int> searchArticlePages { get; set; }

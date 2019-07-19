@@ -32,16 +32,16 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, ArticlesScreenViewModel>(
                 converter: state => {
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
-                    var followArticleList = state.articleState.followArticleDict.ContainsKey(key: currentUserId)
-                        ? state.articleState.followArticleDict[key: currentUserId]
-                        : new List<Article>();
-                    var hotArticleList = state.articleState.hotArticleDict.ContainsKey(key: currentUserId)
-                        ? state.articleState.hotArticleDict[key: currentUserId]
-                        : new List<Article>();
+                    var followArticleIds = state.articleState.followArticleIdDict.ContainsKey(key: currentUserId)
+                        ? state.articleState.followArticleIdDict[key: currentUserId]
+                        : new List<string>();
+                    var hotArticleIds = state.articleState.hotArticleIdDict.ContainsKey(key: currentUserId)
+                        ? state.articleState.hotArticleIdDict[key: currentUserId]
+                        : new List<string>();
                     var user = state.userState.userDict.ContainsKey(key: currentUserId)
                         ? state.userState.userDict[key: currentUserId]
                         : new User();
-                    var followingUsers = user.followings ?? new List<User>();
+                    var followings = user.followings ?? new List<Following>();
                     var likeMap = state.likeState.likeDict.ContainsKey(key: currentUserId)
                         ? state.likeState.likeDict[key: currentUserId]
                         : new Dictionary<string, bool>();
@@ -50,13 +50,14 @@ namespace ConnectApp.screens {
                         : new Dictionary<string, bool>();
                     return new ArticlesScreenViewModel {
                         followArticlesLoading = state.articleState.followArticlesLoading,
-                        followingLoading = state.userState.followingUserLoading,
-                        followArticleList = followArticleList,
-                        hotArticleList = hotArticleList,
-                        followingList = followingUsers,
+                        followingLoading = state.userState.followingLoading,
+                        followArticleIds = followArticleIds,
+                        hotArticleIds = hotArticleIds,
+                        followings = followings,
                         blockArticleList = state.articleState.blockArticleList,
                         followArticleHasMore = state.articleState.followArticleHasMore,
                         hotArticleHasMore = state.articleState.hotArticleHasMore,
+                        articleDict = state.articleState.articleDict,
                         userDict = state.userState.userDict,
                         teamDict = state.teamState.teamDict,
                         likeMap = likeMap,
@@ -114,8 +115,8 @@ namespace ConnectApp.screens {
                                 Actions.sendComment(articleId, channelId, content, nonce, parentMessageId));
                         },
                         likeArticle = articleId => dispatcher.dispatch<IPromise>(Actions.likeArticle(articleId)),
-                        startFetchFollowing = () => dispatcher.dispatch(new StartFetchFollowingUserAction()),
-                        fetchFollowing = offset => dispatcher.dispatch<IPromise>(Actions.fetchFollowingUser(viewModel.currentUserId, offset)),
+                        startFetchFollowing = () => dispatcher.dispatch(new StartFetchFollowingAction()),
+                        fetchFollowing = offset => dispatcher.dispatch<IPromise>(Actions.fetchFollowing(viewModel.currentUserId, offset)),
                         startFetchFollowArticles = () => dispatcher.dispatch(new StartFetchFollowArticlesAction()),
                         fetchFollowArticles = pageNumber => dispatcher.dispatch<IPromise>(Actions.fetchFollowArticles(pageNumber))
                     };
@@ -297,22 +298,22 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildContent() {
-            var followArticleList = this.widget.viewModel.followArticleList;
-            var followingList = this.widget.viewModel.followingList;
-            var hotArticleList = this.widget.viewModel.hotArticleList;
+            var followArticleIds = this.widget.viewModel.followArticleIds;
+            var followings = this.widget.viewModel.followings;
+            var hotArticleIds = this.widget.viewModel.hotArticleIds;
             var followArticleLoading = this.widget.viewModel.followArticlesLoading
-                                       && followArticleList.isEmpty()
-                                       && hotArticleList.isEmpty();
+                                       && followArticleIds.isEmpty()
+                                       && hotArticleIds.isEmpty();
             var followingLoading = this.widget.viewModel.followingLoading
-                                   && followingList.isEmpty();
+                                   && followings.isEmpty();
             Widget content;
             if (followArticleLoading || followingLoading) {
                 content = new FollowArticleLoading();
             }
-            else if (followArticleList.isEmpty()) {
-                var itemCount = followingList.isEmpty()
-                    ? hotArticleList.Count
-                    : hotArticleList.Count + 1;
+            else if (followArticleIds.isEmpty()) {
+                var itemCount = followings.isEmpty()
+                    ? hotArticleIds.Count
+                    : hotArticleIds.Count + 1;
                 if (!this.widget.viewModel.hotArticleHasMore) {
                     itemCount = itemCount + 1;
                 }
@@ -329,9 +330,9 @@ namespace ConnectApp.screens {
                 );
             }
             else {
-                var itemCount = followingList.isEmpty()
-                    ? followArticleList.Count
-                    : followArticleList.Count + 1;
+                var itemCount = followings.isEmpty()
+                    ? followArticleIds.Count
+                    : followArticleIds.Count + 1;
                 if (!this.widget.viewModel.followArticleHasMore) {
                     itemCount = itemCount + 1;
                 }
@@ -355,22 +356,20 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildFollowingList() {
-            var followingList = this.widget.viewModel.followingList;
-            if (followingList.isEmpty()) {
+            var followings = this.widget.viewModel.followings;
+            if (followings.isEmpty()) {
                 return new Container();
             }
             var followButtons = new List<Widget>();
-            if (followingList.Count > 5) {
-                followingList = followingList.GetRange(0, 5);
+            if (followings.Count > 5) {
+                followings = followings.GetRange(0, 5);
             }
 
-            for (int i = 0; i < followingList.Count; i++) {
-                var followingUser = followingList[index: i];
-                var followButton = this._buildFollowButton(user: followingUser,
-                    () => this.widget.actionModel.pushToUserDetail(obj: followingUser.id)
-                );
+            for (int i = 0; i < followings.Count; i++) {
+                var following = followings[index: i];
+                var followButton = this._buildFollowButton(following: following);
                 followButtons.Add(item: followButton);
-                if (i < followingList.Count) {
+                if (i < followings.Count) {
                     followButtons.Add(new Container(width: 10));
                 }
             }
@@ -438,23 +437,46 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildFollowButton(User user, GestureTapCallback onTap) {
+        Widget _buildFollowButton(Following following) {
+            var user = new User();
+            if (following.type == "user") {
+                user = this.widget.viewModel.userDict[key: following.followeeId];
+            }
+            var team = new Team();
+            if (following.type == "team") {
+                team = this.widget.viewModel.teamDict[key: following.followeeId];
+            }
             return new GestureDetector(
-                onTap: onTap,
+                onTap: () => {
+                    if (following.type == "user") {
+                        this.widget.actionModel.pushToUserDetail(obj: user.id);
+                    }
+                    if (following.type == "team") {
+                        this.widget.actionModel.pushToTeamDetail(obj: team.id);
+                    }
+                },
                 child: new Container(
                     width: this.cardWidth,
                     child: new Column(
                         children: new List<Widget> {
                             new Container(
                                 padding: EdgeInsets.symmetric(horizontal: 4),
-                                child: Avatar.User(
-                                    user: user,
-                                    size: this.avatarSize
-                                )
+                                child: following.type == "user"
+                                    ? Avatar.User(
+                                        user: user,
+                                        size: this.avatarSize
+                                    )
+                                    : Avatar.Team(
+                                        team: team,
+                                        size: this.avatarSize,
+                                        hasCircular: true
+                                    )
                             ),
                             new Container(
                                 child: new Text(
-                                    user.fullName ?? user.name,
+                                    following.type == "user"
+                                        ? user.fullName ?? user.name
+                                        : team.name,
                                     style: CTextStyle.PRegularBody,
                                     textAlign: TextAlign.center,
                                     maxLines: 1,
@@ -468,21 +490,26 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildFollowArticleCard(BuildContext context, int index, bool isFollow = true) {
-            if (this.widget.viewModel.followingList.isNotEmpty() && index == 0) {
+            if (this.widget.viewModel.followings.isNotEmpty() && index == 0) {
                 return this._buildFollowingList();
             }
 
-            var articleList = isFollow
-                ? this.widget.viewModel.followArticleList
-                : this.widget.viewModel.hotArticleList;
-            var newIndex = this.widget.viewModel.followingList.isNotEmpty()
+            var articleIds = isFollow
+                ? this.widget.viewModel.followArticleIds
+                : this.widget.viewModel.hotArticleIds;
+            var newIndex = this.widget.viewModel.followings.isNotEmpty()
                 ? index - 1
                 : index;
-            if (newIndex == articleList.Count) {
+            if (newIndex == articleIds.Count) {
                 return new EndView();
             }
 
-            var article = articleList[index: newIndex];
+            var articleId = articleIds[index: newIndex];
+            if (!this.widget.viewModel.articleDict.ContainsKey(key: articleId)) {
+                return new Container();
+            }
+
+            var article = this.widget.viewModel.articleDict[key: articleId];
             if (this.widget.viewModel.blockArticleList.Contains(item: article.id)) {
                 return new Container();
             }
