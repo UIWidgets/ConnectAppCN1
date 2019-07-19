@@ -21,8 +21,8 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, SearchScreenViewModel>(
                 converter: state => {
-                    var searchTeams = state.searchState.searchTeams.ContainsKey(key: state.searchState.keyword)
-                        ? state.searchState.searchTeams[key: state.searchState.keyword]
+                    var searchTeamIds = state.searchState.searchTeamIdDict.ContainsKey(key: state.searchState.keyword)
+                        ? state.searchState.searchTeamIdDict[key: state.searchState.keyword]
                         : null;
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
                     var followMap = state.followState.followDict.ContainsKey(key: currentUserId)
@@ -31,7 +31,7 @@ namespace ConnectApp.screens {
                     return new SearchScreenViewModel {
                         searchTeamLoading = state.searchState.searchTeamLoading,
                         searchKeyword = state.searchState.keyword,
-                        searchTeams = searchTeams,
+                        searchTeamIds = searchTeamIds,
                         searchTeamHasMore = state.searchState.searchTeamHasMore,
                         teamDict = state.teamState.teamDict,
                         followMap = followMap,
@@ -132,14 +132,14 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            var searchTeams = this.widget.viewModel.searchTeams;
+            var searchTeamIds = this.widget.viewModel.searchTeamIds;
             var searchKeyword = this.widget.viewModel.searchKeyword ?? "";
             Widget child = new Container();
-            if (this.widget.viewModel.searchTeamLoading && searchTeams == null) {
+            if (this.widget.viewModel.searchTeamLoading && searchTeamIds == null) {
                 child = new GlobalLoading();
             }
             else if (searchKeyword.Length > 0) {
-                child = searchTeams != null && searchTeams.Count > 0
+                child = searchTeamIds != null && searchTeamIds.Count > 0
                     ? this._buildContent()
                     : new BlankView(
                         "哎呀，换个关键词试试吧",
@@ -154,9 +154,9 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildContent() {
-            var searchTeams = this.widget.viewModel.searchTeams;
+            var searchTeamIds = this.widget.viewModel.searchTeamIds;
             var hasMore = this.widget.viewModel.searchTeamHasMore;
-            var itemCount = hasMore ? searchTeams.Count + 1 : searchTeams.Count + 2;
+            var itemCount = hasMore ? searchTeamIds.Count + 1 : searchTeamIds.Count + 2;
             return new Container(
                 color: CColors.Background,
                 child: new CustomScrollbar(
@@ -179,25 +179,25 @@ namespace ConnectApp.screens {
             if (index == 0) {
                 return new CustomDivider(color: CColors.White);
             }
-            var searchTeams = this.widget.viewModel.searchTeams;
-            if (index == searchTeams.Count + 1) {
+            var searchTeamIds = this.widget.viewModel.searchTeamIds;
+            if (index == searchTeamIds.Count + 1) {
                 return new EndView();
             }
 
-            var searchTeam = searchTeams[index - 1];
+            var searchTeamId = searchTeamIds[index - 1];
+            if (!this.widget.viewModel.teamDict.ContainsKey(key: searchTeamId)) {
+                return new Container();
+            }
+
+            var searchTeam = this.widget.viewModel.teamDict[key: searchTeamId];
             UserType userType = UserType.unFollow;
             if (!this.widget.viewModel.isLoggedIn) {
                 userType = UserType.unFollow;
             }
             else {
-                var followTeamLoading = false;
-                if (this.widget.viewModel.teamDict.ContainsKey(key: searchTeam.id)) {
-                    var team = this.widget.viewModel.teamDict[key: searchTeam.id];
-                    followTeamLoading = team.followTeamLoading ?? false;
-                }
                 if (this.widget.viewModel.currentUserId == searchTeam.id) {
                     userType = UserType.me;
-                } else if (followTeamLoading) {
+                } else if (searchTeam.followTeamLoading ?? false) {
                     userType = UserType.loading;
                 } else if (this.widget.viewModel.followMap.ContainsKey(key: searchTeam.id)) {
                     userType = UserType.follow;

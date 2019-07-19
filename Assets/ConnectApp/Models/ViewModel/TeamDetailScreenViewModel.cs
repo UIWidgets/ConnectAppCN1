@@ -8,6 +8,7 @@ namespace ConnectApp.Models.ViewModel {
         public bool teamArticleLoading;
         public Team team;
         public int teamArticleOffset;
+        public Dictionary<string, Article> articleDict;
         public Dictionary<string, bool> followMap;
         public string currentUserId;
         public bool isLoggedIn;

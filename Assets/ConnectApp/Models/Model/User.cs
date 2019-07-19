@@ -14,15 +14,17 @@ namespace ConnectApp.Models.Model {
         public string coverImage;
         public string description;
         public int? followCount;
-        public int? followingCount;
+        public int? followingUsersCount;
         public int? followingTeamsCount;
-        public List<User> followings;
-        public bool? followingsHasMore;
+        public List<User> followingUsers;
+        public bool? followingUsersHasMore;
         public List<User> followers;
         public bool? followersHasMore;
         public List<Team> followingTeams;
         public bool? followingTeamsHasMore;
-        public List<Article> articles;
+        public List<Following> followings;
+        public bool? followingsHasMore;
+        public List<string> articleIds;
         public bool? articlesHasMore;
         public Dictionary<string, JobRole> jobRoleMap;
         public List<string> jobRoleIds;
@@ -40,15 +42,17 @@ namespace ConnectApp.Models.Model {
             string coverImage = null,
             string description = null,
             int? followCount = null,
-            int? followingCount = null,
+            int? followingUsersCount = null,
             int? followingTeamsCount = null,
-            List<User> followings = null,
-            bool? followingsHasMore = null,
+            List<User> followingUsers = null,
+            bool? followingUsersHasMore = null,
             List<User> followers = null,
             bool? followersHasMore = null,
             List<Team> followingTeams = null,
             bool? followingTeamsHasMore = null,
-            List<Article> articles = null,
+            List<Following> followings = null,
+            bool? followingsHasMore = null,
+            List<string> articleIds = null,
             bool? articlesHasMore = null,
             Dictionary<string, JobRole> jobRoleMap = null,
             List<string> jobRoleIds = null,
@@ -66,15 +70,17 @@ namespace ConnectApp.Models.Model {
                 coverImage = coverImage ?? this.coverImage,
                 description = description ?? this.description,
                 followCount = followCount ?? this.followCount,
-                followingCount = followingCount ?? this.followingCount,
+                followingUsersCount = followingUsersCount ?? this.followingUsersCount,
                 followingTeamsCount = followingTeamsCount ?? this.followingTeamsCount,
-                followings = followings ?? this.followings,
-                followingsHasMore = followingsHasMore ?? this.followingsHasMore,
+                followingUsers = followingUsers ?? this.followingUsers,
+                followingUsersHasMore = followingUsersHasMore ?? this.followingUsersHasMore,
                 followers = followers ?? this.followers,
                 followersHasMore = followersHasMore ?? this.followersHasMore,
                 followingTeams = followingTeams ?? this.followingTeams,
                 followingTeamsHasMore = followingTeamsHasMore ?? this.followingTeamsHasMore,
-                articles = articles ?? this.articles,
+                followings = followings ?? this.followings,
+                followingsHasMore = followingsHasMore ?? this.followingsHasMore,
+                articleIds = articleIds ?? this.articleIds,
                 articlesHasMore = articlesHasMore ?? this.articlesHasMore,
                 jobRoleMap = jobRoleMap ?? this.jobRoleMap,
                 jobRoleIds = jobRoleIds ?? this.jobRoleIds,
@@ -99,15 +105,17 @@ namespace ConnectApp.Models.Model {
                 coverImage: other.coverImage,
                 description: other.description,
                 followCount: other.followCount,
-                followingCount: other.followingCount,
+                followingUsersCount: other.followingUsersCount,
                 followingTeamsCount: other.followingTeamsCount,
-                followings: other.followings,
-                followingsHasMore: other.followingsHasMore,
+                followingUsers: other.followingUsers,
+                followingUsersHasMore: other.followingUsersHasMore,
                 followers: other.followers,
                 followersHasMore: other.followersHasMore,
                 followingTeams: other.followingTeams,
                 followingTeamsHasMore: other.followingTeamsHasMore,
-                articles: other.articles,
+                followings: other.followings,
+                followingsHasMore: other.followingsHasMore,
+                articleIds: other.articleIds,
                 articlesHasMore: other.articlesHasMore,
                 jobRoleMap: other.jobRoleMap,
                 jobRoleIds: other.jobRoleIds,

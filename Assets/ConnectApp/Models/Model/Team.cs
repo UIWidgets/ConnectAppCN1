@@ -13,7 +13,7 @@ namespace ConnectApp.Models.Model {
         public bool? followersHasMore;
         public List<Member> members;
         public bool? membersHasMore;
-        public List<Article> articles;
+        public List<string> articleIds;
         public bool? articlesHasMore;
         public bool? followTeamLoading;
 
@@ -27,7 +27,7 @@ namespace ConnectApp.Models.Model {
             bool? followersHasMore = null,
             List<Member> members = null,
             bool? membersHasMore = null,
-            List<Article> articles = null,
+            List<string> articleIds = null,
             bool? articlesHasMore = null,
             bool? followTeamLoading = null
         ) {
@@ -41,7 +41,7 @@ namespace ConnectApp.Models.Model {
                 followersHasMore = followersHasMore ?? this.followersHasMore,
                 members = members ?? this.members,
                 membersHasMore = membersHasMore ?? this.membersHasMore,
-                articles = articles ?? this.articles,
+                articleIds = articleIds ?? this.articleIds,
                 articlesHasMore = articlesHasMore ?? this.articlesHasMore,
                 followTeamLoading = followTeamLoading ?? this.followTeamLoading
             };
@@ -62,7 +62,7 @@ namespace ConnectApp.Models.Model {
                 followersHasMore: other.followersHasMore,
                 members: other.members,
                 membersHasMore: other.membersHasMore,
-                articles: other.articles,
+                articleIds: other.articleIds,
                 articlesHasMore: other.articlesHasMore,
                 followTeamLoading: other.followTeamLoading
             );

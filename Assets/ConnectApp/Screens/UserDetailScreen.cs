@@ -43,7 +43,7 @@ namespace ConnectApp.screens {
                     var user = state.userState.userDict.ContainsKey(key: this.userId)
                         ? state.userState.userDict[key: this.userId]
                         : null;
-                    var articleOffset = user == null ? 0 : user.articles == null ? 0 : user.articles.Count;
+                    var articleOffset = user == null ? 0 : user.articleIds == null ? 0 : user.articleIds.Count;
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
                     var followMap = state.followState.followDict.ContainsKey(key: currentUserId)
                         ? state.followState.followDict[key: currentUserId]
@@ -53,6 +53,7 @@ namespace ConnectApp.screens {
                         userLoading = state.userState.userLoading,
                         userArticleLoading = state.userState.userArticleLoading,
                         user = user,
+                        articleDict = state.articleState.articleDict,
                         followMap = followMap,
                         articleOffset = articleOffset,
                         currentUserId = currentUserId,
@@ -344,20 +345,20 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildUserContent(BuildContext context) {
-            var articles = this.widget.viewModel.user.articles;
+            var articleIds = this.widget.viewModel.user.articleIds;
             var articlesHasMore = this.widget.viewModel.user.articlesHasMore ?? false;
-            var userArticleLoading = this.widget.viewModel.userArticleLoading && articles == null;
+            var userArticleLoading = this.widget.viewModel.userArticleLoading && articleIds == null;
             int itemCount;
             if (userArticleLoading) {
                 itemCount = 3;
             }
             else {
-                if (articles == null) {
+                if (articleIds == null) {
                     itemCount = 3;
                 }
                 else {
-                    var articleCount = articlesHasMore ? articles.Count : articles.Count + 1;
-                    itemCount = 2 + (articles.Count == 0 ? 1 : articleCount);
+                    var articleCount = articlesHasMore ? articleIds.Count : articleIds.Count + 1;
+                    itemCount = 2 + (articleIds.Count == 0 ? 1 : articleCount);
                 }
             }
 
@@ -393,7 +394,7 @@ namespace ConnectApp.screens {
                                     );
                                 }
 
-                                if ((articles == null || articles.Count == 0) && index == 2) {
+                                if ((articleIds == null || articleIds.Count == 0) && index == 2) {
                                     var height = MediaQuery.of(context: context).size.height - headerHeight - 44;
                                     return new Container(
                                         height: height,
@@ -408,10 +409,13 @@ namespace ConnectApp.screens {
                                     return new EndView();
                                 }
 
-                                var article = articles[index - 2];
+                                var articleId = articleIds[index - 2];
+                                if (!this.widget.viewModel.articleDict.ContainsKey(key: articleId)) {
+                                    return new Container();
+                                }
 
+                                var article = this.widget.viewModel.articleDict[key: articleId];
                                 var linkUrl = CStringUtils.JointProjectShareLink(projectId: article.id);
-
                                 return new ArticleCard(
                                     article: article,
                                     () => this.widget.actionModel.pushToArticleDetail(obj: article.id),
@@ -507,7 +511,7 @@ namespace ConnectApp.screens {
                                             children: new List<Widget> {
                                                 _buildFollowCount(
                                                     "关注",
-                                                    $"{(user.followingCount ?? 0) + (user.followingTeamsCount ?? 0)}",
+                                                    $"{(user.followingUsersCount ?? 0) + (user.followingTeamsCount ?? 0)}",
                                                     () =>
                                                         this.widget.actionModel.pushToUserFollowing(
                                                             arg1: this.widget.viewModel.userId, 0)

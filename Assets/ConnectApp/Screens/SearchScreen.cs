@@ -29,17 +29,17 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, SearchScreenViewModel>(
                 converter: state => new SearchScreenViewModel {
                     searchKeyword = state.searchState.keyword,
-                    searchArticles = state.searchState.searchArticles.ContainsKey(key: state.searchState.keyword)
-                        ? state.searchState.searchArticles[key: state.searchState.keyword]
-                        : new List<Article>(),
+                    searchArticleIds = state.searchState.searchArticleIdDict.ContainsKey(key: state.searchState.keyword)
+                        ? state.searchState.searchArticleIdDict[key: state.searchState.keyword]
+                        : new List<string>(),
                     searchArticleHistoryList = state.searchState.searchArticleHistoryList,
                     popularSearchArticleList = state.popularSearchState.popularSearchArticles,
-                    searchUsers = state.searchState.searchUsers.ContainsKey(key: state.searchState.keyword)
-                        ? state.searchState.searchUsers[key: state.searchState.keyword]
-                        : new List<User>(),
-                    searchTeams = state.searchState.searchTeams.ContainsKey(key: state.searchState.keyword)
-                        ? state.searchState.searchTeams[key: state.searchState.keyword]
-                        : new List<Team>()
+                    searchUserIds = state.searchState.searchUserIdDict.ContainsKey(key: state.searchState.keyword)
+                        ? state.searchState.searchUserIdDict[key: state.searchState.keyword]
+                        : new List<string>(),
+                    searchTeamIds = state.searchState.searchTeamIdDict.ContainsKey(key: state.searchState.keyword)
+                        ? state.searchState.searchTeamIdDict[key: state.searchState.keyword]
+                        : new List<string>()
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new SearchScreenActionModel {
@@ -99,9 +99,9 @@ namespace ConnectApp.screens {
             this._selectedIndex = 0;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 if (this.widget.viewModel.searchKeyword.Length > 0
-                    || this.widget.viewModel.searchArticles.Count > 0
-                    || this.widget.viewModel.searchUsers.Count > 0
-                    || this.widget.viewModel.searchTeams.Count > 0) {
+                    || this.widget.viewModel.searchArticleIds.Count > 0
+                    || this.widget.viewModel.searchUserIds.Count > 0
+                    || this.widget.viewModel.searchTeamIds.Count > 0) {
                     this.widget.actionModel.clearSearchResult();
                 }
 

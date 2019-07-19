@@ -7,9 +7,9 @@ namespace ConnectApp.Models.ViewModel {
         public bool searchUserLoading;
         public bool searchTeamLoading;
         public string searchKeyword;
-        public List<Article> searchArticles;
-        public List<User> searchUsers;
-        public List<Team> searchTeams;
+        public List<string> searchArticleIds;
+        public List<string> searchUserIds;
+        public List<string> searchTeamIds;
         public int searchArticleCurrentPage;
         public List<int> searchArticlePages;
         public bool searchUserHasMore;
@@ -17,6 +17,7 @@ namespace ConnectApp.Models.ViewModel {
         public Dictionary<string, bool> followMap;
         public List<string> searchArticleHistoryList;
         public List<string> searchUserHistoryList;
+        public Dictionary<string, Article> articleDict;
         public Dictionary<string, User> userDict;
         public Dictionary<string, Team> teamDict;
         public List<PopularSearch> popularSearchArticleList;

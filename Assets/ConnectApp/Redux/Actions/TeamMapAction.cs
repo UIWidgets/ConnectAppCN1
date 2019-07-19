@@ -115,6 +115,13 @@ namespace ConnectApp.redux.actions {
 
         public static object fetchTeamArticle(string teamId, int offset) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
+                var team = getState().teamState.teamDict.ContainsKey(key: teamId)
+                    ? getState().teamState.teamDict[key: teamId]
+                    : null;
+                var articleOffset = team == null ? 0 : team.articleIds == null ? 0 : team.articleIds.Count;
+                if (offset != 0 && offset != articleOffset) {
+                    offset = articleOffset;
+                }
                 return TeamApi.FetchTeamArticle(teamId, offset)
                     .Then(teamArticleResponse => {
                         dispatcher.dispatch(new LikeMapAction {likeMap = teamArticleResponse.likeMap});
@@ -135,6 +142,13 @@ namespace ConnectApp.redux.actions {
 
         public static object fetchTeamFollower(string teamId, int offset) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
+                var team = getState().teamState.teamDict.ContainsKey(key: teamId)
+                    ? getState().teamState.teamDict[key: teamId]
+                    : new Team();
+                var followerOffset = (team.followers ?? new List<User>()).Count;
+                if (offset != 0 && offset != followerOffset) {
+                    offset = followerOffset;
+                }
                 return TeamApi.FetchTeamFollower(teamId, offset)
                     .Then(teamFollowerResponse => {
                         dispatcher.dispatch(new FollowMapAction {followMap = teamFollowerResponse.followMap});

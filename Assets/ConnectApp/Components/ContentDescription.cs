@@ -15,7 +15,7 @@ namespace ConnectApp.Components {
     public static class ContentDescription {
         public static List<Widget> map(BuildContext context, string cont, Dictionary<string, ContentMap> contentMap,
             Action<string> openUrl, Action<string> playVideo, Action browserImage = null) {
-            if (cont == null) {
+            if (cont == null || contentMap == null) {
                 return new List<Widget>();
             }
 
