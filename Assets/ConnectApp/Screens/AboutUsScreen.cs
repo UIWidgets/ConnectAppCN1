@@ -41,9 +41,10 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             return new Container(
-                color: new Color(0xFFFAFAFA),
+                color: CColors.White,
                 child: new CustomSafeArea(
                     child: new Container(
+                        color: new Color(0xFFFAFAFA),
                         child: new Column(
                             children: new List<Widget> {
                                 this._buildNavigationBar(),
