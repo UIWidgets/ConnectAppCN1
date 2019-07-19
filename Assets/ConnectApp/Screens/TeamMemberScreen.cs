@@ -234,17 +234,19 @@ namespace ConnectApp.screens {
 
         Widget _buildMemberCard(BuildContext context, int index) {
             var members = this.widget.viewModel.members[index: index];
+            if (!this.widget.viewModel.userDict.ContainsKey(key: members.userId)) {
+                return new Container();
+            }
+
             var user = this.widget.viewModel.userDict[key: members.userId];
             UserType userType = UserType.unFollow;
             if (!this.widget.viewModel.isLoggedIn) {
                 userType = UserType.unFollow;
             }
             else {
-                var followUserLoading = user.followUserLoading ?? false;
                 if (this.widget.viewModel.currentUserId == user.id) {
                     userType = UserType.me;
-                }
-                else if (followUserLoading) {
+                } else if (user.followUserLoading ?? false) {
                     userType = UserType.loading;
                 }
                 else if (this.widget.viewModel.followMap.ContainsKey(key: user.id)) {

@@ -38,9 +38,9 @@ namespace ConnectApp.Models.State {
                     loading = false
                 },
                 articleState = new ArticleState {
-                    articleList = new List<string>(),
-                    followArticleDict = new Dictionary<string, List<Article>>(),
-                    hotArticleDict = new Dictionary<string, List<Article>>(),
+                    recommendArticleIds = new List<string>(),
+                    followArticleIdDict = new Dictionary<string, List<string>>(),
+                    hotArticleIdDict = new Dictionary<string, List<string>>(),
                     articleDict = new Dictionary<string, Article>(),
                     articlesLoading = false,
                     followArticlesLoading = false,
@@ -75,9 +75,9 @@ namespace ConnectApp.Models.State {
                     searchFollowingLoading = false,
                     keyword = "",
                     searchFollowingKeyword = "",
-                    searchArticles = new Dictionary<string, List<Article>>(),
-                    searchUsers = new Dictionary<string, List<User>>(),
-                    searchTeams = new Dictionary<string, List<Team>>(),
+                    searchArticleIdDict = new Dictionary<string, List<string>>(),
+                    searchUserIdDict = new Dictionary<string, List<string>>(),
+                    searchTeamIdDict = new Dictionary<string, List<string>>(),
                     searchFollowings = new List<User>(),
                     searchArticleCurrentPage = 0,
                     searchArticlePages = new List<int>(),
@@ -94,6 +94,7 @@ namespace ConnectApp.Models.State {
                 userState = new UserState {
                     userLoading = false,
                     userArticleLoading = false,
+                    followingLoading = false,
                     followingUserLoading = false,
                     followingTeamLoading = false,
                     followerLoading = false,

@@ -46,9 +46,7 @@ namespace ConnectApp.screens {
                         : null;
                     var teamArticleOffset = team == null
                         ? 0
-                        : team.articles == null
-                            ? 0
-                            : team.articles.Count;
+                        : team.articleIds == null ? 0 : team.articleIds.Count;
                     var followMap = state.followState.followDict.ContainsKey(key: currentUserId)
                         ? state.followState.followDict[key: currentUserId]
                         : new Dictionary<string, bool>();
@@ -58,6 +56,7 @@ namespace ConnectApp.screens {
                         teamArticleLoading = state.teamState.teamArticleLoading,
                         team = team,
                         teamArticleOffset = teamArticleOffset,
+                        articleDict = state.articleState.articleDict,
                         followMap = followMap,
                         currentUserId = state.loginState.loginInfo.userId ?? "",
                         isLoggedIn = state.loginState.isLoggedIn
@@ -369,20 +368,20 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildContent(BuildContext context) {
-            var articles = this.widget.viewModel.team.articles;
+            var articleIds = this.widget.viewModel.team.articleIds;
             var articlesHasMore = this.widget.viewModel.team.articlesHasMore ?? false;
-            var teamArticleLoading = this.widget.viewModel.teamArticleLoading && articles == null;
+            var teamArticleLoading = this.widget.viewModel.teamArticleLoading && articleIds == null;
             int itemCount;
             if (teamArticleLoading) {
                 itemCount = 3;
             }
             else {
-                if (articles == null) {
+                if (articleIds == null) {
                     itemCount = 3;
                 }
                 else {
-                    var articleCount = articlesHasMore ? articles.Count : articles.Count + 1;
-                    itemCount = 2 + (articles.Count == 0 ? 1 : articleCount);
+                    var articleCount = articlesHasMore ? articleIds.Count : articleIds.Count + 1;
+                    itemCount = 2 + (articleIds.Count == 0 ? 1 : articleCount);
                 }
             }
 
@@ -418,7 +417,7 @@ namespace ConnectApp.screens {
                                     );
                                 }
 
-                                if ((articles == null || articles.Count == 0) && index == 2) {
+                                if ((articleIds == null || articleIds.Count == 0) && index == 2) {
                                     var height = MediaQuery.of(context: context).size.height - headerHeight - 44;
                                     return new Container(
                                         height: height,
@@ -433,7 +432,12 @@ namespace ConnectApp.screens {
                                     return new EndView();
                                 }
 
-                                var article = articles[index - 2];
+                                var articleId = articleIds[index - 2];
+                                if (!this.widget.viewModel.articleDict.ContainsKey(key: articleId)) {
+                                    return new Container();
+                                }
+
+                                var article = this.widget.viewModel.articleDict[key: articleId];
                                 return new ArticleCard(
                                     article: article,
                                     () => this.widget.actionModel.pushToArticleDetail(obj: article.id),

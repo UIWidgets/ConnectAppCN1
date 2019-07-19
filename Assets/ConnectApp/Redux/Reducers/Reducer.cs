@@ -122,11 +122,11 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchArticleSuccessAction action: {
                     if (action.offset == 0) {
-                        state.articleState.articleList.Clear();
+                        state.articleState.recommendArticleIds.Clear();
                     }
 
                     foreach (var article in action.articleList) {
-                        state.articleState.articleList.Add(item: article.id);
+                        state.articleState.recommendArticleIds.Add(item: article.id);
                         if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
                             state.articleState.articleDict.Add(key: article.id, value: article);
                         }
@@ -150,44 +150,48 @@ namespace ConnectApp.redux.reducers {
                 case FetchFollowArticleSuccessAction action: {
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
                     if (currentUserId.isNotEmpty()) {
+                        var followArticleIds = new List<string>();
                         foreach (var article in action.projects) {
+                            followArticleIds.Add(item: article.id);
                             if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
                                 state.articleState.articleDict.Add(key: article.id, value: article);
                             }
                         }
 
-                        if (state.articleState.followArticleDict.ContainsKey(key: currentUserId)) {
+                        if (state.articleState.followArticleIdDict.ContainsKey(key: currentUserId)) {
                             if (action.pageNumber == 1) {
-                                state.articleState.followArticleDict[key: currentUserId] = action.projects;
+                                state.articleState.followArticleIdDict[key: currentUserId] = followArticleIds;
                             }
                             else {
-                                var projects = state.articleState.followArticleDict[key: currentUserId];
-                                projects.AddRange(collection: action.projects);
-                                state.articleState.followArticleDict[key: currentUserId] = projects;
+                                var projectIds = state.articleState.followArticleIdDict[key: currentUserId];
+                                projectIds.AddRange(collection: followArticleIds);
+                                state.articleState.followArticleIdDict[key: currentUserId] = projectIds;
                             }
                         }
                         else {
-                            state.articleState.followArticleDict.Add(key: currentUserId, value: action.projects);
+                            state.articleState.followArticleIdDict.Add(key: currentUserId, value: followArticleIds);
                         }
 
+                        var hotArticleIds = new List<string>();
                         foreach (var article in action.hottests) {
+                            hotArticleIds.Add(item: article.id);
                             if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
                                 state.articleState.articleDict.Add(key: article.id, value: article);
                             }
                         }
 
-                        if (state.articleState.hotArticleDict.ContainsKey(key: currentUserId)) {
+                        if (state.articleState.hotArticleIdDict.ContainsKey(key: currentUserId)) {
                             if (action.pageNumber == 1) {
-                                state.articleState.hotArticleDict[key: currentUserId] = action.hottests;
+                                state.articleState.hotArticleIdDict[key: currentUserId] = hotArticleIds;
                             }
                             else {
-                                var hottest = state.articleState.hotArticleDict[key: currentUserId];
-                                hottest.AddRange(collection: action.hottests);
-                                state.articleState.hotArticleDict[key: currentUserId] = hottest;
+                                var hotIds = state.articleState.hotArticleIdDict[key: currentUserId];
+                                hotIds.AddRange(collection: hotArticleIds);
+                                state.articleState.hotArticleIdDict[key: currentUserId] = hotIds;
                             }
                         }
                         else {
-                            state.articleState.hotArticleDict.Add(key: currentUserId, value: action.hottests);
+                            state.articleState.hotArticleIdDict.Add(key: currentUserId, value: hotArticleIds);
                         }
 
                         state.articleState.followArticleHasMore = action.projectHasMore;
@@ -894,21 +898,28 @@ namespace ConnectApp.redux.reducers {
                 case SearchArticleSuccessAction action: {
                     state.searchState.searchArticleLoading = false;
                     state.searchState.keyword = action.keyword;
-                    state.searchState.searchArticleCurrentPage = action.searchArticleResponse.currentPage;
-                    state.searchState.searchArticlePages = action.searchArticleResponse.pages;
-                    if (state.searchState.searchArticles.ContainsKey(key: action.keyword)) {
+                    state.searchState.searchArticleCurrentPage = action.currentPage;
+                    state.searchState.searchArticlePages = action.pages;
+                    var articleIds = new List<string>();
+                    (action.searchArticles ?? new List<Article>()).ForEach(searchArticle => {
+                        articleIds.Add(item: searchArticle.id);
+                        if (!state.articleState.articleDict.ContainsKey(key: searchArticle.id)) {
+                            state.articleState.articleDict.Add(key: searchArticle.id, value: searchArticle);
+                        }
+                    });
+
+                    if (state.searchState.searchArticleIdDict.ContainsKey(key: action.keyword)) {
                         if (action.pageNumber == 0) {
-                            state.searchState.searchArticles[key: action.keyword] =
-                                action.searchArticleResponse.projects;
+                            state.searchState.searchArticleIdDict[key: action.keyword] = articleIds;
                         }
                         else {
-                            var searchArticles = state.searchState.searchArticles[key: action.keyword];
-                            searchArticles.AddRange(collection: action.searchArticleResponse.projects);
-                            state.searchState.searchArticles[key: action.keyword] = searchArticles;
+                            var searchArticleIds = state.searchState.searchArticleIdDict[key: action.keyword];
+                            searchArticleIds.AddRange(collection: articleIds);
+                            state.searchState.searchArticleIdDict[key: action.keyword] = searchArticleIds;
                         }
                     }
                     else {
-                        state.searchState.searchArticles.Add(action.keyword, action.searchArticleResponse.projects);
+                        state.searchState.searchArticleIdDict.Add(key: action.keyword, value: articleIds);
                     }
 
                     break;
@@ -922,9 +933,9 @@ namespace ConnectApp.redux.reducers {
 
                 case ClearSearchResultAction _: {
                     state.searchState.keyword = "";
-                    state.searchState.searchArticles = new Dictionary<string, List<Article>>();
-                    state.searchState.searchUsers = new Dictionary<string, List<User>>();
-                    state.searchState.searchTeams = new Dictionary<string, List<Team>>();
+                    state.searchState.searchArticleIdDict = new Dictionary<string, List<string>>();
+                    state.searchState.searchUserIdDict = new Dictionary<string, List<string>>();
+                    state.searchState.searchTeamIdDict = new Dictionary<string, List<string>>();
                     break;
                 }
 
@@ -960,18 +971,18 @@ namespace ConnectApp.redux.reducers {
                     state.searchState.searchUserLoading = false;
                     state.searchState.keyword = action.keyword;
                     state.searchState.searchUserHasMore = action.hasMore;
-                    if (state.searchState.searchUsers.ContainsKey(key: action.keyword)) {
+                    if (state.searchState.searchUserIdDict.ContainsKey(key: action.keyword)) {
                         if (action.pageNumber == 1) {
-                            state.searchState.searchUsers[key: action.keyword] = action.users;
+                            state.searchState.searchUserIdDict[key: action.keyword] = action.searchUserIds;
                         }
                         else {
-                            var searchUsers = state.searchState.searchUsers[key: action.keyword];
-                            searchUsers.AddRange(collection: action.users);
-                            state.searchState.searchUsers[key: action.keyword] = searchUsers;
+                            var searchUserIds = state.searchState.searchUserIdDict[key: action.keyword] ?? new List<string>();
+                            searchUserIds.AddRange(collection: action.searchUserIds);
+                            state.searchState.searchUserIdDict[key: action.keyword] = searchUserIds;
                         }
                     }
                     else {
-                        state.searchState.searchUsers.Add(key: action.keyword, value: action.users);
+                        state.searchState.searchUserIdDict.Add(key: action.keyword, value: action.searchUserIds);
                     }
 
                     break;
@@ -1024,20 +1035,19 @@ namespace ConnectApp.redux.reducers {
                 case SearchTeamSuccessAction action: {
                     state.searchState.searchTeamLoading = false;
                     state.searchState.keyword = action.keyword;
-                    state.searchState.searchTeamHasMore = action.searchTeamResponse.hasMore;
-                    if (state.searchState.searchTeams.ContainsKey(key: action.keyword)) {
+                    state.searchState.searchTeamHasMore = action.hasMore;
+                    if (state.searchState.searchTeamIdDict.ContainsKey(key: action.keyword)) {
                         if (action.pageNumber == 1) {
-                            state.searchState.searchTeams[key: action.keyword] =
-                                action.searchTeamResponse.teams;
+                            state.searchState.searchTeamIdDict[key: action.keyword] = action.searchTeamIds;
                         }
                         else {
-                            var searchTeams = state.searchState.searchTeams[key: action.keyword];
-                            searchTeams.AddRange(collection: action.searchTeamResponse.teams);
-                            state.searchState.searchTeams[key: action.keyword] = searchTeams;
+                            var searchTeamIds = state.searchState.searchTeamIdDict[key: action.keyword] ?? new List<string>();
+                            searchTeamIds.AddRange(collection: action.searchTeamIds);
+                            state.searchState.searchTeamIdDict[key: action.keyword] = searchTeamIds;
                         }
                     }
                     else {
-                        state.searchState.searchTeams.Add(key: action.keyword, value: action.searchTeamResponse.teams);
+                        state.searchState.searchTeamIdDict.Add(key: action.keyword, value: action.searchTeamIds);
                     }
 
                     break;
@@ -1419,31 +1429,36 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchUserArticleSuccessAction action: {
                     state.userState.userArticleLoading = false;
+                    var articleIds = new List<string>();
+                    action.articles.ForEach(article => {
+                        articleIds.Add(item: article.id);
+                        if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
+                            state.articleState.articleDict.Add(key: article.id, value: article);
+                        }
+                    });
                     if (state.userState.userDict.ContainsKey(key: action.userId)) {
                         var user = state.userState.userDict[key: action.userId];
                         user.articlesHasMore = action.hasMore;
                         if (action.offset == 0) {
-                            user.articles = action.articles;
+                            user.articleIds = articleIds;
                         }
                         else {
-                            var articles = user.articles;
-                            articles.AddRange(collection: action.articles);
-                            user.articles = articles;
+                            var userArticleIds = user.articleIds;
+                            userArticleIds.AddRange(collection: articleIds);
+                            user.articleIds = userArticleIds;
                         }
 
                         state.userState.userDict[key: action.userId] = user;
                     }
                     else {
-                        var user = new User {
-                            articlesHasMore = action.hasMore
-                        };
+                        var user = new User {articlesHasMore = action.hasMore};
                         if (action.offset == 0) {
-                            user.articles = action.articles;
+                            user.articleIds = articleIds;
                         }
                         else {
-                            var articles = user.articles;
-                            articles.AddRange(collection: action.articles);
-                            user.articles = articles;
+                            var userArticleIds = user.articleIds;
+                            userArticleIds.AddRange(collection: articleIds);
+                            user.articleIds = userArticleIds;
                         }
 
                         state.userState.userDict.Add(key: action.userId, value: user);
@@ -1493,7 +1508,7 @@ namespace ConnectApp.redux.reducers {
 
                     if (state.userState.userDict.ContainsKey(key: action.currentUserId)) {
                         var user = state.userState.userDict[key: action.currentUserId];
-                        user.followingCount += 1;
+                        user.followingUsersCount += 1;
                         state.userState.userDict[key: action.currentUserId] = user;
                     }
 
@@ -1545,7 +1560,7 @@ namespace ConnectApp.redux.reducers {
 
                     if (state.userState.userDict.ContainsKey(key: action.currentUserId)) {
                         var user = state.userState.userDict[key: action.currentUserId];
-                        user.followingCount -= 1;
+                        user.followingUsersCount -= 1;
                         state.userState.userDict[key: action.currentUserId] = user;
                     }
 
@@ -1569,6 +1584,36 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case StartFetchFollowingAction _: {
+                    state.userState.followingLoading = true;
+                    break;
+                }
+
+                case FetchFollowingSuccessAction action: {
+                    state.userState.followingLoading = false;
+                    if (state.userState.userDict.ContainsKey(key: action.userId)) {
+                        var user = state.userState.userDict[key: action.userId];
+                        user.followingsHasMore = action.followingHasMore;
+                        if (action.offset == 0) {
+                            user.followings = action.followings;
+                        }
+                        else {
+                            var followings = user.followings;
+                            followings.AddRange(collection: action.followings);
+                            user.followings = followings;
+                        }
+
+                        state.userState.userDict[key: action.userId] = user;
+                    }
+
+                    break;
+                }
+
+                case FetchFollowingFailureAction _: {
+                    state.userState.followingLoading = false;
+                    break;
+                }
+
                 case StartFetchFollowingUserAction _: {
                     state.userState.followingUserLoading = true;
                     break;
@@ -1578,14 +1623,14 @@ namespace ConnectApp.redux.reducers {
                     state.userState.followingUserLoading = false;
                     if (state.userState.userDict.ContainsKey(key: action.userId)) {
                         var user = state.userState.userDict[key: action.userId];
-                        user.followingsHasMore = action.followingUsersHasMore;
+                        user.followingUsersHasMore = action.followingUsersHasMore;
                         if (action.offset == 0) {
-                            user.followings = action.followingUsers;
+                            user.followingUsers = action.followingUsers;
                         }
                         else {
-                            var followingUsers = user.followings;
+                            var followingUsers = user.followingUsers;
                             followingUsers.AddRange(collection: action.followingUsers);
-                            user.followings = followingUsers;
+                            user.followingUsers = followingUsers;
                         }
 
                         state.userState.userDict[key: action.userId] = user;
@@ -1719,31 +1764,36 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchTeamArticleSuccessAction action: {
                     state.teamState.teamArticleLoading = false;
+                    var articleIds = new List<string>();
+                    action.articles.ForEach(article => {
+                        articleIds.Add(item: article.id);
+                        if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
+                            state.articleState.articleDict.Add(key: article.id, value: article);
+                        }
+                    });
                     if (state.teamState.teamDict.ContainsKey(key: action.teamId)) {
                         var team = state.teamState.teamDict[key: action.teamId];
                         team.articlesHasMore = action.hasMore;
                         if (action.offset == 0) {
-                            team.articles = action.articles;
+                            team.articleIds = articleIds;
                         }
                         else {
-                            var articles = team.articles;
-                            articles.AddRange(collection: action.articles);
-                            team.articles = articles;
+                            var teamArticleIds = team.articleIds;
+                            teamArticleIds.AddRange(collection: articleIds);
+                            team.articleIds = teamArticleIds;
                         }
 
                         state.teamState.teamDict[key: action.teamId] = team;
                     }
                     else {
-                        var team = new Team {
-                            articlesHasMore = action.hasMore
-                        };
+                        var team = new Team {articlesHasMore = action.hasMore};
                         if (action.offset == 0) {
-                            team.articles = action.articles;
+                            team.articleIds = articleIds;
                         }
                         else {
-                            var articles = team.articles;
-                            articles.AddRange(collection: action.articles);
-                            team.articles = articles;
+                            var teamArticleIds = team.articleIds;
+                            teamArticleIds.AddRange(collection: articleIds);
+                            team.articleIds = teamArticleIds;
                         }
 
                         state.teamState.teamDict.Add(key: action.teamId, value: team);
@@ -1853,7 +1903,7 @@ namespace ConnectApp.redux.reducers {
 
                     if (state.userState.userDict.ContainsKey(key: action.currentUserId)) {
                         var user = state.userState.userDict[key: action.currentUserId];
-                        user.followingCount += 1;
+                        user.followingUsersCount += 1;
                         state.userState.userDict[key: action.currentUserId] = user;
                     }
 
@@ -1905,7 +1955,7 @@ namespace ConnectApp.redux.reducers {
 
                     if (state.userState.userDict.ContainsKey(key: action.currentUserId)) {
                         var user = state.userState.userDict[key: action.currentUserId];
-                        user.followingCount -= 1;
+                        user.followingUsersCount -= 1;
                         state.userState.userDict[key: action.currentUserId] = user;
                     }
 

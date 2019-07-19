@@ -29,14 +29,14 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, ArticlesScreenViewModel>(
                 converter: state => new ArticlesScreenViewModel {
                     articlesLoading = state.articleState.articlesLoading,
-                    articleList = state.articleState.articleList,
+                    recommendArticleIds = state.articleState.recommendArticleIds,
                     articleDict = state.articleState.articleDict,
                     blockArticleList = state.articleState.blockArticleList,
                     hottestHasMore = state.articleState.hottestHasMore,
                     userDict = state.userState.userDict,
                     teamDict = state.teamState.teamDict,
                     isLoggedIn = state.loginState.isLoggedIn,
-                    hosttestOffset = state.articleState.articleList.Count
+                    hosttestOffset = state.articleState.recommendArticleIds.Count
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ArticlesScreenActionModel {
@@ -169,13 +169,14 @@ namespace ConnectApp.screens {
 
         Widget _buildArticleList() {
             Widget content;
-            if (this.widget.viewModel.articlesLoading && this.widget.viewModel.articleList.isEmpty()) {
+            var recommendArticleIds = this.widget.viewModel.recommendArticleIds;
+            if (this.widget.viewModel.articlesLoading && recommendArticleIds.isEmpty()) {
                 content = ListView.builder(
                     itemCount: 4,
                     itemBuilder: (cxt, index) => new ArticleLoading()
                 );
             }
-            else if (this.widget.viewModel.articleList.Count <= 0) {
+            else if (recommendArticleIds.Count <= 0) {
                 content = new BlankView(
                     "哎呀，暂无推荐文章",
                     "image/default-article",
@@ -194,10 +195,14 @@ namespace ConnectApp.screens {
                     onRefresh: this._onRefresh,
                     child: ListView.builder(
                         physics: new AlwaysScrollableScrollPhysics(),
-                        itemCount: this.widget.viewModel.articleList.Count,
+                        itemCount: recommendArticleIds.Count,
                         itemBuilder: (cxt, index) => {
-                            var articleId = this.widget.viewModel.articleList[index: index];
+                            var articleId = recommendArticleIds[index: index];
                             if (this.widget.viewModel.blockArticleList.Contains(item: articleId)) {
+                                return new Container();
+                            }
+
+                            if (!this.widget.viewModel.articleDict.ContainsKey(key: articleId)) {
                                 return new Container();
                             }
 

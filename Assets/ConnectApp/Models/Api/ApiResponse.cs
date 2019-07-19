@@ -9,7 +9,9 @@ namespace ConnectApp.Models.Api {
         public Dictionary<string, Article> projectMap;
         public Dictionary<string, User> userMap;
         public Dictionary<string, Team> teamMap;
+        public Dictionary<string, Place> placeMap;
         public Dictionary<string, bool> followMap;
+        public Dictionary<string, bool> likeMap;
         public bool hottestHasMore;
     }
 
@@ -67,6 +69,8 @@ namespace ConnectApp.Models.Api {
         public List<Article> projects;
         public Dictionary<string, User> userMap;
         public Dictionary<string, Team> teamMap;
+        public Dictionary<string, Place> placeMap;
+        public Dictionary<string, bool> likeMap;
         public int currentPage;
         public List<int> pages;
     }
@@ -134,6 +138,15 @@ namespace ConnectApp.Models.Api {
         public Dictionary<string, bool> followMap;
         public Dictionary<string, Article> projectMap;
         public bool hasMore;
+    }
+
+    [Serializable]
+    public class FetchFollowingResponse {
+        public List<Following> followings;
+        public bool hasMore;
+        public Dictionary<string, bool> followMap;
+        public Dictionary<string, User> userMap;
+        public Dictionary<string, Team> teamMap;
     }
 
     [Serializable]

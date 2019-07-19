@@ -22,6 +22,7 @@ namespace ConnectApp.Components {
             OwnerType type = OwnerType.user,
             bool hasWhiteBorder = false,
             float whiteBorderWidth = 0,
+            bool hasCircular = true,
             Key key = null
         ) : base(key: key) {
             this.avatarUrl = avatarUrl ?? "";
@@ -30,6 +31,7 @@ namespace ConnectApp.Components {
             this.type = type;
             this.hasWhiteBorder = hasWhiteBorder;
             this.whiteBorderWidth = whiteBorderWidth;
+            this.hasCircular = hasCircular;
         }
         
         readonly string avatarUrl;
@@ -38,6 +40,7 @@ namespace ConnectApp.Components {
         readonly OwnerType type;
         readonly bool hasWhiteBorder;
         readonly float whiteBorderWidth;
+        readonly bool hasCircular;
         
         public static Avatar User(
             User user,
@@ -62,6 +65,7 @@ namespace ConnectApp.Components {
             float size,
             bool hasWhiteBorder = false,
             float whiteBorderWidth = 2,
+            bool hasCircular = false,
             Key key = null
         ) {
             return new Avatar(
@@ -71,6 +75,7 @@ namespace ConnectApp.Components {
                 type: OwnerType.team,
                 hasWhiteBorder: hasWhiteBorder,
                 whiteBorderWidth: whiteBorderWidth,
+                hasCircular: hasCircular,
                 key: key
             );
         }
@@ -114,13 +119,6 @@ namespace ConnectApp.Components {
         }
 
         Widget _buildTeamAvatar() {
-            if (this.avatarUrl.isEmpty()) {
-                return new _Placeholder(
-                    _extractName(name: this.fullName) ?? "",
-                    size: this.size
-                );
-            }
-            
             var avatarSize = this.hasWhiteBorder ? this.size : this.size - this.whiteBorderWidth * 2;
             var border = this.hasWhiteBorder ? Border.all(
                 color: CColors.White,
@@ -131,21 +129,27 @@ namespace ConnectApp.Components {
                 width: this.size,
                 height: this.size,
                 decoration: new BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: BorderRadius.circular(this.hasCircular ? this.size / 2 : 4),
                     border: border
                 ),
                 child: new ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: new Container(
-                        width: avatarSize,
-                        height: avatarSize,
-                        color: new Color(0xFFD8D8D8),
-                        child: Image.network(src: this.avatarUrl)
-                    )
+                    borderRadius: BorderRadius.circular(this.hasCircular ? avatarSize : 4),
+                    child: this.avatarUrl.isEmpty()
+                        ? new Container(
+                            child: new _Placeholder(
+                                _extractName(name: this.fullName) ?? "",
+                                size: avatarSize
+                            )
+                        )
+                        : new Container(
+                            width: avatarSize,
+                            height: avatarSize,
+                            color: new Color(0xFFD8D8D8),
+                            child: Image.network(src: this.avatarUrl)
+                        )
                 )
             );
         }
-
 
         static string _extractName(string name) {
             if (name == null || name.Length <= 0) {

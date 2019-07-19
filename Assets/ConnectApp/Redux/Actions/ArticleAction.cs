@@ -125,6 +125,8 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new UserMapAction {userMap = articlesResponse.userMap});
                         dispatcher.dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
                         dispatcher.dispatch(new FollowMapAction {followMap = articlesResponse.followMap});
+                        dispatcher.dispatch(new LikeMapAction {likeMap = articlesResponse.likeMap});
+                        dispatcher.dispatch(new PlaceMapAction {placeMap = articlesResponse.placeMap});
                         dispatcher.dispatch(new FetchArticleSuccessAction {
                             offset = offset,
                             hottestHasMore = articlesResponse.hottestHasMore,
@@ -242,7 +244,7 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => {
-//                        dispatcher.dispatch(new FetchArticleDetailFailureAction());
+                        dispatcher.dispatch(new FetchArticleDetailFailureAction());
                         Debug.Log(error);
                     });
             });
