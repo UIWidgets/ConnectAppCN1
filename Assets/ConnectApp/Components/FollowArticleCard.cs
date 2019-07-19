@@ -317,7 +317,7 @@ namespace ConnectApp.Components {
                                                         margin: EdgeInsets.only(6),
                                                         child: new Text(
                                                             $"{this.article.commentCount}",
-                                                            style: CTextStyle.PSmallBody3
+                                                            style: CTextStyle.PRegularBody3.merge(new TextStyle(height: 1))
                                                         )
                                                     )
                                             }
