@@ -10,8 +10,8 @@ namespace ConnectApp.Utils {
     }
 
     public static class DateConvert {
-        public static string DateStringFromNow(DateTime dt) {
-            TimeSpan span = DateTime.Now - dt;
+        public static string DateStringFromNow(DateTime dt, bool isLocal = false) {
+            TimeSpan span = isLocal ? DateTime.Now - dt : DateTime.UtcNow - dt;
             if (span.TotalDays > 3) {
                 return dt.ToString("yyyy-MM-dd");
             }
@@ -35,7 +35,7 @@ namespace ConnectApp.Utils {
             }
 
             var date = DateTime.Parse(formattedString);
-            var timeSpan = date - DateTime.Now;
+            var timeSpan = date - DateTime.UtcNow;
             var days = timeSpan.Days;
             var hours = timeSpan.Hours;
             var minutes = timeSpan.Minutes;
@@ -65,7 +65,7 @@ namespace ConnectApp.Utils {
             var shifted = (span + 1) >> 22;
             var timespan = (shifted - 1);
             var dt = startTime.AddMilliseconds(timespan);
-            return DateStringFromNow(dt);
+            return DateStringFromNow(dt, true);
         }
 
         public static EventStatus GetEventStatus(TimeMap begin) {
