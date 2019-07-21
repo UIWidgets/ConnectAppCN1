@@ -169,7 +169,9 @@ namespace ConnectApp.Components {
             if (this.user.title != null && this.user.title.isNotEmpty() && this.type == OwnerType.user) {
                 titleWidget = new Text(
                     data: this.user.title,
-                    style: CTextStyle.PSmallBody4
+                    style: CTextStyle.PSmallBody4,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis
                 );
             }
 
@@ -179,28 +181,29 @@ namespace ConnectApp.Components {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: new List<Widget> {
                         new GestureDetector(
-                            onTap: this.avatarCallBack,
-                            child: new Container(
-                                color: CColors.Transparent,
-                                child: new Row(
-                                    children: new List<Widget> {
-                                        avatar,
-                                        new Container(
-                                            margin: EdgeInsets.only(8),
-                                            child: new Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: new List<Widget> {
-                                                    new Text(
-                                                        this.type == OwnerType.user
-                                                            ? this.user.fullName ?? this.user.name
-                                                            : this.team.name,
-                                                        style: CTextStyle.PLargeBody
-                                                    ),
-                                                    titleWidget
-                                                }
-                                            )
-                                        )
-                                    }
+                            child: avatar,
+                            onTap: this.avatarCallBack
+                        ),
+                        new Expanded(
+                            child: new GestureDetector(
+                                onTap: this.avatarCallBack,
+                                child: new Container(
+                                    color: CColors.Transparent,
+                                    margin: EdgeInsets.only(8, right: 8),
+                                    child: new Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: new List<Widget> {
+                                            new Text(
+                                                this.type == OwnerType.user
+                                                    ? this.user.fullName ?? this.user.name ?? "佚名"
+                                                    : this.team.name,
+                                                style: CTextStyle.PLargeBody,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis
+                                            ),
+                                            titleWidget
+                                        }
+                                    )
                                 )
                             )
                         ),
@@ -317,7 +320,8 @@ namespace ConnectApp.Components {
                                                         margin: EdgeInsets.only(6),
                                                         child: new Text(
                                                             $"{this.article.commentCount}",
-                                                            style: CTextStyle.PRegularBody3.merge(new TextStyle(height: 1))
+                                                            style: CTextStyle.PRegularBody3.merge(
+                                                                new TextStyle(height: 1))
                                                         )
                                                     )
                                             }

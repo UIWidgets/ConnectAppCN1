@@ -11,7 +11,6 @@ using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
@@ -119,7 +118,8 @@ namespace ConnectApp.screens {
                         },
                         likeArticle = articleId => dispatcher.dispatch<IPromise>(Actions.likeArticle(articleId)),
                         startFetchFollowing = () => dispatcher.dispatch(new StartFetchFollowingAction()),
-                        fetchFollowing = offset => dispatcher.dispatch<IPromise>(Actions.fetchFollowing(viewModel.currentUserId, offset)),
+                        fetchFollowing = offset =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowing(viewModel.currentUserId, offset)),
                         startFetchFollowArticles = () => dispatcher.dispatch(new StartFetchFollowArticlesAction()),
                         fetchFollowArticles = pageNumber =>
                             dispatcher.dispatch<IPromise>(Actions.fetchFollowArticles(pageNumber)),
@@ -264,7 +264,7 @@ namespace ConnectApp.screens {
                             arg2: article.channelId,
                             arg3: text,
                             Snowflake.CreateNonce(),
-                            null
+                            ""
                         );
                     })
                 );
@@ -461,15 +461,18 @@ namespace ConnectApp.screens {
             if (following.type == "user") {
                 user = this.widget.viewModel.userDict[key: following.followeeId];
             }
+
             var team = new Team();
             if (following.type == "team") {
                 team = this.widget.viewModel.teamDict[key: following.followeeId];
             }
+
             return new GestureDetector(
                 onTap: () => {
                     if (following.type == "user") {
                         this.widget.actionModel.pushToUserDetail(obj: user.id);
                     }
+
                     if (following.type == "team") {
                         this.widget.actionModel.pushToTeamDetail(obj: team.id);
                     }
