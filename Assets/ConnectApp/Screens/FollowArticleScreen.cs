@@ -11,10 +11,9 @@ using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -25,7 +24,6 @@ namespace ConnectApp.screens {
         public FollowArticleScreenConnector(
             Key key = null
         ) : base(key: key) {
-            
         }
 
         public override Widget build(BuildContext context) {
@@ -101,13 +99,17 @@ namespace ConnectApp.screens {
                                 teamId = teamId
                             }
                         ),
-                        startFollowUser = userId => dispatcher.dispatch(new StartFetchFollowUserAction {followUserId = userId}),
+                        startFollowUser = userId =>
+                            dispatcher.dispatch(new StartFetchFollowUserAction {followUserId = userId}),
                         followUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(userId)),
-                        startUnFollowUser = userId => dispatcher.dispatch(new StartFetchUnFollowUserAction {unFollowUserId = userId}),
+                        startUnFollowUser = userId =>
+                            dispatcher.dispatch(new StartFetchUnFollowUserAction {unFollowUserId = userId}),
                         unFollowUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(userId)),
-                        startFollowTeam = teamId => dispatcher.dispatch(new StartFetchFollowTeamAction {followTeamId = teamId}),
+                        startFollowTeam = teamId =>
+                            dispatcher.dispatch(new StartFetchFollowTeamAction {followTeamId = teamId}),
                         followTeam = teamId => dispatcher.dispatch<IPromise>(Actions.fetchFollowTeam(teamId)),
-                        startUnFollowTeam = teamId => dispatcher.dispatch(new StartFetchUnFollowTeamAction {unFollowTeamId = teamId}),
+                        startUnFollowTeam = teamId =>
+                            dispatcher.dispatch(new StartFetchUnFollowTeamAction {unFollowTeamId = teamId}),
                         unFollowTeam = teamId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowTeam(teamId)),
                         sendComment = (articleId, channelId, content, nonce, parentMessageId) => {
                             CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog());
@@ -116,16 +118,20 @@ namespace ConnectApp.screens {
                         },
                         likeArticle = articleId => dispatcher.dispatch<IPromise>(Actions.likeArticle(articleId)),
                         startFetchFollowing = () => dispatcher.dispatch(new StartFetchFollowingAction()),
-                        fetchFollowing = offset => dispatcher.dispatch<IPromise>(Actions.fetchFollowing(viewModel.currentUserId, offset)),
+                        fetchFollowing = offset =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowing(viewModel.currentUserId, offset)),
                         startFetchFollowArticles = () => dispatcher.dispatch(new StartFetchFollowArticlesAction()),
-                        fetchFollowArticles = pageNumber => dispatcher.dispatch<IPromise>(Actions.fetchFollowArticles(pageNumber))
+                        fetchFollowArticles = pageNumber =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowArticles(pageNumber)),
+                        shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
+                            Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
                     };
                     return new FollowArticleScreen(viewModel, actionModel);
                 }
             );
         }
     }
-    
+
     public class FollowArticleScreen : StatefulWidget {
         public FollowArticleScreen(
             ArticlesScreenViewModel viewModel = null,
@@ -187,6 +193,7 @@ namespace ConnectApp.screens {
             else {
                 this._pageNumber++;
             }
+
             this.widget.actionModel.fetchFollowArticles(arg: this._pageNumber)
                 .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
@@ -204,6 +211,7 @@ namespace ConnectApp.screens {
                                         this.widget.actionModel.startUnFollowUser(obj: article.userId);
                                         this.widget.actionModel.unFollowUser(arg: article.userId);
                                     }
+
                                     if (article.ownerType == OwnerType.team.ToString()) {
                                         this.widget.actionModel.startUnFollowTeam(obj: article.teamId);
                                         this.widget.actionModel.unFollowTeam(arg: article.teamId);
@@ -214,11 +222,13 @@ namespace ConnectApp.screens {
                         )
                     );
                 }
+
                 if (userType == UserType.unFollow) {
                     if (article.ownerType == OwnerType.user.ToString()) {
                         this.widget.actionModel.startFollowUser(obj: article.userId);
                         this.widget.actionModel.followUser(arg: article.userId);
                     }
+
                     if (article.ownerType == OwnerType.team.ToString()) {
                         this.widget.actionModel.startFollowTeam(obj: article.teamId);
                         this.widget.actionModel.followTeam(arg: article.teamId);
@@ -254,7 +264,7 @@ namespace ConnectApp.screens {
                             arg2: article.channelId,
                             arg3: text,
                             Snowflake.CreateNonce(),
-                            null
+                            ""
                         );
                     })
                 );
@@ -285,12 +295,15 @@ namespace ConnectApp.screens {
                 }
             );
         }
+
         public override Widget build(BuildContext context) {
             base.build(context: context);
             if (0 == this.cardWidth || 0 == this.avatarSize) {
-                this.cardWidth = (MediaQuery.of(context: context).size.width - 18 * 2 - 10 * (cardNumber - 1)) / cardNumber; // 18 是边缘的 padding, 10 是 卡片间的间距
+                this.cardWidth = (MediaQuery.of(context: context).size.width - 18 * 2 - 10 * (cardNumber - 1)) /
+                                 cardNumber; // 18 是边缘的 padding, 10 是 卡片间的间距
                 this.avatarSize = this.cardWidth - 4 * 2; // 4 是头像的水平 padding
             }
+
             return new Container(
                 color: CColors.White,
                 child: this._buildContent()
@@ -317,6 +330,7 @@ namespace ConnectApp.screens {
                 if (!this.widget.viewModel.hotArticleHasMore) {
                     itemCount = itemCount + 1;
                 }
+
                 content = new SmartRefresher(
                     controller: this._refreshController,
                     enablePullDown: true,
@@ -336,6 +350,7 @@ namespace ConnectApp.screens {
                 if (!this.widget.viewModel.followArticleHasMore) {
                     itemCount = itemCount + 1;
                 }
+
                 content = new SmartRefresher(
                     controller: this._refreshController,
                     enablePullDown: true,
@@ -360,6 +375,7 @@ namespace ConnectApp.screens {
             if (followings.isEmpty()) {
                 return new Container();
             }
+
             var followButtons = new List<Widget>();
             if (followings.Count > 5) {
                 followings = followings.GetRange(0, 5);
@@ -373,6 +389,7 @@ namespace ConnectApp.screens {
                     followButtons.Add(new Container(width: 10));
                 }
             }
+
             return new Container(
                 padding: EdgeInsets.symmetric(16),
                 decoration: new BoxDecoration(
@@ -397,7 +414,9 @@ namespace ConnectApp.screens {
                                         style: CTextStyle.PMediumBody2
                                     ),
                                     new GestureDetector(
-                                        onTap: () => this.widget.actionModel.pushToUserFollowing(obj: this.widget.viewModel.currentUserId),
+                                        onTap: () =>
+                                            this.widget.actionModel.pushToUserFollowing(
+                                                obj: this.widget.viewModel.currentUserId),
                                         child: new Container(
                                             child: new Row(
                                                 children: new List<Widget> {
@@ -442,15 +461,18 @@ namespace ConnectApp.screens {
             if (following.type == "user") {
                 user = this.widget.viewModel.userDict[key: following.followeeId];
             }
+
             var team = new Team();
             if (following.type == "team") {
                 team = this.widget.viewModel.teamDict[key: following.followeeId];
             }
+
             return new GestureDetector(
                 onTap: () => {
                     if (following.type == "user") {
                         this.widget.actionModel.pushToUserDetail(obj: user.id);
                     }
+
                     if (following.type == "team") {
                         this.widget.actionModel.pushToTeamDetail(obj: team.id);
                     }
@@ -518,6 +540,7 @@ namespace ConnectApp.screens {
                 if (this.widget.viewModel.currentUserId == article.userId) {
                     return new Container();
                 }
+
                 var user = this.widget.viewModel.userDict[key: article.userId];
                 UserType userType = UserType.unFollow;
                 if (isFollow) {
@@ -529,9 +552,11 @@ namespace ConnectApp.screens {
                 else {
                     if (this.widget.viewModel.currentUserId == article.userId) {
                         userType = UserType.me;
-                    } else if (user.followUserLoading ?? false) {
+                    }
+                    else if (user.followUserLoading ?? false) {
                         userType = UserType.loading;
-                    } else if (this.widget.viewModel.followMap.ContainsKey(key: article.userId)) {
+                    }
+                    else if (this.widget.viewModel.followMap.ContainsKey(key: article.userId)) {
                         userType = UserType.follow;
                     }
                 }
@@ -563,12 +588,15 @@ namespace ConnectApp.screens {
                 else {
                     if (this.widget.viewModel.currentUserId == article.teamId) {
                         userType = UserType.me;
-                    } else if (team.followTeamLoading ?? false) {
+                    }
+                    else if (team.followTeamLoading ?? false) {
                         userType = UserType.loading;
-                    } else if (this.widget.viewModel.followMap.ContainsKey(key: article.teamId)) {
+                    }
+                    else if (this.widget.viewModel.followMap.ContainsKey(key: article.teamId)) {
                         userType = UserType.follow;
                     }
                 }
+
                 return FollowArticleCard.Team(
                     article: article,
                     team: team,
@@ -583,6 +611,7 @@ namespace ConnectApp.screens {
                     new ObjectKey(value: article.id)
                 );
             }
+
             return new Container();
         }
     }

@@ -12,8 +12,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
@@ -23,7 +23,6 @@ namespace ConnectApp.screens {
         public RecommendArticleScreenConnector(
             Key key = null
         ) : base(key: key) {
-            
         }
 
         public override Widget build(BuildContext context) {
@@ -66,14 +65,16 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = articleId});
                         },
                         startFetchArticles = () => dispatcher.dispatch(new StartFetchArticlesAction()),
-                        fetchArticles = offset => dispatcher.dispatch<IPromise>(Actions.fetchArticles(offset: offset))
+                        fetchArticles = offset => dispatcher.dispatch<IPromise>(Actions.fetchArticles(offset: offset)),
+                        shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
+                            Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
                     };
                     return new RecommendArticleScreen(viewModel: viewModel, actionModel: actionModel);
                 }
             );
         }
     }
-    
+
     public class RecommendArticleScreen : StatefulWidget {
         public RecommendArticleScreen(
             ArticlesScreenViewModel viewModel = null,
@@ -135,6 +136,7 @@ namespace ConnectApp.screens {
             if (this.widget.viewModel.isLoggedIn) {
                 return new Container();
             }
+
             return new AnimatedContainer(
                 height: this.navBarHeight,
                 color: CColors.White,
@@ -227,7 +229,8 @@ namespace ConnectApp.screens {
                                 article: article,
                                 () => {
                                     this.widget.actionModel.pushToArticleDetail(obj: articleId);
-                                    AnalyticsManager.ClickEnterArticleDetail("Home_Article", articleId: article.id, articleTitle: article.title);
+                                    AnalyticsManager.ClickEnterArticleDetail("Home_Article", articleId: article.id,
+                                        articleTitle: article.title);
                                 },
                                 () => ShareManager.showArticleShareView(
                                     this.widget.viewModel.currentUserId != userId,
@@ -238,7 +241,8 @@ namespace ConnectApp.screens {
                                     },
                                     () => this.widget.actionModel.pushToLogin(),
                                     () => this.widget.actionModel.pushToBlock(obj: article.id),
-                                    () => this.widget.actionModel.pushToReport(arg1: article.id, arg2: ReportType.article),
+                                    () => this.widget.actionModel.pushToReport(arg1: article.id,
+                                        arg2: ReportType.article),
                                     type => {
                                         CustomDialogUtils.showCustomDialog(
                                             child: new CustomLoadingDialog()
@@ -264,6 +268,7 @@ namespace ConnectApp.screens {
                     child: new CustomScrollbar(child: content)
                 );
             }
+
             return new NotificationListener<ScrollNotification>(
                 onNotification: this._onNotification,
                 child: new Container(

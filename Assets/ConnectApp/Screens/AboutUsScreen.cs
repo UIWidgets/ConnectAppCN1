@@ -86,7 +86,7 @@ namespace ConnectApp.screens {
                         ),
                         new Container(height: 8),
                         new Text(
-                            $"版本号：{Config.versionNumber}",
+                            $"版本号：{Config.versionNumber} ({Config.versionCode})",
                             style: CTextStyle.PRegularBody4
                         ),
                         new Container(
