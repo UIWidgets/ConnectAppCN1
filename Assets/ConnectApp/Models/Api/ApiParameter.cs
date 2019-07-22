@@ -8,6 +8,7 @@ namespace ConnectApp.Models.Api {
         public string password;
     }
 
+    [Serializable]
     public class WechatLoginParameter {
         public string code;
     }
@@ -35,5 +36,28 @@ namespace ConnectApp.Models.Api {
         public string itemType;
         public string itemId;
         public List<string> reasons;
+    }
+
+    [Serializable]
+    public class FollowParameter {
+        public string type;
+        public string followeeId;
+    }
+
+    [Serializable]
+    public class EditPersonalParameter {
+        public string fullName;
+        public string title;
+        public string jobRoleId;
+        public string placeId;
+    }
+
+    [Serializable]
+    public class OpenAppParameter {
+        public string userId;
+        public string device;
+        public string eventType;
+        public DateTime appTime;
+        public string data;
     }
 }

@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
+using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
@@ -10,16 +12,21 @@ namespace ConnectApp.Components {
     public class CustomSegmentedControl : StatefulWidget {
         public CustomSegmentedControl(
             List<string> items,
-            ValueChanged<int> onValueChanged,
+            List<Widget> children,
+            ValueChanged<int> onValueChanged = null,
             int currentIndex = 0,
             Color unselectedColor = null,
             Color selectedColor = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             D.assert(items != null);
             D.assert(items.Count >= 2);
+            D.assert(children != null);
+            D.assert(children.Count >= 2);
+            D.assert(children.Count == items.Count);
             D.assert(currentIndex < items.Count);
             this.items = items;
+            this.children = children;
             this.onValueChanged = onValueChanged;
             this.currentIndex = currentIndex;
             this.unselectedColor = unselectedColor ?? CColors.TextTitle;
@@ -27,6 +34,7 @@ namespace ConnectApp.Components {
         }
 
         public readonly List<string> items;
+        public readonly List<Widget> children;
         public readonly ValueChanged<int> onValueChanged;
         public readonly int currentIndex;
         public readonly Color unselectedColor;
@@ -38,17 +46,23 @@ namespace ConnectApp.Components {
     }
 
     class _CustomSegmentedControlState : State<CustomSegmentedControl> {
+        PageController _pageController;
         int _selectedIndex;
 
         public override void initState() {
             base.initState();
             this._selectedIndex = this.widget.currentIndex;
+            this._pageController = new PageController(initialPage: this._selectedIndex);
+        }
+
+        public override void dispose() {
+            this._pageController.dispose();
+            base.dispose();
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
-            base.didUpdateWidget(oldWidget);
-            if (oldWidget is CustomSegmentedControl) {
-                var customSegmentedControl = (CustomSegmentedControl) oldWidget;
+            base.didUpdateWidget(oldWidget: oldWidget);
+            if (oldWidget is CustomSegmentedControl customSegmentedControl) {
                 if (this.widget.currentIndex != customSegmentedControl.currentIndex) {
                     this.setState(() => this._selectedIndex = this.widget.currentIndex);
                 }
@@ -57,27 +71,54 @@ namespace ConnectApp.Components {
 
         public override Widget build(BuildContext context) {
             return new Container(
-                child: new Container(
-                    decoration: new BoxDecoration(
-                        border: new Border(bottom: new BorderSide(CColors.Separator2))
-                    ),
-                    height: 44,
-                    child: new Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: this._buildChildren()
-                    )
+                child: new Column(
+                    children: new List<Widget> {
+                        this._buildSelectView(),
+                        this._buildContentView()
+                    }
                 )
             );
         }
 
-        List<Widget> _buildChildren() {
-            var widgets = new List<Widget>();
+        Widget _buildSelectView() {
+            var children = new List<Widget>();
             this.widget.items.ForEach(item => {
-                var itemIndex = this.widget.items.IndexOf(item);
-                var itemWidget = this._buildSelectItem(item, itemIndex);
-                widgets.Add(itemWidget);
+                var itemIndex = this.widget.items.IndexOf(item: item);
+                var itemWidget = this._buildSelectItem(title: item, index: itemIndex);
+                children.Add(item: itemWidget);
             });
-            return widgets;
+            return new Container(
+                decoration: new BoxDecoration(
+                    color: CColors.White,
+                    border: new Border(bottom: new BorderSide(color: CColors.Separator2))
+                ),
+                height: 44,
+                child: new Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: children
+                )
+            );
+        }
+
+        Widget _buildContentView() {
+            return new Flexible(
+                child: new Container(
+                    child: new PageView(
+                        physics: new BouncingScrollPhysics(),
+                        controller: this._pageController,
+                        onPageChanged: index => {
+                            if (this._selectedIndex != index) {
+                                this.setState(() => this._selectedIndex = index);
+                                if (this.widget.onValueChanged != null) {
+                                    this.widget.onValueChanged(value: index);
+                                }
+                            }
+                        },
+                        itemBuilder: (cxt, index) => this.widget.children[index: index],
+                        itemCount: this.widget.children.Count
+                    )
+                )
+            );
         }
 
         Widget _buildSelectItem(string title, int index) {
@@ -106,11 +147,16 @@ namespace ConnectApp.Components {
             return new CustomButton(
                 onPressed: () => {
                     if (this._selectedIndex != index) {
+                        this.setState(() => {
+                            this._pageController.animateToPage(
+                                page: index,
+                                TimeSpan.FromMilliseconds(this.widget.items.Count > 2 ? 1 : 250),
+                                curve: Curves.ease
+                            );
+                            this._selectedIndex = index;
+                        });
                         if (this.widget.onValueChanged != null) {
-                            this.widget.onValueChanged(index);
-                        }
-                        else {
-                            this.setState(() => this._selectedIndex = index);
+                            this.widget.onValueChanged(value: index);
                         }
                     }
                 },
@@ -123,7 +169,7 @@ namespace ConnectApp.Components {
                             new Container(
                                 padding: EdgeInsets.symmetric(10),
                                 child: new Text(
-                                    title,
+                                    data: title,
                                     style: new TextStyle(
                                         fontSize: 16,
                                         fontFamily: fontFamily,

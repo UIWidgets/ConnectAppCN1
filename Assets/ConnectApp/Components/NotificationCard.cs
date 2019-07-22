@@ -4,6 +4,7 @@ using ConnectApp.Constants;
 using ConnectApp.Models.Model;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
@@ -16,18 +17,24 @@ namespace ConnectApp.Components {
             User user,
             List<User> mentions,
             Action onTap = null,
+            Action<string> pushToUserDetail = null,
+            bool isLast = false,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.notification = notification;
             this.user = user;
-            this.onTap = onTap;
             this.mentions = mentions;
+            this.onTap = onTap;
+            this.pushToUserDetail = pushToUserDetail;
+            this.isLast = isLast;
         }
 
         readonly Notification notification;
         readonly User user;
-        readonly Action onTap;
         readonly List<User> mentions;
+        readonly Action onTap;
+        readonly Action<string> pushToUserDetail;
+        readonly bool isLast;
 
         public override Widget build(BuildContext context) {
             if (this.notification == null) {
@@ -42,7 +49,7 @@ namespace ConnectApp.Components {
                 "project_message_liked",
                 "project_message_participate_liked"
             };
-            if (!types.Contains(type)) {
+            if (!types.Contains(item: type)) {
                 return new Container();
             }
 
@@ -55,14 +62,18 @@ namespace ConnectApp.Components {
                         children: new List<Widget> {
                             new Container(
                                 padding: EdgeInsets.only(16, 16, 16),
-                                child: Avatar.User(this.user.id, this.user, 48)
+                                child: new GestureDetector(
+                                    onTap: () => this.pushToUserDetail(obj: this.user.id),
+                                    child: Avatar.User(user: this.user, 48)
+                                )
                             ),
                             new Expanded(
                                 child: new Container(
                                     padding: EdgeInsets.only(0, 16, 16, 16),
                                     decoration: new BoxDecoration(
-                                        border: new Border(bottom: new BorderSide(CColors.Separator2)
-                                        )
+                                        border: this.isLast
+                                            ? null
+                                            : new Border(bottom: new BorderSide(CColors.Separator2))
                                     ),
                                     child: new Column(
                                         mainAxisAlignment: MainAxisAlignment.start,
@@ -148,8 +159,11 @@ namespace ConnectApp.Components {
                         text: new TextSpan(
                             children: new List<TextSpan> {
                                 new TextSpan(
-                                    data.fullname,
-                                    CTextStyle.PLargeMedium
+                                    text: data.fullname,
+                                    style: CTextStyle.PLargeMedium,
+                                    recognizer: new TapGestureRecognizer{
+                                        onTap = () => this.pushToUserDetail(data.userId)
+                                    }
                                 ),
                                 subTitle
                             }

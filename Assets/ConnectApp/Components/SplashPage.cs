@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Main;
 using ConnectApp.Plugins;
+using ConnectApp.redux;
+using ConnectApp.redux.actions;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.async;
@@ -91,7 +93,7 @@ namespace ConnectApp.Components {
                                         height: MediaQuery.of(context).size.height,
                                         child: Image.memory(SplashManager.readImage(), fit: BoxFit.cover)
                                     ),
-                                    onTap: pushPage
+                                    onTap: this.pushPage
                                 )
                             }
                         ),
@@ -113,7 +115,7 @@ namespace ConnectApp.Components {
                                         color: CColors.White
                                     ))
                                 ),
-                                onTap: pushCallback
+                                onTap: this.pushCallback
                             )
                         ),
                         logo
@@ -122,22 +124,31 @@ namespace ConnectApp.Components {
             );
         }
 
-        static void pushPage() {
+        void pushPage() {
+            this.cancelTimer();
             var splash = SplashManager.getSplash();
             AnalyticsManager.ClickSplashPage(splash.id, splash.name, splash.url);
             Router.navigator.pushReplacementNamed(MainNavigatorRoutes.Main);
             JPushPlugin.openUrl(splash.url);
         }
 
-        static void pushCallback() {
-            Router.navigator.pushReplacementNamed(MainNavigatorRoutes.Main);
+        void pushCallback() {
+            this.cancelTimer();
+            var splash = SplashManager.getSplash();
+            AnalyticsManager.ClickSkipSplashPage(splash.id, splash.name, splash.url);
+            StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushReplaceMainAction());
+        }
+
+
+        void cancelTimer() {
+            this._timer?.cancel();
         }
 
         void t_Tick() {
             using (WindowProvider.of(this._context).getScope()) {
                 this.setState(() => { this._lastSecond -= 1; });
                 if (this._lastSecond < 1) {
-                    pushCallback();
+                    this.pushCallback();
                 }
             }
         }

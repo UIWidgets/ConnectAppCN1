@@ -17,6 +17,8 @@ namespace ConnectApp.Models.State {
         public UserState userState { get; set; }
         public TeamState teamState { get; set; }
         public PlaceState placeState { get; set; }
+        public FollowState followState { get; set; }
+        public LikeState likeState { get; set; }
         public MineState mineState { get; set; }
         public MessageState messageState { get; set; }
         public SettingState settingState { get; set; }
@@ -36,11 +38,16 @@ namespace ConnectApp.Models.State {
                     loading = false
                 },
                 articleState = new ArticleState {
-                    articleList = new List<string>(),
+                    recommendArticleIds = new List<string>(),
+                    followArticleIdDict = new Dictionary<string, List<string>>(),
+                    hotArticleIdDict = new Dictionary<string, List<string>>(),
                     articleDict = new Dictionary<string, Article>(),
                     articlesLoading = false,
+                    followArticlesLoading = false,
                     articleDetailLoading = false,
                     hottestHasMore = true,
+                    followArticleHasMore = false,
+                    hotArticleHasMore = false,
                     articleHistory = HistoryManager.articleHistoryList(isLogin ? loginInfo.userId : null),
                     blockArticleList = HistoryManager.blockArticleList(isLogin ? loginInfo.userId : null)
                 },
@@ -58,15 +65,26 @@ namespace ConnectApp.Models.State {
                     channelId = ""
                 },
                 popularSearchState = new PopularSearchState {
-                    popularSearchs = new List<PopularSearch>()
+                    popularSearchArticles = new List<PopularSearch>(),
+                    popularSearchUsers = new List<PopularSearch>()
                 },
                 searchState = new SearchState {
-                    loading = false,
+                    searchArticleLoading = false,
+                    searchUserLoading = false,
+                    searchTeamLoading = false,
+                    searchFollowingLoading = false,
                     keyword = "",
-                    searchArticles = new List<Article>(),
-                    currentPage = 0,
-                    pages = new List<int>(),
-                    searchHistoryList = HistoryManager.searchHistoryList(isLogin ? loginInfo.userId : null),
+                    searchFollowingKeyword = "",
+                    searchArticleIdDict = new Dictionary<string, List<string>>(),
+                    searchUserIdDict = new Dictionary<string, List<string>>(),
+                    searchTeamIdDict = new Dictionary<string, List<string>>(),
+                    searchFollowings = new List<User>(),
+                    searchArticleCurrentPage = 0,
+                    searchArticlePages = new List<int>(),
+                    searchUserHasMore = false,
+                    searchTeamHasMore = false,
+                    searchFollowingHasMore = false,
+                    searchArticleHistoryList = HistoryManager.searchArticleHistoryList(isLogin ? loginInfo.userId : null)
                 },
                 notificationState = new NotificationState {
                     loading = false,
@@ -74,13 +92,33 @@ namespace ConnectApp.Models.State {
                     mentions = new List<User>()
                 },
                 userState = new UserState {
-                    userDict = UserInfoManager.initUserDict()
+                    userLoading = false,
+                    userArticleLoading = false,
+                    followingLoading = false,
+                    followingUserLoading = false,
+                    followingTeamLoading = false,
+                    followerLoading = false,
+                    userDict = UserInfoManager.initUserDict(),
+                    fullName = "",
+                    title = "",
+                    jobRole = new JobRole(),
+                    place = ""
                 },
                 teamState = new TeamState {
+                    teamLoading = false,
+                    teamArticleLoading = false,
+                    followerLoading = false,
+                    memberLoading = false,
                     teamDict = new Dictionary<string, Team>()
                 },
                 placeState = new PlaceState {
                     placeDict = new Dictionary<string, Place>()
+                },
+                followState = new FollowState {
+                    followDict = new Dictionary<string, Dictionary<string, bool>>()
+                },
+                likeState = new LikeState {
+                    likeDict = new Dictionary<string, Dictionary<string, bool>>()
                 },
                 mineState = new MineState {
                     futureEventsList = new List<IEvent>(),

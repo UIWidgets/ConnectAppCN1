@@ -49,7 +49,7 @@ namespace ConnectApp.Plugins {
                             var subType = dict["subtype"];
                             var id = dict["id"];
                             AnalyticsManager.ClickNotification(type, subType, id);
-                            pushPage(type, subType, id);
+                            pushPage(type, subType, id, true);
                         }
                             break;
                         case "OnReceiveNotification": {
@@ -69,6 +69,14 @@ namespace ConnectApp.Plugins {
                             openUrl(args.first());
                         }
                             break;
+                        case "OnOpenUniversalLinks": {
+                            if (args.isEmpty()) {
+                                return;
+                            }
+
+                            openUniversalLink(args.first());
+                        }
+                            break;
                         case "CompletedCallback": {
                             var node = args[0];
                             var dict = JSON.Parse(node);
@@ -80,20 +88,43 @@ namespace ConnectApp.Plugins {
                             }
                             else {
                                 if (SplashManager.isExistSplash()) {
-                                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorReplaceToAction {
-                                        routeName = MainNavigatorRoutes.Splash
-                                    });
+                                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushReplaceSplashAction());
                                 }
                                 else {
-                                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorReplaceToAction {
-                                        routeName = MainNavigatorRoutes.Main
-                                    });
+                                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushReplaceMainAction());
                                 }
                             }
                         }
                             break;
                     }
                 }
+            }
+        }
+
+        public static void openUniversalLink(string link) {
+            if (link.isEmpty()) {
+                return;
+            }
+
+            var uri = new Uri(link);
+            if (uri.AbsolutePath.StartsWith("/connectapplink/")) {
+                var type = "";
+                if (uri.AbsolutePath.Equals("/connectapplink/project_detail")) {
+                    type = "project";
+                }
+                else if (uri.AbsolutePath.Equals("/connectapplink/event_detail")) {
+                    type = "event";
+                }
+                else {
+                    return;
+                }
+
+                var subType = HttpUtility.ParseQueryString(uri.Query).Get("type");
+                var id = HttpUtility.ParseQueryString(uri.Query).Get("id");
+                pushPage(type, subType, id);
+            }
+            else {
+                pushPage("webView", "", link);
             }
         }
 
@@ -127,13 +158,12 @@ namespace ConnectApp.Plugins {
             }
         }
 
-        static void pushPage(string type, string subType, string id) {
+        static void pushPage(string type, string subType, string id, bool isPush = false) {
             if (type == "project") {
                 if (subType == "article") {
                     AnalyticsManager.ClickEnterArticleDetail("Push_Article", id, $"PushArticle_{id}");
-
                     StoreProvider.store.dispatcher.dispatch(
-                        new MainNavigatorPushToArticleDetailAction {articleId = id});
+                        new MainNavigatorPushToArticleDetailAction {articleId = id, isPush = isPush});
                 }
             }
             else if (type == "event") {
@@ -142,7 +172,7 @@ namespace ConnectApp.Plugins {
                     eventType = EventType.online;
                 }
 
-                AnalyticsManager.ClickEnterEventDetail("Push_Event", id, $"PushEvent_{id}", type);
+                AnalyticsManager.ClickEnterEventDetail("Push_Event", id, $"PushEvent_{id}", eventType.ToString());
 
                 StoreProvider.store.dispatcher.dispatch(
                     new MainNavigatorPushToEventDetailAction {eventId = id, eventType = eventType});

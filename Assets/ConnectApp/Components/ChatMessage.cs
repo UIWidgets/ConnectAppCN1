@@ -12,7 +12,7 @@ namespace ConnectApp.Components {
         public ChatMessage(
             Message message,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.message = message;
         }
 
@@ -32,7 +32,7 @@ namespace ConnectApp.Components {
                 child: new Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        Avatar.User(this.message.author.id, this.message.author, 24),
+                        Avatar.User(author, 24),
                         new Expanded(
                             child: new Container(
                                 margin: EdgeInsets.only(8),

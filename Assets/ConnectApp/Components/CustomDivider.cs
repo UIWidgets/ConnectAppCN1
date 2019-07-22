@@ -9,7 +9,7 @@ namespace ConnectApp.Components {
             Key key = null,
             Color color = null,
             float height = 16.0f
-        ) : base(key) {
+        ) : base(key: key) {
             D.assert(height >= 0.0);
             this.color = color ?? CColors.Separator;
             this.height = height;

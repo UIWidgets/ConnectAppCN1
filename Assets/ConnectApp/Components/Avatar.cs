@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
-using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
@@ -17,98 +16,140 @@ namespace ConnectApp.Components {
 
     public class Avatar : StatelessWidget {
         Avatar(
-            string id,
+            string avatarUrl,
+            string fullName,
             float size = 36,
             OwnerType type = OwnerType.user,
-            User user = null,
-            Team team = null,
+            bool hasWhiteBorder = false,
+            float whiteBorderWidth = 0,
+            bool hasCircular = true,
             Key key = null
-        ) : base(key) {
-            D.assert(id != null);
-            this.id = id;
-            this.user = user ?? new User();
-            this.team = team ?? new Team();
+        ) : base(key: key) {
+            this.avatarUrl = avatarUrl ?? "";
+            this.fullName = fullName ?? "";
             this.size = size;
             this.type = type;
+            this.hasWhiteBorder = hasWhiteBorder;
+            this.whiteBorderWidth = whiteBorderWidth;
+            this.hasCircular = hasCircular;
         }
-
+        
+        readonly string avatarUrl;
+        readonly string fullName;
+        readonly float size;
+        readonly OwnerType type;
+        readonly bool hasWhiteBorder;
+        readonly float whiteBorderWidth;
+        readonly bool hasCircular;
+        
         public static Avatar User(
-            string id,
-            User user = null,
-            float size = 36,
+            User user,
+            float size,
+            bool hasWhiteBorder = false,
+            float whiteBorderWidth = 2,
             Key key = null
         ) {
             return new Avatar(
-                id,
-                size,
-                OwnerType.user,
-                user,
+                avatarUrl: user.avatar,
+                user.fullName ?? user.name,
+                size: size,
+                type: OwnerType.user,
+                hasWhiteBorder: hasWhiteBorder,
+                whiteBorderWidth: whiteBorderWidth,
                 key: key
             );
         }
 
         public static Avatar Team(
-            string id,
-            Team team = null,
-            float size = 36,
+            Team team,
+            float size,
+            bool hasWhiteBorder = false,
+            float whiteBorderWidth = 2,
+            bool hasCircular = false,
             Key key = null
         ) {
             return new Avatar(
-                id,
-                size,
-                OwnerType.team,
-                null,
-                team,
-                key
+                avatarUrl: team.avatar,
+                fullName: team.name,
+                size: size,
+                type: OwnerType.team,
+                hasWhiteBorder: hasWhiteBorder,
+                whiteBorderWidth: whiteBorderWidth,
+                hasCircular: hasCircular,
+                key: key
             );
         }
-
-
-        readonly string id;
-        readonly User user;
-        readonly Team team;
-        readonly float size;
-        readonly OwnerType type;
 
         public override Widget build(BuildContext context) {
             if (this.type == OwnerType.team) {
                 return this._buildTeamAvatar();
             }
 
-            var avatarUrl = this.user.avatar ?? "";
-            var fullName = this.user.fullName ?? this.user.name;
-            var result = _extractName(fullName) ?? "";
-            return new ClipRRect(
-                borderRadius: BorderRadius.circular(this.size / 2),
-                child: avatarUrl.isEmpty()
-                    ? new Container(
-                        child: new _Placeholder(result, this.size)
-                    )
-                    : new Container(
-                        width: this.size,
-                        height: this.size,
-                        color: new Color(0xFFD8D8D8),
-                        child: Image.network(avatarUrl)
-                    )
+            var avatarSize = this.hasWhiteBorder ? this.size - this.whiteBorderWidth * 2 : this.size;
+            
+            var border = this.hasWhiteBorder ? Border.all(
+                color: CColors.White,
+                width: this.whiteBorderWidth
+            ) : null;
+            
+            return new Container(
+                width: this.size,
+                height: this.size,
+                decoration: new BoxDecoration(
+                    borderRadius: BorderRadius.circular(this.size / 2),
+                    border: border
+                ),
+                child: new ClipRRect(
+                    borderRadius: BorderRadius.circular(avatarSize / 2),
+                    child: this.avatarUrl.isEmpty()
+                        ? new Container(
+                            child: new _Placeholder(
+                                _extractName(name: this.fullName) ?? "",
+                                size: avatarSize
+                            )
+                        )
+                        : new Container(
+                            width: avatarSize,
+                            height: avatarSize,
+                            color: new Color(0xFFD8D8D8),
+                            child: Image.network(src: this.avatarUrl)
+                        )
+                )
             );
         }
 
         Widget _buildTeamAvatar() {
-            var avatarUrl = this.team.avatar ?? "";
-            var name = this.team.name;
-            var result = _extractName(name) ?? "";
-            if (avatarUrl.Length <= 0) {
-                return new _Placeholder(result, this.size);
-            }
+            var avatarSize = this.hasWhiteBorder ? this.size : this.size - this.whiteBorderWidth * 2;
+            var border = this.hasWhiteBorder ? Border.all(
+                color: CColors.White,
+                width: this.whiteBorderWidth
+            ) : null;
 
             return new Container(
                 width: this.size,
                 height: this.size,
-                color: new Color(0xFFD8D8D8),
-                child: Image.network(avatarUrl)
+                decoration: new BoxDecoration(
+                    borderRadius: BorderRadius.circular(this.hasCircular ? this.size / 2 : 4),
+                    border: border
+                ),
+                child: new ClipRRect(
+                    borderRadius: BorderRadius.circular(this.hasCircular ? avatarSize : 4),
+                    child: this.avatarUrl.isEmpty()
+                        ? new Container(
+                            child: new _Placeholder(
+                                _extractName(name: this.fullName) ?? "",
+                                size: avatarSize
+                            )
+                        )
+                        : new Container(
+                            width: avatarSize,
+                            height: avatarSize,
+                            color: new Color(0xFFD8D8D8),
+                            child: Image.network(src: this.avatarUrl)
+                        )
+                )
             );
         }
-
 
         static string _extractName(string name) {
             if (name == null || name.Length <= 0) {
@@ -137,14 +178,14 @@ namespace ConnectApp.Components {
             string title,
             float size = 36,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             D.assert(title != null);
             this.title = title;
             this.size = size;
         }
 
-        public readonly string title;
-        public readonly float size;
+        readonly string title;
+        readonly float size;
 
         public override Widget build(BuildContext context) {
             return new Container(
@@ -171,7 +212,8 @@ namespace ConnectApp.Components {
                             fontFamily: "Roboto-Medium",
                             fontSize: this.size * 0.45f
                         )
-                    ))
+                    )
+                )
             );
         }
     }

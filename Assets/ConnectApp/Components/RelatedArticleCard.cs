@@ -11,46 +11,22 @@ using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.Components {
     public class RelatedArticleCard : StatelessWidget {
-        RelatedArticleCard(
+        public RelatedArticleCard(
             Article article,
-            User user = null,
-            Team team = null,
+            string fullName,
             GestureTapCallback onTap = null,
+            bool topPadding = false,
             Key key = null
         ) : base(key: key) {
             this.article = article;
+            this.fullName = fullName;
+            this.topPadding = topPadding;
             this.onTap = onTap;
-            this.user = user;
-            this.team = team;
         }
 
-
-        public static RelatedArticleCard User(
-            Article article,
-            User user = null,
-            GestureTapCallback onTap = null,
-            Key key = null
-        ) {
-            return new RelatedArticleCard(
-                article, user, null, onTap, key
-            );
-        }
-
-        public static RelatedArticleCard Team(
-            Article article,
-            Team team = null,
-            GestureTapCallback onTap = null,
-            Key key = null
-        ) {
-            return new RelatedArticleCard(
-                article, null, team, onTap, key
-            );
-        }
-
-        readonly OwnerType type;
-        readonly User user;
-        readonly Team team;
         readonly Article article;
+        readonly string fullName;
+        readonly bool topPadding;
         readonly GestureTapCallback onTap;
 
         public override Widget build(BuildContext context) {
@@ -62,14 +38,12 @@ namespace ConnectApp.Components {
             const float imageHeight = 76;
             const float borderRadius = 4;
 
-            var username = this.user == null ? this.team.name : this.user.fullName;
-            var time = this.article.lastPublishedTime == null
-                ? this.article.publishedTime
-                : this.article.lastPublishedTime;
+            var gap = this.topPadding ? 16 : 0;
+            var time = this.article.publishedTime;
             var child = new Container(
                 color: CColors.White,
-                padding: EdgeInsets.all(16),
-                height: 108,
+                padding: EdgeInsets.only(16, 16 + gap, 16, 16),
+                height: 108 + gap,
                 child: new Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
@@ -86,7 +60,7 @@ namespace ConnectApp.Components {
                                             textAlign: TextAlign.left
                                         ),
                                         new ArticleCardInfo(
-                                            fullName: username,
+                                            fullName: this.fullName,
                                             time: time,
                                             viewCount: this.article.viewCount
                                         )

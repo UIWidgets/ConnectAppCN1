@@ -27,7 +27,7 @@ namespace ConnectApp.screens {
         public EventOnlineDetailScreenConnector(
             string eventId,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.eventId = eventId;
         }
 
@@ -65,6 +65,11 @@ namespace ConnectApp.screens {
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
+                        pushToUserDetail = userId => dispatcher.dispatch(
+                            new MainNavigatorPushToUserDetailAction {
+                                userId = userId
+                            }
+                        ),
                         openUrl = url => {
                             EventBus.publish(EventBusConstant.pauseVideoPlayer, new List<object>());
                             dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
@@ -113,7 +118,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    class _EventOnlineDetailScreenState : State<EventOnlineDetailScreen>, TickerProvider {
+    class _EventOnlineDetailScreenState : State<EventOnlineDetailScreen>, TickerProvider, RouteAware {
         AnimationController _controller;
         Animation<Offset> _position;
         Animation<RelativeRect> _titleAnimation;
@@ -158,8 +163,14 @@ namespace ConnectApp.screens {
             });
         }
 
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute)ModalRoute.of(this.context));
+        }
+        
         public override void dispose() {
             EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
+            Router.routeObserve.unsubscribe(this);
             this._textController.dispose();
             this._controller.dispose();
             base.dispose();
@@ -216,7 +227,7 @@ namespace ConnectApp.screens {
                 eventObj = this.widget.viewModel.eventsDict[this.widget.viewModel.eventId];
             }
 
-            if ((this.widget.viewModel.eventDetailLoading || eventObj?.user == null) && !eventObj.isNotFirst) {
+            if ((this.widget.viewModel.eventDetailLoading || eventObj?.user == null) && !(eventObj?.isNotFirst ?? false)) {
                 return new EventDetailLoading(eventType: EventType.online,
                     mainRouterPop: this.widget.actionModel.mainRouterPop);
             }
@@ -411,6 +422,7 @@ namespace ConnectApp.screens {
                     false,
                     eventObj,
                     this.widget.actionModel.openUrl,
+                    pushToUserDetail: this.widget.actionModel.pushToUserDetail,
                     titleKey: eventTitleKey
                 )
             );
@@ -450,7 +462,7 @@ namespace ConnectApp.screens {
             var backgroundColor = CColors.PrimaryBlue;
             var joinInText = "立即加入";
             var textStyle = CTextStyle.PLargeMediumWhite;
-            if (userIsCheckedIn && isLoggedIn) {
+            if ((userIsCheckedIn ?? false) && isLoggedIn) {
                 backgroundColor = CColors.Disable;
                 joinInText = "已加入";
                 textStyle = CTextStyle.PLargeMediumWhite;
@@ -502,7 +514,7 @@ namespace ConnectApp.screens {
                                     this.widget.actionModel.pushToLogin();
                                 }
                                 else {
-                                    if (!userIsCheckedIn) {
+                                    if (!(userIsCheckedIn ?? false)) {
                                         this.widget.actionModel.startJoinEvent();
                                         this.widget.actionModel.joinEvent(this.widget.viewModel.eventId);
                                     }
@@ -743,6 +755,18 @@ namespace ConnectApp.screens {
                     }
                 )
             );
+        }
+
+        public void didPopNext() {
+            VideoPlayerManager.instance.isRotation = true;
+        }
+
+        public void didPush() {}
+
+        public void didPop() {}
+
+        public void didPushNext() {
+            VideoPlayerManager.instance.isRotation = false;
         }
     }
 }

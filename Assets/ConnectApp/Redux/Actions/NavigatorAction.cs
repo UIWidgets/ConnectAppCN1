@@ -6,9 +6,15 @@ namespace ConnectApp.redux.actions {
     public class MainNavigatorPushToAction : BaseAction {
         public string routeName;
     }
-    
+
     public class MainNavigatorReplaceToAction : BaseAction {
         public string routeName;
+    }
+
+    public class MainNavigatorPushReplaceSplashAction : BaseAction {
+    }
+
+    public class MainNavigatorPushReplaceMainAction : BaseAction {
     }
 
     public class MainNavigatorPushToRouteAction : BaseAction {
@@ -22,6 +28,36 @@ namespace ConnectApp.redux.actions {
 
     public class MainNavigatorPushToArticleDetailAction : BaseAction {
         public string articleId;
+        public bool isPush = false;
+    }
+
+    public class MainNavigatorPushToUserDetailAction : BaseAction {
+        public string userId;
+    }
+
+    public class MainNavigatorPushToUserFollowingAction : BaseAction {
+        public string userId;
+        public int initialPage = 0;
+    }
+
+    public class MainNavigatorPushToUserFollowerAction : BaseAction {
+        public string userId;
+    }
+
+    public class MainNavigatorPushToEditPersonalInfoAction : BaseAction {
+        public string userId;
+    }
+
+    public class MainNavigatorPushToTeamDetailAction : BaseAction {
+        public string teamId;
+    }
+
+    public class MainNavigatorPushToTeamFollowerAction : BaseAction {
+        public string teamId;
+    }
+
+    public class MainNavigatorPushToTeamMemberAction : BaseAction {
+        public string teamId;
     }
 
     public class MainNavigatorPushToVideoPlayerAction : BaseAction {

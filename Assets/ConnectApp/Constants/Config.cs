@@ -14,9 +14,14 @@ namespace ConnectApp.Constants {
 
         public const string jgAppKey = "a50eff2d99416a0495f02766";
 
-        public const string versionNumber = "0.9.9";
+        public const string versionNumber = "1.0.1";
 
-        public const int versionCode = 37;
+        public const int versionCode = 44;
+
+        public const string originCodeUrl = "https://github.com/UnityTech/ConnectAppCN";
+
+        public const string widgetOriginCoceUrl = "https://github.com/UnityTech/UIWidgets";
+
 
 #if UNITY_IOS
         public const string platform = "ios";

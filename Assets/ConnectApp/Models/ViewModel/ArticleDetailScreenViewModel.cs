@@ -12,5 +12,6 @@ namespace ConnectApp.Models.ViewModel {
         public Dictionary<string, Dictionary<string, Message>> channelMessageDict;
         public Dictionary<string, User> userDict;
         public Dictionary<string, Team> teamDict;
+        public Dictionary<string, bool> followMap;
     }
 }

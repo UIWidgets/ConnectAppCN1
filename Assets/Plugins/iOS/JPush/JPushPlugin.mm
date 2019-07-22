@@ -73,7 +73,7 @@ extern "C" {
     
     void listenCompleted(){
         BOOL needPush = false;
-        if ([JPushPlugin instance].pushJson.length > 0||[JPushPlugin instance].schemeUrl.length > 0) {
+        if ([JPushPlugin instance].pushJson.length > 0||[JPushPlugin instance].schemeUrl.length > 0||[JPushPlugin instance].universalLink.length > 0) {
             needPush = true;
         }
         NSError *error = nil;
@@ -86,6 +86,9 @@ extern "C" {
         }
         if ([JPushPlugin instance].schemeUrl.length > 0) {
             UIWidgetsMethodMessage(@"jpush", @"OnOpenUrl", @[[JPushPlugin instance].schemeUrl]);
+        }
+        if ([JPushPlugin instance].universalLink.length > 0) {
+            UIWidgetsMethodMessage(@"jpush", @"OnOpenUniversalLinks", @[[JPushPlugin instance].universalLink]);
         }
     }
     

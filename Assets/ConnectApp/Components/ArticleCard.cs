@@ -41,27 +41,20 @@ namespace ConnectApp.Components {
             const float imageHeight = 66;
             const float borderRadius = 4;
 
-            var gap = 0f;
-            if (this.topPadding) {
-                gap = 16;
-            }
-            
-            var time = this.article.lastPublishedTime == null
-                ? this.article.publishedTime
-                : this.article.lastPublishedTime;
+            var gap = this.topPadding ? 16 : 0;
+            var time = this.article.publishedTime;
             var imageUrl = this.article.thumbnail.url.EndsWith(".gif")
                 ? this.article.thumbnail.url
                 : CImageUtils.SuitableSizeImageUrl(imageWidth, this.article.thumbnail.url);
             var card = new Container(
                 color: CColors.White,
-                child: new Padding(
-                    padding: EdgeInsets.only(16, 16 + gap, 16, 16),
-                    child: new Container(
-                        child: new Column(
+                padding: EdgeInsets.only(top: 16 + gap),
+                child: new Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: new List<Widget> {
                                 new Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 16),
                                     child: new Text(this.article.title,
                                         style: CTextStyle.H5,
                                         maxLines: 2,
@@ -71,6 +64,7 @@ namespace ConnectApp.Components {
                                 ),
                                 new Container(
                                     margin: EdgeInsets.only(top: 8, bottom: 8),
+                                    padding: EdgeInsets.symmetric(horizontal: 16),
                                     child: new Row(
                                         children: new List<Widget> {
                                             new Expanded(
@@ -94,38 +88,37 @@ namespace ConnectApp.Components {
                                     )
                                 ),
                                 new Container(
-                                    height: 20,
+                                    height: 36,
                                     child: new Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: new List<Widget> {
                                             new Expanded(
-                                                child: new ArticleCardInfo(
-                                                    fullName: this.fullName,
-                                                    time: time,
-                                                    viewCount: this.article.viewCount
-                                                )
-                                            ),
-                                            new SizedBox(width: 16),
-                                            new GestureDetector(
                                                 child: new Container(
                                                     height: 20,
-                                                    width: 20,
-                                                    color:CColors.White,
-                                                    child: new Icon(
-                                                        Icons.ellipsis,
-                                                        size: 20,
-                                                        color: CColors.BrownGrey
+                                                    padding: EdgeInsets.only(16),
+                                                    alignment: Alignment.topLeft,
+                                                    child: new ArticleCardInfo(
+                                                        fullName: this.fullName,
+                                                        time: time,
+                                                        viewCount: this.article.viewCount
                                                     )
+                                                )
+                                            ),
+                                            new CustomButton(
+                                                padding: EdgeInsets.only(16, right: 16, bottom: 16),
+                                                child: new Icon(
+                                                    icon: Icons.ellipsis,
+                                                    size: 20,
+                                                    color: CColors.BrownGrey
                                                 ),
-                                                onTap: this.moreCallBack
+                                                onPressed: this.moreCallBack
                                             )
                                         }
                                     )
                                 )
                             }
                         )
-                    )
-                )
             );
 
             return new GestureDetector(

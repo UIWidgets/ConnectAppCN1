@@ -7,9 +7,11 @@ using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
+using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -37,6 +39,8 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new BlockArticleAction {articleId = articleId});
                             dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = articleId});
                         },
+                        shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
+                            Actions.shareToWechat(type, title, description, linkUrl, imageUrl)),
                         deleteArticleHistory = id =>
                             dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = id})
                     };
@@ -79,25 +83,42 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildArticleCard(BuildContext context, int index) {
-            var model = this.viewModel.articleHistory[index];
+            var article = this.viewModel.articleHistory[index: index];
+            var linkUrl = CStringUtils.JointProjectShareLink(projectId: article.id);
             return CustomDismissible.builder(
-                Key.key(model.id),
+                Key.key(value: article.id),
                 new ArticleCard(
-                    model,
-                    () => this.actionModel.pushToArticleDetail(model.id),
-                    () => ReportManager.showReportView(this.viewModel.isLoggedIn,
-                        model.id,
-                        ReportType.article, this.actionModel.pushToLogin, this.actionModel.pushToReport,
-                        this.actionModel.pushToBlock
+                    article: article,
+                    () => this.actionModel.pushToArticleDetail(obj: article.id),
+                    () => ShareManager.showArticleShareView(
+                        true,
+                        isLoggedIn: this.viewModel.isLoggedIn,
+                        () => {
+                            Clipboard.setData(new ClipboardData(text: linkUrl));
+                            CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
+                        },
+                        () => this.actionModel.pushToLogin(),
+                        () => this.actionModel.pushToBlock(article.id),
+                        () => this.actionModel.pushToReport(article.id, ReportType.article),
+                        type => {
+                            CustomDialogUtils.showCustomDialog(
+                                child: new CustomLoadingDialog()
+                            );
+                            string imageUrl = $"{article.thumbnail.url}.200x0x1.jpg";
+                            this.actionModel.shareToWechat(arg1: type, arg2: article.title,
+                                    arg3: article.subTitle, arg4: linkUrl, arg5: imageUrl)
+                                .Then(onResolved: CustomDialogUtils.hiddenCustomDialog)
+                                .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
+                        }
                     ),
-                    model.fullName,
+                    fullName: article.fullName,
                     index == 0,
-                    new ObjectKey(model.id)
+                    new ObjectKey(value: article.id)
                 ),
                 new CustomDismissibleDrawerDelegate(),
                 secondaryActions: new List<Widget> {
                     new GestureDetector(
-                        onTap: () => this.actionModel.deleteArticleHistory(model.id),
+                        onTap: () => this.actionModel.deleteArticleHistory(obj: article.id),
                         child: new Container(
                             color: CColors.Separator2,
                             width: 80,

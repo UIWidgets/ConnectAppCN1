@@ -10,8 +10,8 @@ namespace ConnectApp.Utils {
     }
 
     public static class DateConvert {
-        public static string DateStringFromNow(DateTime dt) {
-            TimeSpan span = DateTime.UtcNow - dt;
+        public static string DateStringFromNow(DateTime dt, bool isLocal = false) {
+            TimeSpan span = isLocal ? DateTime.Now - dt : DateTime.UtcNow - dt;
             if (span.TotalDays > 3) {
                 return dt.ToString("yyyy-MM-dd");
             }
@@ -65,7 +65,7 @@ namespace ConnectApp.Utils {
             var shifted = (span + 1) >> 22;
             var timespan = (shifted - 1);
             var dt = startTime.AddMilliseconds(timespan);
-            return DateStringFromNow(dt);
+            return DateStringFromNow(dt, true);
         }
 
         public static EventStatus GetEventStatus(TimeMap begin) {
@@ -75,8 +75,8 @@ namespace ConnectApp.Utils {
 
             var startDateTime = DateTime.Parse(begin.startTime);
             var endDateTime = DateTime.Parse(begin.endTime);
-            var subStartTime = (startDateTime - DateTime.UtcNow).TotalHours;
-            var subEndTime = (DateTime.UtcNow - endDateTime).TotalHours;
+            var subStartTime = (startDateTime - DateTime.Now).TotalHours;
+            var subEndTime = (DateTime.Now - endDateTime).TotalHours;
             if (subStartTime > 1) {
                 return EventStatus.future;
             }

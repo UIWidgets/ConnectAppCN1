@@ -15,6 +15,7 @@
 #include "UIWidgetsMessageManager.h"
 #import "JPushPlugin.h"
 #import <AVFoundation/AVFoundation.h>
+#import "UUIDUtils.h"
 
 static NSString *gameObjectName = @"jpush";
 
@@ -40,7 +41,7 @@ IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
     config.channel = @"appstore";
     [JANALYTICSService setupWithConfig:config];
     [JANALYTICSService crashLogON];
-
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(networkDidRecieveMessage:)
                                                  name:kJPFNetworkDidReceiveMessageNotification
@@ -56,6 +57,7 @@ IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
                                                  name:@"JPushPluginOpenNotification"
                                                object:nil];
     [[JPushEventCache sharedInstance] scheduleNotificationQueue];
+    
     return YES;
 }
 
@@ -114,6 +116,21 @@ NSData *APNativeJSONData(id obj) {
 }
 #pragma mark wechat
 
+
+- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler{
+    
+    if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb]) {
+        NSURL *webpageURL = userActivity.webpageURL;
+        NSString *host = webpageURL.host;
+        if ([host isEqualToString:@"connect-download.unity.com"]) {
+            //判断域名是自己的网站，进行我们需要的处理
+            [JPushPlugin instance].universalLink = [webpageURL absoluteString];
+            UIWidgetsMethodMessage(gameObjectName, @"OnOpenUniversalLinks", @[[webpageURL absoluteString]]);
+        }
+    }
+    return YES;
+}
+
 - (BOOL)application:(UIApplication*)app openURL:(NSURL*)url options:(NSDictionary<NSString*, id>*)options
 {
     if ([[url scheme] isEqualToString:@"unityconnect"]) {
@@ -152,6 +169,18 @@ extern "C" {
     bool isOpenSensor() {
         return true;
     }
+    const char *getDeviceID()
+    {
+        NSString *result = [UUIDUtils getUUID];
+        if (!result) {
+            return NULL;
+        }
+        const char *s = [result UTF8String];
+        char *r = (char *)malloc(strlen(s) + 1);
+        strcpy(r, s);
+        return r;
+    }
+    
 }
 
 @end
