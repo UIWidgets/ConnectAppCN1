@@ -39,6 +39,7 @@ namespace Plugins.Editor {
             proj.AddFrameworkToProject(targetGuid: target, "libresolv.tbd", false);
             proj.AddFrameworkToProject(targetGuid: target, "UserNotifications.framework", false);
             proj.AddFrameworkToProject(targetGuid: target, "CoreTelephony.framework", true);
+            proj.AddFrameworkToProject(targetGuid: target, "Photos.framework", false);
 
             proj.AddBuildProperty(targetGuid: target, "OTHER_LDFLAGS", "-ObjC");
             proj.AddBuildProperty(targetGuid: target, "OTHER_LDFLAGS", "-all_load");
@@ -48,17 +49,14 @@ namespace Plugins.Editor {
             string fileName = "unityconnect.entitlements";
             string filePath = Path.Combine(path, fileName);
             //Debug.Log ("filePath: " + filePath);
-            string fileContent = @"<?xml version=""1.0"" encoding=""UTF-8""?>
-<!DOCTYPE plist PUBLIC ""-//Apple//DTD PLIST 1.0//EN"" ""http://www.apple.com/DTDs/PropertyList-1.0.dtd 
-
-"">
+            string fileContent =
+                @"<?xml version=""1.0"" encoding=""UTF-8""?><!DOCTYPE plist PUBLIC ""-//Apple//DTD PLIST 1.0//EN"" ""http://www.apple.com/DTDs/PropertyList-1.0.dtd"">
 <plist version=""1.0"">
 <dict>
     <key>com.apple.developer.associated-domains</key>
     <array>
-        <string>applinks:connect-download.unity.com 
-
-</string>
+        <string>applinks:connect-download.unity.com</string>
+        <string>applinks:connect.unity.com</string>
     </array>
 </dict>
 </plist>";
@@ -156,7 +154,8 @@ namespace Plugins.Editor {
 
             // 出口合规信息
             rootDict.SetBoolean("ITSAppUsesNonExemptEncryption", false);
-
+            rootDict.SetString("NSCameraUsageDescription", "App需要您的同意,才能访问相机");
+            rootDict.SetString("NSPhotoLibraryUsageDescription", "App需要您的同意,才能访问相册");
             // remove exit on suspend if it exists.
             string exitsOnSuspendKey = "UIApplicationExitsOnSuspend";
             if (rootDict.values.ContainsKey(exitsOnSuspendKey)) {
