@@ -29,6 +29,7 @@ namespace ConnectApp.Models.Api {
         public string content;
         public string parentMessageId;
         public string nonce;
+        public bool app;
     }
 
     [Serializable]

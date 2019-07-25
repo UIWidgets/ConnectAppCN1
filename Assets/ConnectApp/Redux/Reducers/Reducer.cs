@@ -419,6 +419,10 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case SendCommentSuccessAction action: {
+                    if (action.message.deleted) {
+                        break;
+                    }
+
                     if (state.messageState.channelMessageList.ContainsKey(key: action.message.channelId)) {
                         var list = state.messageState.channelMessageList[key: action.message.channelId];
                         list.Insert(0, item: action.message.id);
@@ -614,9 +618,27 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case FetchNotificationsSuccessAction action: {
+                    state.notificationState.page = action.page;
                     state.notificationState.pageTotal = action.pageTotal;
-                    state.notificationState.notifications = action.notifications;
-                    state.notificationState.mentions = action.mentions;
+                    if (action.pageNumber == 1) {
+                        state.notificationState.notifications = action.notifications;
+                        state.notificationState.mentions = action.mentions;
+                    }
+                    else {
+                        var notifications = state.notificationState.notifications;
+                        var mentions = state.notificationState.mentions;
+                        if (action.pageNumber <= action.pageTotal) {
+                            notifications.AddRange(collection: action.notifications);
+                        }
+
+                        foreach (var user in action.mentions) {
+                            if (!mentions.Contains(item: user)) {
+                                mentions.Add(item: user);
+                            }
+                        }
+                        state.notificationState.notifications = notifications;
+                        state.notificationState.mentions = mentions;
+                    }
                     state.notificationState.loading = false;
                     break;
                 }
