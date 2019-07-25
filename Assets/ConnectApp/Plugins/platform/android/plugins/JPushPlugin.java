@@ -40,7 +40,7 @@ public class JPushPlugin {
 
     public void listenCompleted(){
         Boolean needPush = false;
-        if (pushJson != null||pushJson != null){
+        if (pushJson != null || schemeUrl != null){
             needPush = true;
         }
         Map<String, Boolean> map = new HashMap<String, Boolean>();

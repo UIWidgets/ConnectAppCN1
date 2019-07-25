@@ -212,11 +212,12 @@ namespace ConnectApp.screens {
             float titleFontSize = _minTitleFontSize;
             float lineHeight = this._navBarHeight <= _minNavBarHeight ? 2 : 4;
             float radius = this._navBarHeight <= _minNavBarHeight ? 0 : 2;
-            Widget lineView = new Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: new Container(height: lineHeight)
+            Widget lineView = new Align(
+                alignment: Alignment.bottomCenter,
+                child: new Container(
+                    width: 40,
+                    height: lineHeight
+                )
             );
             if (index == this._selectedIndex) {
                 if (this._navBarHeight <= _minNavBarHeight) {
@@ -224,11 +225,10 @@ namespace ConnectApp.screens {
                 }
 
                 titleFontSize = this._titleFontSize;
-                lineView = new Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
+                lineView = new Align(
+                    alignment: Alignment.bottomCenter,
                     child: new Container(
+                        width: 40,
                         height: lineHeight,
                         decoration: new BoxDecoration(
                             color: CColors.PrimaryBlue,
@@ -253,6 +253,7 @@ namespace ConnectApp.screens {
                 child: new Container(
                     height: this._navBarHeight,
                     child: new Stack(
+                        alignment: Alignment.bottomCenter,
                         children: new List<Widget> {
                             new Container(
                                 padding: EdgeInsets.symmetric(10),

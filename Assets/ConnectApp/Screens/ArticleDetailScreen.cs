@@ -14,8 +14,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -290,10 +290,11 @@ namespace ConnectApp.screens {
                                     ActionSheetUtils.showModalActionSheet(new CustomInput(
                                         doneCallBack: text => {
                                             ActionSheetUtils.hiddenModalPopup();
-                                            this.widget.actionModel.sendComment(this._article.channelId,
+                                            this.widget.actionModel.sendComment(
+                                                this._article.channelId,
                                                 text,
                                                 Snowflake.CreateNonce(),
-                                                null
+                                                ""
                                             );
                                         })
                                     );
@@ -309,10 +310,11 @@ namespace ConnectApp.screens {
                                     ActionSheetUtils.showModalActionSheet(new CustomInput(
                                         doneCallBack: text => {
                                             ActionSheetUtils.hiddenModalPopup();
-                                            this.widget.actionModel.sendComment(this._article.channelId,
+                                            this.widget.actionModel.sendComment(
+                                                this._article.channelId,
                                                 text,
                                                 Snowflake.CreateNonce(),
-                                                null
+                                                ""
                                             );
                                         })
                                     );
@@ -822,7 +824,8 @@ namespace ConnectApp.screens {
                                 message.author.fullName.isEmpty() ? "" : message.author.fullName,
                                 text => {
                                     ActionSheetUtils.hiddenModalPopup();
-                                    this.widget.actionModel.sendComment(this._article.channelId,
+                                    this.widget.actionModel.sendComment(
+                                        this._article.channelId,
                                         text,
                                         Snowflake.CreateNonce(),
                                         commentId

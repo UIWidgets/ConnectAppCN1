@@ -122,7 +122,6 @@ namespace ConnectApp.Components {
                         onTap: this.onTap,
                         child: new Container(
                             color: CColors.White,
-                            padding: EdgeInsets.only(16, 20, 16, 16),
                             child: new Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: new List<Widget> {
@@ -170,37 +169,41 @@ namespace ConnectApp.Components {
             if (this.user.title != null && this.user.title.isNotEmpty() && this.type == OwnerType.user) {
                 titleWidget = new Text(
                     data: this.user.title,
-                    style: CTextStyle.PSmallBody4
+                    style: CTextStyle.PSmallBody4,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis
                 );
             }
 
             return new Container(
+                padding: EdgeInsets.only(16, 16, 16),
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: new List<Widget> {
                         new GestureDetector(
-                            onTap: this.avatarCallBack,
-                            child: new Container(
-                                color: CColors.Transparent,
-                                child: new Row(
-                                    children: new List<Widget> {
-                                        avatar,
-                                        new Container(
-                                            margin: EdgeInsets.only(8),
-                                            child: new Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: new List<Widget> {
-                                                    new Text(
-                                                        this.type == OwnerType.user
-                                                            ? this.user.fullName ?? this.user.name
-                                                            : this.team.name,
-                                                        style: CTextStyle.PLargeBody
-                                                    ),
-                                                    titleWidget
-                                                }
-                                            )
-                                        )
-                                    }
+                            child: avatar,
+                            onTap: this.avatarCallBack
+                        ),
+                        new Expanded(
+                            child: new GestureDetector(
+                                onTap: this.avatarCallBack,
+                                child: new Container(
+                                    color: CColors.Transparent,
+                                    margin: EdgeInsets.only(8, right: 8),
+                                    child: new Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: new List<Widget> {
+                                            new Text(
+                                                this.type == OwnerType.user
+                                                    ? this.user.fullName ?? this.user.name ?? "佚名"
+                                                    : this.team.name,
+                                                style: CTextStyle.PLargeBody,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis
+                                            ),
+                                            titleWidget
+                                        }
+                                    )
                                 )
                             )
                         ),
@@ -218,7 +221,7 @@ namespace ConnectApp.Components {
                 ? this.article.thumbnail.url
                 : CImageUtils.SuitableSizeImageUrl(imageWidth: imageWidth, imageUrl: this.article.thumbnail.url);
             return new Container(
-                margin: EdgeInsets.only(top: 10, bottom: 18),
+                padding: EdgeInsets.only(16, 10, 16),
                 child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
@@ -259,41 +262,55 @@ namespace ConnectApp.Components {
         }
 
         Widget _buildBottom() {
-            int? articleLikeCount = null;
+            int articleLikeCount = 0;
             if (this.article.likeCount > 0) {
                 articleLikeCount = this.article.likeCount;
             }
 
             return new Container(
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                height: 56,
+                child: new Stack(
+                    alignment: Alignment.center,
                     children: new List<Widget> {
-                        new Row(
-                            children: new List<Widget> {
-                                new LikeButton.LikeButton(
-                                    isLiked => new Icon(
-                                        isLiked ? Icons.favorite : Icons.favorite_border,
-                                        color: isLiked ? CColors.SecondaryPink : CColors.Icon,
-                                        size: 24
-                                    ),
-                                    (likeCount, isLiked, text) => new Text(
-                                        $"{likeCount}",
-                                        style: CTextStyle.PSmallBody3
-                                    ),
-                                    likeCount: articleLikeCount,
-                                    24,
-                                    circleColor: new CircleColor(
-                                        start: CColors.SecondaryPink,
-                                        end: CColors.SecondaryPink
-                                    ),
-                                    isLiked: this.isLike,
-                                    isShowBubbles: false,
-                                    onTap: () => this.likeCallBack()
-                                ),
-                                new GestureDetector(
+                        new Positioned(
+                            left: 0,
+                            child: new GestureDetector(
+                                onTap: () => this.likeCallBack(),
+                                child: new Container(
+                                    color: CColors.Transparent,
+                                    height: 56,
+                                    padding: EdgeInsets.only(16, right: 20),
+                                    child: new IgnorePointer(
+                                        child: new LikeButton.LikeButton(
+                                            isLiked => new Icon(
+                                                isLiked ? Icons.favorite : Icons.favorite_border,
+                                                color: isLiked ? CColors.SecondaryPink : CColors.Icon,
+                                                size: 24
+                                            ),
+                                            circleColor: new CircleColor(
+                                                start: CColors.SecondaryPink,
+                                                end: CColors.SecondaryPink
+                                            ),
+                                            likeCount: articleLikeCount,
+                                            isLiked: this.isLike,
+                                            size: 24,
+                                            isShowBubbles: false,
+                                            showLikeCount: true,
+                                            likeButtonPadding: EdgeInsets.zero
+                                        )
+                                    )
+                                )
+                            )
+                        ),
+                        new Positioned(
+                            left: 96,
+                            child: new Container(
+                                child: new GestureDetector(
                                     onTap: this.commentCallBack,
                                     child: new Container(
-                                        margin: EdgeInsets.only(39),
+                                        color: CColors.Transparent,
+                                        height: 56,
+                                        padding: EdgeInsets.only(right: 20),
                                         child: new Row(
                                             children: new List<Widget> {
                                                 new Icon(icon: Icons.comment, size: 24, color: CColors.Icon),
@@ -303,27 +320,31 @@ namespace ConnectApp.Components {
                                                         margin: EdgeInsets.only(6),
                                                         child: new Text(
                                                             $"{this.article.commentCount}",
-                                                            style: CTextStyle.PSmallBody3
+                                                            style: CTextStyle.PRegularBody3.merge(
+                                                                new TextStyle(height: 1))
                                                         )
                                                     )
                                             }
                                         )
                                     )
                                 )
-                            }
+                            )
                         ),
-                        new GestureDetector(
-                            child: new Container(
-                                height: 20,
-                                width: 20,
-                                color: CColors.White,
-                                child: new Icon(
-                                    icon: Icons.ellipsis,
-                                    size: 20,
-                                    color: CColors.BrownGrey
-                                )
-                            ),
-                            onTap: this.moreCallBack
+                        new Align(
+                            alignment: Alignment.centerRight,
+                            child: new GestureDetector(
+                                child: new Container(
+                                    color: CColors.Transparent,
+                                    height: 56,
+                                    padding: EdgeInsets.symmetric(horizontal: 16),
+                                    child: new Icon(
+                                        icon: Icons.ellipsis,
+                                        size: 20,
+                                        color: CColors.BrownGrey
+                                    )
+                                ),
+                                onTap: this.moreCallBack
+                            )
                         )
                     }
                 )
