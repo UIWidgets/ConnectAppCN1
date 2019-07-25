@@ -193,27 +193,27 @@ namespace ConnectApp.screens {
             this._animation = rectTween.animate(this._controller);
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchArticleDetail();
-                this.widget.actionModel.fetchArticleDetail(this.widget.viewModel.articleId);
+                this.widget.actionModel.fetchArticleDetail(arg: this.widget.viewModel.articleId);
             });
-            this._loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
+            this._loginSubId = EventBus.subscribe(sName: EventBusConstant.login_success, args => {
                 this.widget.actionModel.startFetchArticleDetail();
-                this.widget.actionModel.fetchArticleDetail(this.widget.viewModel.articleId);
+                this.widget.actionModel.fetchArticleDetail(arg: this.widget.viewModel.articleId);
             });
             this._jumpState = _ArticleJumpToCommentState.Inactive;
             this._cachedCommentPosition = null;
         }
 
         public override void dispose() {
-            EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
+            EventBus.unSubscribe(sName: EventBusConstant.login_success, id: this._loginSubId);
             base.dispose();
         }
 
         public Ticker createTicker(TickerCallback onTick) {
-            return new Ticker(onTick, () => $"created by {this}");
+            return new Ticker(onTick: onTick, () => $"created by {this}");
         }
 
         public override Widget build(BuildContext context) {
-            this.widget.viewModel.articleDict.TryGetValue(this.widget.viewModel.articleId, out this._article);
+            this.widget.viewModel.articleDict.TryGetValue(key: this.widget.viewModel.articleId, value: out this._article);
             if (this.widget.viewModel.articleDetailLoading && (this._article == null || !this._article.isNotFirst)) {
                 return new Container(
                     color: CColors.White,
@@ -235,14 +235,14 @@ namespace ConnectApp.screens {
             if (this._article.ownerType == "user") {
                 if (this._article.userId != null &&
                     this.widget.viewModel.userDict.TryGetValue(this._article.userId, out this._user)) {
-                    this._user = this.widget.viewModel.userDict[this._article.userId];
+                    this._user = this.widget.viewModel.userDict[key: this._article.userId];
                 }
             }
 
             if (this._article.ownerType == "team") {
                 if (this._article.teamId != null &&
                     this.widget.viewModel.teamDict.TryGetValue(this._article.teamId, out this._team)) {
-                    this._team = this.widget.viewModel.teamDict[this._article.teamId];
+                    this._team = this.widget.viewModel.teamDict[key: this._article.teamId];
                 }
             }
 
@@ -279,59 +279,7 @@ namespace ConnectApp.screens {
                                 )
                             )
                         ),
-                        new ArticleTabBar(this._article.like,
-                            () => {
-                                if (!this.widget.viewModel.isLoggedIn) {
-                                    this.widget.actionModel.pushToLogin();
-                                }
-                                else {
-                                    AnalyticsManager.ClickComment("Article", this._article.channelId,
-                                        this._article.title);
-                                    ActionSheetUtils.showModalActionSheet(new CustomInput(
-                                        doneCallBack: text => {
-                                            ActionSheetUtils.hiddenModalPopup();
-                                            this.widget.actionModel.sendComment(
-                                                this._article.channelId,
-                                                text,
-                                                Snowflake.CreateNonce(),
-                                                ""
-                                            );
-                                        })
-                                    );
-                                }
-                            },
-                            () => {
-                                if (!this.widget.viewModel.isLoggedIn) {
-                                    this.widget.actionModel.pushToLogin();
-                                }
-                                else {
-                                    AnalyticsManager.ClickComment("Article", this._article.channelId,
-                                        this._article.title);
-                                    ActionSheetUtils.showModalActionSheet(new CustomInput(
-                                        doneCallBack: text => {
-                                            ActionSheetUtils.hiddenModalPopup();
-                                            this.widget.actionModel.sendComment(
-                                                this._article.channelId,
-                                                text,
-                                                Snowflake.CreateNonce(),
-                                                ""
-                                            );
-                                        })
-                                    );
-                                }
-                            },
-                            () => {
-                                if (!this.widget.viewModel.isLoggedIn) {
-                                    this.widget.actionModel.pushToLogin();
-                                }
-                                else {
-                                    if (!this._article.like) {
-                                        this.widget.actionModel.likeArticle(this._article.id);
-                                    }
-                                }
-                            },
-                            shareCallback: this.share
-                        )
+                        this._buildArticleTabBar()
                     }
                 )
             );
@@ -348,9 +296,14 @@ namespace ConnectApp.screens {
                 this._buildContentHead()
             };
             originItems.AddRange(
-                ContentDescription.map(context, this._article.body, this._article.contentMap,
-                    this.widget.actionModel.openUrl,
-                    this.widget.actionModel.playVideo));
+                ContentDescription.map(
+                    context: context,
+                    cont: this._article.body,
+                    contentMap: this._article.contentMap,
+                    openUrl: this.widget.actionModel.openUrl,
+                    playVideo: this.widget.actionModel.playVideo
+                )
+            );
             // originItems.Add(this._buildActionCards(this._article.like));
             originItems.Add(this._buildRelatedArticles());
             commentIndex = originItems.Count;
@@ -450,6 +403,25 @@ namespace ConnectApp.screens {
             );
         }
 
+        Widget _buildArticleTabBar() {
+            return new ArticleTabBar(
+                like: this._article.like,
+                () => this._comment("Article"),
+                () => this._comment("Article"),
+                () => {
+                    if (!this.widget.viewModel.isLoggedIn) {
+                        this.widget.actionModel.pushToLogin();
+                    }
+                    else {
+                        if (!this._article.like) {
+                            this.widget.actionModel.likeArticle(this._article.id);
+                        }
+                    }
+                },
+                shareCallback: this.share
+            );
+        }
+
         void _onRefresh(bool up) {
             if (!up) {
                 this.widget.actionModel.fetchArticleComments(this._article.channelId, this._article.currOldestMessageId)
@@ -504,13 +476,13 @@ namespace ConnectApp.screens {
             if (pixels > this._titleHeight) {
                 if (this._isHaveTitle == false) {
                     this._controller.forward();
-                    this.setState(() => { this._isHaveTitle = true; });
+                    this.setState(() => this._isHaveTitle = true);
                 }
             }
             else {
                 if (this._isHaveTitle) {
                     this._controller.reverse();
-                    this.setState(() => { this._isHaveTitle = false; });
+                    this.setState(() => this._isHaveTitle = false);
                 }
             }
 
@@ -519,8 +491,8 @@ namespace ConnectApp.screens {
 
         Widget _buildContentHead() {
             Widget _avatar = this._article.ownerType == OwnerType.user.ToString()
-                ? Avatar.User(this._user, 32)
-                : Avatar.Team(this._team, 32);
+                ? Avatar.User(user: this._user, 32)
+                : Avatar.Team(team: this._team, 32);
 
             var text = this._article.ownerType == "user"
                 ? this._user.fullName ?? this._user.name
@@ -548,7 +520,7 @@ namespace ConnectApp.screens {
                         new Container(
                             margin: EdgeInsets.only(top: 8),
                             child: new Text(
-                                $"阅读 {this._article.viewCount} · {DateConvert.DateStringFromNow(time)}",
+                                $"阅读 {this._article.viewCount} · {DateConvert.DateStringFromNow(dt: time)}",
                                 style: CTextStyle.PSmallBody4
                             )
                         ),
@@ -665,17 +637,13 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildRelatedArticles() {
-            if (this._article.projects == null) {
-                return new Container();
-            }
-
-            var relatedArticles = this._article.projects.FindAll(item => item.type == "article");
-            if (relatedArticles.Count == 0) {
+            if (this._article.projects == null || this._article.projects.Count == 0) {
                 return new Container();
             }
 
             var widgets = new List<Widget>();
-            relatedArticles.ForEach(article => {
+            this._article.projects.ForEach(articleId => {
+                var article = this.widget.viewModel.articleDict[key: articleId];
                 //对文章进行过滤
                 if (article.id != this._article.id) {
                     var fullName = "";
@@ -691,12 +659,16 @@ namespace ConnectApp.screens {
                         article: article,
                         fullName: fullName,
                         () => {
-                            AnalyticsManager.ClickEnterArticleDetail("ArticleDetail_Related", article.id,
-                                article.title);
-                            this.widget.actionModel.pushToArticleDetail(article.id);
+                            AnalyticsManager.ClickEnterArticleDetail(
+                                "ArticleDetail_Related",
+                                articleId: article.id,
+                                articleTitle: article.title
+                            );
+                            this.widget.actionModel.pushToArticleDetail(obj: article.id);
                         },
-                        key: new ObjectKey(article.id));
-                    widgets.Add(card);
+                        key: new ObjectKey(value: article.id)
+                    );
+                    widgets.Add(item: card);
                 }
             });
             if (widgets.isNotEmpty()) {
@@ -728,8 +700,8 @@ namespace ConnectApp.screens {
 
         IEnumerable<Widget> _buildComments(BuildContext context) {
             List<string> channelComments = new List<string>();
-            if (this.widget.viewModel.channelMessageList.ContainsKey(this._article.channelId)) {
-                channelComments = this.widget.viewModel.channelMessageList[this._article.channelId];
+            if (this.widget.viewModel.channelMessageList.ContainsKey(key: this._article.channelId)) {
+                channelComments = this.widget.viewModel.channelMessageList[key: this._article.channelId];
             }
 
             var mediaQuery = MediaQuery.of(context);
@@ -771,20 +743,20 @@ namespace ConnectApp.screens {
                 return comments;
             }
 
-            var messageDict = this.widget.viewModel.channelMessageDict[this._article.channelId];
+            var messageDict = this.widget.viewModel.channelMessageDict[key: this._article.channelId];
             float contentHeights = 0;
             foreach (var commentId in channelComments) {
-                if (!messageDict.ContainsKey(commentId)) {
+                if (!messageDict.ContainsKey(key: commentId)) {
                     break;
                 }
 
-                var message = messageDict[commentId];
-                bool isPraised = _isPraised(message, this.widget.viewModel.loginUserId);
+                var message = messageDict[key: commentId];
+                bool isPraised = _isPraised(message: message, loginUserId: this.widget.viewModel.loginUserId);
                 var parentName = "";
                 var parentAuthorId = "";
                 if (message.parentMessageId.isNotEmpty()) {
-                    if (messageDict.ContainsKey(message.parentMessageId)) {
-                        var parentMessage = messageDict[message.parentMessageId];
+                    if (messageDict.ContainsKey(key: message.parentMessageId)) {
+                        var parentMessage = messageDict[key: message.parentMessageId];
                         parentName = parentMessage.author.fullName;
                         parentAuthorId = parentMessage.author.id;
                     }
@@ -803,53 +775,37 @@ namespace ConnectApp.screens {
                 // 22 is commentTime height, 12 is commentTime bottom margin
                 contentHeights += contentHeight;
                 var card = new CommentCard(
-                    message,
-                    isPraised,
-                    parentName,
-                    parentAuthorId,
+                    message: message,
+                    isPraised: isPraised,
+                    parentName: parentName,
+                    parentAuthorId: parentAuthorId,
                     () => ReportManager.showReportView(
-                        this.widget.viewModel.isLoggedIn,
-                        ReportType.comment,
+                        isLoggedIn: this.widget.viewModel.isLoggedIn,
+                        reportType: ReportType.comment,
                         () => this.widget.actionModel.pushToLogin(),
                         () => this.widget.actionModel.pushToReport(commentId, ReportType.comment)
                     ),
-                    replyCallBack: () => {
-                        if (!this.widget.viewModel.isLoggedIn) {
-                            this.widget.actionModel.pushToLogin();
-                        }
-                        else {
-                            AnalyticsManager.ClickComment("Article_Comment", this._article.channelId,
-                                this._article.title, commentId);
-                            ActionSheetUtils.showModalActionSheet(new CustomInput(
-                                message.author.fullName.isEmpty() ? "" : message.author.fullName,
-                                text => {
-                                    ActionSheetUtils.hiddenModalPopup();
-                                    this.widget.actionModel.sendComment(
-                                        this._article.channelId,
-                                        text,
-                                        Snowflake.CreateNonce(),
-                                        commentId
-                                    );
-                                })
-                            );
-                        }
-                    },
+                    replyCallBack: () => this._comment(
+                        "Article_Comment",
+                        commentId: commentId,
+                        message.author.fullName.isEmpty() ? "" : message.author.fullName
+                    ),
                     praiseCallBack: () => {
                         if (!this.widget.viewModel.isLoggedIn) {
                             this.widget.actionModel.pushToLogin();
                         }
                         else {
                             if (isPraised) {
-                                this.widget.actionModel.removeLikeComment(message);
+                                this.widget.actionModel.removeLikeComment(arg: message);
                             }
                             else {
-                                this.widget.actionModel.likeComment(message);
+                                this.widget.actionModel.likeComment(arg: message);
                             }
                         }
                     },
                     pushToUserDetail: this.widget.actionModel.pushToUserDetail
                 );
-                comments.Add(card);
+                comments.Add(item: card);
             }
 
             float endHeight = 0;
@@ -917,6 +873,32 @@ namespace ConnectApp.screens {
                 },
                 () => this.widget.actionModel.mainRouterPop()
             );
+        }
+
+        void _comment(string type, string commentId = "", string replyUserName = null) {
+            if (!this.widget.viewModel.isLoggedIn) {
+                this.widget.actionModel.pushToLogin();
+            }
+            else {
+                AnalyticsManager.ClickComment(
+                    type: type,
+                    channelId: this._article.channelId,
+                    title: this._article.title,
+                    commentId: commentId
+                );
+                ActionSheetUtils.showModalActionSheet(new CustomInput(
+                    replyUserName: replyUserName,
+                    text => {
+                        ActionSheetUtils.hiddenModalPopup();
+                        this.widget.actionModel.sendComment(
+                            this._article.channelId,
+                            text,
+                            Snowflake.CreateNonce(),
+                            commentId
+                        );
+                    })
+                );
+            }
         }
     }
 }

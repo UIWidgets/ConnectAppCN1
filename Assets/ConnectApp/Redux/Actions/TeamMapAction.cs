@@ -101,7 +101,7 @@ namespace ConnectApp.redux.actions {
                             : new Team();
                         var team = teamResponse.team;
                         dispatcher.dispatch(new FetchTeamSuccessAction {
-                            team = team.Merge(other: currentTeam),
+                            team = currentTeam.Merge(other: team),
                             teamId = teamId
                         });
                     })

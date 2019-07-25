@@ -182,6 +182,20 @@ namespace ConnectApp.redux.actions {
                                 userMap.Add(key: message.author.id, value: message.author);
                             }
                         });
+                        responseComments.parents.ForEach(message => {
+                            if (messageItems.ContainsKey(key: message.id)) {
+                                messageItems[key: message.id] = message;
+                            }
+                            else {
+                                messageItems.Add(key: message.id, value: message);
+                            }
+                            if (userMap.ContainsKey(key: message.author.id)) {
+                                userMap[key: message.author.id] = message.author;
+                            }
+                            else {
+                                userMap.Add(key: message.author.id, value: message.author);
+                            }
+                        });
                         dispatcher.dispatch(new UserMapAction {userMap = userMap});
                         dispatcher.dispatch(new FetchArticleCommentsSuccessAction {
                             channelId = channelId,
@@ -214,6 +228,20 @@ namespace ConnectApp.redux.actions {
                                     userMap.Add(key: message.author.id, value: message.author);
                                 }
                             });
+                            articleDetailResponse.project.comments.parents.ForEach(message => {
+                                if (messageItems.ContainsKey(key: message.id)) {
+                                    messageItems[key: message.id] = message;
+                                }
+                                else {
+                                    messageItems.Add(key: message.id, value: message);
+                                }
+                                if (userMap.ContainsKey(key: message.author.id)) {
+                                    userMap[key: message.author.id] = message.author;
+                                }
+                                else {
+                                    userMap.Add(key: message.author.id, value: message.author);
+                                }
+                            });
                             dispatcher.dispatch(new UserMapAction {
                                 userMap = userMap
                             });
@@ -229,6 +257,9 @@ namespace ConnectApp.redux.actions {
 
                         dispatcher.dispatch(new UserMapAction {
                             userMap = articleDetailResponse.project.userMap
+                        });
+                        dispatcher.dispatch(new UserMapAction {
+                            userMap = articleDetailResponse.project.mentionUsers
                         });
                         dispatcher.dispatch(new TeamMapAction {
                             teamMap = articleDetailResponse.project.teamMap

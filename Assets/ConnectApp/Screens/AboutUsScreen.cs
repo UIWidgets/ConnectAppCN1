@@ -21,7 +21,7 @@ namespace ConnectApp.screens {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         toOriginCode = () => dispatcher.dispatch(new OpenUrlAction {url = Config.originCodeUrl}),
                         toWidgetOriginCode = () =>
-                            dispatcher.dispatch(new OpenUrlAction {url = Config.widgetOriginCoceUrl})
+                            dispatcher.dispatch(new OpenUrlAction {url = Config.widgetOriginCodeUrl})
                     };
                     return new AboutUsScreen(actionModel);
                 }
