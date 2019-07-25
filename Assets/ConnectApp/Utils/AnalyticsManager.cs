@@ -136,16 +136,17 @@ namespace ConnectApp.Utils {
                 return;
             }
 
-            var mEventId = "Click_Event_Comment";
-            var extras = new Dictionary<string, string>();
-            extras.Add("type", type);
-            extras.Add("channelId", channelId);
-            extras.Add("title", title);
-            if (commentId != null) {
-                extras.Add("commentId", commentId);
+            const string mEventId = "Click_Event_Comment";
+            var extras = new Dictionary<string, string> {
+                {"type", type},
+                {"channelId", channelId},
+                {"title", title}
+            };
+            if (commentId != null && commentId.isNotEmpty()) {
+                extras.Add("commentId", value: commentId);
             }
 
-            JAnalyticsPlugin.CountEvent(mEventId, extras);
+            JAnalyticsPlugin.CountEvent(eventId: mEventId, extras: extras);
         }
 
         public static void ClickPublishComment(string type, string channelId, string commentId = null) {

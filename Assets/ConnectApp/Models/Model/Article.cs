@@ -29,7 +29,7 @@ namespace ConnectApp.Models.Model {
         public HeaderImage headerImage;
         public bool like;
         public bool edit;
-        public List<Article> projects;
+        public List<string> projects;
         public string channelId;
         public Dictionary<string, ContentMap> contentMap;
         public string currOldestMessageId;
