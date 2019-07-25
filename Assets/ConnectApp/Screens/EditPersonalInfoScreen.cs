@@ -128,7 +128,7 @@ namespace ConnectApp.screens {
         void _editPersonalInfo() {
             CustomDialogUtils.showCustomDialog(
                 child: new CustomLoadingDialog(
-                    message: "正在编辑个人信息"
+                    message: "保存中"
                 )
             );
             this.widget.actionModel.editPersonalInfo(

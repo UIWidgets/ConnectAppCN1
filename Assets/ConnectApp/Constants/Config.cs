@@ -20,7 +20,7 @@ namespace ConnectApp.Constants {
 
         public const string originCodeUrl = "https://github.com/UnityTech/ConnectAppCN";
 
-        public const string widgetOriginCoceUrl = "https://github.com/UnityTech/UIWidgets";
+        public const string widgetOriginCodeUrl = "https://github.com/UnityTech/UIWidgets";
 
 
 #if UNITY_IOS

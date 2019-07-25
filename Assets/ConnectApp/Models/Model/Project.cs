@@ -12,6 +12,7 @@ namespace ConnectApp.Models.Model {
         public Dictionary<string, User> userMap;
         public Dictionary<string, Team> teamMap;
         public Dictionary<string, bool> followMap;
+        public Dictionary<string, User> mentionUsers;
         public FetchCommentsResponse comments;
         public string channelId;
         public bool like;
