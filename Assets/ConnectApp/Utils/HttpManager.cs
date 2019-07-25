@@ -76,7 +76,6 @@ namespace ConnectApp.Utils {
 
         public static Promise<string> resume(UnityWebRequest request) {
             var promise = new Promise<string>();
-            Debug.Log($"====== Window.instance =={Window.instance}");
             Window.instance.startCoroutine(sendRequest(promise, request));
             return promise;
         }
@@ -186,7 +185,7 @@ namespace ConnectApp.Utils {
                     vsCookie = $"VS={code}";
                     updateCookie(vsCookie);
                 }
-            }).Catch(exception => { Debug.Log(exception); });
+            }).Catch(exception => { });
         }
     }
 }
