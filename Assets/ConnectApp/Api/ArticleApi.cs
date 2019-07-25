@@ -118,7 +118,8 @@ namespace ConnectApp.Api {
             var para = new SendCommentParameter {
                 content = content,
                 parentMessageId = parentMessageId,
-                nonce = nonce
+                nonce = nonce,
+                app = true
             };
             var request = HttpManager.POST($"{Config.apiAddress}/api/channels/{channelId}/messages", para);
             HttpManager.resume(request).Then(responseText => {
