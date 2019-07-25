@@ -12,8 +12,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
@@ -75,6 +75,7 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
+            HttpManager.initVSCode();
             this._selectedIndex = 1;
             this._pageController = new PageController(initialPage: this._selectedIndex);
             this._titleFontSize = _maxTitleFontSize;

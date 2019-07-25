@@ -58,6 +58,6 @@ namespace ConnectApp.Models.Api {
         public string device;
         public string eventType;
         public DateTime appTime;
-        public string data;
+        public List<Dictionary<string, string>> extraData;
     }
 }
