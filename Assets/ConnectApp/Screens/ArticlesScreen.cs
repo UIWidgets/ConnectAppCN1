@@ -157,7 +157,6 @@ namespace ConnectApp.screens {
                 widgets.Add(new SizedBox(width: 16));
             });
             return new Container(
-                color: CColors.White,
                 padding: EdgeInsets.only(16),
                 height: this._navBarHeight,
                 decoration: new BoxDecoration(
