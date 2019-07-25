@@ -29,6 +29,7 @@ namespace ConnectApp.Models.Api {
         public string content;
         public string parentMessageId;
         public string nonce;
+        public bool app;
     }
 
     [Serializable]
@@ -58,6 +59,6 @@ namespace ConnectApp.Models.Api {
         public string device;
         public string eventType;
         public DateTime appTime;
-        public string data;
+        public List<Dictionary<string, string>> extraData;
     }
 }

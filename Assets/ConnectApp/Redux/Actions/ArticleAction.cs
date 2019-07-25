@@ -5,6 +5,7 @@ using ConnectApp.Constants;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Utils;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
 using UnityEngine;
 
@@ -182,6 +183,20 @@ namespace ConnectApp.redux.actions {
                                 userMap.Add(key: message.author.id, value: message.author);
                             }
                         });
+                        responseComments.parents.ForEach(message => {
+                            if (messageItems.ContainsKey(key: message.id)) {
+                                messageItems[key: message.id] = message;
+                            }
+                            else {
+                                messageItems.Add(key: message.id, value: message);
+                            }
+                            if (userMap.ContainsKey(key: message.author.id)) {
+                                userMap[key: message.author.id] = message.author;
+                            }
+                            else {
+                                userMap.Add(key: message.author.id, value: message.author);
+                            }
+                        });
                         dispatcher.dispatch(new UserMapAction {userMap = userMap});
                         dispatcher.dispatch(new FetchArticleCommentsSuccessAction {
                             channelId = channelId,
@@ -214,6 +229,20 @@ namespace ConnectApp.redux.actions {
                                     userMap.Add(key: message.author.id, value: message.author);
                                 }
                             });
+                            articleDetailResponse.project.comments.parents.ForEach(message => {
+                                if (messageItems.ContainsKey(key: message.id)) {
+                                    messageItems[key: message.id] = message;
+                                }
+                                else {
+                                    messageItems.Add(key: message.id, value: message);
+                                }
+                                if (userMap.ContainsKey(key: message.author.id)) {
+                                    userMap[key: message.author.id] = message.author;
+                                }
+                                else {
+                                    userMap.Add(key: message.author.id, value: message.author);
+                                }
+                            });
                             dispatcher.dispatch(new UserMapAction {
                                 userMap = userMap
                             });
@@ -229,6 +258,9 @@ namespace ConnectApp.redux.actions {
 
                         dispatcher.dispatch(new UserMapAction {
                             userMap = articleDetailResponse.project.userMap
+                        });
+                        dispatcher.dispatch(new UserMapAction {
+                            userMap = articleDetailResponse.project.mentionUsers
                         });
                         dispatcher.dispatch(new TeamMapAction {
                             teamMap = articleDetailResponse.project.teamMap
@@ -300,7 +332,14 @@ namespace ConnectApp.redux.actions {
                 return ArticleApi.SendComment(channelId, content, nonce, parentMessageId)
                     .Then(message => {
                         CustomDialogUtils.hiddenCustomDialog();
-                        CustomDialogUtils.showToast("发送成功", iconData: Icons.sentiment_satisfied);
+                        if (message.deleted) {
+                            if (parentMessageId.isNotEmpty()) {
+                                CustomDialogUtils.showToast("此条评论已被删除", iconData: Icons.sentiment_dissatisfied);
+                            }
+                        }
+                        else {
+                            CustomDialogUtils.showToast("发送成功", iconData: Icons.sentiment_satisfied);
+                        }
                         dispatcher.dispatch(new SendCommentSuccessAction {
                             message = message,
                             articleId = articleId,

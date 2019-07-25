@@ -142,27 +142,32 @@ namespace ConnectApp.Components {
                 return new Container();
             }
 
-            var hostItems = new List<Widget>();
-            hostItems.Add(new Container(
-                margin: EdgeInsets.symmetric(horizontal: 16, vertical: 40),
-                height: 1,
-                color: CColors.Separator2
-            ));
-            hostItems.Add(new Padding(
-                padding: EdgeInsets.fromLTRB(16, 0, 16, 24),
-                child: new Text(
-                    "讲师",
-                    style: CTextStyle.H4
+            var hostItems = new List<Widget> {
+                new Container(
+                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 40),
+                    height: 1,
+                    color: CColors.Separator2
+                ),
+                new Padding(
+                    padding: EdgeInsets.fromLTRB(16, 0, 16, 24),
+                    child: new Text(
+                        "讲师",
+                        style: CTextStyle.H4
+                    )
                 )
-            ));
-            hosts.ForEach(host => { hostItems.Add(_buildLecture(host)); });
+            };
+            hosts.ForEach(host => hostItems.Add(this._buildLecture(host: host)));
             return new Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: hostItems
             );
         }
 
-        static Widget _buildLecture(User host) {
+        Widget _buildLecture(User host) {
+            if (host == null) {
+                return new Container();
+            }
+
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 margin: EdgeInsets.only(bottom: 24),
@@ -170,46 +175,51 @@ namespace ConnectApp.Components {
                 child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        new Row(
-                            children: new List<Widget> {
-                                new Container(
-                                    margin: EdgeInsets.only(right: 8),
-                                    child: Avatar.User(host, 48)
-                                ),
-                                new Expanded(
-                                    child: new Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: new List<Widget> {
-                                            new Container(
-                                                child: new Text(
-                                                    host.fullName,
-                                                    style: new TextStyle(
-                                                        color: CColors.TextBody,
-                                                        fontFamily: "Roboto-Medium",
-                                                        fontSize: 16
-                                                    )
-                                                )
-                                            ),
-                                            host.title.isNotEmpty()
-                                                ? new Container(
+                        new GestureDetector(
+                            onTap: () => this.pushToUserDetail(obj: host.id),
+                            child: new Row(
+                                children: new List<Widget> {
+                                    new Container(
+                                        margin: EdgeInsets.only(right: 8),
+                                        child: Avatar.User(user: host, 48)
+                                    ),
+                                    new Flexible(
+                                        child: new Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: new List<Widget> {
+                                                new Container(
                                                     child: new Text(
-                                                        host.title,
+                                                        host.fullName ?? host.name ?? "",
                                                         maxLines: 1,
                                                         overflow: TextOverflow.ellipsis,
-                                                        style: CTextStyle.PRegularBody3
+                                                        style: new TextStyle(
+                                                            color: CColors.TextBody,
+                                                            fontFamily: "Roboto-Medium",
+                                                            fontSize: 16
+                                                        )
                                                     )
-                                                )
-                                                : new Container()
-                                        }
+                                                ),
+                                                host.title.isNotEmpty()
+                                                    ? new Container(
+                                                        child: new Text(
+                                                            data: host.title,
+                                                            maxLines: 1,
+                                                            overflow: TextOverflow.ellipsis,
+                                                            style: CTextStyle.PRegularBody3
+                                                        )
+                                                    )
+                                                    : new Container()
+                                            }
+                                        )
                                     )
-                                )
-                            }
+                                }
+                            )
                         ),
                         new Container(
                             margin: EdgeInsets.only(top: 8),
                             child: new Text(
-                                host.description,
+                                data: host.description,
                                 style: new TextStyle(
                                     color: CColors.TextBody3,
                                     fontFamily: "Roboto-Regular",

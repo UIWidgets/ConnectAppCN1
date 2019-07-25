@@ -22,6 +22,7 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, NotificationScreenViewModel>(
                 converter: state => new NotificationScreenViewModel {
                     notificationLoading = state.notificationState.loading,
+                    page = state.notificationState.page,
                     pageTotal = state.notificationState.pageTotal,
                     notifications = state.notificationState.notifications,
                     mentions = state.notificationState.mentions,
@@ -91,31 +92,31 @@ namespace ConnectApp.screens {
             this.titleStyle = CTextStyle.H2;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchNotifications();
-                this.widget.actionModel.fetchNotifications(firstPageNumber);
+                this.widget.actionModel.fetchNotifications(arg: firstPageNumber);
             });
-            this._loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
+            this._loginSubId = EventBus.subscribe(sName: EventBusConstant.login_success, args => {
                 this.navBarHeight = maxNavBarHeight;
                 this.titleStyle = CTextStyle.H2;
                 this.widget.actionModel.startFetchNotifications();
-                this.widget.actionModel.fetchNotifications(firstPageNumber);
+                this.widget.actionModel.fetchNotifications(arg: firstPageNumber);
             });
-            this._refreshSubId = EventBus.subscribe(EventBusConstant.refreshNotifications, args => {
+            this._refreshSubId = EventBus.subscribe(sName: EventBusConstant.refreshNotifications, args => {
                 this.navBarHeight = maxNavBarHeight;
                 this.titleStyle = CTextStyle.H2;
                 this.widget.actionModel.startFetchNotifications();
-                this.widget.actionModel.fetchNotifications(firstPageNumber);
+                this.widget.actionModel.fetchNotifications(arg: firstPageNumber);
             });
         }
 
         public override void dispose() {
-            EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
-            EventBus.unSubscribe(EventBusConstant.refreshNotifications, this._refreshSubId);
+            EventBus.unSubscribe(sName: EventBusConstant.login_success, id: this._loginSubId);
+            EventBus.unSubscribe(sName: EventBusConstant.refreshNotifications, id: this._refreshSubId);
             base.dispose();
         }
 
         public override Widget build(BuildContext context) {
             base.build(context: context);
-            Widget content = new Container();
+            Widget content;
             var notifications = this.widget.viewModel.notifications;
             if (this.widget.viewModel.notificationLoading && notifications.Count == 0) {
                 content = new GlobalLoading();
@@ -129,13 +130,13 @@ namespace ConnectApp.screens {
                             true,
                             () => {
                                 this.widget.actionModel.startFetchNotifications();
-                                this.widget.actionModel.fetchNotifications(firstPageNumber);
+                                this.widget.actionModel.fetchNotifications(arg: firstPageNumber);
                             }
                         )
                     );
                 }
                 else {
-                    var enablePullUp = this._pageNumber < this.widget.viewModel.pageTotal;
+                    var enablePullUp = this.widget.viewModel.page < this.widget.viewModel.pageTotal;
                     var itemCount = enablePullUp ? notifications.Count : notifications.Count + 1;
                     content = new Container(
                         color: CColors.Background,
@@ -166,7 +167,7 @@ namespace ConnectApp.screens {
                         new Flexible(
                             child: new NotificationListener<ScrollNotification>(
                                 onNotification: this._onNotification,
-                                child: new CustomScrollbar(content)
+                                child: new CustomScrollbar(child: content)
                             )
                         )
                     }
@@ -207,12 +208,17 @@ namespace ConnectApp.screens {
                 user: user,
                 mentions: this.widget.viewModel.mentions,
                 () => {
-                    this.widget.actionModel.pushToArticleDetail(notification.data.projectId);
-                    AnalyticsManager.ClickEnterArticleDetail(
-                        "Notification_Article",
-                        articleId: notification.data.projectId,
-                        articleTitle: notification.data.projectTitle
-                    );
+                    if (notification.type == "followed") {
+                        this.widget.actionModel.pushToUserDetail(obj: notification.data.userId);
+                    }
+                    else {
+                        this.widget.actionModel.pushToArticleDetail(obj: notification.data.projectId);
+                        AnalyticsManager.ClickEnterArticleDetail(
+                            "Notification_Article",
+                            articleId: notification.data.projectId,
+                            articleTitle: notification.data.projectTitle
+                        );
+                    }
                 },
                 pushToUserDetail: this.widget.actionModel.pushToUserDetail,
                 index == notifications.Count - 1,
@@ -247,16 +253,11 @@ namespace ConnectApp.screens {
         }
 
         void _onRefresh(bool up) {
-            if (up) {
-                this._pageNumber = firstPageNumber;
-            }
-            else {
-                this._pageNumber++;
-            }
+            this._pageNumber = up ? firstPageNumber : this.widget.viewModel.page + 1;
 
-            this.widget.actionModel.fetchNotifications(this._pageNumber)
-                .Then(() => this._refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
-                .Catch(_ => this._refreshController.sendBack(up, RefreshStatus.failed));
+            this.widget.actionModel.fetchNotifications(arg: this._pageNumber)
+                .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }
     }
 }

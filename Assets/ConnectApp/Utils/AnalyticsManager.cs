@@ -1,15 +1,19 @@
 using System;
 using System.Collections.Generic;
-#if UNITY_IOS
-using System.Runtime.InteropServices;
-#endif
 using ConnectApp.Api;
 using ConnectApp.Components;
 using ConnectApp.Plugins;
+using Unity.UIWidgets.foundation;
 using UnityEngine;
+#if UNITY_IOS
+using System.Runtime.InteropServices;
+
+#endif
 
 namespace ConnectApp.Utils {
     public static class AnalyticsManager {
+        public static string foucsTime;
+
         // tab点击统计
         public static void ClickHomeTab(int fromIndex, int toIndex) {
             if (Application.isEditor) {
@@ -132,16 +136,17 @@ namespace ConnectApp.Utils {
                 return;
             }
 
-            var mEventId = "Click_Event_Comment";
-            var extras = new Dictionary<string, string>();
-            extras.Add("type", type);
-            extras.Add("channelId", channelId);
-            extras.Add("title", title);
-            if (commentId != null) {
-                extras.Add("commentId", commentId);
+            const string mEventId = "Click_Event_Comment";
+            var extras = new Dictionary<string, string> {
+                {"type", type},
+                {"channelId", channelId},
+                {"title", title}
+            };
+            if (commentId != null && commentId.isNotEmpty()) {
+                extras.Add("commentId", value: commentId);
             }
 
-            JAnalyticsPlugin.CountEvent(mEventId, extras);
+            JAnalyticsPlugin.CountEvent(eventId: mEventId, extras: extras);
         }
 
         public static void ClickPublishComment(string type, string channelId, string commentId = null) {
@@ -311,6 +316,7 @@ namespace ConnectApp.Utils {
                 return;
             }
 
+            foucsTime = DateTime.UtcNow.ToString();
             var mEventId = "Enter_App";
             var extras = new Dictionary<string, string>();
             extras.Add("app", "unity connect");
@@ -359,18 +365,90 @@ namespace ConnectApp.Utils {
                 return;
             }
 
-            AnalyticsApi.OpenApp(UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null,
-                deviceId() + (SystemInfo.deviceModel ?? ""),
-                "OpenApp", DateTime.Now, null);
+            var type = "OpenApp";
+            var userId = UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null;
+            var device = deviceId() + (SystemInfo.deviceModel ?? "");
+            var data = new List<Dictionary<string, string>> {
+                new Dictionary<string, string> {
+                    {"key", "enableNotification"}, {"dataType", "bool"}, {"value", enableNotification().ToString()}
+                }
+            };
+            AnalyticsApi.AnalyticsApp(userId, device, type, DateTime.UtcNow, data);
+        }
+
+        public static void AnalyticsWakeApp(string mode, string id = null, string type = null, string subtype = null) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            var userId = UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null;
+            var device = deviceId() + (SystemInfo.deviceModel ?? "");
+            var data = new List<Dictionary<string, string>>();
+            if (id.isNotEmpty()) {
+                data.Add(new Dictionary<string, string> {
+                    {"key", "id"}, {"dataType", "string"}, {"value", id}
+                });
+            }
+
+            if (type.isNotEmpty()) {
+                data.Add(new Dictionary<string, string> {
+                    {"key", "type"}, {"dataType", "string"}, {"value", type}
+                });
+            }
+
+            if (subtype.isNotEmpty()) {
+                data.Add(new Dictionary<string, string> {
+                    {"key", "subtype"}, {"dataType", "string"}, {"value", subtype}
+                });
+            }
+
+            AnalyticsApi.AnalyticsApp(userId, device, mode, DateTime.UtcNow, data);
+        }
+
+
+        public static void AnalyticsLogin(string type, string userId) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            var device = deviceId() + (SystemInfo.deviceModel ?? "");
+            var data = new List<Dictionary<string, string>> {
+                new Dictionary<string, string> {
+                    {"key", "type"}, {"dataType", "string"}, {"value", type}
+                }
+            };
+            AnalyticsApi.AnalyticsApp(userId, device, "UserLogin", DateTime.UtcNow, data);
+        }
+
+        public static void AnalyticsActiveTime(int timespan) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            var userId = UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null;
+            var device = deviceId() + (SystemInfo.deviceModel ?? "");
+            var data = new List<Dictionary<string, string>> {
+                new Dictionary<string, string> {
+                    {"key", "duration"}, {"dataType", "int"}, {"value", timespan.ToString()}
+                }
+            };
+            AnalyticsApi.AnalyticsApp(userId, device, "ActiveTime", DateTime.UtcNow, data);
         }
 
         public static string deviceId() {
             return getDeviceID();
         }
 
+        public static bool enableNotification() {
+            return isEnableNotification();
+        }
+
 #if UNITY_IOS
         [DllImport("__Internal")]
         static extern string getDeviceID();
+
+        [DllImport("__Internal")]
+        static extern bool isEnableNotification();
 
 #elif UNITY_ANDROID
         static AndroidJavaClass _plugin;
@@ -386,8 +464,12 @@ namespace ConnectApp.Utils {
         static string getDeviceID() {
             return Plugin().CallStatic<string>("getDeviceID");
         }
+        static bool isEnableNotification() {
+            return Plugin().CallStatic<bool>("isEnableNotification");
+        }
 #else
         static string getDeviceID() {}
+        static bool isEnableNotification() {}
 #endif
     }
 }

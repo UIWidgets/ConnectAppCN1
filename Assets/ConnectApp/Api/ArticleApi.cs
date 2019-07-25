@@ -5,6 +5,7 @@ using ConnectApp.Models.Model;
 using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
+using Unity.UIWidgets.foundation;
 
 namespace ConnectApp.Api {
     public static class ArticleApi {
@@ -47,7 +48,7 @@ namespace ConnectApp.Api {
                 para.Add("isPush", "true");
             }
 
-            var request = HttpManager.GET($"{Config.apiAddress}/api/p/{articleId}", parameter: para);
+            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/p/{articleId}", parameter: para);
             HttpManager.resume(request).Then(responseText => {
                 var articleDetailResponse = JsonConvert.DeserializeObject<FetchArticleDetailResponse>(responseText);
                 promise.Resolve(articleDetailResponse);
@@ -55,17 +56,16 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static Promise<FetchCommentsResponse>
-            FetchArticleComments(string channelId, string currOldestMessageId) {
+        public static Promise<FetchCommentsResponse> FetchArticleComments(string channelId, string currOldestMessageId) {
             var promise = new Promise<FetchCommentsResponse>();
             var para = new Dictionary<string, object> {
                 {"limit", 5}
             };
-            if (currOldestMessageId.Length > 0) {
-                para.Add("before", currOldestMessageId);
+            if (currOldestMessageId != null && currOldestMessageId.isNotEmpty()) {
+                para.Add("before", value: currOldestMessageId);
             }
 
-            var request = HttpManager.GET($"{Config.apiAddress}/api/channels/{channelId}/messages", parameter: para);
+            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/channels/{channelId}/messages", parameter: para);
             HttpManager.resume(request).Then(responseText => {
                 var responseComments = JsonConvert.DeserializeObject<FetchCommentsResponse>(responseText);
                 promise.Resolve(responseComments);
@@ -118,7 +118,8 @@ namespace ConnectApp.Api {
             var para = new SendCommentParameter {
                 content = content,
                 parentMessageId = parentMessageId,
-                nonce = nonce
+                nonce = nonce,
+                app = true
             };
             var request = HttpManager.POST($"{Config.apiAddress}/api/channels/{channelId}/messages", para);
             HttpManager.resume(request).Then(responseText => {

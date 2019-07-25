@@ -2,6 +2,8 @@ package com.unity3d.unityconnect.plugins;
 import android.content.Context;
 import android.media.AudioManager;
 import android.provider.Settings;
+import android.support.v4.app.NotificationManagerCompat;
+
 
 public class CommonPlugin {
 
@@ -62,5 +64,11 @@ public class CommonPlugin {
     public static String getDeviceID() {
         String uuid = UUIDUtils.getUUID();
         return uuid;
+    }
+    
+    public static boolean isEnableNotification(){
+        NotificationManagerCompat notification = NotificationManagerCompat.from(mContext);
+        boolean isEnabled = notification.areNotificationsEnabled();
+        return isEnabled;
     }
 }

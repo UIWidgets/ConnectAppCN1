@@ -48,6 +48,7 @@ namespace ConnectApp.Plugins {
                             var type = dict["type"];
                             var subType = dict["subtype"];
                             var id = dict["id"];
+                            AnalyticsManager.AnalyticsWakeApp("OnOpenNotification", id, type, subType);
                             AnalyticsManager.ClickNotification(type, subType, id);
                             pushPage(type, subType, id, true);
                         }
@@ -66,6 +67,7 @@ namespace ConnectApp.Plugins {
                                 return;
                             }
 
+                            AnalyticsManager.AnalyticsWakeApp("OnOpenUrl", args.first());
                             openUrl(args.first());
                         }
                             break;
@@ -74,6 +76,7 @@ namespace ConnectApp.Plugins {
                                 return;
                             }
 
+                            AnalyticsManager.AnalyticsWakeApp("OnOpenUniversalLinks", args.first());
                             openUniversalLink(args.first());
                         }
                             break;
@@ -176,6 +179,17 @@ namespace ConnectApp.Plugins {
 
                 StoreProvider.store.dispatcher.dispatch(
                     new MainNavigatorPushToEventDetailAction {eventId = id, eventType = eventType});
+            }
+            else if (type == "team") {
+                if (subType == "follower") {
+                    StoreProvider.store.dispatcher.dispatch(
+                        new MainNavigatorPushToTeamDetailAction {teamId = id});
+                }
+            }
+            else if (type == "user") {
+                if (subType == "follower") {
+                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToUserDetailAction {userId = id});
+                }
             }
             else if (type == "webView") {
                 StoreProvider.store.dispatcher.dispatch(
