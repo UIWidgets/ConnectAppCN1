@@ -423,6 +423,7 @@ namespace ConnectApp.Utils {
             if (Application.isEditor) {
                 return;
             }
+
             var userId = UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null;
             var device = deviceId() + (SystemInfo.deviceModel ?? "");
             var data = new List<Dictionary<string, string>> {

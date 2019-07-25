@@ -4,7 +4,6 @@ using ConnectApp.Constants;
 using ConnectApp.Models.Api;
 using ConnectApp.Utils;
 using RSG;
-using UnityEngine;
 
 namespace ConnectApp.Api {
     public class AnalyticsApi {
@@ -19,9 +18,7 @@ namespace ConnectApp.Api {
                 extraData = data
             };
             var request = HttpManager.POST($"{Config.apiAddress}/api/connectapp/statistic", para);
-            HttpManager.resume(request).Then(responseText => {
-                    promise.Resolve();
-                })
+            HttpManager.resume(request).Then(responseText => { promise.Resolve(); })
                 .Catch(exception => { promise.Reject(exception); });
             return promise;
         }
