@@ -133,6 +133,7 @@ namespace ConnectApp.Utils {
                 return;
             }
 
+            const string mEventId = "Click_Event_Comment";
             var extras = new Dictionary<string, string> {
                 {"type", type},
                 {"channelId", channelId},
@@ -142,7 +143,7 @@ namespace ConnectApp.Utils {
                 extras.Add("commentId", value: commentId);
             }
 
-            JAnalyticsPlugin.CountEvent("Click_Event_Comment", extras: extras);
+            JAnalyticsPlugin.CountEvent(eventId: mEventId, extras: extras);
         }
 
         public static void ClickPublishComment(string type, string channelId, string commentId = null) {

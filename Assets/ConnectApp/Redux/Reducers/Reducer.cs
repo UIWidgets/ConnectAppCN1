@@ -1765,7 +1765,8 @@ namespace ConnectApp.redux.reducers {
                         state.teamState.teamDict.Add(key: action.teamId, value: action.team);
                     }
                     else {
-                        state.teamState.teamDict[key: action.teamId] = action.team;
+                        var oldTeam = state.teamState.teamDict[key: action.teamId];
+                        state.teamState.teamDict[key: action.teamId] = oldTeam.Merge(other: action.team);
                     }
 
                     break;

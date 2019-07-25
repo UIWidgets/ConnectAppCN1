@@ -164,6 +164,10 @@ namespace ConnectApp.Components {
         }
 
         Widget _buildLecture(User host) {
+            if (host == null) {
+                return new Container();
+            }
+
             return new Container(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 margin: EdgeInsets.only(bottom: 24),
@@ -186,7 +190,7 @@ namespace ConnectApp.Components {
                                             children: new List<Widget> {
                                                 new Container(
                                                     child: new Text(
-                                                        host.fullName ?? host.name,
+                                                        host.fullName ?? host.name ?? "",
                                                         maxLines: 1,
                                                         overflow: TextOverflow.ellipsis,
                                                         style: new TextStyle(

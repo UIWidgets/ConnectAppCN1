@@ -95,13 +95,8 @@ namespace ConnectApp.redux.actions {
                     .Then(teamResponse => {
                         dispatcher.dispatch(new PlaceMapAction {placeMap = teamResponse.placeMap});
                         dispatcher.dispatch(new FollowMapAction {followMap = teamResponse.followMap});
-                        var teamDict = getState().teamState.teamDict;
-                        var currentTeam = teamDict.ContainsKey(key: teamId)
-                            ? teamDict[key: teamId]
-                            : new Team();
-                        var team = teamResponse.team;
                         dispatcher.dispatch(new FetchTeamSuccessAction {
-                            team = currentTeam.Merge(other: team),
+                            team = teamResponse.team,
                             teamId = teamId
                         });
                     })

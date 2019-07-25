@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 
@@ -9,7 +10,7 @@ namespace ConnectApp.Utils {
         public delegate void MentionTapCallback(string userId);
 
         public static string AnalyzeMessage(string content, List<User> mentions, bool mentionEveryone) {
-            if (content == null || content.Length <= 0) {
+            if (content.isEmpty()) {
                 return "";
             }
 
@@ -32,7 +33,7 @@ namespace ConnectApp.Utils {
         public static IEnumerable<TextSpan> messageToTextSpans(string content, List<User> mentions, bool mentionEveryone, MentionTapCallback onTap) {
             var textSpans = new List<TextSpan>();
 
-            if (content == null || content.Length <= 0) {
+            if (content.isEmpty()) {
                 return textSpans;
             }
 
@@ -48,21 +49,21 @@ namespace ConnectApp.Utils {
                     var mentionFullName = mention.fullName;
                     if (parsingContent.Contains($"<@{mentionId}>")) {
                         parsingContent = parsingContent.Replace($"<@{mentionId}>", $"@{mentionFullName}");
-                        var index = parsingContent.IndexOf($"@{mentionFullName}");
-                        var length = $"@{mentionFullName}".Length;
-                        textSpans.Add(new TextSpan(
-                            parsingContent.Substring(startIndex: startIndex, index - startIndex),
-                            style: CTextStyle.PLargeBody
-                        ));
-                        textSpans.Add(new TextSpan(
-                            parsingContent.Substring(startIndex: index, length: length),
-                            style: CTextStyle.PLargeBlue,
-                            recognizer: new TapGestureRecognizer {
-                                onTap = () => onTap(userId: mentionId)
-                            }
-                        ));
-                        startIndex = index + length;
                     }
+                    var index = parsingContent.IndexOf($"@{mentionFullName}", startIndex: startIndex);
+                    var length = $"@{mentionFullName}".Length;
+                    textSpans.Add(new TextSpan(
+                        parsingContent.Substring(startIndex: startIndex, index - startIndex),
+                        style: CTextStyle.PLargeBody
+                    ));
+                    textSpans.Add(new TextSpan(
+                        parsingContent.Substring(startIndex: index, length: length),
+                        style: CTextStyle.PLargeBlue,
+                        recognizer: new TapGestureRecognizer {
+                            onTap = () => onTap(userId: mentionId)
+                        }
+                    ));
+                    startIndex = index + length;
                 });
                 textSpans.Add(new TextSpan(
                     parsingContent.Substring(startIndex: startIndex, parsingContent.Length - startIndex),
