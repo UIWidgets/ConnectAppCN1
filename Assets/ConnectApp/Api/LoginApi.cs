@@ -51,5 +51,16 @@ namespace ConnectApp.Api {
             }).Catch(exception => { promise.Reject(exception); });
             return promise;
         }
+
+        public static IPromise<string> InitData() {
+            var promise = new Promise<string>();
+            var request =
+                HttpManager.GET($"{Config.apiAddress}/api/connectapp/initData");
+            HttpManager.resume(request).Then(responseText => {
+                var dictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseText);
+                promise.Resolve(dictionary["VS"]);
+            }).Catch(exception => { promise.Reject(exception); });
+            return promise;
+        }
     }
 }
