@@ -215,46 +215,44 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ArticleApi.FetchArticleDetail(articleId, isPush)
                     .Then(articleDetailResponse => {
-                        if (articleDetailResponse.project.comments.items.Count > 0) {
-                            var itemIds = new List<string>();
-                            var messageItems = new Dictionary<string, Message>();
-                            var userMap = new Dictionary<string, User>();
-                            articleDetailResponse.project.comments.items.ForEach(message => {
-                                itemIds.Add(item: message.id);
+                        var itemIds = new List<string>();
+                        var messageItems = new Dictionary<string, Message>();
+                        var userMap = new Dictionary<string, User>();
+                        articleDetailResponse.project.comments.items.ForEach(message => {
+                            itemIds.Add(item: message.id);
+                            messageItems[key: message.id] = message;
+                            if (userMap.ContainsKey(key: message.author.id)) {
+                                userMap[key: message.author.id] = message.author;
+                            }
+                            else {
+                                userMap.Add(key: message.author.id, value: message.author);
+                            }
+                        });
+                        articleDetailResponse.project.comments.parents.ForEach(message => {
+                            if (messageItems.ContainsKey(key: message.id)) {
                                 messageItems[key: message.id] = message;
-                                if (userMap.ContainsKey(key: message.author.id)) {
-                                    userMap[key: message.author.id] = message.author;
-                                }
-                                else {
-                                    userMap.Add(key: message.author.id, value: message.author);
-                                }
-                            });
-                            articleDetailResponse.project.comments.parents.ForEach(message => {
-                                if (messageItems.ContainsKey(key: message.id)) {
-                                    messageItems[key: message.id] = message;
-                                }
-                                else {
-                                    messageItems.Add(key: message.id, value: message);
-                                }
-                                if (userMap.ContainsKey(key: message.author.id)) {
-                                    userMap[key: message.author.id] = message.author;
-                                }
-                                else {
-                                    userMap.Add(key: message.author.id, value: message.author);
-                                }
-                            });
-                            dispatcher.dispatch(new UserMapAction {
-                                userMap = userMap
-                            });
-                            dispatcher.dispatch(new FetchArticleCommentsSuccessAction {
-                                channelId = articleDetailResponse.project.channelId,
-                                itemIds = itemIds,
-                                messageItems = messageItems,
-                                isRefreshList = true,
-                                hasMore = articleDetailResponse.project.comments.hasMore,
-                                currOldestMessageId = articleDetailResponse.project.comments.currOldestMessageId
-                            });
-                        }
+                            }
+                            else {
+                                messageItems.Add(key: message.id, value: message);
+                            }
+                            if (userMap.ContainsKey(key: message.author.id)) {
+                                userMap[key: message.author.id] = message.author;
+                            }
+                            else {
+                                userMap.Add(key: message.author.id, value: message.author);
+                            }
+                        });
+                        dispatcher.dispatch(new UserMapAction {
+                            userMap = userMap
+                        });
+                        dispatcher.dispatch(new FetchArticleCommentsSuccessAction {
+                            channelId = articleDetailResponse.project.channelId,
+                            itemIds = itemIds,
+                            messageItems = messageItems,
+                            isRefreshList = true,
+                            hasMore = articleDetailResponse.project.comments.hasMore,
+                            currOldestMessageId = articleDetailResponse.project.comments.currOldestMessageId
+                        });
 
                         dispatcher.dispatch(new UserMapAction {
                             userMap = articleDetailResponse.project.userMap
