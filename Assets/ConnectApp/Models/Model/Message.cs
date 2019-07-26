@@ -16,5 +16,6 @@ namespace ConnectApp.Models.Model {
         public List<User> mentions;
         public string deletedTime;
         public string type;
+        public bool deleted;
     }
 }

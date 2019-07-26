@@ -5,6 +5,7 @@ using ConnectApp.Constants;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Utils;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
 using UnityEngine;
 
@@ -331,7 +332,14 @@ namespace ConnectApp.redux.actions {
                 return ArticleApi.SendComment(channelId, content, nonce, parentMessageId)
                     .Then(message => {
                         CustomDialogUtils.hiddenCustomDialog();
-                        CustomDialogUtils.showToast("发送成功", iconData: Icons.sentiment_satisfied);
+                        if (message.deleted) {
+                            if (parentMessageId.isNotEmpty()) {
+                                CustomDialogUtils.showToast("此条评论已被删除", iconData: Icons.sentiment_dissatisfied);
+                            }
+                        }
+                        else {
+                            CustomDialogUtils.showToast("发送成功", iconData: Icons.sentiment_satisfied);
+                        }
                         dispatcher.dispatch(new SendCommentSuccessAction {
                             message = message,
                             articleId = articleId,
