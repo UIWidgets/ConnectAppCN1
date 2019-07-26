@@ -10,9 +10,10 @@ namespace ConnectApp.Components {
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.Separator2,
-                child: new ListView(
+                child: new Column(
                     children: new List<Widget> {
                         this._buildHead(context),
+                        this._buildContent(),
                         this._buildContent(),
                         this._buildContent(),
                         this._buildContent(),

@@ -12,8 +12,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
@@ -172,7 +172,8 @@ namespace ConnectApp.screens {
             var recommendArticleIds = this.widget.viewModel.recommendArticleIds;
             if (this.widget.viewModel.articlesLoading && recommendArticleIds.isEmpty()) {
                 content = ListView.builder(
-                    itemCount: 4,
+                    physics: new NeverScrollableScrollPhysics(),
+                    itemCount: 6,
                     itemBuilder: (cxt, index) => new ArticleLoading()
                 );
             }
