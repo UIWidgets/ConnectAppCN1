@@ -43,6 +43,11 @@ namespace ConnectApp.screens {
                             new MainNavigatorPushToUserDetailAction {
                                 userId = userId
                             }
+                        ),
+                        pushToTeamDetail = teamId => dispatcher.dispatch(
+                            new MainNavigatorPushToTeamDetailAction {
+                                teamId = teamId
+                            }
                         )
                     };
                     return new NotificationScreen(viewModel, actionModel);
@@ -201,6 +206,7 @@ namespace ConnectApp.screens {
             if (index == notifications.Count) {
                 return new EndView();
             }
+
             var notification = notifications[index: index];
             var user = this.widget.viewModel.userDict[key: notification.data.userId];
             return new NotificationCard(
@@ -208,7 +214,7 @@ namespace ConnectApp.screens {
                 user: user,
                 mentions: this.widget.viewModel.mentions,
                 () => {
-                    if (notification.type == "followed") {
+                    if (notification.type == "followed" || notification.type == "team_followed") {
                         this.widget.actionModel.pushToUserDetail(obj: notification.data.userId);
                     }
                     else {
@@ -221,6 +227,7 @@ namespace ConnectApp.screens {
                     }
                 },
                 pushToUserDetail: this.widget.actionModel.pushToUserDetail,
+                this.widget.actionModel.pushToTeamDetail,
                 index == notifications.Count - 1,
                 new ObjectKey(value: notification.id)
             );
