@@ -1,3 +1,4 @@
+using System;
 using System.Text.RegularExpressions;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
@@ -6,6 +7,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.Components {
@@ -121,7 +123,7 @@ namespace ConnectApp.Components {
                         ? new Container(
                             child: new _Placeholder(
                                 this.id ?? "",
-                                _extractName(name: this.fullName) ?? "",
+                                this.fullName ?? "",
                                 size: avatarSize
                             )
                         )
@@ -176,6 +178,7 @@ namespace ConnectApp.Components {
         readonly float size;
 
         public override Widget build(BuildContext context) {
+            var fontSize = (int) Math.Ceiling(this.size * 0.45f);
             return new Container(
                 width: this.size,
                 height: this.size,
@@ -184,12 +187,13 @@ namespace ConnectApp.Components {
                 child: new Container(
                     alignment: Alignment.center,
                     child: new Text(
-                        this.title.ToUpper(),
+                        CStringUtils.genAvatarName(name: this.title),
                         textAlign: TextAlign.center,
                         style: new TextStyle(
                             color: CColors.White,
+                            height: 1.15f,
                             fontFamily: "Roboto-Medium",
-                            fontSize: this.size * 0.45f
+                            fontSize: fontSize
                         )
                     )
                 )
