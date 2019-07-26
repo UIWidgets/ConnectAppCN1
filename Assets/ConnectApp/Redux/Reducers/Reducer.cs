@@ -832,8 +832,7 @@ namespace ConnectApp.redux.reducers {
                         foreach (var keyValuePair in action.teamMap) {
                             if (teamDict.ContainsKey(key: keyValuePair.Key)) {
                                 var team = teamDict[key: keyValuePair.Key].Merge(other: keyValuePair.Value);
-                                team.stats.membersCount = 0;
-                                teamDict[key: keyValuePair.Key] = team;
+                                teamDict[key: keyValuePair.Key] = team.copyWith(stats: new TeamStats {membersCount = 0});
                             }
                             else {
                                 teamDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
