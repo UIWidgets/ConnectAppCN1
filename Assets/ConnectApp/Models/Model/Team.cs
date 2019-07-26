@@ -17,7 +17,7 @@ namespace ConnectApp.Models.Model {
         public bool? articlesHasMore;
         public bool? followTeamLoading;
 
-        Team copyWith(
+        public Team copyWith(
             string id = null,
             string avatar = null,
             string name = null,
