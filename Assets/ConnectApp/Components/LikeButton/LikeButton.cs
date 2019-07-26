@@ -148,7 +148,7 @@ namespace ConnectApp.Components.LikeButton {
                 : new Container(
                     margin: EdgeInsets.only(4),
                     child: new Text(
-                        CStringUtils.likeCountToString(likeCount: this._likeCount),
+                        CStringUtils.CountToString(count: this._likeCount, "点赞"),
                         style: CTextStyle.PRegularBody5.merge(new TextStyle(height: 1))
                     )
                 );

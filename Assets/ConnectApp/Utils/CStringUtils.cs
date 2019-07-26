@@ -8,22 +8,22 @@ namespace ConnectApp.Utils {
             return $"{Config.apiAddress}/p/{projectId}?app=true";
         }
 
-        public static string likeCountToString(int likeCount) {
-            var likeCountString = "";
-            if (likeCount == 0) {
-                likeCountString = "点赞";
+        public static string CountToString(int count, string placeholder = "") {
+            var countString = "";
+            if (count == 0) {
+                countString = placeholder;
             }
-            if (likeCount > 0 && likeCount < 1000) {
-                likeCountString = likeCount.ToString();
+            if (count > 0 && count < 1000) {
+                countString = count.ToString();
             }
-            else if (likeCount >= 1000 && likeCount <= 10000) {
-                likeCountString = $"{likeCount / 1000f:f1}k";
+            else if (count >= 1000 && count <= 10000) {
+                countString = $"{count / 1000f:f1}k";
             }
-            else if (likeCount > 10000) {
-                likeCountString = "10k+";
+            else if (count > 10000) {
+                countString = "10k+";
             }
 
-            return likeCountString;
+            return countString;
         }
 
         public static string genAvatarName(string name) {

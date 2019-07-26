@@ -317,7 +317,7 @@ namespace ConnectApp.Components {
                                                 new Container(
                                                     margin: EdgeInsets.only(6),
                                                     child: new Text(
-                                                        this.article.commentCount == 0 ? "评论" : $"{this.article.commentCount}",
+                                                        CStringUtils.CountToString(count: this.article.commentCount, "评论"),
                                                         style: CTextStyle.PRegularBody5.merge(new TextStyle(height: 1))
                                                     )
                                                 )
