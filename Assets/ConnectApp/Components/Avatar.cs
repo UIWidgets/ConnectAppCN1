@@ -178,7 +178,11 @@ namespace ConnectApp.Components {
         readonly float size;
 
         public override Widget build(BuildContext context) {
-            var fontSize = (int) Math.Ceiling(this.size * 0.45f);
+            var fontSize = (int) Math.Ceiling(this.size * 0.5f);
+            var name = CStringUtils.genAvatarName(name: this.title);
+            if (CStringUtils.IsLetterOrNumber(name)) {
+                fontSize = (int) Math.Ceiling(this.size * 0.4f);
+            }
             return new Container(
                 width: this.size,
                 height: this.size,
