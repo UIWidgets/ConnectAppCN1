@@ -29,7 +29,7 @@ namespace ConnectApp.Utils {
         public static string genAvatarName(string name) {
             var avatarName = "";
             name = name.Trim();
-            string[] nameList = name.Split(' ');
+            string[] nameList = System.Text.RegularExpressions.Regex.Split(input: name, @"\s{1,}");
             if (nameList.Length > 0) {
                 for (int i = 0; i < nameList.Length; i++) {
                     if (i == 2) {
