@@ -306,6 +306,13 @@ namespace ConnectApp.Constants {
             color: CColors.TextTitle
         );
 
+        public static readonly TextStyle PRegularBody2 = new TextStyle(
+            height: 1.46f,
+            fontSize: 14,
+            fontFamily: "Roboto-Regular",
+            color: CColors.TextBody2
+        );
+        
         public static readonly TextStyle PRegularBody3 = new TextStyle(
             height: 1.46f,
             fontSize: 14,
@@ -318,6 +325,13 @@ namespace ConnectApp.Constants {
             fontSize: 14,
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody4
+        );
+        
+        public static readonly TextStyle PRegularBody5 = new TextStyle(
+            height: 1.46f,
+            fontSize: 14,
+            fontFamily: "Roboto-Regular",
+            color: CColors.TextBody5
         );
 
         public static readonly TextStyle PKeyboardTextStyle = new TextStyle(
@@ -377,6 +391,13 @@ namespace ConnectApp.Constants {
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody4
         );
+        
+        public static readonly TextStyle PSmallBody5 = new TextStyle(
+            height: 1.53f,
+            fontSize: 12,
+            fontFamily: "Roboto-Regular",
+            color: CColors.TextBody5
+        );
     }
 
     public static class CColors {
@@ -389,6 +410,7 @@ namespace ConnectApp.Constants {
         public static readonly Color TextBody2 = new Color(0xFF424242);
         public static readonly Color TextBody3 = new Color(0xFF616161);
         public static readonly Color TextBody4 = new Color(0xFF797979);
+        public static readonly Color TextBody5 = new Color(0xFF959595);
         public static readonly Color Separator = new Color(0xFFE6E6E6);
         public static readonly Color Separator2 = new Color(0xFFEEEEEE);
         public static readonly Color BgGrey = new Color(0xFFFAFAFA);

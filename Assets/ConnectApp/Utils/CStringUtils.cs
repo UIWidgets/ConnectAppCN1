@@ -10,6 +10,9 @@ namespace ConnectApp.Utils {
 
         public static string likeCountToString(int likeCount) {
             var likeCountString = "";
+            if (likeCount == 0) {
+                likeCountString = "点赞";
+            }
             if (likeCount > 0 && likeCount < 1000) {
                 likeCountString = likeCount.ToString();
             }

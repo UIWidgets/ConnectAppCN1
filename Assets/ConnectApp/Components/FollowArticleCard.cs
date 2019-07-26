@@ -146,7 +146,7 @@ namespace ConnectApp.Components {
                 var time = this.article.publishedTime;
                 rightWidget = new Text(
                     $"{DateConvert.DateStringFromNow(dt: time)}",
-                    style: CTextStyle.PSmallBody3
+                    style: CTextStyle.PSmallBody5
                 );
             }
             else {
@@ -238,7 +238,7 @@ namespace ConnectApp.Components {
                                     new Expanded(
                                         child: new Text(
                                             data: this.article.subTitle,
-                                            style: CTextStyle.PRegularBody,
+                                            style: CTextStyle.PRegularBody3,
                                             maxLines: 3,
                                             overflow: TextOverflow.ellipsis
                                         )
@@ -314,16 +314,13 @@ namespace ConnectApp.Components {
                                         child: new Row(
                                             children: new List<Widget> {
                                                 new Icon(icon: Icons.comment, size: 24, color: CColors.Icon),
-                                                this.article.commentCount == 0
-                                                    ? new Container()
-                                                    : new Container(
-                                                        margin: EdgeInsets.only(6),
-                                                        child: new Text(
-                                                            $"{this.article.commentCount}",
-                                                            style: CTextStyle.PRegularBody3.merge(
-                                                                new TextStyle(height: 1))
-                                                        )
+                                                new Container(
+                                                    margin: EdgeInsets.only(6),
+                                                    child: new Text(
+                                                        this.article.commentCount == 0 ? "评论" : $"{this.article.commentCount}",
+                                                        style: CTextStyle.PRegularBody5.merge(new TextStyle(height: 1))
                                                     )
+                                                )
                                             }
                                         )
                                     )
