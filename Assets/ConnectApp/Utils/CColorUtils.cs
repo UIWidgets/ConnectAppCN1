@@ -18,7 +18,7 @@ namespace ConnectApp.Utils {
             CColors.Comet
         };
 
-        public static Color GetAvatarBackgroundColorIndex(string id) {
+        public static Color GetAvatarBackgroundColor(string id) {
             return ColorsList[GetStableHash(s: id) % ColorsList.Count];
         }
 
