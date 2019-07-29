@@ -1454,7 +1454,8 @@ namespace ConnectApp.redux.reducers {
                         state.userState.userDict.Add(key: action.userId, value: action.user);
                     }
                     else {
-                        state.userState.userDict[key: action.userId] = action.user;
+                        var oldUser = state.userState.userDict[key: action.userId];
+                        state.userState.userDict[key: action.userId] = oldUser.Merge(other: action.user);
                     }
 
                     break;

@@ -160,10 +160,6 @@ namespace ConnectApp.redux.actions {
                         });
                         dispatcher.dispatch(new UserMapAction {userMap = userMap});
                         dispatcher.dispatch(new FollowMapAction {followMap = userProfileResponse.followMap});
-                        var userDict = getState().userState.userDict;
-                        var currentUser = userDict.ContainsKey(key: userId)
-                            ? userDict[key: userId]
-                            : new User();
                         var user = userProfileResponse.user;
                         user.followingUsersCount = userProfileResponse.followingCount;
                         user.followingUsers = userProfileResponse.followings;
@@ -173,8 +169,6 @@ namespace ConnectApp.redux.actions {
                         user.followingTeamsCount = userProfileResponse.followingTeamsCount;
                         user.followingTeams = userProfileResponse.followingTeams;
                         user.followingTeamsHasMore = userProfileResponse.followingTeamsHasMore;
-                        user.articleIds = currentUser.articleIds;
-                        user.articlesHasMore = currentUser.articlesHasMore;
                         user.jobRoleMap = userProfileResponse.jobRoleMap;
                         dispatcher.dispatch(new FetchUserProfileSuccessAction {
                             user = user,
