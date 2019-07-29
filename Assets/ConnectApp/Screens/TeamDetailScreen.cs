@@ -162,7 +162,6 @@ namespace ConnectApp.screens {
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchTeam();
                 this.widget.actionModel.fetchTeam();
-
                 this.widget.actionModel.startFetchTeamArticle();
                 this.widget.actionModel.fetchTeamArticle(0);
             });

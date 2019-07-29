@@ -638,7 +638,7 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildRelatedArticles() {
-            if (this._article.projects == null || this._article.projects.Count == 0) {
+            if (this._article.projectIds == null || this._article.projectIds.Count == 0) {
                 return new Container();
             }
 
