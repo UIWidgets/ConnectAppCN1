@@ -53,7 +53,7 @@ namespace ConnectApp.Components {
                     child: new Container(
                         margin: EdgeInsets.only(15),
                         child: new Text(
-                            $"回复 {CStringUtils.likeCountToString(likeCount: this.message.replyMessageIds.Count)}",
+                            $"回复 {CStringUtils.CountToString(count: this.message.replyMessageIds.Count)}",
                             style: CTextStyle.PRegularBody4
                         )
                     )
@@ -96,7 +96,7 @@ namespace ConnectApp.Components {
                                                                 child: new Container(
                                                                     color: CColors.White,
                                                                     child: new Text(
-                                                                        $"点赞 {CStringUtils.likeCountToString(this.message.reactions.Count)}",
+                                                                        $"点赞 {CStringUtils.CountToString(this.message.reactions.Count)}",
                                                                         style: this.isPraised
                                                                             ? CTextStyle.PRegularBlue
                                                                             : CTextStyle.PRegularBody4

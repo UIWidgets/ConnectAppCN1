@@ -491,7 +491,7 @@ namespace ConnectApp.screens {
                                     : Avatar.Team(
                                         team: team,
                                         size: this.avatarSize,
-                                        hasCircular: true
+                                        avatarShape: AvatarShape.circle
                                     )
                             ),
                             new Container(

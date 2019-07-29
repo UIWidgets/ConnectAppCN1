@@ -25,10 +25,12 @@ namespace ConnectApp.Components {
         public override Widget build(BuildContext context) {
             Widget coverImageWidget;
             Color coverImageColor;
+            var coverImageWidth = MediaQuery.of(context).size.width;
             if (this.coverImage != null && this.coverImage.isNotEmpty()) {
                 coverImageWidget = new PlaceholderImage(
                     imageUrl: this.coverImage,
                     height: this.height,
+                    width: coverImageWidth,
                     fit: BoxFit.cover
                 );
                 coverImageColor = Color.fromRGBO(0, 0, 0, 0.4f);
@@ -37,10 +39,12 @@ namespace ConnectApp.Components {
                 coverImageWidget = Image.asset(
                     "image/default-cover-image",
                     height: this.height,
+                    width: coverImageWidth,
                     fit: BoxFit.cover
                 );
                 coverImageColor = Color.fromRGBO(0, 0, 0, 0.2f);
             }
+
             return new Stack(
                 children: new List<Widget> {
                     coverImageWidget,

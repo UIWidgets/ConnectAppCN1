@@ -14,8 +14,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -213,7 +213,8 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            this.widget.viewModel.articleDict.TryGetValue(key: this.widget.viewModel.articleId, value: out this._article);
+            this.widget.viewModel.articleDict.TryGetValue(key: this.widget.viewModel.articleId,
+                value: out this._article);
             if (this.widget.viewModel.articleDetailLoading && (this._article == null || !this._article.isNotFirst)) {
                 return new Container(
                     color: CColors.White,
@@ -637,12 +638,12 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildRelatedArticles() {
-            if (this._article.projects == null || this._article.projects.Count == 0) {
+            if (this._article.projectIds == null || this._article.projectIds.Count == 0) {
                 return new Container();
             }
 
             var widgets = new List<Widget>();
-            this._article.projects.ForEach(articleId => {
+            this._article.projectIds.ForEach(articleId => {
                 var article = this.widget.viewModel.articleDict[key: articleId];
                 //对文章进行过滤
                 if (article.id != this._article.id) {

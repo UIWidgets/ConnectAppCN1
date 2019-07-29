@@ -306,6 +306,13 @@ namespace ConnectApp.Constants {
             color: CColors.TextTitle
         );
 
+        public static readonly TextStyle PRegularBody2 = new TextStyle(
+            height: 1.46f,
+            fontSize: 14,
+            fontFamily: "Roboto-Regular",
+            color: CColors.TextBody2
+        );
+        
         public static readonly TextStyle PRegularBody3 = new TextStyle(
             height: 1.46f,
             fontSize: 14,
@@ -318,6 +325,13 @@ namespace ConnectApp.Constants {
             fontSize: 14,
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody4
+        );
+        
+        public static readonly TextStyle PRegularBody5 = new TextStyle(
+            height: 1.46f,
+            fontSize: 14,
+            fontFamily: "Roboto-Regular",
+            color: CColors.TextBody5
         );
 
         public static readonly TextStyle PKeyboardTextStyle = new TextStyle(
@@ -377,6 +391,13 @@ namespace ConnectApp.Constants {
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody4
         );
+        
+        public static readonly TextStyle PSmallBody5 = new TextStyle(
+            height: 1.53f,
+            fontSize: 12,
+            fontFamily: "Roboto-Regular",
+            color: CColors.TextBody5
+        );
     }
 
     public static class CColors {
@@ -389,6 +410,7 @@ namespace ConnectApp.Constants {
         public static readonly Color TextBody2 = new Color(0xFF424242);
         public static readonly Color TextBody3 = new Color(0xFF616161);
         public static readonly Color TextBody4 = new Color(0xFF797979);
+        public static readonly Color TextBody5 = new Color(0xFF959595);
         public static readonly Color Separator = new Color(0xFFE6E6E6);
         public static readonly Color Separator2 = new Color(0xFFEEEEEE);
         public static readonly Color BgGrey = new Color(0xFFFAFAFA);
@@ -397,6 +419,7 @@ namespace ConnectApp.Constants {
         public static readonly Color Disable2 = new Color(0xFFD8D8D8);
         public static readonly Color WechatGreen = new Color(0xFF48B34F);
         public static readonly Color ButtonActive = new Color(0xFF227ABF);
+        public static readonly Color AvatarLoading = new Color(0xFFD8D8D8);
 
         public static readonly Color H5White = Color.fromRGBO(255, 255, 255, 0.8f);
 
@@ -410,5 +433,16 @@ namespace ConnectApp.Constants {
 
         public static readonly Color Background = new Color(0xFFF5F5F5);
         public static readonly Color Icon = new Color(0xFF979A9E);
+
+        public static readonly Color Gerakdine = new Color(0xFFFF8686);
+        public static readonly Color Tan = new Color(0xFFFFAB6D);
+        public static readonly Color Mustard = new Color(0xFFFFDB55);
+        public static readonly Color Feijoa = new Color(0xFFADE376);
+        public static readonly Color Riptide = new Color(0xFF80E5D7);
+        public static readonly Color SkyBlue = new Color(0xFF86D9ED);
+        public static readonly Color Portage = new Color(0xFF8DA8F2);
+        public static readonly Color DullLavender = new Color(0xFF9E91F8);
+        public static readonly Color BrightLavender = new Color(0xFFC586F3);
+        public static readonly Color Comet = new Color(0xFF636672);
     }
 }

@@ -1,4 +1,6 @@
+using System;
 using ConnectApp.Constants;
+using Unity.UIWidgets.foundation;
 
 namespace ConnectApp.Utils {
     public static class CStringUtils {
@@ -6,19 +8,54 @@ namespace ConnectApp.Utils {
             return $"{Config.apiAddress}/p/{projectId}?app=true";
         }
 
-        public static string likeCountToString(int likeCount) {
-            var likeCountString = "";
-            if (likeCount > 0 && likeCount < 1000) {
-                likeCountString = likeCount.ToString();
+        public static string CountToString(int count, string placeholder = "") {
+            var countString = "";
+            if (count == 0) {
+                countString = placeholder;
             }
-            else if (likeCount >= 1000 && likeCount <= 10000) {
-                likeCountString = $"{likeCount / 1000f:f1}k";
+            if (count > 0 && count < 1000) {
+                countString = count.ToString();
             }
-            else if (likeCount > 10000) {
-                likeCountString = "10k+";
+            else if (count >= 1000 && count <= 10000) {
+                countString = $"{count / 1000f:f1}k";
+            }
+            else if (count > 10000) {
+                countString = "10k+";
             }
 
-            return likeCountString;
+            return countString;
+        }
+
+        public static string genAvatarName(string name) {
+            var avatarName = "";
+            name = name.Trim();
+            string[] nameList = System.Text.RegularExpressions.Regex.Split(input: name, @"\s{1,}");
+            if (nameList.Length > 0) {
+                for (int i = 0; i < nameList.Length; i++) {
+                    if (i == 2) {
+                        break;
+                    }
+                    var str = nameList[i].ToCharArray();
+                    if (i == 0) {
+                        avatarName += str.first();
+                        if (!IsLetterOrNumber(str.first().ToString())) {
+                            break;
+                        }
+                    }
+                    if (i == 1) {
+                        if (IsLetterOrNumber(str.first().ToString())) {
+                            avatarName += str.first();
+                        }
+                    }
+                }
+            }
+            avatarName = avatarName.ToUpper();
+            return avatarName;
+        }
+        
+        public static bool IsLetterOrNumber(string str) {
+            System.Text.RegularExpressions.Regex reg1 = new System.Text.RegularExpressions.Regex(@"^[A-Za-z0-9]+$");
+            return reg1.IsMatch(str);
         }
     }
 }

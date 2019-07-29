@@ -18,6 +18,7 @@ namespace ConnectApp.Components {
             List<User> mentions,
             Action onTap = null,
             Action<string> pushToUserDetail = null,
+            Action<string> pushToTeamDetail = null,
             bool isLast = false,
             Key key = null
         ) : base(key: key) {
@@ -26,6 +27,7 @@ namespace ConnectApp.Components {
             this.mentions = mentions;
             this.onTap = onTap;
             this.pushToUserDetail = pushToUserDetail;
+            this.pushToTeamDetail = pushToTeamDetail;
             this.isLast = isLast;
         }
 
@@ -33,6 +35,7 @@ namespace ConnectApp.Components {
         readonly User user;
         readonly List<User> mentions;
         readonly Action onTap;
+        readonly Action<string> pushToTeamDetail;
         readonly Action<string> pushToUserDetail;
         readonly bool isLast;
 
@@ -48,7 +51,8 @@ namespace ConnectApp.Components {
                 "project_participate_comment",
                 "project_message_liked",
                 "project_message_participate_liked",
-                "followed"
+                "followed",
+                "team_followed"
             };
             if (!types.Contains(item: type)) {
                 return new Container();
@@ -159,6 +163,18 @@ namespace ConnectApp.Components {
                 );
             }
 
+            if (type == "team_followed") {
+                subTitle = new TextSpan(
+                    children: new List<TextSpan> {
+                        new TextSpan("关注了"),
+                        new TextSpan(data.teamName, recognizer: new TapGestureRecognizer {
+                            onTap = () => { this.pushToTeamDetail(data.teamId); }
+                        }, style: CTextStyle.PLargeBlue)
+                    },
+                    style: CTextStyle.PLargeBody2
+                );
+            }
+
             return new Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: new List<Widget> {
@@ -169,7 +185,7 @@ namespace ConnectApp.Components {
                                 new TextSpan(
                                     text: data.fullname,
                                     style: CTextStyle.PLargeMedium,
-                                    recognizer: new TapGestureRecognizer{
+                                    recognizer: new TapGestureRecognizer {
                                         onTap = () => this.pushToUserDetail(obj: data.userId)
                                     }
                                 ),
