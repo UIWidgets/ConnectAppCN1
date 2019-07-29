@@ -65,11 +65,14 @@ namespace ConnectApp.screens {
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
-                        pushToUserDetail = userId => dispatcher.dispatch(
-                            new MainNavigatorPushToUserDetailAction {
-                                userId = userId
-                            }
-                        ),
+                        pushToUserDetail = userId => {
+                            EventBus.publish(EventBusConstant.pauseVideoPlayer, new List<object>());
+                            dispatcher.dispatch(
+                                new MainNavigatorPushToUserDetailAction {
+                                    userId = userId
+                                }
+                            );
+                        },
                         openUrl = url => {
                             EventBus.publish(EventBusConstant.pauseVideoPlayer, new List<object>());
                             dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
@@ -136,6 +139,7 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
+            StatusBarManager.statusBarStyle(false);
             this._showNavBarShadow = true;
             this._titleHeight = 0.0f;
             this._isHaveTitle = false;
@@ -758,6 +762,7 @@ namespace ConnectApp.screens {
         }
 
         public void didPopNext() {
+            StatusBarManager.statusBarStyle(false);
             VideoPlayerManager.instance.isRotation = true;
         }
 

@@ -161,7 +161,7 @@ namespace ConnectApp.screens {
         active
     }
 
-    class _ArticleDetailScreenState : State<ArticleDetailScreen>, TickerProvider {
+    class _ArticleDetailScreenState : State<ArticleDetailScreen>, TickerProvider, RouteAware {
         const float navBarHeight = 44;
         Article _article = new Article();
         User _user = new User();
@@ -202,9 +202,15 @@ namespace ConnectApp.screens {
             this._jumpState = _ArticleJumpToCommentState.Inactive;
             this._cachedCommentPosition = null;
         }
+        
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
+        }
 
         public override void dispose() {
             EventBus.unSubscribe(sName: EventBusConstant.login_success, id: this._loginSubId);
+            Router.routeObserve.unsubscribe(this);
             base.dispose();
         }
 
@@ -900,6 +906,19 @@ namespace ConnectApp.screens {
                     })
                 );
             }
+        }
+        
+        public void didPopNext() {
+            StatusBarManager.statusBarStyle(false);
+        }
+
+        public void didPush() {
+        }
+
+        public void didPop() {
+        }
+
+        public void didPushNext() {
         }
     }
 }

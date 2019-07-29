@@ -99,7 +99,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    class _TeamMemberScreenState : State<TeamMemberScreen> {
+    class _TeamMemberScreenState : State<TeamMemberScreen>, RouteAware {
         int _pageNumber;
         RefreshController _refreshController;
 
@@ -114,6 +114,16 @@ namespace ConnectApp.screens {
             });
         }
 
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
+        }
+
+        public override void dispose() {
+            Router.routeObserve.unsubscribe(this);
+            base.dispose();
+        }
+        
         void _onRefresh(bool up) {
             if (up) {
                 this._pageNumber = 1;
@@ -261,6 +271,19 @@ namespace ConnectApp.screens {
                 () => this._onFollow(userType: userType, userId: user.id),
                 new ObjectKey(value: user.id)
             );
+        }
+        
+        public void didPopNext() {
+            StatusBarManager.statusBarStyle(false);
+        }
+
+        public void didPush() {
+        }
+
+        public void didPop() {
+        }
+
+        public void didPushNext() {
         }
     }
 }

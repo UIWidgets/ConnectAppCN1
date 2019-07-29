@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
+using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
@@ -66,7 +67,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    class _UserFollowingScreenState : State<UserFollowingScreen> {
+    class _UserFollowingScreenState : State<UserFollowingScreen>, RouteAware {
         readonly TextEditingController _controller = new TextEditingController("");
         FocusNode _focusNode;
         string _title;
@@ -86,16 +87,14 @@ namespace ConnectApp.screens {
             });
         }
 
-        void _searchFollowing(string text) {
-            if (text.isEmpty()) {
-                return;
-            }
-
-            if (this._focusNode.hasFocus) {
-                this._focusNode.unfocus();
-            }
-
-            this._controller.text = text;
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
+        }
+        
+        public override void dispose() {
+            Router.routeObserve.unsubscribe(this);
+            base.dispose();
         }
 
         public override Widget build(BuildContext context) {
@@ -149,6 +148,18 @@ namespace ConnectApp.screens {
             );
         }
 
+        void _searchFollowing(string text) {
+            if (text.isEmpty()) {
+                return;
+            }
+
+            if (this._focusNode.hasFocus) {
+                this._focusNode.unfocus();
+            }
+
+            this._controller.text = text;
+        }
+        
         Widget _buildSearchBar() {
             return new Container(
                 color: CColors.White,
@@ -193,6 +204,19 @@ namespace ConnectApp.screens {
                 },
                 currentIndex: this.widget.viewModel.initialPage
             );
+        }
+        
+        public void didPopNext() {
+            StatusBarManager.statusBarStyle(false);
+        }
+
+        public void didPush() {
+        }
+
+        public void didPop() {
+        }
+
+        public void didPushNext() {
         }
     }
 }
