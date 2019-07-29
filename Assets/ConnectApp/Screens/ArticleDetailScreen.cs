@@ -406,7 +406,7 @@ namespace ConnectApp.screens {
 
         Widget _buildArticleTabBar() {
             return new ArticleTabBar(
-                like: this._article.like,
+                this._article.like && this.widget.viewModel.isLoggedIn,
                 () => this._comment("Article"),
                 () => this._comment("Article"),
                 () => {

@@ -7,7 +7,6 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.Components {

@@ -835,9 +835,16 @@ namespace ConnectApp.redux.reducers {
                         var teamDict = state.teamState.teamDict;
                         foreach (var keyValuePair in action.teamMap) {
                             if (teamDict.ContainsKey(key: keyValuePair.Key)) {
-                                var team = teamDict[key: keyValuePair.Key].Merge(other: keyValuePair.Value);
-                                teamDict[key: keyValuePair.Key] =
-                                    team.copyWith(stats: new TeamStats {membersCount = 0});
+                                var oldTeam = teamDict[key: keyValuePair.Key];
+                                if (oldTeam.isDetail ?? false) {
+                                    var newTeam = oldTeam.Merge(other: keyValuePair.Value);
+                                    teamDict[key: keyValuePair.Key] = newTeam.copyWith(
+                                        stats: newTeam.stats.copyWith(membersCount: oldTeam.stats.membersCount)
+                                    );
+                                }
+                                else {
+                                    teamDict[key: keyValuePair.Key] = keyValuePair.Value;
+                                }
                             }
                             else {
                                 teamDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
@@ -1447,7 +1454,8 @@ namespace ConnectApp.redux.reducers {
                         state.userState.userDict.Add(key: action.userId, value: action.user);
                     }
                     else {
-                        state.userState.userDict[key: action.userId] = action.user;
+                        var oldUser = state.userState.userDict[key: action.userId];
+                        state.userState.userDict[key: action.userId] = oldUser.Merge(other: action.user);
                     }
 
                     break;
@@ -1792,12 +1800,13 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchTeamSuccessAction action: {
                     state.teamState.teamLoading = false;
+                    var team = action.team.copyWith(isDetail: true);
                     if (!state.teamState.teamDict.ContainsKey(key: action.teamId)) {
-                        state.teamState.teamDict.Add(key: action.teamId, value: action.team);
+                        state.teamState.teamDict.Add(key: action.teamId, value: team);
                     }
                     else {
                         var oldTeam = state.teamState.teamDict[key: action.teamId];
-                        state.teamState.teamDict[key: action.teamId] = oldTeam.Merge(other: action.team);
+                        state.teamState.teamDict[key: action.teamId] = oldTeam.Merge(other: team);
                     }
 
                     break;
