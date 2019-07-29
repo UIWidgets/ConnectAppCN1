@@ -14,9 +14,9 @@ namespace ConnectApp.Constants {
 
         public const string jgAppKey = "a50eff2d99416a0495f02766";
 
-        public const string versionNumber = "1.0.1";
+        public const string versionNumber = "1.0.2";
 
-        public const int versionCode = 44;
+        public const int versionCode = 46;
 
         public const string originCodeUrl = "https://github.com/UnityTech/ConnectAppCN";
 

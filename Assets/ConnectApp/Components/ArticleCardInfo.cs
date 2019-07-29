@@ -30,7 +30,7 @@ namespace ConnectApp.Components {
                         child: new Container(
                             child: new Text(
                                 $"{this.fullName}",
-                                style: CTextStyle.PSmallBody3,
+                                style: CTextStyle.PSmallBody5,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis
                             )
@@ -39,13 +39,13 @@ namespace ConnectApp.Components {
                     new Container(
                         child: new Text(
                             $" · {DateConvert.DateStringFromNow(dt: this.time)}",
-                            style: CTextStyle.PSmallBody3
+                            style: CTextStyle.PSmallBody5
                         )
                     ),
                     new Container(
                         child: new Text(
                             $" · 阅读 {this.viewCount}",
-                            style: CTextStyle.PSmallBody3
+                            style: CTextStyle.PSmallBody5
                         )
                     )
                 }

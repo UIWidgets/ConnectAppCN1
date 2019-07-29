@@ -143,13 +143,13 @@ namespace ConnectApp.Components.LikeButton {
         }
 
         Widget _buildLikeCountWidget() {
-            return !this.widget.showLikeCount || this._likeCount == 0
+            return !this.widget.showLikeCount
                 ? new Container()
                 : new Container(
                     margin: EdgeInsets.only(4),
                     child: new Text(
-                        CStringUtils.likeCountToString(likeCount: this._likeCount),
-                        style: CTextStyle.PRegularBody3.merge(new TextStyle(height: 1))
+                        CStringUtils.CountToString(count: this._likeCount, "点赞"),
+                        style: CTextStyle.PRegularBody5.merge(new TextStyle(height: 1))
                     )
                 );
         }
