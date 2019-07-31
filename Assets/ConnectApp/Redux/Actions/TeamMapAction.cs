@@ -119,9 +119,10 @@ namespace ConnectApp.redux.actions {
                 }
                 return TeamApi.FetchTeamArticle(teamId, offset)
                     .Then(teamArticleResponse => {
+                        var articles = teamArticleResponse.projects.FindAll(project => "article" == project.type);
                         dispatcher.dispatch(new LikeMapAction {likeMap = teamArticleResponse.likeMap});
                         dispatcher.dispatch(new FetchTeamArticleSuccessAction {
-                            articles = teamArticleResponse.projects,
+                            articles = articles,
                             hasMore = teamArticleResponse.projectsHasMore,
                             offset = offset,
                             teamId = teamId

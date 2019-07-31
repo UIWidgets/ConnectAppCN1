@@ -117,7 +117,7 @@ namespace ConnectApp.Components {
                 child: new ClipRRect(
                     borderRadius: BorderRadius.circular(this.avatarShape == AvatarShape.circle
                         ? avatarSize
-                        : DefaultRectCorner),
+                        : this.hasWhiteBorder ? DefaultRectCorner / 2 : DefaultRectCorner),
                     child: this.avatarUrl.isEmpty()
                         ? new Container(
                             child: new _Placeholder(

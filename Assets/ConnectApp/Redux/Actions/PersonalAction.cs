@@ -203,7 +203,9 @@ namespace ConnectApp.redux.actions {
                         userArticleResponse.projectList.ForEach(articleId => {
                             if (userArticleResponse.projectMap.ContainsKey(key: articleId)) {
                                 var article = userArticleResponse.projectMap[key: articleId];
-                                articles.Add(item: article);
+                                if (article.type == "article") {
+                                    articles.Add(item: article);
+                                }
                             }
                         });
                         dispatcher.dispatch(new PlaceMapAction {placeMap = userArticleResponse.placeMap});
