@@ -5,6 +5,7 @@ using ConnectApp.Constants;
 using ConnectApp.Main;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
+using ConnectApp.Plugins;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -12,6 +13,7 @@ using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.screens {
     public class PersonalScreenConnector : StatelessWidget {
@@ -24,7 +26,7 @@ namespace ConnectApp.screens {
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     return new PersonalScreen(
-                        viewModel,
+                        viewModel: viewModel,
                         routeName => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = routeName
                         }),
@@ -64,7 +66,7 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            base.build(context);
+            base.build(context: context);
             return new Container(
                 color: CColors.White,
                 child: new Column(
@@ -105,11 +107,11 @@ namespace ConnectApp.screens {
                             margin: EdgeInsets.only(top: 16),
                             child: new CustomButton(
                                 padding: EdgeInsets.zero,
-                                onPressed: () => this.widget.mainRouterPushTo(MainNavigatorRoutes.Login),
+                                onPressed: () => this.widget.mainRouterPushTo(obj: MainNavigatorRoutes.Login),
                                 child: new Container(
                                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                                     decoration: new BoxDecoration(
-                                        border: Border.all(CColors.PrimaryBlue),
+                                        border: Border.all(color: CColors.PrimaryBlue),
                                         borderRadius: BorderRadius.all(20)
                                     ),
                                     child: new Text(
@@ -137,14 +139,31 @@ namespace ConnectApp.screens {
             }
 
             return new GestureDetector(
-                onTap: () => this.widget.pushToUserDetail(user.id),
+                onTap: () => this.widget.pushToUserDetail(obj: user.id),
                 child: new Container(
-                    height: 144,
+                    height: 184,
                     padding: EdgeInsets.only(16, right: 16, bottom: 16),
                     color: CColors.White,
                     child: new Column(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: new List<Widget> {
+                            new Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: new List<Widget> {
+                                    new GestureDetector(
+                                        onTap: QRScanPlugin.PushToQRScan,
+                                        child: new Container(
+                                            padding: EdgeInsets.only(16, 16, 0, 28),
+                                            color: CColors.Red,
+                                            child: Image.asset(
+                                                "image/scan-qr-code",
+                                                width: 20,
+                                                height: 20
+                                            )
+                                        )
+                                    )
+                                }
+                            ),
                             new Row(
                                 children: new List<Widget> {
                                     new Container(

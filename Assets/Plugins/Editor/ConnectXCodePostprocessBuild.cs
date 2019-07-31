@@ -81,6 +81,10 @@ namespace Plugins.Editor {
             var madeSourceFile = "iOS/madeWithUnity.imageset";
             writeFile(madeSourceFile, madeDestDict);
 
+            var qrScanLineDestDict = path + "/Unity-iPhone/Images.xcassets/qrScanLine.imageset";
+            var qrScanLineSourceFile = "iOS/qrScanLine.imageset";
+            writeFile(qrScanLineSourceFile, qrScanLineDestDict);
+
             var destFile = path + "/Classes/UI/UnityVIewControllerBase+iOS.mm";
 
             FileUtil.DeleteFileOrDirectory(destFile);
@@ -155,6 +159,9 @@ namespace Plugins.Editor {
 
             // 出口合规信息
             rootDict.SetBoolean("ITSAppUsesNonExemptEncryption", false);
+
+            // 相机 权限
+            rootDict.SetString("NSCameraUsageDescription", "App需要您的同意,才能访问相机");
 
             // remove exit on suspend if it exists.
             string exitsOnSuspendKey = "UIApplicationExitsOnSuspend";

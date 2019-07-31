@@ -105,6 +105,7 @@ namespace ConnectApp.Main {
 
         public override Widget build(BuildContext context) {
             JPushPlugin.context = context;
+            QRScanPlugin.context = context;
             return new WillPopScope(
                 onWillPop: () => {
                     var promise = new Promise<bool>();
