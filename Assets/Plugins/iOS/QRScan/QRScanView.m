@@ -40,9 +40,9 @@ static NSTimeInterval kQrLineAnimateDuration = 0.02;
     [self addSubview:_qrScanLine];
     _qrScanLineY = _qrScanLine.frame.origin.y;
     
-    _qrScanLabel = [[UILabel alloc] initWithFrame:CGRectMake(0.0, screenBounds.size.height / 2 - self.transparentArea.height / 2 + self.transparentArea.width + 20.0, screenBounds.size.width, 30.0)];
+    _qrScanLabel = [[UILabel alloc] initWithFrame:CGRectMake(0.0, screenBounds.size.height / 2 - self.transparentArea.height / 2 + self.transparentArea.height + 20.0, screenBounds.size.width, 30.0)];
     _qrScanLabel.backgroundColor = [UIColor clearColor];
-    _qrScanLabel.text = @"将二维码/条码放入框内，即可自动扫描";
+    _qrScanLabel.text = @"将二维码放入框内，即可自动扫描";
     _qrScanLabel.textColor = [UIColor whiteColor];
     _qrScanLabel.textAlignment = NSTextAlignmentCenter;
     _qrScanLabel.font = [UIFont systemFontOfSize:13.0f];
@@ -57,9 +57,9 @@ static NSTimeInterval kQrLineAnimateDuration = 0.02;
         rect.origin.y = _qrScanLineY;
         _qrScanLine.frame = rect;
     } completion:^(BOOL finished) {
-        CGFloat maxBorder = self.frame.size.height / 2 + self.transparentArea.height / 2 - 4;
+        CGFloat maxBorder = self.frame.size.height / 2 + self.transparentArea.height / 2 - 30;
         if (_qrScanLineY > maxBorder) {
-            _qrScanLineY = self.frame.size.height / 2 - self.transparentArea.height /2;
+            _qrScanLineY = self.frame.size.height / 2 - self.transparentArea.height / 2 - 15;
         }
         _qrScanLineY++;
     }];
@@ -89,7 +89,7 @@ static NSTimeInterval kQrLineAnimateDuration = 0.02;
 
 - (void)addScreenFillRect:(CGContextRef)ctx rect:(CGRect)rect
 {
-    CGContextSetRGBFillColor(ctx, 40/255.0, 40/255.0, 40/255.0, 0.5);
+    CGContextSetRGBFillColor(ctx, 40 / 255.0, 40 / 255.0, 40 / 255.0, 0.5);
     CGContextFillRect(ctx, rect);   //draw the transparent layer
 }
 
@@ -101,7 +101,7 @@ static NSTimeInterval kQrLineAnimateDuration = 0.02;
 - (void)addWhiteRect:(CGContextRef)ctx rect:(CGRect)rect
 {
     CGContextStrokeRect(ctx, rect);
-    CGContextSetRGBStrokeColor(ctx, 1, 1, 1, 1);
+    CGContextSetRGBStrokeColor(ctx, 255 / 255, 255 / 255, 255 / 255, 0.5);
     CGContextSetLineWidth(ctx, 0.8);
     CGContextAddRect(ctx, rect);
     CGContextStrokePath(ctx);
@@ -111,7 +111,7 @@ static NSTimeInterval kQrLineAnimateDuration = 0.02;
 {
     //画四个边角
     CGContextSetLineWidth(ctx, 2);
-    CGContextSetRGBStrokeColor(ctx, 83 / 255.0, 239 / 255.0, 111 / 255.0, 1);//绿色
+    CGContextSetRGBStrokeColor(ctx, 33 / 255.0, 150 / 255.0, 243 / 255.0, 1);//绿色
     
     //左上角
     CGPoint pointTopLeftA[] = {

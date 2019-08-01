@@ -5,6 +5,7 @@ using System.Web;
 using ConnectApp.Api;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
@@ -45,9 +46,11 @@ namespace ConnectApp.Plugins {
                             string qrCode = args[0];
                             if (qrCode.StartsWith("http://") || qrCode.StartsWith("https://")) {
                                 var uri = new Uri(uriString: qrCode);
-                                if (uri.AbsolutePath.StartsWith("https://connect")) {
+                                if (uri.AbsoluteUri.StartsWith("https://connect")) {
                                     var token = HttpUtility.ParseQueryString(query: uri.Query).Get("token");
-                                    LoginApi.LoginByQr(token: token);
+                                    if (token.isNotEmpty()) {
+                                        LoginApi.LoginByQr(token: token);
+                                    }
                                 }
                             }
                         }
