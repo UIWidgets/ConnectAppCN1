@@ -154,7 +154,7 @@ namespace ConnectApp.screens {
                                         onTap: QRScanPlugin.PushToQRScan,
                                         child: new Container(
                                             padding: EdgeInsets.only(16, 16, 16, 28),
-                                            color: CColors.Red,
+                                            color: CColors.Transparent,
                                             child: Image.asset(
                                                 "image/scan-qr-code",
                                                 width: 20,
