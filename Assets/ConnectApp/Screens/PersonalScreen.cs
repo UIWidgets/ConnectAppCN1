@@ -153,7 +153,7 @@ namespace ConnectApp.screens {
                 onTap: () => this.widget.pushToUserDetail(obj: user.id),
                 child: new Container(
                     height: 184,
-                    padding: EdgeInsets.only(16, right: 16, bottom: 16),
+                    padding: EdgeInsets.only(16, bottom: 16),
                     color: CColors.White,
                     child: new Column(
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -164,7 +164,7 @@ namespace ConnectApp.screens {
                                     new GestureDetector(
                                         onTap: QRScanPlugin.PushToQRScan,
                                         child: new Container(
-                                            padding: EdgeInsets.only(16, 16, 0, 28),
+                                            padding: EdgeInsets.only(16, 16, 16, 28),
                                             color: CColors.Red,
                                             child: Image.asset(
                                                 "image/scan-qr-code",
@@ -199,6 +199,7 @@ namespace ConnectApp.screens {
                                         )
                                     ),
                                     new Container(
+                                        padding: EdgeInsets.only(right: 16),
                                         margin: EdgeInsets.only(12),
                                         child: new Row(
                                             mainAxisSize: MainAxisSize.min,

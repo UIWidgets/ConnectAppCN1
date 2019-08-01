@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Web;
 using ConnectApp.Api;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
@@ -13,7 +15,7 @@ namespace ConnectApp.Plugins {
         public static BuildContext context;
         static bool isListen;
 
-        public static void addListener() {
+        static void addListener() {
             if (Application.isEditor) {
                 return;
             }
@@ -24,16 +26,32 @@ namespace ConnectApp.Plugins {
             }
         }
 
+        static void removeListener() {
+            if (Application.isEditor) {
+                return;
+            }
+
+            if (isListen) {
+                isListen = false;
+                UIWidgetsMessageManager.instance.RemoveChannelMessageDelegate("QRScan", del: _handleMethodCall);
+            }
+        }
+
         static void _handleMethodCall(string method, List<JSONNode> args) {
             if (context != null) {
                 using (WindowProvider.of(context: context).getScope()) {
                     switch (method) {
                         case "OnReceiveQRCode": {
-                            var qrCode = args[0];
-                            var uri = new Uri(uriString: qrCode);
-                            if (uri.AbsolutePath.StartsWith("https://connect")) {
-                                var token = HttpUtility.ParseQueryString(query: uri.Query).Get("token");
-                                LoginApi.LoginByQr(token: token);
+                            removeListener();
+                            string qrCode = args[0];
+                            if (qrCode.StartsWith("http://") || qrCode.StartsWith("https://")) {
+                                var uri = new Uri(uriString: qrCode);
+                                if (uri.AbsoluteUri.StartsWith("https://connect")) {
+                                    var token = HttpUtility.ParseQueryString(query: uri.Query).Get("token");
+                                    if (token.isNotEmpty()) {
+                                        LoginApi.LoginByQr(token: token);
+                                    }
+                                }
                             }
                         }
                             break;
@@ -43,6 +61,7 @@ namespace ConnectApp.Plugins {
         }
 
         public static void PushToQRScan() {
+            addListener();
             pushToQRScan();
         }
 

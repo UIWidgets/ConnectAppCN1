@@ -26,6 +26,7 @@ apply plugin: 'com.android.application'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation(name:'zxing-lib', ext:'aar')  
     implementation 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:+'
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'com.android.support:support-v4:28.0.0'
@@ -86,6 +87,12 @@ android {
             useProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-unity.txt'
             signingConfig signingConfigs.release
+        }
+    }
+
+    repositories {  
+        flatDir {  
+            dirs 'libs'  
         }
     }
 

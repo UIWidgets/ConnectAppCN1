@@ -43,7 +43,6 @@ namespace ConnectApp.Main {
         protected override void Update() {
             base.Update();
             JPushPlugin.addListener();
-            QRScanPlugin.addListener();
             if (VideoPlayerManager.instance.isRotation) {
                 if (Input.deviceOrientation == DeviceOrientation.Portrait &&
                     Screen.orientation != ScreenOrientation.Portrait && !VideoPlayerManager.instance.lockPortrait) {

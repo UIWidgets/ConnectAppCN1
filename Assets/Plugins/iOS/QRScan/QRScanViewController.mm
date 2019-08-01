@@ -28,6 +28,11 @@
 
 @implementation QRScanViewController
 
+- (UIStatusBarStyle)preferredStatusBarStyle
+{
+    return UIStatusBarStyleLightContent;
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -100,14 +105,13 @@
         CGSizeEqualToSize(CGSizeMake(828.0, 1792.0), [[UIScreen mainScreen] currentMode].size) : NO;
     BOOL is_iPhoneXLater = is_iPhoneX || is_iPhoneXSMax || is_iPhoneXR;
     UIView *navView = [[UIView alloc] initWithFrame:CGRectMake(0.0, 0.0, screenRect.size.width, is_iPhoneXLater ? 88.0 : 64.0)];
-    navView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.6];
+    navView.backgroundColor = [UIColor clearColor];
     [self.view addSubview:navView];
     
     // 返回按钮
     UIButton *pop = [UIButton buttonWithType:UIButtonTypeCustom];
     pop.frame = CGRectMake(0.0, is_iPhoneXLater ? 44.0 : 20.0, 70.0, 44.0);
-    [pop setTitle:@"返回" forState:UIControlStateNormal];
-    pop.titleLabel.font = [UIFont systemFontOfSize:13.3];
+    [pop setImage:[UIImage imageNamed:@"arrowBack"] forState:UIControlStateNormal];
     [pop addTarget:self action:@selector(pop:) forControlEvents:UIControlEventTouchUpInside];
     [navView addSubview:pop];
     
@@ -115,7 +119,7 @@
     UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(70.0, is_iPhoneXLater ? 44.0 : 20.0, screenRect.size.width - 140.0, 44.0)];
     titleLabel.backgroundColor = [UIColor clearColor];
     titleLabel.text = @"二维码";
-    titleLabel.font = [UIFont systemFontOfSize:17.0];
+    titleLabel.font = [UIFont systemFontOfSize:18.0];
     titleLabel.textColor = [UIColor whiteColor];
     titleLabel.textAlignment = NSTextAlignmentCenter;
     [navView addSubview:titleLabel];
