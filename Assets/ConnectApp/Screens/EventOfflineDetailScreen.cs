@@ -89,7 +89,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    class _EventOfflineDetailScreenState : State<EventOfflineDetailScreen>, TickerProvider {
+    class _EventOfflineDetailScreenState : State<EventOfflineDetailScreen>, TickerProvider, RouteAware {
         string _loginSubId;
         bool _showNavBarShadow;
         bool _isHaveTitle;
@@ -130,9 +130,15 @@ namespace ConnectApp.screens {
             });
         }
 
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
+        }
+        
         public override void dispose() {
             StatusBarManager.statusBarStyle(false);
             EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
+            Router.routeObserve.unsubscribe(this);
             base.dispose();
         }
 
@@ -386,6 +392,20 @@ namespace ConnectApp.screens {
                     )
                 )
             );
+        }
+        
+        public void didPopNext() {
+            Debug.Log($"isLight: {this._showNavBarShadow}");
+            StatusBarManager.statusBarStyle(isLight: this._showNavBarShadow);
+        }
+
+        public void didPush() {
+        }
+
+        public void didPop() {
+        }
+
+        public void didPushNext() {
         }
     }
 }

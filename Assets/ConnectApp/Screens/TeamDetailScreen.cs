@@ -173,7 +173,6 @@ namespace ConnectApp.screens {
         }
 
         public override void dispose() {
-            StatusBarManager.statusBarStyle(false);
             Router.routeObserve.unsubscribe(this);
             base.dispose();
         }

@@ -7,7 +7,6 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.Components {
@@ -118,7 +117,7 @@ namespace ConnectApp.Components {
                 child: new ClipRRect(
                     borderRadius: BorderRadius.circular(this.avatarShape == AvatarShape.circle
                         ? avatarSize
-                        : DefaultRectCorner),
+                        : this.hasWhiteBorder ? DefaultRectCorner / 2 : DefaultRectCorner),
                     child: this.avatarUrl.isEmpty()
                         ? new Container(
                             child: new _Placeholder(

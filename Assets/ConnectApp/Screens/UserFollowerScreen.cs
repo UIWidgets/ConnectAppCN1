@@ -100,7 +100,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    class _UserFollowerScreenState : State<UserFollowerScreen> {
+    class _UserFollowerScreenState : State<UserFollowerScreen>, RouteAware {
         int _userOffset;
         RefreshController _refreshController;
         string _title;
@@ -117,6 +117,16 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.startFetchFollower();
                 this.widget.actionModel.fetchFollower(0);
             });
+        }
+        
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
+        }
+
+        public override void dispose() {
+            Router.routeObserve.unsubscribe(this);
+            base.dispose();
         }
 
         void _onRefreshFollower(bool up) {
@@ -267,6 +277,19 @@ namespace ConnectApp.screens {
                 () => this._onFollow(userType: userType, userId: follower.id),
                 new ObjectKey(value: follower.id)
             );
+        }
+        
+        public void didPopNext() {
+            StatusBarManager.statusBarStyle(false);
+        }
+
+        public void didPush() {
+        }
+
+        public void didPop() {
+        }
+
+        public void didPushNext() {
         }
     }
 }
