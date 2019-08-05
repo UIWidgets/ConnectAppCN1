@@ -16,7 +16,7 @@ namespace ConnectApp.Constants {
 
         public const string versionNumber = "1.0.2";
 
-        public const int versionCode = 46;
+        public const int versionCode = 48;
 
         public const string originCodeUrl = "https://github.com/UnityTech/ConnectAppCN";
 

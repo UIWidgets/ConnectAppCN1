@@ -162,8 +162,8 @@ PlayerSettings:
     Android: com.unity3d.unityconnect
     iPhone: com.unity3d.unityconnect
   buildNumber:
-    iPhone: 46
-  AndroidBundleVersionCode: 46
+    iPhone: 48
+  AndroidBundleVersionCode: 48
   AndroidMinSdkVersion: 23
   AndroidTargetSdkVersion: 0
   AndroidPreferredInstallLocation: 1

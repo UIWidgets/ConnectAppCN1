@@ -176,9 +176,8 @@ namespace ConnectApp.screens {
             base.didChangeDependencies();
             Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
         }
-
+        
         public override void dispose() {
-            StatusBarManager.statusBarStyle(false);
             Router.routeObserve.unsubscribe(this);
             base.dispose();
         }
@@ -736,7 +735,7 @@ namespace ConnectApp.screens {
 
         public void didPop() {
         }
-
+        
         public void didPushNext() {
         }
     }
