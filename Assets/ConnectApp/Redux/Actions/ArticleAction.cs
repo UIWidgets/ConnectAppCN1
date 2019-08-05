@@ -41,6 +41,7 @@ namespace ConnectApp.redux.actions {
 
     public class FetchArticleDetailSuccessAction : BaseAction {
         public Project articleDetail;
+        public string articleId;
     }
 
     public class FetchArticleDetailFailureAction : BaseAction {
@@ -190,6 +191,7 @@ namespace ConnectApp.redux.actions {
                             else {
                                 messageItems.Add(key: message.id, value: message);
                             }
+
                             if (userMap.ContainsKey(key: message.author.id)) {
                                 userMap[key: message.author.id] = message.author;
                             }
@@ -235,6 +237,7 @@ namespace ConnectApp.redux.actions {
                             else {
                                 messageItems.Add(key: message.id, value: message);
                             }
+
                             if (userMap.ContainsKey(key: message.author.id)) {
                                 userMap[key: message.author.id] = message.author;
                             }
@@ -265,7 +268,8 @@ namespace ConnectApp.redux.actions {
                         });
                         dispatcher.dispatch(new FollowMapAction {followMap = articleDetailResponse.project.followMap});
                         dispatcher.dispatch(new FetchArticleDetailSuccessAction {
-                            articleDetail = articleDetailResponse.project
+                            articleDetail = articleDetailResponse.project,
+                            articleId = articleId
                         });
                         dispatcher.dispatch(new SaveArticleHistoryAction {
                             article = articleDetailResponse.project.projectData
@@ -338,6 +342,7 @@ namespace ConnectApp.redux.actions {
                         else {
                             CustomDialogUtils.showToast("发送成功", iconData: Icons.sentiment_satisfied);
                         }
+
                         dispatcher.dispatch(new SendCommentSuccessAction {
                             message = message,
                             articleId = articleId,

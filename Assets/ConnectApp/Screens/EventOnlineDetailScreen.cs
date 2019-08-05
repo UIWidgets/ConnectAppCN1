@@ -14,8 +14,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -72,9 +72,7 @@ namespace ConnectApp.screens {
                         ),
                         openUrl = url => {
                             EventBus.publish(EventBusConstant.pauseVideoPlayer, new List<object>());
-                            dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
-                                url = url
-                            });
+                            OpenUrlUtil.OpenUrl(url, dispatcher);
                         },
                         copyText = text => dispatcher.dispatch(new CopyTextAction {text = text}),
                         startFetchEventDetail = () => dispatcher.dispatch(new StartFetchEventDetailAction()),
@@ -165,9 +163,9 @@ namespace ConnectApp.screens {
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            Router.routeObserve.subscribe(this, (PageRoute)ModalRoute.of(this.context));
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
         }
-        
+
         public override void dispose() {
             EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
             Router.routeObserve.unsubscribe(this);
@@ -227,7 +225,8 @@ namespace ConnectApp.screens {
                 eventObj = this.widget.viewModel.eventsDict[this.widget.viewModel.eventId];
             }
 
-            if ((this.widget.viewModel.eventDetailLoading || eventObj?.user == null) && !(eventObj?.isNotFirst ?? false)) {
+            if ((this.widget.viewModel.eventDetailLoading || eventObj?.user == null) &&
+                !(eventObj?.isNotFirst ?? false)) {
                 return new EventDetailLoading(eventType: EventType.online,
                     mainRouterPop: this.widget.actionModel.mainRouterPop);
             }
@@ -761,9 +760,11 @@ namespace ConnectApp.screens {
             VideoPlayerManager.instance.isRotation = true;
         }
 
-        public void didPush() {}
+        public void didPush() {
+        }
 
-        public void didPop() {}
+        public void didPop() {
+        }
 
         public void didPushNext() {
             VideoPlayerManager.instance.isRotation = false;

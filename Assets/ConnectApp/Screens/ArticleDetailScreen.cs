@@ -59,9 +59,7 @@ namespace ConnectApp.screens {
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
-                        openUrl = url => dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
-                            url = url
-                        }),
+                        openUrl = url => { OpenUrlUtil.OpenUrl(url, dispatcher); },
                         playVideo = url => dispatcher.dispatch(new PlayVideoAction {
                             url = url
                         }),
