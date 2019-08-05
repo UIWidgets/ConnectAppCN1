@@ -10,9 +10,10 @@ namespace ConnectApp.Components {
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.Separator2,
-                child: new ListView(
+                child: new Column(
                     children: new List<Widget> {
-                        this._buildHead(),
+                        this._buildHead(context),
+                        this._buildContent(),
                         this._buildContent(),
                         this._buildContent(),
                         this._buildContent(),
@@ -22,7 +23,7 @@ namespace ConnectApp.Components {
             );
         }
 
-        Widget _buildHead() {
+        Widget _buildHead(BuildContext context) {
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(bottom: 48, left: 16, right: 16, top: 24),
@@ -37,13 +38,12 @@ namespace ConnectApp.Components {
                         new Container(
                             margin: EdgeInsets.only(top: 16),
                             child: new Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: new List<Widget> {
-                                    _Avatar(),
-                                    _Avatar(),
-                                    _Avatar(),
-                                    _Avatar(),
-                                    _Avatar()
+                                    _Avatar(context),
+                                    _Avatar(context),
+                                    _Avatar(context),
+                                    _Avatar(context),
+                                    _Avatar(context)
                                 }
                             )
                         )
@@ -52,13 +52,21 @@ namespace ConnectApp.Components {
             );
         }
 
-        static Widget _Avatar() {
+        static Widget _Avatar(BuildContext context) {
+            var width = (MediaQuery.of(context: context).size.width - 18 * 2 - 40) /
+                        5; // 18 是边缘的 padding, 10 是 卡片间的间距
+            var size = width - 4 * 2; // 4 是头像的水平 padding
             return new Container(
-                width: 52,
-                height: 52,
-                decoration: new BoxDecoration(
-                    new Color(0xFFF8F8F8),
-                    borderRadius: BorderRadius.circular(26)
+                width: width,
+                alignment: Alignment.center,
+                margin: EdgeInsets.symmetric(horizontal: 4),
+                child: new Container(
+                    width: size,
+                    height: size,
+                    decoration: new BoxDecoration(
+                        new Color(0xFFF8F8F8),
+                        borderRadius: BorderRadius.circular(size / 2)
+                    )
                 )
             );
         }

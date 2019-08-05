@@ -18,6 +18,7 @@ namespace ConnectApp.Components {
             List<User> mentions,
             Action onTap = null,
             Action<string> pushToUserDetail = null,
+            Action<string> pushToTeamDetail = null,
             bool isLast = false,
             Key key = null
         ) : base(key: key) {
@@ -26,6 +27,7 @@ namespace ConnectApp.Components {
             this.mentions = mentions;
             this.onTap = onTap;
             this.pushToUserDetail = pushToUserDetail;
+            this.pushToTeamDetail = pushToTeamDetail;
             this.isLast = isLast;
         }
 
@@ -33,6 +35,7 @@ namespace ConnectApp.Components {
         readonly User user;
         readonly List<User> mentions;
         readonly Action onTap;
+        readonly Action<string> pushToTeamDetail;
         readonly Action<string> pushToUserDetail;
         readonly bool isLast;
 
@@ -47,7 +50,9 @@ namespace ConnectApp.Components {
                 "project_message_commented",
                 "project_participate_comment",
                 "project_message_liked",
-                "project_message_participate_liked"
+                "project_message_participate_liked",
+                "followed",
+                "team_followed"
             };
             if (!types.Contains(item: type)) {
                 return new Container();
@@ -98,7 +103,7 @@ namespace ConnectApp.Components {
             if (type == "project_liked") {
                 subTitle = new TextSpan(
                     " 赞了你的文章",
-                    CTextStyle.PLargeBody2
+                    style: CTextStyle.PLargeBody2
                 );
             }
 
@@ -107,13 +112,13 @@ namespace ConnectApp.Components {
                     content = $" “{MessageUtils.AnalyzeMessage(data.parentComment, this.mentions, false)}”";
                     subTitle = new TextSpan(
                         " 回复了你的评论" + content,
-                        CTextStyle.PLargeBody2
+                        style: CTextStyle.PLargeBody2
                     );
                 }
                 else {
                     subTitle = new TextSpan(
                         " 评论了你的文章",
-                        CTextStyle.PLargeBody2
+                        style: CTextStyle.PLargeBody2
                     );
                 }
             }
@@ -125,7 +130,7 @@ namespace ConnectApp.Components {
 
                 subTitle = new TextSpan(
                     " 回复了你的评论" + content,
-                    CTextStyle.PLargeBody2
+                    style: CTextStyle.PLargeBody2
                 );
             }
 
@@ -136,7 +141,7 @@ namespace ConnectApp.Components {
 
                 subTitle = new TextSpan(
                     " 赞了你的评论" + content,
-                    CTextStyle.PLargeBody2
+                    style: CTextStyle.PLargeBody2
                 );
             }
 
@@ -147,7 +152,26 @@ namespace ConnectApp.Components {
 
                 subTitle = new TextSpan(
                     " 赞了你的评论" + content,
-                    CTextStyle.PLargeBody2
+                    style: CTextStyle.PLargeBody2
+                );
+            }
+
+            if (type == "followed") {
+                subTitle = new TextSpan(
+                    " 关注了你",
+                    style: CTextStyle.PLargeBody2
+                );
+            }
+
+            if (type == "team_followed") {
+                subTitle = new TextSpan(
+                    children: new List<TextSpan> {
+                        new TextSpan("关注了"),
+                        new TextSpan(data.teamName, recognizer: new TapGestureRecognizer {
+                            onTap = () => { this.pushToTeamDetail(data.teamId); }
+                        }, style: CTextStyle.PLargeBlue)
+                    },
+                    style: CTextStyle.PLargeBody2
                 );
             }
 
@@ -161,8 +185,8 @@ namespace ConnectApp.Components {
                                 new TextSpan(
                                     text: data.fullname,
                                     style: CTextStyle.PLargeMedium,
-                                    recognizer: new TapGestureRecognizer{
-                                        onTap = () => this.pushToUserDetail(data.userId)
+                                    recognizer: new TapGestureRecognizer {
+                                        onTap = () => this.pushToUserDetail(obj: data.userId)
                                     }
                                 ),
                                 subTitle
@@ -171,7 +195,7 @@ namespace ConnectApp.Components {
                         overflow: TextOverflow.ellipsis
                     ),
                     new Text(
-                        data.projectTitle,
+                        data: data.projectTitle,
                         maxLines: 1,
                         style: CTextStyle.PLargeMedium,
                         overflow: TextOverflow.ellipsis
@@ -184,7 +208,7 @@ namespace ConnectApp.Components {
             var createdTime = this.notification.createdTime;
             return new Container(
                 child: new Text(
-                    DateConvert.DateStringFromNow(createdTime),
+                    DateConvert.DateStringFromNow(dt: createdTime),
                     style: CTextStyle.PSmallBody4
                 )
             );

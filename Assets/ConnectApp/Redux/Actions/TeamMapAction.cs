@@ -95,13 +95,8 @@ namespace ConnectApp.redux.actions {
                     .Then(teamResponse => {
                         dispatcher.dispatch(new PlaceMapAction {placeMap = teamResponse.placeMap});
                         dispatcher.dispatch(new FollowMapAction {followMap = teamResponse.followMap});
-                        var teamDict = getState().teamState.teamDict;
-                        var currentTeam = teamDict.ContainsKey(key: teamId)
-                            ? teamDict[key: teamId]
-                            : new Team();
-                        var team = teamResponse.team;
                         dispatcher.dispatch(new FetchTeamSuccessAction {
-                            team = team.Merge(other: currentTeam),
+                            team = teamResponse.team,
                             teamId = teamId
                         });
                     })
@@ -124,9 +119,10 @@ namespace ConnectApp.redux.actions {
                 }
                 return TeamApi.FetchTeamArticle(teamId, offset)
                     .Then(teamArticleResponse => {
+                        var articles = teamArticleResponse.projects.FindAll(project => "article" == project.type);
                         dispatcher.dispatch(new LikeMapAction {likeMap = teamArticleResponse.likeMap});
                         dispatcher.dispatch(new FetchTeamArticleSuccessAction {
-                            articles = teamArticleResponse.projects,
+                            articles = articles,
                             hasMore = teamArticleResponse.projectsHasMore,
                             offset = offset,
                             teamId = teamId

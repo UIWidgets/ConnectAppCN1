@@ -6,6 +6,7 @@ using ConnectApp.Main;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
@@ -58,9 +59,19 @@ namespace ConnectApp.screens {
         }
     }
 
-    public class _PersonalScreenState : AutomaticKeepAliveClientMixin<PersonalScreen> {
+    public class _PersonalScreenState : AutomaticKeepAliveClientMixin<PersonalScreen>, RouteAware {
         protected override bool wantKeepAlive {
             get { return true; }
+        }
+
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
+        }
+
+        public override void dispose() {
+            Router.routeObserve.unsubscribe(this);
+            base.dispose();
         }
 
         public override Widget build(BuildContext context) {
@@ -228,6 +239,19 @@ namespace ConnectApp.screens {
             var widgets = new List<Widget>();
             personalCardItems.ForEach(item => widgets.Add(new PersonalCard(item)));
             return widgets;
+        }
+        
+        public void didPopNext() {
+            StatusBarManager.statusBarStyle(false);
+        }
+
+        public void didPush() {
+        }
+
+        public void didPop() {
+        }
+
+        public void didPushNext() {
         }
     }
 }

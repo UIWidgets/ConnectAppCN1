@@ -12,8 +12,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
@@ -58,7 +58,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    public class _ArticlesScreenState : AutomaticKeepAliveClientMixin<ArticlesScreen> {
+    public class _ArticlesScreenState : AutomaticKeepAliveClientMixin<ArticlesScreen>, RouteAware {
         const float _maxNavBarHeight = 96;
         const float _minNavBarHeight = 44;
         const float _maxTitleFontSize = 32;
@@ -75,6 +75,8 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
+            HttpManager.initVSCode();
+            StatusBarManager.statusBarStyle(false);
             this._selectedIndex = 1;
             this._pageController = new PageController(initialPage: this._selectedIndex);
             this._titleFontSize = _maxTitleFontSize;
@@ -91,8 +93,14 @@ namespace ConnectApp.screens {
             });
         }
 
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
+        }
+        
         public override void dispose() {
             EventBus.unSubscribe(sName: EventBusConstant.login_success, id: this._loginSubId);
+            Router.routeObserve.unsubscribe(this);
             base.dispose();
         }
 
@@ -157,7 +165,6 @@ namespace ConnectApp.screens {
                 widgets.Add(new SizedBox(width: 16));
             });
             return new Container(
-                color: CColors.White,
                 padding: EdgeInsets.only(16),
                 height: this._navBarHeight,
                 decoration: new BoxDecoration(
@@ -270,6 +277,19 @@ namespace ConnectApp.screens {
                     )
                 )
             );
+        }
+        
+        public void didPopNext() {
+            StatusBarManager.statusBarStyle(false);
+        }
+
+        public void didPush() {
+        }
+
+        public void didPop() {
+        }
+
+        public void didPushNext() {
         }
     }
 }

@@ -88,6 +88,8 @@ namespace ConnectApp.Models.State {
                 },
                 notificationState = new NotificationState {
                     loading = false,
+                    page = 1,
+                    pageTotal = 1,
                     notifications = new List<Notification>(),
                     mentions = new List<User>()
                 },

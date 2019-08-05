@@ -214,10 +214,18 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchArticleDetailSuccessAction action: {
                     state.articleState.articleDetailLoading = false;
+                    var relatedArticles = action.articleDetail.projects.FindAll(item => item.type == "article");
+                    var projectIds = new List<string>();
+                    relatedArticles.ForEach(project => {
+                        projectIds.Add(item: project.id);
+                        if (!state.articleState.articleDict.ContainsKey(key: project.id)) {
+                            state.articleState.articleDict.Add(key: project.id, value: project);
+                        }
+                    });
                     var article = action.articleDetail.projectData;
                     article.like = action.articleDetail.like;
                     article.edit = action.articleDetail.edit;
-                    article.projects = action.articleDetail.projects;
+                    article.projectIds = projectIds;
                     article.channelId = action.articleDetail.channelId;
                     article.contentMap = action.articleDetail.contentMap;
                     article.hasMore = action.articleDetail.comments.hasMore;
@@ -284,7 +292,10 @@ namespace ConnectApp.redux.reducers {
 
                 case LikeArticleSuccessAction action: {
                     if (state.articleState.articleDict.ContainsKey(key: action.articleId)) {
-                        state.articleState.articleDict[key: action.articleId].like = true;
+                        var article = state.articleState.articleDict[key: action.articleId];
+                        article.like = true;
+                        article.likeCount += 1;
+                        state.articleState.articleDict[key: action.articleId] = article;
                     }
 
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
@@ -373,10 +384,8 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case LikeCommentSuccessAction action: {
-                    var user = new User();
-                    user.id = state.loginState.loginInfo.userId;
-                    var reaction = new Reaction();
-                    reaction.user = user;
+                    var user = new User {id = state.loginState.loginInfo.userId};
+                    var reaction = new Reaction {user = user};
                     action.message.reactions.Add(item: reaction);
                     state.messageState.channelMessageDict[key: action.message.channelId][key: action.message.id] =
                         action.message;
@@ -387,7 +396,7 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case StartRemoveLikeCommentAction action: {
+                case StartRemoveLikeCommentAction _: {
                     break;
                 }
 
@@ -405,11 +414,15 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case StartSendCommentAction action: {
+                case StartSendCommentAction _: {
                     break;
                 }
 
                 case SendCommentSuccessAction action: {
+                    if (action.message.deleted) {
+                        break;
+                    }
+
                     if (state.messageState.channelMessageList.ContainsKey(key: action.message.channelId)) {
                         var list = state.messageState.channelMessageList[key: action.message.channelId];
                         list.Insert(0, item: action.message.id);
@@ -447,8 +460,10 @@ namespace ConnectApp.redux.reducers {
                             message.replyMessageIds.Add(item: action.message.id);
                             messageDict[key: action.parentMessageId] = message;
                         }
+
                         state.messageState.channelMessageDict[key: action.channelId] = messageDict;
                     }
+
                     break;
                 }
 
@@ -605,9 +620,29 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case FetchNotificationsSuccessAction action: {
+                    state.notificationState.page = action.page;
                     state.notificationState.pageTotal = action.pageTotal;
-                    state.notificationState.notifications = action.notifications;
-                    state.notificationState.mentions = action.mentions;
+                    if (action.pageNumber == 1) {
+                        state.notificationState.notifications = action.notifications;
+                        state.notificationState.mentions = action.mentions;
+                    }
+                    else {
+                        var notifications = state.notificationState.notifications;
+                        var mentions = state.notificationState.mentions;
+                        if (action.pageNumber <= action.pageTotal) {
+                            notifications.AddRange(collection: action.notifications);
+                        }
+
+                        foreach (var user in action.mentions) {
+                            if (!mentions.Contains(item: user)) {
+                                mentions.Add(item: user);
+                            }
+                        }
+
+                        state.notificationState.notifications = notifications;
+                        state.notificationState.mentions = mentions;
+                    }
+
                     state.notificationState.loading = false;
                     break;
                 }
@@ -801,7 +836,20 @@ namespace ConnectApp.redux.reducers {
                         foreach (var keyValuePair in action.teamMap) {
                             if (teamDict.ContainsKey(key: keyValuePair.Key)) {
                                 var oldTeam = teamDict[key: keyValuePair.Key];
-                                teamDict[key: keyValuePair.Key] = oldTeam.Merge(other: keyValuePair.Value);
+                                if (oldTeam.isDetail ?? false) {
+                                    var newTeam = oldTeam.Merge(other: keyValuePair.Value);
+                                    var stats = newTeam.stats ?? new TeamStats();
+                                    teamDict[key: keyValuePair.Key] = newTeam.copyWith(
+                                        stats: stats.copyWith(membersCount: oldTeam.stats?.membersCount)
+                                    );
+                                }
+                                else {
+                                    var newTeam = oldTeam.Merge(other: keyValuePair.Value);
+                                    var stats = newTeam.stats ?? new TeamStats();
+                                    teamDict[key: keyValuePair.Key] = newTeam.copyWith(
+                                        stats: stats.copyWith(membersCount: 0)
+                                    );
+                                }
                             }
                             else {
                                 teamDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
@@ -985,7 +1033,8 @@ namespace ConnectApp.redux.reducers {
                             state.searchState.searchUserIdDict[key: action.keyword] = action.searchUserIds;
                         }
                         else {
-                            var searchUserIds = state.searchState.searchUserIdDict[key: action.keyword] ?? new List<string>();
+                            var searchUserIds = state.searchState.searchUserIdDict[key: action.keyword] ??
+                                                new List<string>();
                             searchUserIds.AddRange(collection: action.searchUserIds);
                             state.searchState.searchUserIdDict[key: action.keyword] = searchUserIds;
                         }
@@ -1050,7 +1099,8 @@ namespace ConnectApp.redux.reducers {
                             state.searchState.searchTeamIdDict[key: action.keyword] = action.searchTeamIds;
                         }
                         else {
-                            var searchTeamIds = state.searchState.searchTeamIdDict[key: action.keyword] ?? new List<string>();
+                            var searchTeamIds = state.searchState.searchTeamIdDict[key: action.keyword] ??
+                                                new List<string>();
                             searchTeamIds.AddRange(collection: action.searchTeamIds);
                             state.searchState.searchTeamIdDict[key: action.keyword] = searchTeamIds;
                         }
@@ -1137,7 +1187,8 @@ namespace ConnectApp.redux.reducers {
                     if (action.userId != null) {
                         Router.navigator.push(new PageRouteBuilder(
                                 pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new UserFollowingScreenConnector(userId: action.userId, initialPage: action.initialPage),
+                                    new UserFollowingScreenConnector(userId: action.userId,
+                                        initialPage: action.initialPage),
                                 transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                     new PushPageTransition(
                                         routeAnimation: animation,
@@ -1408,7 +1459,8 @@ namespace ConnectApp.redux.reducers {
                         state.userState.userDict.Add(key: action.userId, value: action.user);
                     }
                     else {
-                        state.userState.userDict[key: action.userId] = action.user;
+                        var oldUser = state.userState.userDict[key: action.userId];
+                        state.userState.userDict[key: action.userId] = oldUser.Merge(other: action.user);
                     }
 
                     break;
@@ -1526,6 +1578,7 @@ namespace ConnectApp.redux.reducers {
                         user.followCount += 1;
                         state.userState.userDict[key: action.followUserId] = user;
                     }
+
                     EventBus.publish(sName: EventBusConstant.follow_user, new List<object>());
 
                     break;
@@ -1578,6 +1631,7 @@ namespace ConnectApp.redux.reducers {
                         user.followCount -= 1;
                         state.userState.userDict[key: action.unFollowUserId] = user;
                     }
+
                     EventBus.publish(sName: EventBusConstant.follow_user, new List<object>());
 
                     break;
@@ -1751,11 +1805,13 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchTeamSuccessAction action: {
                     state.teamState.teamLoading = false;
+                    var team = action.team.copyWith(isDetail: true);
                     if (!state.teamState.teamDict.ContainsKey(key: action.teamId)) {
-                        state.teamState.teamDict.Add(key: action.teamId, value: action.team);
+                        state.teamState.teamDict.Add(key: action.teamId, value: team);
                     }
                     else {
-                        state.teamState.teamDict[key: action.teamId] = action.team;
+                        var oldTeam = state.teamState.teamDict[key: action.teamId];
+                        state.teamState.teamDict[key: action.teamId] = oldTeam.Merge(other: team);
                     }
 
                     break;
@@ -1918,9 +1974,12 @@ namespace ConnectApp.redux.reducers {
 
                     if (state.teamState.teamDict.ContainsKey(key: action.followTeamId)) {
                         var team = state.teamState.teamDict[key: action.followTeamId];
-                        team.stats.followCount += 1;
-                        state.teamState.teamDict[key: action.followTeamId] = team;
+                        if (team.stats != null) {
+                            team.stats.followCount += 1;
+                            state.teamState.teamDict[key: action.followTeamId] = team;
+                        }
                     }
+
                     EventBus.publish(sName: EventBusConstant.follow_user, new List<object>());
 
                     break;
@@ -1970,9 +2029,12 @@ namespace ConnectApp.redux.reducers {
 
                     if (state.teamState.teamDict.ContainsKey(key: action.unFollowTeamId)) {
                         var team = state.teamState.teamDict[key: action.unFollowTeamId];
-                        team.stats.followCount -= 1;
-                        state.teamState.teamDict[key: action.unFollowTeamId] = team;
+                        if (team.stats != null) {
+                            team.stats.followCount -= 1;
+                            state.teamState.teamDict[key: action.unFollowTeamId] = team;
+                        }
                     }
+
                     EventBus.publish(sName: EventBusConstant.follow_user, new List<object>());
 
                     break;

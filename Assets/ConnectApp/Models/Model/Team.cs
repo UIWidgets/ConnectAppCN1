@@ -16,8 +16,9 @@ namespace ConnectApp.Models.Model {
         public List<string> articleIds;
         public bool? articlesHasMore;
         public bool? followTeamLoading;
+        public bool? isDetail;
 
-        Team copyWith(
+        public Team copyWith(
             string id = null,
             string avatar = null,
             string name = null,
@@ -29,7 +30,8 @@ namespace ConnectApp.Models.Model {
             bool? membersHasMore = null,
             List<string> articleIds = null,
             bool? articlesHasMore = null,
-            bool? followTeamLoading = null
+            bool? followTeamLoading = null,
+            bool? isDetail = null
         ) {
             return new Team {
                 id = id ?? this.id,
@@ -43,7 +45,8 @@ namespace ConnectApp.Models.Model {
                 membersHasMore = membersHasMore ?? this.membersHasMore,
                 articleIds = articleIds ?? this.articleIds,
                 articlesHasMore = articlesHasMore ?? this.articlesHasMore,
-                followTeamLoading = followTeamLoading ?? this.followTeamLoading
+                followTeamLoading = followTeamLoading ?? this.followTeamLoading,
+                isDetail = isDetail ?? this.isDetail
             };
         }
 
@@ -64,7 +67,8 @@ namespace ConnectApp.Models.Model {
                 membersHasMore: other.membersHasMore,
                 articleIds: other.articleIds,
                 articlesHasMore: other.articlesHasMore,
-                followTeamLoading: other.followTeamLoading
+                followTeamLoading: other.followTeamLoading,
+                isDetail: other.isDetail
             );
         }
     }
@@ -73,5 +77,26 @@ namespace ConnectApp.Models.Model {
     public class TeamStats {
         public int followCount;
         public int membersCount;
+
+        public TeamStats copyWith(
+            int? followCount = null,
+            int? membersCount = null
+        ) {
+            return new TeamStats {
+                followCount = followCount ?? this.followCount,
+                membersCount = membersCount ?? this.membersCount
+            };
+        }
+
+        public TeamStats Merge(TeamStats other) {
+            if (null == other) {
+                return this;
+            }
+
+            return this.copyWith(
+                followCount: other.followCount,
+                membersCount: other.membersCount
+            );
+        }
     }
 }

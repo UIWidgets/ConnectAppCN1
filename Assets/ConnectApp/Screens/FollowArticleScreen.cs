@@ -391,7 +391,7 @@ namespace ConnectApp.screens {
             }
 
             return new Container(
-                padding: EdgeInsets.symmetric(16),
+                padding: EdgeInsets.only(bottom: 16),
                 decoration: new BoxDecoration(
                     color: CColors.White,
                     border: new Border(
@@ -405,23 +405,27 @@ namespace ConnectApp.screens {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
                         new Container(
-                            padding: EdgeInsets.only(16, 0, 8, 12),
+                            padding: EdgeInsets.only(16, 0, 0, 12),
                             child: new Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: new List<Widget> {
-                                    new Text(
-                                        "最近关注",
-                                        style: CTextStyle.PMediumBody2
+                                    new Padding(
+                                        padding: EdgeInsets.only(top: 16),
+                                        child: new Text(
+                                            "最近关注",
+                                            style: CTextStyle.PMediumBody2
+                                        )
                                     ),
                                     new GestureDetector(
                                         onTap: () =>
                                             this.widget.actionModel.pushToUserFollowing(
                                                 obj: this.widget.viewModel.currentUserId),
                                         child: new Container(
+                                            color: CColors.Transparent,
                                             child: new Row(
                                                 children: new List<Widget> {
-                                                    new Container(
-                                                        padding: EdgeInsets.only(top: 2),
+                                                    new Padding(
+                                                        padding: EdgeInsets.only(16, 18),
                                                         child: new Text(
                                                             "查看全部",
                                                             style: new TextStyle(
@@ -431,7 +435,8 @@ namespace ConnectApp.screens {
                                                             )
                                                         )
                                                     ),
-                                                    new Container(
+                                                    new Padding(
+                                                        padding: EdgeInsets.only(top: 16, right: 8),
                                                         child: new Icon(
                                                             icon: Icons.chevron_right,
                                                             size: 20,
@@ -491,7 +496,7 @@ namespace ConnectApp.screens {
                                     : Avatar.Team(
                                         team: team,
                                         size: this.avatarSize,
-                                        hasCircular: true
+                                        avatarShape: AvatarShape.circle
                                     )
                             ),
                             new Container(

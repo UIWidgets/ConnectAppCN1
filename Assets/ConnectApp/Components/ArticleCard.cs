@@ -68,8 +68,9 @@ namespace ConnectApp.Components {
                                     child: new Row(
                                         children: new List<Widget> {
                                             new Expanded(
-                                                child: new Text(this.article.subTitle,
-                                                    style: CTextStyle.PRegularBody,
+                                                child: new Text(
+                                                    this.article.subTitle,
+                                                    style: CTextStyle.PRegularBody2,
                                                     maxLines: 3,
                                                     overflow: TextOverflow.ellipsis
                                                 )

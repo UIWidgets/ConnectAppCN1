@@ -385,7 +385,7 @@ namespace ConnectApp.Components.pull_to_refresh {
                             right: 0.0f,
                             child: new NotificationListener<ScrollNotification>(
                                 child: new CustomScrollView(
-                                    physics: new RefreshScrollPhysics(enableOverScroll: this.widget.enableOverScroll),
+                                    physics: new RefreshScrollPhysics(enableOverScroll: false),
                                     controller: this._scrollController,
                                     slivers: slivers,
                                     center: this._selectedKey

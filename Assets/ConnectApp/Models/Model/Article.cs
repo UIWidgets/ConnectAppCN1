@@ -30,6 +30,7 @@ namespace ConnectApp.Models.Model {
         public bool like;
         public bool edit;
         public List<Article> projects;
+        public List<string> projectIds;
         public string channelId;
         public Dictionary<string, ContentMap> contentMap;
         public string currOldestMessageId;
