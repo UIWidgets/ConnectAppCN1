@@ -1,37 +1,41 @@
 # Connect App
-A Unity Connect community app made with Unity [UIWidgets](https://github.com/UnityTech/UIWidgets).
+[English Version](https://github.com/UnityTech/ConnectAppCN/blob/master/README_EN.md)
 
-## Get started
-#### Get repo
+Unity Connect 社区移动端 App（基于 [UIWidgets](https://github.com/UnityTech/UIWidgets)）。
+
+## 让项目运行
+#### 获取源代码
   ```shell
   $ git clone git@github.com:UnityTech/ConnectAppCN.git
   $ cd ConnectAppCN/
   $ git submodule init
   $ git submodule update
   ```
-#### Running in Unity Editor
-  1. Use Unity Editor (**Unity 2018.3** or above) open the `ConnectAppCN/`.
-  2. Find `Assets/ConnectApp/Main` folder in `Project` Tab.
-  3. Double click the `ConnectApp.unity` for preview the project.
-  4. Double click the `ConnectAppPanel.cs` evoke `Rider` for Edit Code.
-  5. Click the `Play` button and you will see the project running in the `Game` window.
-  PS: if "Game" window show "No cameras rendering" Toast, You can click the menu in the upper right corner of the "Game" window and uncheck the "Warn if No cameras rendering" option to make it disappear.
+
+#### 在 Unity Editor 上运行
+  1. 使用 Unity Editor（推荐 Editor 版本： **Unity 2018.3** 或以上）打开项目目录 `ConnectAppCN/`。
+  2. 在 Unity Editor 界面的 `Project` 选项卡中找到 `Assets/ConnectApp/Main` 文件目录。
+  3. 双击 `ConnectApp.unity` 文件，可以预览项目的预载显示效果。
+  4. 双击 `ConnectAppPanel.cs` 文件，以唤起代码编辑软件（例如：`Rider`）。
+  5. 单击 `播放按钮` 后，在 `Game` 窗口查看项目运行效果。
   
-#### Running in Android (need to install Android Studio)
-  1. Unity Editor Menu `Flie` -> `Build Settings` -> Switch Platform **Android**.
-  2. `Build Settings` -> Check `Export Project`. Then click the `Export` button at the bottom, export to the path you want (such as AndroidProject/).
-  3. Open `<your path>/Unity Connect` the project file from Android Studio.
-  4. You can run it on the Android Simulator or on the Android Device.
-  
-#### Running in iOS (need to install Xcode)
-  1. Unity Editor Menu `Flie` -> `Build Settings` -> Switch Platform **iOS**.
-  2. The default configuration in the project is to run in the iPhone Device, if you want to run in the iOS Simulator requires additional settings.
-      1. Find Unity Editor Menu `Edit` -> `Project Settings` -> `Player` -> `Other Settings`. 
-      2. Uncheck the `Auto Graphics API`, add `OpenGLES2` and `OpenGLES3` to `Graphics APIs`.
-      3. Target SDK select Simulator SDK.
-  3. In `Build Settings` click the `Export` button at the bottom, export to the path you want (such as iOSProject/).
-  4. Double click the `Unity-iPhone.xcodeproj` open project.
-  5. If you are running in a iOS device, you may need to modify the `Bundle identifier` in `info.plist`.
-  6. You can run it on the iOS Simulator(View 2.) or on the iOS Device.
-  
-Any questions can be raised in the issue, we will reply as soon as possible.
+  > 如果项目运行时有 `Game` 窗口中显示 "No cameras rendering" 字样提示的话，可以在 `Game` 窗口左上角菜单中**去除**勾选 "Warn if No cameras rendering" 即可消除。
+
+#### 在 Android 上运行 (需要安装 Android Studio)
+  1. 在顶部菜单找到 `Flie` -> `Build Settings` -> Switch Platform **Android**。
+  2. 然后在 `Build Settings` 弹框中**勾选** `Export Project` 选项。然后点击 `Export` 按钮导出到你指定的文件夹内（例如：AndroidProject/）。
+  3. 通过 Android Studio 打开安卓项目目录 `<你的指定文件夹>/Unity Connect`。
+  4. 进入到 Android Studio 后，你就可以在 Android 模拟器或者真机中运行项目了。
+
+#### 在 iOS 上运行 (需要安装 Xcode)
+  1. 在顶部菜单找到 `Flie` -> `Build Settings` -> Switch Platform **iOS**。
+  2. 项目中默认的配置是运行在 iOS 真机。如果想在 iOS 模拟器中运行，需要进行如下设置。
+      - 找到菜单中的 `Edit` -> `Project Settings` -> `Player` -> `Other Settings`。
+      - **取消**选中 `Auto Graphics API` ，然后在 `Graphics APIs` 列表中添加 `OpenGLES2` 和 `OpenGLES3`。
+      - `Target SDK` 选择 `Simulator SDK`。
+  3. 在 `Build Settings` 弹窗中点击 `Export` 按钮导出到你指定的文件夹内（例如：iOSProject/）。
+  4. 双击 `Unity-iPhone.xcodeproj` 文件打开项目。
+  5. 如果在真机上运行可能需要修改 `info.plist` 中 `Bundle identifier`。
+  6. 如果在模拟器运行需要在 `Editor` 中进行 2. 中的步骤，然后导出项目。
+
+#### 有任何问题都可以在 Issues 中向我们提出来，我们会仔细阅读并尽快回复您。
