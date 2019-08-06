@@ -14,6 +14,9 @@ namespace ConnectApp.Constants {
 
         public const string jgAppKey = "a50eff2d99416a0495f02766";
 
+        public const string MINIID = "gh_f731aec0bdd0";
+
+
         public const string versionNumber = "1.0.2";
 
         public const int versionCode = 48;

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using ConnectApp.Constants;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.widgets;
@@ -76,6 +77,13 @@ namespace ConnectApp.Plugins {
             }
         }
 
+        public void shareToMiniProgram(string title, string description, string url, string imageBytes, string path) {
+            if (!Application.isEditor) {
+                this.addListener();
+                toMiNiProgram(title, description, url, imageBytes, Config.MINIID, path);
+            }
+        }
+
 
         public bool inInstalled() {
             if (!Application.isEditor) {
@@ -84,6 +92,13 @@ namespace ConnectApp.Plugins {
             }
 
             return false;
+        }
+
+        public void toOpenMiNi(string path) {
+            if (!Application.isEditor) {
+                this.addListener();
+                openMiNi(Config.MINIID, path);
+            }
         }
 #if UNITY_IOS
         [DllImport("__Internal")]
@@ -97,6 +112,13 @@ namespace ConnectApp.Plugins {
 
         [DllImport("__Internal")]
         internal static extern void toTimeline(string title, string description, string url, string imageBytes);
+
+        [DllImport("__Internal")]
+        internal static extern void toMiNiProgram(string title, string description, string url, string imageBytes,
+            string ysId, string path);
+
+        [DllImport("__Internal")]
+        internal static extern void openMiNi(string ysId, string path);
 
 #elif UNITY_ANDROID
         static AndroidJavaObject _plugin;
@@ -129,11 +151,19 @@ namespace ConnectApp.Plugins {
         static void toTimeline(string title, string description, string url, string imageBytes) {
             Plugin().Call("shareToTimeline", title, description, url, imageBytes);
         }
+        static void toMiNiProgram(string title, string description, string url, string imageBytes,string ysId, string path) {
+            Plugin().Call("shareToMiNiProgram", title, description, url, imageBytes,ysId,path);
+        }
+        static void openMiNi(string ysId, string path) {
+            Plugin().Call("openMiNi", Config.wechatAppId,ysId,path);
+        }
 #else
         static bool isInstallWechat() {return true;}
         static void loginWechat(string stateId) {}
         static void toFriends(string title, string description, string url,string imageBytes) {}
         static void toTimeline(string title, string description, string url,string imageBytes) {}
+        static void toMiNiProgram(string title, string description, string url, string imageBytes,string ysId, string path) {}
+        static void openMiNi(string ysId, string path) {}
 #endif
     }
 }

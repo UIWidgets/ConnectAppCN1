@@ -92,8 +92,9 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch<IPromise>(
                                 Actions.fetchMessages(channelId, currOldestMessageId, isFirstLoad)
                             ),
-                        shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
-                            Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
+                        shareToWechat = (type, title, description, linkUrl, imageUrl, path) =>
+                            dispatcher.dispatch<IPromise>(
+                                Actions.shareToWechat(type, title, description, linkUrl, imageUrl, path, true))
                     };
                     return new EventOnlineDetailScreen(viewModel, actionModel);
                 }
@@ -741,6 +742,7 @@ namespace ConnectApp.screens {
 
                         var linkUrl =
                             $"{Config.apiAddress}/events/{eventObj.id}";
+                        var path = $"pages/Detail/Detail?id={eventObj.id}&title={eventObj.title}&app=true";
                         if (type == ShareType.clipBoard) {
                             this.widget.actionModel.copyText(linkUrl);
                             CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
@@ -752,7 +754,7 @@ namespace ConnectApp.screens {
                             );
                             this.widget.actionModel.shareToWechat(type, eventObj.title, eventObj.shortDescription,
                                     linkUrl,
-                                    imageUrl).Then(CustomDialogUtils.hiddenCustomDialog)
+                                    imageUrl, path).Then(CustomDialogUtils.hiddenCustomDialog)
                                 .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
                         }
                     }

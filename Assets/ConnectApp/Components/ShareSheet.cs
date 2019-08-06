@@ -13,6 +13,7 @@ namespace ConnectApp.Components {
     public enum ShareType {
         friends,
         moments,
+        miniProgram,
         clipBoard,
         block,
         report
