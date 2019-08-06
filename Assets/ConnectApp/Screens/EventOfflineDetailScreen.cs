@@ -396,7 +396,6 @@ namespace ConnectApp.screens {
         }
         
         public void didPopNext() {
-            Debug.Log($"isLight: {this._showNavBarShadow}");
             StatusBarManager.statusBarStyle(isLight: this._showNavBarShadow);
         }
 
