@@ -239,6 +239,15 @@ namespace ConnectApp.redux.reducers {
                         state.articleState.articleDict.Add(key: article.id, value: article);
                     }
 
+                    if (!article.id.Equals(action.articleId)) {
+                        if (dict.ContainsKey(key: action.articleId)) {
+                            state.articleState.articleDict[key: action.articleId] = article;
+                        }
+                        else {
+                            state.articleState.articleDict.Add(key: action.articleId, value: article);
+                        }
+                    }
+
                     break;
                 }
 
