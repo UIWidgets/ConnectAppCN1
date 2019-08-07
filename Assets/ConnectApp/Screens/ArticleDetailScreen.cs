@@ -62,7 +62,7 @@ namespace ConnectApp.screens {
                         openUrl = url => dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
                             url = url
                         }),
-                        playVideo = url => dispatcher.dispatch(new PlayVideoAction {
+                        playVideo = url => dispatcher.dispatch(new MainNavigatorPushToVideoPlayerAction {
                             url = url
                         }),
                         pushToArticleDetail = id => dispatcher.dispatch(

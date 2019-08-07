@@ -63,17 +63,11 @@ namespace ConnectApp.redux.reducers {
                         HistoryManager.searchArticleHistoryList(userId: action.loginInfo.userId);
                     state.articleState.blockArticleList =
                         HistoryManager.blockArticleList(userId: action.loginInfo.userId);
-                    EventBus.publish(sName: EventBusConstant.login_success, new List<object>());
                     break;
                 }
 
                 case LoginByEmailFailureAction _: {
                     state.loginState.loading = false;
-                    break;
-                }
-
-                case LoginByWechatAction _: {
-                    state.loginState.loading = true;
                     break;
                 }
 
@@ -88,7 +82,6 @@ namespace ConnectApp.redux.reducers {
                         HistoryManager.searchArticleHistoryList(userId: action.loginInfo.userId);
                     state.articleState.blockArticleList =
                         HistoryManager.blockArticleList(userId: action.loginInfo.userId);
-                    EventBus.publish(sName: EventBusConstant.login_success, new List<object>());
                     break;
                 }
 
@@ -1403,13 +1396,30 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case PlayVideoAction action: {
+                case MainNavigatorPushToVideoPlayerAction action: {
                     if (action.url != null) {
                         Router.navigator.push(new PageRouteBuilder(
                                 pageBuilder: (context, animation, secondaryAnimation) =>
                                     new VideoViewScreen(url: action.url),
                                 transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                     new PushPageTransition(
+                                        routeAnimation: animation,
+                                        child: child
+                                    )
+                            )
+                        );
+                    }
+
+                    break;
+                }
+
+                case MainNavigatorPushToQRScanLoginAction action: {
+                    if (action.token != null) {
+                        Router.navigator.push(new PageRouteBuilder(
+                                pageBuilder: (context, animation, secondaryAnimation) =>
+                                    new QRScanLoginScreenConnector(token: action.token), 
+                                transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
+                                    new ModalPageTransition(
                                         routeAnimation: animation,
                                         child: child
                                     )

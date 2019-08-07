@@ -58,7 +58,6 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new LoginChangePasswordAction {changeText = text}),
                         startLoginByEmail = () => dispatcher.dispatch(new StartLoginByEmailAction()),
                         clearEmailAndPassword = () => dispatcher.dispatch(new CleanEmailAndPasswordAction()),
-                        loginByEmailFailure = () => dispatcher.dispatch(new LoginByEmailFailureAction()),
                         loginByEmail = () => dispatcher.dispatch<IPromise>(Actions.loginByEmail())
                     };
                     return new BindUnityScreen(viewModel, actionModel);
@@ -126,7 +125,6 @@ namespace ConnectApp.screens {
             this._passwordFocusNode.unfocus();
             this.widget.actionModel.startLoginByEmail();
             this.widget.actionModel.loginByEmail().Catch(_ => {
-                this.widget.actionModel.loginByEmailFailure();
                 var customSnackBar = new CustomSnackBar(
                     "邮箱或密码不正确，请稍后再试。"
                 );

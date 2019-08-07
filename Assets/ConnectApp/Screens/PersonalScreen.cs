@@ -73,7 +73,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         this.widget.viewModel.isLoggedIn
                             ? this._buildLoginInNavigationBar()
-                            : this._buildNotLoginInNavigationBar(context),
+                            : this._buildNotLoginInNavigationBar(),
                         this.widget.viewModel.isLoggedIn
                             ? (Widget) new Container()
                             : new CustomDivider(
@@ -91,16 +91,32 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildNotLoginInNavigationBar(BuildContext context) {
+        Widget _buildNotLoginInNavigationBar() {
             return new Container(
                 color: CColors.White,
-                width: MediaQuery.of(context).size.width,
-                height: 196,
-                padding: EdgeInsets.only(16, right: 16, bottom: 16),
+                height: 240,
+                padding: EdgeInsets.only(16, bottom: 16),
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
+                        new Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: new List<Widget> {
+                                new GestureDetector(
+                                    onTap: QRScanPlugin.PushToQRScan,
+                                    child: new Container(
+                                        padding: EdgeInsets.only(16, 16, 16, 12),
+                                        color: CColors.Transparent,
+                                        child: Image.asset(
+                                            "image/scan-qr-code",
+                                            width: 20,
+                                            height: 20
+                                        )
+                                    )
+                                )
+                            }
+                        ),
                         new Text("欢迎来到", style: CTextStyle.H2),
                         new Text("Unity Connect", style: CTextStyle.H2),
                         new Container(
@@ -128,7 +144,7 @@ namespace ConnectApp.screens {
 
         Widget _buildLoginInNavigationBar() {
             var user = this.widget.viewModel.userDict[key: this.widget.viewModel.user.userId];
-            Widget titleWidget = new Container();
+            Widget titleWidget;
             if (user.title != null && user.title.isNotEmpty()) {
                 titleWidget = new Text(
                     data: user.title,
@@ -136,6 +152,9 @@ namespace ConnectApp.screens {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis
                 );
+            }
+            else {
+                titleWidget = new Container();
             }
 
             return new GestureDetector(

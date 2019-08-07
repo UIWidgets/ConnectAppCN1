@@ -223,6 +223,13 @@ namespace ConnectApp.Constants {
             color: CColors.TextBody4
         );
 
+        public static readonly TextStyle PLargeBody5 = new TextStyle(
+            height: 1.33f,
+            fontSize: 16,
+            fontFamily: "Roboto-Regular",
+            color: CColors.TextBody5
+        );
+
         public static readonly TextStyle PLargeDisabled = new TextStyle(
             height: 1.33f,
             fontSize: 16,

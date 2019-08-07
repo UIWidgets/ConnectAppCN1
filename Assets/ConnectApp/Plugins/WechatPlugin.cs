@@ -20,15 +20,15 @@ namespace ConnectApp.Plugins {
             return plugin;
         }
 
-        public static WechatPlugin plugin;
+        static WechatPlugin plugin;
 
         bool isListen;
 
         public BuildContext context;
 
-        public Action<string> codeCallBack;
+        Action<string> codeCallBack;
 
-        public void addListener() {
+        void addListener() {
             if (!this.isListen) {
                 UIWidgetsMessageManager.instance.AddChannelMessageDelegate("wechat", this._handleMethodCall);
                 this.isListen = true;
@@ -87,16 +87,16 @@ namespace ConnectApp.Plugins {
         }
 #if UNITY_IOS
         [DllImport("__Internal")]
-        internal static extern void loginWechat(string stateId);
+        static extern void loginWechat(string stateId);
 
         [DllImport("__Internal")]
-        internal static extern bool isInstallWechat();
+        static extern bool isInstallWechat();
 
         [DllImport("__Internal")]
-        internal static extern void toFriends(string title, string description, string url, string imageBytes);
+        static extern void toFriends(string title, string description, string url, string imageBytes);
 
         [DllImport("__Internal")]
-        internal static extern void toTimeline(string title, string description, string url, string imageBytes);
+        static extern void toTimeline(string title, string description, string url, string imageBytes);
 
 #elif UNITY_ANDROID
         static AndroidJavaObject _plugin;

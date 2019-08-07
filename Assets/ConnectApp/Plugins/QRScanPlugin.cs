@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Web;
-using ConnectApp.Api;
+using ConnectApp.Main;
+using ConnectApp.redux;
+using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
@@ -14,6 +17,8 @@ namespace ConnectApp.Plugins {
 
         public static BuildContext context;
         static bool isListen;
+        static string _token;
+        static string _loginSubId;
 
         static void addListener() {
             if (Application.isEditor) {
@@ -23,6 +28,17 @@ namespace ConnectApp.Plugins {
             if (!isListen) {
                 isListen = true;
                 UIWidgetsMessageManager.instance.AddChannelMessageDelegate("QRScan", del: _handleMethodCall);
+                if (_loginSubId.isNotEmpty()) {
+                    EventBus.unSubscribe(sName: EventBusConstant.login_success, id: _loginSubId);
+                }
+                _loginSubId = EventBus.subscribe(sName: EventBusConstant.login_success, args => {
+                    if (_token.isNotEmpty()) {
+                        StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToQRScanLoginAction {
+                            token = _token
+                        });
+                        _token = null;
+                    }
+                });
             }
         }
 
@@ -42,17 +58,31 @@ namespace ConnectApp.Plugins {
                 using (WindowProvider.of(context: context).getScope()) {
                     switch (method) {
                         case "OnReceiveQRCode": {
-                            removeListener();
                             string qrCode = args[0];
                             if (qrCode.StartsWith("http://") || qrCode.StartsWith("https://")) {
                                 var uri = new Uri(uriString: qrCode);
                                 if (uri.AbsoluteUri.StartsWith("https://connect")) {
                                     var token = HttpUtility.ParseQueryString(query: uri.Query).Get("token");
                                     if (token.isNotEmpty()) {
-                                        LoginApi.LoginByQr(token: token);
+                                        var isLoggedIn = StoreProvider.store.getState().loginState.isLoggedIn;
+                                        if (isLoggedIn) {
+                                            StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToQRScanLoginAction {
+                                                token = token
+                                            });
+                                        }
+                                        else {
+                                            _token = token;
+                                            StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToAction {
+                                                routeName = MainNavigatorRoutes.Login
+                                            });
+                                        }
                                     }
                                 }
+                                else {
+                                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToWebViewAction {url = qrCode});
+                                }
                             }
+                            removeListener();
                         }
                             break;
                     }
