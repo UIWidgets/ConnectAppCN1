@@ -655,45 +655,42 @@ namespace ConnectApp.Components {
             TextStyle style
         ) {
             if (entityRanges != null && entityRanges.Count > 0) {
-                var entityRange = entityRanges.first();
-                var key = entityRange.key.ToString();
-                if (entityMap.ContainsKey(key)) {
-                    var data = entityMap[key];
-                    if (data.type == "LINK") {
-                        var offset = entityRange.offset;
-                        var length = entityRange.length;
-                        var leftText = text;
-                        if (offset <= text.Length) {
-                            leftText = text.Substring(0, offset);
-                        }
+                List<TextSpan> linkSpans = new List<TextSpan>();
+                var startIndex = 0;
+                entityRanges.ForEach(entityRange => {
+                    var key = entityRange.key.ToString();
+                    if (entityMap.ContainsKey(key: key)) {
+                        var data = entityMap[key: key];
+                        if (data.type == "LINK") {
+                            var offset = entityRange.offset;
+                            var length = entityRange.length;
+                            var leftText = offset - startIndex <= text.Length ? text.Substring(startIndex: startIndex, offset - startIndex) : text;
 
-                        var currentText = text;
-                        if (length < text.Length) {
-                            currentText = text.Substring(offset, length);
-                        }
+                            var currentText = length - offset < text.Length ? text.Substring(startIndex: offset, length: length) : text;
 
-                        length = currentText.Length;
-                        var rightText = text.Substring(length + offset, text.Length - length - offset);
-                        var recognizer = new TapGestureRecognizer {
-                            onTap = () => openUrl(data.data.url)
-                        };
-                        return new List<TextSpan> {
-                            new TextSpan(
-                                leftText,
-                                style
-                            ),
-                            new TextSpan(
-                                currentText,
-                                style.copyWith(CColors.PrimaryBlue),
-                                recognizer: recognizer
-                            ),
-                            new TextSpan(
-                                rightText,
-                                style
-                            )
-                        };
+                            length = currentText.Length;
+                            var recognizer = new TapGestureRecognizer {
+                                onTap = () => openUrl(obj: data.data.url)
+                            };
+                            var linkSpan = new List<TextSpan> {
+                                new TextSpan(
+                                    text: leftText,
+                                    style: style
+                                ),
+                                new TextSpan(
+                                    text: currentText,
+                                    style.copyWith(color: CColors.PrimaryBlue),
+                                    recognizer: recognizer
+                                )
+                            };
+                            linkSpans.AddRange(collection: linkSpan);
+                            startIndex = length + offset;
+                        }
                     }
-                }
+                });
+                var rightText = text.Substring(startIndex: startIndex, text.Length - startIndex);
+                linkSpans.Add(new TextSpan(text: rightText, style: style));
+                return linkSpans;
             }
 
             return null;
