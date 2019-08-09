@@ -15,8 +15,8 @@ using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -30,28 +30,30 @@ namespace ConnectApp.screens {
     public class TeamDetailScreenConnector : StatelessWidget {
         public TeamDetailScreenConnector(
             string teamId,
+            bool isSlug = false,
             Key key = null
         ) : base(key: key) {
             this.teamId = teamId;
+            this.isSlug = isSlug;
         }
 
         readonly string teamId;
+        readonly bool isSlug;
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, TeamDetailScreenViewModel>(
                 converter: state => {
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
-                    var team = state.teamState.teamDict.ContainsKey(key: this.teamId)
-                        ? state.teamState.teamDict[key: this.teamId]
-                        : null;
+                    var team = this.FetchTeam(this.teamId, state.teamState.teamDict, state.teamState.slugDict);
                     var teamArticleOffset = team == null
                         ? 0
-                        : team.articleIds == null ? 0 : team.articleIds.Count;
+                        : team.articleIds == null
+                            ? 0
+                            : team.articleIds.Count;
                     var followMap = state.followState.followDict.ContainsKey(key: currentUserId)
                         ? state.followState.followDict[key: currentUserId]
                         : new Dictionary<string, bool>();
                     return new TeamDetailScreenViewModel {
-                        teamId = this.teamId,
                         teamLoading = state.teamState.teamLoading,
                         teamArticleLoading = state.teamState.teamArticleLoading,
                         team = team,
@@ -68,7 +70,7 @@ namespace ConnectApp.screens {
                         fetchTeam = () => dispatcher.dispatch<IPromise>(Actions.fetchTeam(this.teamId)),
                         startFetchTeamArticle = () => dispatcher.dispatch(new StartFetchTeamArticleAction()),
                         fetchTeamArticle = offset =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchTeamArticle(this.teamId, offset)),
+                            dispatcher.dispatch<IPromise>(Actions.fetchTeamArticle(viewModel.team.id, offset)),
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
@@ -99,10 +101,10 @@ namespace ConnectApp.screens {
                             }
                         ),
                         startFollowTeam = () =>
-                            dispatcher.dispatch(new StartFetchFollowTeamAction {followTeamId = this.teamId}),
+                            dispatcher.dispatch(new StartFetchFollowTeamAction {followTeamId = viewModel.team.id}),
                         followTeam = teamId => dispatcher.dispatch<IPromise>(Actions.fetchFollowTeam(teamId)),
                         startUnFollowTeam = () => dispatcher.dispatch(new StartFetchUnFollowTeamAction
-                            {unFollowTeamId = this.teamId}),
+                            {unFollowTeamId = viewModel.team.id}),
                         unFollowTeam = teamId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowTeam(teamId)),
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
                             Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
@@ -110,6 +112,18 @@ namespace ConnectApp.screens {
                     return new TeamDetailScreen(viewModel, actionModel);
                 }
             );
+        }
+
+        Team FetchTeam(string teamId, Dictionary<string, Team> teamDict, Dictionary<string, string> slugDict) {
+            if (teamDict.ContainsKey(teamId)) {
+                return teamDict[teamId];
+            }
+
+            if (this.isSlug && slugDict.ContainsKey(teamId)) {
+                return teamDict[slugDict[teamId]];
+            }
+
+            return null;
         }
     }
 
@@ -163,7 +177,6 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.startFetchTeam();
                 this.widget.actionModel.fetchTeam();
                 this.widget.actionModel.startFetchTeamArticle();
-                this.widget.actionModel.fetchTeamArticle(0);
             });
         }
 
@@ -498,7 +511,8 @@ namespace ConnectApp.screens {
                                                     $"{team.stats?.followCount ?? 0}",
                                                     () => {
                                                         if (this.widget.viewModel.isLoggedIn) {
-                                                            this.widget.actionModel.pushToTeamFollower(obj: this.widget.viewModel.teamId);
+                                                            this.widget.actionModel.pushToTeamFollower(
+                                                                obj: this.widget.viewModel.team.id);
                                                         }
                                                         else {
                                                             this.widget.actionModel.pushToLogin();
@@ -509,7 +523,8 @@ namespace ConnectApp.screens {
                                                 _buildFollowCount(
                                                     "成员",
                                                     $"{team.stats?.membersCount ?? 0}",
-                                                    () => this.widget.actionModel.pushToTeamMember(obj: this.widget.viewModel.teamId)
+                                                    () => this.widget.actionModel.pushToTeamMember(
+                                                        obj: this.widget.viewModel.team.id)
                                                 )
                                             }
                                         ),
@@ -568,7 +583,7 @@ namespace ConnectApp.screens {
 
         Widget _buildFollowButton(bool isTop = false) {
             if (this.widget.viewModel.isLoggedIn
-                && this.widget.viewModel.currentUserId == this.widget.viewModel.teamId) {
+                && this.widget.viewModel.currentUserId == this.widget.viewModel.team.id) {
                 return new Container();
             }
 
@@ -577,10 +592,10 @@ namespace ConnectApp.screens {
             Color followBgColor = CColors.PrimaryBlue;
             GestureTapCallback onTap = () => {
                 this.widget.actionModel.startFollowTeam();
-                this.widget.actionModel.followTeam(arg: this.widget.viewModel.teamId);
+                this.widget.actionModel.followTeam(arg: this.widget.viewModel.team.id);
             };
             if (this.widget.viewModel.isLoggedIn
-                && this.widget.viewModel.followMap.ContainsKey(key: this.widget.viewModel.teamId)) {
+                && this.widget.viewModel.followMap.ContainsKey(key: this.widget.viewModel.team.id)) {
                 isFollow = true;
                 followText = "已关注";
                 followBgColor = CColors.Transparent;
@@ -591,7 +606,7 @@ namespace ConnectApp.screens {
                             items: new List<ActionSheetItem> {
                                 new ActionSheetItem("确定", type: ActionType.normal, () => {
                                     this.widget.actionModel.startUnFollowTeam();
-                                    this.widget.actionModel.unFollowTeam(arg: this.widget.viewModel.teamId);
+                                    this.widget.actionModel.unFollowTeam(arg: this.widget.viewModel.team.id);
                                 }),
                                 new ActionSheetItem("取消", type: ActionType.cancel)
                             }

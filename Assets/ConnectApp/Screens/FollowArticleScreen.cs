@@ -12,8 +12,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -100,10 +100,10 @@ namespace ConnectApp.screens {
                             }
                         ),
                         startFollowUser = userId =>
-                            dispatcher.dispatch(new StartFetchFollowUserAction {followUserId = userId}),
+                            dispatcher.dispatch(new StartFollowUserAction {followUserId = userId}),
                         followUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(userId)),
                         startUnFollowUser = userId =>
-                            dispatcher.dispatch(new StartFetchUnFollowUserAction {unFollowUserId = userId}),
+                            dispatcher.dispatch(new StartUnFollowUserAction {unFollowUserId = userId}),
                         unFollowUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(userId)),
                         startFollowTeam = teamId =>
                             dispatcher.dispatch(new StartFetchFollowTeamAction {followTeamId = teamId}),

@@ -124,7 +124,7 @@ namespace ConnectApp.Components {
 
         List<Widget> _buildShareItems() {
             var shareItems = new List<Widget>();
-            if (WechatPlugin.instance().inInstalled()) {
+            if (WechatPlugin.instance().isInstalled()) {
                 shareItems.Add(
                     _buildShareItem(
                         icon: Icons.WechatIcon,

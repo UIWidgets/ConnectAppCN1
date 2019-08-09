@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using ConnectApp.Constants;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
@@ -85,7 +84,7 @@ namespace ConnectApp.Plugins {
         }
 
 
-        public bool inInstalled() {
+        public bool isInstalled() {
             if (!Application.isEditor) {
                 this.addListener();
                 return isInstallWechat();
@@ -151,11 +150,14 @@ namespace ConnectApp.Plugins {
         static void toTimeline(string title, string description, string url, string imageBytes) {
             Plugin().Call("shareToTimeline", title, description, url, imageBytes);
         }
-        static void toMiNiProgram(string title, string description, string url, string imageBytes,string ysId, string path) {
-            Plugin().Call("shareToMiNiProgram", title, description, url, imageBytes,ysId,path);
+
+        static void toMiNiProgram(string title, string description, string url, string imageBytes, string ysId,
+            string path) {
+            Plugin().Call("shareToMiNiProgram", title, description, url, imageBytes, ysId, path);
         }
+
         static void openMiNi(string ysId, string path) {
-            Plugin().Call("openMiNi", Config.wechatAppId,ysId,path);
+            Plugin().Call("openMiNi", Config.wechatAppId, ysId, path);
         }
 #else
         static bool isInstallWechat() {return true;}
