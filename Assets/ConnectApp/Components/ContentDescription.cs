@@ -31,6 +31,10 @@ namespace ConnectApp.Components {
                 var block = blocks[i];
                 var type = block.type;
                 var text = block.text;
+                if (text.Contains("\u0000")) {
+                    text = text.Replace("\u0000", "");
+                }
+
                 switch (type) {
                     case "header-one": {
                         var inlineSpans = _RichStyle(text, content.entityMap, block.entityRanges,
@@ -664,9 +668,13 @@ namespace ConnectApp.Components {
                         if (data.type == "LINK") {
                             var offset = entityRange.offset;
                             var length = entityRange.length;
-                            var leftText = offset - startIndex <= text.Length ? text.Substring(startIndex: startIndex, offset - startIndex) : text;
+                            var leftText = offset - startIndex <= text.Length
+                                ? text.Substring(startIndex: startIndex, offset - startIndex)
+                                : text;
 
-                            var currentText = length - offset < text.Length ? text.Substring(startIndex: offset, length: length) : text;
+                            var currentText = length - offset < text.Length
+                                ? text.Substring(startIndex: offset, length: length)
+                                : text;
 
                             length = currentText.Length;
                             var recognizer = new TapGestureRecognizer {

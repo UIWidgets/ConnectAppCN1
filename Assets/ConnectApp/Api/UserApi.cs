@@ -9,7 +9,7 @@ namespace ConnectApp.Api {
     public static class UserApi {
         public static Promise<FetchUserProfileResponse> FetchUserProfile(string userId) {
             var promise = new Promise<FetchUserProfileResponse>();
-            var request = HttpManager.GET($"{Config.apiAddress}/api/profile/{userId}");
+            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/u/{userId}");
             HttpManager.resume(request: request).Then(responseText => {
                 var userProfileResponse = JsonConvert.DeserializeObject<FetchUserProfileResponse>(responseText);
                 promise.Resolve(userProfileResponse);
