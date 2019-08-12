@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.Constants;
 using ConnectApp.Models.Model;
 using ConnectApp.Utils;
 using UnityEngine;
@@ -23,6 +24,7 @@ namespace ConnectApp.Models.State {
         public MessageState messageState { get; set; }
         public SettingState settingState { get; set; }
         public ReportState reportState { get; set; }
+        public FeedbackState feedbackState { get; set; }
 
         public static AppState initialState() {
             var loginInfo = UserInfoManager.initUserInfo();
@@ -140,7 +142,10 @@ namespace ConnectApp.Models.State {
                 },
                 reportState = new ReportState {
                     loading = false
-                }
+                },
+                feedbackState = new FeedbackState {
+                    feedbackType = FeedbackType.Advice
+                } 
             };
         }
     }

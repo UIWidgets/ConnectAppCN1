@@ -17,6 +17,10 @@ namespace ConnectApp.redux.actions {
 
     public class ReportItemFailureAction : BaseAction {
     }
+    
+    public class ChangeFeedbackTypeAction : BaseAction {
+        public FeedbackType type;
+    }
 
     public static partial class Actions {
         public static object reportItem(string itemId, string itemType, string reportContext) {

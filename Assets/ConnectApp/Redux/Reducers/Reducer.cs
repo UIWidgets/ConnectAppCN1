@@ -2049,6 +2049,11 @@ namespace ConnectApp.redux.reducers {
 
                     break;
                 }
+
+                case ChangeFeedbackTypeAction action: {
+                    state.feedbackState.feedbackType = action.type;
+                    break;
+                }
             }
 
             return state;
