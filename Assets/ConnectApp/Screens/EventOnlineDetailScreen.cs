@@ -544,6 +544,9 @@ namespace ConnectApp.screens {
                                                         textAlign: TextAlign.center
                                                     ),
                                                     onPressed: () => {
+                                                        CustomDialogUtils.hiddenCustomDialog();
+                                                        WechatPlugin.instance().context = this.context;
+                                                        WechatPlugin.instance().currentEventId = eventObj.id;
                                                         var path =
                                                             $"pages/Detail/Detail?id={eventObj.id}&title={eventObj.title}&app=true";
                                                         WechatPlugin.instance().toOpenMiNi(path);

@@ -25,6 +25,8 @@ namespace ConnectApp.Constants {
 
         public const string widgetOriginCodeUrl = "https://github.com/UnityTech/UIWidgets";
 
+        public const int miniProgramType = 2; // 0 -> 正式版   1 -> 开发版     2 -> 体验版
+
 
 #if UNITY_IOS
         public const string platform = "ios";

@@ -53,11 +53,11 @@ public final class WechatPlugin{
         shareTo(SendMessageToWX.Req.WXSceneTimeline, title, description, url, imageBytes);
     }
 
-    private void shareToMiNiProgram(String title, String description, String url, String imageStr, String ysId, String path) {
+    private void shareToMiNiProgram(String title, String description, String url, String imageStr, String ysId, String path, int WXMiniProgramType) {
         byte[] imageBytes = Base64.decode(imageStr, Base64.DEFAULT);
         WXMiniProgramObject miniProgramObj = new WXMiniProgramObject();
         miniProgramObj.webpageUrl = url; // 兼容低版本的网页链接
-        miniProgramObj.miniprogramType = WXMiniProgramObject.MINIPROGRAM_TYPE_PREVIEW;// 正式版:0，测试版:1，体验版:2
+        miniProgramObj.miniprogramType = WXMiniProgramType;// 正式版:0，测试版:1，体验版:2
         miniProgramObj.userName = ysId;     // 小程序原始id
         miniProgramObj.path = path;            //小程序页面路径
         WXMediaMessage msg = new WXMediaMessage(miniProgramObj);
@@ -114,13 +114,13 @@ public final class WechatPlugin{
         event.put("type", "cancel");
         sendBack(event);
     }
-    public void openMiNi(String appId, String ysId, String path){
+    public void openMiNi(String appId, String ysId, String path, int WXMiniProgramType){
         final IWXAPI iwxapi = WXAPIFactory.createWXAPI(context, appId);
         iwxapi.registerApp(appId);
         WXLaunchMiniProgram.Req req = new WXLaunchMiniProgram.Req();
         req.userName = ysId;//小程序原始id
         req.path = path;//页面路径  pages/index/index?page=1
-        req.miniprogramType = WXLaunchMiniProgram.Req.MINIPROGRAM_TYPE_PREVIEW;// 可选打开 开发版，体验版和正式版
+        req.miniprogramType = WXMiniProgramType;// 可选打开 开发版，体验版和正式版
         iwxapi.sendReq(req);
     }
 
