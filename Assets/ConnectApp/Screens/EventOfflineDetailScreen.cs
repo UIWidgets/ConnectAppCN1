@@ -260,7 +260,7 @@ namespace ConnectApp.screens {
                             CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
                         }
                         else {
-                            var imageUrl = $"{eventObj.avatar}.200x0x1.jpg";
+                            var imageUrl = CImageUtils.SizeTo200ImageUrl(eventObj.avatar);
                             CustomDialogUtils.showCustomDialog(
                                 child: new CustomLoadingDialog()
                             );
