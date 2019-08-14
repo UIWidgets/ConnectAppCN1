@@ -12,7 +12,8 @@
 
 ### 预览（iOS & Android）
 
-<div style="float:left;border:solid 1px 000;margin:20px;"><img src="https://github.com/finnif/ConnectAppCN/raw/master/Images/Preview_iOS.png"  width="350" ></div><div style="float:left;border:solid 1px 000;margin:20px;"><img src="https://github.com/finnif/ConnectAppCN/raw/master/Images/Preview_Android.png"  width="350" ></div>
+<div style="display:inline;border:solid 1px 000;margin:2px;"><img src="https://github.com/finnif/ConnectAppCN/raw/master/Images/Preview_iOS.png"  width="350" ></div>
+<div style="display:inline;border:solid 1px 000;margin:2px;"><img src="https://github.com/finnif/ConnectAppCN/raw/master/Images/Preview_Android.png"  width="350" ></div>
 
 ### 下载
 
