@@ -21,7 +21,7 @@
 
 <a href="https://connect.unity.com/connectApp/download" target="_blank"><img height="250px" src="https://github.com/finnif/ConnectAppCN/raw/master/Images/QRCode_ZH.png">
 
-### 让项目运行
+## 让项目运行
 #### 获取源代码
   ```shell
   $ git clone git@github.com:UnityTech/ConnectAppCN.git
