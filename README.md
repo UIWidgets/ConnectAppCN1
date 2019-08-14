@@ -17,7 +17,7 @@
 
 ### 下载
 
-<a href="" target="_blank"><img height="60px" src="https://github.com/finnif/ConnectAppCN/raw/master/Images/UnityOfficial_ZH.png"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://apps.apple.com/cn/app/unity-connect/id1441624698?mt=8" target="_blank"><img height="60px" src="https://github.com/finnif/ConnectAppCN/raw/master/Images/AppStore_ZH.png"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://appgallery.cloud.huawei.com/uowap/index.html#/detailApp/C100771325" target="_blank"><img height="60px" src="https://github.com/finnif/ConnectAppCN/raw/master/Images/AppGallery_ZH.png"></a>
+<a href="https://connect.unity.com/connectApp/download" target="_blank"><img height="60px" src="https://github.com/finnif/ConnectAppCN/raw/master/Images/UnityOfficial_ZH.png"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://apps.apple.com/cn/app/unity-connect/id1441624698?mt=8" target="_blank"><img height="60px" src="https://github.com/finnif/ConnectAppCN/raw/master/Images/AppStore_ZH.png"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://appgallery.cloud.huawei.com/uowap/index.html#/detailApp/C100771325" target="_blank"><img height="60px" src="https://github.com/finnif/ConnectAppCN/raw/master/Images/AppGallery_ZH.png"></a>
 
 <a href="https://connect.unity.com/connectApp/download" target="_blank"><img height="250px" src="https://github.com/finnif/ConnectAppCN/raw/master/Images/QRCode_ZH.png">
 
