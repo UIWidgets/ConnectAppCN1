@@ -33,6 +33,7 @@ namespace ConnectApp.redux.actions {
 
     public class MainNavigatorPushToUserDetailAction : BaseAction {
         public string userId;
+        public bool isSlug = false;
     }
 
     public class MainNavigatorPushToUserFollowingAction : BaseAction {
@@ -50,6 +51,7 @@ namespace ConnectApp.redux.actions {
 
     public class MainNavigatorPushToTeamDetailAction : BaseAction {
         public string teamId;
+        public bool isSlug = false;
     }
 
     public class MainNavigatorPushToTeamFollowerAction : BaseAction {

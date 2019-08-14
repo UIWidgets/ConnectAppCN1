@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using ConnectApp.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
+using RSG;
 using Unity.UIWidgets.Redux;
 using UnityEngine;
 
@@ -93,6 +94,7 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return TeamApi.FetchTeam(teamId)
                     .Then(teamResponse => {
+                        dispatcher.dispatch<IPromise>(fetchTeamArticle(teamResponse.team.id, 0));
                         dispatcher.dispatch(new PlaceMapAction {placeMap = teamResponse.placeMap});
                         dispatcher.dispatch(new FollowMapAction {followMap = teamResponse.followMap});
                         dispatcher.dispatch(new FetchTeamSuccessAction {
@@ -101,10 +103,10 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => {
-                        dispatcher.dispatch(new FetchTeamFailureAction());
-                        Debug.Log(error);
-                    }
-                );
+                            dispatcher.dispatch(new FetchTeamFailureAction());
+                            Debug.Log(error);
+                        }
+                    );
             });
         }
 
@@ -117,6 +119,7 @@ namespace ConnectApp.redux.actions {
                 if (offset != 0 && offset != articleOffset) {
                     offset = articleOffset;
                 }
+
                 return TeamApi.FetchTeamArticle(teamId, offset)
                     .Then(teamArticleResponse => {
                         var articles = teamArticleResponse.projects.FindAll(project => "article" == project.type);
@@ -145,6 +148,7 @@ namespace ConnectApp.redux.actions {
                 if (offset != 0 && offset != followerOffset) {
                     offset = followerOffset;
                 }
+
                 return TeamApi.FetchTeamFollower(teamId, offset)
                     .Then(teamFollowerResponse => {
                         dispatcher.dispatch(new FollowMapAction {followMap = teamFollowerResponse.followMap});
@@ -152,7 +156,7 @@ namespace ConnectApp.redux.actions {
                         teamFollowerResponse.followers.ForEach(follower => {
                             userMap.Add(key: follower.id, value: follower);
                         });
-                        dispatcher.dispatch(new UserMapAction { userMap = userMap });
+                        dispatcher.dispatch(new UserMapAction {userMap = userMap});
                         dispatcher.dispatch(new FetchTeamFollowerSuccessAction {
                             followers = teamFollowerResponse.followers,
                             followersHasMore = teamFollowerResponse.followersHasMore,

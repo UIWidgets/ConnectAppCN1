@@ -157,13 +157,14 @@ namespace ConnectApp.Components {
         public override Widget build(BuildContext context) {
             var children = new List<Widget>();
             if (this.title.isNotEmpty()) {
-                children.Add(new Container(
-                    padding: EdgeInsets.only(16, 24, 16, this.message == null ? 24 : 8),
-                    alignment: Alignment.center,
-                    child: new Text(this.title,
-                        style: CTextStyle.H5
-                    )
-                ));
+                children.Add(
+                    new Container(
+                        padding: EdgeInsets.only(16, 24, 16, this.message == null ? 24 : 8),
+                        alignment: Alignment.center,
+                        child: new Text(this.title,
+                            style: CTextStyle.H5, textAlign: TextAlign.center
+                        )
+                    ));
             }
 
             if (this.message.isNotEmpty()) {

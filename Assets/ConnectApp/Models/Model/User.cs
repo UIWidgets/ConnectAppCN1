@@ -5,6 +5,7 @@ namespace ConnectApp.Models.Model {
     [Serializable]
     public class User {
         public string id;
+        public string slug;
         public string type;
         public string username;
         public string fullName;

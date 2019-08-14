@@ -13,8 +13,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -54,17 +54,16 @@ namespace ConnectApp.screens {
                                 userId = userId
                             }
                         ),
-                        openUrl = url => dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
-                            url = url
-                        }),
+                        openUrl = url => { OpenUrlUtil.OpenUrl(url, dispatcher); },
                         copyText = text => dispatcher.dispatch(new CopyTextAction {text = text}),
                         startFetchEventDetail = () => dispatcher.dispatch(new StartFetchEventDetailAction()),
                         fetchEventDetail = (id, eventType) =>
                             dispatcher.dispatch<IPromise>(Actions.fetchEventDetail(id, eventType)),
                         startJoinEvent = () => dispatcher.dispatch(new StartJoinEventAction()),
                         joinEvent = id => dispatcher.dispatch<IPromise>(Actions.joinEvent(id)),
-                        shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
-                            Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
+                        shareToWechat = (type, title, description, linkUrl, imageUrl, path) =>
+                            dispatcher.dispatch<IPromise>(
+                                Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
                     };
                     return new EventOfflineDetailScreen(viewModel, actionModel);
                 }
@@ -136,7 +135,7 @@ namespace ConnectApp.screens {
             base.didChangeDependencies();
             Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
         }
-        
+
         public override void dispose() {
             StatusBarManager.statusBarStyle(false);
             EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
@@ -159,7 +158,8 @@ namespace ConnectApp.screens {
                 this._topPadding = MediaQuery.of(context).padding.top;
             }
 
-            if ((this.widget.viewModel.eventDetailLoading || eventObj?.user == null) && !(eventObj?.isNotFirst ?? false)) {
+            if ((this.widget.viewModel.eventDetailLoading || eventObj?.user == null) &&
+                !(eventObj?.isNotFirst ?? false)) {
                 return new EventDetailLoading(eventType: EventType.offline,
                     mainRouterPop: this.widget.actionModel.mainRouterPop);
             }
@@ -266,7 +266,7 @@ namespace ConnectApp.screens {
                             );
                             this.widget.actionModel.shareToWechat(type, eventObj.title, eventObj.shortDescription,
                                     linkUrl,
-                                    imageUrl).Then(CustomDialogUtils.hiddenCustomDialog)
+                                    imageUrl, null).Then(CustomDialogUtils.hiddenCustomDialog)
                                 .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
                         }
                     })),
@@ -394,7 +394,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         public void didPopNext() {
             StatusBarManager.statusBarStyle(isLight: this._showNavBarShadow);
         }

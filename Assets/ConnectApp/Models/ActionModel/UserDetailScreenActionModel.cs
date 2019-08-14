@@ -15,10 +15,10 @@ namespace ConnectApp.Models.ActionModel {
         public Action startFetchUserProfile;
         public Func<IPromise> fetchUserProfile;
         public Action startFetchUserArticle;
-        public Func<int, IPromise> fetchUserArticle;
-        public Action startFollowUser;
-        public Func<IPromise> followUser;
-        public Action startUnFollowUser;
-        public Func<IPromise> unFollowUser;
+        public Func<string, int, IPromise> fetchUserArticle;
+        public Action<string> startFollowUser;
+        public Func<string, IPromise> followUser;
+        public Action<string> startUnFollowUser;
+        public Func<string, IPromise> unFollowUser;
     }
 }

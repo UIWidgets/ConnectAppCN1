@@ -8,14 +8,15 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
+using ConnectApp.Plugins;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -75,16 +76,12 @@ namespace ConnectApp.screens {
                         },
                         openUrl = url => {
                             EventBus.publish(EventBusConstant.pauseVideoPlayer, new List<object>());
-                            dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
-                                url = url
-                            });
+                            OpenUrlUtil.OpenUrl(url, dispatcher);
                         },
                         copyText = text => dispatcher.dispatch(new CopyTextAction {text = text}),
                         startFetchEventDetail = () => dispatcher.dispatch(new StartFetchEventDetailAction()),
                         fetchEventDetail = (id, eventType) =>
                             dispatcher.dispatch<IPromise>(Actions.fetchEventDetail(id, eventType)),
-                        startJoinEvent = () => dispatcher.dispatch(new StartJoinEventAction()),
-                        joinEvent = id => dispatcher.dispatch<IPromise>(Actions.joinEvent(id)),
                         startSendMessage = () => dispatcher.dispatch(new StartSendMessageAction()),
                         sendMessage = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
                             Actions.sendMessage(channelId, content, nonce, parentMessageId)),
@@ -94,8 +91,9 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch<IPromise>(
                                 Actions.fetchMessages(channelId, currOldestMessageId, isFirstLoad)
                             ),
-                        shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
-                            Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
+                        shareToWechat = (type, title, description, linkUrl, imageUrl, path) =>
+                            dispatcher.dispatch<IPromise>(
+                                Actions.shareToWechat(type, title, description, linkUrl, imageUrl, path, true))
                     };
                     return new EventOnlineDetailScreen(viewModel, actionModel);
                 }
@@ -169,9 +167,9 @@ namespace ConnectApp.screens {
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            Router.routeObserve.subscribe(this, (PageRoute)ModalRoute.of(this.context));
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
         }
-        
+
         public override void dispose() {
             EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
             Router.routeObserve.unsubscribe(this);
@@ -231,7 +229,8 @@ namespace ConnectApp.screens {
                 eventObj = this.widget.viewModel.eventsDict[this.widget.viewModel.eventId];
             }
 
-            if ((this.widget.viewModel.eventDetailLoading || eventObj?.user == null) && !(eventObj?.isNotFirst ?? false)) {
+            if ((this.widget.viewModel.eventDetailLoading || eventObj?.user == null) &&
+                !(eventObj?.isNotFirst ?? false)) {
                 return new EventDetailLoading(eventType: EventType.online,
                     mainRouterPop: this.widget.actionModel.mainRouterPop);
             }
@@ -466,11 +465,6 @@ namespace ConnectApp.screens {
             var backgroundColor = CColors.PrimaryBlue;
             var joinInText = "立即加入";
             var textStyle = CTextStyle.PLargeMediumWhite;
-            if ((userIsCheckedIn ?? false) && isLoggedIn) {
-                backgroundColor = CColors.Disable;
-                joinInText = "已加入";
-                textStyle = CTextStyle.PLargeMediumWhite;
-            }
 
             Widget child = new Text(
                 joinInText,
@@ -518,10 +512,49 @@ namespace ConnectApp.screens {
                                     this.widget.actionModel.pushToLogin();
                                 }
                                 else {
-                                    if (!(userIsCheckedIn ?? false)) {
-                                        this.widget.actionModel.startJoinEvent();
-                                        this.widget.actionModel.joinEvent(this.widget.viewModel.eventId);
+                                    if (!WechatPlugin.instance().isInstalled()) {
+                                        CustomToast.show(new CustomToastItem(this.context, "需要安装微信才能打开小程序",
+                                            gravity: ToastGravity.center));
+                                        return;
                                     }
+
+                                    CustomDialogUtils.showCustomDialog(
+                                        barrierColor: Color.fromRGBO(0, 0, 0, 0.5f),
+                                        child: new CustomAlertDialog(
+                                            "即将前往微信小程序\n开始观看",
+                                            null,
+                                            new List<Widget> {
+                                                new CustomButton(
+                                                    child: new Text(
+                                                        "稍后再说",
+                                                        style: new TextStyle(
+                                                            height: 1.33f,
+                                                            fontSize: 16,
+                                                            fontFamily: "Roboto-Regular",
+                                                            color: new Color(0xFF959595)
+                                                        ),
+                                                        textAlign: TextAlign.center
+                                                    ),
+                                                    onPressed: () => { CustomDialogUtils.hiddenCustomDialog(); }
+                                                ),
+                                                new CustomButton(
+                                                    child: new Text(
+                                                        "立即前往",
+                                                        style: CTextStyle.PLargeBlue,
+                                                        textAlign: TextAlign.center
+                                                    ),
+                                                    onPressed: () => {
+                                                        CustomDialogUtils.hiddenCustomDialog();
+                                                        WechatPlugin.instance().context = this.context;
+                                                        WechatPlugin.instance().currentEventId = eventObj.id;
+                                                        var path =
+                                                            $"pages/Detail/Detail?id={eventObj.id}&title={eventObj.title}&app=true";
+                                                        WechatPlugin.instance().toOpenMiNi(path);
+                                                    }
+                                                )
+                                            }
+                                        )
+                                    );
                                 }
                             },
                             child: new Container(
@@ -742,6 +775,7 @@ namespace ConnectApp.screens {
 
                         var linkUrl =
                             $"{Config.apiAddress}/events/{eventObj.id}";
+                        var path = $"pages/Detail/Detail?id={eventObj.id}&title={eventObj.title}&app=true";
                         if (type == ShareType.clipBoard) {
                             this.widget.actionModel.copyText(linkUrl);
                             CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
@@ -753,7 +787,7 @@ namespace ConnectApp.screens {
                             );
                             this.widget.actionModel.shareToWechat(type, eventObj.title, eventObj.shortDescription,
                                     linkUrl,
-                                    imageUrl).Then(CustomDialogUtils.hiddenCustomDialog)
+                                    imageUrl, path).Then(CustomDialogUtils.hiddenCustomDialog)
                                 .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
                         }
                     }
@@ -766,9 +800,11 @@ namespace ConnectApp.screens {
             VideoPlayerManager.instance.isRotation = true;
         }
 
-        public void didPush() {}
+        public void didPush() {
+        }
 
-        public void didPop() {}
+        public void didPop() {
+        }
 
         public void didPushNext() {
             VideoPlayerManager.instance.isRotation = false;

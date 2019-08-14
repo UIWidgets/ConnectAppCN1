@@ -59,9 +59,7 @@ namespace ConnectApp.screens {
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
-                        openUrl = url => dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
-                            url = url
-                        }),
+                        openUrl = url => { OpenUrlUtil.OpenUrl(url, dispatcher); },
                         playVideo = url => dispatcher.dispatch(new PlayVideoAction {
                             url = url
                         }),
@@ -118,10 +116,10 @@ namespace ConnectApp.screens {
                                 Actions.sendComment(this.articleId, channelId, content, nonce, parentMessageId));
                         },
                         startFollowUser = userId =>
-                            dispatcher.dispatch(new StartFetchFollowUserAction {followUserId = userId}),
+                            dispatcher.dispatch(new StartFollowUserAction {followUserId = userId}),
                         followUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(userId)),
                         startUnFollowUser = userId =>
-                            dispatcher.dispatch(new StartFetchUnFollowUserAction {unFollowUserId = userId}),
+                            dispatcher.dispatch(new StartUnFollowUserAction {unFollowUserId = userId}),
                         unFollowUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(userId)),
                         startFollowTeam = teamId =>
                             dispatcher.dispatch(new StartFetchFollowTeamAction {followTeamId = teamId}),
@@ -202,7 +200,7 @@ namespace ConnectApp.screens {
             this._jumpState = _ArticleJumpToCommentState.Inactive;
             this._cachedCommentPosition = null;
         }
-        
+
         public override void didChangeDependencies() {
             base.didChangeDependencies();
             Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
@@ -907,7 +905,7 @@ namespace ConnectApp.screens {
                 );
             }
         }
-        
+
         public void didPopNext() {
             StatusBarManager.statusBarStyle(false);
         }

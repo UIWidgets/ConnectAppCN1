@@ -148,6 +148,12 @@ NSData *APNativeJSONData(id obj) {
         SendAuthResp *sendAuthResp = (SendAuthResp *) resp;
         [[WechatPlugin instance]sendCodeEvent:sendAuthResp.code stateId:sendAuthResp.state];
     }
+    if ([resp isKindOfClass:[WXLaunchMiniProgramResp class]]) {
+        WXLaunchMiniProgramResp *miniResp = (WXLaunchMiniProgramResp *) resp;
+        if (miniResp.extMsg.length!=0) {
+            UIWidgetsMethodMessage(@"wechat", @"openUrl", @[miniResp.extMsg]);
+        }
+    }
 }
 
 

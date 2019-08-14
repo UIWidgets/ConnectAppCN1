@@ -10,5 +10,6 @@ namespace ConnectApp.Models.State {
         public bool followerLoading { get; set; }
         public bool memberLoading { get; set; }
         public Dictionary<string, Team> teamDict { get; set; }
+        public Dictionary<string, string> slugDict { get; set; }
     }
 }
