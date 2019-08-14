@@ -18,6 +18,7 @@ namespace ConnectApp.screens {
             Key key = null
         ) : base(key: key) {
         }
+
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, SearchScreenViewModel>(
                 converter: state => {
@@ -49,21 +50,23 @@ namespace ConnectApp.screens {
                         startSearchUser = () => dispatcher.dispatch(new StartSearchUserAction()),
                         searchUser = (keyword, pageNumber) => dispatcher.dispatch<IPromise>(
                             Actions.searchUsers(keyword, pageNumber)),
-                        startFollowUser = followUserId => dispatcher.dispatch(new StartFetchFollowUserAction {
+                        startFollowUser = followUserId => dispatcher.dispatch(new StartFollowUserAction {
                             followUserId = followUserId
                         }),
-                        followUser = followUserId => dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(followUserId)),
-                        startUnFollowUser = unFollowUserId => dispatcher.dispatch(new StartFetchUnFollowUserAction {
+                        followUser = followUserId =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(followUserId)),
+                        startUnFollowUser = unFollowUserId => dispatcher.dispatch(new StartUnFollowUserAction {
                             unFollowUserId = unFollowUserId
                         }),
-                        unFollowUser = unFollowUserId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(unFollowUserId))
+                        unFollowUser = unFollowUserId =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(unFollowUserId))
                     };
                     return new SearchUserScreen(viewModel, actionModel);
                 }
             );
         }
     }
-    
+
     public class SearchUserScreen : StatefulWidget {
         public SearchUserScreen(
             SearchScreenViewModel viewModel = null,
@@ -122,6 +125,7 @@ namespace ConnectApp.screens {
                         )
                     );
                 }
+
                 if (userType == UserType.unFollow) {
                     this.widget.actionModel.startFollowUser(obj: userId);
                     this.widget.actionModel.followUser(arg: userId);
@@ -153,7 +157,7 @@ namespace ConnectApp.screens {
                 child: child
             );
         }
-        
+
         Widget _buildContent() {
             var searchUserIds = this.widget.viewModel.searchUserIds;
             var enablePullUp = this.widget.viewModel.searchUserHasMore;
@@ -175,13 +179,14 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         Widget _buildUserCard(BuildContext context, int index) {
             if (index == 0) {
                 return new CustomDivider(
                     color: CColors.White
                 );
             }
+
             var searchUserIds = this.widget.viewModel.searchUserIds;
             if (index == searchUserIds.Count + 1) {
                 return new EndView();
@@ -200,12 +205,15 @@ namespace ConnectApp.screens {
             else {
                 if (this.widget.viewModel.currentUserId == searchUser.id) {
                     userType = UserType.me;
-                } else if (searchUser.followUserLoading ?? false) {
+                }
+                else if (searchUser.followUserLoading ?? false) {
                     userType = UserType.loading;
-                } else if (this.widget.viewModel.followMap.ContainsKey(key: searchUser.id)) {
+                }
+                else if (this.widget.viewModel.followMap.ContainsKey(key: searchUser.id)) {
                     userType = UserType.follow;
                 }
             }
+
             return new UserCard(
                 user: searchUser,
                 () => this.widget.actionModel.pushToUserDetail(obj: searchUser.id),

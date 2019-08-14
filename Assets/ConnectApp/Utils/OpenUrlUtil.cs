@@ -20,14 +20,16 @@ namespace ConnectApp.Utils {
                          uri.AbsolutePath.StartsWith("/u/")) {
                     var userId = uri.AbsolutePath.Remove(0, "/u/".Length);
                     dispatcher.dispatch(new MainNavigatorPushToUserDetailAction {
-                        userId = userId
+                        userId = userId,
+                        isSlug = true
                     });
                 }
                 else if ((uri.Host.Equals("connect.unity.com") || uri.Host.Equals("connect-test.unity.com")) &&
                          uri.AbsolutePath.StartsWith("/t/")) {
                     var teamId = uri.AbsolutePath.Remove(0, "/t/".Length);
                     dispatcher.dispatch(new MainNavigatorPushToTeamDetailAction {
-                        teamId = teamId
+                        teamId = teamId,
+                        isSlug = true
                     });
                 }
                 else {

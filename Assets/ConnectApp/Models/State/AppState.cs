@@ -84,7 +84,8 @@ namespace ConnectApp.Models.State {
                     searchUserHasMore = false,
                     searchTeamHasMore = false,
                     searchFollowingHasMore = false,
-                    searchArticleHistoryList = HistoryManager.searchArticleHistoryList(isLogin ? loginInfo.userId : null)
+                    searchArticleHistoryList =
+                        HistoryManager.searchArticleHistoryList(isLogin ? loginInfo.userId : null)
                 },
                 notificationState = new NotificationState {
                     loading = false,
@@ -101,6 +102,7 @@ namespace ConnectApp.Models.State {
                     followingTeamLoading = false,
                     followerLoading = false,
                     userDict = UserInfoManager.initUserDict(),
+                    slugDict = new Dictionary<string, string>(),
                     fullName = "",
                     title = "",
                     jobRole = new JobRole(),
@@ -111,7 +113,8 @@ namespace ConnectApp.Models.State {
                     teamArticleLoading = false,
                     followerLoading = false,
                     memberLoading = false,
-                    teamDict = new Dictionary<string, Team>()
+                    teamDict = new Dictionary<string, Team>(),
+                    slugDict = new Dictionary<string, string>()
                 },
                 placeState = new PlaceState {
                     placeDict = new Dictionary<string, Place>()

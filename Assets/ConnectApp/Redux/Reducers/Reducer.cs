@@ -1179,7 +1179,7 @@ namespace ConnectApp.redux.reducers {
                     if (action.userId != null) {
                         Router.navigator.push(new PageRouteBuilder(
                                 pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new UserDetailScreenConnector(userId: action.userId),
+                                    new UserDetailScreenConnector(userId: action.userId, isSlug: action.isSlug),
                                 transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                     new PushPageTransition(
                                         routeAnimation: animation,
@@ -1248,7 +1248,7 @@ namespace ConnectApp.redux.reducers {
                     if (action.teamId != null) {
                         Router.navigator.push(new PageRouteBuilder(
                                 pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new TeamDetailScreenConnector(teamId: action.teamId),
+                                    new TeamDetailScreenConnector(teamId: action.teamId, isSlug: action.isSlug),
                                 transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                     new PushPageTransition(
                                         routeAnimation: animation,
@@ -1464,13 +1464,23 @@ namespace ConnectApp.redux.reducers {
 
                 case FetchUserProfileSuccessAction action: {
                     state.userState.userLoading = false;
-                    if (!state.userState.userDict.ContainsKey(key: action.userId)) {
-                        state.userState.userDict.Add(key: action.userId, value: action.user);
+                    if (!state.userState.userDict.ContainsKey(key: action.user.id)) {
+                        state.userState.userDict.Add(key: action.user.id, value: action.user);
                     }
                     else {
-                        var oldUser = state.userState.userDict[key: action.userId];
-                        state.userState.userDict[key: action.userId] = oldUser.Merge(other: action.user);
+                        var oldUser = state.userState.userDict[key: action.user.id];
+                        state.userState.userDict[key: action.user.id] = oldUser.Merge(other: action.user);
                     }
+
+                    if (action.userId != action.user.id) {
+                        if (state.userState.slugDict.ContainsKey(action.userId)) {
+                            state.userState.slugDict[action.userId] = action.user.id;
+                        }
+                        else {
+                            state.userState.slugDict.Add(action.userId, action.user.id);
+                        }
+                    }
+
 
                     break;
                 }
@@ -1542,7 +1552,7 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case StartFetchFollowUserAction action: {
+                case StartFollowUserAction action: {
                     if (state.userState.userDict.ContainsKey(key: action.followUserId)) {
                         var user = state.userState.userDict[key: action.followUserId];
                         user.followUserLoading = true;
@@ -1552,7 +1562,7 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case FetchFollowUserSuccessAction action: {
+                case FollowUserSuccessAction action: {
                     if (state.userState.userDict.ContainsKey(key: action.followUserId)) {
                         var user = state.userState.userDict[key: action.followUserId];
                         user.followUserLoading = false;
@@ -1593,7 +1603,7 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case FetchFollowUserFailureAction action: {
+                case FollowUserFailureAction action: {
                     if (state.userState.userDict.ContainsKey(key: action.followUserId)) {
                         var user = state.userState.userDict[key: action.followUserId];
                         user.followUserLoading = false;
@@ -1603,7 +1613,7 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case StartFetchUnFollowUserAction action: {
+                case StartUnFollowUserAction action: {
                     if (state.userState.userDict.ContainsKey(key: action.unFollowUserId)) {
                         var user = state.userState.userDict[key: action.unFollowUserId];
                         user.followUserLoading = true;
@@ -1613,7 +1623,7 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case FetchUnFollowUserSuccessAction action: {
+                case UnFollowUserSuccessAction action: {
                     if (state.userState.userDict.ContainsKey(key: action.unFollowUserId)) {
                         var user = state.userState.userDict[key: action.unFollowUserId];
                         user.followUserLoading = false;
@@ -1646,7 +1656,7 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case FetchUnFollowUserFailureAction action: {
+                case UnFollowUserFailureAction action: {
                     if (state.userState.userDict.ContainsKey(key: action.unFollowUserId)) {
                         var user = state.userState.userDict[key: action.unFollowUserId];
                         user.followUserLoading = false;
@@ -1815,12 +1825,21 @@ namespace ConnectApp.redux.reducers {
                 case FetchTeamSuccessAction action: {
                     state.teamState.teamLoading = false;
                     var team = action.team.copyWith(isDetail: true);
-                    if (!state.teamState.teamDict.ContainsKey(key: action.teamId)) {
-                        state.teamState.teamDict.Add(key: action.teamId, value: team);
+                    if (!state.teamState.teamDict.ContainsKey(key: action.team.id)) {
+                        state.teamState.teamDict.Add(key: action.team.id, value: team);
                     }
                     else {
-                        var oldTeam = state.teamState.teamDict[key: action.teamId];
-                        state.teamState.teamDict[key: action.teamId] = oldTeam.Merge(other: team);
+                        var oldTeam = state.teamState.teamDict[key: action.team.id];
+                        state.teamState.teamDict[key: action.team.id] = oldTeam.Merge(other: team);
+                    }
+
+                    if (action.teamId != action.team.id) {
+                        if (state.teamState.slugDict.ContainsKey(action.teamId)) {
+                            state.teamState.slugDict[action.teamId] = action.team.id;
+                        }
+                        else {
+                            state.teamState.slugDict.Add(action.teamId, action.team.id);
+                        }
                     }
 
                     break;
