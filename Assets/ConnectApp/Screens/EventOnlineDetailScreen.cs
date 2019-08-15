@@ -480,6 +480,7 @@ namespace ConnectApp.screens {
             return new Container(
                 height: 64,
                 padding: EdgeInsets.symmetric(horizontal: 16),
+                margin: EdgeInsets.only(bottom: MediaQuery.of(this.context).padding.bottom),
                 decoration: new BoxDecoration(
                     CColors.White,
                     border: new Border(new BorderSide(CColors.Separator))

@@ -358,8 +358,9 @@ namespace ConnectApp.screens {
                         }
 
                         this.widget.actionModel.startFeedback();
-                        this.widget.actionModel.sendFeedbak(this._nameController.text, this._contactController.text,
-                            this._contentController.text);
+                        this.widget.actionModel.sendFeedbak(this._contentController.text, this._nameController.text,
+                            this._contactController.text
+                        );
                     },
                     padding: EdgeInsets.zero,
                     child: new Container(
