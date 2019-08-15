@@ -51,6 +51,7 @@ namespace ConnectApp.Constants {
         public static readonly IconData more_horiz = new IconData(0xe5d3, "Material Icons");
         public static readonly IconData check = new IconData(0xe5ca, "Material Icons");
         public static readonly IconData open_in_browser = new IconData(0xe89d, "Material Icons");
+        public static readonly IconData feedback = new IconData(0xe5ca, "Material Icons");
     }
 
     public static class CTextStyle {

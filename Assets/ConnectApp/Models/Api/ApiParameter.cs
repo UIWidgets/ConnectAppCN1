@@ -40,6 +40,15 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
+    public class FeedbackParameter {
+        public string type;
+        public string name;
+        public string contact;
+        public string content;
+        public string data;
+    }
+
+    [Serializable]
     public class FollowParameter {
         public string type;
         public string followeeId;

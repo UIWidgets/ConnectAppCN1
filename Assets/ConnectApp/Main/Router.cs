@@ -35,6 +35,8 @@ namespace ConnectApp.Main {
         public const string TeamDetail = "/team-detail";
         public const string TeamFollower = "/team-follower";
         public const string TeamMember = "/team-member";
+        public const string Feedback = "/feedback";
+        public const string FeedbackType = "/feedback-type";
     }
 
     class Router : StatelessWidget {
@@ -71,7 +73,9 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.PersonalRole, context => new PersonalJobRoleScreenConnector()},
                     {MainNavigatorRoutes.TeamDetail, context => new TeamDetailScreenConnector("")},
                     {MainNavigatorRoutes.TeamFollower, context => new TeamFollowerScreenConnector("")},
-                    {MainNavigatorRoutes.TeamMember, context => new TeamMemberScreenConnector("")}
+                    {MainNavigatorRoutes.TeamMember, context => new TeamMemberScreenConnector("")},
+                    {MainNavigatorRoutes.Feedback, context => new FeedbackScreenConnector()},
+                    {MainNavigatorRoutes.FeedbackType, context => new FeedbackTypeScreenConnector()}
                 };
                 if (Application.isEditor) {
                     var isExistSplash = SplashManager.isExistSplash();
