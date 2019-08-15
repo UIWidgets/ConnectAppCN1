@@ -13,6 +13,7 @@ using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using EventType = ConnectApp.Models.State.EventType;
+using ConnectApp.Reality;
 
 namespace ConnectApp.redux.reducers {
     public static class AppReducer {
@@ -2075,6 +2076,12 @@ namespace ConnectApp.redux.reducers {
                         state.teamState.teamDict[key: action.unFollowTeamId] = team;
                     }
 
+                    break;
+                }
+
+                case EnterRealityAction action: {
+                    // Enter Reality
+                    RealityManager.TriggerSwitch();
                     break;
                 }
             }
