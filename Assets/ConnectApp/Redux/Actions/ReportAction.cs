@@ -57,7 +57,7 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new FeedbackSuccessAction());
                     })
                     .Catch(error => {
-                        CustomDialogUtils.showToast("反馈失败", Icons.sentiment_dissatisfied);
+                        CustomDialogUtils.showToast("发送失败", Icons.sentiment_dissatisfied);
                         dispatcher.dispatch(new FeedbackFailureAction());
                     });
             });

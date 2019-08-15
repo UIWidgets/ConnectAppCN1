@@ -258,7 +258,10 @@ namespace ConnectApp.screens {
                 hintStyle: CTextStyle.PLargeBody4,
                 cursorColor: CColors.PrimaryBlue,
                 clearButtonMode: InputFieldClearButtonMode.never,
-                onChanged: title => { this.setState(() => this._isCompleted = title.isNotEmpty()); }
+                onChanged: title => {
+                    var endTitle = title.Trim();
+                    this.setState(() => this._isCompleted = endTitle.isNotEmpty());
+                }
             );
         }
 
