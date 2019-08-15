@@ -70,9 +70,9 @@ namespace ConnectApp.screens {
     class _FeedbackScreenState : State<FeedbackScreen>, RouteAware {
         GlobalKey<FormState> _formKey = GlobalKey<FormState>.key();
 
-        FocusNode _contentFocusNode = new FocusNode();
-        FocusNode _nameFocusNode = new FocusNode();
-        FocusNode _contactFocusNode = new FocusNode();
+        readonly FocusNode _contentFocusNode = new FocusNode();
+        readonly FocusNode _nameFocusNode = new FocusNode();
+        readonly FocusNode _contactFocusNode = new FocusNode();
 
         readonly TextEditingController _contentController = new TextEditingController();
         readonly TextEditingController _nameController = new TextEditingController();
@@ -153,7 +153,7 @@ namespace ConnectApp.screens {
                         color: CColors.BgGrey,
                         child: new Column(
                             children: new List<Widget> {
-                                this._buildNavigationBar(context),
+                                this._buildNavigationBar(),
                                 new Flexible(
                                     child: this._buildContent(context)
                                 )
@@ -165,7 +165,7 @@ namespace ConnectApp.screens {
         }
 
 
-        Widget _buildNavigationBar(BuildContext context) {
+        Widget _buildNavigationBar() {
             return new CustomAppBar(
                 () => this.widget.actionModel.mainRouterPop(),
                 new Text(
@@ -225,7 +225,7 @@ namespace ConnectApp.screens {
 
                             this._buildSubmitButton(),
                             new Container(
-                                height: this._isShowKeyBoard ? MediaQuery.of(this.context).viewInsets.bottom : 0)
+                                height: this._isShowKeyBoard ? MediaQuery.of(context).viewInsets.bottom : 0)
                         }
                     )
                 )

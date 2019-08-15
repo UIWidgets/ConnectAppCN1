@@ -31,6 +31,7 @@ namespace ConnectApp.redux.actions {
         public List<Article> hottests;
         public bool hottestHasMore;
         public int pageNumber;
+        public int page;
     }
 
     public class FetchFollowArticleFailureAction : BaseAction {
@@ -157,7 +158,8 @@ namespace ConnectApp.redux.actions {
                             projects = followArticlesResponse.projects,
                             projectHasMore = followArticlesResponse.projectHasMore,
                             hottests = followArticlesResponse.hottests,
-                            hottestHasMore = followArticlesResponse.hottestHasMore
+                            hottestHasMore = followArticlesResponse.hottestHasMore,
+                            page = followArticlesResponse.page
                         });
                     })
                     .Catch(error => {

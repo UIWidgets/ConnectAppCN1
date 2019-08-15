@@ -55,6 +55,7 @@ namespace ConnectApp.screens {
                         blockArticleList = state.articleState.blockArticleList,
                         followArticleHasMore = state.articleState.followArticleHasMore,
                         hotArticleHasMore = state.articleState.hotArticleHasMore,
+                        hotArticlePage = state.articleState.hotArticlePage,
                         articleDict = state.articleState.articleDict,
                         userDict = state.userState.userDict,
                         teamDict = state.teamState.teamDict,
@@ -171,6 +172,7 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.fetchFollowArticles(arg: firstPageNumber);
             });
             this._followUserSubId = EventBus.subscribe(sName: EventBusConstant.follow_user, args => {
+                this._pageNumber = firstPageNumber;
                 this.widget.actionModel.fetchFollowing(0);
                 this.widget.actionModel.fetchFollowArticles(arg: firstPageNumber);
             });
@@ -185,13 +187,18 @@ namespace ConnectApp.screens {
             get { return true; }
         }
 
-        void _onRefresh(bool up) {
+        void _onRefresh(bool up, bool isHot) {
             if (up) {
                 this._pageNumber = firstPageNumber;
                 this.widget.actionModel.fetchFollowing(0);
             }
             else {
-                this._pageNumber++;
+                if (isHot) {
+                    this._pageNumber = this.widget.viewModel.hotArticlePage + 1;
+                }
+                else {
+                    this._pageNumber++;
+                }
             }
 
             this.widget.actionModel.fetchFollowArticles(arg: this._pageNumber)
@@ -335,7 +342,7 @@ namespace ConnectApp.screens {
                     controller: this._refreshController,
                     enablePullDown: true,
                     enablePullUp: this.widget.viewModel.hotArticleHasMore,
-                    onRefresh: this._onRefresh,
+                    onRefresh: up => this._onRefresh(up: up, true),
                     child: ListView.builder(
                         physics: new AlwaysScrollableScrollPhysics(),
                         itemCount: itemCount,
@@ -355,7 +362,7 @@ namespace ConnectApp.screens {
                     controller: this._refreshController,
                     enablePullDown: true,
                     enablePullUp: this.widget.viewModel.followArticleHasMore,
-                    onRefresh: this._onRefresh,
+                    onRefresh: up => this._onRefresh(up: up, false),
                     child: ListView.builder(
                         physics: new AlwaysScrollableScrollPhysics(),
                         itemCount: itemCount,
