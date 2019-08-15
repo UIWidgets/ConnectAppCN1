@@ -248,7 +248,7 @@ namespace ConnectApp.screens {
                                         CustomDialogUtils.showCustomDialog(
                                             child: new CustomLoadingDialog()
                                         );
-                                        string imageUrl = $"{article.thumbnail.url}.200x0x1.jpg";
+                                        string imageUrl = CImageUtils.SizeTo200ImageUrl(article.thumbnail.url);
                                         this.widget.actionModel.shareToWechat(arg1: type, arg2: article.title,
                                                 arg3: article.subTitle, arg4: linkUrl, arg5: imageUrl)
                                             .Then(onResolved: CustomDialogUtils.hiddenCustomDialog)

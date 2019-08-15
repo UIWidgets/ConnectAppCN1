@@ -12,7 +12,7 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             if (Application.platform == RuntimePlatform.Android) {
                 return new Container(
-                    color: new Color(0x231F20));
+                    color: CColors.White);
             }
 
             return new Container(

@@ -260,7 +260,7 @@ namespace ConnectApp.screens {
                             CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
                         }
                         else {
-                            var imageUrl = $"{eventObj.avatar}.200x0x1.jpg";
+                            var imageUrl = CImageUtils.SizeTo200ImageUrl(eventObj.avatar);
                             CustomDialogUtils.showCustomDialog(
                                 child: new CustomLoadingDialog()
                             );
@@ -272,7 +272,7 @@ namespace ConnectApp.screens {
                     })),
                 child: new Container(
                     color: CColors.Transparent,
-                    child: new Icon(Icons.share, size: 28,
+                    child: new Icon(Icons.share, size: 24,
                         color: this._showNavBarShadow ? CColors.White : CColors.Icon))
             );
 
@@ -313,7 +313,7 @@ namespace ConnectApp.screens {
                             onPressed: () => this.widget.actionModel.mainRouterPop(),
                             child: new Icon(
                                 Icons.arrow_back,
-                                size: 28,
+                                size: 24,
                                 color: this._showNavBarShadow ? CColors.White : CColors.Icon
                             )
                         ),

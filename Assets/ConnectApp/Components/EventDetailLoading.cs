@@ -71,7 +71,7 @@ namespace ConnectApp.Components {
                                                             onPressed: () => this.mainRouterPop(),
                                                             child: new Icon(
                                                                 Icons.arrow_back,
-                                                                size: 28,
+                                                                size: 24,
                                                                 color: CColors.White
                                                             )
                                                         )
