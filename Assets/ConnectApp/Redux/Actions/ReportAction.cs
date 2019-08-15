@@ -17,9 +17,18 @@ namespace ConnectApp.redux.actions {
 
     public class ReportItemFailureAction : BaseAction {
     }
-    
+
     public class ChangeFeedbackTypeAction : BaseAction {
         public FeedbackType type;
+    }
+
+    public class StartFeedbackAction : RequestAction {
+    }
+
+    public class FeedbackSuccessAction : BaseAction {
+    }
+
+    public class FeedbackFailureAction : BaseAction {
     }
 
     public static partial class Actions {
@@ -35,6 +44,21 @@ namespace ConnectApp.redux.actions {
                         CustomDialogUtils.showToast("举报失败", Icons.sentiment_dissatisfied);
                         dispatcher.dispatch(new ReportItemFailureAction());
                         Debug.Log(error);
+                    });
+            });
+        }
+
+        public static object feedback(FeedbackType type, string content, string name = "", string contact = "") {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ReportApi.Feedback(type, contact, name, content)
+                    .Then(() => {
+                        dispatcher.dispatch(new MainNavigatorPopAction());
+                        CustomDialogUtils.showToast("反馈成功", Icons.sentiment_satisfied);
+                        dispatcher.dispatch(new FeedbackSuccessAction());
+                    })
+                    .Catch(error => {
+                        CustomDialogUtils.showToast("反馈失败", Icons.sentiment_dissatisfied);
+                        dispatcher.dispatch(new FeedbackFailureAction());
                     });
             });
         }

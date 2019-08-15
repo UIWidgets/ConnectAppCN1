@@ -6,8 +6,9 @@ namespace ConnectApp.Models.State {
     public class ReportState {
         public bool loading;
     }
-    
+
     public class FeedbackState {
         public FeedbackType feedbackType;
+        public bool loading;
     }
 }
