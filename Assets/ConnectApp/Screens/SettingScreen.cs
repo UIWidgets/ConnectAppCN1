@@ -22,6 +22,7 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, SettingScreenViewModel>(
                 converter: state => new SettingScreenViewModel {
+                    isLoggedIn = state.loginState.isLoggedIn,
                     anonymous = state.loginState.loginInfo.anonymous,
                     hasReviewUrl = state.settingState.hasReviewUrl,
                     reviewUrl = state.settingState.reviewUrl
@@ -73,7 +74,7 @@ namespace ConnectApp.screens {
                         child: new Column(
                             children: new List<Widget> {
                                 this._buildNavigationBar(context),
-                                this._buildContent(context)
+                                this._buildContent()
                             }
                         )
                     )
@@ -114,7 +115,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildContent(BuildContext context) {
+        Widget _buildContent() {
             return new Flexible(
                 child: new Container(
                     decoration: new BoxDecoration(
@@ -135,6 +136,10 @@ namespace ConnectApp.screens {
                                 ? _buildCellView("绑定 Unity ID",
                                     () => this.widget.actionModel.mainRouterPushTo(MainNavigatorRoutes.BindUnity))
                                 : new Container(),
+                            _buildCellView("意见反馈",
+                                () => {
+                                    this.widget.actionModel.mainRouterPushTo(MainNavigatorRoutes.Feedback);
+                                }),
                             _buildCellView("关于我们",
                                 () => {
                                     AnalyticsManager.ClickEnterAboutUs();
@@ -160,8 +165,8 @@ namespace ConnectApp.screens {
                                     }
                                 );
                             }),
-                            _buildGapView(),
-                            this._buildLogoutBtn(context)
+                            this.widget.viewModel.isLoggedIn ? _buildGapView() : new Container(),
+                            this.widget.viewModel.isLoggedIn ? this._buildLogoutBtn() : new Container()
                         }
                     )
                 )
@@ -174,7 +179,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildLogoutBtn(BuildContext context) {
+        Widget _buildLogoutBtn() {
             return new CustomButton(
                 padding: EdgeInsets.zero,
                 onPressed: () => {

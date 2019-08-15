@@ -228,12 +228,7 @@ namespace ConnectApp.screens {
                 new PersonalCardItem(
                     Icons.settings,
                     "设置",
-                    () => {
-                        var routeName = this.widget.viewModel.isLoggedIn
-                            ? MainNavigatorRoutes.Setting
-                            : MainNavigatorRoutes.Login;
-                        this.widget.mainRouterPushTo(routeName);
-                    }
+                    () => this.widget.mainRouterPushTo(MainNavigatorRoutes.Setting)
                 )
             };
             var widgets = new List<Widget>();

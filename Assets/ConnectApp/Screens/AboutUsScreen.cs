@@ -60,7 +60,7 @@ namespace ConnectApp.screens {
             return new CustomAppBar(
                 () => this.actionModel.mainRouterPop(),
                 new Text(
-                    "关于",
+                    "关于我们",
                     style: CTextStyle.PXLargeMedium
                 )
             );
