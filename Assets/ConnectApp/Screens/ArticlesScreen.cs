@@ -32,7 +32,12 @@ namespace ConnectApp.screens {
                             });
                             AnalyticsManager.ClickEnterSearch("Home_Article");
                         },
-                        fetchReviewUrl = () => dispatcher.dispatch<IPromise>(Actions.fetchReviewUrl())
+                        fetchReviewUrl = () => dispatcher.dispatch<IPromise>(Actions.fetchReviewUrl()),
+
+                        pushToReality = () => {
+                            dispatcher.dispatch(new EnterRealityAction());
+                            // TODO: 点击事件统计
+                        }
                     };
                     return new ArticlesScreen(viewModel, actionModel);
                 }
@@ -180,14 +185,39 @@ namespace ConnectApp.screens {
                         new Row(
                             children: widgets
                         ),
-                        new CustomButton(
-                            padding: EdgeInsets.only(16, 8, 16, 8),
-                            onPressed: () => this.widget.actionModel.pushToSearch(),
-                            child: new Icon(
-                                icon: Icons.search,
-                                size: 28,
-                                color: CColors.Icon
-                            )
+                        new Row(
+                            children: new List<Widget> {
+                                new CustomButton(
+                                    padding: EdgeInsets.only(16, right: 0),
+                                    onPressed: () => this.widget.actionModel.pushToReality(),
+                                    child: new Row(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: new List<Widget> {
+                                            new Text(
+                                                "Powered By",
+                                                style: new TextStyle(
+                                                    color: CColors.Icon,
+                                                    fontSize: 16
+                                                )
+                                            ),
+                                            new Icon(
+                                                icon: Icons.UnityTabIcon,
+                                                size: 28,
+                                                color: CColors.Icon
+                                            )
+                                        }
+                                    )
+                                ),
+                                new CustomButton(
+                                    padding: EdgeInsets.only(16, 8, 16, 8),
+                                    onPressed: () => this.widget.actionModel.pushToSearch(),
+                                    child: new Icon(
+                                        icon: Icons.search,
+                                        size: 28,
+                                        color: CColors.Icon
+                                    )
+                                )
+                            }
                         )
                     }
                 )
@@ -278,18 +308,15 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         public void didPopNext() {
             StatusBarManager.statusBarStyle(false);
         }
 
-        public void didPush() {
-        }
+        public void didPush() { }
 
-        public void didPop() {
-        }
+        public void didPop() { }
 
-        public void didPushNext() {
-        }
+        public void didPushNext() { }
     }
 }

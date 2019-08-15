@@ -99,6 +99,9 @@ namespace ConnectApp.redux.actions {
     public class MainNavigatorPushToWebViewAction : BaseAction {
         public string url = "";
     }
+    
+    public class EnterRealityAction : BaseAction {
+    }
 
     public static partial class Actions {
 //        public static object popFromBindUnityScreen() {
