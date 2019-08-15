@@ -147,7 +147,8 @@ namespace ConnectApp.Models.State {
                     loading = false
                 },
                 feedbackState = new FeedbackState {
-                    feedbackType = FeedbackType.Advice
+                    feedbackType = FeedbackType.Advice,
+                    loading = false
                 } 
             };
         }
