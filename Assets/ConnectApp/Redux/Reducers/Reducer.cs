@@ -2054,6 +2054,21 @@ namespace ConnectApp.redux.reducers {
                     state.feedbackState.feedbackType = action.type;
                     break;
                 }
+
+                case StartFeedbackAction _: {
+                    state.feedbackState.loading = true;
+                    break;
+                }
+
+                case FeedbackSuccessAction _: {
+                    state.feedbackState.loading = false;
+                    break;
+                }
+
+                case FeedbackFailureAction _: {
+                    state.feedbackState.loading = false;
+                    break;
+                }
             }
 
             return state;

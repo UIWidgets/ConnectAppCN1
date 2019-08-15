@@ -38,14 +38,14 @@ namespace ConnectApp.Models.Api {
         public string itemId;
         public List<string> reasons;
     }
-    
+
     [Serializable]
     public class FeedbackParameter {
         public string type;
         public string name;
         public string contact;
         public string content;
-        public Dictionary<string, string> data;
+        public string data;
     }
 
     [Serializable]
