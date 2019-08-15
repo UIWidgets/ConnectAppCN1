@@ -297,7 +297,7 @@ namespace ConnectApp.screens {
                 onPressed: () => this._showShareView(eventObj),
                 child: new Container(
                     color: CColors.Transparent,
-                    child: new Icon(Icons.share, size: 28,
+                    child: new Icon(Icons.share, size: 24,
                         color: this._showNavBarShadow ? CColors.White : CColors.Icon))
             );
             Widget titleWidget = new Container();
@@ -352,7 +352,7 @@ namespace ConnectApp.screens {
                             onPressed: () => { this.widget.actionModel.mainRouterPop(); },
                             child: new Icon(
                                 Icons.arrow_back,
-                                size: 28,
+                                size: 24,
                                 color: this._showNavBarShadow ? CColors.White : CColors.Icon
                             )
                         ),
