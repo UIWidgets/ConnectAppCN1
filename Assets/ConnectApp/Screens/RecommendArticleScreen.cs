@@ -153,14 +153,25 @@ namespace ConnectApp.screens {
                                 duration: TimeSpan.FromMilliseconds(100)
                             )
                         ),
-                        new CustomButton(
-                            padding: EdgeInsets.only(16, 8, 16, 8),
-                            onPressed: () => this.widget.actionModel.pushToSearch(),
-                            child: new Icon(
-                                icon: Icons.search,
-                                size: 28,
-                                color: CColors.Icon
-                            )
+                        new Row(
+                            children: new List<Widget> {
+                                new CustomButton(
+                                    padding: EdgeInsets.only(16, 8, 8, 8),
+                                    child: new Container(
+                                        color: CColors.Transparent,
+                                        child: new EggButton()
+                                    )
+                                ),
+                                new CustomButton(
+                                    padding: EdgeInsets.only(8, 8, 16, 8),
+                                    onPressed: () => this.widget.actionModel.pushToSearch(),
+                                    child: new Icon(
+                                        icon: Icons.search,
+                                        size: 28,
+                                        color: CColors.Icon
+                                    )
+                                )
+                            }
                         )
                     }
                 )
