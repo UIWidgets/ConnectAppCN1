@@ -32,7 +32,11 @@ namespace ConnectApp.screens {
                             });
                             AnalyticsManager.ClickEnterSearch("Home_Article");
                         },
-                        fetchReviewUrl = () => dispatcher.dispatch<IPromise>(Actions.fetchReviewUrl())
+                        fetchReviewUrl = () => dispatcher.dispatch<IPromise>(Actions.fetchReviewUrl()),
+                        pushToReality = () => {
+                            dispatcher.dispatch(new EnterRealityAction());
+                            // TODO: 点击事件统计
+                        }
                     };
                     return new ArticlesScreen(viewModel, actionModel);
                 }
@@ -75,7 +79,6 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            HttpManager.initVSCode();
             StatusBarManager.statusBarStyle(false);
             this._selectedIndex = 1;
             this._pageController = new PageController(initialPage: this._selectedIndex);
@@ -97,7 +100,7 @@ namespace ConnectApp.screens {
             base.didChangeDependencies();
             Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
         }
-        
+
         public override void dispose() {
             EventBus.unSubscribe(sName: EventBusConstant.login_success, id: this._loginSubId);
             Router.routeObserve.unsubscribe(this);
@@ -184,6 +187,7 @@ namespace ConnectApp.screens {
                             children: new List<Widget> {
                                 new CustomButton(
                                     padding: EdgeInsets.only(16, 8, 8, 8),
+                                    onPressed: () => this.widget.actionModel.pushToReality(),
                                     child: new Container(
                                         color: CColors.Transparent,
                                         child: new EggButton()
@@ -289,18 +293,15 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         public void didPopNext() {
             StatusBarManager.statusBarStyle(false);
         }
 
-        public void didPush() {
-        }
+        public void didPush() { }
 
-        public void didPop() {
-        }
+        public void didPop() { }
 
-        public void didPushNext() {
-        }
+        public void didPushNext() { }
     }
 }

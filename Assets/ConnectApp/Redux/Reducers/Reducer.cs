@@ -13,6 +13,7 @@ using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using EventType = ConnectApp.Models.State.EventType;
+using ConnectApp.Reality;
 
 namespace ConnectApp.redux.reducers {
     public static class AppReducer {
@@ -685,14 +686,16 @@ namespace ConnectApp.redux.reducers {
                 case FetchMyFutureEventsSuccessAction action: {
                     state.mineState.futureListLoading = false;
                     state.mineState.futureEventTotal = action.eventsResponse.events.total;
-                    var offlineItems = action.eventsResponse.events.items.FindAll(item => item.mode != "online");
+                    var items = action.eventsResponse.events.items;
                     if (action.pageNumber == 1) {
-                        state.mineState.futureEventsList = offlineItems;
+                        state.mineState.futureEventsList = items;
                     }
                     else {
-                        var results = state.mineState.futureEventsList;
-                        results.AddRange(collection: offlineItems);
-                        state.mineState.futureEventsList = results;
+                        if (state.mineState.futureEventsList.Count < action.eventsResponse.events.total) {
+                            var results = state.mineState.futureEventsList;
+                            results.AddRange(collection: items);
+                            state.mineState.futureEventsList = results;
+                        }
                     }
 
                     break;
@@ -716,9 +719,11 @@ namespace ConnectApp.redux.reducers {
                         state.mineState.pastEventsList = offlineItems;
                     }
                     else {
-                        var results = state.mineState.pastEventsList;
-                        results.AddRange(collection: offlineItems);
-                        state.mineState.pastEventsList = results;
+                        if (state.mineState.pastEventsList.Count < action.eventsResponse.events.total) {
+                            var results = state.mineState.pastEventsList;
+                            results.AddRange(collection: offlineItems);
+                            state.mineState.pastEventsList = results;
+                        }
                     }
 
                     break;
@@ -2078,7 +2083,7 @@ namespace ConnectApp.redux.reducers {
 
                     break;
                 }
-
+                
                 case ChangeFeedbackTypeAction action: {
                     state.feedbackState.feedbackType = action.type;
                     break;
@@ -2096,6 +2101,12 @@ namespace ConnectApp.redux.reducers {
 
                 case FeedbackFailureAction _: {
                     state.feedbackState.loading = false;
+                    break;
+                }
+
+                case EnterRealityAction _: {
+                    // Enter Reality
+                    RealityManager.TriggerSwitch();
                     break;
                 }
             }

@@ -433,7 +433,7 @@ namespace ConnectApp.screens {
 
         Widget _buildEventBottom(IEvent eventObj, EventType eventType, EventStatus eventStatus,
             bool isLoggedIn) {
-            if (eventStatus != EventStatus.future && eventType == EventType.online && isLoggedIn) {
+            if ((eventStatus == EventStatus.past && isLoggedIn) || !WechatPlugin.instance().isInstalled()) {
                 return new Container();
             }
 
@@ -480,6 +480,7 @@ namespace ConnectApp.screens {
             return new Container(
                 height: 64,
                 padding: EdgeInsets.symmetric(horizontal: 16),
+                margin: EdgeInsets.only(bottom: MediaQuery.of(this.context).padding.bottom),
                 decoration: new BoxDecoration(
                     CColors.White,
                     border: new Border(new BorderSide(CColors.Separator))

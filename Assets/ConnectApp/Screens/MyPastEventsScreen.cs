@@ -94,7 +94,7 @@ namespace ConnectApp.screens {
             }
 
             var pastEventTotal = this.widget.viewModel.pastEventTotal;
-            var hasMore = pastEventTotal != pastEventsList.Count;
+            var hasMore = pastEventTotal > pastEventsList.Count;
             var itemCount = hasMore ? pastEventsList.Count : pastEventsList.Count + 1;
 
             return new Container(
@@ -120,6 +120,7 @@ namespace ConnectApp.screens {
             if (index == pastEventsList.Count) {
                 return new EndView();
             }
+
             var model = pastEventsList[index: index];
             var eventType = model.mode == "online" ? EventType.online : EventType.offline;
             var placeName = model.placeId.isEmpty()

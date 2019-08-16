@@ -22,8 +22,7 @@ namespace ConnectApp.screens {
     public class RecommendArticleScreenConnector : StatelessWidget {
         public RecommendArticleScreenConnector(
             Key key = null
-        ) : base(key: key) {
-        }
+        ) : base(key: key) { }
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ArticlesScreenViewModel>(
@@ -67,7 +66,11 @@ namespace ConnectApp.screens {
                         startFetchArticles = () => dispatcher.dispatch(new StartFetchArticlesAction()),
                         fetchArticles = offset => dispatcher.dispatch<IPromise>(Actions.fetchArticles(offset: offset)),
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
-                            Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
+                            Actions.shareToWechat(type, title, description, linkUrl, imageUrl)),
+                        pushToReality = () => {
+                            dispatcher.dispatch(new EnterRealityAction());
+                            // TODO: 点击事件统计
+                        }
                     };
                     return new RecommendArticleScreen(viewModel: viewModel, actionModel: actionModel);
                 }
@@ -157,6 +160,7 @@ namespace ConnectApp.screens {
                             children: new List<Widget> {
                                 new CustomButton(
                                     padding: EdgeInsets.only(16, 8, 8, 8),
+                                    onPressed: () => this.widget.actionModel.pushToReality(),
                                     child: new Container(
                                         color: CColors.Transparent,
                                         child: new EggButton()
@@ -173,6 +177,7 @@ namespace ConnectApp.screens {
                                 )
                             }
                         )
+                        
                     }
                 )
             );
