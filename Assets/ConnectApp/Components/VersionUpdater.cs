@@ -21,6 +21,7 @@ namespace ConnectApp.Components {
     public class _VersionUpdaterState : State<VersionUpdater> {
         public override void initState() {
             base.initState();
+            HttpManager.initVSCode();
             var needCheckUpdater = VersionManager.needCheckUpdater();
             if (needCheckUpdater) {
                 VersionManager.checkForUpdates(type: CheckVersionType.first);

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using ConnectApp.Api;
+using ConnectApp.Constants;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using Newtonsoft.Json;
@@ -34,7 +35,7 @@ namespace ConnectApp.Utils {
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             UnityWebRequest.ClearCookieCache();
             request.SetRequestHeader(COOKIE, _cookieHeader());
-            var cookie = _cookieHeader();
+            request.SetRequestHeader("AppVersion", Config.versionNumber);
             return request;
         }
 

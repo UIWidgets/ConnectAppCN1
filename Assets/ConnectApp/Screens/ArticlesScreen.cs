@@ -75,7 +75,6 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            HttpManager.initVSCode();
             StatusBarManager.statusBarStyle(false);
             this._selectedIndex = 1;
             this._pageController = new PageController(initialPage: this._selectedIndex);
@@ -97,7 +96,7 @@ namespace ConnectApp.screens {
             base.didChangeDependencies();
             Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
         }
-        
+
         public override void dispose() {
             EventBus.unSubscribe(sName: EventBusConstant.login_success, id: this._loginSubId);
             Router.routeObserve.unsubscribe(this);
@@ -278,7 +277,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         public void didPopNext() {
             StatusBarManager.statusBarStyle(false);
         }
