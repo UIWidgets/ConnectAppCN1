@@ -33,7 +33,11 @@ namespace ConnectApp.screens {
                             });
                             AnalyticsManager.ClickEnterSearch("Home_Article");
                         },
-                        fetchReviewUrl = () => dispatcher.dispatch<IPromise>(Actions.fetchReviewUrl())
+                        fetchReviewUrl = () => dispatcher.dispatch<IPromise>(Actions.fetchReviewUrl()),
+                        pushToReality = () => {
+                            dispatcher.dispatch(new EnterRealityAction());
+                            // TODO: 点击事件统计
+                        }
                     };
                     return new ArticlesScreen(viewModel, actionModel);
                 }
@@ -180,14 +184,26 @@ namespace ConnectApp.screens {
                         new Row(
                             children: widgets
                         ),
-                        new CustomButton(
-                            padding: EdgeInsets.only(16, 8, 16, 8),
-                            onPressed: () => this.widget.actionModel.pushToSearch(),
-                            child: new Icon(
-                                icon: Icons.search,
-                                size: 28,
-                                color: CColors.Icon
-                            )
+                        new Row(
+                            children: new List<Widget> {
+                                new CustomButton(
+                                    padding: EdgeInsets.only(16, 8, 8, 8),
+                                    onPressed: () => this.widget.actionModel.pushToReality(),
+                                    child: new Container(
+                                        color: CColors.Transparent,
+                                        child: new EggButton()
+                                    )
+                                ),
+                                new CustomButton(
+                                    padding: EdgeInsets.only(8, 8, 16, 8),
+                                    onPressed: () => this.widget.actionModel.pushToSearch(),
+                                    child: new Icon(
+                                        icon: Icons.search,
+                                        size: 28,
+                                        color: CColors.Icon
+                                    )
+                                )
+                            }
                         )
                     }
                 )
@@ -283,13 +299,10 @@ namespace ConnectApp.screens {
             StatusBarManager.statusBarStyle(false);
         }
 
-        public void didPush() {
-        }
+        public void didPush() { }
 
-        public void didPop() {
-        }
+        public void didPop() { }
 
-        public void didPushNext() {
-        }
+        public void didPushNext() { }
     }
 }

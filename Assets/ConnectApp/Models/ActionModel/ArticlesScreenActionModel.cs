@@ -30,5 +30,7 @@ namespace ConnectApp.Models.ActionModel {
         public Action startFetchFollowArticles;
         public Func<int, IPromise> fetchFollowArticles;
         public Func<IPromise> fetchReviewUrl;
+        
+        public Action pushToReality;
     }
 }

@@ -433,7 +433,7 @@ namespace ConnectApp.screens {
 
         Widget _buildEventBottom(IEvent eventObj, EventType eventType, EventStatus eventStatus,
             bool isLoggedIn) {
-            if (eventStatus != EventStatus.future && eventType == EventType.online && isLoggedIn) {
+            if ((eventStatus == EventStatus.past && isLoggedIn) || !WechatPlugin.instance().isInstalled()) {
                 return new Container();
             }
 

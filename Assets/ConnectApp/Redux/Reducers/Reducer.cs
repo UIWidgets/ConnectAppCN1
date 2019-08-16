@@ -13,6 +13,7 @@ using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using EventType = ConnectApp.Models.State.EventType;
+using ConnectApp.Reality;
 
 namespace ConnectApp.redux.reducers {
     public static class AppReducer {
@@ -2082,7 +2083,7 @@ namespace ConnectApp.redux.reducers {
 
                     break;
                 }
-
+                
                 case ChangeFeedbackTypeAction action: {
                     state.feedbackState.feedbackType = action.type;
                     break;
@@ -2106,6 +2107,12 @@ namespace ConnectApp.redux.reducers {
                     state.eggState.showFirst = action.showEggs.First();
                 }
                     break;
+
+                case EnterRealityAction _: {
+                    // Enter Reality
+                    RealityManager.TriggerSwitch();
+                    break;
+                }
             }
 
             return state;
