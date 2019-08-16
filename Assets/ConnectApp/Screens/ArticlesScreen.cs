@@ -37,6 +37,7 @@ namespace ConnectApp.screens {
                         pushToReality = () => {
                             dispatcher.dispatch(new EnterRealityAction());
                             // TODO: 点击事件统计
+                            AnalyticsManager.AnalyticsClickEgg(1);
                         }
                     };
                     return new ArticlesScreen(viewModel, actionModel);
@@ -186,14 +187,16 @@ namespace ConnectApp.screens {
                         ),
                         new Row(
                             children: new List<Widget> {
-                                new CustomButton(
-                                    padding: EdgeInsets.only(16, 8, 8, 8),
-                                    onPressed: () => this.widget.actionModel.pushToReality(),
-                                    child: new Container(
-                                        color: CColors.Transparent,
-                                        child: new EggButton()
+                                this.widget.viewModel.showFirstEgg
+                                    ? new CustomButton(
+                                        padding: EdgeInsets.only(16, 8, 8, 8),
+                                        onPressed: () => this.widget.actionModel.pushToReality(),
+                                        child: new Container(
+                                            color: CColors.Transparent,
+                                            child: new EggButton()
+                                        )
                                     )
-                                ),
+                                    : (Widget) new Container(),
                                 new CustomButton(
                                     padding: EdgeInsets.only(8, 8, 16, 8),
                                     onPressed: () => this.widget.actionModel.pushToSearch(),
@@ -299,10 +302,13 @@ namespace ConnectApp.screens {
             StatusBarManager.statusBarStyle(false);
         }
 
-        public void didPush() { }
+        public void didPush() {
+        }
 
-        public void didPop() { }
+        public void didPop() {
+        }
 
-        public void didPushNext() { }
+        public void didPushNext() {
+        }
     }
 }
