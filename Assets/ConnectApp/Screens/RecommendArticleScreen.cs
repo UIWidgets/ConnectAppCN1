@@ -22,7 +22,8 @@ namespace ConnectApp.screens {
     public class RecommendArticleScreenConnector : StatelessWidget {
         public RecommendArticleScreenConnector(
             Key key = null
-        ) : base(key: key) { }
+        ) : base(key: key) {
+        }
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ArticlesScreenViewModel>(
@@ -70,6 +71,7 @@ namespace ConnectApp.screens {
                         pushToReality = () => {
                             dispatcher.dispatch(new EnterRealityAction());
                             // TODO: 点击事件统计
+                            AnalyticsManager.AnalyticsClickEgg(1);
                         }
                     };
                     return new RecommendArticleScreen(viewModel: viewModel, actionModel: actionModel);
@@ -158,14 +160,16 @@ namespace ConnectApp.screens {
                         ),
                         new Row(
                             children: new List<Widget> {
-                                new CustomButton(
-                                    padding: EdgeInsets.only(16, 8, 8, 8),
-                                    onPressed: () => this.widget.actionModel.pushToReality(),
-                                    child: new Container(
-                                        color: CColors.Transparent,
-                                        child: new EggButton()
+                                this.widget.viewModel.showFirstEgg
+                                    ? new CustomButton(
+                                        padding: EdgeInsets.only(16, 8, 8, 8),
+                                        onPressed: () => this.widget.actionModel.pushToReality(),
+                                        child: new Container(
+                                            color: CColors.Transparent,
+                                            child: new EggButton()
+                                        )
                                     )
-                                ),
+                                    : (Widget) new Container(),
                                 new CustomButton(
                                     padding: EdgeInsets.only(8, 8, 16, 8),
                                     onPressed: () => this.widget.actionModel.pushToSearch(),
@@ -177,7 +181,6 @@ namespace ConnectApp.screens {
                                 )
                             }
                         )
-                        
                     }
                 )
             );

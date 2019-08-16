@@ -2103,6 +2103,10 @@ namespace ConnectApp.redux.reducers {
                     state.feedbackState.loading = false;
                     break;
                 }
+                case InitEggsAction action: {
+                    state.eggState.showFirst = action.showEggs.First();
+                }
+                    break;
 
                 case EnterRealityAction _: {
                     // Enter Reality

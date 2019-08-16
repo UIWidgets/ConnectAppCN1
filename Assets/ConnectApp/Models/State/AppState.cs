@@ -10,6 +10,8 @@ namespace ConnectApp.Models.State {
     public class AppState {
         public int Count { get; set; }
         public LoginState loginState { get; set; }
+
+        public EggState eggState { get; set; }
         public ArticleState articleState { get; set; }
         public EventState eventState { get; set; }
         public PopularSearchState popularSearchState { get; set; }
@@ -38,6 +40,9 @@ namespace ConnectApp.Models.State {
                     loginInfo = loginInfo,
                     isLoggedIn = isLogin,
                     loading = false
+                },
+                eggState = new EggState {
+                    showFirst = false
                 },
                 articleState = new ArticleState {
                     recommendArticleIds = new List<string>(),
@@ -149,7 +154,7 @@ namespace ConnectApp.Models.State {
                 feedbackState = new FeedbackState {
                     feedbackType = FeedbackType.Advice,
                     loading = false
-                } 
+                }
             };
         }
     }
