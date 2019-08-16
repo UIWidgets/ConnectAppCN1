@@ -25,6 +25,7 @@ namespace ConnectApp.Models.Api {
         public bool projectHasMore;
         public List<Article> hottests;
         public bool hottestHasMore;
+        public int page;
     }
 
     [Serializable]

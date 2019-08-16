@@ -196,6 +196,7 @@ namespace ConnectApp.redux.reducers {
 
                         state.articleState.followArticleHasMore = action.projectHasMore;
                         state.articleState.hotArticleHasMore = action.hottestHasMore;
+                        state.articleState.hotArticlePage = action.page;
                     }
 
                     state.articleState.followArticlesLoading = false;
