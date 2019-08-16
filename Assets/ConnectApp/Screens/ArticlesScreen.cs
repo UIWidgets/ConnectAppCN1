@@ -22,7 +22,8 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ArticlesScreenViewModel>(
                 converter: state => new ArticlesScreenViewModel {
-                    isLoggedIn = state.loginState.isLoggedIn
+                    isLoggedIn = state.loginState.isLoggedIn,
+                    showFirstEgg = state.eggState.showFirst
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ArticlesScreenActionModel {

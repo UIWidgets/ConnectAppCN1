@@ -23,5 +23,6 @@ namespace ConnectApp.Models.ViewModel {
         public int hotArticlePage;
         public bool isLoggedIn;
         public string currentUserId;
+        public bool showFirstEgg;
     }
 }
