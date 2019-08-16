@@ -50,7 +50,7 @@ namespace ConnectApp.redux.actions {
 
         public static object feedback(FeedbackType type, string content, string name = "", string contact = "") {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ReportApi.Feedback(type, contact, name, content)
+                return ReportApi.Feedback(type, content, name, contact)
                     .Then(() => {
                         dispatcher.dispatch(new MainNavigatorPopAction());
                         CustomDialogUtils.showToast("反馈成功", Icons.sentiment_satisfied);

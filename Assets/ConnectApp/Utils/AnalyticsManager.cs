@@ -436,6 +436,10 @@ namespace ConnectApp.Utils {
         }
 
         public static string deviceId() {
+            if (Application.isEditor) {
+                return "Editor";
+            }
+
             return getDeviceID();
         }
 
