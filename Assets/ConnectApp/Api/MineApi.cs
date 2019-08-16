@@ -12,7 +12,6 @@ namespace ConnectApp.Api {
             var para = new Dictionary<string, object> {
                 {"tab", "my"},
                 {"status", "ongoing"},
-                {"mode", "offline"},
                 {"page", pageNumber}
             };
             var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/events", para);

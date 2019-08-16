@@ -68,11 +68,9 @@ namespace ConnectApp.screens {
     }
 
     class _FeedbackScreenState : State<FeedbackScreen>, RouteAware {
-        GlobalKey<FormState> _formKey = GlobalKey<FormState>.key();
-
-        readonly FocusNode _contentFocusNode = new FocusNode();
-        readonly FocusNode _nameFocusNode = new FocusNode();
-        readonly FocusNode _contactFocusNode = new FocusNode();
+        FocusNode _contentFocusNode = new FocusNode();
+        FocusNode _nameFocusNode = new FocusNode();
+        FocusNode _contactFocusNode = new FocusNode();
 
         readonly TextEditingController _contentController = new TextEditingController();
         readonly TextEditingController _nameController = new TextEditingController();
@@ -177,9 +175,8 @@ namespace ConnectApp.screens {
 
         Widget _buildContent(BuildContext context) {
             return new Container(
-                child: new Form(
-                    this._formKey,
-                    new ListView(
+                child: new Container(
+                    child: new ListView(
                         controller: this._scrollController,
                         children: new List<Widget> {
                             new CustomDivider(
@@ -259,8 +256,10 @@ namespace ConnectApp.screens {
                 cursorColor: CColors.PrimaryBlue,
                 clearButtonMode: InputFieldClearButtonMode.never,
                 onChanged: title => {
-                    var endTitle = title.Trim();
-                    this.setState(() => this._isCompleted = endTitle.isNotEmpty());
+                    if (title.isNotEmpty()) {
+                        var endTitle = title.Trim();
+                        this.setState(() => this._isCompleted = endTitle.isNotEmpty());
+                    }
                 }
             );
         }
