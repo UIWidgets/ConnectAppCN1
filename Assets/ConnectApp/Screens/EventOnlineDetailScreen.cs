@@ -548,8 +548,7 @@ namespace ConnectApp.screens {
                                                         CustomDialogUtils.hiddenCustomDialog();
                                                         WechatPlugin.instance().context = this.context;
                                                         WechatPlugin.instance().currentEventId = eventObj.id;
-                                                        var path =
-                                                            $"pages/Detail/Detail?id={eventObj.id}&title={eventObj.title}&app=true";
+                                                        var path = CStringUtils.CreateMiniPath(eventObj.id, eventObj.title);
                                                         WechatPlugin.instance().toOpenMiNi(path);
                                                     }
                                                 )
@@ -776,7 +775,7 @@ namespace ConnectApp.screens {
 
                         var linkUrl =
                             $"{Config.apiAddress}/events/{eventObj.id}";
-                        var path = $"pages/Detail/Detail?id={eventObj.id}&title={eventObj.title}&app=true";
+                        var path = CStringUtils.CreateMiniPath(eventObj.id, eventObj.title);
                         if (type == ShareType.clipBoard) {
                             this.widget.actionModel.copyText(linkUrl);
                             CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
