@@ -63,7 +63,10 @@ namespace ConnectApp.Utils {
         }
 
         public static string CreateMiniPath(string id, string title) {
-            return $"pages/Home/Home?type=toDetail&app=true&id={id}&title={title}";
+            if (id.isNotEmpty() && title.isNotEmpty()) {
+                return $"pages/Home/Home?type=toDetail&app=true&id={id}&title={title}";
+            }
+            return "";
         }
     }
 }

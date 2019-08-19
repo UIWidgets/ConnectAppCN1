@@ -16,16 +16,15 @@ namespace ConnectApp.Constants {
 
         public const string MINIID = "gh_f731aec0bdd0";
 
-        public const string versionNumber = "1.0.2";
+        public const string versionNumber = "1.1.0";
 
-        public const int versionCode = 48;
+        public const int versionCode = 50;
 
         public const string originCodeUrl = "https://github.com/UnityTech/ConnectAppCN";
 
         public const string widgetOriginCodeUrl = "https://github.com/UnityTech/UIWidgets";
 
-        public const int miniProgramType = 0; // 0 -> 正式版   1 -> 开发版     2 -> 体验版
-
+        public const int miniProgramType = 0; // 0 -> 正式版  1 -> 开发版  2 -> 体验版
 
 #if UNITY_IOS
         public const string platform = "ios";
