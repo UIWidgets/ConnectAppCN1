@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using ConnectApp.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
+using RSG;
 using Unity.UIWidgets.Redux;
 using UnityEngine;
 
@@ -27,7 +28,7 @@ namespace ConnectApp.redux.actions {
     public class FetchTeamArticleSuccessAction : BaseAction {
         public List<Article> articles;
         public bool hasMore;
-        public int offset;
+        public int pageNumber;
         public string teamId;
     }
 
@@ -93,6 +94,7 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return TeamApi.FetchTeam(teamId)
                     .Then(teamResponse => {
+                        dispatcher.dispatch<IPromise>(fetchTeamArticle(teamId: teamResponse.team.id, 1));
                         dispatcher.dispatch(new PlaceMapAction {placeMap = teamResponse.placeMap});
                         dispatcher.dispatch(new FollowMapAction {followMap = teamResponse.followMap});
                         dispatcher.dispatch(new FetchTeamSuccessAction {
@@ -101,30 +103,23 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => {
-                        dispatcher.dispatch(new FetchTeamFailureAction());
-                        Debug.Log(error);
-                    }
-                );
+                            dispatcher.dispatch(new FetchTeamFailureAction());
+                            Debug.Log(error);
+                        }
+                    );
             });
         }
 
-        public static object fetchTeamArticle(string teamId, int offset) {
+        public static object fetchTeamArticle(string teamId, int pageNumber) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                var team = getState().teamState.teamDict.ContainsKey(key: teamId)
-                    ? getState().teamState.teamDict[key: teamId]
-                    : null;
-                var articleOffset = team == null ? 0 : team.articleIds == null ? 0 : team.articleIds.Count;
-                if (offset != 0 && offset != articleOffset) {
-                    offset = articleOffset;
-                }
-                return TeamApi.FetchTeamArticle(teamId, offset)
+                return TeamApi.FetchTeamArticle(teamId: teamId, pageNumber: pageNumber)
                     .Then(teamArticleResponse => {
                         var articles = teamArticleResponse.projects.FindAll(project => "article" == project.type);
                         dispatcher.dispatch(new LikeMapAction {likeMap = teamArticleResponse.likeMap});
                         dispatcher.dispatch(new FetchTeamArticleSuccessAction {
                             articles = articles,
                             hasMore = teamArticleResponse.projectsHasMore,
-                            offset = offset,
+                            pageNumber = pageNumber,
                             teamId = teamId
                         });
                     })
@@ -145,6 +140,7 @@ namespace ConnectApp.redux.actions {
                 if (offset != 0 && offset != followerOffset) {
                     offset = followerOffset;
                 }
+
                 return TeamApi.FetchTeamFollower(teamId, offset)
                     .Then(teamFollowerResponse => {
                         dispatcher.dispatch(new FollowMapAction {followMap = teamFollowerResponse.followMap});
@@ -152,7 +148,7 @@ namespace ConnectApp.redux.actions {
                         teamFollowerResponse.followers.ForEach(follower => {
                             userMap.Add(key: follower.id, value: follower);
                         });
-                        dispatcher.dispatch(new UserMapAction { userMap = userMap });
+                        dispatcher.dispatch(new UserMapAction {userMap = userMap});
                         dispatcher.dispatch(new FetchTeamFollowerSuccessAction {
                             followers = teamFollowerResponse.followers,
                             followersHasMore = teamFollowerResponse.followersHasMore,

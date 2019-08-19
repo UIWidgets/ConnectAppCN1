@@ -24,6 +24,7 @@ namespace ConnectApp.screens {
         }
 
         readonly string userId;
+
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, UserFollowingScreenViewModel>(
                 converter: state => {
@@ -54,15 +55,18 @@ namespace ConnectApp.screens {
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new UserFollowingScreenActionModel {
                         startFetchFollowingUser = () => dispatcher.dispatch(new StartFetchFollowingUserAction()),
-                        fetchFollowingUser = offset => dispatcher.dispatch<IPromise>(Actions.fetchFollowingUser(this.userId, offset)),
-                        startFollowUser = followUserId => dispatcher.dispatch(new StartFetchFollowUserAction {
+                        fetchFollowingUser = offset =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowingUser(this.userId, offset)),
+                        startFollowUser = followUserId => dispatcher.dispatch(new StartFollowUserAction {
                             followUserId = followUserId
                         }),
-                        followUser = followUserId => dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(followUserId)),
-                        startUnFollowUser = unFollowUserId => dispatcher.dispatch(new StartFetchUnFollowUserAction {
+                        followUser = followUserId =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(followUserId)),
+                        startUnFollowUser = unFollowUserId => dispatcher.dispatch(new StartUnFollowUserAction {
                             unFollowUserId = unFollowUserId
                         }),
-                        unFollowUser = unFollowUserId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(unFollowUserId)),
+                        unFollowUser = unFollowUserId =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(unFollowUserId)),
                         startSearchFollowingUser = () => dispatcher.dispatch(new StartSearchFollowingAction()),
                         searchFollowingUser = (keyword, pageNumber) => dispatcher.dispatch<IPromise>(
                             Actions.searchFollowings(keyword, pageNumber)),
@@ -129,7 +133,9 @@ namespace ConnectApp.screens {
             else {
                 this._pageNumber++;
             }
-            this.widget.actionModel.searchFollowingUser(arg1: this.widget.viewModel.searchFollowingKeyword, arg2: this._pageNumber)
+
+            this.widget.actionModel
+                .searchFollowingUser(arg1: this.widget.viewModel.searchFollowingKeyword, arg2: this._pageNumber)
                 .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }
@@ -151,6 +157,7 @@ namespace ConnectApp.screens {
                         )
                     );
                 }
+
                 if (userType == UserType.unFollow) {
                     this.widget.actionModel.startFollowUser(obj: userId);
                     this.widget.actionModel.followUser(arg: userId);
@@ -165,7 +172,8 @@ namespace ConnectApp.screens {
             Widget content;
             if (this.widget.viewModel.searchFollowingUserLoading) {
                 content = new GlobalLoading();
-            } else if (this.widget.viewModel.searchFollowingKeyword.Length > 0) {
+            }
+            else if (this.widget.viewModel.searchFollowingKeyword.Length > 0) {
                 if (this.widget.viewModel.searchFollowingUsers.Count > 0) {
                     content = new Container(
                         color: CColors.Background,
@@ -200,7 +208,8 @@ namespace ConnectApp.screens {
             }
             else if (this.widget.viewModel.followingUserLoading && this.widget.viewModel.followingUsers.isEmpty()) {
                 content = new GlobalLoading();
-            } else if (this.widget.viewModel.followingUsers.Count <= 0) {
+            }
+            else if (this.widget.viewModel.followingUsers.Count <= 0) {
                 content = new BlankView(
                     "没有关注的人，去首页看看吧",
                     "image/default-following"
@@ -239,14 +248,18 @@ namespace ConnectApp.screens {
                                         var user = this.widget.viewModel.userDict[key: followingUser.id];
                                         followUserLoading = user.followUserLoading ?? false;
                                     }
+
                                     if (this.widget.viewModel.currentUserId == followingUser.id) {
                                         userType = UserType.me;
-                                    } else if (followUserLoading) {
+                                    }
+                                    else if (followUserLoading) {
                                         userType = UserType.loading;
-                                    } else if (this.widget.viewModel.followMap.ContainsKey(key: followingUser.id)) {
+                                    }
+                                    else if (this.widget.viewModel.followMap.ContainsKey(key: followingUser.id)) {
                                         userType = UserType.follow;
                                     }
                                 }
+
                                 return new UserCard(
                                     user: followingUser,
                                     () => this.widget.actionModel.pushToUserDetail(obj: followingUser.id),
@@ -259,6 +272,7 @@ namespace ConnectApp.screens {
                     )
                 );
             }
+
             return new Container(
                 color: CColors.Background,
                 child: content

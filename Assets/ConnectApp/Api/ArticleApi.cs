@@ -31,7 +31,7 @@ namespace ConnectApp.Api {
             var para = new Dictionary<string, object> {
                 {"page", pageNumber}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/followingUsersArticles", parameter: para);
+            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/followingFeeds", parameter: para);
             HttpManager.resume(request).Then(responseText => {
                 var followArticlesResponse = JsonConvert.DeserializeObject<FetchFollowArticlesResponse>(responseText);
                 promise.Resolve(followArticlesResponse);

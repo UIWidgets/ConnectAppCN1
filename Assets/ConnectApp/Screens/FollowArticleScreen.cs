@@ -12,8 +12,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -55,6 +55,7 @@ namespace ConnectApp.screens {
                         blockArticleList = state.articleState.blockArticleList,
                         followArticleHasMore = state.articleState.followArticleHasMore,
                         hotArticleHasMore = state.articleState.hotArticleHasMore,
+                        hotArticlePage = state.articleState.hotArticlePage,
                         articleDict = state.articleState.articleDict,
                         userDict = state.userState.userDict,
                         teamDict = state.teamState.teamDict,
@@ -100,10 +101,10 @@ namespace ConnectApp.screens {
                             }
                         ),
                         startFollowUser = userId =>
-                            dispatcher.dispatch(new StartFetchFollowUserAction {followUserId = userId}),
+                            dispatcher.dispatch(new StartFollowUserAction {followUserId = userId}),
                         followUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(userId)),
                         startUnFollowUser = userId =>
-                            dispatcher.dispatch(new StartFetchUnFollowUserAction {unFollowUserId = userId}),
+                            dispatcher.dispatch(new StartUnFollowUserAction {unFollowUserId = userId}),
                         unFollowUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(userId)),
                         startFollowTeam = teamId =>
                             dispatcher.dispatch(new StartFetchFollowTeamAction {followTeamId = teamId}),
@@ -171,6 +172,7 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.fetchFollowArticles(arg: firstPageNumber);
             });
             this._followUserSubId = EventBus.subscribe(sName: EventBusConstant.follow_user, args => {
+                this._pageNumber = firstPageNumber;
                 this.widget.actionModel.fetchFollowing(0);
                 this.widget.actionModel.fetchFollowArticles(arg: firstPageNumber);
             });
@@ -185,13 +187,18 @@ namespace ConnectApp.screens {
             get { return true; }
         }
 
-        void _onRefresh(bool up) {
+        void _onRefresh(bool up, bool isHot) {
             if (up) {
                 this._pageNumber = firstPageNumber;
                 this.widget.actionModel.fetchFollowing(0);
             }
             else {
-                this._pageNumber++;
+                if (isHot) {
+                    this._pageNumber = this.widget.viewModel.hotArticlePage + 1;
+                }
+                else {
+                    this._pageNumber++;
+                }
             }
 
             this.widget.actionModel.fetchFollowArticles(arg: this._pageNumber)
@@ -287,7 +294,7 @@ namespace ConnectApp.screens {
                     CustomDialogUtils.showCustomDialog(
                         child: new CustomLoadingDialog()
                     );
-                    string imageUrl = $"{article.thumbnail.url}.200x0x1.jpg";
+                    string imageUrl = CImageUtils.SizeTo200ImageUrl(article.thumbnail.url);
                     this.widget.actionModel.shareToWechat(arg1: type, arg2: article.title,
                             arg3: article.subTitle, arg4: linkUrl, arg5: imageUrl)
                         .Then(onResolved: CustomDialogUtils.hiddenCustomDialog)
@@ -335,7 +342,7 @@ namespace ConnectApp.screens {
                     controller: this._refreshController,
                     enablePullDown: true,
                     enablePullUp: this.widget.viewModel.hotArticleHasMore,
-                    onRefresh: this._onRefresh,
+                    onRefresh: up => this._onRefresh(up: up, true),
                     child: ListView.builder(
                         physics: new AlwaysScrollableScrollPhysics(),
                         itemCount: itemCount,
@@ -355,7 +362,7 @@ namespace ConnectApp.screens {
                     controller: this._refreshController,
                     enablePullDown: true,
                     enablePullUp: this.widget.viewModel.followArticleHasMore,
-                    onRefresh: this._onRefresh,
+                    onRefresh: up => this._onRefresh(up: up, false),
                     child: ListView.builder(
                         physics: new AlwaysScrollableScrollPhysics(),
                         itemCount: itemCount,
@@ -385,7 +392,7 @@ namespace ConnectApp.screens {
                 var following = followings[index: i];
                 var followButton = this._buildFollowButton(following: following);
                 followButtons.Add(item: followButton);
-                if (i < followings.Count) {
+                if (i < followings.Count - 1) {
                     followButtons.Add(new Container(width: 10));
                 }
             }

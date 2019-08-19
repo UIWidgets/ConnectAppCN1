@@ -12,8 +12,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
@@ -56,12 +56,12 @@ namespace ConnectApp.screens {
                         startFetchFollower = () => dispatcher.dispatch(new StartFetchFollowerAction()),
                         fetchFollower = offset =>
                             dispatcher.dispatch<IPromise>(Actions.fetchFollower(this.userId, offset)),
-                        startFollowUser = followUserId => dispatcher.dispatch(new StartFetchFollowUserAction {
+                        startFollowUser = followUserId => dispatcher.dispatch(new StartFollowUserAction {
                             followUserId = followUserId
                         }),
                         followUser = followUserId =>
                             dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(followUserId)),
-                        startUnFollowUser = unFollowUserId => dispatcher.dispatch(new StartFetchUnFollowUserAction {
+                        startUnFollowUser = unFollowUserId => dispatcher.dispatch(new StartUnFollowUserAction {
                             unFollowUserId = unFollowUserId
                         }),
                         unFollowUser = unFollowUserId =>
@@ -118,7 +118,7 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.fetchFollower(0);
             });
         }
-        
+
         public override void didChangeDependencies() {
             base.didChangeDependencies();
             Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
@@ -278,7 +278,7 @@ namespace ConnectApp.screens {
                 new ObjectKey(value: follower.id)
             );
         }
-        
+
         public void didPopNext() {
             StatusBarManager.statusBarStyle(false);
         }
