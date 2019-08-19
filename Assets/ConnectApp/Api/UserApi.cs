@@ -17,10 +17,10 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static Promise<FetchUserArticleResponse> FetchUserArticle(string userId, int offset) {
+        public static Promise<FetchUserArticleResponse> FetchUserArticle(string userId, int pageNumber) {
             var promise = new Promise<FetchUserArticleResponse>();
             var para = new Dictionary<string, object> {
-                {"offset", offset},
+                {"page", pageNumber},
                 {"type", "article"}
             };
             var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/u/{userId}/activities", para);
