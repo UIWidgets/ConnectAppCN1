@@ -12,8 +12,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
@@ -36,7 +36,6 @@ namespace ConnectApp.screens {
                         fetchReviewUrl = () => dispatcher.dispatch<IPromise>(Actions.fetchReviewUrl()),
                         pushToReality = () => {
                             dispatcher.dispatch(new EnterRealityAction());
-                            // TODO: 点击事件统计
                             AnalyticsManager.AnalyticsClickEgg(1);
                         }
                     };
@@ -189,14 +188,16 @@ namespace ConnectApp.screens {
                             children: new List<Widget> {
                                 this.widget.viewModel.showFirstEgg
                                     ? new CustomButton(
-                                        padding: EdgeInsets.only(16, 8, 8, 8),
+                                        padding: EdgeInsets.only(16, 10, 8, 10),
                                         onPressed: () => this.widget.actionModel.pushToReality(),
                                         child: new Container(
                                             color: CColors.Transparent,
                                             child: new EggButton()
                                         )
                                     )
-                                    : (Widget) new Container(),
+                                    : (Widget) new Container(
+                                        height: 44
+                                    ),
                                 new CustomButton(
                                     padding: EdgeInsets.only(8, 8, 16, 8),
                                     onPressed: () => this.widget.actionModel.pushToSearch(),

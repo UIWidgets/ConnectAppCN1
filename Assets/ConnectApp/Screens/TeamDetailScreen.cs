@@ -45,11 +45,6 @@ namespace ConnectApp.screens {
                 converter: state => {
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
                     var team = this.FetchTeam(this.teamId, state.teamState.teamDict, state.teamState.slugDict);
-                    var teamArticleOffset = team == null
-                        ? 0
-                        : team.articleIds == null
-                            ? 0
-                            : team.articleIds.Count;
                     var followMap = state.followState.followDict.ContainsKey(key: currentUserId)
                         ? state.followState.followDict[key: currentUserId]
                         : new Dictionary<string, bool>();
@@ -57,7 +52,6 @@ namespace ConnectApp.screens {
                         teamLoading = state.teamState.teamLoading,
                         teamArticleLoading = state.teamState.teamArticleLoading,
                         team = team,
-                        teamArticleOffset = teamArticleOffset,
                         articleDict = state.articleState.articleDict,
                         followMap = followMap,
                         currentUserId = state.loginState.loginInfo.userId ?? "",
@@ -69,8 +63,8 @@ namespace ConnectApp.screens {
                         startFetchTeam = () => dispatcher.dispatch(new StartFetchTeamAction()),
                         fetchTeam = () => dispatcher.dispatch<IPromise>(Actions.fetchTeam(this.teamId)),
                         startFetchTeamArticle = () => dispatcher.dispatch(new StartFetchTeamArticleAction()),
-                        fetchTeamArticle = offset =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchTeamArticle(viewModel.team.id, offset)),
+                        fetchTeamArticle = pageNumber =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchTeamArticle(viewModel.team.id, pageNumber)),
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
@@ -148,7 +142,7 @@ namespace ConnectApp.screens {
     class _TeamDetailScreenState : State<TeamDetailScreen>, TickerProvider, RouteAware {
         const float headerHeight = 256;
         const float _transformSpeed = 0.005f;
-        int _articleOffset;
+        int _articlePageNumber;
         RefreshController _refreshController;
         float _factor = 1;
         bool _isHaveTitle;
@@ -160,7 +154,7 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             StatusBarManager.statusBarStyle(true);
-            this._articleOffset = 0;
+            this._articlePageNumber = 1;
             this._refreshController = new RefreshController();
             this._isHaveTitle = false;
             this._hideNavBar = true;
@@ -172,7 +166,7 @@ namespace ConnectApp.screens {
                 RelativeRect.fromLTRB(0, 44, 0, 0),
                 RelativeRect.fromLTRB(0, 0, 0, 0)
             );
-            this._animation = rectTween.animate(this._controller);
+            this._animation = rectTween.animate(parent: this._controller);
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchTeam();
                 this.widget.actionModel.fetchTeam();
@@ -182,7 +176,7 @@ namespace ConnectApp.screens {
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
         }
 
         public override void dispose() {
@@ -240,8 +234,13 @@ namespace ConnectApp.screens {
         }
 
         void _onRefresh(bool up) {
-            this._articleOffset = up ? 0 : this.widget.viewModel.teamArticleOffset;
-            this.widget.actionModel.fetchTeamArticle(arg: this._articleOffset)
+            if (up) {
+                this._articlePageNumber = 1;
+            }
+            else {
+                this._articlePageNumber++;
+            }
+            this.widget.actionModel.fetchTeamArticle(arg: this._articlePageNumber)
                 .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }

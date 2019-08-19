@@ -161,8 +161,10 @@ namespace ConnectApp.Components {
                     new Container(
                         padding: EdgeInsets.only(16, 24, 16, this.message == null ? 24 : 8),
                         alignment: Alignment.center,
-                        child: new Text(this.title,
-                            style: CTextStyle.H5, textAlign: TextAlign.center
+                        child: new Text(
+                            data: this.title,
+                            style: CTextStyle.PLargeMedium,
+                            textAlign: TextAlign.center
                         )
                     ));
             }

@@ -1525,7 +1525,7 @@ namespace ConnectApp.redux.reducers {
                     if (state.userState.userDict.ContainsKey(key: action.userId)) {
                         var user = state.userState.userDict[key: action.userId];
                         user.articlesHasMore = action.hasMore;
-                        if (action.offset == 0) {
+                        if (action.pageNumber == 1) {
                             user.articleIds = articleIds;
                         }
                         else {
@@ -1538,7 +1538,7 @@ namespace ConnectApp.redux.reducers {
                     }
                     else {
                         var user = new User {articlesHasMore = action.hasMore};
-                        if (action.offset == 0) {
+                        if (action.pageNumber == 1) {
                             user.articleIds = articleIds;
                         }
                         else {
@@ -1873,7 +1873,7 @@ namespace ConnectApp.redux.reducers {
                     if (state.teamState.teamDict.ContainsKey(key: action.teamId)) {
                         var team = state.teamState.teamDict[key: action.teamId];
                         team.articlesHasMore = action.hasMore;
-                        if (action.offset == 0) {
+                        if (action.pageNumber == 1) {
                             team.articleIds = articleIds;
                         }
                         else {
@@ -1886,7 +1886,7 @@ namespace ConnectApp.redux.reducers {
                     }
                     else {
                         var team = new Team {articlesHasMore = action.hasMore};
-                        if (action.offset == 0) {
+                        if (action.pageNumber == 1) {
                             team.articleIds = articleIds;
                         }
                         else {

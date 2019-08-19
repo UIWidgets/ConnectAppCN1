@@ -6,7 +6,6 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
-using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.Components {
     public class EggButton : StatefulWidget {
@@ -27,7 +26,7 @@ namespace ConnectApp.Components {
                 duration: TimeSpan.FromMilliseconds(250),
                 vsync: this
             );
-            this._animation = new FloatTween(- 0.2f, 0.2f).animate(parent: this._controller);
+            this._animation = new FloatTween(-0.2f, 0.2f).animate(parent: this._controller);
             this._animation.addStatusListener(listener: this._animationStatusListener);
             this._controller.forward();
         }
@@ -47,10 +46,12 @@ namespace ConnectApp.Components {
                 this._repeat++;
                 this._controller.reverse();
             }
+
             if (status == AnimationStatus.dismissed) {
                 this._repeat++;
                 this._controller.forward();
             }
+
             if (this._repeat >= 8) {
                 this._controller.setValue(0.5f);
                 this._controller.stop();
@@ -67,10 +68,10 @@ namespace ConnectApp.Components {
                         Transform.rotate(
                             degree: this._animation.value,
                             alignment: Alignment.bottomCenter,
-                            child: Image.asset(
-                                "image/egg",
-                                width: 21,
-                                height: 21
+                            child: new Icon(
+                                icon: Icons.egg,
+                                size: 21,
+                                color: CColors.Icon
                             )
                         ),
                         new Container(
