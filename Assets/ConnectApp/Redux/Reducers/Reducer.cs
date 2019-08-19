@@ -131,6 +131,10 @@ namespace ConnectApp.redux.reducers {
                         if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
                             state.articleState.articleDict.Add(key: article.id, value: article);
                         }
+                        else {
+                            var oldArticle = state.articleState.articleDict[key: article.id];
+                            state.articleState.articleDict[key: article.id] = oldArticle.Merge(other: article);
+                        }
                     }
 
                     state.articleState.hottestHasMore = action.hottestHasMore;
@@ -157,6 +161,10 @@ namespace ConnectApp.redux.reducers {
                             if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
                                 state.articleState.articleDict.Add(key: article.id, value: article);
                             }
+                            else {
+                                var oldArticle = state.articleState.articleDict[key: article.id];
+                                state.articleState.articleDict[key: article.id] = oldArticle.Merge(other: article);
+                            }
                         }
 
                         if (state.articleState.followArticleIdDict.ContainsKey(key: currentUserId)) {
@@ -178,6 +186,10 @@ namespace ConnectApp.redux.reducers {
                             hotArticleIds.Add(item: article.id);
                             if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
                                 state.articleState.articleDict.Add(key: article.id, value: article);
+                            }
+                            else {
+                                var oldArticle = state.articleState.articleDict[key: article.id];
+                                state.articleState.articleDict[key: article.id] = oldArticle.Merge(other: article);
                             }
                         }
 
@@ -223,10 +235,13 @@ namespace ConnectApp.redux.reducers {
                         if (!state.articleState.articleDict.ContainsKey(key: project.id)) {
                             state.articleState.articleDict.Add(key: project.id, value: project);
                         }
+                        else {
+                            var oldArticle = state.articleState.articleDict[key: project.id];
+                            state.articleState.articleDict[key: project.id] = oldArticle.Merge(other: project);
+                        }
                     });
                     var article = action.articleDetail.projectData;
                     article.like = action.articleDetail.like;
-                    article.edit = action.articleDetail.edit;
                     article.projectIds = projectIds;
                     article.channelId = action.articleDetail.channelId;
                     article.contentMap = action.articleDetail.contentMap;
@@ -241,7 +256,7 @@ namespace ConnectApp.redux.reducers {
                         state.articleState.articleDict.Add(key: article.id, value: article);
                     }
 
-                    if (!article.id.Equals(action.articleId)) {
+                    if (!article.id.Equals(value: action.articleId)) {
                         if (dict.ContainsKey(key: action.articleId)) {
                             state.articleState.articleDict[key: action.articleId] = article;
                         }
@@ -978,6 +993,10 @@ namespace ConnectApp.redux.reducers {
                         if (!state.articleState.articleDict.ContainsKey(key: searchArticle.id)) {
                             state.articleState.articleDict.Add(key: searchArticle.id, value: searchArticle);
                         }
+                        else {
+                            var oldArticle = state.articleState.articleDict[key: searchArticle.id];
+                            state.articleState.articleDict[key: searchArticle.id] = oldArticle.Merge(other: searchArticle);
+                        }
                     });
 
                     if (state.searchState.searchArticleIdDict.ContainsKey(key: action.keyword)) {
@@ -1521,6 +1540,10 @@ namespace ConnectApp.redux.reducers {
                         if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
                             state.articleState.articleDict.Add(key: article.id, value: article);
                         }
+                        else {
+                            var oldArticle = state.articleState.articleDict[key: article.id];
+                            state.articleState.articleDict[key: article.id] = oldArticle.Merge(other: article);
+                        }
                     });
                     if (state.userState.userDict.ContainsKey(key: action.userId)) {
                         var user = state.userState.userDict[key: action.userId];
@@ -1868,6 +1891,10 @@ namespace ConnectApp.redux.reducers {
                         articleIds.Add(item: article.id);
                         if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
                             state.articleState.articleDict.Add(key: article.id, value: article);
+                        }
+                        else {
+                            var oldArticle = state.articleState.articleDict[key: article.id];
+                            state.articleState.articleDict[key: article.id] = oldArticle.Merge(other: article);
                         }
                     });
                     if (state.teamState.teamDict.ContainsKey(key: action.teamId)) {
