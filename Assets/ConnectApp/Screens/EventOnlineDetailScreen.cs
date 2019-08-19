@@ -842,7 +842,6 @@ namespace ConnectApp.screens {
                     onPressed: type => {
                         AnalyticsManager.ClickShare(shareType: type, "Event", "Event_" + eventObj.id,
                             title: eventObj.title);
-
                         var linkUrl = $"{Config.apiAddress}/events/{eventObj.id}";
                         var path = CStringUtils.CreateMiniPath(id: eventObj.id, title: eventObj.title);
                         if (type == ShareType.clipBoard) {
