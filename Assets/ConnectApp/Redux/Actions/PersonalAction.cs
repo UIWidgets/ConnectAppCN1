@@ -29,7 +29,7 @@ namespace ConnectApp.redux.actions {
     public class FetchUserArticleSuccessAction : BaseAction {
         public List<Article> articles;
         public bool hasMore;
-        public int offset;
+        public int pageNumber;
         public string userId;
     }
 
@@ -140,7 +140,7 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return UserApi.FetchUserProfile(userId: userId)
                     .Then(userProfileResponse => {
-                        dispatcher.dispatch<IPromise>(fetchUserArticle(userProfileResponse.user.id, 0));
+                        dispatcher.dispatch<IPromise>(fetchUserArticle(userId: userProfileResponse.user.id, 1));
                         dispatcher.dispatch(new PlaceMapAction {placeMap = userProfileResponse.placeMap});
                         dispatcher.dispatch(new TeamMapAction {teamMap = userProfileResponse.teamMap});
                         var userMap = new Dictionary<string, User>();
@@ -190,17 +190,9 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object fetchUserArticle(string userId, int offset) {
+        public static object fetchUserArticle(string userId, int pageNumber) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                var user = getState().userState.userDict.ContainsKey(key: userId)
-                    ? getState().userState.userDict[key: userId]
-                    : null;
-                var articleOffset = user == null ? 0 : user.articleIds == null ? 0 : user.articleIds.Count;
-                if (offset != 0 && offset != articleOffset) {
-                    offset = articleOffset;
-                }
-
-                return UserApi.FetchUserArticle(userId, offset)
+                return UserApi.FetchUserArticle(userId: userId, pageNumber: pageNumber)
                     .Then(userArticleResponse => {
                         var articles = new List<Article>();
                         userArticleResponse.projectList.ForEach(articleId => {
@@ -219,7 +211,7 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new FetchUserArticleSuccessAction {
                             articles = articles,
                             hasMore = userArticleResponse.hasMore,
-                            offset = offset,
+                            pageNumber = pageNumber,
                             userId = userId
                         });
                     })

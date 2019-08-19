@@ -28,7 +28,7 @@ namespace ConnectApp.redux.actions {
     public class FetchTeamArticleSuccessAction : BaseAction {
         public List<Article> articles;
         public bool hasMore;
-        public int offset;
+        public int pageNumber;
         public string teamId;
     }
 
@@ -94,7 +94,7 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return TeamApi.FetchTeam(teamId)
                     .Then(teamResponse => {
-                        dispatcher.dispatch<IPromise>(fetchTeamArticle(teamResponse.team.id, 0));
+                        dispatcher.dispatch<IPromise>(fetchTeamArticle(teamId: teamResponse.team.id, 1));
                         dispatcher.dispatch(new PlaceMapAction {placeMap = teamResponse.placeMap});
                         dispatcher.dispatch(new FollowMapAction {followMap = teamResponse.followMap});
                         dispatcher.dispatch(new FetchTeamSuccessAction {
@@ -110,24 +110,16 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object fetchTeamArticle(string teamId, int offset) {
+        public static object fetchTeamArticle(string teamId, int pageNumber) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                var team = getState().teamState.teamDict.ContainsKey(key: teamId)
-                    ? getState().teamState.teamDict[key: teamId]
-                    : null;
-                var articleOffset = team == null ? 0 : team.articleIds == null ? 0 : team.articleIds.Count;
-                if (offset != 0 && offset != articleOffset) {
-                    offset = articleOffset;
-                }
-
-                return TeamApi.FetchTeamArticle(teamId, offset)
+                return TeamApi.FetchTeamArticle(teamId: teamId, pageNumber: pageNumber)
                     .Then(teamArticleResponse => {
                         var articles = teamArticleResponse.projects.FindAll(project => "article" == project.type);
                         dispatcher.dispatch(new LikeMapAction {likeMap = teamArticleResponse.likeMap});
                         dispatcher.dispatch(new FetchTeamArticleSuccessAction {
                             articles = articles,
                             hasMore = teamArticleResponse.projectsHasMore,
-                            offset = offset,
+                            pageNumber = pageNumber,
                             teamId = teamId
                         });
                     })

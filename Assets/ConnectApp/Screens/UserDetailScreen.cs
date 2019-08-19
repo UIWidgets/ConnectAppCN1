@@ -44,7 +44,6 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, UserDetailScreenViewModel>(
                 converter: state => {
                     var user = this.fetchUser(this.userId, state.userState.userDict, state.userState.slugDict);
-                    var articleOffset = user == null ? 0 : user.articleIds == null ? 0 : user.articleIds.Count;
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
                     var followMap = state.followState.followDict.ContainsKey(key: currentUserId)
                         ? state.followState.followDict[key: currentUserId]
@@ -55,7 +54,6 @@ namespace ConnectApp.screens {
                         user = user,
                         articleDict = state.articleState.articleDict,
                         followMap = followMap,
-                        articleOffset = articleOffset,
                         currentUserId = currentUserId,
                         isLoggedIn = state.loginState.isLoggedIn
                     };
@@ -65,8 +63,8 @@ namespace ConnectApp.screens {
                         startFetchUserProfile = () => dispatcher.dispatch(new StartFetchUserProfileAction()),
                         fetchUserProfile = () => dispatcher.dispatch<IPromise>(Actions.fetchUserProfile(this.userId)),
                         startFetchUserArticle = () => dispatcher.dispatch(new StartFetchUserArticleAction()),
-                        fetchUserArticle = (userId, offset) =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchUserArticle(userId, offset)),
+                        fetchUserArticle = (userId, pageNumber) =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchUserArticle(userId, pageNumber)),
                         startFollowUser = userId =>
                             dispatcher.dispatch(new StartFollowUserAction {followUserId = userId}),
                         followUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(userId)),
@@ -150,7 +148,7 @@ namespace ConnectApp.screens {
     class _UserDetailScreenState : State<UserDetailScreen>, TickerProvider, RouteAware {
         const float headerHeight = 256;
         const float _transformSpeed = 0.005f;
-        int _articleOffset;
+        int _articlePageNumber;
         RefreshController _refreshController;
         float _factor = 1;
         bool _isHaveTitle;
@@ -162,7 +160,7 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             StatusBarManager.statusBarStyle(true);
-            this._articleOffset = 0;
+            this._articlePageNumber = 1;
             this._refreshController = new RefreshController();
             this._isHaveTitle = false;
             this._hideNavBar = true;
@@ -242,10 +240,15 @@ namespace ConnectApp.screens {
         }
 
         void _onRefresh(bool up) {
-            this._articleOffset = up ? 0 : this.widget.viewModel.articleOffset;
-            this.widget.actionModel.fetchUserArticle(this.widget.viewModel.user.id, this._articleOffset)
-                .Then(() => this._refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
-                .Catch(_ => this._refreshController.sendBack(up, RefreshStatus.failed));
+            if (up) {
+                this._articlePageNumber = 1;
+            }
+            else {
+                this._articlePageNumber++;
+            }
+            this.widget.actionModel.fetchUserArticle(arg1: this.widget.viewModel.user.id, arg2: this._articlePageNumber)
+                .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }
 
         public override Widget build(BuildContext context) {
