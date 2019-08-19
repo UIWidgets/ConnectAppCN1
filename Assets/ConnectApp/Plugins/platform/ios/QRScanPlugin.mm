@@ -7,6 +7,7 @@
 
 #import "QRScanPlugin.h"
 #import "QRScanViewController.h"
+#include "UIWidgetsMessageManager.h"
 
 @implementation QRScanPlugin
 
@@ -15,6 +16,10 @@
 extern "C" {
     void pushToQRScan() {
         UIViewController *vc = UnityGetGLViewController();
-        [vc presentViewController:[[QRScanViewController alloc] init] animated:YES completion:nil];
+        QRScanViewController *qrScanVc = [[QRScanViewController alloc] init];
+        qrScanVc.qrCodeBlock = ^(NSString * qrCode) {
+            UIWidgetsMethodMessage(@"QRScan", @"OnReceiveQRCode", @[qrCode]);
+        };
+        [vc presentViewController:qrScanVc animated:YES completion:nil];
     }
 }

@@ -35,6 +35,7 @@ namespace ConnectApp.Main {
         public const string TeamDetail = "/team-detail";
         public const string TeamFollower = "/team-follower";
         public const string TeamMember = "/team-member";
+        public const string QRScanLogin = "/qr-login";
     }
 
     class Router : StatelessWidget {
@@ -71,24 +72,24 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.PersonalRole, context => new PersonalJobRoleScreenConnector()},
                     {MainNavigatorRoutes.TeamDetail, context => new TeamDetailScreenConnector("")},
                     {MainNavigatorRoutes.TeamFollower, context => new TeamFollowerScreenConnector("")},
-                    {MainNavigatorRoutes.TeamMember, context => new TeamMemberScreenConnector("")}
+                    {MainNavigatorRoutes.TeamMember, context => new TeamMemberScreenConnector("")},
+                    {MainNavigatorRoutes.QRScanLogin, context => new QRScanLoginScreenConnector("")}
                 };
                 if (Application.isEditor) {
                     var isExistSplash = SplashManager.isExistSplash();
                     if (isExistSplash) {
-                        routes.Add(MainNavigatorRoutes.Root, context => new SplashPage());
-                        routes.Add(MainNavigatorRoutes.Main, context => new MainScreen());
+                        routes.Add(key: MainNavigatorRoutes.Root, context => new SplashPage());
+                        routes.Add(key: MainNavigatorRoutes.Main, context => new MainScreen());
                     }
                     else {
-                        routes.Add(MainNavigatorRoutes.Root, context => new MainScreen());
+                        routes.Add(key: MainNavigatorRoutes.Root, context => new MainScreen());
                     }
                 }
                 else {
-                    routes.Add(MainNavigatorRoutes.Splash, context => new SplashPage());
-                    routes.Add(MainNavigatorRoutes.Main, context => new MainScreen());
-                    routes.Add(MainNavigatorRoutes.Root, context => new RootScreen());
+                    routes.Add(key: MainNavigatorRoutes.Splash, context => new SplashPage());
+                    routes.Add(key: MainNavigatorRoutes.Main, context => new MainScreen());
+                    routes.Add(key: MainNavigatorRoutes.Root, context => new RootScreen());
                 }
-
 
                 return routes;
             }

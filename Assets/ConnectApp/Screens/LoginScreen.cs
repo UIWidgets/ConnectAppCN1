@@ -244,7 +244,8 @@ namespace ConnectApp.screens {
                             CustomDialogUtils.showCustomDialog(
                                 child: new CustomLoadingDialog()
                             );
-                            this.widget.actionModel.loginByWechatAction(code).Then(() => {
+                            this.widget.actionModel.loginByWechatAction(code)
+                                .Then(() => {
                                     CustomDialogUtils.hiddenCustomDialog();
                                     if (this.widget.anonymous) {
                                         LoginScreen.navigator.pushReplacementNamed(LoginNavigatorRoutes

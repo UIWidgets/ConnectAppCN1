@@ -10,7 +10,6 @@
 #import "QRScanView.h"
 #import "QRScanUtil.h"
 #import "NSTimer+Addition.h"
-#include "UIWidgetsMessageManager.h"
 
 @interface QRScanViewController ()<AVCaptureMetadataOutputObjectsDelegate>
 
@@ -39,6 +38,22 @@
     // Do any additional setup after loading the view.
     self.view.backgroundColor = [UIColor whiteColor];
     
+    AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+    if (authStatus == AVAuthorizationStatusNotDetermined) {
+        [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+            if (!granted) {
+                [self buildAlertController];
+                return;
+            }
+        }];
+    }
+    if (authStatus == AVAuthorizationStatusRestricted || authStatus == AVAuthorizationStatusDenied) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self buildAlertController];
+        });
+        return;
+    }
+        
     [self setQRScanView];
 }
 
@@ -125,6 +140,17 @@
     [navView addSubview:titleLabel];
 }
 
+- (void)buildAlertController
+{
+    NSString *appName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleDisplayName"];
+    NSString *message = [NSString stringWithFormat:@"请在iPhone的“设置-隐私”选项中，允许%@访问你的摄像头", appName];
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:message preferredStyle:UIAlertControllerStyleAlert];
+    [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }]];
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
 - (void)pop:(UIButton *)sender
 {
     [self dismissViewControllerAnimated:YES completion:^{
@@ -159,8 +185,10 @@
         [self.qrScanView.timer invalidate];
         [_session stopRunning];
         _session = nil;
-        UIWidgetsMethodMessage(@"QRScan", @"OnReceiveQRCode", @[stringValue]);
     }];
+    if (self.qrCodeBlock) {
+        self.qrCodeBlock(stringValue);
+    }
 }
 
 @end

@@ -57,7 +57,7 @@ static NSTimeInterval kQrLineAnimateDuration = 0.02;
         rect.origin.y = _qrScanLineY;
         _qrScanLine.frame = rect;
     } completion:^(BOOL finished) {
-        CGFloat maxBorder = self.frame.size.height / 2 + self.transparentArea.height / 2 - 30;
+        CGFloat maxBorder = self.frame.size.height / 2 + self.transparentArea.height / 2 - 33;
         if (_qrScanLineY > maxBorder) {
             _qrScanLineY = self.frame.size.height / 2 - self.transparentArea.height / 2 - 15;
         }

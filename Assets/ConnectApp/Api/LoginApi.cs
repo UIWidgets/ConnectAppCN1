@@ -5,7 +5,6 @@ using ConnectApp.Models.Model;
 using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
-using UnityEngine;
 
 namespace ConnectApp.Api {
     public static class LoginApi {
@@ -36,15 +35,17 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static IPromise LoginByQr(string token) {
-            var promise = new Promise();
+        public static IPromise<bool> LoginByQr(string token) {
+            var promise = new Promise<bool>();
             var para = new QRLoginParameter {
                 token = token
             };
             var request = HttpManager.POST($"{Config.apiAddress}/api/auth/qrlogin", para);
             HttpManager.resume(request).Then(responseText => {
-                Debug.Log($"...wwwww.... {responseText}");
-            }).Catch(exception => { promise.Reject(exception); });
+                var successDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(responseText);
+                var success = successDictionary.ContainsKey("success") ? successDictionary["success"] : false;
+                promise.Resolve((bool)success);
+            }).Catch(exception => promise.Reject(exception));
             return promise;
         }
 

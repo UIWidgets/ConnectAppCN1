@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using ConnectApp.Api;
+using ConnectApp.Components;
+using ConnectApp.Constants;
+using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Plugins;
 using ConnectApp.Utils;
 using Unity.UIWidgets.Redux;
-using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.redux.actions {
     public class LoginChangeEmailAction : BaseAction {
@@ -26,21 +28,14 @@ namespace ConnectApp.redux.actions {
     public class LoginByEmailFailureAction : BaseAction {
     }
 
-    public class LoginByWechatAction : RequestAction {
-        public BuildContext context;
-        public string code;
-    }
-
     public class LoginByWechatSuccessAction : BaseAction {
         public LoginInfo loginInfo;
     }
 
     public class LoginByWechatFailureAction : BaseAction {
-        public BuildContext context;
     }
 
     public class LogoutAction : BaseAction {
-        public BuildContext context;
     }
 
     public class CleanEmailAndPasswordAction : BaseAction {
@@ -73,6 +68,10 @@ namespace ConnectApp.redux.actions {
                         AnalyticsManager.LoginEvent("email");
                         AnalyticsManager.AnalyticsLogin("email", loginInfo.userId);
                         JPushPlugin.setJPushAlias(loginInfo.userId);
+                        EventBus.publish(sName: EventBusConstant.login_success, new List<object>());
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new LoginByEmailFailureAction());
                     });
             });
         }
@@ -99,6 +98,33 @@ namespace ConnectApp.redux.actions {
                         AnalyticsManager.LoginEvent("wechat");
                         AnalyticsManager.AnalyticsLogin("wechat", loginInfo.userId);
                         JPushPlugin.setJPushAlias(loginInfo.userId);
+                        EventBus.publish(sName: EventBusConstant.login_success, new List<object>());
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new LoginByWechatFailureAction());
+                    });
+            });
+        }
+
+        public static object loginByQr(string token) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return LoginApi.LoginByQr(token: token)
+                    .Then(success => {
+                        CustomDialogUtils.hiddenCustomDialog();
+                        if (Router.navigator.canPop()) {
+                            Router.navigator.pop();
+                        }
+                        CustomDialogUtils.showToast(
+                            success ? "扫码成功" : "扫码失败",
+                            success ? Icons.sentiment_satisfied : Icons.sentiment_dissatisfied
+                        );
+                    })
+                    .Catch(error => {
+                        CustomDialogUtils.hiddenCustomDialog();
+                        if (Router.navigator.canPop()) {
+                            Router.navigator.pop();
+                        }
+                        CustomDialogUtils.showToast("扫码失败", iconData: Icons.sentiment_dissatisfied);
                     });
             });
         }
