@@ -52,6 +52,7 @@ namespace ConnectApp.Constants {
         public static readonly IconData check = new IconData(0xe5ca, "Material Icons");
         public static readonly IconData open_in_browser = new IconData(0xe89d, "Material Icons");
         public static readonly IconData feedback = new IconData(0xe5ca, "Material Icons");
+        public static readonly IconData egg = new IconData(0xe624, "iconfont");
     }
 
     public static class CTextStyle {
@@ -314,7 +315,7 @@ namespace ConnectApp.Constants {
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody2
         );
-        
+
         public static readonly TextStyle PRegularBody3 = new TextStyle(
             height: 1.46f,
             fontSize: 14,
@@ -328,7 +329,7 @@ namespace ConnectApp.Constants {
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody4
         );
-        
+
         public static readonly TextStyle PRegularBody5 = new TextStyle(
             height: 1.46f,
             fontSize: 14,
@@ -393,7 +394,7 @@ namespace ConnectApp.Constants {
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody4
         );
-        
+
         public static readonly TextStyle PSmallBody5 = new TextStyle(
             height: 1.53f,
             fontSize: 12,

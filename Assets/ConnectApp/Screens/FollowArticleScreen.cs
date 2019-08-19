@@ -392,7 +392,7 @@ namespace ConnectApp.screens {
                 var following = followings[index: i];
                 var followButton = this._buildFollowButton(following: following);
                 followButtons.Add(item: followButton);
-                if (i < followings.Count) {
+                if (i < followings.Count - 1) {
                     followButtons.Add(new Container(width: 10));
                 }
             }
