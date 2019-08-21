@@ -129,19 +129,19 @@ namespace ConnectApp.Components {
                         break;
                     case "atomic": {
                         var key = block.entityRanges.first().key.ToString();
-                        if (content.entityMap.ContainsKey(key)) {
-                            var dataMap = content.entityMap[key];
+                        if (content.entityMap.ContainsKey(key: key)) {
+                            var dataMap = content.entityMap[key: key];
                             var data = dataMap.data;
                             if (data.contentId.isNotEmpty()) {
-                                if (contentMap.ContainsKey(data.contentId)) {
-                                    var map = contentMap[data.contentId];
+                                if (contentMap.ContainsKey(key: data.contentId)) {
+                                    var map = contentMap[key: data.contentId];
                                     var url = map.url;
                                     var downloadUrl = map.downloadUrl ?? "";
                                     var contentType = map.contentType ?? "";
                                     var originalImage = map.originalImage == null
                                         ? map.thumbnail
                                         : map.originalImage;
-                                    widgets.Add(_Atomic(context, dataMap.type, contentType, data.title, originalImage,
+                                    widgets.Add(_Atomic(context, dataMap.type, contentType, data.title, data.url, originalImage,
                                         url, downloadUrl,
                                         openUrl, playVideo, browserImage));
                                 }
@@ -300,7 +300,7 @@ namespace ConnectApp.Components {
             );
         }
 
-        static Widget _Atomic(BuildContext context, string type, string contentType, string title,
+        static Widget _Atomic(BuildContext context, string type, string contentType, string title, string dataUrl,
             _OriginalImage originalImage,
             string url, string downloadUrl, Action<string> openUrl, Action<string> playVideo,
             Action browserImage = null) {
@@ -388,16 +388,21 @@ namespace ConnectApp.Components {
                     children: new List<Widget> {
                         new GestureDetector(
                             child: new PlaceholderImage(
-                                imageUrl,
-                                width,
-                                height,
+                                imageUrl: imageUrl,
+                                width: width,
+                                height: height,
                                 fit: BoxFit.cover
                             ), onTap: () => {
-                                if (browserImage != null) {
-                                    browserImage();
+                                if (dataUrl.isNotEmpty()) {
+                                    openUrl(obj: dataUrl);
                                 }
-                            }),
-
+                                else {
+                                    if (browserImage != null) {
+                                        browserImage();
+                                    }
+                                }
+                            }
+                        ),
                         playButton
                     }
                 )
