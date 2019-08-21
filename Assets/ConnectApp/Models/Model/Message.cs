@@ -6,6 +6,7 @@ namespace ConnectApp.Models.Model {
     public class Message {
         public string id;
         public string parentMessageId;
+        public string upperMessageId;
         public string channelId;
         public User author;
         public string content;

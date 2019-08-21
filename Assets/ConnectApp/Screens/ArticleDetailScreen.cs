@@ -108,12 +108,12 @@ namespace ConnectApp.screens {
                                 AnalyticsManager.ClickLike("Article_Remove_Comment", this.articleId, message.id);
                                 return dispatcher.dispatch<IPromise>(Actions.removeLikeComment(message));
                             },
-                        sendComment = (channelId, content, nonce, parentMessageId) => {
+                        sendComment = (channelId, content, nonce, parentMessageId, upperMessageId) => {
                             AnalyticsManager.ClickPublishComment(
                                 parentMessageId == null ? "Article" : "Article_Comment", channelId, parentMessageId);
                             CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog());
                             return dispatcher.dispatch<IPromise>(
-                                Actions.sendComment(this.articleId, channelId, content, nonce, parentMessageId));
+                                Actions.sendComment(this.articleId, channelId, content, nonce, parentMessageId, upperMessageId));
                         },
                         startFollowUser = userId =>
                             dispatcher.dispatch(new StartFollowUserAction {followUserId = userId}),
@@ -759,7 +759,14 @@ namespace ConnectApp.screens {
                 bool isPraised = _isPraised(message: message, loginUserId: this.widget.viewModel.loginUserId);
                 var parentName = "";
                 var parentAuthorId = "";
-                if (message.parentMessageId.isNotEmpty()) {
+                if (message.upperMessageId.isNotEmpty()) {
+                    if (messageDict.ContainsKey(key: message.upperMessageId)) {
+                        var parentMessage = messageDict[key: message.upperMessageId];
+                        parentName = parentMessage.author.fullName;
+                        parentAuthorId = parentMessage.author.id;
+                    }
+                }
+                else if (message.parentMessageId.isNotEmpty()) {
                     if (messageDict.ContainsKey(key: message.parentMessageId)) {
                         var parentMessage = messageDict[key: message.parentMessageId];
                         parentName = parentMessage.author.fullName;
@@ -788,11 +795,12 @@ namespace ConnectApp.screens {
                         isLoggedIn: this.widget.viewModel.isLoggedIn,
                         reportType: ReportType.comment,
                         () => this.widget.actionModel.pushToLogin(),
-                        () => this.widget.actionModel.pushToReport(commentId, ReportType.comment)
+                        () => this.widget.actionModel.pushToReport(arg1: commentId, arg2: ReportType.comment)
                     ),
                     replyCallBack: () => this._comment(
                         "Article_Comment",
-                        commentId: commentId,
+                        message.parentMessageId.isNotEmpty() ? message.parentMessageId : commentId,
+                        message.parentMessageId.isNotEmpty() ? commentId : "",
                         message.author.fullName.isEmpty() ? "" : message.author.fullName
                     ),
                     praiseCallBack: () => {
@@ -880,7 +888,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        void _comment(string type, string commentId = "", string replyUserName = null) {
+        void _comment(string type, string parentMessageId = "", string upperMessageId = "", string replyUserName = null) {
             if (!this.widget.viewModel.isLoggedIn) {
                 this.widget.actionModel.pushToLogin();
             }
@@ -889,17 +897,18 @@ namespace ConnectApp.screens {
                     type: type,
                     channelId: this._article.channelId,
                     title: this._article.title,
-                    commentId: commentId
+                    commentId: parentMessageId
                 );
                 ActionSheetUtils.showModalActionSheet(new CustomInput(
                     replyUserName: replyUserName,
                     text => {
                         ActionSheetUtils.hiddenModalPopup();
                         this.widget.actionModel.sendComment(
-                            this._article.channelId,
-                            text,
+                            arg1: this._article.channelId,
+                            arg2: text,
                             Snowflake.CreateNonce(),
-                            commentId
+                            arg4: parentMessageId,
+                            arg5: upperMessageId
                         );
                     })
                 );

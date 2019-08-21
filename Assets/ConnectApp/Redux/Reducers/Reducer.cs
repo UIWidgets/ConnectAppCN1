@@ -481,10 +481,19 @@ namespace ConnectApp.redux.reducers {
 
                     if (state.messageState.channelMessageDict.ContainsKey(key: action.channelId)) {
                         var messageDict = state.messageState.channelMessageDict[key: action.channelId];
-                        if (messageDict.ContainsKey(key: action.parentMessageId)) {
-                            var message = messageDict[key: action.parentMessageId];
-                            message.replyMessageIds.Add(item: action.message.id);
-                            messageDict[key: action.parentMessageId] = message;
+                        if (action.upperMessageId.isNotEmpty()) {
+                            if (messageDict.ContainsKey(key: action.upperMessageId)) {
+                                var message = messageDict[key: action.upperMessageId];
+                                message.replyMessageIds.Add(item: action.message.id);
+                                messageDict[key: action.upperMessageId] = message;
+                            }
+                        }
+                        else {
+                            if (messageDict.ContainsKey(key: action.parentMessageId)) {
+                                var message = messageDict[key: action.parentMessageId];
+                                message.replyMessageIds.Add(item: action.message.id);
+                                messageDict[key: action.parentMessageId] = message;
+                            }
                         }
 
                         state.messageState.channelMessageDict[key: action.channelId] = messageDict;
