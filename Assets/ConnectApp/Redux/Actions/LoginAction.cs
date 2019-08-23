@@ -106,10 +106,13 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object loginByQr(string token) {
+        public static object loginByQr(string token, string action) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return LoginApi.LoginByQr(token: token)
+                return LoginApi.LoginByQr(token: token, action: action)
                     .Then(success => {
+                        if (action != "confirm") {
+                            return;
+                        }
                         CustomDialogUtils.hiddenCustomDialog();
                         if (Router.navigator.canPop()) {
                             Router.navigator.pop();
@@ -120,6 +123,9 @@ namespace ConnectApp.redux.actions {
                         );
                     })
                     .Catch(error => {
+                        if (action != "confirm") {
+                            return;
+                        }
                         CustomDialogUtils.hiddenCustomDialog();
                         if (Router.navigator.canPop()) {
                             Router.navigator.pop();

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Web;
+using ConnectApp.Api;
 using ConnectApp.Main;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
@@ -17,7 +18,7 @@ namespace ConnectApp.Plugins {
 
         public static BuildContext context;
         static bool isListen;
-        static string _token;
+        public static string qrCodeToken;
         static string _loginSubId;
 
         static void addListener() {
@@ -32,11 +33,12 @@ namespace ConnectApp.Plugins {
                     EventBus.unSubscribe(sName: EventBusConstant.login_success, id: _loginSubId);
                 }
                 _loginSubId = EventBus.subscribe(sName: EventBusConstant.login_success, args => {
-                    if (_token.isNotEmpty()) {
+                    if (qrCodeToken.isNotEmpty()) {
+                        LoginApi.LoginByQr(token: qrCodeToken, "check");
                         StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToQRScanLoginAction {
-                            token = _token
+                            token = qrCodeToken
                         });
-                        _token = null;
+                        qrCodeToken = null;
                     }
                 });
             }
@@ -66,16 +68,20 @@ namespace ConnectApp.Plugins {
                                     if (token.isNotEmpty()) {
                                         var isLoggedIn = StoreProvider.store.getState().loginState.isLoggedIn;
                                         if (isLoggedIn) {
+                                            LoginApi.LoginByQr(token: token, "check");
                                             StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToQRScanLoginAction {
                                                 token = token
                                             });
                                         }
                                         else {
-                                            _token = token;
+                                            qrCodeToken = token;
                                             StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToAction {
                                                 routeName = MainNavigatorRoutes.Login
                                             });
                                         }
+                                    }
+                                    else {
+                                        StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToWebViewAction {url = qrCode});
                                     }
                                 }
                                 else {

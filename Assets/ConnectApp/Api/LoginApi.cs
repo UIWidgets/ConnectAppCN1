@@ -35,10 +35,11 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static IPromise<bool> LoginByQr(string token) {
+        public static IPromise<bool> LoginByQr(string token, string action) {
             var promise = new Promise<bool>();
             var para = new QRLoginParameter {
-                token = token
+                token = token,
+                action = action
             };
             var request = HttpManager.POST($"{Config.apiAddress}/api/auth/qrlogin", para);
             HttpManager.resume(request).Then(responseText => {

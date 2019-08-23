@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
+using ConnectApp.Main;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
@@ -30,7 +31,8 @@ namespace ConnectApp.screens {
                 builder: (context1, viewModel, dispatcher) => {
                     return new QRScanLoginScreen(
                         viewModel: viewModel,
-                        () => dispatcher.dispatch<IPromise>(Actions.loginByQr(token: this.token)),
+                        () => dispatcher.dispatch<IPromise>(Actions.loginByQr(token: this.token, "confirm")),
+                        () => dispatcher.dispatch<IPromise>(Actions.loginByQr(token: this.token, "cancel")),
                         () => dispatcher.dispatch(new MainNavigatorPopAction())
                     );
                 }
@@ -38,21 +40,54 @@ namespace ConnectApp.screens {
         }
     }
 
-    public class QRScanLoginScreen : StatelessWidget {
+    public class QRScanLoginScreen : StatefulWidget {
         public QRScanLoginScreen(
             QRScanLoginScreenViewModel viewModel = null,
             Func<IPromise> loginByQr = null,
+            Action cancelLoginByQr = null,
             Action mainRouterPop = null,
             Key key = null
         ) : base(key: key) {
             this.viewModel = viewModel;
             this.loginByQr = loginByQr;
+            this.cancelLoginByQr = cancelLoginByQr;
             this.mainRouterPop = mainRouterPop;
         }
 
-        readonly QRScanLoginScreenViewModel viewModel;
-        readonly Func<IPromise> loginByQr;
-        readonly Action mainRouterPop;
+        public readonly QRScanLoginScreenViewModel viewModel;
+        public readonly Func<IPromise> loginByQr;
+        public readonly Action cancelLoginByQr;
+        public readonly Action mainRouterPop;
+        public override State createState() {
+            return new _QRScanLoginScreenState();
+        }
+    }
+
+    public class _QRScanLoginScreenState : State<QRScanLoginScreen>, RouteAware {
+
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
+        }
+
+        public override void dispose() {
+            Router.routeObserve.unsubscribe(this);
+            base.dispose();
+        }
+
+        public void didPop() {
+            this.widget.cancelLoginByQr();
+        }
+
+        public void didPopNext() {
+        }
+
+        public void didPush() {
+        }
+
+        public void didPushNext() {
+        }
+
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
@@ -74,7 +109,7 @@ namespace ConnectApp.screens {
 
         Widget _buildNavigationBar() {
             return new CustomAppBar(
-                () => this.mainRouterPop(),
+                () => this.widget.mainRouterPop(),
                 new Text(
                     "扫描结果",
                     style: CTextStyle.PXLargeMedium
@@ -83,7 +118,7 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildContent() {
-            var user = this.viewModel.userDict[key: this.viewModel.userId];
+            var user = this.widget.viewModel.userDict[key: this.widget.viewModel.userId];
             return new Container(
                 child: new Column(
                     children: new List<Widget> {
@@ -114,7 +149,7 @@ namespace ConnectApp.screens {
                             )
                         ),
                         new Container(
-                            margin: EdgeInsets.only(top: 120),
+                            margin: EdgeInsets.only(top: 120, bottom: 16),
                             child: new CustomButton(
                                 padding: EdgeInsets.zero,
                                 onPressed: () => {
@@ -123,7 +158,7 @@ namespace ConnectApp.screens {
                                             message: "登录中"
                                         )
                                     );
-                                    this.loginByQr();
+                                    this.widget.loginByQr();
                                 },
                                 child: new Container(
                                     height: 40,
@@ -141,8 +176,13 @@ namespace ConnectApp.screens {
                             )
                         ),
                         new CustomButton(
-                            onPressed: () => this.mainRouterPop(),
+                            padding: EdgeInsets.zero,
+                            onPressed: () => this.widget.mainRouterPop(),
                             child: new Container(
+                                color: CColors.Transparent,
+                                height: 40,
+                                margin: EdgeInsets.only(16, right: 16),
+                                alignment: Alignment.center,
                                 child: new Text(
                                     "取消",
                                     style: CTextStyle.PLargeBody5
