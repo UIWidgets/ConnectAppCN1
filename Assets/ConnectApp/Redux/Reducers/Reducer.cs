@@ -484,14 +484,14 @@ namespace ConnectApp.redux.reducers {
                         if (action.upperMessageId.isNotEmpty()) {
                             if (messageDict.ContainsKey(key: action.upperMessageId)) {
                                 var message = messageDict[key: action.upperMessageId];
-                                message.lowerMessageIds.Add(item: action.message.id);
+                                (message.lowerMessageIds ?? new List<string>()).Add(item: action.message.id);
                                 messageDict[key: action.upperMessageId] = message;
                             }
                         }
                         else {
                             if (messageDict.ContainsKey(key: action.parentMessageId)) {
                                 var message = messageDict[key: action.parentMessageId];
-                                message.replyMessageIds.Add(item: action.message.id);
+                                (message.replyMessageIds ?? new List<string>()).Add(item: action.message.id);
                                 messageDict[key: action.parentMessageId] = message;
                             }
                         }

@@ -68,10 +68,10 @@ namespace ConnectApp.Components {
                         Transform.rotate(
                             degree: this._animation.value,
                             alignment: Alignment.bottomCenter,
-                            child: new Icon(
-                                icon: Icons.egg,
-                                size: 21,
-                                color: CColors.Icon
+                            child: Image.asset(
+                                "image/egg",
+                                width: 21,
+                                height: 21
                             )
                         ),
                         new Container(
