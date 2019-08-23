@@ -47,6 +47,9 @@ namespace ConnectApp.Components {
                 return new Container();
             }
 
+            var replyCount = this.message.parentMessageId.isNotEmpty()
+                ? this.message.lowerMessageIds.Count
+                : this.message.replyMessageIds.Count;
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(16, 16, 16),
@@ -95,7 +98,7 @@ namespace ConnectApp.Components {
                                                                 child: new Container(
                                                                     margin: EdgeInsets.only(15),
                                                                     child: new Text(
-                                                                        $"回复 {CStringUtils.CountToString(count: this.message.replyMessageIds.Count)}",
+                                                                        $"回复 {CStringUtils.CountToString(count: replyCount)}",
                                                                         style: CTextStyle.PRegularBody4
                                                                     )
                                                                 )

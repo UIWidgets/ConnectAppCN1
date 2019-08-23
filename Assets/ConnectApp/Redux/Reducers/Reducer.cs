@@ -484,7 +484,7 @@ namespace ConnectApp.redux.reducers {
                         if (action.upperMessageId.isNotEmpty()) {
                             if (messageDict.ContainsKey(key: action.upperMessageId)) {
                                 var message = messageDict[key: action.upperMessageId];
-                                message.replyMessageIds.Add(item: action.message.id);
+                                message.lowerMessageIds.Add(item: action.message.id);
                                 messageDict[key: action.upperMessageId] = message;
                             }
                         }

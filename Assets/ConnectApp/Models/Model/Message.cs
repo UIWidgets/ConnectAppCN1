@@ -13,6 +13,7 @@ namespace ConnectApp.Models.Model {
         public string nonce;
         public bool mentionEveryone;
         public List<string> replyMessageIds;
+        public List<string> lowerMessageIds;
         public List<Reaction> reactions;
         public List<User> mentions;
         public string deletedTime;

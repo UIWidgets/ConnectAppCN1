@@ -411,8 +411,8 @@ namespace ConnectApp.screens {
         Widget _buildArticleTabBar() {
             return new ArticleTabBar(
                 this._article.like && this.widget.viewModel.isLoggedIn,
-                () => this._comment("Article"),
-                () => this._comment("Article"),
+                () => this._sendComment("Article"),
+                () => this._sendComment("Article"),
                 () => {
                     if (!this.widget.viewModel.isLoggedIn) {
                         this.widget.actionModel.pushToLogin();
@@ -797,7 +797,7 @@ namespace ConnectApp.screens {
                         () => this.widget.actionModel.pushToLogin(),
                         () => this.widget.actionModel.pushToReport(arg1: commentId, arg2: ReportType.comment)
                     ),
-                    replyCallBack: () => this._comment(
+                    replyCallBack: () => this._sendComment(
                         "Article_Comment",
                         message.parentMessageId.isNotEmpty() ? message.parentMessageId : commentId,
                         message.parentMessageId.isNotEmpty() ? commentId : "",
@@ -888,7 +888,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        void _comment(string type, string parentMessageId = "", string upperMessageId = "", string replyUserName = null) {
+        void _sendComment(string type, string parentMessageId = "", string upperMessageId = "", string replyUserName = null) {
             if (!this.widget.viewModel.isLoggedIn) {
                 this.widget.actionModel.pushToLogin();
             }
