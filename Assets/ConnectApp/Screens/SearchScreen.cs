@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
+using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
@@ -88,13 +90,14 @@ namespace ConnectApp.screens {
         }
     }
 
-    class _SearchScreenState : State<SearchScreen> {
+    class _SearchScreenState : State<SearchScreen>, RouteAware {
         readonly TextEditingController _controller = new TextEditingController("");
         FocusNode _focusNode;
         int _selectedIndex;
 
         public override void initState() {
             base.initState();
+            StatusBarManager.statusBarStyle(false);
             this._focusNode = new FocusNode();
             this._selectedIndex = 0;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
@@ -108,9 +111,15 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.fetchPopularSearch();
             });
         }
+        
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
+        }
 
         public override void dispose() {
             this._controller.dispose();
+            Router.routeObserve.unsubscribe(this);
             base.dispose();
         }
 
@@ -387,6 +396,19 @@ namespace ConnectApp.screens {
                     children: widgets
                 )
             );
+        }
+        
+        public void didPopNext() {
+            StatusBarManager.statusBarStyle(false);
+        }
+
+        public void didPush() {
+        }
+
+        public void didPop() {
+        }
+
+        public void didPushNext() {
         }
     }
 }

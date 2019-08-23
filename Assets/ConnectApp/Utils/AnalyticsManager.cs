@@ -435,7 +435,26 @@ namespace ConnectApp.Utils {
             AnalyticsApi.AnalyticsApp(userId, device, "ActiveTime", DateTime.UtcNow, data);
         }
 
+        public static void AnalyticsClickEgg(int index) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            var userId = UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null;
+            var device = deviceId() + (SystemInfo.deviceModel ?? "");
+            var data = new List<Dictionary<string, string>> {
+                new Dictionary<string, string> {
+                    {"key", "index"}, {"dataType", "int"}, {"value", index.ToString()}
+                }
+            };
+            AnalyticsApi.AnalyticsApp(userId, device, "ClickEgg", DateTime.UtcNow, data);
+        }
+
         public static string deviceId() {
+            if (Application.isEditor) {
+                return "Editor";
+            }
+
             return getDeviceID();
         }
 

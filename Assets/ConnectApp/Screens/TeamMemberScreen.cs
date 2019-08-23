@@ -12,8 +12,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
@@ -55,12 +55,12 @@ namespace ConnectApp.screens {
                         startFetchMember = () => dispatcher.dispatch(new StartFetchTeamMemberAction()),
                         fetchMember = pageNumber =>
                             dispatcher.dispatch<IPromise>(Actions.fetchTeamMember(this.teamId, pageNumber)),
-                        startFollowUser = followUserId => dispatcher.dispatch(new StartFetchFollowUserAction {
+                        startFollowUser = followUserId => dispatcher.dispatch(new StartFollowUserAction {
                             followUserId = followUserId
                         }),
                         followUser = followUserId =>
                             dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(followUserId)),
-                        startUnFollowUser = unFollowUserId => dispatcher.dispatch(new StartFetchUnFollowUserAction {
+                        startUnFollowUser = unFollowUserId => dispatcher.dispatch(new StartUnFollowUserAction {
                             unFollowUserId = unFollowUserId
                         }),
                         unFollowUser = unFollowUserId =>
@@ -99,7 +99,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    class _TeamMemberScreenState : State<TeamMemberScreen> {
+    class _TeamMemberScreenState : State<TeamMemberScreen>, RouteAware {
         int _pageNumber;
         RefreshController _refreshController;
 
@@ -112,6 +112,16 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.startFetchMember();
                 this.widget.actionModel.fetchMember(1);
             });
+        }
+
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
+        }
+
+        public override void dispose() {
+            Router.routeObserve.unsubscribe(this);
+            base.dispose();
         }
 
         void _onRefresh(bool up) {
@@ -246,7 +256,8 @@ namespace ConnectApp.screens {
             else {
                 if (this.widget.viewModel.currentUserId == user.id) {
                     userType = UserType.me;
-                } else if (user.followUserLoading ?? false) {
+                }
+                else if (user.followUserLoading ?? false) {
                     userType = UserType.loading;
                 }
                 else if (this.widget.viewModel.followMap.ContainsKey(key: user.id)) {
@@ -261,6 +272,19 @@ namespace ConnectApp.screens {
                 () => this._onFollow(userType: userType, userId: user.id),
                 new ObjectKey(value: user.id)
             );
+        }
+
+        public void didPopNext() {
+            StatusBarManager.statusBarStyle(false);
+        }
+
+        public void didPush() {
+        }
+
+        public void didPop() {
+        }
+
+        public void didPushNext() {
         }
     }
 }

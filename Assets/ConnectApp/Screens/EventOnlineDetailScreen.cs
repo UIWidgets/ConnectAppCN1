@@ -8,6 +8,7 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
+using ConnectApp.Plugins;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using RSG;
@@ -65,23 +66,22 @@ namespace ConnectApp.screens {
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
-                        pushToUserDetail = userId => dispatcher.dispatch(
-                            new MainNavigatorPushToUserDetailAction {
-                                userId = userId
-                            }
-                        ),
+                        pushToUserDetail = userId => {
+                            EventBus.publish(EventBusConstant.pauseVideoPlayer, new List<object>());
+                            dispatcher.dispatch(
+                                new MainNavigatorPushToUserDetailAction {
+                                    userId = userId
+                                }
+                            );
+                        },
                         openUrl = url => {
                             EventBus.publish(EventBusConstant.pauseVideoPlayer, new List<object>());
-                            dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
-                                url = url
-                            });
+                            OpenUrlUtil.OpenUrl(url, dispatcher);
                         },
                         copyText = text => dispatcher.dispatch(new CopyTextAction {text = text}),
                         startFetchEventDetail = () => dispatcher.dispatch(new StartFetchEventDetailAction()),
                         fetchEventDetail = (id, eventType) =>
                             dispatcher.dispatch<IPromise>(Actions.fetchEventDetail(id, eventType)),
-                        startJoinEvent = () => dispatcher.dispatch(new StartJoinEventAction()),
-                        joinEvent = id => dispatcher.dispatch<IPromise>(Actions.joinEvent(id)),
                         startSendMessage = () => dispatcher.dispatch(new StartSendMessageAction()),
                         sendMessage = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
                             Actions.sendMessage(channelId, content, nonce, parentMessageId)),
@@ -91,8 +91,9 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch<IPromise>(
                                 Actions.fetchMessages(channelId, currOldestMessageId, isFirstLoad)
                             ),
-                        shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
-                            Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
+                        shareToWechat = (type, title, description, linkUrl, imageUrl, path) =>
+                            dispatcher.dispatch<IPromise>(
+                                Actions.shareToWechat(type, title, description, linkUrl, imageUrl, path, true))
                     };
                     return new EventOnlineDetailScreen(viewModel, actionModel);
                 }
@@ -136,6 +137,7 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
+            StatusBarManager.statusBarStyle(false);
             this._showNavBarShadow = true;
             this._titleHeight = 0.0f;
             this._isHaveTitle = false;
@@ -165,9 +167,9 @@ namespace ConnectApp.screens {
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            Router.routeObserve.subscribe(this, (PageRoute)ModalRoute.of(this.context));
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
         }
-        
+
         public override void dispose() {
             EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
             Router.routeObserve.unsubscribe(this);
@@ -227,7 +229,8 @@ namespace ConnectApp.screens {
                 eventObj = this.widget.viewModel.eventsDict[this.widget.viewModel.eventId];
             }
 
-            if ((this.widget.viewModel.eventDetailLoading || eventObj?.user == null) && !(eventObj?.isNotFirst ?? false)) {
+            if ((this.widget.viewModel.eventDetailLoading || eventObj?.user == null) &&
+                !(eventObj?.isNotFirst ?? false)) {
                 return new EventDetailLoading(eventType: EventType.online,
                     mainRouterPop: this.widget.actionModel.mainRouterPop);
             }
@@ -294,7 +297,7 @@ namespace ConnectApp.screens {
                 onPressed: () => this._showShareView(eventObj),
                 child: new Container(
                     color: CColors.Transparent,
-                    child: new Icon(Icons.share, size: 28,
+                    child: new Icon(Icons.share, size: 24,
                         color: this._showNavBarShadow ? CColors.White : CColors.Icon))
             );
             Widget titleWidget = new Container();
@@ -349,7 +352,7 @@ namespace ConnectApp.screens {
                             onPressed: () => { this.widget.actionModel.mainRouterPop(); },
                             child: new Icon(
                                 Icons.arrow_back,
-                                size: 28,
+                                size: 24,
                                 color: this._showNavBarShadow ? CColors.White : CColors.Icon
                             )
                         ),
@@ -430,115 +433,218 @@ namespace ConnectApp.screens {
 
         Widget _buildEventBottom(IEvent eventObj, EventType eventType, EventStatus eventStatus,
             bool isLoggedIn) {
-            if (eventStatus != EventStatus.future && eventType == EventType.online && isLoggedIn) {
+            if (!WechatPlugin.instance().isInstalled() || eventType == EventType.offline) {
                 return new Container();
             }
 
-            var onlineCount = eventObj.onlineMemberCount;
-            var recordWatchCount = eventObj.recordWatchCount;
-            var userIsCheckedIn = eventObj.userIsCheckedIn;
-            var title = "";
-            var subTitle = "";
-            if (eventStatus == EventStatus.live) {
-                title = "正在直播";
-                subTitle = $"{onlineCount}人正在观看";
-            }
-
-            if (eventStatus == EventStatus.past) {
-                title = "回放";
-                subTitle = $"{recordWatchCount}次观看";
-            }
-
-            if (eventStatus == EventStatus.future || eventStatus == EventStatus.countDown) {
-                var begin = eventObj.begin != null ? eventObj.begin : new TimeMap();
-                var startTime = begin.startTime;
-                if (startTime.isNotEmpty()) {
-                    subTitle = DateConvert.GetFutureTimeFromNow(startTime);
-                }
-
-                title = "距离开始还有";
-            }
-
-            var backgroundColor = CColors.PrimaryBlue;
-            var joinInText = "立即加入";
-            var textStyle = CTextStyle.PLargeMediumWhite;
-            if ((userIsCheckedIn ?? false) && isLoggedIn) {
-                backgroundColor = CColors.Disable;
-                joinInText = "已加入";
-                textStyle = CTextStyle.PLargeMediumWhite;
-            }
-
-            Widget child = new Text(
-                joinInText,
-                style: textStyle
-            );
-
-            if (this.widget.viewModel.joinEventLoading) {
-                child = new CustomActivityIndicator(
-                    loadingColor: LoadingColor.white
-                );
-            }
-
             return new Container(
-                height: 64,
-                padding: EdgeInsets.symmetric(horizontal: 16),
+                height: 56,
+                padding: EdgeInsets.symmetric(8, 16),
                 decoration: new BoxDecoration(
-                    CColors.White,
-                    border: new Border(new BorderSide(CColors.Separator))
+                    color: CColors.White,
+                    border: new Border(new BorderSide(color: CColors.Separator))
                 ),
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: new List<Widget> {
-                        new Column(
+                child: new CustomButton(
+                    onPressed: () => {
+                        CustomDialogUtils.showCustomDialog(
+                            barrierColor: Color.fromRGBO(0, 0, 0, 0.5f),
+                            child: new CustomAlertDialog(
+                                "即将前往微信小程序\n开始观看",
+                                null,
+                                new List<Widget> {
+                                    new CustomButton(
+                                        child: new Text(
+                                            "稍后再说",
+                                            style: new TextStyle(
+                                                height: 1.33f,
+                                                fontSize: 16,
+                                                fontFamily: "Roboto-Regular",
+                                                color: new Color(0xFF959595)
+                                            ),
+                                            textAlign: TextAlign.center
+                                        ),
+                                        onPressed: CustomDialogUtils.hiddenCustomDialog
+                                    ),
+                                    new CustomButton(
+                                        child: new Text(
+                                            "立即前往",
+                                            style: CTextStyle.PLargeBlue,
+                                            textAlign: TextAlign.center
+                                        ),
+                                        onPressed: () => {
+                                            CustomDialogUtils.hiddenCustomDialog();
+                                            WechatPlugin.instance().context = this.context;
+                                            WechatPlugin.instance().currentEventId = eventObj.id;
+                                            var path = CStringUtils.CreateMiniPath(id: eventObj.id,
+                                                title: eventObj.title);
+                                            if (path.isNotEmpty()) {
+                                                WechatPlugin.instance().toOpenMiNi(path);
+                                            }
+                                        }
+                                    )
+                                }
+                            )
+                        );
+                    },
+                    padding: EdgeInsets.zero,
+                    child: new Container(
+                        decoration: new BoxDecoration(
+                            color: CColors.PrimaryBlue,
+                            borderRadius: BorderRadius.all(4)
+                        ),
+                        child: new Row(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: new List<Widget> {
                                 new Text(
-                                    title,
-                                    style: CTextStyle.PSmallBody4
-                                ),
-                                new Container(height: 2),
-                                new Text(
-                                    subTitle,
-                                    style: CTextStyle.H5Body
+                                    "进入微信小程序",
+                                    style: CTextStyle.PLargeMediumWhite.merge(new TextStyle(height: 1))
                                 )
                             }
-                        ),
-                        new CustomButton(
-                            onPressed: () => {
-                                if (this.widget.viewModel.joinEventLoading) {
-                                    return;
-                                }
-
-                                if (!this.widget.viewModel.isLoggedIn) {
-                                    this.widget.actionModel.pushToLogin();
-                                }
-                                else {
-                                    if (!(userIsCheckedIn ?? false)) {
-                                        this.widget.actionModel.startJoinEvent();
-                                        this.widget.actionModel.joinEvent(this.widget.viewModel.eventId);
-                                    }
-                                }
-                            },
-                            child: new Container(
-                                width: 96,
-                                height: 40,
-                                decoration: new BoxDecoration(
-                                    backgroundColor,
-                                    borderRadius: BorderRadius.all(4)
-                                ),
-                                alignment: Alignment.center,
-                                child: new Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: new List<Widget> {
-                                        child
-                                    }
-                                )
-                            )
                         )
-                    }
+                    )
                 )
             );
+
+//            var onlineCount = eventObj.onlineMemberCount;
+//            var recordWatchCount = eventObj.recordWatchCount;
+//            var userIsCheckedIn = eventObj.userIsCheckedIn;
+//            var title = "";
+//            var subTitle = "";
+//            if (eventStatus == EventStatus.live) {
+//                title = "正在直播";
+//                subTitle = $"{onlineCount}人正在观看";
+//            }
+//
+//            if (eventStatus == EventStatus.past) {
+//                title = "回放";
+//                subTitle = $"{recordWatchCount}次观看";
+//            }
+//
+//            if (eventStatus == EventStatus.future || eventStatus == EventStatus.countDown) {
+//                var begin = eventObj.begin != null ? eventObj.begin : new TimeMap();
+//                var startTime = begin.startTime;
+//                if (startTime.isNotEmpty()) {
+//                    subTitle = DateConvert.GetFutureTimeFromNow(startTime);
+//                }
+//
+//                title = "距离开始还有";
+//            }
+//
+//            var backgroundColor = CColors.PrimaryBlue;
+//            var joinInText = "立即加入";
+//            var textStyle = CTextStyle.PLargeMediumWhite;
+//
+//            Widget child = new Text(
+//                joinInText,
+//                style: textStyle
+//            );
+//
+//            if (this.widget.viewModel.joinEventLoading) {
+//                child = new CustomActivityIndicator(
+//                    loadingColor: LoadingColor.white
+//                );
+//            }
+//
+//            return new Container(
+//                height: 64,
+//                padding: EdgeInsets.symmetric(horizontal: 16),
+//                margin: EdgeInsets.only(bottom: MediaQuery.of(this.context).padding.bottom),
+//                decoration: new BoxDecoration(
+//                    CColors.White,
+//                    border: new Border(new BorderSide(CColors.Separator))
+//                ),
+//                child: new Row(
+//                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                    children: new List<Widget> {
+//                        new Column(
+//                            mainAxisAlignment: MainAxisAlignment.center,
+//                            crossAxisAlignment: CrossAxisAlignment.start,
+//                            children: new List<Widget> {
+//                                new Text(
+//                                    title,
+//                                    style: CTextStyle.PSmallBody4
+//                                ),
+//                                new Container(height: 2),
+//                                new Text(
+//                                    subTitle,
+//                                    style: CTextStyle.H5Body
+//                                )
+//                            }
+//                        ),
+//                        new CustomButton(
+//                            onPressed: () => {
+//                                if (this.widget.viewModel.joinEventLoading) {
+//                                    return;
+//                                }
+//
+//                                if (!this.widget.viewModel.isLoggedIn) {
+//                                    this.widget.actionModel.pushToLogin();
+//                                }
+//                                else {
+//                                    if (!WechatPlugin.instance().isInstalled()) {
+//                                        CustomToast.show(new CustomToastItem(this.context, "需要安装微信才能打开小程序",
+//                                            gravity: ToastGravity.center));
+//                                        return;
+//                                    }
+//
+//                                    CustomDialogUtils.showCustomDialog(
+//                                        barrierColor: Color.fromRGBO(0, 0, 0, 0.5f),
+//                                        child: new CustomAlertDialog(
+//                                            "即将前往微信小程序\n开始观看",
+//                                            null,
+//                                            new List<Widget> {
+//                                                new CustomButton(
+//                                                    child: new Text(
+//                                                        "稍后再说",
+//                                                        style: new TextStyle(
+//                                                            height: 1.33f,
+//                                                            fontSize: 16,
+//                                                            fontFamily: "Roboto-Regular",
+//                                                            color: new Color(0xFF959595)
+//                                                        ),
+//                                                        textAlign: TextAlign.center
+//                                                    ),
+//                                                    onPressed: () => { CustomDialogUtils.hiddenCustomDialog(); }
+//                                                ),
+//                                                new CustomButton(
+//                                                    child: new Text(
+//                                                        "立即前往",
+//                                                        style: CTextStyle.PLargeBlue,
+//                                                        textAlign: TextAlign.center
+//                                                    ),
+//                                                    onPressed: () => {
+//                                                        CustomDialogUtils.hiddenCustomDialog();
+//                                                        WechatPlugin.instance().context = this.context;
+//                                                        WechatPlugin.instance().currentEventId = eventObj.id;
+//                                                        var path =
+//                                                            $"pages/Detail/Detail?id={eventObj.id}&title={eventObj.title}&app=true";
+//                                                        WechatPlugin.instance().toOpenMiNi(path);
+//                                                    }
+//                                                )
+//                                            }
+//                                        )
+//                                    );
+//                                }
+//                            },
+//                            child: new Container(
+//                                width: 96,
+//                                height: 40,
+//                                decoration: new BoxDecoration(
+//                                    backgroundColor,
+//                                    borderRadius: BorderRadius.all(4)
+//                                ),
+//                                alignment: Alignment.center,
+//                                child: new Row(
+//                                    mainAxisAlignment: MainAxisAlignment.center,
+//                                    children: new List<Widget> {
+//                                        child
+//                                    }
+//                                )
+//                            )
+//                        )
+//                    }
+//                )
+//            );
         }
 
         Widget _buildChatWindow() {
@@ -734,22 +840,27 @@ namespace ConnectApp.screens {
                 new ShareView(
                     projectType: ProjectType.iEvent,
                     onPressed: type => {
-                        AnalyticsManager.ClickShare(type, "Event", "Event_" + eventObj.id, eventObj.title);
-
-                        var linkUrl =
-                            $"{Config.apiAddress}/events/{eventObj.id}";
+                        AnalyticsManager.ClickShare(shareType: type, "Event", "Event_" + eventObj.id,
+                            title: eventObj.title);
+                        var linkUrl = $"{Config.apiAddress}/events/{eventObj.id}";
+                        var path = CStringUtils.CreateMiniPath(id: eventObj.id, title: eventObj.title);
                         if (type == ShareType.clipBoard) {
-                            this.widget.actionModel.copyText(linkUrl);
-                            CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
+                            this.widget.actionModel.copyText(obj: linkUrl);
+                            CustomDialogUtils.showToast("复制链接成功", iconData: Icons.check_circle_outline);
                         }
                         else {
-                            var imageUrl = $"{eventObj.avatar}.200x0x1.jpg";
+                            var imageUrl = CImageUtils.SizeTo200ImageUrl(imageUrl: eventObj.avatar);
                             CustomDialogUtils.showCustomDialog(
                                 child: new CustomLoadingDialog()
                             );
-                            this.widget.actionModel.shareToWechat(type, eventObj.title, eventObj.shortDescription,
-                                    linkUrl,
-                                    imageUrl).Then(CustomDialogUtils.hiddenCustomDialog)
+                            this.widget.actionModel.shareToWechat(
+                                    arg1: type,
+                                    arg2: eventObj.title,
+                                    arg3: eventObj.shortDescription,
+                                    arg4: linkUrl,
+                                    arg5: imageUrl,
+                                    arg6: path)
+                                .Then(onResolved: CustomDialogUtils.hiddenCustomDialog)
                                 .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
                         }
                     }
@@ -758,12 +869,15 @@ namespace ConnectApp.screens {
         }
 
         public void didPopNext() {
+            StatusBarManager.statusBarStyle(false);
             VideoPlayerManager.instance.isRotation = true;
         }
 
-        public void didPush() {}
+        public void didPush() {
+        }
 
-        public void didPop() {}
+        public void didPop() {
+        }
 
         public void didPushNext() {
             VideoPlayerManager.instance.isRotation = false;

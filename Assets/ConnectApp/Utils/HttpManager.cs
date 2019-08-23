@@ -3,9 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using ConnectApp.Api;
+using ConnectApp.Constants;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RSG;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
@@ -34,7 +36,7 @@ namespace ConnectApp.Utils {
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             UnityWebRequest.ClearCookieCache();
             request.SetRequestHeader(COOKIE, _cookieHeader());
-            var cookie = _cookieHeader();
+            request.SetRequestHeader("AppVersion", Config.versionNumber);
             return request;
         }
 
@@ -180,10 +182,19 @@ namespace ConnectApp.Utils {
         }
 
         public static void initVSCode() {
-            LoginApi.InitData().Then(code => {
-                if (code.isNotEmpty()) {
-                    vsCookie = $"VS={code}";
-                    updateCookie(vsCookie);
+            LoginApi.InitData().Then(dict => {
+                if (dict.ContainsKey("VS")) {
+                    var code = (string) dict["VS"];
+                    if (code.isNotEmpty()) {
+                        vsCookie = $"VS={code}";
+                        updateCookie(vsCookie);
+                    }
+                }
+
+                if (dict.ContainsKey("showEggs")) {
+                    var showEggs = dict["showEggs"] as JArray;
+                    var eggs = showEggs.ToObject<List<bool>>();
+                    StoreProvider.store.dispatcher.dispatch(new InitEggsAction {showEggs = eggs});
                 }
             }).Catch(exception => { });
         }

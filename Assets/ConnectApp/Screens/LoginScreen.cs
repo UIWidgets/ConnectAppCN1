@@ -12,8 +12,8 @@ using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
@@ -88,7 +88,7 @@ namespace ConnectApp.screens {
 
         public readonly bool anonymous;
         public readonly LoginSwitchScreenActionModel actionModel;
-        
+
         public override State createState() {
             return new _LoginSwitchScreen();
         }
@@ -258,7 +258,7 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildWeChatButton(BuildContext context) {
-            if (!WechatPlugin.instance().inInstalled()) {
+            if (!WechatPlugin.instance().isInstalled()) {
                 return new Container();
             }
 

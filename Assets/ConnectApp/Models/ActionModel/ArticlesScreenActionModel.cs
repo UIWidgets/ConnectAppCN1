@@ -12,6 +12,7 @@ namespace ConnectApp.Models.ActionModel {
         public Action<string> pushToUserFollowing;
         public Action<string> pushToUserDetail;
         public Action<string> pushToTeamDetail;
+        public Action pushToReality;
         public Func<ShareType, string, string, string, string, IPromise> shareToWechat;
         public Action<string> startFollowUser;
         public Func<string, IPromise> followUser;
@@ -21,7 +22,7 @@ namespace ConnectApp.Models.ActionModel {
         public Func<string, IPromise> followTeam;
         public Action<string> startUnFollowTeam;
         public Func<string, IPromise> unFollowTeam;
-        public Func<string, string, string, string, string, IPromise> sendComment;
+        public Func<string, string, string, string, string, string, IPromise> sendComment;
         public Func<string, IPromise> likeArticle;
         public Action startFetchArticles;
         public Func<int, IPromise> fetchArticles;

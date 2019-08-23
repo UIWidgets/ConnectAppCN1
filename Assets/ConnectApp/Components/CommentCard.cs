@@ -47,20 +47,9 @@ namespace ConnectApp.Components {
                 return new Container();
             }
 
-            var reply = this.message.parentMessageId.isEmpty()
-                ? new GestureDetector(
-                    onTap: this.replyCallBack,
-                    child: new Container(
-                        margin: EdgeInsets.only(15),
-                        child: new Text(
-                            $"回复 {CStringUtils.CountToString(count: this.message.replyMessageIds.Count)}",
-                            style: CTextStyle.PRegularBody4
-                        )
-                    )
-                )
-                : new GestureDetector(
-                    child: new Container()
-                );
+            var replyCount = this.message.parentMessageId.isNotEmpty()
+                ? this.message.lowerMessageIds.Count
+                : this.message.replyMessageIds.Count;
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(16, 16, 16),
@@ -82,12 +71,13 @@ namespace ConnectApp.Components {
                                     children: new List<Widget> {
                                         this._buildCommentAvatarName(),
                                         this._buildCommentContent(),
-
                                         new Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: new List<Widget> {
-                                                new Text($"{DateConvert.DateStringFromNonce(this.message.nonce)}",
-                                                    style: CTextStyle.PSmallBody4),
+                                                new Text(
+                                                    $"{DateConvert.DateStringFromNonce(nonce: this.message.nonce)}",
+                                                    style: CTextStyle.PSmallBody4
+                                                ),
                                                 new Container(
                                                     child: new Row(
                                                         children: new List<Widget> {
@@ -96,13 +86,23 @@ namespace ConnectApp.Components {
                                                                 child: new Container(
                                                                     color: CColors.White,
                                                                     child: new Text(
-                                                                        $"点赞 {CStringUtils.CountToString(this.message.reactions.Count)}",
+                                                                        $"点赞 {CStringUtils.CountToString(count: this.message.reactions.Count)}",
                                                                         style: this.isPraised
                                                                             ? CTextStyle.PRegularBlue
                                                                             : CTextStyle.PRegularBody4
                                                                     )
-                                                                )),
-                                                            reply
+                                                                )
+                                                            ),
+                                                            new GestureDetector(
+                                                                onTap: this.replyCallBack,
+                                                                child: new Container(
+                                                                    margin: EdgeInsets.only(15),
+                                                                    child: new Text(
+                                                                        $"回复 {CStringUtils.CountToString(count: replyCount)}",
+                                                                        style: CTextStyle.PRegularBody4
+                                                                    )
+                                                                )
+                                                            )
                                                         }
                                                     )
                                                 )

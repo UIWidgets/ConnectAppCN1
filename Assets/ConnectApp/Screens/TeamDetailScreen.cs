@@ -15,8 +15,8 @@ using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -30,32 +30,28 @@ namespace ConnectApp.screens {
     public class TeamDetailScreenConnector : StatelessWidget {
         public TeamDetailScreenConnector(
             string teamId,
+            bool isSlug = false,
             Key key = null
         ) : base(key: key) {
             this.teamId = teamId;
+            this.isSlug = isSlug;
         }
 
         readonly string teamId;
+        readonly bool isSlug;
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, TeamDetailScreenViewModel>(
                 converter: state => {
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
-                    var team = state.teamState.teamDict.ContainsKey(key: this.teamId)
-                        ? state.teamState.teamDict[key: this.teamId]
-                        : null;
-                    var teamArticleOffset = team == null
-                        ? 0
-                        : team.articleIds == null ? 0 : team.articleIds.Count;
+                    var team = this.FetchTeam(this.teamId, state.teamState.teamDict, state.teamState.slugDict);
                     var followMap = state.followState.followDict.ContainsKey(key: currentUserId)
                         ? state.followState.followDict[key: currentUserId]
                         : new Dictionary<string, bool>();
                     return new TeamDetailScreenViewModel {
-                        teamId = this.teamId,
                         teamLoading = state.teamState.teamLoading,
                         teamArticleLoading = state.teamState.teamArticleLoading,
                         team = team,
-                        teamArticleOffset = teamArticleOffset,
                         articleDict = state.articleState.articleDict,
                         followMap = followMap,
                         currentUserId = state.loginState.loginInfo.userId ?? "",
@@ -67,8 +63,8 @@ namespace ConnectApp.screens {
                         startFetchTeam = () => dispatcher.dispatch(new StartFetchTeamAction()),
                         fetchTeam = () => dispatcher.dispatch<IPromise>(Actions.fetchTeam(this.teamId)),
                         startFetchTeamArticle = () => dispatcher.dispatch(new StartFetchTeamArticleAction()),
-                        fetchTeamArticle = offset =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchTeamArticle(this.teamId, offset)),
+                        fetchTeamArticle = pageNumber =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchTeamArticle(viewModel.team.id, pageNumber)),
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
@@ -99,10 +95,10 @@ namespace ConnectApp.screens {
                             }
                         ),
                         startFollowTeam = () =>
-                            dispatcher.dispatch(new StartFetchFollowTeamAction {followTeamId = this.teamId}),
+                            dispatcher.dispatch(new StartFetchFollowTeamAction {followTeamId = viewModel.team.id}),
                         followTeam = teamId => dispatcher.dispatch<IPromise>(Actions.fetchFollowTeam(teamId)),
                         startUnFollowTeam = () => dispatcher.dispatch(new StartFetchUnFollowTeamAction
-                            {unFollowTeamId = this.teamId}),
+                            {unFollowTeamId = viewModel.team.id}),
                         unFollowTeam = teamId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowTeam(teamId)),
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
                             Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
@@ -110,6 +106,18 @@ namespace ConnectApp.screens {
                     return new TeamDetailScreen(viewModel, actionModel);
                 }
             );
+        }
+
+        Team FetchTeam(string teamId, Dictionary<string, Team> teamDict, Dictionary<string, string> slugDict) {
+            if (teamDict.ContainsKey(teamId)) {
+                return teamDict[teamId];
+            }
+
+            if (this.isSlug && slugDict.ContainsKey(teamId)) {
+                return teamDict[slugDict[teamId]];
+            }
+
+            return null;
         }
     }
 
@@ -134,7 +142,7 @@ namespace ConnectApp.screens {
     class _TeamDetailScreenState : State<TeamDetailScreen>, TickerProvider, RouteAware {
         const float headerHeight = 256;
         const float _transformSpeed = 0.005f;
-        int _articleOffset;
+        int _articlePageNumber;
         RefreshController _refreshController;
         float _factor = 1;
         bool _isHaveTitle;
@@ -146,7 +154,7 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             StatusBarManager.statusBarStyle(true);
-            this._articleOffset = 0;
+            this._articlePageNumber = 1;
             this._refreshController = new RefreshController();
             this._isHaveTitle = false;
             this._hideNavBar = true;
@@ -158,22 +166,20 @@ namespace ConnectApp.screens {
                 RelativeRect.fromLTRB(0, 44, 0, 0),
                 RelativeRect.fromLTRB(0, 0, 0, 0)
             );
-            this._animation = rectTween.animate(this._controller);
+            this._animation = rectTween.animate(parent: this._controller);
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchTeam();
                 this.widget.actionModel.fetchTeam();
                 this.widget.actionModel.startFetchTeamArticle();
-                this.widget.actionModel.fetchTeamArticle(0);
             });
         }
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
         }
 
         public override void dispose() {
-            StatusBarManager.statusBarStyle(false);
             Router.routeObserve.unsubscribe(this);
             base.dispose();
         }
@@ -228,8 +234,13 @@ namespace ConnectApp.screens {
         }
 
         void _onRefresh(bool up) {
-            this._articleOffset = up ? 0 : this.widget.viewModel.teamArticleOffset;
-            this.widget.actionModel.fetchTeamArticle(arg: this._articleOffset)
+            if (up) {
+                this._articlePageNumber = 1;
+            }
+            else {
+                this._articlePageNumber++;
+            }
+            this.widget.actionModel.fetchTeamArticle(arg: this._articlePageNumber)
                 .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }
@@ -262,7 +273,7 @@ namespace ConnectApp.screens {
                         CustomDialogUtils.showCustomDialog(
                             child: new CustomLoadingDialog()
                         );
-                        string imageUrl = $"{article.thumbnail.url}.200x0x1.jpg";
+                        string imageUrl = CImageUtils.SizeTo200ImageUrl(article.thumbnail.url);
                         this.widget.actionModel.shareToWechat(type, article.title, article.subTitle,
                                 linkUrl,
                                 imageUrl).Then(CustomDialogUtils.hiddenCustomDialog)
@@ -499,7 +510,8 @@ namespace ConnectApp.screens {
                                                     $"{team.stats?.followCount ?? 0}",
                                                     () => {
                                                         if (this.widget.viewModel.isLoggedIn) {
-                                                            this.widget.actionModel.pushToTeamFollower(obj: this.widget.viewModel.teamId);
+                                                            this.widget.actionModel.pushToTeamFollower(
+                                                                obj: this.widget.viewModel.team.id);
                                                         }
                                                         else {
                                                             this.widget.actionModel.pushToLogin();
@@ -510,7 +522,8 @@ namespace ConnectApp.screens {
                                                 _buildFollowCount(
                                                     "成员",
                                                     $"{team.stats?.membersCount ?? 0}",
-                                                    () => this.widget.actionModel.pushToTeamMember(obj: this.widget.viewModel.teamId)
+                                                    () => this.widget.actionModel.pushToTeamMember(
+                                                        obj: this.widget.viewModel.team.id)
                                                 )
                                             }
                                         ),
@@ -569,7 +582,7 @@ namespace ConnectApp.screens {
 
         Widget _buildFollowButton(bool isTop = false) {
             if (this.widget.viewModel.isLoggedIn
-                && this.widget.viewModel.currentUserId == this.widget.viewModel.teamId) {
+                && this.widget.viewModel.currentUserId == this.widget.viewModel.team.id) {
                 return new Container();
             }
 
@@ -578,10 +591,10 @@ namespace ConnectApp.screens {
             Color followBgColor = CColors.PrimaryBlue;
             GestureTapCallback onTap = () => {
                 this.widget.actionModel.startFollowTeam();
-                this.widget.actionModel.followTeam(arg: this.widget.viewModel.teamId);
+                this.widget.actionModel.followTeam(arg: this.widget.viewModel.team.id);
             };
             if (this.widget.viewModel.isLoggedIn
-                && this.widget.viewModel.followMap.ContainsKey(key: this.widget.viewModel.teamId)) {
+                && this.widget.viewModel.followMap.ContainsKey(key: this.widget.viewModel.team.id)) {
                 isFollow = true;
                 followText = "已关注";
                 followBgColor = CColors.Transparent;
@@ -592,7 +605,7 @@ namespace ConnectApp.screens {
                             items: new List<ActionSheetItem> {
                                 new ActionSheetItem("确定", type: ActionType.normal, () => {
                                     this.widget.actionModel.startUnFollowTeam();
-                                    this.widget.actionModel.unFollowTeam(arg: this.widget.viewModel.teamId);
+                                    this.widget.actionModel.unFollowTeam(arg: this.widget.viewModel.team.id);
                                 }),
                                 new ActionSheetItem("取消", type: ActionType.cancel)
                             }

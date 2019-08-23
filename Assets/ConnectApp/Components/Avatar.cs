@@ -105,6 +105,11 @@ namespace ConnectApp.Components {
                 )
                 : null;
 
+            var httpsUrl = this.avatarUrl;
+            // fix Android 9 http request error 
+            if (httpsUrl.Contains("http://")) {
+                httpsUrl = httpsUrl.Replace("http://", "https://");
+            }
             return new Container(
                 width: this.size,
                 height: this.size,
@@ -117,7 +122,7 @@ namespace ConnectApp.Components {
                 child: new ClipRRect(
                     borderRadius: BorderRadius.circular(this.avatarShape == AvatarShape.circle
                         ? avatarSize
-                        : DefaultRectCorner),
+                        : this.hasWhiteBorder ? DefaultRectCorner / 2 : DefaultRectCorner),
                     child: this.avatarUrl.isEmpty()
                         ? new Container(
                             child: new _Placeholder(
@@ -130,7 +135,7 @@ namespace ConnectApp.Components {
                             width: avatarSize,
                             height: avatarSize,
                             color: CColors.AvatarLoading,
-                            child: Image.network(src: this.avatarUrl)
+                            child: Image.network(src: httpsUrl)
                         )
                 )
             );

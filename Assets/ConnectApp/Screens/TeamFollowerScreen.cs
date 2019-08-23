@@ -12,8 +12,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
@@ -56,12 +56,12 @@ namespace ConnectApp.screens {
                         startFetchFollower = () => dispatcher.dispatch(new StartFetchTeamFollowerAction()),
                         fetchFollower = offset =>
                             dispatcher.dispatch<IPromise>(Actions.fetchTeamFollower(this.teamId, offset)),
-                        startFollowUser = followUserId => dispatcher.dispatch(new StartFetchFollowUserAction {
+                        startFollowUser = followUserId => dispatcher.dispatch(new StartFollowUserAction {
                             followUserId = followUserId
                         }),
                         followUser = followUserId =>
                             dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(followUserId)),
-                        startUnFollowUser = unFollowUserId => dispatcher.dispatch(new StartFetchUnFollowUserAction {
+                        startUnFollowUser = unFollowUserId => dispatcher.dispatch(new StartUnFollowUserAction {
                             unFollowUserId = unFollowUserId
                         }),
                         unFollowUser = unFollowUserId =>
@@ -100,7 +100,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    class _TeamFollowerScreenState : State<TeamFollowerScreen> {
+    class _TeamFollowerScreenState : State<TeamFollowerScreen>, RouteAware {
         int _userOffset;
         RefreshController _refreshController;
         string _title;
@@ -117,6 +117,16 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.startFetchFollower();
                 this.widget.actionModel.fetchFollower(0);
             });
+        }
+
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
+        }
+
+        public override void dispose() {
+            Router.routeObserve.unsubscribe(this);
+            base.dispose();
         }
 
         void _onRefresh(bool up) {
@@ -267,6 +277,19 @@ namespace ConnectApp.screens {
                 () => this._onFollow(userType: userType, userId: follower.id),
                 new ObjectKey(value: follower.id)
             );
+        }
+
+        public void didPopNext() {
+            StatusBarManager.statusBarStyle(false);
+        }
+
+        public void didPush() {
+        }
+
+        public void didPop() {
+        }
+
+        public void didPushNext() {
         }
     }
 }

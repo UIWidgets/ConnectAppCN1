@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.Constants;
 using ConnectApp.Models.Model;
 using ConnectApp.Utils;
 using UnityEngine;
@@ -9,6 +10,8 @@ namespace ConnectApp.Models.State {
     public class AppState {
         public int Count { get; set; }
         public LoginState loginState { get; set; }
+
+        public EggState eggState { get; set; }
         public ArticleState articleState { get; set; }
         public EventState eventState { get; set; }
         public PopularSearchState popularSearchState { get; set; }
@@ -23,6 +26,7 @@ namespace ConnectApp.Models.State {
         public MessageState messageState { get; set; }
         public SettingState settingState { get; set; }
         public ReportState reportState { get; set; }
+        public FeedbackState feedbackState { get; set; }
 
         public static AppState initialState() {
             var loginInfo = UserInfoManager.initUserInfo();
@@ -36,6 +40,9 @@ namespace ConnectApp.Models.State {
                     loginInfo = loginInfo,
                     isLoggedIn = isLogin,
                     loading = false
+                },
+                eggState = new EggState {
+                    showFirst = false
                 },
                 articleState = new ArticleState {
                     recommendArticleIds = new List<string>(),
@@ -84,7 +91,8 @@ namespace ConnectApp.Models.State {
                     searchUserHasMore = false,
                     searchTeamHasMore = false,
                     searchFollowingHasMore = false,
-                    searchArticleHistoryList = HistoryManager.searchArticleHistoryList(isLogin ? loginInfo.userId : null)
+                    searchArticleHistoryList =
+                        HistoryManager.searchArticleHistoryList(isLogin ? loginInfo.userId : null)
                 },
                 notificationState = new NotificationState {
                     loading = false,
@@ -101,6 +109,7 @@ namespace ConnectApp.Models.State {
                     followingTeamLoading = false,
                     followerLoading = false,
                     userDict = UserInfoManager.initUserDict(),
+                    slugDict = new Dictionary<string, string>(),
                     fullName = "",
                     title = "",
                     jobRole = new JobRole(),
@@ -111,7 +120,8 @@ namespace ConnectApp.Models.State {
                     teamArticleLoading = false,
                     followerLoading = false,
                     memberLoading = false,
-                    teamDict = new Dictionary<string, Team>()
+                    teamDict = new Dictionary<string, Team>(),
+                    slugDict = new Dictionary<string, string>()
                 },
                 placeState = new PlaceState {
                     placeDict = new Dictionary<string, Place>()
@@ -139,6 +149,10 @@ namespace ConnectApp.Models.State {
                     reviewUrl = ""
                 },
                 reportState = new ReportState {
+                    loading = false
+                },
+                feedbackState = new FeedbackState {
+                    feedbackType = FeedbackType.Advice,
                     loading = false
                 }
             };
