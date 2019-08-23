@@ -171,6 +171,7 @@ namespace ConnectApp.screens {
         RefreshController _refreshController;
         string _loginSubId;
         _ArticleJumpToCommentState _jumpState;
+        bool _needRebuildWithCachedCommentPosition;
 
         float? _cachedCommentPosition;
 
@@ -199,6 +200,7 @@ namespace ConnectApp.screens {
             });
             this._jumpState = _ArticleJumpToCommentState.Inactive;
             this._cachedCommentPosition = null;
+            this._needRebuildWithCachedCommentPosition = false;
         }
 
         public override void didChangeDependencies() {
@@ -265,6 +267,46 @@ namespace ConnectApp.screens {
             var originItems = this._article == null ? new List<Widget>() : this._buildItems(context, out commentIndex);
             commentIndex = this._jumpState == _ArticleJumpToCommentState.active ? commentIndex : 0;
             this._jumpState = _ArticleJumpToCommentState.Inactive;
+            
+            Widget contentWidget;
+            //happens at the next frame after user presses the "Comment" button
+            //we rebuild a CenteredRefresher so that we can calculate out the comment section's position
+            if (this._needRebuildWithCachedCommentPosition == false && commentIndex != 0) {
+                contentWidget = new CenteredRefresher(
+                    controller: this._refreshController,
+                    enablePullDown: false,
+                    enablePullUp: this._article.hasMore,
+                    onRefresh: this._onRefresh,
+                    onNotification: this._onNotification,
+                    children: originItems,
+                    centerIndex: commentIndex
+                );
+            }
+            else {
+                //happens when the page is updated or (when _needRebuildWithCachedCommentPosition is true) at the next frame after
+                //a CenteredRefresher is created and the comment section's position is estimated
+                //we use 0 or this estimated position to initiate the SmartRefresher's init scroll offset, respectively
+                D.assert(!this._needRebuildWithCachedCommentPosition || this._cachedCommentPosition != null);
+                contentWidget = new SmartRefresher(
+                    initialOffset : this._needRebuildWithCachedCommentPosition ? this._cachedCommentPosition.Value : 0f,
+                    controller: this._refreshController,
+                    enablePullDown: false,
+                    enablePullUp: this._article.hasMore,
+                    onRefresh: this._onRefresh,
+                    onNotification: this._onNotification,
+                    child: ListView.builder(
+                        physics: new AlwaysScrollableScrollPhysics(),
+                        itemCount: originItems.Count,
+                        itemBuilder: (cxt, index) => originItems[index]
+                    ));
+                if (this._needRebuildWithCachedCommentPosition) {
+                    this._needRebuildWithCachedCommentPosition = false;
+                    //assume that when we jump to the comment, the title should always be shown as the header
+                    //this assumption will fail when an article is shorter than 16 pixels in height (as referred to in _onNotification
+                    this._controller.forward();
+                    this._isHaveTitle = true;
+                }
+            }
 
             var child = new Container(
                 color: CColors.Background,
@@ -273,15 +315,7 @@ namespace ConnectApp.screens {
                         this._buildNavigationBar(),
                         new Expanded(
                             child: new CustomScrollbar(
-                                new CenteredRefresher(
-                                    controller: this._refreshController,
-                                    enablePullDown: false,
-                                    enablePullUp: this._article.hasMore,
-                                    onRefresh: this._onRefresh,
-                                    onNotification: this._onNotification,
-                                    children: originItems,
-                                    centerIndex: commentIndex
-                                )
+                                child: contentWidget
                             )
                         ),
                         this._buildArticleTabBar()
@@ -357,16 +391,8 @@ namespace ConnectApp.screens {
                                 //cache the current comment position  
                                 this._cachedCommentPosition = commentPosition;
 
-                                //second frame: create a new scroll view which starts from the default first widget
-                                //and then jump to the calculated comment position
-                                this.setState(() => {
-                                    this._refreshController.scrollController.jumpTo(commentPosition);
-
-                                    //assume that when we jump to the comment, the title should always be shown as the header
-                                    //this assumption will fail when an article is shorter than 16 pixels in height (as referred to in _onNotification
-                                    this._controller.forward();
-                                    this._isHaveTitle = true;
-                                });
+                                //second frame: rebuild a smartRefresher with the cached _cacheCommmentPosition
+                                this.setState(() => { this._needRebuildWithCachedCommentPosition = true; });
                             });
                         },
                         child: new Container(
