@@ -204,4 +204,11 @@ namespace ConnectApp.Models.Api {
     public class ErrorResponse {
         public string errorCode;
     }
+
+    [Serializable]
+    public class FetchInitDataResponse {
+        public string VS;
+        public List<bool> showEggs;
+        public bool scanEnabled;
+    }
 }

@@ -72,13 +72,17 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new LoginByEmailFailureAction());
+                        var customSnackBar = new CustomSnackBar(
+                            "邮箱或密码不正确，请稍后再试。"
+                        );
+                        customSnackBar.show();
                     });
             });
         }
 
         public static object loginByWechat(string code) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return LoginApi.LoginByWechat(code)
+                return LoginApi.LoginByWechat(code: code)
                     .Then(loginInfo => {
                         var user = new User {
                             id = loginInfo.userId,

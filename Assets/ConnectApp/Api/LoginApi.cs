@@ -66,13 +66,13 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static IPromise<Dictionary<string, object>> InitData() {
-            var promise = new Promise<Dictionary<string, object>>();
+        public static IPromise<FetchInitDataResponse> InitData() {
+            var promise = new Promise<FetchInitDataResponse>();
             var request =
                 HttpManager.GET($"{Config.apiAddress}/api/connectapp/initData");
             HttpManager.resume(request).Then(responseText => {
-                var dictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(responseText);
-                promise.Resolve(dictionary);
+                var initDataResponse = JsonConvert.DeserializeObject<FetchInitDataResponse>(responseText);
+                promise.Resolve(initDataResponse);
             }).Catch(exception => { promise.Reject(exception); });
             return promise;
         }

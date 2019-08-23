@@ -124,12 +124,7 @@ namespace ConnectApp.screens {
             this._emailFocusNode.unfocus();
             this._passwordFocusNode.unfocus();
             this.widget.actionModel.startLoginByEmail();
-            this.widget.actionModel.loginByEmail().Catch(_ => {
-                var customSnackBar = new CustomSnackBar(
-                    "邮箱或密码不正确，请稍后再试。"
-                );
-                customSnackBar.show();
-            });
+            this.widget.actionModel.loginByEmail();
         }
 
         public override Widget build(BuildContext context) {
