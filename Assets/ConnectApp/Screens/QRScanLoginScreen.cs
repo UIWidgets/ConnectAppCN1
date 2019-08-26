@@ -124,10 +124,10 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new Container(
                             margin: EdgeInsets.only(top: 120, bottom: 26),
-                            child: Image.asset(
-                                "image/computer",
-                                width: 110,
-                                height: 96
+                            child: new Icon(
+                                icon: Icons.computer,
+                                size: 110,
+                                color: CColors.TextBody
                             )
                         ),
                         new RichText(

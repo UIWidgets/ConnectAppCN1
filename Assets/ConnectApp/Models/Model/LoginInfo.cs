@@ -9,6 +9,7 @@ namespace ConnectApp.Models.Model {
         public string userAvatar;
         public string authId;
         public bool anonymous;
+        public bool emailRequired;
         public string title;
         public string coverImageWithCDN;
     }
