@@ -25,6 +25,7 @@ namespace ConnectApp.Models.Api {
         public bool projectHasMore;
         public List<Article> hottests;
         public bool hottestHasMore;
+        public int page;
     }
 
     [Serializable]
@@ -202,5 +203,12 @@ namespace ConnectApp.Models.Api {
     [Serializable]
     public class ErrorResponse {
         public string errorCode;
+    }
+
+    [Serializable]
+    public class FetchInitDataResponse {
+        public string VS;
+        public List<bool> showEggs;
+        public bool scanEnabled;
     }
 }

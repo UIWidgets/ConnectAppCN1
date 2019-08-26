@@ -12,8 +12,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
@@ -22,7 +22,8 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ArticlesScreenViewModel>(
                 converter: state => new ArticlesScreenViewModel {
-                    isLoggedIn = state.loginState.isLoggedIn
+                    isLoggedIn = state.loginState.isLoggedIn,
+                    showFirstEgg = state.eggState.showFirst
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ArticlesScreenActionModel {
@@ -32,7 +33,11 @@ namespace ConnectApp.screens {
                             });
                             AnalyticsManager.ClickEnterSearch("Home_Article");
                         },
-                        fetchReviewUrl = () => dispatcher.dispatch<IPromise>(Actions.fetchReviewUrl())
+                        fetchReviewUrl = () => dispatcher.dispatch<IPromise>(Actions.fetchReviewUrl()),
+                        pushToReality = () => {
+                            dispatcher.dispatch(new EnterRealityAction());
+                            AnalyticsManager.AnalyticsClickEgg(1);
+                        }
                     };
                     return new ArticlesScreen(viewModel, actionModel);
                 }
@@ -75,7 +80,6 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            HttpManager.initVSCode();
             StatusBarManager.statusBarStyle(false);
             this._selectedIndex = 1;
             this._pageController = new PageController(initialPage: this._selectedIndex);
@@ -97,7 +101,7 @@ namespace ConnectApp.screens {
             base.didChangeDependencies();
             Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
         }
-        
+
         public override void dispose() {
             EventBus.unSubscribe(sName: EventBusConstant.login_success, id: this._loginSubId);
             Router.routeObserve.unsubscribe(this);
@@ -180,14 +184,30 @@ namespace ConnectApp.screens {
                         new Row(
                             children: widgets
                         ),
-                        new CustomButton(
-                            padding: EdgeInsets.only(16, 8, 16, 8),
-                            onPressed: () => this.widget.actionModel.pushToSearch(),
-                            child: new Icon(
-                                icon: Icons.search,
-                                size: 28,
-                                color: CColors.Icon
-                            )
+                        new Row(
+                            children: new List<Widget> {
+                                this.widget.viewModel.showFirstEgg
+                                    ? new CustomButton(
+                                        padding: EdgeInsets.only(16, 10, 8, 10),
+                                        onPressed: () => this.widget.actionModel.pushToReality(),
+                                        child: new Container(
+                                            color: CColors.Transparent,
+                                            child: new EggButton()
+                                        )
+                                    )
+                                    : (Widget) new Container(
+                                        height: 44
+                                    ),
+                                new CustomButton(
+                                    padding: EdgeInsets.only(8, 8, 16, 8),
+                                    onPressed: () => this.widget.actionModel.pushToSearch(),
+                                    child: new Icon(
+                                        icon: Icons.search,
+                                        size: 28,
+                                        color: CColors.Icon
+                                    )
+                                )
+                            }
                         )
                     }
                 )
@@ -278,7 +298,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         public void didPopNext() {
             StatusBarManager.statusBarStyle(false);
         }

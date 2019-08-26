@@ -72,13 +72,17 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new LoginByEmailFailureAction());
+                        var customSnackBar = new CustomSnackBar(
+                            "邮箱或密码不正确，请稍后再试。"
+                        );
+                        customSnackBar.show();
                     });
             });
         }
 
         public static object loginByWechat(string code) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return LoginApi.LoginByWechat(code)
+                return LoginApi.LoginByWechat(code: code)
                     .Then(loginInfo => {
                         var user = new User {
                             id = loginInfo.userId,
@@ -106,10 +110,13 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object loginByQr(string token) {
+        public static object loginByQr(string token, string action) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return LoginApi.LoginByQr(token: token)
+                return LoginApi.LoginByQr(token: token, action: action)
                     .Then(success => {
+                        if (action != "confirm") {
+                            return;
+                        }
                         CustomDialogUtils.hiddenCustomDialog();
                         if (Router.navigator.canPop()) {
                             Router.navigator.pop();
@@ -120,6 +127,9 @@ namespace ConnectApp.redux.actions {
                         );
                     })
                     .Catch(error => {
+                        if (action != "confirm") {
+                            return;
+                        }
                         CustomDialogUtils.hiddenCustomDialog();
                         if (Router.navigator.canPop()) {
                             Router.navigator.pop();

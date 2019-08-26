@@ -81,6 +81,10 @@ namespace Plugins.Editor {
             var madeSourceFile = "iOS/madeWithUnity.imageset";
             writeFile(madeSourceFile, madeDestDict);
 
+            var arrowBackDestDict = path + "/Unity-iPhone/Images.xcassets/arrowBack.imageset";
+            var arrowBackSourceFile = "iOS/arrowBack.imageset";
+            writeFile(arrowBackSourceFile, arrowBackDestDict);
+
             var qrScanLineDestDict = path + "/Unity-iPhone/Images.xcassets/qrScanLine.imageset";
             var qrScanLineSourceFile = "iOS/qrScanLine.imageset";
             writeFile(qrScanLineSourceFile, qrScanLineDestDict);

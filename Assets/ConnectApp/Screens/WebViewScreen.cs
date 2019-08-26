@@ -16,7 +16,7 @@ namespace ConnectApp.screens {
         public WebViewScreen(
             string url = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.url = url;
         }
 
@@ -28,7 +28,7 @@ namespace ConnectApp.screens {
     }
 
     public class _WebViewScreenState : State<WebViewScreen> {
-        WebViewObject _webViewObject = null;
+        WebViewObject _webViewObject;
         float _progress;
         bool _onClose;
         Timer _timer;
@@ -127,20 +127,6 @@ namespace ConnectApp.screens {
                 this._webViewObject.SetMargins(0, top, 0, bottom);
             }
 
-            Widget tipsText = new Container();
-            if (this._onClose) {
-                tipsText = new Text(
-                    "正在关闭...",
-                    style: CTextStyle.PXLarge
-                );
-            }
-            else {
-                tipsText = new Text(
-                    "正在加载...",
-                    style: CTextStyle.PXLarge
-                );
-            }
-
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
@@ -162,7 +148,10 @@ namespace ConnectApp.screens {
                                 ),
                                 new Expanded(
                                     child: new Center(
-                                        child: tipsText
+                                        child: new Text(
+                                            this._onClose ? "正在关闭..." : "正在加载...",
+                                            style: CTextStyle.PXLarge
+                                        )
                                     )
                                 )
                             }
@@ -185,7 +174,15 @@ namespace ConnectApp.screens {
                         this._webViewObject.SetVisibility(false);
                         WebViewManager.destroyWebView();
                     }
-                }
+                },
+                rightWidget: new CustomButton(
+                    onPressed: () => Application.OpenURL(url: this.widget.url),
+                    child: new Icon(
+                        icon: Icons.open_in_browser,
+                        size: 24,
+                        color: CColors.Icon
+                    )
+                )
             );
         }
     }

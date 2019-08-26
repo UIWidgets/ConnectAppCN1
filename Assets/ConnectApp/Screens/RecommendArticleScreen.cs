@@ -12,8 +12,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
@@ -36,7 +36,8 @@ namespace ConnectApp.screens {
                     userDict = state.userState.userDict,
                     teamDict = state.teamState.teamDict,
                     isLoggedIn = state.loginState.isLoggedIn,
-                    hosttestOffset = state.articleState.recommendArticleIds.Count
+                    hosttestOffset = state.articleState.recommendArticleIds.Count,
+                    showFirstEgg = state.eggState.showFirst
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ArticlesScreenActionModel {
@@ -67,7 +68,11 @@ namespace ConnectApp.screens {
                         startFetchArticles = () => dispatcher.dispatch(new StartFetchArticlesAction()),
                         fetchArticles = offset => dispatcher.dispatch<IPromise>(Actions.fetchArticles(offset: offset)),
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
-                            Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
+                            Actions.shareToWechat(type, title, description, linkUrl, imageUrl)),
+                        pushToReality = () => {
+                            dispatcher.dispatch(new EnterRealityAction());
+                            AnalyticsManager.AnalyticsClickEgg(1);
+                        }
                     };
                     return new RecommendArticleScreen(viewModel: viewModel, actionModel: actionModel);
                 }
@@ -153,14 +158,30 @@ namespace ConnectApp.screens {
                                 duration: TimeSpan.FromMilliseconds(100)
                             )
                         ),
-                        new CustomButton(
-                            padding: EdgeInsets.only(16, 8, 16, 8),
-                            onPressed: () => this.widget.actionModel.pushToSearch(),
-                            child: new Icon(
-                                icon: Icons.search,
-                                size: 28,
-                                color: CColors.Icon
-                            )
+                        new Row(
+                            children: new List<Widget> {
+                                this.widget.viewModel.showFirstEgg
+                                    ? new CustomButton(
+                                        padding: EdgeInsets.only(16, 10, 8, 10),
+                                        onPressed: () => this.widget.actionModel.pushToReality(),
+                                        child: new Container(
+                                            color: CColors.Transparent,
+                                            child: new EggButton()
+                                        )
+                                    )
+                                    : (Widget) new Container(
+                                        height: 44
+                                    ),
+                                new CustomButton(
+                                    padding: EdgeInsets.only(8, 8, 16, 8),
+                                    onPressed: () => this.widget.actionModel.pushToSearch(),
+                                    child: new Icon(
+                                        icon: Icons.search,
+                                        size: 28,
+                                        color: CColors.Icon
+                                    )
+                                )
+                            }
                         )
                     }
                 )
@@ -248,7 +269,7 @@ namespace ConnectApp.screens {
                                         CustomDialogUtils.showCustomDialog(
                                             child: new CustomLoadingDialog()
                                         );
-                                        string imageUrl = $"{article.thumbnail.url}.200x0x1.jpg";
+                                        string imageUrl = CImageUtils.SizeTo200ImageUrl(article.thumbnail.url);
                                         this.widget.actionModel.shareToWechat(arg1: type, arg2: article.title,
                                                 arg3: article.subTitle, arg4: linkUrl, arg5: imageUrl)
                                             .Then(onResolved: CustomDialogUtils.hiddenCustomDialog)

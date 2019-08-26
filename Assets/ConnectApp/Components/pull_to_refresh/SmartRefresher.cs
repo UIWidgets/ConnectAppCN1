@@ -20,6 +20,7 @@ namespace ConnectApp.Components.pull_to_refresh {
     public class SmartRefresher : StatefulWidget {
         public SmartRefresher(
             ScrollView child,
+            float initialOffset = 0f,
             IndicatorBuilder headerBuilder = null,
             IndicatorBuilder footerBuilder = null,
             Config headerConfig = null,
@@ -34,6 +35,7 @@ namespace ConnectApp.Components.pull_to_refresh {
             Key key = null
         ) : base(key) {
             this.child = child;
+            this.initialOffset = initialOffset;
             this.headerBuilder =
                 headerBuilder ?? ((context, mode) => new SmartRefreshHeader(mode, RefreshHeaderType.other));
             this.footerBuilder = footerBuilder ?? ((context, mode) => new SmartRefreshFooter(mode));
@@ -74,6 +76,8 @@ namespace ConnectApp.Components.pull_to_refresh {
 
         //controller inner state
         public readonly RefreshController controller;
+
+        public readonly float initialOffset;
 
         public readonly NotificationListenerCallback<ScrollNotification> onNotification;
 
@@ -202,7 +206,7 @@ namespace ConnectApp.Components.pull_to_refresh {
         }
 
         void _init() {
-            this._scrollController = new ScrollController();
+            this._scrollController = new ScrollController(initialScrollOffset: this.widget.initialOffset);
             this.widget.controller.scrollController = this._scrollController;
             SchedulerBinding.instance.addPostFrameCallback(duration => { this._onAfterBuild(); });
             this._scrollController.addListener(this._handleOffsetCallback);

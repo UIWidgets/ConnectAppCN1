@@ -36,6 +36,8 @@ namespace ConnectApp.Main {
         public const string TeamFollower = "/team-follower";
         public const string TeamMember = "/team-member";
         public const string QRScanLogin = "/qr-login";
+        public const string Feedback = "/feedback";
+        public const string FeedbackType = "/feedback-type";
     }
 
     class Router : StatelessWidget {
@@ -73,7 +75,9 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.TeamDetail, context => new TeamDetailScreenConnector("")},
                     {MainNavigatorRoutes.TeamFollower, context => new TeamFollowerScreenConnector("")},
                     {MainNavigatorRoutes.TeamMember, context => new TeamMemberScreenConnector("")},
-                    {MainNavigatorRoutes.QRScanLogin, context => new QRScanLoginScreenConnector("")}
+                    {MainNavigatorRoutes.QRScanLogin, context => new QRScanLoginScreenConnector("")},
+                    {MainNavigatorRoutes.Feedback, context => new FeedbackScreenConnector()},
+                    {MainNavigatorRoutes.FeedbackType, context => new FeedbackTypeScreenConnector()}
                 };
                 if (Application.isEditor) {
                     var isExistSplash = SplashManager.isExistSplash();

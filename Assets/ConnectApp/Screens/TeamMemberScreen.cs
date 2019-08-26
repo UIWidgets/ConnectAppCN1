@@ -12,8 +12,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
@@ -55,12 +55,12 @@ namespace ConnectApp.screens {
                         startFetchMember = () => dispatcher.dispatch(new StartFetchTeamMemberAction()),
                         fetchMember = pageNumber =>
                             dispatcher.dispatch<IPromise>(Actions.fetchTeamMember(this.teamId, pageNumber)),
-                        startFollowUser = followUserId => dispatcher.dispatch(new StartFetchFollowUserAction {
+                        startFollowUser = followUserId => dispatcher.dispatch(new StartFollowUserAction {
                             followUserId = followUserId
                         }),
                         followUser = followUserId =>
                             dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(followUserId)),
-                        startUnFollowUser = unFollowUserId => dispatcher.dispatch(new StartFetchUnFollowUserAction {
+                        startUnFollowUser = unFollowUserId => dispatcher.dispatch(new StartUnFollowUserAction {
                             unFollowUserId = unFollowUserId
                         }),
                         unFollowUser = unFollowUserId =>
@@ -123,7 +123,7 @@ namespace ConnectApp.screens {
             Router.routeObserve.unsubscribe(this);
             base.dispose();
         }
-        
+
         void _onRefresh(bool up) {
             if (up) {
                 this._pageNumber = 1;
@@ -256,7 +256,8 @@ namespace ConnectApp.screens {
             else {
                 if (this.widget.viewModel.currentUserId == user.id) {
                     userType = UserType.me;
-                } else if (user.followUserLoading ?? false) {
+                }
+                else if (user.followUserLoading ?? false) {
                     userType = UserType.loading;
                 }
                 else if (this.widget.viewModel.followMap.ContainsKey(key: user.id)) {
@@ -272,7 +273,7 @@ namespace ConnectApp.screens {
                 new ObjectKey(value: user.id)
             );
         }
-        
+
         public void didPopNext() {
             StatusBarManager.statusBarStyle(false);
         }

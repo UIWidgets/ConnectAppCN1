@@ -35,10 +35,11 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static IPromise<bool> LoginByQr(string token) {
+        public static IPromise<bool> LoginByQr(string token, string action) {
             var promise = new Promise<bool>();
             var para = new QRLoginParameter {
-                token = token
+                token = token,
+                action = action
             };
             var request = HttpManager.POST($"{Config.apiAddress}/api/auth/qrlogin", para);
             HttpManager.resume(request).Then(responseText => {
@@ -65,13 +66,13 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static IPromise<string> InitData() {
-            var promise = new Promise<string>();
+        public static IPromise<FetchInitDataResponse> InitData() {
+            var promise = new Promise<FetchInitDataResponse>();
             var request =
                 HttpManager.GET($"{Config.apiAddress}/api/connectapp/initData");
             HttpManager.resume(request).Then(responseText => {
-                var dictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseText);
-                promise.Resolve(dictionary["VS"]);
+                var initDataResponse = JsonConvert.DeserializeObject<FetchInitDataResponse>(responseText);
+                promise.Resolve(initDataResponse);
             }).Catch(exception => { promise.Reject(exception); });
             return promise;
         }

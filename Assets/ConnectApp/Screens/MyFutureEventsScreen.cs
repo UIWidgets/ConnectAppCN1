@@ -83,7 +83,7 @@ namespace ConnectApp.screens {
 
             if (futureEventsList.Count <= 0) {
                 return new BlankView(
-                    "还没有即将开始的活动", 
+                    "还没有即将开始的活动",
                     "image/default-event",
                     true,
                     () => {
@@ -94,7 +94,7 @@ namespace ConnectApp.screens {
             }
 
             var futureEventTotal = this.widget.viewModel.futureEventTotal;
-            var hasMore = futureEventTotal != futureEventsList.Count;
+            var hasMore = futureEventTotal > futureEventsList.Count;
             var itemCount = hasMore ? futureEventsList.Count : futureEventsList.Count + 1;
 
             return new Container(
@@ -120,6 +120,7 @@ namespace ConnectApp.screens {
             if (index == futureEventsList.Count) {
                 return new EndView();
             }
+
             var model = futureEventsList[index: index];
             var eventType = model.mode == "online" ? EventType.online : EventType.offline;
             var placeName = model.placeId.isEmpty()

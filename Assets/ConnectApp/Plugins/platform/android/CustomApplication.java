@@ -20,6 +20,8 @@ public class CustomApplication extends Application {
         super.onCreate();
         IWXAPI iwxapi = WXAPIFactory.createWXAPI(this, "wx0ab79f0c7db7ca52", true);
         WechatPlugin.getInstance().iwxapi = iwxapi;
+        WechatPlugin.getInstance().context = this;
+
         iwxapi.registerApp("wx0ab79f0c7db7ca52");
 
         JPushPlugin.getInstance().mContext = this;

@@ -8,6 +8,7 @@ using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 using Notification = ConnectApp.Models.Model.Notification;
 
 namespace ConnectApp.Components {
@@ -99,6 +100,7 @@ namespace ConnectApp.Components {
             var type = this.notification.type;
             var data = this.notification.data;
             var subTitle = new TextSpan();
+            Widget projectTitle = new Container();
             var content = "";
             if (type == "project_liked") {
                 subTitle = new TextSpan(
@@ -175,6 +177,15 @@ namespace ConnectApp.Components {
                 );
             }
 
+            if (data.projectTitle.isNotEmpty()) {
+                projectTitle = new Text(
+                    data: data.projectTitle,
+                    maxLines: 1,
+                    style: CTextStyle.PLargeMedium,
+                    overflow: TextOverflow.ellipsis
+                );
+            }
+            
             return new Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: new List<Widget> {
@@ -194,12 +205,7 @@ namespace ConnectApp.Components {
                         ),
                         overflow: TextOverflow.ellipsis
                     ),
-                    new Text(
-                        data: data.projectTitle,
-                        maxLines: 1,
-                        style: CTextStyle.PLargeMedium,
-                        overflow: TextOverflow.ellipsis
-                    )
+                    projectTitle
                 }
             );
         }

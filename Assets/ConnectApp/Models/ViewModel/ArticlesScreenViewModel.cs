@@ -20,7 +20,9 @@ namespace ConnectApp.Models.ViewModel {
         public bool followArticleHasMore;
         public bool hotArticleHasMore;
         public int hosttestOffset;
+        public int hotArticlePage;
         public bool isLoggedIn;
         public string currentUserId;
+        public bool showFirstEgg;
     }
 }

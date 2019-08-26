@@ -77,6 +77,7 @@ namespace ConnectApp.Components {
 
         public override void initState() {
             base.initState();
+            Screen.sleepTimeout = SleepTimeout.NeverSleep;
             VideoPlayerManager.instance.isRotation = true;
             this._texture = Resources.Load<RenderTexture>("texture/ConnectAppRT");
             this._player = this._videoPlayer(this.widget.url);
@@ -100,6 +101,7 @@ namespace ConnectApp.Components {
         }
 
         public override void dispose() {
+            Screen.sleepTimeout = SleepTimeout.SystemSetting;
             VideoPlayerManager.instance.isRotation = false;
             EventBus.unSubscribe(EventBusConstant.pauseVideoPlayer, this._pauseVideoPlayerSubId);
             EventBus.unSubscribe(EventBusConstant.fullScreen, this._fullScreenSubId);
@@ -464,6 +466,7 @@ namespace ConnectApp.Components {
         static void pauseAudioSession() {
             Plugin().CallStatic("pauseAudioSession");
         }
+
         static bool isOpenSensor() {
             return Plugin().CallStatic<bool>("isOpenSensor");
         }
