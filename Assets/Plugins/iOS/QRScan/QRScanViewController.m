@@ -153,6 +153,9 @@
 
 - (void)pop:(UIButton *)sender
 {
+    if (self.qrCodeBlock) {
+        self.qrCodeBlock(@"pop");
+    }
     [self dismissViewControllerAnimated:YES completion:^{
         [self.qrScanView.timer invalidate];
         [_session stopRunning];

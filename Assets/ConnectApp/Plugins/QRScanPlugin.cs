@@ -96,6 +96,8 @@ namespace ConnectApp.Plugins {
                                     StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToWebViewAction {url = qrCode});
                                 }
                             }
+                            StatusBarManager.hideStatusBar(false);
+                            StatusBarManager.statusBarStyle(false);
                             removeListener();
                         }
                             break;
@@ -106,7 +108,9 @@ namespace ConnectApp.Plugins {
 
         public static void PushToQRScan() {
             addListener();
-            pushToQRScan();
+            if (!Application.isEditor) {
+                pushToQRScan();
+            }
         }
 
 #if UNITY_IOS
