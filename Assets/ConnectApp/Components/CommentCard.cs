@@ -48,8 +48,8 @@ namespace ConnectApp.Components {
             }
 
             var replyCount = this.message.parentMessageId.isNotEmpty()
-                ? this.message.lowerMessageIds.Count
-                : this.message.replyMessageIds.Count;
+                ? (this.message.lowerMessageIds ?? new List<string>()).Count
+                : (this.message.replyMessageIds ?? new List<string>()).Count;
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(16, 16, 16),

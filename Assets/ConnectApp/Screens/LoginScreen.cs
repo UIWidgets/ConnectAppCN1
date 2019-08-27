@@ -60,9 +60,9 @@ namespace ConnectApp.screens {
 
     public class LoginSwitchScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
-            return new StoreConnector<AppState, bool>(
-                converter: state => state.loginState.loginInfo.anonymous,
-                builder: (context1, anonymous, dispatcher) => {
+            return new StoreConnector<AppState, object>(
+                converter: state => null,
+                builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new LoginSwitchScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         loginByWechatAction = code => dispatcher.dispatch<IPromise>(Actions.loginByWechat(code)),
@@ -70,7 +70,7 @@ namespace ConnectApp.screens {
                             () => dispatcher.dispatch(new LoginNavigatorPushToBindUnityAction()),
                         openUrl = url => dispatcher.dispatch(new OpenUrlAction {url = url})
                     };
-                    return new LoginSwitchScreen(anonymous, actionModel);
+                    return new LoginSwitchScreen(actionModel);
                 }
             );
         }
@@ -78,15 +78,12 @@ namespace ConnectApp.screens {
 
     public class LoginSwitchScreen : StatefulWidget {
         public LoginSwitchScreen(
-            bool anonymous,
             LoginSwitchScreenActionModel actionModel,
             Key key = null
         ) : base(key: key) {
-            this.anonymous = anonymous;
             this.actionModel = actionModel;
         }
 
-        public readonly bool anonymous;
         public readonly LoginSwitchScreenActionModel actionModel;
 
         public override State createState() {
@@ -266,21 +263,8 @@ namespace ConnectApp.screens {
             return new CustomButton(
                 onPressed: () => {
                     WechatPlugin.instance(code => {
-                            CustomDialogUtils.showCustomDialog(
-                                child: new CustomLoadingDialog()
-                            );
-                            this.widget.actionModel.loginByWechatAction(arg: code)
-                                .Then(() => {
-                                    CustomDialogUtils.hiddenCustomDialog();
-                                    if (this.widget.anonymous) {
-                                        LoginScreen.navigator.pushReplacementNamed(routeName: LoginNavigatorRoutes
-                                            .WechatBindUnity);
-                                    }
-                                    else {
-                                        this.widget.actionModel.mainRouterPop();
-                                    }
-                                })
-                                .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
+                            CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog());
+                            this.widget.actionModel.loginByWechatAction(arg: code);
                         })
                         .login(Guid.NewGuid().ToString());
                 },

@@ -6,6 +6,7 @@ using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Plugins;
+using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.Redux;
 
@@ -84,6 +85,7 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return LoginApi.LoginByWechat(code: code)
                     .Then(loginInfo => {
+                        CustomDialogUtils.hiddenCustomDialog();
                         var user = new User {
                             id = loginInfo.userId,
                             fullName = loginInfo.userFullName,
@@ -102,9 +104,17 @@ namespace ConnectApp.redux.actions {
                         AnalyticsManager.LoginEvent("wechat");
                         AnalyticsManager.AnalyticsLogin("wechat", loginInfo.userId);
                         JPushPlugin.setJPushAlias(loginInfo.userId);
-                        EventBus.publish(sName: EventBusConstant.login_success, new List<object>());
+                        if (loginInfo.emailRequired) {
+                            LoginScreen.navigator.pushReplacementNamed(routeName: LoginNavigatorRoutes
+                                .WechatBindUnity);
+                        }
+                        else {
+                            dispatcher.dispatch(new MainNavigatorPopAction());
+                            EventBus.publish(sName: EventBusConstant.login_success, new List<object>());
+                        }
                     })
                     .Catch(error => {
+                        CustomDialogUtils.hiddenCustomDialog();
                         dispatcher.dispatch(new LoginByWechatFailureAction());
                     });
             });

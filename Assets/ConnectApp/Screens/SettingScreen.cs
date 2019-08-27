@@ -23,7 +23,7 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, SettingScreenViewModel>(
                 converter: state => new SettingScreenViewModel {
                     isLoggedIn = state.loginState.isLoggedIn,
-                    anonymous = state.loginState.loginInfo.anonymous,
+                    emailRequired = state.loginState.loginInfo.emailRequired,
                     hasReviewUrl = state.settingState.hasReviewUrl,
                     reviewUrl = state.settingState.reviewUrl
                 },
@@ -132,7 +132,7 @@ namespace ConnectApp.screens {
                                         this.widget.actionModel.openUrl(this.widget.viewModel.reviewUrl);
                                     })
                                 : new Container(),
-                            this.widget.viewModel.anonymous
+                            this.widget.viewModel.emailRequired
                                 ? _buildCellView("绑定 Unity ID",
                                     () => this.widget.actionModel.mainRouterPushTo(MainNavigatorRoutes.BindUnity))
                                 : new Container(),

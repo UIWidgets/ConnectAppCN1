@@ -68,10 +68,18 @@ namespace ConnectApp.Plugins {
                                     if (token.isNotEmpty()) {
                                         var isLoggedIn = StoreProvider.store.getState().loginState.isLoggedIn;
                                         if (isLoggedIn) {
-                                            LoginApi.LoginByQr(token: token, "check");
-                                            StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToQRScanLoginAction {
-                                                token = token
-                                            });
+                                            var emailRequired = StoreProvider.store.getState().loginState.loginInfo.emailRequired;
+                                            if (emailRequired) {
+                                                StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToAction {
+                                                    routeName = MainNavigatorRoutes.BindUnity
+                                                });
+                                            }
+                                            else {
+                                                LoginApi.LoginByQr(token: token, "check");
+                                                StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToQRScanLoginAction {
+                                                    token = token
+                                                });
+                                            }
                                         }
                                         else {
                                             qrCodeToken = token;
