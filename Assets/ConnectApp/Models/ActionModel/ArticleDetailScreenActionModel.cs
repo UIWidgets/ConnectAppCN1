@@ -20,7 +20,7 @@ namespace ConnectApp.Models.ActionModel {
         public Func<string, IPromise> likeArticle;
         public Func<Message, IPromise> likeComment;
         public Func<Message, IPromise> removeLikeComment;
-        public Func<string, string, string, string, IPromise> sendComment;
+        public Func<string, string, string, string, string, IPromise> sendComment;
         public Action<string> startFollowUser;
         public Func<string, IPromise> followUser;
         public Action<string> startUnFollowUser;

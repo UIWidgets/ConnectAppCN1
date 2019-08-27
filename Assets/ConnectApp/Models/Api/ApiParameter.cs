@@ -28,6 +28,7 @@ namespace ConnectApp.Models.Api {
     public class SendCommentParameter {
         public string content;
         public string parentMessageId;
+        public string upperMessageId;
         public string nonce;
         public bool app;
     }

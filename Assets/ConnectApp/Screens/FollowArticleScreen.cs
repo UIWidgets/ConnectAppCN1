@@ -112,10 +112,10 @@ namespace ConnectApp.screens {
                         startUnFollowTeam = teamId =>
                             dispatcher.dispatch(new StartFetchUnFollowTeamAction {unFollowTeamId = teamId}),
                         unFollowTeam = teamId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowTeam(teamId)),
-                        sendComment = (articleId, channelId, content, nonce, parentMessageId) => {
+                        sendComment = (articleId, channelId, content, nonce, parentMessageId, upperMessageId) => {
                             CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog());
                             return dispatcher.dispatch<IPromise>(
-                                Actions.sendComment(articleId, channelId, content, nonce, parentMessageId));
+                                Actions.sendComment(articleId, channelId, content, nonce, parentMessageId, upperMessageId));
                         },
                         likeArticle = articleId => dispatcher.dispatch<IPromise>(Actions.likeArticle(articleId)),
                         startFetchFollowing = () => dispatcher.dispatch(new StartFetchFollowingAction()),
@@ -271,6 +271,7 @@ namespace ConnectApp.screens {
                             arg2: article.channelId,
                             arg3: text,
                             Snowflake.CreateNonce(),
+                            "",
                             ""
                         );
                     })
