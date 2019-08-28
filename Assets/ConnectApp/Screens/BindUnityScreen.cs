@@ -23,7 +23,10 @@ namespace ConnectApp.screens {
     }
 
     public class BindUnityScreenConnector : StatelessWidget {
-        public BindUnityScreenConnector(FromPage fromPage) {
+        public BindUnityScreenConnector(
+            FromPage fromPage,
+            Key key = null
+        ) : base(key: key) {
             this.fromPage = fromPage;
         }
 
@@ -72,7 +75,7 @@ namespace ConnectApp.screens {
             BindUnityScreenViewModel viewModel = null,
             BindUnityScreenActionModel actionModel = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
@@ -166,7 +169,7 @@ namespace ConnectApp.screens {
                     leftWidget = new CustomButton(
                         onPressed: () => this.widget.actionModel.loginRouterPop(),
                         child: new Icon(
-                            Icons.arrow_back,
+                            icon: Icons.arrow_back,
                             size: 24,
                             color: CColors.Icon
                         )
@@ -189,7 +192,7 @@ namespace ConnectApp.screens {
                     leftWidget = new CustomButton(
                         onPressed: () => this.widget.actionModel.mainRouterPop(),
                         child: new Icon(
-                            Icons.arrow_back,
+                            icon: Icons.arrow_back,
                             size: 24,
                             color: CColors.Icon
                         )
@@ -314,12 +317,15 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildBottomView() {
-            Widget right = new Container();
+            Widget right;
             if (this.widget.viewModel.loginLoading) {
                 right = new CustomActivityIndicator(
                     loadingColor: LoadingColor.white,
                     size: LoadingSize.small
                 );
+            }
+            else {
+                right = new Container();
             }
 
             return new Container(

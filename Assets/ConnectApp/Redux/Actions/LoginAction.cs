@@ -104,7 +104,7 @@ namespace ConnectApp.redux.actions {
                         AnalyticsManager.LoginEvent("wechat");
                         AnalyticsManager.AnalyticsLogin("wechat", loginInfo.userId);
                         JPushPlugin.setJPushAlias(loginInfo.userId);
-                        if (loginInfo.emailRequired) {
+                        if (loginInfo.anonymous) {
                             LoginScreen.navigator.pushReplacementNamed(routeName: LoginNavigatorRoutes
                                 .WechatBindUnity);
                         }

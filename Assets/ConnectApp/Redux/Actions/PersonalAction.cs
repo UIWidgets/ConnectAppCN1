@@ -400,7 +400,6 @@ namespace ConnectApp.redux.actions {
                             userAvatar = editPersonalInfoResponse.user.avatar,
                             authId = oldLoginInfo.authId,
                             anonymous = oldLoginInfo.anonymous,
-                            emailRequired = oldLoginInfo.emailRequired,
                             title = editPersonalInfoResponse.user.title,
                             coverImageWithCDN = editPersonalInfoResponse.user.coverImage
                         };
