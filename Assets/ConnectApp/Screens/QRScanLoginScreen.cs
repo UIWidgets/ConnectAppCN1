@@ -65,6 +65,13 @@ namespace ConnectApp.screens {
 
     public class _QRScanLoginScreenState : State<QRScanLoginScreen>, RouteAware {
 
+        bool _isLogin;
+
+        public override void initState() {
+            base.initState();
+            this._isLogin = false;
+        }
+
         public override void didChangeDependencies() {
             base.didChangeDependencies();
             Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
@@ -76,7 +83,9 @@ namespace ConnectApp.screens {
         }
 
         public void didPop() {
-            this.widget.cancelLoginByQr();
+            if (!this._isLogin) {
+                this.widget.cancelLoginByQr();
+            }
         }
 
         public void didPopNext() {
@@ -113,7 +122,8 @@ namespace ConnectApp.screens {
                 new Text(
                     "扫描结果",
                     style: CTextStyle.PXLargeMedium
-                )
+                ),
+                bottomColor: CColors.Transparent
             );
         }
 
@@ -153,6 +163,7 @@ namespace ConnectApp.screens {
                             child: new CustomButton(
                                 padding: EdgeInsets.zero,
                                 onPressed: () => {
+                                    this._isLogin = true;
                                     CustomDialogUtils.showCustomDialog(
                                         child: new CustomLoadingDialog(
                                             message: "登录中"
@@ -169,7 +180,7 @@ namespace ConnectApp.screens {
                                         borderRadius: BorderRadius.all(5)
                                     ),
                                     child: new Text(
-                                        "登录",
+                                        "确定登录",
                                         style: CTextStyle.PLargeMediumWhite
                                     )
                                 )
