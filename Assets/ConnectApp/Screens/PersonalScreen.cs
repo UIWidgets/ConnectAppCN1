@@ -5,6 +5,7 @@ using ConnectApp.Constants;
 using ConnectApp.Main;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
+using ConnectApp.Plugins;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
@@ -13,6 +14,7 @@ using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.screens {
     public class PersonalScreenConnector : StatelessWidget {
@@ -21,11 +23,12 @@ namespace ConnectApp.screens {
                 converter: state => new PersonalScreenViewModel {
                     isLoggedIn = state.loginState.isLoggedIn,
                     user = state.loginState.loginInfo,
-                    userDict = state.userState.userDict
+                    userDict = state.userState.userDict,
+                    scanEnabled = state.eggState.scanEnabled
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     return new PersonalScreen(
-                        viewModel,
+                        viewModel: viewModel,
                         routeName => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = routeName
                         }),
@@ -75,14 +78,14 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            base.build(context);
+            base.build(context: context);
             return new Container(
                 color: CColors.White,
                 child: new Column(
                     children: new List<Widget> {
                         this.widget.viewModel.isLoggedIn
                             ? this._buildLoginInNavigationBar()
-                            : this._buildNotLoginInNavigationBar(context),
+                            : this._buildNotLoginInNavigationBar(),
                         this.widget.viewModel.isLoggedIn
                             ? (Widget) new Container()
                             : new CustomDivider(
@@ -100,27 +103,27 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildNotLoginInNavigationBar(BuildContext context) {
+        Widget _buildNotLoginInNavigationBar() {
             return new Container(
                 color: CColors.White,
-                width: MediaQuery.of(context).size.width,
-                height: 196,
-                padding: EdgeInsets.only(16, right: 16, bottom: 16),
+                height: 240,
+                padding: EdgeInsets.only(16, bottom: 16),
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
+                        this._buildQrScanWidget(EdgeInsets.only(16, 16, 16, 12)),
                         new Text("欢迎来到", style: CTextStyle.H2),
                         new Text("Unity Connect", style: CTextStyle.H2),
                         new Container(
                             margin: EdgeInsets.only(top: 16),
                             child: new CustomButton(
                                 padding: EdgeInsets.zero,
-                                onPressed: () => this.widget.mainRouterPushTo(MainNavigatorRoutes.Login),
+                                onPressed: () => this.widget.mainRouterPushTo(obj: MainNavigatorRoutes.Login),
                                 child: new Container(
                                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                                     decoration: new BoxDecoration(
-                                        border: Border.all(CColors.PrimaryBlue),
+                                        border: Border.all(color: CColors.PrimaryBlue),
                                         borderRadius: BorderRadius.all(20)
                                     ),
                                     child: new Text(
@@ -137,7 +140,7 @@ namespace ConnectApp.screens {
 
         Widget _buildLoginInNavigationBar() {
             var user = this.widget.viewModel.userDict[key: this.widget.viewModel.user.userId];
-            Widget titleWidget = new Container();
+            Widget titleWidget;
             if (user.title != null && user.title.isNotEmpty()) {
                 titleWidget = new Text(
                     data: user.title,
@@ -146,16 +149,20 @@ namespace ConnectApp.screens {
                     overflow: TextOverflow.ellipsis
                 );
             }
+            else {
+                titleWidget = new Container();
+            }
 
             return new GestureDetector(
-                onTap: () => this.widget.pushToUserDetail(user.id),
+                onTap: () => this.widget.pushToUserDetail(obj: user.id),
                 child: new Container(
-                    height: 144,
-                    padding: EdgeInsets.only(16, right: 16, bottom: 16),
+                    height: 184,
+                    padding: EdgeInsets.only(16, bottom: 16),
                     color: CColors.White,
                     child: new Column(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: new List<Widget> {
+                            this._buildQrScanWidget(EdgeInsets.only(16, 16, 16, 28)),
                             new Row(
                                 children: new List<Widget> {
                                     new Container(
@@ -180,6 +187,7 @@ namespace ConnectApp.screens {
                                         )
                                     ),
                                     new Container(
+                                        padding: EdgeInsets.only(right: 16),
                                         margin: EdgeInsets.only(12),
                                         child: new Row(
                                             mainAxisSize: MainAxisSize.min,
@@ -208,31 +216,55 @@ namespace ConnectApp.screens {
             );
         }
 
+        Widget _buildQrScanWidget(EdgeInsets padding) {
+            if (!this.widget.viewModel.scanEnabled) {
+                return new Container();
+            }
+
+            return new Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: new List<Widget> {
+                    new GestureDetector(
+                        onTap: QRScanPlugin.PushToQRScan,
+                        child: new Container(
+                            padding: padding,
+                            color: CColors.Transparent,
+                            child: Image.asset(
+                                "image/scan-qr-code",
+                                width: 20,
+                                height: 20
+                            )
+                        )
+                    )
+                }
+            );
+        }
+
         List<Widget> _buildItems() {
             var personalCardItems = new List<PersonalCardItem> {
                 new PersonalCardItem(
-                    Icons.outline_event,
+                    icon: Icons.outline_event,
                     "我的活动",
                     () => {
                         var routeName = this.widget.viewModel.isLoggedIn
                             ? MainNavigatorRoutes.MyEvent
                             : MainNavigatorRoutes.Login;
-                        this.widget.mainRouterPushTo(routeName);
+                        this.widget.mainRouterPushTo(obj: routeName);
                     }
                 ),
                 new PersonalCardItem(
-                    Icons.eye,
+                    icon: Icons.eye,
                     "浏览历史",
-                    () => this.widget.mainRouterPushTo(MainNavigatorRoutes.History)
+                    () => this.widget.mainRouterPushTo(obj: MainNavigatorRoutes.History)
                 ),
                 new PersonalCardItem(
-                    Icons.settings,
+                    icon: Icons.settings,
                     "设置",
-                    () => this.widget.mainRouterPushTo(MainNavigatorRoutes.Setting)
+                    () => this.widget.mainRouterPushTo(obj: MainNavigatorRoutes.Setting)
                 )
             };
             var widgets = new List<Widget>();
-            personalCardItems.ForEach(item => widgets.Add(new PersonalCard(item)));
+            personalCardItems.ForEach(item => widgets.Add(new PersonalCard(personalItem: item)));
             return widgets;
         }
         

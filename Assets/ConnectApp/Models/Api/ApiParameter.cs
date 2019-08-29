@@ -14,6 +14,12 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
+    public class QRLoginParameter {
+        public string token;
+        public string action;
+    }
+
+    [Serializable]
     public class LikeArticleParameter {
         public string type;
         public string itemId;

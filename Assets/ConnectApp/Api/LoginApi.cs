@@ -35,6 +35,20 @@ namespace ConnectApp.Api {
             return promise;
         }
 
+        public static IPromise<bool> LoginByQr(string token, string action) {
+            var promise = new Promise<bool>();
+            var para = new QRLoginParameter {
+                token = token,
+                action = action
+            };
+            var request = HttpManager.POST($"{Config.apiAddress}/api/auth/qrlogin", para);
+            HttpManager.resume(request).Then(responseText => {
+                var successDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(responseText);
+                var success = successDictionary.ContainsKey("success") ? successDictionary["success"] : false;
+                promise.Resolve((bool)success);
+            }).Catch(exception => promise.Reject(exception));
+            return promise;
+        }
 
         public static IPromise<string> FetchCreateUnityIdUrl() {
             var promise = new Promise<string>();
@@ -52,13 +66,13 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static IPromise<Dictionary<string, object>> InitData() {
-            var promise = new Promise<Dictionary<string, object>>();
+        public static IPromise<FetchInitDataResponse> InitData() {
+            var promise = new Promise<FetchInitDataResponse>();
             var request =
                 HttpManager.GET($"{Config.apiAddress}/api/connectapp/initData");
             HttpManager.resume(request).Then(responseText => {
-                var dictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(responseText);
-                promise.Resolve(dictionary);
+                var initDataResponse = JsonConvert.DeserializeObject<FetchInitDataResponse>(responseText);
+                promise.Resolve(initDataResponse);
             }).Catch(exception => { promise.Reject(exception); });
             return promise;
         }

@@ -59,8 +59,8 @@ namespace ConnectApp.screens {
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
-                        openUrl = url => { OpenUrlUtil.OpenUrl(url, dispatcher); },
-                        playVideo = url => dispatcher.dispatch(new PlayVideoAction {
+                        openUrl = url => OpenUrlUtil.OpenUrl(url, dispatcher),
+                        playVideo = url => dispatcher.dispatch(new MainNavigatorPushToVideoPlayerAction {
                             url = url
                         }),
                         pushToArticleDetail = id => dispatcher.dispatch(
