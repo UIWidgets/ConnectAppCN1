@@ -113,19 +113,20 @@ namespace ConnectApp.Api {
 
 
         public static Promise<Message> SendComment(string channelId, string content, string nonce,
-            string parentMessageId = "") {
+            string parentMessageId = "", string upperMessageId = "") {
             var promise = new Promise<Message>();
             var para = new SendCommentParameter {
                 content = content,
                 parentMessageId = parentMessageId,
+                upperMessageId = upperMessageId,
                 nonce = nonce,
                 app = true
             };
-            var request = HttpManager.POST($"{Config.apiAddress}/api/channels/{channelId}/messages", para);
-            HttpManager.resume(request).Then(responseText => {
-                var message = JsonConvert.DeserializeObject<Message>(responseText);
-                promise.Resolve(message);
-            }).Catch(exception => { promise.Reject(exception); });
+            var request = HttpManager.POST($"{Config.apiAddress}/api/connectapp/channels/{channelId}/messages", parameter: para);
+            HttpManager.resume(request: request).Then(responseText => {
+                var message = JsonConvert.DeserializeObject<Message>(value: responseText);
+                promise.Resolve(value: message);
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
     }

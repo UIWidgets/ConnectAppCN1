@@ -63,7 +63,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class MainNavigatorPushToVideoPlayerAction : BaseAction {
-        public string videoUrl;
+        public string url;
     }
 
     public class MainNavigatorPushToReportAction : BaseAction {
@@ -90,10 +90,6 @@ namespace ConnectApp.redux.actions {
         public string url = "";
     }
 
-    public class PlayVideoAction : BaseAction {
-        public string url = "";
-    }
-
     public class CopyTextAction : BaseAction {
         public string text = "";
     }
@@ -105,9 +101,7 @@ namespace ConnectApp.redux.actions {
     public class EnterRealityAction : BaseAction {
     }
 
-    public static partial class Actions {
-//        public static object popFromBindUnityScreen() {
-//            return 
-//        }
+    public class MainNavigatorPushToQRScanLoginAction : BaseAction {
+        public string token = "";
     }
 }

@@ -113,6 +113,7 @@ namespace ConnectApp.redux.actions {
         public string articleId;
         public string channelId;
         public string parentMessageId;
+        public string upperMessageId;
     }
 
     public static partial class Actions {
@@ -331,9 +332,15 @@ namespace ConnectApp.redux.actions {
         }
 
         public static object sendComment(string articleId, string channelId, string content, string nonce,
-            string parentMessageId) {
+            string parentMessageId, string upperMessageId) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ArticleApi.SendComment(channelId, content, nonce, parentMessageId)
+                return ArticleApi.SendComment(
+                        channelId: channelId,
+                        content: content,
+                        nonce: nonce,
+                        parentMessageId: parentMessageId,
+                        upperMessageId: upperMessageId
+                    )
                     .Then(message => {
                         CustomDialogUtils.hiddenCustomDialog();
                         if (message.deleted) {
@@ -349,7 +356,8 @@ namespace ConnectApp.redux.actions {
                             message = message,
                             articleId = articleId,
                             channelId = channelId,
-                            parentMessageId = parentMessageId
+                            parentMessageId = parentMessageId,
+                            upperMessageId = upperMessageId
                         });
                     })
                     .Catch(error => {
