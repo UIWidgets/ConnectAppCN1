@@ -63,7 +63,7 @@ namespace ConnectApp.Components {
             bool canPop = parentRoute?.canPop ?? false;
             if (canPop) {
                 return new CustomButton(
-                    padding: EdgeInsets.only(16, 10, 0, 10),
+                    padding: EdgeInsets.only(16, 10, 16, 10),
                     onPressed: () => {
                         if (this.onBack != null) {
                             this.onBack();
@@ -81,6 +81,7 @@ namespace ConnectApp.Components {
                     )
                 );
             }
+
             return new Container(width: 56);
         }
 
@@ -88,6 +89,7 @@ namespace ConnectApp.Components {
             if (this.title == null) {
                 return new Container();
             }
+
             return this.title;
         }
     }

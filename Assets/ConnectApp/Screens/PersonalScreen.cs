@@ -14,7 +14,6 @@ using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.screens {
     public class PersonalScreenConnector : StatelessWidget {
@@ -224,16 +223,13 @@ namespace ConnectApp.screens {
             return new Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: new List<Widget> {
-                    new GestureDetector(
-                        onTap: QRScanPlugin.PushToQRScan,
-                        child: new Container(
-                            padding: padding,
-                            color: CColors.Transparent,
-                            child: Image.asset(
-                                "image/scan-qr-code",
-                                width: 20,
-                                height: 20
-                            )
+                    new CustomButton(
+                        padding: EdgeInsets.only(16, 16, 20, 8),
+                        onPressed: QRScanPlugin.PushToQRScan,
+                        child: new Icon(
+                            icon: Icons.qr_scan,
+                            size: 28,
+                            color: CColors.Icon
                         )
                     )
                 }
@@ -267,7 +263,7 @@ namespace ConnectApp.screens {
             personalCardItems.ForEach(item => widgets.Add(new PersonalCard(personalItem: item)));
             return widgets;
         }
-        
+
         public void didPopNext() {
             StatusBarManager.statusBarStyle(false);
         }
