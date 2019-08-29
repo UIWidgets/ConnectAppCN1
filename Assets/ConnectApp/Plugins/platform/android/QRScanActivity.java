@@ -35,7 +35,7 @@ public class QRScanActivity extends Activity {
     @Override
     protected void onRestart() {
         super.onRestart();
-        if (type != "scan") {
+        if (!type.equals("scan")) {
             int cameraPermission = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
             if (cameraPermission != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 1);

@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using ConnectApp.Api;
 using ConnectApp.Components;
 using ConnectApp.Constants;
-using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Plugins;
@@ -128,9 +127,7 @@ namespace ConnectApp.redux.actions {
                             return;
                         }
                         CustomDialogUtils.hiddenCustomDialog();
-                        if (Router.navigator.canPop()) {
-                            Router.navigator.pop();
-                        }
+                        dispatcher.dispatch(new MainNavigatorPopAction());
                         CustomDialogUtils.showToast(
                             success ? "扫码成功" : "扫码失败",
                             success ? Icons.sentiment_satisfied : Icons.sentiment_dissatisfied
@@ -141,9 +138,7 @@ namespace ConnectApp.redux.actions {
                             return;
                         }
                         CustomDialogUtils.hiddenCustomDialog();
-                        if (Router.navigator.canPop()) {
-                            Router.navigator.pop();
-                        }
+                        dispatcher.dispatch(new MainNavigatorPopAction());
                         CustomDialogUtils.showToast("扫码失败", iconData: Icons.sentiment_dissatisfied);
                     });
             });
