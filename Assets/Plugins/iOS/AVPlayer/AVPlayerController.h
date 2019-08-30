@@ -1,0 +1,34 @@
+//
+//  AVPlayerController.h
+//  Unity-iPhone
+//
+//  Created by luo on 2019/8/19.
+//
+
+#import <Foundation/Foundation.h>
+#import <AVFoundation/AVFoundation.h>
+#import "WMPlayer.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface AVPlayerController : NSObject<WMPlayerDelegate>
+
+
++(id)shareInstance;
+
+@property (nonatomic, strong)WMPlayer  *wmPlayer;
+
+
+@property (nonatomic, copy) NSString *cookie;
+
+- (void)initPlayerWithVideoUrl:(NSString*)videoUrl cookie:(NSString*)cookie left:(CGFloat)left top:(CGFloat)top width:(CGFloat)width height:(CGFloat)height isPop:(BOOL)isPop;
+
+- (void)play;
+
+- (void)pause;
+
+- (void)removePlayer;
+
+@end
+
+NS_ASSUME_NONNULL_END
