@@ -59,8 +59,8 @@ namespace ConnectApp.screens {
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
-                        openUrl = url => { OpenUrlUtil.OpenUrl(url, dispatcher); },
-                        playVideo = url => dispatcher.dispatch(new PlayVideoAction {
+                        openUrl = url => OpenUrlUtil.OpenUrl(url, dispatcher),
+                        playVideo = url => dispatcher.dispatch(new MainNavigatorPushToVideoPlayerAction {
                             url = url
                         }),
                         pushToArticleDetail = id => dispatcher.dispatch(
@@ -108,12 +108,12 @@ namespace ConnectApp.screens {
                                 AnalyticsManager.ClickLike("Article_Remove_Comment", this.articleId, message.id);
                                 return dispatcher.dispatch<IPromise>(Actions.removeLikeComment(message));
                             },
-                        sendComment = (channelId, content, nonce, parentMessageId) => {
+                        sendComment = (channelId, content, nonce, parentMessageId, upperMessageId) => {
                             AnalyticsManager.ClickPublishComment(
                                 parentMessageId == null ? "Article" : "Article_Comment", channelId, parentMessageId);
                             CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog());
                             return dispatcher.dispatch<IPromise>(
-                                Actions.sendComment(this.articleId, channelId, content, nonce, parentMessageId));
+                                Actions.sendComment(this.articleId, channelId, content, nonce, parentMessageId, upperMessageId));
                         },
                         startFollowUser = userId =>
                             dispatcher.dispatch(new StartFollowUserAction {followUserId = userId}),
@@ -171,6 +171,7 @@ namespace ConnectApp.screens {
         RefreshController _refreshController;
         string _loginSubId;
         _ArticleJumpToCommentState _jumpState;
+        bool _needRebuildWithCachedCommentPosition;
 
         float? _cachedCommentPosition;
 
@@ -199,6 +200,7 @@ namespace ConnectApp.screens {
             });
             this._jumpState = _ArticleJumpToCommentState.Inactive;
             this._cachedCommentPosition = null;
+            this._needRebuildWithCachedCommentPosition = false;
         }
 
         public override void didChangeDependencies() {
@@ -265,6 +267,46 @@ namespace ConnectApp.screens {
             var originItems = this._article == null ? new List<Widget>() : this._buildItems(context, out commentIndex);
             commentIndex = this._jumpState == _ArticleJumpToCommentState.active ? commentIndex : 0;
             this._jumpState = _ArticleJumpToCommentState.Inactive;
+            
+            Widget contentWidget;
+            //happens at the next frame after user presses the "Comment" button
+            //we rebuild a CenteredRefresher so that we can calculate out the comment section's position
+            if (this._needRebuildWithCachedCommentPosition == false && commentIndex != 0) {
+                contentWidget = new CenteredRefresher(
+                    controller: this._refreshController,
+                    enablePullDown: false,
+                    enablePullUp: this._article.hasMore,
+                    onRefresh: this._onRefresh,
+                    onNotification: this._onNotification,
+                    children: originItems,
+                    centerIndex: commentIndex
+                );
+            }
+            else {
+                //happens when the page is updated or (when _needRebuildWithCachedCommentPosition is true) at the next frame after
+                //a CenteredRefresher is created and the comment section's position is estimated
+                //we use 0 or this estimated position to initiate the SmartRefresher's init scroll offset, respectively
+                D.assert(!this._needRebuildWithCachedCommentPosition || this._cachedCommentPosition != null);
+                contentWidget = new SmartRefresher(
+                    initialOffset : this._needRebuildWithCachedCommentPosition ? this._cachedCommentPosition.Value : 0f,
+                    controller: this._refreshController,
+                    enablePullDown: false,
+                    enablePullUp: this._article.hasMore,
+                    onRefresh: this._onRefresh,
+                    onNotification: this._onNotification,
+                    child: ListView.builder(
+                        physics: new AlwaysScrollableScrollPhysics(),
+                        itemCount: originItems.Count,
+                        itemBuilder: (cxt, index) => originItems[index]
+                    ));
+                if (this._needRebuildWithCachedCommentPosition) {
+                    this._needRebuildWithCachedCommentPosition = false;
+                    //assume that when we jump to the comment, the title should always be shown as the header
+                    //this assumption will fail when an article is shorter than 16 pixels in height (as referred to in _onNotification
+                    this._controller.forward();
+                    this._isHaveTitle = true;
+                }
+            }
 
             var child = new Container(
                 color: CColors.Background,
@@ -273,15 +315,7 @@ namespace ConnectApp.screens {
                         this._buildNavigationBar(),
                         new Expanded(
                             child: new CustomScrollbar(
-                                new CenteredRefresher(
-                                    controller: this._refreshController,
-                                    enablePullDown: false,
-                                    enablePullUp: this._article.hasMore,
-                                    onRefresh: this._onRefresh,
-                                    onNotification: this._onNotification,
-                                    children: originItems,
-                                    centerIndex: commentIndex
-                                )
+                                child: contentWidget
                             )
                         ),
                         this._buildArticleTabBar()
@@ -357,16 +391,8 @@ namespace ConnectApp.screens {
                                 //cache the current comment position  
                                 this._cachedCommentPosition = commentPosition;
 
-                                //second frame: create a new scroll view which starts from the default first widget
-                                //and then jump to the calculated comment position
-                                this.setState(() => {
-                                    this._refreshController.scrollController.jumpTo(commentPosition);
-
-                                    //assume that when we jump to the comment, the title should always be shown as the header
-                                    //this assumption will fail when an article is shorter than 16 pixels in height (as referred to in _onNotification
-                                    this._controller.forward();
-                                    this._isHaveTitle = true;
-                                });
+                                //second frame: rebuild a smartRefresher with the cached _cacheCommmentPosition
+                                this.setState(() => { this._needRebuildWithCachedCommentPosition = true; });
                             });
                         },
                         child: new Container(
@@ -411,8 +437,8 @@ namespace ConnectApp.screens {
         Widget _buildArticleTabBar() {
             return new ArticleTabBar(
                 this._article.like && this.widget.viewModel.isLoggedIn,
-                () => this._comment("Article"),
-                () => this._comment("Article"),
+                () => this._sendComment("Article"),
+                () => this._sendComment("Article"),
                 () => {
                     if (!this.widget.viewModel.isLoggedIn) {
                         this.widget.actionModel.pushToLogin();
@@ -759,7 +785,14 @@ namespace ConnectApp.screens {
                 bool isPraised = _isPraised(message: message, loginUserId: this.widget.viewModel.loginUserId);
                 var parentName = "";
                 var parentAuthorId = "";
-                if (message.parentMessageId.isNotEmpty()) {
+                if (message.upperMessageId.isNotEmpty()) {
+                    if (messageDict.ContainsKey(key: message.upperMessageId)) {
+                        var parentMessage = messageDict[key: message.upperMessageId];
+                        parentName = parentMessage.author.fullName;
+                        parentAuthorId = parentMessage.author.id;
+                    }
+                }
+                else if (message.parentMessageId.isNotEmpty()) {
                     if (messageDict.ContainsKey(key: message.parentMessageId)) {
                         var parentMessage = messageDict[key: message.parentMessageId];
                         parentName = parentMessage.author.fullName;
@@ -788,11 +821,12 @@ namespace ConnectApp.screens {
                         isLoggedIn: this.widget.viewModel.isLoggedIn,
                         reportType: ReportType.comment,
                         () => this.widget.actionModel.pushToLogin(),
-                        () => this.widget.actionModel.pushToReport(commentId, ReportType.comment)
+                        () => this.widget.actionModel.pushToReport(arg1: commentId, arg2: ReportType.comment)
                     ),
-                    replyCallBack: () => this._comment(
+                    replyCallBack: () => this._sendComment(
                         "Article_Comment",
-                        commentId: commentId,
+                        message.parentMessageId.isNotEmpty() ? message.parentMessageId : commentId,
+                        message.parentMessageId.isNotEmpty() ? commentId : "",
                         message.author.fullName.isEmpty() ? "" : message.author.fullName
                     ),
                     praiseCallBack: () => {
@@ -880,7 +914,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        void _comment(string type, string commentId = "", string replyUserName = null) {
+        void _sendComment(string type, string parentMessageId = "", string upperMessageId = "", string replyUserName = null) {
             if (!this.widget.viewModel.isLoggedIn) {
                 this.widget.actionModel.pushToLogin();
             }
@@ -889,17 +923,18 @@ namespace ConnectApp.screens {
                     type: type,
                     channelId: this._article.channelId,
                     title: this._article.title,
-                    commentId: commentId
+                    commentId: parentMessageId
                 );
                 ActionSheetUtils.showModalActionSheet(new CustomInput(
                     replyUserName: replyUserName,
                     text => {
                         ActionSheetUtils.hiddenModalPopup();
                         this.widget.actionModel.sendComment(
-                            this._article.channelId,
-                            text,
+                            arg1: this._article.channelId,
+                            arg2: text,
                             Snowflake.CreateNonce(),
-                            commentId
+                            arg4: parentMessageId,
+                            arg5: upperMessageId
                         );
                     })
                 );

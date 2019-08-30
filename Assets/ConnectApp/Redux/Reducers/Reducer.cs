@@ -64,17 +64,11 @@ namespace ConnectApp.redux.reducers {
                         HistoryManager.searchArticleHistoryList(userId: action.loginInfo.userId);
                     state.articleState.blockArticleList =
                         HistoryManager.blockArticleList(userId: action.loginInfo.userId);
-                    EventBus.publish(sName: EventBusConstant.login_success, new List<object>());
                     break;
                 }
 
                 case LoginByEmailFailureAction _: {
                     state.loginState.loading = false;
-                    break;
-                }
-
-                case LoginByWechatAction _: {
-                    state.loginState.loading = true;
                     break;
                 }
 
@@ -89,7 +83,6 @@ namespace ConnectApp.redux.reducers {
                         HistoryManager.searchArticleHistoryList(userId: action.loginInfo.userId);
                     state.articleState.blockArticleList =
                         HistoryManager.blockArticleList(userId: action.loginInfo.userId);
-                    EventBus.publish(sName: EventBusConstant.login_success, new List<object>());
                     break;
                 }
 
@@ -131,6 +124,10 @@ namespace ConnectApp.redux.reducers {
                         if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
                             state.articleState.articleDict.Add(key: article.id, value: article);
                         }
+                        else {
+                            var oldArticle = state.articleState.articleDict[key: article.id];
+                            state.articleState.articleDict[key: article.id] = oldArticle.Merge(other: article);
+                        }
                     }
 
                     state.articleState.hottestHasMore = action.hottestHasMore;
@@ -157,6 +154,10 @@ namespace ConnectApp.redux.reducers {
                             if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
                                 state.articleState.articleDict.Add(key: article.id, value: article);
                             }
+                            else {
+                                var oldArticle = state.articleState.articleDict[key: article.id];
+                                state.articleState.articleDict[key: article.id] = oldArticle.Merge(other: article);
+                            }
                         }
 
                         if (state.articleState.followArticleIdDict.ContainsKey(key: currentUserId)) {
@@ -178,6 +179,10 @@ namespace ConnectApp.redux.reducers {
                             hotArticleIds.Add(item: article.id);
                             if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
                                 state.articleState.articleDict.Add(key: article.id, value: article);
+                            }
+                            else {
+                                var oldArticle = state.articleState.articleDict[key: article.id];
+                                state.articleState.articleDict[key: article.id] = oldArticle.Merge(other: article);
                             }
                         }
 
@@ -223,10 +228,13 @@ namespace ConnectApp.redux.reducers {
                         if (!state.articleState.articleDict.ContainsKey(key: project.id)) {
                             state.articleState.articleDict.Add(key: project.id, value: project);
                         }
+                        else {
+                            var oldArticle = state.articleState.articleDict[key: project.id];
+                            state.articleState.articleDict[key: project.id] = oldArticle.Merge(other: project);
+                        }
                     });
                     var article = action.articleDetail.projectData;
                     article.like = action.articleDetail.like;
-                    article.edit = action.articleDetail.edit;
                     article.projectIds = projectIds;
                     article.channelId = action.articleDetail.channelId;
                     article.contentMap = action.articleDetail.contentMap;
@@ -241,7 +249,7 @@ namespace ConnectApp.redux.reducers {
                         state.articleState.articleDict.Add(key: article.id, value: article);
                     }
 
-                    if (!article.id.Equals(action.articleId)) {
+                    if (!article.id.Equals(value: action.articleId)) {
                         if (dict.ContainsKey(key: action.articleId)) {
                             state.articleState.articleDict[key: action.articleId] = article;
                         }
@@ -466,10 +474,19 @@ namespace ConnectApp.redux.reducers {
 
                     if (state.messageState.channelMessageDict.ContainsKey(key: action.channelId)) {
                         var messageDict = state.messageState.channelMessageDict[key: action.channelId];
-                        if (messageDict.ContainsKey(key: action.parentMessageId)) {
-                            var message = messageDict[key: action.parentMessageId];
-                            message.replyMessageIds.Add(item: action.message.id);
-                            messageDict[key: action.parentMessageId] = message;
+                        if (action.upperMessageId.isNotEmpty()) {
+                            if (messageDict.ContainsKey(key: action.upperMessageId)) {
+                                var message = messageDict[key: action.upperMessageId];
+                                (message.lowerMessageIds ?? new List<string>()).Add(item: action.message.id);
+                                messageDict[key: action.upperMessageId] = message;
+                            }
+                        }
+                        else {
+                            if (messageDict.ContainsKey(key: action.parentMessageId)) {
+                                var message = messageDict[key: action.parentMessageId];
+                                (message.replyMessageIds ?? new List<string>()).Add(item: action.message.id);
+                                messageDict[key: action.parentMessageId] = message;
+                            }
                         }
 
                         state.messageState.channelMessageDict[key: action.channelId] = messageDict;
@@ -978,6 +995,10 @@ namespace ConnectApp.redux.reducers {
                         if (!state.articleState.articleDict.ContainsKey(key: searchArticle.id)) {
                             state.articleState.articleDict.Add(key: searchArticle.id, value: searchArticle);
                         }
+                        else {
+                            var oldArticle = state.articleState.articleDict[key: searchArticle.id];
+                            state.articleState.articleDict[key: searchArticle.id] = oldArticle.Merge(other: searchArticle);
+                        }
                     });
 
                     if (state.searchState.searchArticleIdDict.ContainsKey(key: action.keyword)) {
@@ -1418,13 +1439,30 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case PlayVideoAction action: {
+                case MainNavigatorPushToVideoPlayerAction action: {
                     if (action.url != null) {
                         Router.navigator.push(new PageRouteBuilder(
                                 pageBuilder: (context, animation, secondaryAnimation) =>
                                     new VideoViewScreen(url: action.url),
                                 transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                     new PushPageTransition(
+                                        routeAnimation: animation,
+                                        child: child
+                                    )
+                            )
+                        );
+                    }
+
+                    break;
+                }
+
+                case MainNavigatorPushToQRScanLoginAction action: {
+                    if (action.token != null) {
+                        Router.navigator.push(new PageRouteBuilder(
+                                pageBuilder: (context, animation, secondaryAnimation) =>
+                                    new QRScanLoginScreenConnector(token: action.token), 
+                                transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
+                                    new ModalPageTransition(
                                         routeAnimation: animation,
                                         child: child
                                     )
@@ -1520,6 +1558,10 @@ namespace ConnectApp.redux.reducers {
                         articleIds.Add(item: article.id);
                         if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
                             state.articleState.articleDict.Add(key: article.id, value: article);
+                        }
+                        else {
+                            var oldArticle = state.articleState.articleDict[key: article.id];
+                            state.articleState.articleDict[key: article.id] = oldArticle.Merge(other: article);
                         }
                     });
                     if (state.userState.userDict.ContainsKey(key: action.userId)) {
@@ -1869,6 +1911,10 @@ namespace ConnectApp.redux.reducers {
                         if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
                             state.articleState.articleDict.Add(key: article.id, value: article);
                         }
+                        else {
+                            var oldArticle = state.articleState.articleDict[key: article.id];
+                            state.articleState.articleDict[key: article.id] = oldArticle.Merge(other: article);
+                        }
                     });
                     if (state.teamState.teamDict.ContainsKey(key: action.teamId)) {
                         var team = state.teamState.teamDict[key: action.teamId];
@@ -2103,11 +2149,16 @@ namespace ConnectApp.redux.reducers {
                     state.feedbackState.loading = false;
                     break;
                 }
+
                 case InitEggsAction action: {
                     state.eggState.showFirst = action.showEggs.First();
-                }
                     break;
+                }
 
+                case ScanEnabledAction action: {
+                    state.eggState.scanEnabled = action.scanEnabled;
+                    break;
+                }
                 case EnterRealityAction _: {
                     // Enter Reality
                     RealityManager.TriggerSwitch();

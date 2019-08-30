@@ -9,12 +9,12 @@ namespace ConnectApp.Utils {
             = new Dictionary<string, Dictionary<string, _Delegate>>();
 
         public static string subscribe(string sName, _Delegate _delegate) {
-            if (!_globalSubscription.ContainsKey(sName)) {
-                _globalSubscription[sName] = new Dictionary<string, _Delegate>();
+            if (!_globalSubscription.ContainsKey(key: sName)) {
+                _globalSubscription[key: sName] = new Dictionary<string, _Delegate>();
             }
 
             var id = Guid.NewGuid().ToString();
-            _globalSubscription[sName][id] = _delegate;
+            _globalSubscription[key: sName][key: id] = _delegate;
             return id;
         }
 
@@ -23,9 +23,9 @@ namespace ConnectApp.Utils {
                 return false;
             }
 
-            if (_globalSubscription.ContainsKey(sName) &&
-                _globalSubscription[sName].ContainsKey(id)) {
-                _globalSubscription[sName].Remove(id);
+            if (_globalSubscription.ContainsKey(key: sName) &&
+                _globalSubscription[key: sName].ContainsKey(key: id)) {
+                _globalSubscription[key: sName].Remove(key: id);
                 return true;
             }
 
@@ -33,9 +33,9 @@ namespace ConnectApp.Utils {
         }
 
         public static bool publish(string sName, List<object> args) {
-            if (_globalSubscription.ContainsKey(sName)) {
-                foreach (var keyValuePair in _globalSubscription[sName].Values) {
-                    keyValuePair(args);
+            if (_globalSubscription.ContainsKey(key: sName)) {
+                foreach (var keyValuePair in _globalSubscription[key: sName].Values) {
+                    keyValuePair(args: args);
                 }
 
                 return true;

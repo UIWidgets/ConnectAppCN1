@@ -42,7 +42,8 @@ namespace ConnectApp.Models.State {
                     loading = false
                 },
                 eggState = new EggState {
-                    showFirst = false
+                    showFirst = false,
+                    scanEnabled = false
                 },
                 articleState = new ArticleState {
                     recommendArticleIds = new List<string>(),

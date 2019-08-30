@@ -99,6 +99,7 @@ namespace ConnectApp.Components {
             var type = this.notification.type;
             var data = this.notification.data;
             var subTitle = new TextSpan();
+            Widget projectTitle = new Container();
             var content = "";
             if (type == "project_liked") {
                 subTitle = new TextSpan(
@@ -166,12 +167,21 @@ namespace ConnectApp.Components {
             if (type == "team_followed") {
                 subTitle = new TextSpan(
                     children: new List<TextSpan> {
-                        new TextSpan("关注了"),
+                        new TextSpan(" 关注了 "),
                         new TextSpan(data.teamName, recognizer: new TapGestureRecognizer {
                             onTap = () => { this.pushToTeamDetail(data.teamId); }
                         }, style: CTextStyle.PLargeBlue)
                     },
                     style: CTextStyle.PLargeBody2
+                );
+            }
+
+            if (data.projectTitle.isNotEmpty()) {
+                projectTitle = new Text(
+                    data: data.projectTitle,
+                    maxLines: 1,
+                    style: CTextStyle.PLargeMedium,
+                    overflow: TextOverflow.ellipsis
                 );
             }
 
@@ -194,12 +204,7 @@ namespace ConnectApp.Components {
                         ),
                         overflow: TextOverflow.ellipsis
                     ),
-                    new Text(
-                        data: data.projectTitle,
-                        maxLines: 1,
-                        style: CTextStyle.PLargeMedium,
-                        overflow: TextOverflow.ellipsis
-                    )
+                    projectTitle
                 }
             );
         }

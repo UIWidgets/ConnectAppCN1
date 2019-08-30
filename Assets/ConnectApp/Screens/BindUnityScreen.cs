@@ -23,7 +23,10 @@ namespace ConnectApp.screens {
     }
 
     public class BindUnityScreenConnector : StatelessWidget {
-        public BindUnityScreenConnector(FromPage fromPage) {
+        public BindUnityScreenConnector(
+            FromPage fromPage,
+            Key key = null
+        ) : base(key: key) {
             this.fromPage = fromPage;
         }
 
@@ -58,7 +61,6 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new LoginChangePasswordAction {changeText = text}),
                         startLoginByEmail = () => dispatcher.dispatch(new StartLoginByEmailAction()),
                         clearEmailAndPassword = () => dispatcher.dispatch(new CleanEmailAndPasswordAction()),
-                        loginByEmailFailure = () => dispatcher.dispatch(new LoginByEmailFailureAction()),
                         loginByEmail = () => dispatcher.dispatch<IPromise>(Actions.loginByEmail())
                     };
                     return new BindUnityScreen(viewModel, actionModel);
@@ -73,7 +75,7 @@ namespace ConnectApp.screens {
             BindUnityScreenViewModel viewModel = null,
             BindUnityScreenActionModel actionModel = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
@@ -125,13 +127,7 @@ namespace ConnectApp.screens {
             this._emailFocusNode.unfocus();
             this._passwordFocusNode.unfocus();
             this.widget.actionModel.startLoginByEmail();
-            this.widget.actionModel.loginByEmail().Catch(_ => {
-                this.widget.actionModel.loginByEmailFailure();
-                var customSnackBar = new CustomSnackBar(
-                    "邮箱或密码不正确，请稍后再试。"
-                );
-                customSnackBar.show();
-            });
+            this.widget.actionModel.loginByEmail();
         }
 
         public override Widget build(BuildContext context) {
@@ -173,7 +169,7 @@ namespace ConnectApp.screens {
                     leftWidget = new CustomButton(
                         onPressed: () => this.widget.actionModel.loginRouterPop(),
                         child: new Icon(
-                            Icons.arrow_back,
+                            icon: Icons.arrow_back,
                             size: 24,
                             color: CColors.Icon
                         )
@@ -196,7 +192,7 @@ namespace ConnectApp.screens {
                     leftWidget = new CustomButton(
                         onPressed: () => this.widget.actionModel.mainRouterPop(),
                         child: new Icon(
-                            Icons.arrow_back,
+                            icon: Icons.arrow_back,
                             size: 24,
                             color: CColors.Icon
                         )
@@ -321,12 +317,15 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildBottomView() {
-            Widget right = new Container();
+            Widget right;
             if (this.widget.viewModel.loginLoading) {
                 right = new CustomActivityIndicator(
                     loadingColor: LoadingColor.white,
                     size: LoadingSize.small
                 );
+            }
+            else {
+                right = new Container();
             }
 
             return new Container(

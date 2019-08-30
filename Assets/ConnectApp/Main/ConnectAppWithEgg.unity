@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.29689792, g: 0.6337598, b: 0.99371535, a: 1}
+  m_IndirectSpecularColor: {r: 0.29685917, g: 0.6337722, b: 0.9937156, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1123,7 +1123,7 @@ MonoBehaviour:
     width: 1
     height: 1
   devicePixelRatioOverride: 0
-  antiAliasingOverride: 4
+  antiAliasingOverride: 0
 --- !u!222 &1016304347
 CanvasRenderer:
   m_ObjectHideFlags: 0
