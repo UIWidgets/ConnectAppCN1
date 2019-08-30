@@ -105,7 +105,7 @@ namespace ConnectApp.screens {
         Widget _buildNotLoginInNavigationBar() {
             return new Container(
                 color: CColors.White,
-                height: 240,
+                height: 196,
                 padding: EdgeInsets.only(16, bottom: 16),
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -155,7 +155,7 @@ namespace ConnectApp.screens {
             return new GestureDetector(
                 onTap: () => this.widget.pushToUserDetail(obj: user.id),
                 child: new Container(
-                    height: 184,
+                    height: 140,
                     padding: EdgeInsets.only(16, bottom: 16),
                     color: CColors.White,
                     child: new Column(
