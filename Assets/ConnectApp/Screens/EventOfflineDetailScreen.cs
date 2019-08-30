@@ -98,6 +98,7 @@ namespace ConnectApp.screens {
         AnimationController _controller;
         float _titleHeight;
         float _topPadding;
+        float _bottomPadding;
         float _aspectRatio;
         static readonly GlobalKey eventTitleKey = GlobalKey.key("event-title");
 
@@ -157,6 +158,12 @@ namespace ConnectApp.screens {
                 Application.platform != RuntimePlatform.Android) {
                 this._topPadding = MediaQuery.of(context).padding.top;
             }
+            
+            if (this._bottomPadding != MediaQuery.of(context).padding.bottom &&
+                Application.platform != RuntimePlatform.Android) {
+                this._bottomPadding = MediaQuery.of(context).padding.bottom;
+                this.setState(() => {});
+            }
 
             if ((this.widget.viewModel.eventDetailLoading || eventObj?.user == null) &&
                 !(eventObj?.isNotFirst ?? false)) {
@@ -169,6 +176,7 @@ namespace ConnectApp.screens {
                 color: CColors.White,
                 child: new CustomSafeArea(
                     top: false,
+                    bottom: false,
                     child: new Container(
                         color: CColors.White,
                         child: new NotificationListener<ScrollNotification>(
@@ -350,8 +358,8 @@ namespace ConnectApp.screens {
             }
 
             return new Container(
-                height: 64,
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                height: 56 + this._bottomPadding,
+                padding: EdgeInsets.only(16, 8, 16, 8 + this._bottomPadding),
                 decoration: new BoxDecoration(
                     CColors.White,
                     border: new Border(new BorderSide(CColors.Separator))
