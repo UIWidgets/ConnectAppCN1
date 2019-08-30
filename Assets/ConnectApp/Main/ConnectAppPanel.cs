@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Models.State;
 using ConnectApp.Plugins;
@@ -43,28 +42,28 @@ namespace ConnectApp.Main {
         protected override void Update() {
             base.Update();
             JPushPlugin.addListener();
-            if (VideoPlayerManager.instance.isRotation) {
-                if (Input.deviceOrientation == DeviceOrientation.Portrait &&
-                    Screen.orientation != ScreenOrientation.Portrait && !VideoPlayerManager.instance.lockPortrait) {
-                    VideoPlayerManager.instance.lockLandscape = false;
-                    EventBus.publish(EventBusConstant.changeOrientation, new List<object> {ScreenOrientation.Portrait});
-                }
-                else if (Input.deviceOrientation == DeviceOrientation.LandscapeLeft) {
-                    VideoPlayerManager.instance.lockPortrait = false;
-                    if (Screen.orientation != ScreenOrientation.LandscapeLeft &&
-                        !VideoPlayerManager.instance.lockLandscape) {
-                        EventBus.publish(EventBusConstant.changeOrientation,
-                            new List<object> {ScreenOrientation.LandscapeLeft});
-                    }
-                }
-                else if (Input.deviceOrientation == DeviceOrientation.LandscapeRight) {
-                    VideoPlayerManager.instance.lockPortrait = false;
-                    if (Screen.orientation != ScreenOrientation.LandscapeRight) {
-                        EventBus.publish(EventBusConstant.changeOrientation,
-                            new List<object> {ScreenOrientation.LandscapeRight});
-                    }
-                }
-            }
+//            if (VideoPlayerManager.instance.isRotation) {
+//                if (Input.deviceOrientation == DeviceOrientation.Portrait &&
+//                    Screen.orientation != ScreenOrientation.Portrait && !VideoPlayerManager.instance.lockPortrait) {
+//                    VideoPlayerManager.instance.lockLandscape = false;
+//                    EventBus.publish(EventBusConstant.changeOrientation, new List<object> {ScreenOrientation.Portrait});
+//                }
+//                else if (Input.deviceOrientation == DeviceOrientation.LandscapeLeft) {
+//                    VideoPlayerManager.instance.lockPortrait = false;
+//                    if (Screen.orientation != ScreenOrientation.LandscapeLeft &&
+//                        !VideoPlayerManager.instance.lockLandscape) {
+//                        EventBus.publish(EventBusConstant.changeOrientation,
+//                            new List<object> {ScreenOrientation.LandscapeLeft});
+//                    }
+//                }
+//                else if (Input.deviceOrientation == DeviceOrientation.LandscapeRight) {
+//                    VideoPlayerManager.instance.lockPortrait = false;
+//                    if (Screen.orientation != ScreenOrientation.LandscapeRight) {
+//                        EventBus.publish(EventBusConstant.changeOrientation,
+//                            new List<object> {ScreenOrientation.LandscapeRight});
+//                    }
+//                }
+//            }
         }
 
         protected override Widget createWidget() {

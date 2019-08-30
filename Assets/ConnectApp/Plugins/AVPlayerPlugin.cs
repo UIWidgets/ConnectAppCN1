@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using ConnectApp.Components;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
@@ -10,14 +9,14 @@ using UnityEngine;
 
 namespace ConnectApp.Plugins {
     public class AVPlayerPlugin {
-
-        public static void initVideoPlayer(string url,string cookie,float left,float top,float width,float height,bool isPop) {
+        public static void initVideoPlayer(string url, string cookie, float left, float top, float width, float height,
+            bool isPop) {
             if (Application.isEditor) {
                 return;
             }
 
             VideoPlayerManager.instance.isRotation = true;
-            InitPlayer(url,cookie,left,top,width,height,isPop);
+            InitPlayer(url, cookie, left, top, width, height, isPop);
             UIWidgetsMessageManager.instance.AddChannelMessageDelegate("player", _handleMethodCall);
         }
 
@@ -25,12 +24,12 @@ namespace ConnectApp.Plugins {
             if (Application.isEditor) {
                 return;
             }
+
             VideoPlayerManager.instance.isRotation = false;
             VideoRelease();
             UIWidgetsMessageManager.instance.RemoveChannelMessageDelegate("player", _handleMethodCall);
-
         }
-        
+
         static void _handleMethodCall(string method, List<JSONNode> args) {
             if (JPushPlugin.context != null) {
                 using (WindowProvider.of(JPushPlugin.context).getScope()) {
@@ -41,20 +40,15 @@ namespace ConnectApp.Plugins {
                         }
                             break;
                         case "Share": {
-                            
                         }
                             break;
                     }
                 }
             }
-
-            
         }
-        
 
 
 #if UNITY_IOS
-
         [DllImport("__Internal")]
         internal static extern void InitPlayer(string url,string cookie,float left,float top,float width,float height,bool isPop);
         
@@ -77,8 +71,9 @@ namespace ConnectApp.Plugins {
             return _plugin;
         }
 
-        static void InitPlayer(string url,string cookie,float left,float top,float width,float height,bool isPop) {
-            Plugin().Call("InitPlayer",url,cookie,left,top,width,height,isPop);
+        static void InitPlayer(string url, string cookie, float left, float top, float width, float height,
+            bool isPop) {
+            Plugin().Call("InitPlayer", url, cookie, left, top, width, height, isPop);
         }
 
         static void VideoRelease() {
@@ -90,7 +85,4 @@ namespace ConnectApp.Plugins {
         
 #endif
     }
-    
-    
-    
 }

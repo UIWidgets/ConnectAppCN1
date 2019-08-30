@@ -44,7 +44,7 @@ static AVPlayerController *avp = nil;
     self.wmPlayer.tintColor = [UIColor colorWithRed:243.0/255 green:33.0/255 blue:148.0/255 alpha:1];//改变播放器着色
     self.wmPlayer.enableBackgroundMode = NO;//开启后台播放模式
     self.wmPlayer.delegate = self;
-    [UnityGetGLViewController().view addSubview:self.wmPlayer];
+    [UnityGetGLView() addSubview:self.wmPlayer];
     [self.wmPlayer mas_makeConstraints:^(MASConstraintMaker *make) {
         make.leading.trailing.equalTo(self.wmPlayer.superview);
         make.top.mas_equalTo(top);
@@ -72,6 +72,8 @@ static AVPlayerController *avp = nil;
     }
 }
 -(void)wmplayer:(WMPlayer *)wmplayer clickedFullScreenButton:(UIButton *)fullScreenBtn{
+    NSNumber *orientationUnknown = [NSNumber numberWithInt:0];
+    [[UIDevice currentDevice] setValue:orientationUnknown forKey:@"orientation"];
     if (self.wmPlayer.isFullscreen) {//全屏
         //强制翻转屏幕，Home键在下边。
         [[UIDevice currentDevice] setValue:@(UIInterfaceOrientationPortrait) forKey:@"orientation"];
@@ -93,6 +95,7 @@ static AVPlayerController *avp = nil;
     [self.wmPlayer pause];
     [self.wmPlayer removeFromSuperview];
     self.wmPlayer = nil;
+    [[NSNotificationCenter defaultCenter]removeObserver:self];
 }
 /**
  *  旋转屏幕通知
@@ -144,11 +147,12 @@ static AVPlayerController *avp = nil;
             }else{
                 make.edges.mas_equalTo(UIEdgeInsetsMake(0, 0, 0, 0));
             }
+            make.edges.mas_equalTo(UIEdgeInsetsMake(0, 0, 0, 0));
         }];
         self.wmPlayer.isFullscreen = YES;
     }
-    if (@available(iOS 11.0, *)) {
-        [UnityGetGLViewController() setNeedsUpdateOfHomeIndicatorAutoHidden];
-    }
+//    if (@available(iOS 11.0, *)) {
+//        [UnityGetGLViewController() setNeedsUpdateOfHomeIndicatorAutoHidden];
+//    }
 }
 @end

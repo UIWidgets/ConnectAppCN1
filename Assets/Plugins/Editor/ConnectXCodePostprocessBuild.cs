@@ -24,24 +24,26 @@ namespace Plugins.Editor {
             proj.ReadFromString(File.ReadAllText(path: projPath));
             string target = proj.TargetGuidByName("Unity-iPhone");
 
-            proj.SetBuildProperty(targetGuid: target, "LIBRARY_SEARCH_PATHS", "$(inherited)");
-            proj.AddBuildProperty(targetGuid: target, "LIBRARY_SEARCH_PATHS", "$(SRCROOT)");
-            proj.AddBuildProperty(targetGuid: target, "LIBRARY_SEARCH_PATHS", "$(PROJECT_DIR)/Libraries");
-            proj.AddBuildProperty(targetGuid: target, "LIBRARY_SEARCH_PATHS", "$(PROJECT_DIR)/Libraries/Plugins/iOS");
-            proj.AddBuildProperty(targetGuid: target, "LIBRARY_SEARCH_PATHS",
+            proj.SetBuildProperty(target, "LIBRARY_SEARCH_PATHS", "$(inherited)");
+            proj.AddBuildProperty(target, "LIBRARY_SEARCH_PATHS", "$(SRCROOT)");
+            proj.AddBuildProperty(target, "LIBRARY_SEARCH_PATHS", "$(PROJECT_DIR)/Libraries");
+            proj.AddBuildProperty(target, "LIBRARY_SEARCH_PATHS", "$(PROJECT_DIR)/Libraries/Plugins/iOS");
+            proj.AddBuildProperty(target, "LIBRARY_SEARCH_PATHS",
                 "$(PROJECT_DIR)/Libraries/Plugins/iOS/WeChatSDK1.8.4");
 
             // Add Framework
-            proj.AddFrameworkToProject(targetGuid: target, "libz.tbd", true);
-            proj.AddFrameworkToProject(targetGuid: target, "libc++.tbd", true);
-            proj.AddFrameworkToProject(targetGuid: target, "libsqlite3.0.tbd", true);
-            proj.AddFrameworkToProject(targetGuid: target, "CoreFoundation.framework", false);
-            proj.AddFrameworkToProject(targetGuid: target, "libresolv.tbd", false);
-            proj.AddFrameworkToProject(targetGuid: target, "UserNotifications.framework", false);
-            proj.AddFrameworkToProject(targetGuid: target, "CoreTelephony.framework", true);
+            proj.AddFrameworkToProject(target, "libz.tbd", true);
+            proj.AddFrameworkToProject(target, "libc++.tbd", true);
+            proj.AddFrameworkToProject(target, "libsqlite3.0.tbd", true);
+            proj.AddFrameworkToProject(target, "CoreFoundation.framework", false);
+            proj.AddFrameworkToProject(target, "libresolv.tbd", false);
+            proj.AddFrameworkToProject(target, "UserNotifications.framework", false);
+            proj.AddFrameworkToProject(target, "CoreTelephony.framework", true);
+            proj.AddFrameworkToProject(target, "CoreServices.framework", true);
+            proj.AddFrameworkToProject(target, "MediaPlayer.framework", true);
 
-            proj.AddBuildProperty(targetGuid: target, "OTHER_LDFLAGS", "-ObjC");
-            proj.AddBuildProperty(targetGuid: target, "OTHER_LDFLAGS", "-all_load");
+            proj.AddBuildProperty(target, "OTHER_LDFLAGS", "-ObjC");
+            proj.AddBuildProperty(target, "OTHER_LDFLAGS", "-all_load");
 
             //associated-domains
 
@@ -104,7 +106,7 @@ namespace Plugins.Editor {
                 destBaseFile);
 
             // 执行修改操作
-            File.WriteAllText(path: projPath, proj.WriteToString());
+            File.WriteAllText(projPath, proj.WriteToString());
         }
 
 
@@ -174,7 +176,7 @@ namespace Plugins.Editor {
             }
 
             // 写入
-            File.WriteAllText(path: plistPath, plist.WriteToString());
+            File.WriteAllText(plistPath, plist.WriteToString());
         }
     }
 }
