@@ -16,9 +16,9 @@ namespace ConnectApp.Constants {
 
         public const string MINIID = "gh_f731aec0bdd0";
 
-        public const string versionNumber = "1.1.1";
+        public const string versionNumber = "1.1.2";
 
-        public const int versionCode = 53;
+        public const int versionCode = 54;
 
         public const string originCodeUrl = "https://github.com/UnityTech/ConnectAppCN";
 
