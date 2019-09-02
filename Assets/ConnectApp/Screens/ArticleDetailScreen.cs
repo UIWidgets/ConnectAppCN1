@@ -22,6 +22,7 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Avatar = ConnectApp.Components.Avatar;
+using Image = Unity.UIWidgets.ui.Image;
 
 namespace ConnectApp.screens {
     public class ArticleDetailScreenConnector : StatelessWidget {
@@ -235,8 +236,20 @@ namespace ConnectApp.screens {
                 );
             }
 
-            if (this._article == null || this._article.channelId == null) {
-                return new Container();
+            if (this._article == null || this._article.channelId == null) { 
+                return new Container(
+                    color: CColors.White,
+                    child: new CustomSafeArea(
+                        child: new Column(
+                            children: new List<Widget> {
+                                this._buildNavigationBar(false),
+                                new Flexible(
+                                    child: new BlankView("帖子不存在", "image/default-history")
+                                )
+                            }
+                        )
+                    )
+                );;
             }
 
             if (this._article.ownerType == "user") {

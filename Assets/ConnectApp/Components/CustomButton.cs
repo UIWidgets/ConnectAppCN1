@@ -1,7 +1,6 @@
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.Components {
@@ -16,7 +15,7 @@ namespace ConnectApp.Components {
         ) : base(key) {
             this.onPressed = onPressed;
             this.padding = padding ?? EdgeInsets.all(8.0f);
-            this.decoration = decoration;
+            this.decoration = decoration ?? new BoxDecoration();
             this.enable = enable;
             this.child = child;
         }
