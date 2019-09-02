@@ -1,9 +1,10 @@
 using System;
+using System.Collections.Generic;
 using ConnectApp.Constants;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 
 namespace ConnectApp.Components.pull_to_refresh {
     public enum RefreshHeaderType {
@@ -61,38 +62,63 @@ namespace ConnectApp.Components.pull_to_refresh {
         }
 
         Widget _buildOther() {
-            CrossFadeState? crossFadeState = null;
-            string refreshText = "";
-            if (this.mode == 0 || this.mode == 1) {
-                refreshText = "探索新鲜内容";
-                crossFadeState = CrossFadeState.showFirst;
+            CrossFadeState? crossFadeState;
+            string refreshText;
+            AnimatingType type;
+            switch (this.mode) {
+                case 0: {
+                    refreshText = "探索新鲜内容";
+                    type = AnimatingType.stop;
+                    crossFadeState = CrossFadeState.showFirst;
+                    break;
+                }
+                case 1: {
+                    refreshText = "探索新鲜内容";
+                    type = AnimatingType.stop;
+                    crossFadeState = CrossFadeState.showFirst;
+                    break;
+                }
+                case 2: {
+                    refreshText = "";
+                    type = AnimatingType.repeat;
+                    crossFadeState = CrossFadeState.showSecond;
+                    break;
+                }
+                case 3: {
+                    refreshText = "刷新成功";
+                    type = AnimatingType.stop;
+                    crossFadeState = CrossFadeState.showFirst;
+                    break;
+                }
+                case 4: {
+                    refreshText = "刷新失败";
+                    type = AnimatingType.stop;
+                    crossFadeState = CrossFadeState.showFirst;
+                    break;
+                }
+                default: {
+                    refreshText = "";
+                    type = AnimatingType.stop;
+                    crossFadeState = null;
+                    break;
+                }
             }
 
-            if (this.mode == 2) {
-                crossFadeState = CrossFadeState.showSecond;
-            }
-
-            if (this.mode == 3) {
-                refreshText = "刷新成功";
-                crossFadeState = CrossFadeState.showFirst;
-            }
-
-            if (this.mode == 4) {
-                refreshText = "刷新失败";
-                crossFadeState = CrossFadeState.showFirst;
+            List<string> images = new List<string>();
+            for (int index = 1; index < 237; index++) {
+                images.Add($"image/refresh-loading/refresh-loading{index}");
             }
 
             Widget child = new AnimatedCrossFade(
                 firstChild: _buildText(text: refreshText),
-                secondChild: Image.asset(
-                    "image/loading.gif",
-                    width: 235,
-                    height: 40,
-                    filterMode: FilterMode.Point
+                secondChild: new FrameAnimationImage(
+                    images: images,
+                    type: type
                 ),
-                duration: TimeSpan.FromMilliseconds(500),
+                duration: TimeSpan.FromMilliseconds(300),
                 crossFadeState: crossFadeState,
-                alignment: Alignment.center
+                alignment: Alignment.center,
+                layoutBuilder: _layoutBuilder
             );
             return new Container(
                 height: 56.0f,
@@ -110,6 +136,24 @@ namespace ConnectApp.Components.pull_to_refresh {
                     fontFamily: "Roboto-Medium",
                     color: CColors.BrownGrey
                 )
+            );
+        }
+
+        static Widget _layoutBuilder(Widget topChild, Key topChildKey, Widget bottomChild, Key bottomChildKey) {
+            return new Stack(
+                overflow: Overflow.visible,
+                children: new List<Widget> {
+                    new Positioned(
+                        key: bottomChildKey,
+                        left: 0.0f,
+                        top: 0.0f,
+                        right: 0.0f,
+                        bottom: 0.0f,
+                        child: bottomChild),
+                    new Positioned(
+                        key: topChildKey,
+                        child: topChild)
+                }
             );
         }
     }
