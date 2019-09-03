@@ -22,8 +22,7 @@ namespace ConnectApp.screens {
     public class RecommendArticleScreenConnector : StatelessWidget {
         public RecommendArticleScreenConnector(
             Key key = null
-        ) : base(key: key) {
-        }
+        ) : base(key: key) { }
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ArticlesScreenViewModel>(
@@ -43,9 +42,9 @@ namespace ConnectApp.screens {
                     var actionModel = new ArticlesScreenActionModel {
                         pushToSearch = () => {
                             dispatcher.dispatch(new MainNavigatorPushToAction {
-                                routeName = MainNavigatorRoutes.Search
+                                routeName = MainNavigatorRoutes.GoodsDetail
                             });
-                            AnalyticsManager.ClickEnterSearch("Home_Article");
+                            // AnalyticsManager.ClickEnterSearch("Home_Article");
                         },
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login

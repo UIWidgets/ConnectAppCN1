@@ -13,6 +13,7 @@ namespace ConnectApp.Models.State {
 
         public EggState eggState { get; set; }
         public ArticleState articleState { get; set; }
+        public GoodsState goodsState { get; set; }
         public EventState eventState { get; set; }
         public PopularSearchState popularSearchState { get; set; }
         public SearchState searchState { get; set; }
@@ -58,6 +59,10 @@ namespace ConnectApp.Models.State {
                     hotArticleHasMore = false,
                     articleHistory = HistoryManager.articleHistoryList(isLogin ? loginInfo.userId : null),
                     blockArticleList = HistoryManager.blockArticleList(isLogin ? loginInfo.userId : null)
+                },
+                goodsState = new GoodsState {
+                    goodsDetailLoading = false,
+                    goodsDict = new Dictionary<string, Goods>()
                 },
                 eventState = new EventState {
                     ongoingEvents = new List<string>(),

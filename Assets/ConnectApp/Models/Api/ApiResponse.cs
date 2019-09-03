@@ -40,6 +40,11 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
+    public class FetchGoodsDetailResponse {
+        public Goods goods;
+    }
+
+    [Serializable]
     public class FetchEventsResponse {
         public FetchEventListResponse events;
         public Dictionary<string, User> userMap;
@@ -75,7 +80,7 @@ namespace ConnectApp.Models.Api {
         public int currentPage;
         public List<int> pages;
     }
-    
+
     [Serializable]
     public class FetchSearchUserResponse {
         public bool hasMore;

@@ -139,6 +139,12 @@ namespace ConnectApp.Constants {
             color: CColors.TextBody
         );
 
+        public static readonly TextStyle PXLargeBold = new TextStyle(
+            fontSize: 18,
+            fontFamily: "Roboto-Bold",
+            color: CColors.TextTitle
+        );
+
         public static readonly TextStyle PXLargeBody4 = new TextStyle(
             height: 1.68f,
             fontSize: 18,
@@ -407,6 +413,12 @@ namespace ConnectApp.Constants {
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody5
         );
+        
+        public static readonly TextStyle PRegularButton = new TextStyle(
+            fontSize: 14,
+            fontFamily: "Roboto-Regular",
+            color: CColors.TextTitle
+        );
     }
 
     public static class CColors {
@@ -453,5 +465,6 @@ namespace ConnectApp.Constants {
         public static readonly Color DullLavender = new Color(0xFF9E91F8);
         public static readonly Color BrightLavender = new Color(0xFFC586F3);
         public static readonly Color Comet = new Color(0xFF636672);
+        public static readonly Color VeryLightPink = new Color(0xFFBFBFBF);
     }
 }

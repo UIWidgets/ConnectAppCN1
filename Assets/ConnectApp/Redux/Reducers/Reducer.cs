@@ -5,6 +5,7 @@ using ConnectApp.Components;
 using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
+using ConnectApp.Reality;
 using ConnectApp.redux.actions;
 using ConnectApp.screens;
 using ConnectApp.Utils;
@@ -13,7 +14,6 @@ using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using EventType = ConnectApp.Models.State.EventType;
-using ConnectApp.Reality;
 
 namespace ConnectApp.redux.reducers {
     public static class AppReducer {
@@ -490,6 +490,29 @@ namespace ConnectApp.redux.reducers {
                         }
 
                         state.messageState.channelMessageDict[key: action.channelId] = messageDict;
+                    }
+
+                    break;
+                }
+
+                case FetchGoodsDetailSuccessAction action: {
+                    state.goodsState.goodsDetailLoading = false;
+                    var goods = action.goods;
+                    var dict = state.goodsState.goodsDict;
+                    if (dict.ContainsKey(key: goods.id)) {
+                        state.goodsState.goodsDict[key: goods.id] = goods;
+                    }
+                    else {
+                        state.goodsState.goodsDict.Add(key: goods.id, value: goods);
+                    }
+
+                    if (!goods.id.Equals(value: action.goodsId)) {
+                        if (dict.ContainsKey(key: action.goodsId)) {
+                            state.goodsState.goodsDict[key: action.goodsId] = goods;
+                        }
+                        else {
+                            state.goodsState.goodsDict.Add(key: action.goodsId, value: goods);
+                        }
                     }
 
                     break;
@@ -997,7 +1020,8 @@ namespace ConnectApp.redux.reducers {
                         }
                         else {
                             var oldArticle = state.articleState.articleDict[key: searchArticle.id];
-                            state.articleState.articleDict[key: searchArticle.id] = oldArticle.Merge(other: searchArticle);
+                            state.articleState.articleDict[key: searchArticle.id] =
+                                oldArticle.Merge(other: searchArticle);
                         }
                     });
 
@@ -1190,6 +1214,23 @@ namespace ConnectApp.redux.reducers {
                                 pageBuilder: (context, animation, secondaryAnimation) =>
                                     new ArticleDetailScreenConnector(articleId: action.articleId,
                                         isPush: action.isPush),
+                                transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
+                                    new PushPageTransition(
+                                        routeAnimation: animation,
+                                        child: child
+                                    )
+                            )
+                        );
+                    }
+
+                    break;
+                }
+
+                case MainNavigatorPushToGoodsDetailAction action: {
+                    if (action.goodsId != null) {
+                        Router.navigator.push(new PageRouteBuilder(
+                                pageBuilder: (context, animation, secondaryAnimation) =>
+                                    new GoodsDetailScreenConnector(goodsId: action.goodsId, isPush: action.isPush),
                                 transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                     new PushPageTransition(
                                         routeAnimation: animation,
@@ -1460,7 +1501,7 @@ namespace ConnectApp.redux.reducers {
                     if (action.token != null) {
                         Router.navigator.push(new PageRouteBuilder(
                                 pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new QRScanLoginScreenConnector(token: action.token), 
+                                    new QRScanLoginScreenConnector(token: action.token),
                                 transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                     new ModalPageTransition(
                                         routeAnimation: animation,
@@ -2129,7 +2170,7 @@ namespace ConnectApp.redux.reducers {
 
                     break;
                 }
-                
+
                 case ChangeFeedbackTypeAction action: {
                     state.feedbackState.feedbackType = action.type;
                     break;
@@ -2159,6 +2200,7 @@ namespace ConnectApp.redux.reducers {
                     state.eggState.scanEnabled = action.scanEnabled;
                     break;
                 }
+
                 case EnterRealityAction _: {
                     // Enter Reality
                     RealityManager.TriggerSwitch();

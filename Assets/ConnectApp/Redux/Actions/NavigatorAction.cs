@@ -11,11 +11,9 @@ namespace ConnectApp.redux.actions {
         public string routeName;
     }
 
-    public class MainNavigatorPushReplaceSplashAction : BaseAction {
-    }
+    public class MainNavigatorPushReplaceSplashAction : BaseAction { }
 
-    public class MainNavigatorPushReplaceMainAction : BaseAction {
-    }
+    public class MainNavigatorPushReplaceMainAction : BaseAction { }
 
     public class MainNavigatorPushToRouteAction : BaseAction {
         public Route route;
@@ -28,6 +26,11 @@ namespace ConnectApp.redux.actions {
 
     public class MainNavigatorPushToArticleDetailAction : BaseAction {
         public string articleId;
+        public bool isPush = false;
+    }
+
+    public class MainNavigatorPushToGoodsDetailAction : BaseAction {
+        public string goodsId;
         public bool isPush = false;
     }
 
@@ -71,8 +74,7 @@ namespace ConnectApp.redux.actions {
         public ReportType reportType;
     }
 
-    public class LoginNavigatorPushToBindUnityAction : BaseAction {
-    }
+    public class LoginNavigatorPushToBindUnityAction : BaseAction { }
 
     public class LoginNavigatorPushToAction : BaseAction {
         public string routeName;
@@ -97,9 +99,8 @@ namespace ConnectApp.redux.actions {
     public class MainNavigatorPushToWebViewAction : BaseAction {
         public string url = "";
     }
-    
-    public class EnterRealityAction : BaseAction {
-    }
+
+    public class EnterRealityAction : BaseAction { }
 
     public class MainNavigatorPushToQRScanLoginAction : BaseAction {
         public string token = "";

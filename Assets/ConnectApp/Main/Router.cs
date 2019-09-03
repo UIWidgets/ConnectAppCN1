@@ -19,6 +19,7 @@ namespace ConnectApp.Main {
         public const string Main = "/main";
         public const string Search = "/search";
         public const string ArticleDetail = "/article-detail";
+        public const string GoodsDetail = "/goods-detail";
         public const string Setting = "/setting";
         public const string MyEvent = "/my-event";
         public const string History = "/history";
@@ -49,7 +50,7 @@ namespace ConnectApp.Main {
         public static NavigatorState navigator {
             get { return globalKey.currentState as NavigatorState; }
         }
-        
+
         public static RouteObserve<PageRoute> routeObserve {
             get { return _routeObserve; }
         }
@@ -59,6 +60,7 @@ namespace ConnectApp.Main {
                 var routes = new Dictionary<string, WidgetBuilder> {
                     {MainNavigatorRoutes.Search, context => new SearchScreenConnector()},
                     {MainNavigatorRoutes.ArticleDetail, context => new ArticleDetailScreenConnector("")},
+                    {MainNavigatorRoutes.GoodsDetail, context => new GoodsDetailScreenConnector("")},
                     {MainNavigatorRoutes.Setting, context => new SettingScreenConnector()},
                     {MainNavigatorRoutes.MyEvent, context => new MyEventsScreenConnector()},
                     {MainNavigatorRoutes.History, context => new HistoryScreenConnector()},
