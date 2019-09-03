@@ -53,7 +53,7 @@ namespace ConnectApp.Components.LikeButton.Utils {
 
         readonly float period;
 
-        public override float transform(float t) {
+        protected override float transformInternal(float t) {
             D.assert(t >= 0 && t <= 1);
             t -= 1;
             return t * t * ((this.period + 1) * t + this.period) + 1;
