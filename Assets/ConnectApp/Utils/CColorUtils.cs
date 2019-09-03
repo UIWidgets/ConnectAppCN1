@@ -4,7 +4,7 @@ using ConnectApp.Constants;
 using Unity.UIWidgets.ui;
 
 namespace ConnectApp.Utils {
-    public class CColorUtils {
+    public static class CColorUtils {
         public static readonly List<Color> ColorsList = new List<Color> {
             CColors.Gerakdine,
             CColors.Tan,
