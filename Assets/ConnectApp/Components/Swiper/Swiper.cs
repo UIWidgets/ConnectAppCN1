@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.Components.Swiper.TransformerPageView;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
@@ -254,7 +253,7 @@ namespace ConnectApp.Components.Swiper {
         }
 
         bool _isPageViewLayout() {
-            return this.widget.layout == null || this.widget.layout == SwiperLayout.DEFAULT;
+            return this.widget.layout == SwiperLayout.DEFAULT;
         }
 
         public override void didChangeDependencies() {
@@ -333,7 +332,7 @@ namespace ConnectApp.Components.Swiper {
                     transformer = new ScaleAndFadeTransformer(scale: this.widget.scale, fade: this.widget.fade);
                 }
 
-                Widget child = new TransformerPageView.TransformerPageView(
+                Widget child = new TransformerPageView(
                     pageController: this._pageController,
                     loop: this.widget.loop,
                     itemCount: this.widget.itemCount,
@@ -439,33 +438,33 @@ namespace ConnectApp.Components.Swiper {
         public override Widget build(BuildContext context) {
             Widget swiper = this._buildSwiper();
             List<Widget> listForStack = null;
-            SwiperPluginConfig config = null;
-            if (this.widget.control != null) {
-                config = this._ensureConfig(config);
-                listForStack = this._ensureListForStack(
-                    swiper, listForStack, this.widget.control.build(context, config));
-            }
+//            SwiperPluginConfig config = null;
+//            if (this.widget.control != null) {
+//                config = this._ensureConfig(config);
+//                listForStack = this._ensureListForStack(
+//                    swiper, listForStack, this.widget.control.build(context, config));
+//            }
 
-            if (this.widget.plugins != null) {
-                config = this._ensureConfig(config);
-                foreach (SwiperPlugin plugin in this.widget.plugins) {
-                    listForStack = this._ensureListForStack(
-                        swiper, listForStack, plugin.build(context, config));
-                }
-            }
-
-            if (this.widget.pagination != null) {
-                config = this._ensureConfig(config);
-                if (this.widget.outer == true) {
-                    return this._buildOuterPagination((SwiperPagination) this.widget.pagination,
-                        listForStack == null ? swiper : new Stack(children: listForStack),
-                        config);
-                }
-                else {
-                    listForStack = this._ensureListForStack(
-                        swiper, listForStack, this.widget.pagination.build(context, config));
-                }
-            }
+//            if (this.widget.plugins != null) {
+//                config = this._ensureConfig(config);
+//                foreach (SwiperPlugin plugin in this.widget.plugins) {
+//                    listForStack = this._ensureListForStack(
+//                        swiper, listForStack, plugin.build(context, config));
+//                }
+//            }
+//
+//            if (this.widget.pagination != null) {
+//                config = this._ensureConfig(config);
+//                if (this.widget.outer == true) {
+//                    return this._buildOuterPagination((SwiperPagination) this.widget.pagination,
+//                        listForStack == null ? swiper : new Stack(children: listForStack),
+//                        config);
+//                }
+//                else {
+//                    listForStack = this._ensureListForStack(
+//                        swiper, listForStack, this.widget.pagination.build(context, config));
+//                }
+//            }
 
             if (listForStack != null) {
                 return new Stack(

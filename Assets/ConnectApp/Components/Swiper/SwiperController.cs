@@ -1,5 +1,3 @@
-using ConnectApp.Components.Swiper.TransformerPageView;
-
 namespace ConnectApp.Components.Swiper {
     public class SwiperController : IndexController {
         public const int START_AUTOPLAY = 2;
@@ -20,13 +18,13 @@ namespace ConnectApp.Components.Swiper {
 
         public SwiperController() { }
 
-        void startAutoplay() {
+        public void startAutoplay() {
             this.evt = START_AUTOPLAY;
             this.autoplay = true;
             this.notifyListeners();
         }
 
-        void stopAutoplay() {
+        public void stopAutoplay() {
             this.evt = STOP_AUTOPLAY;
             this.autoplay = false;
             this.notifyListeners();

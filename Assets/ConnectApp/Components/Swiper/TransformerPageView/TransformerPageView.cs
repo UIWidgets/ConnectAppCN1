@@ -7,7 +7,7 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
-namespace ConnectApp.Components.Swiper.TransformerPageView {
+namespace ConnectApp.Components.Swiper {
     class TransformerPageViewUtils {
         public const int kMaxValue = 2000000000;
         public const int kMiddleValue = 1000000000;
@@ -314,7 +314,7 @@ namespace ConnectApp.Components.Swiper.TransformerPageView {
             return initPage;
         }
 
-        static PageController createPageController(
+        public static PageController createPageController(
             bool reverse,
             int index,
             int itemCount,

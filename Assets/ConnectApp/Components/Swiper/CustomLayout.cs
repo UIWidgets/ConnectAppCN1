@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.Components.Swiper.TransformerPageView;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;

@@ -91,22 +91,30 @@ namespace ConnectApp.screens {
             };
             content.AddRange(this._buildContentList());
 
-            var child = new Container(
+            Widget child = new Container(
                 color: CColors.White,
-                child: new Column(
-                    mainAxisSize: MainAxisSize.min,
+                child: new ListView(
                     children: new List<Widget> {
-                        this._buildNavigationBar(),
-                        // this._buildGoodsImage(),
-                        new Expanded(
-                            child: new ListView(
-                                padding: EdgeInsets.symmetric(0, 15),
+                        this._buildGoodsImage(),
+                        new Container(
+                            padding: EdgeInsets.symmetric(0, 15),
+                            child: new Column(
                                 children: content
                             )
-                        )
+                        ),
                     }
                 )
             );
+            
+            child = new Column(
+                children: new List<Widget>{
+                    this._buildNavigationBar(),
+                    new Expanded(
+                        child: child
+                    )
+                }
+            );
+
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
@@ -133,17 +141,19 @@ namespace ConnectApp.screens {
                 );
             }
 
-            return new Swiper(
-                itemBuilder: (context, index) => {
-                    return Image.network(
-                        this._goods.imageUrls[index],
-                        fit: BoxFit.cover
-                    );
-                },
-                indicatorLayout: PageIndicatorLayout.SLIDE,
-                itemCount: this._goods.imageUrls.Count,
-                itemWidth: MediaQuery.of(this.context).size.width,
-                itemHeight: MediaQuery.of(this.context).size.width // Make the image square
+            return new Container(
+                width: MediaQuery.of(this.context).size.width,
+                height: MediaQuery.of(this.context).size.width, // Make the image square
+                child: new Swiper(
+                    itemBuilder: (context, index) => {
+                        return Image.network(
+                            this._goods.imageUrls[index],
+                            fit: BoxFit.cover
+                        );
+                    },
+                    indicatorLayout: PageIndicatorLayout.SLIDE,
+                    itemCount: this._goods.imageUrls.Count
+                )
             );
         }
 
@@ -158,10 +168,11 @@ namespace ConnectApp.screens {
                                 child: new Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: new List<Widget> {
-                                        new Text(this._goods.goodsName ?? "", style: CTextStyle.PRegularTitle, textAlign: TextAlign.left),
+                                        new Text(this._goods.goodsName ?? "", style: CTextStyle.PRegularTitle,
+                                            textAlign: TextAlign.left),
                                         new Expanded(
                                             child: new Text(
-                                                $"{this._goods.priceUnit}{this._goods.price}",
+                                                $"{this._goods.priceUnit}{this._goods.price / 100}.{(this._goods.price / 10) % 10}{this._goods.price % 10}",
                                                 style: CTextStyle.PRegularBlue,
                                                 textAlign: TextAlign.left)
                                         )
@@ -170,7 +181,7 @@ namespace ConnectApp.screens {
                             ),
                             new CustomButton(
                                 padding: EdgeInsets.zero,
-                                onPressed: () => {},
+                                onPressed: () => { },
                                 child: new Container(
                                     padding: EdgeInsets.symmetric(9, 0),
                                     child: new Text("立即购买",

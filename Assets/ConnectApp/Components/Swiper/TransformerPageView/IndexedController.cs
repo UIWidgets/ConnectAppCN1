@@ -1,7 +1,7 @@
 using RSG;
 using Unity.UIWidgets.foundation;
 
-namespace ConnectApp.Components.Swiper.TransformerPageView {
+namespace ConnectApp.Components.Swiper {
     public class IndexController : ChangeNotifier {
         public const int NEXT = 1;
         public const int PREVIOUS = -1;
