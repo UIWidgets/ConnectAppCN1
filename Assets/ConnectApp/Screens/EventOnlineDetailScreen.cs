@@ -242,9 +242,8 @@ namespace ConnectApp.screens {
             if (this._bottomPadding != MediaQuery.of(context).padding.bottom &&
                 Application.platform != RuntimePlatform.Android) {
                 this._bottomPadding = MediaQuery.of(context).padding.bottom;
-                this.setState(() => {});
             }
-            
+
             var eventStatus = DateConvert.GetEventStatus(eventObj.begin);
             return new Container(
                 color: CColors.White,

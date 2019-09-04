@@ -56,7 +56,6 @@ namespace ConnectApp.Components {
             if (this._bottomPadding != MediaQuery.of(context).padding.bottom &&
                 Application.platform != RuntimePlatform.Android) {
                 this._bottomPadding = MediaQuery.of(context).padding.bottom;
-                this.setState(() => { });
             }
 
             return new Container(

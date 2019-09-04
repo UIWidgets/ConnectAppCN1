@@ -13,8 +13,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -158,11 +158,10 @@ namespace ConnectApp.screens {
                 Application.platform != RuntimePlatform.Android) {
                 this._topPadding = MediaQuery.of(context).padding.top;
             }
-            
+
             if (this._bottomPadding != MediaQuery.of(context).padding.bottom &&
                 Application.platform != RuntimePlatform.Android) {
                 this._bottomPadding = MediaQuery.of(context).padding.bottom;
-                this.setState(() => {});
             }
 
             if ((this.widget.viewModel.eventDetailLoading || eventObj?.user == null) &&
