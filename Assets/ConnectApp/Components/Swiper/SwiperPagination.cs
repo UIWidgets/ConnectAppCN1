@@ -120,7 +120,7 @@ namespace ConnectApp.Components.Swiper {
                 return true;
             });
 
-            int itemCount = config.itemCount.Value;
+            int itemCount = config.itemCount;
 
             int activeIndex = config.activeIndex.Value;
             for (int i = 0; i < itemCount; ++i) {
@@ -216,7 +216,7 @@ namespace ConnectApp.Components.Swiper {
             }
 
             List<Widget> list = new List<Widget> { };
-            int itemCount = config.itemCount.Value;
+            int itemCount = config.itemCount;
 
             int activeIndex = config.activeIndex.Value;
             for (int i = 0; i < itemCount; ++i) {

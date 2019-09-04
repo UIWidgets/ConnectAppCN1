@@ -438,12 +438,12 @@ namespace ConnectApp.Components.Swiper {
         public override Widget build(BuildContext context) {
             Widget swiper = this._buildSwiper();
             List<Widget> listForStack = null;
-//            SwiperPluginConfig config = null;
-//            if (this.widget.control != null) {
-//                config = this._ensureConfig(config);
-//                listForStack = this._ensureListForStack(
-//                    swiper, listForStack, this.widget.control.build(context, config));
-//            }
+            SwiperPluginConfig config = null;
+            if (this.widget.control != null) {
+                config = this._ensureConfig(config);
+                listForStack = this._ensureListForStack(
+                    swiper, listForStack, this.widget.control.build(context, config));
+            }
 
 //            if (this.widget.plugins != null) {
 //                config = this._ensureConfig(config);
@@ -452,19 +452,19 @@ namespace ConnectApp.Components.Swiper {
 //                        swiper, listForStack, plugin.build(context, config));
 //                }
 //            }
-//
-//            if (this.widget.pagination != null) {
-//                config = this._ensureConfig(config);
-//                if (this.widget.outer == true) {
-//                    return this._buildOuterPagination((SwiperPagination) this.widget.pagination,
-//                        listForStack == null ? swiper : new Stack(children: listForStack),
-//                        config);
-//                }
-//                else {
-//                    listForStack = this._ensureListForStack(
-//                        swiper, listForStack, this.widget.pagination.build(context, config));
-//                }
-//            }
+
+            if (this.widget.pagination != null) {
+                config = this._ensureConfig(config);
+                if (this.widget.outer == true) {
+                    return this._buildOuterPagination((SwiperPagination) this.widget.pagination,
+                        listForStack == null ? swiper : new Stack(children: listForStack),
+                        config);
+                }
+                else {
+                    listForStack = this._ensureListForStack(
+                        swiper, listForStack, this.widget.pagination.build(context, config));
+                }
+            }
 
             if (listForStack != null) {
                 return new Stack(

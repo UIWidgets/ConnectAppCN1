@@ -9,8 +9,8 @@ using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.Components.Swiper {
     class TransformerPageViewUtils {
-        public const int kMaxValue = 2000000000;
-        public const int kMiddleValue = 1000000000;
+        public const int kMaxValue = 2000000; // Originally this was 2000000000, which is too large for C#
+        public const int kMiddleValue = 1000000;
 
         public const int kDefaultTransactionDuration = 300;
     }
@@ -86,7 +86,7 @@ namespace ConnectApp.Components.Swiper {
 
     public class TransformerPageController : PageController {
         public readonly bool loop;
-        public readonly int? itemCount;
+        public readonly int itemCount;
         public readonly bool reverse;
 
         public TransformerPageController(
@@ -101,13 +101,14 @@ namespace ConnectApp.Components.Swiper {
                 initialPage ?? 0, loop, itemCount, reverse),
             keepPage: keepPage,
             viewportFraction: viewportFraction) {
+            D.assert(itemCount != null);
             this.loop = loop;
-            this.itemCount = itemCount;
+            this.itemCount = itemCount.Value;
             this.reverse = reverse;
         }
 
         public int getRenderIndexFromRealIndex(int index) {
-            return _getRenderIndexFromRealIndex(index, this.loop, this.itemCount.Value, this.reverse);
+            return _getRenderIndexFromRealIndex(index, this.loop, this.itemCount, this.reverse);
         }
 
         public int getRealItemCount() {
@@ -115,7 +116,7 @@ namespace ConnectApp.Components.Swiper {
                 return 0;
             }
 
-            return this.loop ? this.itemCount.Value + TransformerPageViewUtils.kMaxValue : this.itemCount.Value;
+            return this.loop ? this.itemCount + TransformerPageViewUtils.kMaxValue : this.itemCount;
         }
 
         static int _getRenderIndexFromRealIndex(int index, bool loop, int itemCount, bool reverse) {
@@ -145,7 +146,7 @@ namespace ConnectApp.Components.Swiper {
         public float realPage {
             get {
                 float page;
-                if (this.position.maxScrollExtent == null || this.position.minScrollExtent == null) {
+                if (!this.position.hasMaxScrollExtent || !this.position.hasMinScrollExtent) {
                     page = 0.0f;
                 }
                 else {
@@ -176,10 +177,10 @@ namespace ConnectApp.Components.Swiper {
             return renderPage;
         }
 
-        public float page {
+        public override float page {
             get {
                 return this.loop
-                    ? _getRenderPageFromRealPage(this.realPage, this.loop, this.itemCount.Value, this.reverse)
+                    ? _getRenderPageFromRealPage(this.realPage, this.loop, this.itemCount, this.reverse)
                     : this.realPage;
             }
         }
@@ -573,7 +574,7 @@ namespace ConnectApp.Components.Swiper {
                     currentIndex = 0;
                 }
                 else if (currentIndex < 0) {
-                    currentIndex = this._pageController.itemCount.Value - 1;
+                    currentIndex = this._pageController.itemCount - 1;
                 }
             }
 

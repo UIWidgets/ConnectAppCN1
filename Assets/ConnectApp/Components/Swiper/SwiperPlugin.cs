@@ -9,7 +9,7 @@ namespace ConnectApp.Components.Swiper {
 
     public class SwiperPluginConfig {
         public readonly int? activeIndex;
-        public readonly int? itemCount;
+        public readonly int itemCount;
         public readonly PageIndicatorLayout? indicatorLayout;
         public readonly Axis scrollDirection;
         public readonly bool? loop;
@@ -30,8 +30,9 @@ namespace ConnectApp.Components.Swiper {
             bool? loop = null
         ) {
             D.assert(controller != null);
+            D.assert(itemCount != null);
             this.activeIndex = activeIndex;
-            this.itemCount = itemCount;
+            this.itemCount = itemCount.Value;
             this.indicatorLayout = indicatorLayout;
             this.outer = outer;
             this.scrollDirection = scrollDirection;

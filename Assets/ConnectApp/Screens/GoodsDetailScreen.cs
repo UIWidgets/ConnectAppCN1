@@ -152,7 +152,8 @@ namespace ConnectApp.screens {
                         );
                     },
                     indicatorLayout: PageIndicatorLayout.SLIDE,
-                    itemCount: this._goods.imageUrls.Count
+                    itemCount: this._goods.imageUrls.Count,
+                    pagination: new SwiperPagination()
                 )
             );
         }

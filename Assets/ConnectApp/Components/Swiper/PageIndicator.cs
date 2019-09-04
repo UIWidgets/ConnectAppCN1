@@ -259,8 +259,8 @@ namespace ConnectApp.Components.Swiper {
         }
 
         public override void initState() {
-            this.widget.controller.addListener(this._onController);
             base.initState();
+            this.widget.controller.addListener(this._onController);
         }
 
         public override void didUpdateWidget(StatefulWidget _oldWidget) {
