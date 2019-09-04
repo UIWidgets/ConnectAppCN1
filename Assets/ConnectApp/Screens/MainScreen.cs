@@ -12,6 +12,7 @@ namespace ConnectApp.screens {
             var child = new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
+                    bottom: false,
                     child: new CustomTabBar(
                         new List<Widget> {
                             new ArticlesScreenConnector(),
@@ -45,9 +46,9 @@ namespace ConnectApp.screens {
                                 "我的"
                             )
                         },
-                        backgroundColor: CColors.White,
+                        backgroundColor: CColors.TabBarBg,
                         (fromIndex, toIndex) => {
-                            AnalyticsManager.ClickHomeTab(fromIndex, toIndex);
+                            AnalyticsManager.ClickHomeTab(fromIndex: fromIndex, toIndex: toIndex);
 
                             if (toIndex != 2 || StoreProvider.store.getState().loginState.isLoggedIn) {
                                 return true;
@@ -60,7 +61,7 @@ namespace ConnectApp.screens {
                 )
             );
             return new VersionUpdater(
-                child
+                child: child
             );
         }
     }

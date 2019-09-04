@@ -105,13 +105,12 @@ namespace ConnectApp.screens {
         Widget _buildNotLoginInNavigationBar() {
             return new Container(
                 color: CColors.White,
-                height: 196,
                 padding: EdgeInsets.only(16, bottom: 16),
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        this._buildQrScanWidget(EdgeInsets.only(16, 16, 16, 12)),
+                        this._buildQrScanWidget(),
                         new Text("欢迎来到", style: CTextStyle.H2),
                         new Text("Unity Connect", style: CTextStyle.H2),
                         new Container(
@@ -155,13 +154,12 @@ namespace ConnectApp.screens {
             return new GestureDetector(
                 onTap: () => this.widget.pushToUserDetail(obj: user.id),
                 child: new Container(
-                    height: 140,
                     padding: EdgeInsets.only(16, bottom: 16),
                     color: CColors.White,
                     child: new Column(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: new List<Widget> {
-                            this._buildQrScanWidget(EdgeInsets.only(16, 16, 16, 28)),
+                            this._buildQrScanWidget(),
                             new Row(
                                 children: new List<Widget> {
                                     new Container(
@@ -215,16 +213,16 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildQrScanWidget(EdgeInsets padding) {
+        Widget _buildQrScanWidget() {
             if (!this.widget.viewModel.scanEnabled) {
-                return new Container();
+                return new Container(height: 60);
             }
 
             return new Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: new List<Widget> {
                     new CustomButton(
-                        padding: EdgeInsets.only(16, 16, 20, 8),
+                        padding: EdgeInsets.only(16, 16, 20, 16),
                         onPressed: QRScanPlugin.PushToQRScan,
                         child: new Icon(
                             icon: Icons.qr_scan,

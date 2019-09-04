@@ -12,8 +12,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -115,7 +115,8 @@ namespace ConnectApp.screens {
                         sendComment = (articleId, channelId, content, nonce, parentMessageId, upperMessageId) => {
                             CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog());
                             return dispatcher.dispatch<IPromise>(
-                                Actions.sendComment(articleId, channelId, content, nonce, parentMessageId, upperMessageId));
+                                Actions.sendComment(articleId, channelId, content, nonce, parentMessageId,
+                                    upperMessageId));
                         },
                         likeArticle = articleId => dispatcher.dispatch<IPromise>(Actions.likeArticle(articleId)),
                         startFetchFollowing = () => dispatcher.dispatch(new StartFetchFollowingAction()),
@@ -344,6 +345,7 @@ namespace ConnectApp.screens {
                     enablePullDown: true,
                     enablePullUp: this.widget.viewModel.hotArticleHasMore,
                     onRefresh: up => this._onRefresh(up: up, true),
+                    hasBottomMargin: true,
                     child: ListView.builder(
                         physics: new AlwaysScrollableScrollPhysics(),
                         itemCount: itemCount,
@@ -364,6 +366,7 @@ namespace ConnectApp.screens {
                     enablePullDown: true,
                     enablePullUp: this.widget.viewModel.followArticleHasMore,
                     onRefresh: up => this._onRefresh(up: up, false),
+                    hasBottomMargin: true,
                     child: ListView.builder(
                         physics: new AlwaysScrollableScrollPhysics(),
                         itemCount: itemCount,
@@ -535,8 +538,9 @@ namespace ConnectApp.screens {
             var newIndex = this.widget.viewModel.followings.isNotEmpty()
                 ? index - 1
                 : index;
+
             if (newIndex == articleIds.Count) {
-                return new EndView();
+                return new EndView(hasBottomMargin: true);
             }
 
             var articleId = articleIds[index: newIndex];
