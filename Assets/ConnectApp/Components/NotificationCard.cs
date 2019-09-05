@@ -8,7 +8,6 @@ using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 using Notification = ConnectApp.Models.Model.Notification;
 
 namespace ConnectApp.Components {
@@ -168,7 +167,7 @@ namespace ConnectApp.Components {
             if (type == "team_followed") {
                 subTitle = new TextSpan(
                     children: new List<TextSpan> {
-                        new TextSpan("关注了"),
+                        new TextSpan(" 关注了 "),
                         new TextSpan(data.teamName, recognizer: new TapGestureRecognizer {
                             onTap = () => { this.pushToTeamDetail(data.teamId); }
                         }, style: CTextStyle.PLargeBlue)
@@ -185,7 +184,7 @@ namespace ConnectApp.Components {
                     overflow: TextOverflow.ellipsis
                 );
             }
-            
+
             return new Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: new List<Widget> {

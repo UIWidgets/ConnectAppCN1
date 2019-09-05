@@ -14,8 +14,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -113,7 +113,8 @@ namespace ConnectApp.screens {
                                 parentMessageId == null ? "Article" : "Article_Comment", channelId, parentMessageId);
                             CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog());
                             return dispatcher.dispatch<IPromise>(
-                                Actions.sendComment(this.articleId, channelId, content, nonce, parentMessageId, upperMessageId));
+                                Actions.sendComment(this.articleId, channelId, content, nonce, parentMessageId,
+                                    upperMessageId));
                         },
                         startFollowUser = userId =>
                             dispatcher.dispatch(new StartFollowUserAction {followUserId = userId}),
@@ -236,7 +237,20 @@ namespace ConnectApp.screens {
             }
 
             if (this._article == null || this._article.channelId == null) {
-                return new Container();
+                return new Container(
+                    color: CColors.White,
+                    child: new CustomSafeArea(
+                        child: new Column(
+                            children: new List<Widget> {
+                                this._buildNavigationBar(false),
+                                new Flexible(
+                                    child: new BlankView("帖子不存在", "image/default-history")
+                                )
+                            }
+                        )
+                    )
+                );
+                ;
             }
 
             if (this._article.ownerType == "user") {
@@ -260,14 +274,13 @@ namespace ConnectApp.screens {
                                         MediaQuery.of(context).size.width - 16 * 2, // 16 is horizontal padding
                                         null
                                     ) + 16; // 16 is top padding
-                this.setState(() => { });
             }
 
             var commentIndex = 0;
             var originItems = this._article == null ? new List<Widget>() : this._buildItems(context, out commentIndex);
             commentIndex = this._jumpState == _ArticleJumpToCommentState.active ? commentIndex : 0;
             this._jumpState = _ArticleJumpToCommentState.Inactive;
-            
+
             Widget contentWidget;
             //happens at the next frame after user presses the "Comment" button
             //we rebuild a CenteredRefresher so that we can calculate out the comment section's position
@@ -288,7 +301,7 @@ namespace ConnectApp.screens {
                 //we use 0 or this estimated position to initiate the SmartRefresher's init scroll offset, respectively
                 D.assert(!this._needRebuildWithCachedCommentPosition || this._cachedCommentPosition != null);
                 contentWidget = new SmartRefresher(
-                    initialOffset : this._needRebuildWithCachedCommentPosition ? this._cachedCommentPosition.Value : 0f,
+                    initialOffset: this._needRebuildWithCachedCommentPosition ? this._cachedCommentPosition.Value : 0f,
                     controller: this._refreshController,
                     enablePullDown: false,
                     enablePullUp: this._article.hasMore,
@@ -914,7 +927,8 @@ namespace ConnectApp.screens {
             );
         }
 
-        void _sendComment(string type, string parentMessageId = "", string upperMessageId = "", string replyUserName = null) {
+        void _sendComment(string type, string parentMessageId = "", string upperMessageId = "",
+            string replyUserName = null) {
             if (!this.widget.viewModel.isLoggedIn) {
                 this.widget.actionModel.pushToLogin();
             }

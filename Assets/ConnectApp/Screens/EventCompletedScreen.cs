@@ -110,6 +110,7 @@ namespace ConnectApp.screens {
                         enablePullDown: true,
                         enablePullUp: enablePullUp,
                         onRefresh: this._completedRefresh,
+                        hasBottomMargin: true,
                         child: ListView.builder(
                             physics: new AlwaysScrollableScrollPhysics(),
                             itemCount: itemCount,
@@ -123,8 +124,9 @@ namespace ConnectApp.screens {
         Widget _buildEventCard(BuildContext context, int index) {
             var completedEvents = this.widget.viewModel.completedEvents;
             if (index == completedEvents.Count) {
-                return new EndView();
+                return new EndView(hasBottomMargin: true);
             }
+
             var eventId = completedEvents[index: index];
             var model = this.widget.viewModel.eventsDict[key: eventId];
             var place = model.placeId.isEmpty()
