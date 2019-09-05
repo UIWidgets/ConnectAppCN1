@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
-using ConnectApp.Main;
-using ConnectApp.redux;
 using ConnectApp.Utils;
 using Unity.UIWidgets.widgets;
 
@@ -17,7 +15,7 @@ namespace ConnectApp.screens {
                         new List<Widget> {
                             new ArticlesScreenConnector(),
                             new EventsScreen(),
-                            new NotificationScreenConnector(),
+                            new MessageScreenConnector(),
                             new PersonalScreenConnector()
                         },
                         new List<CustomTabBarItem> {
@@ -37,7 +35,7 @@ namespace ConnectApp.screens {
                                 2,
                                 Icons.outline_notification,
                                 Icons.notification,
-                                "通知"
+                                "群聊"
                             ),
                             new CustomTabBarItem(
                                 3,
@@ -50,12 +48,12 @@ namespace ConnectApp.screens {
                         (fromIndex, toIndex) => {
                             AnalyticsManager.ClickHomeTab(fromIndex: fromIndex, toIndex: toIndex);
 
-                            if (toIndex != 2 || StoreProvider.store.getState().loginState.isLoggedIn) {
-                                return true;
-                            }
+                            // if (toIndex != 2 || StoreProvider.store.getState().loginState.isLoggedIn) {
+                            return true;
+                            // }
 
-                            Router.navigator.pushNamed(routeName: MainNavigatorRoutes.Login);
-                            return false;
+                            // Router.navigator.pushNamed(routeName: MainNavigatorRoutes.Login);
+                            // return false;
                         }
                     )
                 )
