@@ -3,6 +3,10 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.Constants {
+    public static class CConstant {
+        public static readonly float TabBarHeight = 49;
+    }
+
     public static class Icons {
         public static readonly IconData UnityLogo = new IconData(0xe61d, "iconfont");
         public static readonly IconData UnityTabIcon = new IconData(0xe623, "iconfont");
@@ -51,7 +55,8 @@ namespace ConnectApp.Constants {
         public static readonly IconData more_horiz = new IconData(0xe5d3, "Material Icons");
         public static readonly IconData check = new IconData(0xe5ca, "Material Icons");
         public static readonly IconData open_in_browser = new IconData(0xe89d, "Material Icons");
-        public static readonly IconData computer = new IconData(0xe624, "iconfont");
+        public static readonly IconData qr_scan = new IconData(0xe624, "iconfont");
+        public static readonly IconData computer = new IconData(0xe625, "iconfont");
     }
 
     public static class CTextStyle {
@@ -431,6 +436,7 @@ namespace ConnectApp.Constants {
         public static readonly Color AvatarLoading = new Color(0xFFD8D8D8);
 
         public static readonly Color H5White = Color.fromRGBO(255, 255, 255, 0.8f);
+        public static readonly Color TabBarBg = Color.fromRGBO(255, 255, 255, 0.85f);
 
         public static readonly Color Transparent = new Color(0x00000000);
         public static readonly Color White = new Color(0xFFFFFFFF);

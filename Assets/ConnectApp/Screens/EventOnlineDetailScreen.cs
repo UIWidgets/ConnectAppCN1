@@ -21,7 +21,10 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 using Config = ConnectApp.Constants.Config;
+using EventType = ConnectApp.Models.State.EventType;
 
 namespace ConnectApp.screens {
     public class EventOnlineDetailScreenConnector : StatelessWidget {
@@ -133,6 +136,7 @@ namespace ConnectApp.screens {
         string _loginSubId;
         bool _showNavBarShadow;
         bool _isFullScreen;
+        float _bottomPadding;
 
 
         public override void initState() {
@@ -233,6 +237,11 @@ namespace ConnectApp.screens {
                 !(eventObj?.isNotFirst ?? false)) {
                 return new EventDetailLoading(eventType: EventType.online,
                     mainRouterPop: this.widget.actionModel.mainRouterPop);
+            }
+
+            if (this._bottomPadding != MediaQuery.of(context).padding.bottom &&
+                Application.platform != RuntimePlatform.Android) {
+                this._bottomPadding = MediaQuery.of(context).padding.bottom;
             }
 
             var eventStatus = DateConvert.GetEventStatus(eventObj.begin);
@@ -438,8 +447,8 @@ namespace ConnectApp.screens {
             }
 
             return new Container(
-                height: 56,
-                padding: EdgeInsets.symmetric(8, 16),
+                height: 56 + this._bottomPadding,
+                padding: EdgeInsets.only(16, 8, 16, 8 + this._bottomPadding),
                 decoration: new BoxDecoration(
                     color: CColors.White,
                     border: new Border(new BorderSide(color: CColors.Separator))

@@ -68,11 +68,19 @@ namespace ConnectApp.Components {
                             child: new Row(
                                 children: new List<Widget> {
                                     new Expanded(
-                                        child: new Text(
-                                            this.article.subTitle,
-                                            style: CTextStyle.PRegularBody2,
-                                            maxLines: 3,
-                                            overflow: TextOverflow.ellipsis
+                                        child: new Container(
+                                            height: imageHeight,
+                                            child: new Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: new List<Widget> {
+                                                    new Text(
+                                                        data: this.article.subTitle,
+                                                        style: CTextStyle.PRegularBody2,
+                                                        maxLines: 3,
+                                                        overflow: TextOverflow.ellipsis
+                                                    )
+                                                }
+                                            )
                                         )
                                     ),
                                     new Container(

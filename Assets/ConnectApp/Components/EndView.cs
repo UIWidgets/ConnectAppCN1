@@ -10,17 +10,24 @@ namespace ConnectApp.Components {
     public class EndView : StatelessWidget {
         public EndView(
             string title = "THE END",
+            bool hasBottomMargin = false,
             Key key = null
         ) : base(key: key) {
             this.title = title;
+            this.hasBottomMargin = hasBottomMargin;
         }
 
         readonly string title;
+        readonly bool hasBottomMargin;
 
         public override Widget build(BuildContext context) {
             return new Container(
-                height: 52,
                 color: CColors.Background,
+                padding: EdgeInsets.only(0, 16, 0,
+                    this.hasBottomMargin
+                        ? 16 + CConstant.TabBarHeight + MediaQuery.of(context).padding.bottom
+                        : 16
+                ),
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: new List<Widget> {

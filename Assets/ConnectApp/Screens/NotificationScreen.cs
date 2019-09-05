@@ -12,8 +12,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
@@ -119,7 +119,7 @@ namespace ConnectApp.screens {
             base.didChangeDependencies();
             Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
         }
-        
+
         public override void dispose() {
             EventBus.unSubscribe(sName: EventBusConstant.login_success, id: this._loginSubId);
             EventBus.unSubscribe(sName: EventBusConstant.refreshNotifications, id: this._refreshSubId);
@@ -158,6 +158,7 @@ namespace ConnectApp.screens {
                             enablePullDown: true,
                             enablePullUp: enablePullUp,
                             onRefresh: this._onRefresh,
+                            hasBottomMargin: true,
                             child: ListView.builder(
                                 physics: new AlwaysScrollableScrollPhysics(),
                                 itemCount: itemCount,
@@ -212,7 +213,7 @@ namespace ConnectApp.screens {
         Widget _buildNotificationCard(BuildContext context, int index) {
             var notifications = this.widget.viewModel.notifications;
             if (index == notifications.Count) {
-                return new EndView();
+                return new EndView(hasBottomMargin: true);
             }
 
             var notification = notifications[index: index];
@@ -274,7 +275,7 @@ namespace ConnectApp.screens {
                 .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }
-        
+
         public void didPopNext() {
             StatusBarManager.statusBarStyle(false);
         }

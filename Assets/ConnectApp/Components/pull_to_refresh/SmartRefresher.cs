@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using ConnectApp.Constants;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.painting;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -32,13 +34,21 @@ namespace ConnectApp.Components.pull_to_refresh {
             OnOffsetChange onOffsetChange = null,
             RefreshController controller = null,
             NotificationListenerCallback<ScrollNotification> onNotification = null,
+            bool hasBottomMargin = false,
             Key key = null
         ) : base(key) {
             this.child = child;
             this.initialOffset = initialOffset;
             this.headerBuilder =
                 headerBuilder ?? ((context, mode) => new SmartRefreshHeader(mode, RefreshHeaderType.other));
-            this.footerBuilder = footerBuilder ?? ((context, mode) => new SmartRefreshFooter(mode));
+            this.footerBuilder = footerBuilder ?? ((context, mode) => new SmartRefreshFooter(
+                                     mode: mode,
+                                     hasBottomMargin
+                                         ? EdgeInsets.only(0, 16, 0,
+                                             16 + CConstant.TabBarHeight +
+                                             MediaQuery.of(context: context).padding.bottom)
+                                         : null
+                                 ));
             this.headerConfig = headerConfig ?? new RefreshConfig();
             this.footerConfig = footerConfig ?? new LoadConfig(triggerDistance: 0);
             this.enablePullUp = enablePullUp;

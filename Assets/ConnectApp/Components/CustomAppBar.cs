@@ -18,13 +18,13 @@ namespace ConnectApp.Components {
             GestureTapCallback onBack = null,
             Widget title = null,
             Widget rightWidget = null,
-            Color bottomColor = null,
+            Color bottomSeparatorColor = null,
             float height = CustomAppBarUtil.appBarHeight,
             Key key = null
         ) : base(key: key) {
             this.onBack = onBack;
             this.title = title;
-            this.bottomColor = bottomColor ?? CColors.Separator2;
+            this.bottomSeparatorColor = bottomSeparatorColor ?? CColors.Separator2;
             this.height = height;
             this.rightWidget = rightWidget ?? new Container(width: 56);
         }
@@ -32,7 +32,7 @@ namespace ConnectApp.Components {
         readonly GestureTapCallback onBack;
         readonly Widget title;
         readonly Widget rightWidget;
-        readonly Color bottomColor;
+        readonly Color bottomSeparatorColor;
         readonly float height;
 
         public override Widget build(BuildContext context) {
@@ -41,7 +41,7 @@ namespace ConnectApp.Components {
                     color: CColors.White,
                     border: new Border(
                         bottom: new BorderSide(
-                            color: this.bottomColor
+                            color: this.bottomSeparatorColor
                         )
                     )
                 ),
@@ -63,7 +63,7 @@ namespace ConnectApp.Components {
             bool canPop = parentRoute?.canPop ?? false;
             if (canPop) {
                 return new CustomButton(
-                    padding: EdgeInsets.only(16, 10, 0, 10),
+                    padding: EdgeInsets.only(16, 10, 16, 10),
                     onPressed: () => {
                         if (this.onBack != null) {
                             this.onBack();
@@ -81,6 +81,7 @@ namespace ConnectApp.Components {
                     )
                 );
             }
+
             return new Container(width: 56);
         }
 
@@ -88,6 +89,7 @@ namespace ConnectApp.Components {
             if (this.title == null) {
                 return new Container();
             }
+
             return this.title;
         }
     }

@@ -181,7 +181,7 @@ namespace ConnectApp.screens {
                     child: new Text(
                         "提交",
                         style: disEnabled
-                            ? CTextStyle.PLargeMediumBlue.copyWith(new Color(0xFF9D9D9D))
+                            ? CTextStyle.PLargeMediumBlue.copyWith(color: new Color(0xFF9D9D9D))
                             : CTextStyle.PLargeMediumBlue
                     )
                 )

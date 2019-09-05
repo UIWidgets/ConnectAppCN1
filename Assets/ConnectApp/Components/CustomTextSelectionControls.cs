@@ -164,7 +164,7 @@ namespace ConnectApp.Components {
         static CustomButton _buildToolbarButton(string text, VoidCallback onPressed) {
             return new CustomButton(
                 child: new Text(text, style: CustomTextSelectionControlsUtils._kToolbarButtonFontStyle),
-                backgroundColor: CustomTextSelectionControlsUtils._kToolbarBackgroundColor,
+                decoration: new BoxDecoration(color: CustomTextSelectionControlsUtils._kToolbarBackgroundColor),
                 padding: CustomTextSelectionControlsUtils._kToolbarButtonPadding,
                 onPressed: () => onPressed()
             );

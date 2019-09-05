@@ -10,6 +10,7 @@ using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -22,6 +23,7 @@ namespace ConnectApp.screens {
         }
 
         readonly string token;
+
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, QRScanLoginScreenViewModel>(
                 converter: state => new QRScanLoginScreenViewModel {
@@ -58,13 +60,13 @@ namespace ConnectApp.screens {
         public readonly Func<IPromise> loginByQr;
         public readonly Action cancelLoginByQr;
         public readonly Action mainRouterPop;
+
         public override State createState() {
             return new _QRScanLoginScreenState();
         }
     }
 
     public class _QRScanLoginScreenState : State<QRScanLoginScreen>, RouteAware {
-
         bool _isLogin;
 
         public override void initState() {
@@ -106,9 +108,8 @@ namespace ConnectApp.screens {
                         child: new Column(
                             children: new List<Widget> {
                                 this._buildNavigationBar(),
-                                new Expanded(
-                                    child: this._buildContent()
-                                )
+                                this._buildTopView(),
+                                this._buildBottomView()
                             }
                         )
                     )
@@ -123,20 +124,21 @@ namespace ConnectApp.screens {
                     "扫描结果",
                     style: CTextStyle.PXLargeMedium
                 ),
-                bottomColor: CColors.Transparent
+                bottomSeparatorColor: CColors.Transparent
             );
         }
 
-        Widget _buildContent() {
+        Widget _buildTopView() {
             var user = this.widget.viewModel.userDict[key: this.widget.viewModel.userId];
-            return new Container(
+            return new Flexible(
                 child: new Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: new List<Widget> {
                         new Container(
-                            margin: EdgeInsets.only(top: 120, bottom: 26),
+                            margin: EdgeInsets.only(bottom: 12),
                             child: new Icon(
                                 icon: Icons.computer,
-                                size: 110,
+                                size: 120,
                                 color: CColors.TextBody
                             )
                         ),
@@ -157,41 +159,49 @@ namespace ConnectApp.screens {
                                     )
                                 }
                             )
-                        ),
-                        new Container(
-                            margin: EdgeInsets.only(top: 120, bottom: 16),
-                            child: new CustomButton(
-                                padding: EdgeInsets.zero,
-                                onPressed: () => {
-                                    this._isLogin = true;
-                                    CustomDialogUtils.showCustomDialog(
-                                        child: new CustomLoadingDialog(
-                                            message: "登录中"
-                                        )
-                                    );
-                                    this.widget.loginByQr();
-                                },
-                                child: new Container(
-                                    height: 40,
-                                    margin: EdgeInsets.only(16, right: 16),
-                                    alignment: Alignment.center,
-                                    decoration: new BoxDecoration(
-                                        color: CColors.PrimaryBlue,
-                                        borderRadius: BorderRadius.all(5)
-                                    ),
-                                    child: new Text(
-                                        "确定登录",
-                                        style: CTextStyle.PLargeMediumWhite
+                        )
+                    }
+                )
+            );
+        }
+
+        Widget _buildBottomView() {
+            return new Container(
+                padding: EdgeInsets.only(bottom: 120),
+                child: new Column(
+                    children: new List<Widget> {
+                        new CustomButton(
+                            padding: EdgeInsets.zero,
+                            onPressed: () => {
+                                this._isLogin = true;
+                                CustomDialogUtils.showCustomDialog(
+                                    child: new CustomLoadingDialog(
+                                        message: "登录中"
                                     )
+                                );
+                                this.widget.loginByQr();
+                            },
+                            child: new Container(
+                                height: 48,
+                                margin: EdgeInsets.only(16, right: 16),
+                                alignment: Alignment.center,
+                                decoration: new BoxDecoration(
+                                    color: CColors.PrimaryBlue,
+                                    borderRadius: BorderRadius.all(24)
+                                ),
+                                child: new Text(
+                                    "确定登录",
+                                    style: CTextStyle.PLargeWhite
                                 )
                             )
                         ),
+                        new Container(height: 12),
                         new CustomButton(
                             padding: EdgeInsets.zero,
                             onPressed: () => this.widget.mainRouterPop(),
                             child: new Container(
                                 color: CColors.Transparent,
-                                height: 40,
+                                height: 48,
                                 margin: EdgeInsets.only(16, right: 16),
                                 alignment: Alignment.center,
                                 child: new Text(
