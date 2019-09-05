@@ -7,7 +7,6 @@
 {
     BOOL _isHidden;
     BOOL _isLight;
-     BOOL _isSupport;
 }
 - (BOOL)shouldAutorotate
 {
@@ -71,17 +70,8 @@
     if ([[na.userInfo objectForKey:@"key"]isEqualToString:@"hidden"]){
         _isHidden = [[na.userInfo valueForKey:@"value"] boolValue];
     }
-    if ([[na.userInfo objectForKey:@"key"]isEqualToString:@"supportOrientation"]){
-        _isSupport = [[na.userInfo valueForKey:@"value"] boolValue];
-    }
     [self setNeedsStatusBarAppearanceUpdate];
     
-}
-- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
-    return _isSupport? UIInterfaceOrientationMaskAllButUpsideDown: UIInterfaceOrientationMaskPortrait;
-}
--(UIInterfaceOrientation)preferredInterfaceOrientationForPresentation{
-    return UIInterfaceOrientationPortrait;
 }
 
 @end

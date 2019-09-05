@@ -29,6 +29,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)removePlayer;
 
+- (void)show;
+
+- (void)hidden;
+
 @end
 
 NS_ASSUME_NONNULL_END

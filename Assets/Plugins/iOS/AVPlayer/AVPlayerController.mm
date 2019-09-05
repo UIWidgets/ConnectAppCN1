@@ -9,7 +9,6 @@
 #include "UIWidgetsMessageManager.h"
 #import "NSString+Cookie.h"
 #import "Masonry.h"
-
 static AVPlayerController *avp = nil;
 
 @implementation AVPlayerController
@@ -26,19 +25,22 @@ static AVPlayerController *avp = nil;
 +(id)allocWithZone:(NSZone *)zone{
     return [AVPlayerController shareInstance];
 }
-
+- (WMPlayer *)wmPlayer{
+    if (!_wmPlayer) {
+        _wmPlayer = [[WMPlayer alloc]init];
+    }
+    return _wmPlayer;
+}
 
 - (void)initPlayerWithVideoUrl:(NSString*)videoUrl cookie:(NSString*)cookie left:(CGFloat)left top:(CGFloat)top width:(CGFloat)width height:(CGFloat)height isPop:(BOOL)isPop{
     _marginTop = top;
-    if(self.wmPlayer==nil){
-        NSString *Cookie = [NSString stringWithFormat:@"%@; path=/; domain=.connect.unity.com;",cookie];
-        WMPlayerModel *model = [[WMPlayerModel alloc]init];
-        NSDictionary *options = @{AVURLAssetHTTPCookiesKey : @[[Cookie cookie]]};
-        AVURLAsset *videoURLAsset = [AVURLAsset URLAssetWithURL:[NSURL URLWithString:videoUrl] options:options];
-        model.playerItem = [AVPlayerItem playerItemWithAsset:videoURLAsset];
-        model.verticalVideo = false;
-        self.wmPlayer = [[WMPlayer alloc] initPlayerModel:model];
-    }
+    NSString *Cookie = [NSString stringWithFormat:@"%@; path=/; domain=.connect.unity.com;",cookie];
+    WMPlayerModel *model = [[WMPlayerModel alloc]init];
+    NSDictionary *options = @{AVURLAssetHTTPCookiesKey : @[[Cookie cookie]]};
+    AVURLAsset *videoURLAsset = [AVURLAsset URLAssetWithURL:[NSURL URLWithString:videoUrl] options:options];
+    model.playerItem = [AVPlayerItem playerItemWithAsset:videoURLAsset];
+    model.verticalVideo = false;
+    self.wmPlayer.playerModel = model;
     self.wmPlayer.backBtnStyle = isPop?BackBtnStylePop:BackBtnStyleNone;
     self.wmPlayer.loopPlay = NO;//设置是否循环播放
     self.wmPlayer.tintColor = [UIColor colorWithRed:243.0/255 green:33.0/255 blue:148.0/255 alpha:1];//改变播放器着色
@@ -50,9 +52,9 @@ static AVPlayerController *avp = nil;
         make.top.mas_equalTo(top);
         make.height.mas_equalTo(self.wmPlayer.mas_width).multipliedBy(9.0/16);
     }];
-    [self.wmPlayer play];
-    
-    
+    if (!isPop) {
+        [self.wmPlayer play];
+    }
     //获取设备旋转方向的通知,即使关闭了自动旋转,一样可以监测到设备的旋转方向
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
     //旋转屏幕通知
@@ -70,6 +72,9 @@ static AVPlayerController *avp = nil;
         UIWidgetsMethodMessage(@"player", @"PopPage", @[@""]);
         [self removePlayer];
     }
+}
+- (void)wmplayer:(WMPlayer *)wmplayer clickedShareButton:(UIButton *)shareBtn{
+    UIWidgetsMethodMessage(@"player", @"Share", @[@""]);
 }
 -(void)wmplayer:(WMPlayer *)wmplayer clickedFullScreenButton:(UIButton *)fullScreenBtn{
     NSNumber *orientationUnknown = [NSNumber numberWithInt:0];
@@ -90,6 +95,17 @@ static AVPlayerController *avp = nil;
 - (void)pause{
     [self.wmPlayer pause];
 }
+
+- (void)show{
+    [self.wmPlayer play];
+    self.wmPlayer.hidden = NO;
+}
+
+- (void)hidden{
+    [self.wmPlayer pause];
+    self.wmPlayer.hidden = YES;
+}
+
 
 - (void)removePlayer{
     [self.wmPlayer pause];
@@ -142,11 +158,11 @@ static AVPlayerController *avp = nil;
         self.wmPlayer.isFullscreen = NO;
     }else{
         [self.wmPlayer mas_remakeConstraints:^(MASConstraintMaker *make) {
-            if([WMPlayer IsiPhoneX]){
-                make.edges.mas_equalTo(UIEdgeInsetsMake(self.wmPlayer.playerModel.verticalVideo?14:0, 0, 0, 0));
-            }else{
-                make.edges.mas_equalTo(UIEdgeInsetsMake(0, 0, 0, 0));
-            }
+//            if([WMPlayer IsiPhoneX]){
+//                make.edges.mas_equalTo(UIEdgeInsetsMake(self.wmPlayer.playerModel.verticalVideo?14:0, 0, 0, 0));
+//            }else{
+//                make.edges.mas_equalTo(UIEdgeInsetsMake(0, 0, 0, 0));
+//            }
             make.edges.mas_equalTo(UIEdgeInsetsMake(0, 0, 0, 0));
         }];
         self.wmPlayer.isFullscreen = YES;

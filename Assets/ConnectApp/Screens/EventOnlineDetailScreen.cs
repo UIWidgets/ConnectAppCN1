@@ -15,8 +15,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -138,6 +138,7 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             StatusBarManager.statusBarStyle(false);
+
             this._showNavBarShadow = true;
             this._titleHeight = 0.0f;
             this._isHaveTitle = false;
@@ -171,6 +172,7 @@ namespace ConnectApp.screens {
         }
 
         public override void dispose() {
+            AVPlayerPlugin.removePlayer();
             EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
             Router.routeObserve.unsubscribe(this);
             this._textController.dispose();
@@ -366,22 +368,14 @@ namespace ConnectApp.screens {
         Widget _buildEventHeader(BuildContext context, IEvent eventObj, EventType eventType, EventStatus eventStatus,
             bool isLoggedIn) {
             if (isLoggedIn && eventStatus == EventStatus.past && eventObj.record.isNotEmpty()) {
-                return new CustomVideoPlayer(
-                    eventObj.record,
-                    context,
-                    this._buildHeadTop(false, eventObj),
-                    isFullScreen => {
-                        using (WindowProvider.of(context).getScope()) {
-                            this.setState(() => { this._isFullScreen = isFullScreen; });
-                        }
-                    },
-                    eventObj.recordDuration
+                AVPlayerPlugin.initVideoPlayer(eventObj.record, HttpManager.getCookie(),
+                    0, (int) MediaQuery.of(this.context).padding.top, MediaQuery.of(this.context).size.width,
+                    MediaQuery.of(this.context).size.width * 9 / 16, true);
+                return new Container(
+                    color: CColors.Black,
+                    height: MediaQuery.of(this.context).size.width * 9 / 16
                 );
             }
-
-//            if (eventStatus == EventStatus.past && eventObj.record.isEmpty()) {
-//                return new Container();
-//            }
 
             return new Stack(
                 children: new List<Widget> {

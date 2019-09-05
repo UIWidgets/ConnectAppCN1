@@ -73,7 +73,7 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
 //显示播放时间的UILabel+加载失败的UILabel+播放视频的title
 @property (nonatomic,strong) UILabel   *leftTimeLabel,*rightTimeLabel,*titleLabel,*loadFailedLabel;
 //控制全屏和播放暂停按钮
-@property (nonatomic,strong) UIButton  *fullScreenBtn,*playOrPauseBtn,*lockBtn,*backBtn,*rateBtn;
+@property (nonatomic,strong) UIButton  *fullScreenBtn,*playOrPauseBtn,*lockBtn,*backBtn,*rateBtn,*shareBtn;
 //进度滑块&声音滑块
 @property (nonatomic,strong) UISlider   *progressSlider,*volumeSlider;
 //显示缓冲进度和底部的播放进度
@@ -236,7 +236,7 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
     [self.lockBtn setImage:WMPlayerImage(@"player_icon_unlock") forState:UIControlStateNormal];
     [self.lockBtn setImage:WMPlayerImage(@"player_icon_lock") forState:UIControlStateSelected];
     self.lockBtn.hidden = YES;
-    [self.contentView addSubview:self.lockBtn];
+//    [self.contentView addSubview:self.lockBtn];
     
     //leftTimeLabel显示左边的时间进度
     self.leftTimeLabel = [UILabel new];
@@ -262,12 +262,20 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
     [self.backBtn addTarget:self action:@selector(colseTheVideo:) forControlEvents:UIControlEventTouchUpInside];
     [self.topView addSubview:self.backBtn];
     
+    //shareBtn
+    self.shareBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    self.shareBtn.showsTouchWhenHighlighted = YES;
+    [self.shareBtn setImage:WMPlayerImage(@"close.png") forState:UIControlStateNormal];
+    [self.shareBtn setImage:WMPlayerImage(@"close.png") forState:UIControlStateSelected];
+    [self.shareBtn addTarget:self action:@selector(shareTheVideo:) forControlEvents:UIControlEventTouchUpInside];
+    [self.topView addSubview:self.shareBtn];
+    
     //rateBtn
     self.rateBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.rateBtn addTarget:self action:@selector(switchRate:) forControlEvents:UIControlEventTouchUpInside];
     [self.rateBtn setTitle:@"1.0X" forState:UIControlStateNormal];
     [self.rateBtn setTitle:@"1.0X" forState:UIControlStateSelected];
-    [self.topView addSubview:self.rateBtn];
+//    [self.topView addSubview:self.rateBtn];
     self.rateBtn.hidden = YES;
 
     //titleLabel
@@ -332,30 +340,30 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
         make.leading.trailing.bottom.equalTo(self.contentView);
         make.height.mas_equalTo(50);
     }];
-    [self.lockBtn mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.leading.equalTo(self.contentView).offset(15);
-        make.centerY.mas_equalTo(self.contentView);
-    }];
+//    [self.lockBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.leading.equalTo(self.contentView).offset(15);
+//        make.centerY.mas_equalTo(self.contentView);
+//    }];
     [self.playOrPauseBtn mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerY.equalTo(self.bottomView);
         make.leading.equalTo(self.bottomView).offset(10);
     }];
     [self.leftTimeLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.leading.equalTo(self.bottomView).offset(50);
-        make.top.equalTo(self.bottomView.mas_centerY).with.offset(8);
+        make.leading.equalTo(self.playOrPauseBtn.mas_trailing).offset(4);
+        make.centerY.equalTo(self.bottomView);
     }];
     [self.rightTimeLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.trailing.equalTo(self.bottomView).offset(-50);
-        make.top.equalTo(self.bottomView.mas_centerY).with.offset(8);
+        make.centerY.equalTo(self.bottomView);
     }];
     [self.loadingProgress mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.leading.equalTo(self.leftTimeLabel.mas_leading).offset(4);
-        make.trailing.equalTo(self.rightTimeLabel.mas_trailing).offset(-4);
+        make.leading.equalTo(self.leftTimeLabel.mas_trailing).offset(8);
+        make.trailing.equalTo(self.rightTimeLabel.mas_leading).offset(-8);
         make.centerY.equalTo(self.bottomView);
     }];
     [self.progressSlider mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.leading.equalTo(self.leftTimeLabel.mas_leading).offset(4);
-        make.trailing.equalTo(self.rightTimeLabel.mas_trailing).offset(-4);
+        make.leading.equalTo(self.leftTimeLabel.mas_trailing).offset(8);
+        make.trailing.equalTo(self.rightTimeLabel.mas_leading).offset(-8);
         make.centerY.equalTo(self.bottomView).offset(-1);
         make.height.mas_equalTo(30);
     }];
@@ -367,14 +375,19 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
         make.centerY.equalTo(self.bottomView);
         make.trailing.equalTo(self.bottomView).offset(-10);
     }];
-    [self.rateBtn mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerY.equalTo(self.topView);
-        make.trailing.equalTo(self.topView).offset(-10);
-        make.size.mas_equalTo(CGSizeMake(60, 30));
-    }];
+//    [self.rateBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.centerY.equalTo(self.topView);
+//        make.trailing.equalTo(self.topView).offset(-10);
+//        make.size.mas_equalTo(CGSizeMake(60, 30));
+//    }];
     [self.backBtn mas_makeConstraints:^(MASConstraintMaker *make) {
         make.leading.equalTo(self.topView).offset(8);
-        make.size.mas_equalTo(CGSizeMake(self.backBtn.currentImage.size.width+6, self.backBtn.currentImage.size.height+4));
+        make.size.mas_equalTo(CGSizeMake(60, 60));
+        make.centerY.equalTo(self.titleLabel);
+    }];
+    [self.shareBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.right.equalTo(self.topView).offset(-8);
+        make.size.mas_equalTo(CGSizeMake(60, 60));
         make.centerY.equalTo(self.titleLabel);
     }];
     [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -513,6 +526,13 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
 -(void)colseTheVideo:(UIButton *)sender{
     if (self.delegate&&[self.delegate respondsToSelector:@selector(wmplayer:clickedCloseButton:)]) {
         [self.delegate wmplayer:self clickedCloseButton:sender];
+    }
+}
+#pragma mark
+#pragma mark - 分享按钮点击func
+-(void)shareTheVideo:(UIButton *)sender{
+    if (self.delegate&&[self.delegate respondsToSelector:@selector(wmplayer:clickedShareButton:)]) {
+        [self.delegate wmplayer:self clickedShareButton:sender];
     }
 }
 //获取视频长度
@@ -762,7 +782,7 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
 -(void)setIsFullscreen:(BOOL)isFullscreen{
     _isFullscreen = isFullscreen;
     self.rateBtn.hidden =  self.lockBtn.hidden = !isFullscreen;
-    
+    self.shareBtn.hidden = isFullscreen;
     if (isFullscreen) {
         self.lockBtn.hidden = self.playerModel.verticalVideo;
     }
@@ -806,6 +826,8 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
     }else{
         [self.backBtn setImage:nil forState:UIControlStateNormal];
         [self.backBtn setImage:nil forState:UIControlStateSelected];
+        [self.shareBtn setImage:nil forState:UIControlStateNormal];
+        [self.shareBtn setImage:nil forState:UIControlStateSelected];
     }
 }
 -(void)setIsHiddenTopAndBottomView:(BOOL)isHiddenTopAndBottomView{
@@ -1052,7 +1074,9 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
 #pragma mark
 #pragma mark autoDismissControlView
 -(void)autoDismissControlView{
-    [self hiddenControlView];//隐藏操作栏
+    if (self.state == WMPlayerStatePlaying) {
+        [self hiddenControlView];//隐藏操作栏
+    }
 }
 #pragma  mark - 定时器
 -(void)initTimer{

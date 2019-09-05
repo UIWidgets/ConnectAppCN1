@@ -6,6 +6,9 @@
 //
 
 #import "AVPlayerController.h"
+#import "UnityAppController.h"
+#import "NSString+Cookie.h"
+
 
 @interface AVPlayerPlugin : NSObject
 
@@ -26,6 +29,8 @@ extern "C"{
     void VideoRelease();
 }
 void InitPlayer(char* url,char* cookie,float left,float top,float width,float height,bool isPop){
+    AppController_SendNotificationWithArg(@"UpdateStatusBarStyle",
+                                          @{@"key":@"supportOrientation",@"value":@(YES)});
     NSString* cookieStr = [NSString stringWithCString:cookie encoding:NSUTF8StringEncoding];
     AVPlayerController * avp = [AVPlayerController shareInstance];
     NSString* videoUrl = [NSString stringWithCString:url encoding:NSUTF8StringEncoding];
@@ -42,6 +47,8 @@ void VideoPause(){
     [avp pause];
 }
 void VideoRelease(){
+    AppController_SendNotificationWithArg(@"UpdateStatusBarStyle",
+                                          @{@"key":@"supportOrientation",@"value":@(NO)});
     AVPlayerController * avp = [AVPlayerController shareInstance];
     [avp removePlayer];
 }

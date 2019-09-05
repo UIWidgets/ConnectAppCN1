@@ -16,6 +16,7 @@ namespace ConnectApp.Main {
         protected override void OnEnable() {
             base.OnEnable();
             Screen.fullScreen = false;
+            Screen.orientation = ScreenOrientation.Portrait;
             Window.onFrameRateCoolDown = CustomFrameRateCoolDown;
             LoadFonts();
             VideoPlayerManager.instance.initPlayer(this.gameObject);

@@ -1,22 +1,30 @@
 using System.Collections.Generic;
-using ConnectApp.Components;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
 namespace ConnectApp.Plugins {
     public class AVPlayerPlugin {
+        public static bool isExistPlayer;
+
         public static void initVideoPlayer(string url, string cookie, float left, float top, float width, float height,
             bool isPop) {
             if (Application.isEditor) {
                 return;
             }
 
-            VideoPlayerManager.instance.isRotation = true;
-            InitPlayer(url, cookie, left, top, width, height, isPop);
+            if (isExistPlayer) {
+                return;
+            }
+
+            isExistPlayer = true;
+            Screen.orientation = ScreenOrientation.AutoRotation;
+            var ratio = Application.platform == RuntimePlatform.Android ? Window.instance.devicePixelRatio : 1.0f;
+            InitPlayer(url, cookie, left, top * ratio, width * ratio, height * ratio, isPop);
             UIWidgetsMessageManager.instance.AddChannelMessageDelegate("player", _handleMethodCall);
         }
 
@@ -25,7 +33,8 @@ namespace ConnectApp.Plugins {
                 return;
             }
 
-            VideoPlayerManager.instance.isRotation = false;
+            Screen.orientation = ScreenOrientation.Portrait;
+            isExistPlayer = false;
             VideoRelease();
             UIWidgetsMessageManager.instance.RemoveChannelMessageDelegate("player", _handleMethodCall);
         }

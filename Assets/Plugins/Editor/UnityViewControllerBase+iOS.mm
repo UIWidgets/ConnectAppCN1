@@ -84,7 +84,7 @@
 {
     NSAssert(UnityShouldAutorotate(), @"UnityDefaultViewController should be used only if unity is set to autorotate");
 
-    return _isSupport? UIInterfaceOrientationMaskAllButUpsideDown: UIInterfaceOrientationMaskPortrait;
+    return _isSupport?UIInterfaceOrientationMaskAllButUpsideDown:UIInterfaceOrientationMaskPortrait;
 }
 - (BOOL)prefersStatusBarHidden
 {
@@ -97,7 +97,6 @@
 }
 - (void) viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
-    _isHidden = YES;
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(updateApperance:) name:@"UpdateStatusBarStyle" object:nil];
 }
 

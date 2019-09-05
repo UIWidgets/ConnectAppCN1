@@ -58,6 +58,8 @@ typedef NS_ENUM(NSUInteger,WMControlType) {
 -(void)wmplayer:(WMPlayer *)wmplayer clickedPlayOrPauseButton:(UIButton *)playOrPauseBtn;
 //点击关闭按钮代理方法
 -(void)wmplayer:(WMPlayer *)wmplayer clickedCloseButton:(UIButton *)backBtn;
+//点击分享按钮代理方法
+-(void)wmplayer:(WMPlayer *)wmplayer clickedShareButton:(UIButton *)shareBtn;
 //点击全屏按钮代理方法
 -(void)wmplayer:(WMPlayer *)wmplayer clickedFullScreenButton:(UIButton *)fullScreenBtn;
 //点击锁定🔒按钮的方法
