@@ -412,6 +412,13 @@ namespace ConnectApp.Constants {
             fontFamily: "Roboto-Regular",
             color: CColors.TextBody5
         );
+
+        public static readonly TextStyle PSmallWhite = new TextStyle(
+            height: 1.53f,
+            fontSize: 12,
+            fontFamily: "Roboto-Regular",
+            color: CColors.White
+        );
     }
 
     public static class CColors {
@@ -459,5 +466,6 @@ namespace ConnectApp.Constants {
         public static readonly Color DullLavender = new Color(0xFF9E91F8);
         public static readonly Color BrightLavender = new Color(0xFFC586F3);
         public static readonly Color Comet = new Color(0xFF636672);
+        public static readonly Color AquaMarine = new Color(0xFF1DE9B6);
     }
 }

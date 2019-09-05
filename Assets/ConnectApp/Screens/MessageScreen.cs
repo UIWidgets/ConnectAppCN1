@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
@@ -15,7 +16,9 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.screens {
     public class MessageScreenConnector : StatelessWidget {
@@ -27,10 +30,59 @@ namespace ConnectApp.screens {
                     pageTotal = state.notificationState.pageTotal,
                     notifications = state.notificationState.notifications,
                     mentions = state.notificationState.mentions,
-                    userDict = state.userState.userDict
+                    userDict = state.userState.userDict,
+                    popularChannelInfo = new List<ChannelInfo> {
+                        new ChannelInfo {
+                            imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                            name = "VR/AR开发者",
+                            size = 117,
+                        },
+                        new ChannelInfo {
+                            imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                            name = "Unity\n教学联盟",
+                            size = 58,
+                        },
+                        new ChannelInfo {
+                            imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                            name = "Unity 2020\n校园招聘",
+                            size = 20,
+                        }
+                    },
+                    discoverChannelInfo = new List<ChannelInfo> {
+                        new ChannelInfo {
+                            imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                            name = "Unite Shanghai 技术会场",
+                            size = 420,
+                            isHot = true,
+                        },
+                        new ChannelInfo {
+                            imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                            name = "游戏开发日常吐槽",
+                            size = 208,
+                            isHot = true,
+                        },
+                        new ChannelInfo {
+                            imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                            name = "我们都爱玩游戏",
+                            size = 199,
+                        },
+                        new ChannelInfo {
+                            imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                            name = "今天你学Unity了吗",
+                            size = 134,
+                        },
+                        new ChannelInfo {
+                            imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                            name = "Unity深圳Meetup",
+                            size = 199,
+                        }
+                    }
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new MessageScreenActionModel {
+                        pushToNotificatioins = () => {
+                            dispatcher.dispatch(new MainNavigatorPushToNotificationAction());
+                        }
                     };
                     return new MessageScreen(viewModel, actionModel);
                 }
@@ -86,7 +138,200 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             base.build(context: context);
-            return new Container();
+            Widget content = new ListView(
+                children: new List<Widget> {
+                    new Container(
+                        padding: EdgeInsets.only(left: 16, right: 16, top: 20),
+                        child: new Text("热门群聊", style: CTextStyle.H5)
+                    ),
+                    new Container(
+                        padding: EdgeInsets.only(top: 16),
+                        child: new SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: new Container(
+                                padding: EdgeInsets.only(left: 16),
+                                child: new Row(
+                                    children: this.widget.viewModel.popularChannelInfo.Select(
+                                        this._buildPopularChannelImage
+                                    ).ToList()
+                                )
+                            )
+                        )
+                    ),
+                    new Container(height: 40),
+                    new Container(
+                        padding: EdgeInsets.symmetric(0, 16),
+                        child: new Text("发现群聊", style: CTextStyle.H5)
+                    ),
+                    new Container(height: 16),
+                    new Column(
+                        children: this.widget.viewModel.discoverChannelInfo.Select(
+                            this._buildDiscoverChannelItem
+                        ).ToList()
+                    ),
+                    new Container(height: 40)
+                }
+            );
+            return new Container(
+                color: CColors.White,
+                child: new Column(
+                    children: new List<Widget> {
+                        this._buildNavigationBar(),
+                        new Container(color: CColors.Separator2, height: 1),
+                        new Flexible(
+                            child: new NotificationListener<ScrollNotification>(
+                                child: new CustomScrollbar(child: content)
+                            )
+                        )
+                    }
+                )
+            );
+        }
+
+        Widget _buildDiscoverChannelItem(ChannelInfo channelInfo) {
+            Widget title = new Text(channelInfo.name, style: CTextStyle.PLargeMedium);
+            return new Container(
+                color: CColors.White,
+                height: 72,
+                padding: EdgeInsets.symmetric(12, 16),
+                child: new Row(
+                    children: new List<Widget> {
+                        new ClipRRect(
+                            borderRadius: BorderRadius.all(4),
+                            child: new Container(
+                                width: 48,
+                                height: 48,
+                                child: Image.network(channelInfo.imageUrl, fit: BoxFit.cover)
+                            )
+                        ),
+                        new Expanded(
+                            child: new Container(
+                                padding: EdgeInsets.symmetric(0, 16),
+                                child: new Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: new List<Widget> {
+                                        channelInfo.isHot
+                                            ? new Row(
+                                                children: new List<Widget> {
+                                                    new Icon(Icons.favorite, color: CColors.Error, size: 12),
+                                                    new Container(width: 7),
+                                                    title,
+                                                }
+                                            )
+                                            : title,
+                                        new Expanded(
+                                            child: new Text($"{channelInfo.size}成员", style: CTextStyle.PRegularBody4)
+                                        )
+                                    }
+                                )
+                            )
+                        ),
+                         new CustomButton(
+                            padding: EdgeInsets.zero,
+                            child: new Container(
+                                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                                decoration: new BoxDecoration(
+                                    border: Border.all(color: CColors.PrimaryBlue),
+                                    borderRadius: BorderRadius.all(14)
+                                ),
+                                child: new Text(
+                                    "加入",
+                                    style: CTextStyle.PRegularBlue.copyWith(height: 1)
+                                )
+                            )
+                        )
+                    }
+                )
+            );
+        }
+
+        Widget _buildNavigationBar() {
+            return new CustomNavigationBar(
+                new Text("群聊", style: CTextStyle.H2),
+                new List<Widget> {
+                    new CustomButton(
+                        onPressed: () => {
+                            this.widget.actionModel.pushToNotificatioins();
+                        },
+                        child: new Container(
+                            width: 28,
+                            height: 28,
+                            child: new Icon(Icons.outline_notification, color: CColors.Icon, size: 28)
+                        )
+                    )
+                },
+                backgroundColor: CColors.White,
+                0
+            );
+        }
+
+        Widget _buildPopularChannelImage(ChannelInfo channelInfo) {
+            return new Container(
+                width: 120,
+                height: 120,
+                margin: EdgeInsets.only(right: 16),
+                child: new ClipRRect(
+                    borderRadius: BorderRadius.all(8),
+                    child: new Container(
+                        child: new Stack(
+                            children: new List<Widget> {
+                                Positioned.fill(
+                                    child: Image.network(
+                                        channelInfo.imageUrl,
+                                        fit: BoxFit.cover
+                                    )
+                                ),
+                                Positioned.fill(
+                                    child: new Container(
+                                         decoration: new BoxDecoration(
+                                            gradient: new LinearGradient(
+                                                begin: Alignment.topCenter,
+                                                end: Alignment.bottomCenter,
+                                                colors: new List<Color> {
+                                                    Color.fromARGB(20, 0, 0, 0),
+                                                    Color.fromARGB(80, 0, 0, 0),
+                                                }
+                                            )
+                                        )
+                                    )
+                                ),
+                                Positioned.fill(
+                                    child: new Column(
+                                        children: new List<Widget> {
+                                            new Container(
+                                                height: 72,
+                                                padding: EdgeInsets.symmetric(0, 8),
+                                                child: new Align(
+                                                    alignment: Alignment.bottomLeft,
+                                                    child: new Text(channelInfo.name,
+                                                        style: CTextStyle.PLargeMediumWhite)
+                                                )
+                                            ),
+                                            new Container(
+                                                padding: EdgeInsets.only(top: 4, left: 8),
+                                                child: new Row(
+                                                    children: new List<Widget> {
+                                                        new Container(
+                                                            width: 8,
+                                                            height: 8,
+                                                            decoration: new BoxDecoration(
+                                                                color: CColors.AquaMarine,
+                                                                borderRadius: BorderRadius.all(4)
+                                                            )
+                                                        ),
+                                                        new Container(width: 4),
+                                                        new Text($"{channelInfo.size}人", style: CTextStyle.PSmallWhite)
+                                                    }
+                                                )
+                                            )
+                                        }
+                                    )
+                                )
+                            }
+                        )
+                    )
+                )
+            );
         }
 
         public void didPopNext() {

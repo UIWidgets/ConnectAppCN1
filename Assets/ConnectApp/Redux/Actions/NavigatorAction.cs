@@ -16,6 +16,9 @@ namespace ConnectApp.redux.actions {
 
     public class MainNavigatorPushReplaceMainAction : BaseAction {
     }
+    
+    public class MainNavigatorPushToNotificationAction : BaseAction {
+    }
 
     public class MainNavigatorPushToRouteAction : BaseAction {
         public Route route;

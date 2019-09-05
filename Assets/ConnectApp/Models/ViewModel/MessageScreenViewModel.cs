@@ -9,5 +9,14 @@ namespace ConnectApp.Models.ViewModel {
         public List<Notification> notifications;
         public List<User> mentions;
         public Dictionary<string, User> userDict;
+        public List<ChannelInfo> popularChannelInfo;
+        public List<ChannelInfo> discoverChannelInfo;
+    }
+
+    public class ChannelInfo {
+        public string imageUrl;
+        public string name;
+        public int size;
+        public bool isHot;
     }
 }
