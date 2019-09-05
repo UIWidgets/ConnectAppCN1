@@ -10,7 +10,6 @@ using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using RSG;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
@@ -87,7 +86,7 @@ namespace ConnectApp.screens {
 
             var content = new List<Widget> {
                 this._buildGoodsNamePrice(),
-                new Divider(height: 1, color: CColors.VeryLightPink)
+                new Container(height: 1, color: CColors.VeryLightPink)
             };
             content.AddRange(this._buildContentList());
 
@@ -162,7 +161,7 @@ namespace ConnectApp.screens {
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.symmetric(17, 0),
-                child: new SizedBox(height: 38,
+                child: new SizedBox(height: 42,
                     child: new Row(
                         children: new List<Widget> {
                             new Expanded(
@@ -182,7 +181,8 @@ namespace ConnectApp.screens {
                             ),
                             new CustomButton(
                                 padding: EdgeInsets.zero,
-                                onPressed: () => { },
+                                onPressed: () => {
+                                },
                                 child: new Container(
                                     padding: EdgeInsets.symmetric(9, 0),
                                     child: new Text("立即购买",
