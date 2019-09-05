@@ -34,8 +34,8 @@ namespace ConnectApp.screens {
             this.isPush = isPush;
         }
 
-        public readonly string articleId;
-        public readonly bool isPush;
+        readonly string articleId;
+        readonly bool isPush;
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ArticleDetailScreenViewModel>(
@@ -44,7 +44,6 @@ namespace ConnectApp.screens {
                     loginUserId = state.loginState.loginInfo.userId,
                     isLoggedIn = state.loginState.isLoggedIn,
                     articleDetailLoading = state.articleState.articleDetailLoading,
-                    followLoading = state.userState.followUserLoading || state.teamState.followTeamLoading,
                     articleDict = state.articleState.articleDict,
                     channelMessageList = state.messageState.channelMessageList,
                     channelMessageDict = state.messageState.channelMessageDict,
@@ -60,10 +59,8 @@ namespace ConnectApp.screens {
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
-                        openUrl = url => dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
-                            url = url
-                        }),
-                        playVideo = url => dispatcher.dispatch(new PlayVideoAction {
+                        openUrl = url => OpenUrlUtil.OpenUrl(url, dispatcher),
+                        playVideo = url => dispatcher.dispatch(new MainNavigatorPushToVideoPlayerAction {
                             url = url
                         }),
                         pushToArticleDetail = id => dispatcher.dispatch(
@@ -111,20 +108,25 @@ namespace ConnectApp.screens {
                                 AnalyticsManager.ClickLike("Article_Remove_Comment", this.articleId, message.id);
                                 return dispatcher.dispatch<IPromise>(Actions.removeLikeComment(message));
                             },
-                        sendComment = (channelId, content, nonce, parentMessageId) => {
+                        sendComment = (channelId, content, nonce, parentMessageId, upperMessageId) => {
                             AnalyticsManager.ClickPublishComment(
                                 parentMessageId == null ? "Article" : "Article_Comment", channelId, parentMessageId);
                             CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog());
                             return dispatcher.dispatch<IPromise>(
-                                Actions.sendComment(this.articleId, channelId, content, nonce, parentMessageId));
+                                Actions.sendComment(this.articleId, channelId, content, nonce, parentMessageId,
+                                    upperMessageId));
                         },
-                        startFollowUser = () => dispatcher.dispatch(new StartFetchFollowUserAction()),
+                        startFollowUser = userId =>
+                            dispatcher.dispatch(new StartFollowUserAction {followUserId = userId}),
                         followUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(userId)),
-                        startUnFollowUser = () => dispatcher.dispatch(new StartFetchUnFollowUserAction()),
+                        startUnFollowUser = userId =>
+                            dispatcher.dispatch(new StartUnFollowUserAction {unFollowUserId = userId}),
                         unFollowUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(userId)),
-                        startFollowTeam = () => dispatcher.dispatch(new StartFetchFollowTeamAction()),
+                        startFollowTeam = teamId =>
+                            dispatcher.dispatch(new StartFetchFollowTeamAction {followTeamId = teamId}),
                         followTeam = teamId => dispatcher.dispatch<IPromise>(Actions.fetchFollowTeam(teamId)),
-                        startUnFollowTeam = () => dispatcher.dispatch(new StartFetchUnFollowTeamAction()),
+                        startUnFollowTeam = teamId =>
+                            dispatcher.dispatch(new StartFetchUnFollowTeamAction {unFollowTeamId = teamId}),
                         unFollowTeam = teamId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowTeam(teamId)),
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
                             Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
@@ -158,7 +160,7 @@ namespace ConnectApp.screens {
         active
     }
 
-    class _ArticleDetailScreenState : State<ArticleDetailScreen>, TickerProvider {
+    class _ArticleDetailScreenState : State<ArticleDetailScreen>, TickerProvider, RouteAware {
         const float navBarHeight = 44;
         Article _article = new Article();
         User _user = new User();
@@ -170,6 +172,7 @@ namespace ConnectApp.screens {
         RefreshController _refreshController;
         string _loginSubId;
         _ArticleJumpToCommentState _jumpState;
+        bool _needRebuildWithCachedCommentPosition;
 
         float? _cachedCommentPosition;
 
@@ -190,27 +193,35 @@ namespace ConnectApp.screens {
             this._animation = rectTween.animate(this._controller);
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchArticleDetail();
-                this.widget.actionModel.fetchArticleDetail(this.widget.viewModel.articleId);
+                this.widget.actionModel.fetchArticleDetail(arg: this.widget.viewModel.articleId);
             });
-            this._loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
+            this._loginSubId = EventBus.subscribe(sName: EventBusConstant.login_success, args => {
                 this.widget.actionModel.startFetchArticleDetail();
-                this.widget.actionModel.fetchArticleDetail(this.widget.viewModel.articleId);
+                this.widget.actionModel.fetchArticleDetail(arg: this.widget.viewModel.articleId);
             });
             this._jumpState = _ArticleJumpToCommentState.Inactive;
             this._cachedCommentPosition = null;
+            this._needRebuildWithCachedCommentPosition = false;
+        }
+
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
         }
 
         public override void dispose() {
-            EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
+            EventBus.unSubscribe(sName: EventBusConstant.login_success, id: this._loginSubId);
+            Router.routeObserve.unsubscribe(this);
             base.dispose();
         }
 
         public Ticker createTicker(TickerCallback onTick) {
-            return new Ticker(onTick, () => $"created by {this}");
+            return new Ticker(onTick: onTick, () => $"created by {this}");
         }
 
         public override Widget build(BuildContext context) {
-            this.widget.viewModel.articleDict.TryGetValue(this.widget.viewModel.articleId, out this._article);
+            this.widget.viewModel.articleDict.TryGetValue(key: this.widget.viewModel.articleId,
+                value: out this._article);
             if (this.widget.viewModel.articleDetailLoading && (this._article == null || !this._article.isNotFirst)) {
                 return new Container(
                     color: CColors.White,
@@ -226,20 +237,33 @@ namespace ConnectApp.screens {
             }
 
             if (this._article == null || this._article.channelId == null) {
-                return new Container();
+                return new Container(
+                    color: CColors.White,
+                    child: new CustomSafeArea(
+                        child: new Column(
+                            children: new List<Widget> {
+                                this._buildNavigationBar(false),
+                                new Flexible(
+                                    child: new BlankView("帖子不存在", "image/default-history")
+                                )
+                            }
+                        )
+                    )
+                );
+                ;
             }
 
             if (this._article.ownerType == "user") {
                 if (this._article.userId != null &&
                     this.widget.viewModel.userDict.TryGetValue(this._article.userId, out this._user)) {
-                    this._user = this.widget.viewModel.userDict[this._article.userId];
+                    this._user = this.widget.viewModel.userDict[key: this._article.userId];
                 }
             }
 
             if (this._article.ownerType == "team") {
                 if (this._article.teamId != null &&
                     this.widget.viewModel.teamDict.TryGetValue(this._article.teamId, out this._team)) {
-                    this._team = this.widget.viewModel.teamDict[this._article.teamId];
+                    this._team = this.widget.viewModel.teamDict[key: this._article.teamId];
                 }
             }
 
@@ -250,13 +274,52 @@ namespace ConnectApp.screens {
                                         MediaQuery.of(context).size.width - 16 * 2, // 16 is horizontal padding
                                         null
                                     ) + 16; // 16 is top padding
-                this.setState(() => { });
             }
 
             var commentIndex = 0;
             var originItems = this._article == null ? new List<Widget>() : this._buildItems(context, out commentIndex);
             commentIndex = this._jumpState == _ArticleJumpToCommentState.active ? commentIndex : 0;
             this._jumpState = _ArticleJumpToCommentState.Inactive;
+
+            Widget contentWidget;
+            //happens at the next frame after user presses the "Comment" button
+            //we rebuild a CenteredRefresher so that we can calculate out the comment section's position
+            if (this._needRebuildWithCachedCommentPosition == false && commentIndex != 0) {
+                contentWidget = new CenteredRefresher(
+                    controller: this._refreshController,
+                    enablePullDown: false,
+                    enablePullUp: this._article.hasMore,
+                    onRefresh: this._onRefresh,
+                    onNotification: this._onNotification,
+                    children: originItems,
+                    centerIndex: commentIndex
+                );
+            }
+            else {
+                //happens when the page is updated or (when _needRebuildWithCachedCommentPosition is true) at the next frame after
+                //a CenteredRefresher is created and the comment section's position is estimated
+                //we use 0 or this estimated position to initiate the SmartRefresher's init scroll offset, respectively
+                D.assert(!this._needRebuildWithCachedCommentPosition || this._cachedCommentPosition != null);
+                contentWidget = new SmartRefresher(
+                    initialOffset: this._needRebuildWithCachedCommentPosition ? this._cachedCommentPosition.Value : 0f,
+                    controller: this._refreshController,
+                    enablePullDown: false,
+                    enablePullUp: this._article.hasMore,
+                    onRefresh: this._onRefresh,
+                    onNotification: this._onNotification,
+                    child: ListView.builder(
+                        physics: new AlwaysScrollableScrollPhysics(),
+                        itemCount: originItems.Count,
+                        itemBuilder: (cxt, index) => originItems[index]
+                    ));
+                if (this._needRebuildWithCachedCommentPosition) {
+                    this._needRebuildWithCachedCommentPosition = false;
+                    //assume that when we jump to the comment, the title should always be shown as the header
+                    //this assumption will fail when an article is shorter than 16 pixels in height (as referred to in _onNotification
+                    this._controller.forward();
+                    this._isHaveTitle = true;
+                }
+            }
 
             var child = new Container(
                 color: CColors.Background,
@@ -265,68 +328,10 @@ namespace ConnectApp.screens {
                         this._buildNavigationBar(),
                         new Expanded(
                             child: new CustomScrollbar(
-                                new CenteredRefresher(
-                                    controller: this._refreshController,
-                                    enablePullDown: false,
-                                    enablePullUp: this._article.hasMore,
-                                    onRefresh: this._onRefresh,
-                                    onNotification: this._onNotification,
-                                    children: originItems,
-                                    centerIndex: commentIndex
-                                )
+                                child: contentWidget
                             )
                         ),
-                        new ArticleTabBar(this._article.like,
-                            () => {
-                                if (!this.widget.viewModel.isLoggedIn) {
-                                    this.widget.actionModel.pushToLogin();
-                                }
-                                else {
-                                    AnalyticsManager.ClickComment("Article", this._article.channelId,
-                                        this._article.title);
-                                    ActionSheetUtils.showModalActionSheet(new CustomInput(
-                                        doneCallBack: text => {
-                                            ActionSheetUtils.hiddenModalPopup();
-                                            this.widget.actionModel.sendComment(this._article.channelId,
-                                                text,
-                                                Snowflake.CreateNonce(),
-                                                null
-                                            );
-                                        })
-                                    );
-                                }
-                            },
-                            () => {
-                                if (!this.widget.viewModel.isLoggedIn) {
-                                    this.widget.actionModel.pushToLogin();
-                                }
-                                else {
-                                    AnalyticsManager.ClickComment("Article", this._article.channelId,
-                                        this._article.title);
-                                    ActionSheetUtils.showModalActionSheet(new CustomInput(
-                                        doneCallBack: text => {
-                                            ActionSheetUtils.hiddenModalPopup();
-                                            this.widget.actionModel.sendComment(this._article.channelId,
-                                                text,
-                                                Snowflake.CreateNonce(),
-                                                null
-                                            );
-                                        })
-                                    );
-                                }
-                            },
-                            () => {
-                                if (!this.widget.viewModel.isLoggedIn) {
-                                    this.widget.actionModel.pushToLogin();
-                                }
-                                else {
-                                    if (!this._article.like) {
-                                        this.widget.actionModel.likeArticle(this._article.id);
-                                    }
-                                }
-                            },
-                            shareCallback: this.share
-                        )
+                        this._buildArticleTabBar()
                     }
                 )
             );
@@ -343,9 +348,14 @@ namespace ConnectApp.screens {
                 this._buildContentHead()
             };
             originItems.AddRange(
-                ContentDescription.map(context, this._article.body, this._article.contentMap,
-                    this.widget.actionModel.openUrl,
-                    this.widget.actionModel.playVideo));
+                ContentDescription.map(
+                    context: context,
+                    cont: this._article.body,
+                    contentMap: this._article.contentMap,
+                    openUrl: this.widget.actionModel.openUrl,
+                    playVideo: this.widget.actionModel.playVideo
+                )
+            );
             // originItems.Add(this._buildActionCards(this._article.like));
             originItems.Add(this._buildRelatedArticles());
             commentIndex = originItems.Count;
@@ -394,16 +404,8 @@ namespace ConnectApp.screens {
                                 //cache the current comment position  
                                 this._cachedCommentPosition = commentPosition;
 
-                                //second frame: create a new scroll view which starts from the default first widget
-                                //and then jump to the calculated comment position
-                                this.setState(() => {
-                                    this._refreshController.scrollController.jumpTo(commentPosition);
-
-                                    //assume that when we jump to the comment, the title should always be shown as the header
-                                    //this assumption will fail when an article is shorter than 16 pixels in height (as referred to in _onNotification
-                                    this._controller.forward();
-                                    this._isHaveTitle = true;
-                                });
+                                //second frame: rebuild a smartRefresher with the cached _cacheCommmentPosition
+                                this.setState(() => { this._needRebuildWithCachedCommentPosition = true; });
                             });
                         },
                         child: new Container(
@@ -445,6 +447,25 @@ namespace ConnectApp.screens {
             );
         }
 
+        Widget _buildArticleTabBar() {
+            return new ArticleTabBar(
+                this._article.like && this.widget.viewModel.isLoggedIn,
+                () => this._sendComment("Article"),
+                () => this._sendComment("Article"),
+                () => {
+                    if (!this.widget.viewModel.isLoggedIn) {
+                        this.widget.actionModel.pushToLogin();
+                    }
+                    else {
+                        if (!this._article.like) {
+                            this.widget.actionModel.likeArticle(this._article.id);
+                        }
+                    }
+                },
+                shareCallback: this.share
+            );
+        }
+
         void _onRefresh(bool up) {
             if (!up) {
                 this.widget.actionModel.fetchArticleComments(this._article.channelId, this._article.currOldestMessageId)
@@ -462,12 +483,12 @@ namespace ConnectApp.screens {
                             items: new List<ActionSheetItem> {
                                 new ActionSheetItem("确定", type: ActionType.normal, () => {
                                     if (this._article.ownerType == OwnerType.user.ToString()) {
-                                        this.widget.actionModel.startUnFollowUser();
+                                        this.widget.actionModel.startUnFollowUser(obj: userId);
                                         this.widget.actionModel.unFollowUser(arg: userId);
                                     }
 
                                     if (this._article.ownerType == OwnerType.team.ToString()) {
-                                        this.widget.actionModel.startUnFollowTeam();
+                                        this.widget.actionModel.startUnFollowTeam(obj: userId);
                                         this.widget.actionModel.unFollowTeam(arg: userId);
                                     }
                                 }),
@@ -479,12 +500,12 @@ namespace ConnectApp.screens {
 
                 if (userType == UserType.unFollow) {
                     if (this._article.ownerType == OwnerType.user.ToString()) {
-                        this.widget.actionModel.startFollowUser();
+                        this.widget.actionModel.startFollowUser(obj: userId);
                         this.widget.actionModel.followUser(arg: userId);
                     }
 
                     if (this._article.ownerType == OwnerType.team.ToString()) {
-                        this.widget.actionModel.startFollowTeam();
+                        this.widget.actionModel.startFollowTeam(obj: userId);
                         this.widget.actionModel.followTeam(arg: userId);
                     }
                 }
@@ -499,13 +520,13 @@ namespace ConnectApp.screens {
             if (pixels > this._titleHeight) {
                 if (this._isHaveTitle == false) {
                     this._controller.forward();
-                    this.setState(() => { this._isHaveTitle = true; });
+                    this.setState(() => this._isHaveTitle = true);
                 }
             }
             else {
                 if (this._isHaveTitle) {
                     this._controller.reverse();
-                    this.setState(() => { this._isHaveTitle = false; });
+                    this.setState(() => this._isHaveTitle = false);
                 }
             }
 
@@ -514,16 +535,14 @@ namespace ConnectApp.screens {
 
         Widget _buildContentHead() {
             Widget _avatar = this._article.ownerType == OwnerType.user.ToString()
-                ? Avatar.User(this._user, 32)
-                : Avatar.Team(this._team, 32);
+                ? Avatar.User(user: this._user, 32)
+                : Avatar.Team(team: this._team, 32);
 
             var text = this._article.ownerType == "user"
                 ? this._user.fullName ?? this._user.name
                 : this._team.name;
             var description = this._article.ownerType == "user" ? this._user.title : "";
-            var time = this._article.lastPublishedTime == null
-                ? this._article.publishedTime
-                : this._article.lastPublishedTime;
+            var time = this._article.publishedTime;
             Widget descriptionWidget = new Container();
             if (description.isNotEmpty()) {
                 descriptionWidget = new Text(
@@ -545,7 +564,7 @@ namespace ConnectApp.screens {
                         new Container(
                             margin: EdgeInsets.only(top: 8),
                             child: new Text(
-                                $"阅读 {this._article.viewCount} · {DateConvert.DateStringFromNow(time)}",
+                                $"阅读 {this._article.viewCount} · {DateConvert.DateStringFromNow(dt: time)}",
                                 style: CTextStyle.PSmallBody4
                             )
                         ),
@@ -616,10 +635,13 @@ namespace ConnectApp.screens {
                 userType = UserType.unFollow;
             }
             else {
+                bool? followLoading = this._article.ownerType == OwnerType.user.ToString()
+                    ? this._user.followUserLoading
+                    : this._team.followTeamLoading;
                 if (this.widget.viewModel.loginUserId == id) {
                     userType = UserType.me;
                 }
-                else if (this.widget.viewModel.followLoading) {
+                else if (followLoading ?? false) {
                     userType = UserType.loading;
                 }
                 else if (this.widget.viewModel.followMap.ContainsKey(key: id)) {
@@ -659,13 +681,13 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildRelatedArticles() {
-            var relatedArticles = this._article.projects.FindAll(item => item.type == "article");
-            if (relatedArticles.Count == 0) {
+            if (this._article.projectIds == null || this._article.projectIds.Count == 0) {
                 return new Container();
             }
 
             var widgets = new List<Widget>();
-            relatedArticles.ForEach(article => {
+            this._article.projectIds.ForEach(articleId => {
+                var article = this.widget.viewModel.articleDict[key: articleId];
                 //对文章进行过滤
                 if (article.id != this._article.id) {
                     var fullName = "";
@@ -681,12 +703,16 @@ namespace ConnectApp.screens {
                         article: article,
                         fullName: fullName,
                         () => {
-                            AnalyticsManager.ClickEnterArticleDetail("ArticleDetail_Related", article.id,
-                                article.title);
-                            this.widget.actionModel.pushToArticleDetail(article.id);
+                            AnalyticsManager.ClickEnterArticleDetail(
+                                "ArticleDetail_Related",
+                                articleId: article.id,
+                                articleTitle: article.title
+                            );
+                            this.widget.actionModel.pushToArticleDetail(obj: article.id);
                         },
-                        key: new ObjectKey(article.id));
-                    widgets.Add(card);
+                        key: new ObjectKey(value: article.id)
+                    );
+                    widgets.Add(item: card);
                 }
             });
             if (widgets.isNotEmpty()) {
@@ -718,8 +744,8 @@ namespace ConnectApp.screens {
 
         IEnumerable<Widget> _buildComments(BuildContext context) {
             List<string> channelComments = new List<string>();
-            if (this.widget.viewModel.channelMessageList.ContainsKey(this._article.channelId)) {
-                channelComments = this.widget.viewModel.channelMessageList[this._article.channelId];
+            if (this.widget.viewModel.channelMessageList.ContainsKey(key: this._article.channelId)) {
+                channelComments = this.widget.viewModel.channelMessageList[key: this._article.channelId];
             }
 
             var mediaQuery = MediaQuery.of(context);
@@ -761,20 +787,27 @@ namespace ConnectApp.screens {
                 return comments;
             }
 
-            var messageDict = this.widget.viewModel.channelMessageDict[this._article.channelId];
+            var messageDict = this.widget.viewModel.channelMessageDict[key: this._article.channelId];
             float contentHeights = 0;
             foreach (var commentId in channelComments) {
-                if (!messageDict.ContainsKey(commentId)) {
+                if (!messageDict.ContainsKey(key: commentId)) {
                     break;
                 }
 
-                var message = messageDict[commentId];
-                bool isPraised = _isPraised(message, this.widget.viewModel.loginUserId);
+                var message = messageDict[key: commentId];
+                bool isPraised = _isPraised(message: message, loginUserId: this.widget.viewModel.loginUserId);
                 var parentName = "";
                 var parentAuthorId = "";
-                if (message.parentMessageId.isNotEmpty()) {
-                    if (messageDict.ContainsKey(message.parentMessageId)) {
-                        var parentMessage = messageDict[message.parentMessageId];
+                if (message.upperMessageId.isNotEmpty()) {
+                    if (messageDict.ContainsKey(key: message.upperMessageId)) {
+                        var parentMessage = messageDict[key: message.upperMessageId];
+                        parentName = parentMessage.author.fullName;
+                        parentAuthorId = parentMessage.author.id;
+                    }
+                }
+                else if (message.parentMessageId.isNotEmpty()) {
+                    if (messageDict.ContainsKey(key: message.parentMessageId)) {
+                        var parentMessage = messageDict[key: message.parentMessageId];
                         parentName = parentMessage.author.fullName;
                         parentAuthorId = parentMessage.author.id;
                     }
@@ -793,65 +826,43 @@ namespace ConnectApp.screens {
                 // 22 is commentTime height, 12 is commentTime bottom margin
                 contentHeights += contentHeight;
                 var card = new CommentCard(
-                    message,
-                    isPraised,
-                    parentName,
-                    parentAuthorId,
+                    message: message,
+                    isPraised: isPraised,
+                    parentName: parentName,
+                    parentAuthorId: parentAuthorId,
                     () => ReportManager.showReportView(
-                        this.widget.viewModel.isLoggedIn,
-                        ReportType.comment,
+                        isLoggedIn: this.widget.viewModel.isLoggedIn,
+                        reportType: ReportType.comment,
                         () => this.widget.actionModel.pushToLogin(),
-                        () => this.widget.actionModel.pushToReport(commentId, ReportType.comment)
+                        () => this.widget.actionModel.pushToReport(arg1: commentId, arg2: ReportType.comment)
                     ),
-                    replyCallBack: () => {
-                        if (!this.widget.viewModel.isLoggedIn) {
-                            this.widget.actionModel.pushToLogin();
-                        }
-                        else {
-                            AnalyticsManager.ClickComment("Article_Comment", this._article.channelId,
-                                this._article.title, commentId);
-                            ActionSheetUtils.showModalActionSheet(new CustomInput(
-                                message.author.fullName.isEmpty() ? "" : message.author.fullName,
-                                text => {
-                                    ActionSheetUtils.hiddenModalPopup();
-                                    this.widget.actionModel.sendComment(this._article.channelId,
-                                        text,
-                                        Snowflake.CreateNonce(),
-                                        commentId
-                                    );
-                                })
-                            );
-                        }
-                    },
+                    replyCallBack: () => this._sendComment(
+                        "Article_Comment",
+                        message.parentMessageId.isNotEmpty() ? message.parentMessageId : commentId,
+                        message.parentMessageId.isNotEmpty() ? commentId : "",
+                        message.author.fullName.isEmpty() ? "" : message.author.fullName
+                    ),
                     praiseCallBack: () => {
                         if (!this.widget.viewModel.isLoggedIn) {
                             this.widget.actionModel.pushToLogin();
                         }
                         else {
                             if (isPraised) {
-                                this.widget.actionModel.removeLikeComment(message);
+                                this.widget.actionModel.removeLikeComment(arg: message);
                             }
                             else {
-                                this.widget.actionModel.likeComment(message);
+                                this.widget.actionModel.likeComment(arg: message);
                             }
                         }
                     },
                     pushToUserDetail: this.widget.actionModel.pushToUserDetail
                 );
-                comments.Add(card);
+                comments.Add(item: card);
             }
 
             float endHeight = 0;
             if (!this._article.hasMore) {
-                comments.Add(new Container(
-                    height: 52,
-                    alignment: Alignment.center,
-                    child: new Text(
-                        "一 已经全部加载完毕 一",
-                        style: CTextStyle.PRegularBody4,
-                        textAlign: TextAlign.center
-                    )
-                ));
+                comments.Add(new EndView());
                 endHeight = 52;
             }
 
@@ -906,7 +917,7 @@ namespace ConnectApp.screens {
                     CustomDialogUtils.showCustomDialog(
                         child: new CustomLoadingDialog()
                     );
-                    string imageUrl = $"{this._article.thumbnail.url}.200x0x1.jpg";
+                    string imageUrl = CImageUtils.SizeTo200ImageUrl(this._article.thumbnail.url);
                     this.widget.actionModel.shareToWechat(arg1: type, arg2: this._article.title,
                             arg3: this._article.subTitle, arg4: linkUrl, arg5: imageUrl)
                         .Then(onResolved: CustomDialogUtils.hiddenCustomDialog)
@@ -914,6 +925,47 @@ namespace ConnectApp.screens {
                 },
                 () => this.widget.actionModel.mainRouterPop()
             );
+        }
+
+        void _sendComment(string type, string parentMessageId = "", string upperMessageId = "",
+            string replyUserName = null) {
+            if (!this.widget.viewModel.isLoggedIn) {
+                this.widget.actionModel.pushToLogin();
+            }
+            else {
+                AnalyticsManager.ClickComment(
+                    type: type,
+                    channelId: this._article.channelId,
+                    title: this._article.title,
+                    commentId: parentMessageId
+                );
+                ActionSheetUtils.showModalActionSheet(new CustomInput(
+                    replyUserName: replyUserName,
+                    text => {
+                        ActionSheetUtils.hiddenModalPopup();
+                        this.widget.actionModel.sendComment(
+                            arg1: this._article.channelId,
+                            arg2: text,
+                            Snowflake.CreateNonce(),
+                            arg4: parentMessageId,
+                            arg5: upperMessageId
+                        );
+                    })
+                );
+            }
+        }
+
+        public void didPopNext() {
+            StatusBarManager.statusBarStyle(false);
+        }
+
+        public void didPush() {
+        }
+
+        public void didPop() {
+        }
+
+        public void didPushNext() {
         }
     }
 }

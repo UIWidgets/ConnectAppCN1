@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using ConnectApp.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
+using RSG;
 using Unity.UIWidgets.Redux;
 using UnityEngine;
 
@@ -27,7 +28,7 @@ namespace ConnectApp.redux.actions {
     public class FetchTeamArticleSuccessAction : BaseAction {
         public List<Article> articles;
         public bool hasMore;
-        public int offset;
+        public int pageNumber;
         public string teamId;
     }
 
@@ -47,6 +48,19 @@ namespace ConnectApp.redux.actions {
     public class FetchTeamFollowerFailureAction : BaseAction {
     }
 
+    public class StartFetchTeamMemberAction : RequestAction {
+    }
+
+    public class FetchTeamMemberSuccessAction : BaseAction {
+        public List<Member> members;
+        public bool membersHasMore;
+        public int pageNumber;
+        public string teamId;
+    }
+
+    public class FetchTeamMemberFailureAction : BaseAction {
+    }
+
     public class StartFetchFollowTeamAction : RequestAction {
         public string followTeamId;
     }
@@ -58,6 +72,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchFollowTeamFailureAction : BaseAction {
+        public string followTeamId;
     }
 
     public class StartFetchUnFollowTeamAction : RequestAction {
@@ -71,6 +86,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchUnFollowTeamFailureAction : BaseAction {
+        public string unFollowTeamId;
     }
 
     public static partial class Actions {
@@ -78,30 +94,32 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return TeamApi.FetchTeam(teamId)
                     .Then(teamResponse => {
-                        if (teamResponse.placeMap != null) {
-                            dispatcher.dispatch(new PlaceMapAction {placeMap = teamResponse.placeMap});
-                        }
+                        dispatcher.dispatch<IPromise>(fetchTeamArticle(teamId: teamResponse.team.id, 1));
+                        dispatcher.dispatch(new PlaceMapAction {placeMap = teamResponse.placeMap});
+                        dispatcher.dispatch(new FollowMapAction {followMap = teamResponse.followMap});
                         dispatcher.dispatch(new FetchTeamSuccessAction {
                             team = teamResponse.team,
                             teamId = teamId
                         });
                     })
                     .Catch(error => {
-                        dispatcher.dispatch(new FetchTeamFailureAction());
-                        Debug.Log(error);
-                    }
-                );
+                            dispatcher.dispatch(new FetchTeamFailureAction());
+                            Debug.Log(error);
+                        }
+                    );
             });
         }
 
-        public static object fetchTeamArticle(string teamId, int offset) {
+        public static object fetchTeamArticle(string teamId, int pageNumber) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return TeamApi.FetchTeamArticle(teamId, offset)
+                return TeamApi.FetchTeamArticle(teamId: teamId, pageNumber: pageNumber)
                     .Then(teamArticleResponse => {
+                        var articles = teamArticleResponse.projects.FindAll(project => "article" == project.type);
+                        dispatcher.dispatch(new LikeMapAction {likeMap = teamArticleResponse.likeMap});
                         dispatcher.dispatch(new FetchTeamArticleSuccessAction {
-                            articles = teamArticleResponse.projects,
+                            articles = articles,
                             hasMore = teamArticleResponse.projectsHasMore,
-                            offset = offset,
+                            pageNumber = pageNumber,
                             teamId = teamId
                         });
                     })
@@ -115,18 +133,22 @@ namespace ConnectApp.redux.actions {
 
         public static object fetchTeamFollower(string teamId, int offset) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
+                var team = getState().teamState.teamDict.ContainsKey(key: teamId)
+                    ? getState().teamState.teamDict[key: teamId]
+                    : new Team();
+                var followerOffset = (team.followers ?? new List<User>()).Count;
+                if (offset != 0 && offset != followerOffset) {
+                    offset = followerOffset;
+                }
+
                 return TeamApi.FetchTeamFollower(teamId, offset)
                     .Then(teamFollowerResponse => {
-                        if (teamFollowerResponse.followMap != null) {
-                            dispatcher.dispatch(new FollowMapAction {
-                                followMap = teamFollowerResponse.followMap
-                            });
-                        }
+                        dispatcher.dispatch(new FollowMapAction {followMap = teamFollowerResponse.followMap});
                         var userMap = new Dictionary<string, User>();
                         teamFollowerResponse.followers.ForEach(follower => {
                             userMap.Add(key: follower.id, value: follower);
                         });
-                        dispatcher.dispatch(new UserMapAction { userMap = userMap });
+                        dispatcher.dispatch(new UserMapAction {userMap = userMap});
                         dispatcher.dispatch(new FetchTeamFollowerSuccessAction {
                             followers = teamFollowerResponse.followers,
                             followersHasMore = teamFollowerResponse.followersHasMore,
@@ -136,6 +158,27 @@ namespace ConnectApp.redux.actions {
                     })
                     .Catch(error => {
                             dispatcher.dispatch(new FetchTeamFollowerFailureAction());
+                            Debug.Log(error);
+                        }
+                    );
+            });
+        }
+
+        public static object fetchTeamMember(string teamId, int pageNumber) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return TeamApi.FetchTeamMember(teamId, pageNumber)
+                    .Then(teamMemberResponse => {
+                        dispatcher.dispatch(new FollowMapAction {followMap = teamMemberResponse.followMap});
+                        dispatcher.dispatch(new UserMapAction {userMap = teamMemberResponse.userMap});
+                        dispatcher.dispatch(new FetchTeamMemberSuccessAction {
+                            members = teamMemberResponse.members,
+                            membersHasMore = teamMemberResponse.hasMore,
+                            pageNumber = pageNumber,
+                            teamId = teamId
+                        });
+                    })
+                    .Catch(error => {
+                            dispatcher.dispatch(new FetchTeamMemberFailureAction());
                             Debug.Log(error);
                         }
                     );
@@ -153,7 +196,7 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => {
-                            dispatcher.dispatch(new FetchFollowTeamFailureAction ());
+                            dispatcher.dispatch(new FetchFollowTeamFailureAction {followTeamId = followTeamId});
                             Debug.Log(error);
                         }
                     );
@@ -171,7 +214,7 @@ namespace ConnectApp.redux.actions {
                         });
                     })
                     .Catch(error => {
-                            dispatcher.dispatch(new FetchUnFollowTeamFailureAction());
+                            dispatcher.dispatch(new FetchUnFollowTeamFailureAction {unFollowTeamId = unFollowTeamId});
                             Debug.Log(error);
                         }
                     );

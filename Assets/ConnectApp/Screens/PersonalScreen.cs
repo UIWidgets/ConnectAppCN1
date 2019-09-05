@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Main;
-using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
+using ConnectApp.Plugins;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
@@ -21,11 +22,12 @@ namespace ConnectApp.screens {
                 converter: state => new PersonalScreenViewModel {
                     isLoggedIn = state.loginState.isLoggedIn,
                     user = state.loginState.loginInfo,
-                    userDict = state.userState.userDict
+                    userDict = state.userState.userDict,
+                    scanEnabled = state.eggState.scanEnabled
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     return new PersonalScreen(
-                        viewModel,
+                        viewModel: viewModel,
                         routeName => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = routeName
                         }),
@@ -59,26 +61,37 @@ namespace ConnectApp.screens {
         }
     }
 
-    public class _PersonalScreenState : AutomaticKeepAliveClientMixin<PersonalScreen> {
+    public class _PersonalScreenState : AutomaticKeepAliveClientMixin<PersonalScreen>, RouteAware {
         protected override bool wantKeepAlive {
             get { return true; }
         }
 
-        public override Widget build(BuildContext context) {
-            base.build(context);
-            var navigationBar = this.widget.viewModel.isLoggedIn
-                ? this._buildLoginInNavigationBar()
-                : this._buildNotLoginInNavigationBar(context);
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
+        }
 
+        public override void dispose() {
+            Router.routeObserve.unsubscribe(this);
+            base.dispose();
+        }
+
+        public override Widget build(BuildContext context) {
+            base.build(context: context);
             return new Container(
                 color: CColors.White,
                 child: new Column(
                     children: new List<Widget> {
-                        navigationBar,
-                        new CustomDivider(
-                            color: CColors.Separator2,
-                            height: 1
-                        ),
+                        this.widget.viewModel.isLoggedIn
+                            ? this._buildLoginInNavigationBar()
+                            : this._buildNotLoginInNavigationBar(),
+                        this.widget.viewModel.isLoggedIn
+                            ? (Widget) new Container()
+                            : new CustomDivider(
+                                color: CColors.Separator2,
+                                height: 1
+                            ),
+                        new Container(height: 16),
                         new Flexible(
                             child: new Column(
                                 children: this._buildItems()
@@ -89,27 +102,26 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildNotLoginInNavigationBar(BuildContext context) {
+        Widget _buildNotLoginInNavigationBar() {
             return new Container(
                 color: CColors.White,
-                width: MediaQuery.of(context).size.width,
-                height: 196,
-                padding: EdgeInsets.only(16, right: 16, bottom: 16),
+                padding: EdgeInsets.only(16, bottom: 16),
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
+                        this._buildQrScanWidget(),
                         new Text("欢迎来到", style: CTextStyle.H2),
                         new Text("Unity Connect", style: CTextStyle.H2),
                         new Container(
                             margin: EdgeInsets.only(top: 16),
                             child: new CustomButton(
                                 padding: EdgeInsets.zero,
-                                onPressed: () => this.widget.mainRouterPushTo(MainNavigatorRoutes.Login),
+                                onPressed: () => this.widget.mainRouterPushTo(obj: MainNavigatorRoutes.Login),
                                 child: new Container(
                                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                                     decoration: new BoxDecoration(
-                                        border: Border.all(CColors.PrimaryBlue),
+                                        border: Border.all(color: CColors.PrimaryBlue),
                                         borderRadius: BorderRadius.all(20)
                                     ),
                                     child: new Text(
@@ -126,7 +138,7 @@ namespace ConnectApp.screens {
 
         Widget _buildLoginInNavigationBar() {
             var user = this.widget.viewModel.userDict[key: this.widget.viewModel.user.userId];
-            Widget titleWidget = new Container();
+            Widget titleWidget;
             if (user.title != null && user.title.isNotEmpty()) {
                 titleWidget = new Text(
                     data: user.title,
@@ -135,16 +147,19 @@ namespace ConnectApp.screens {
                     overflow: TextOverflow.ellipsis
                 );
             }
+            else {
+                titleWidget = new Container();
+            }
 
             return new GestureDetector(
-                onTap: () => this.widget.pushToUserDetail(user.id),
+                onTap: () => this.widget.pushToUserDetail(obj: user.id),
                 child: new Container(
-                    height: 184,
-                    padding: EdgeInsets.only(16, right: 16, bottom: 16),
+                    padding: EdgeInsets.only(16, bottom: 16),
                     color: CColors.White,
                     child: new Column(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: new List<Widget> {
+                            this._buildQrScanWidget(),
                             new Row(
                                 children: new List<Widget> {
                                     new Container(
@@ -169,6 +184,7 @@ namespace ConnectApp.screens {
                                         )
                                     ),
                                     new Container(
+                                        padding: EdgeInsets.only(right: 16),
                                         margin: EdgeInsets.only(12),
                                         child: new Row(
                                             mainAxisSize: MainAxisSize.min,
@@ -197,37 +213,66 @@ namespace ConnectApp.screens {
             );
         }
 
+        Widget _buildQrScanWidget() {
+            if (!this.widget.viewModel.scanEnabled) {
+                return new Container(height: 60);
+            }
+
+            return new Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: new List<Widget> {
+                    new CustomButton(
+                        padding: EdgeInsets.only(16, 16, 20, 16),
+                        onPressed: QRScanPlugin.PushToQRScan,
+                        child: new Icon(
+                            icon: Icons.qr_scan,
+                            size: 28,
+                            color: CColors.Icon
+                        )
+                    )
+                }
+            );
+        }
+
         List<Widget> _buildItems() {
             var personalCardItems = new List<PersonalCardItem> {
                 new PersonalCardItem(
-                    Icons.outline_event,
+                    icon: Icons.outline_event,
                     "我的活动",
                     () => {
                         var routeName = this.widget.viewModel.isLoggedIn
                             ? MainNavigatorRoutes.MyEvent
                             : MainNavigatorRoutes.Login;
-                        this.widget.mainRouterPushTo(routeName);
+                        this.widget.mainRouterPushTo(obj: routeName);
                     }
                 ),
                 new PersonalCardItem(
-                    Icons.eye,
+                    icon: Icons.eye,
                     "浏览历史",
-                    () => this.widget.mainRouterPushTo(MainNavigatorRoutes.History)
+                    () => this.widget.mainRouterPushTo(obj: MainNavigatorRoutes.History)
                 ),
                 new PersonalCardItem(
-                    Icons.settings,
+                    icon: Icons.settings,
                     "设置",
-                    () => {
-                        var routeName = this.widget.viewModel.isLoggedIn
-                            ? MainNavigatorRoutes.Setting
-                            : MainNavigatorRoutes.Login;
-                        this.widget.mainRouterPushTo(routeName);
-                    }
+                    () => this.widget.mainRouterPushTo(obj: MainNavigatorRoutes.Setting)
                 )
             };
             var widgets = new List<Widget>();
-            personalCardItems.ForEach(item => widgets.Add(new PersonalCard(item)));
+            personalCardItems.ForEach(item => widgets.Add(new PersonalCard(personalItem: item)));
             return widgets;
+        }
+
+        public void didPopNext() {
+            StatusBarManager.statusBarStyle(false);
+        }
+
+        public void didPush() {
+        }
+
+        public void didPop() {
+        }
+
+        public void didPushNext() {
         }
     }
 }

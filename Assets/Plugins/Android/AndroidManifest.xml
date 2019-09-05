@@ -10,19 +10,24 @@
         <category android:name="android.intent.category.LAUNCHER" />
         <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
       </intent-filter>
-      <intent-filter> <!--URL Scheme启动-->
+      <intent-filter>
+        <!--URL Scheme启动-->
         <!--必有项-->
-        <action android:name="android.intent.action.VIEW"/>
+        <action android:name="android.intent.action.VIEW" />
         <!--如果希望该应用可以通过浏览器的连接启动，则添加该项-->
-        <category android:name="android.intent.category.BROWSABLE"/>
+        <category android:name="android.intent.category.BROWSABLE" />
         <!--表示该页面可以被隐式调用，必须加上该项-->
-        <category android:name="android.intent.category.DEFAULT"/>
+        <category android:name="android.intent.category.DEFAULT" />
         <!--协议部分-->
-        <data android:scheme="unityconnect"/>
+        <data android:scheme="unityconnect" />
       </intent-filter>
       <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
     </activity>
     <activity android:name=".wxapi.WXEntryActivity" android:label="@string/app_name" android:theme="@android:style/Theme.Translucent.NoTitleBar" android:exported="true" android:launchMode="singleTask">
+    </activity>
+    <activity android:name="com.google.zxing.android.CaptureActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar">
+    </activity>
+    <activity android:name=".QRScanActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar">
     </activity>
     <!-- Required SDK核心功能-->
     <activity android:name="cn.jpush.android.ui.PushActivity" android:configChanges="orientation|keyboardHidden" android:theme="@android:style/Theme.NoTitleBar" android:exported="false">
@@ -100,7 +105,7 @@
     <meta-data android:name="JPUSH_CHANNEL" android:value="official" />
     <meta-data android:name="JPUSH_APPKEY" android:value="a50eff2d99416a0495f02766" />
     <!--  </>值来自开发者平台取得的AppKey-->
-    <meta-data android:name="unity.build-id" android:value="e9414f45-b060-482a-8041-bffca96675a6" />
+    <meta-data android:name="unity.build-id" android:value="c3a0e289-d22e-4db0-95c1-cad446622f2d" />
     <meta-data android:name="unity.splash-mode" android:value="0" />
     <meta-data android:name="unity.splash-enable" android:value="True" />
   </application>
@@ -115,12 +120,13 @@
   <uses-permission android:name="android.permission.RECEIVE_USER_PRESENT" />
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="18" />
-  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="18" />
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
   <uses-permission android:name="android.permission.WRITE_SETTINGS" tools:ignore="ProtectedPermissions" />
   <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" tools:ignore="ProtectedPermissions" />
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
   <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+  <uses-permission android:name="android.permission.CAMERA" />
   <!-- Optional for location -->
   <uses-permission android:name="android.permission.VIBRATE" />
   <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />

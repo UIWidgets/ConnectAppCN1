@@ -12,8 +12,8 @@ using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -30,6 +30,7 @@ namespace ConnectApp.screens {
         }
 
         readonly string personalId;
+
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, EditPersonalInfoScreenViewModel>(
                 converter: state => {
@@ -48,17 +49,18 @@ namespace ConnectApp.screens {
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new EditPersonalInfoScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
-                        editPersonalInfo = (fullName, title, jobRoleId, placeId) => 
-                            dispatcher.dispatch<IPromise>(Actions.editPersonalInfo(fullName, title, jobRoleId, placeId)),
+                        editPersonalInfo = (fullName, title, jobRoleId, placeId) =>
+                            dispatcher.dispatch<IPromise>(Actions.editPersonalInfo(fullName, title, jobRoleId,
+                                placeId)),
                         changeFullName = fullName =>
                             dispatcher.dispatch(new ChangePersonalFullNameAction {fullName = fullName}),
                         changeTitle = title =>
                             dispatcher.dispatch(new ChangePersonalTitleAction {title = title}),
-                        changeJobRole = jobRole => 
+                        changeJobRole = jobRole =>
                             dispatcher.dispatch(new ChangePersonalRoleAction {jobRole = jobRole}),
                         cleanPersonalInfo = () => dispatcher.dispatch(new CleanPersonalInfoAction()),
                         pushToJobRole = () => dispatcher.dispatch(
-                            new MainNavigatorPushToAction { routeName = MainNavigatorRoutes.PersonalRole }
+                            new MainNavigatorPushToAction {routeName = MainNavigatorRoutes.PersonalRole}
                         )
                     };
                     return new EditPersonalInfoScreen(viewModel, actionModel);
@@ -94,7 +96,7 @@ namespace ConnectApp.screens {
         Dictionary<string, string> _jobRole;
 
         public override void initState() {
-            base.initState(); 
+            base.initState();
             StatusBarManager.statusBarStyle(false);
             var user = this.widget.viewModel.user;
             this._fullNameController = new TextEditingController(text: user.fullName);
@@ -102,7 +104,7 @@ namespace ConnectApp.screens {
 
             var jobRole = Resources.Load<TextAsset>("files/JobRole").text;
             this._jobRole = JsonConvert.DeserializeObject<Dictionary<string, string>>(jobRole);
-            
+
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 if (this.widget.viewModel.fullName.Length > 0
                     || this.widget.viewModel.title.Length > 0
@@ -126,7 +128,7 @@ namespace ConnectApp.screens {
         void _editPersonalInfo() {
             CustomDialogUtils.showCustomDialog(
                 child: new CustomLoadingDialog(
-                    message: "正在编辑个人信息"
+                    message: "保存中"
                 )
             );
             this.widget.actionModel.editPersonalInfo(
@@ -144,6 +146,7 @@ namespace ConnectApp.screens {
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
+                    bottom: false,
                     child: new Container(
                         color: CColors.Background,
                         child: new Column(
@@ -161,7 +164,7 @@ namespace ConnectApp.screens {
 
         Widget _buildNavigationBar() {
             var disEnabled = this.widget.viewModel.fullName.isEmpty()
-                            || this.widget.viewModel.jobRole.name.isEmpty();
+                             || this.widget.viewModel.jobRole.name.isEmpty();
             return new CustomAppBar(
                 () => this.widget.actionModel.mainRouterPop(),
                 new Text(
@@ -177,14 +180,14 @@ namespace ConnectApp.screens {
                     },
                     child: new Text(
                         "提交",
-                        style: disEnabled 
-                            ? CTextStyle.PLargeMediumBlue.copyWith(new Color(0xFF9D9D9D))
+                        style: disEnabled
+                            ? CTextStyle.PLargeMediumBlue.copyWith(color: new Color(0xFF9D9D9D))
                             : CTextStyle.PLargeMediumBlue
                     )
                 )
             );
         }
-        
+
         Widget _buildContent() {
             return new Container(
                 child: new ListView(

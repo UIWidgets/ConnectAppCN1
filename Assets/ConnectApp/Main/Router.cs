@@ -34,6 +34,10 @@ namespace ConnectApp.Main {
         public const string PersonalRole = "/personal-role";
         public const string TeamDetail = "/team-detail";
         public const string TeamFollower = "/team-follower";
+        public const string TeamMember = "/team-member";
+        public const string QRScanLogin = "/qr-login";
+        public const string Feedback = "/feedback";
+        public const string FeedbackType = "/feedback-type";
     }
 
     class Router : StatelessWidget {
@@ -69,24 +73,27 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.EditPersonalInfo, context => new EditPersonalInfoScreenConnector("")},
                     {MainNavigatorRoutes.PersonalRole, context => new PersonalJobRoleScreenConnector()},
                     {MainNavigatorRoutes.TeamDetail, context => new TeamDetailScreenConnector("")},
-                    {MainNavigatorRoutes.TeamFollower, context => new TeamFollowerScreenConnector("")}
+                    {MainNavigatorRoutes.TeamFollower, context => new TeamFollowerScreenConnector("")},
+                    {MainNavigatorRoutes.TeamMember, context => new TeamMemberScreenConnector("")},
+                    {MainNavigatorRoutes.QRScanLogin, context => new QRScanLoginScreenConnector("")},
+                    {MainNavigatorRoutes.Feedback, context => new FeedbackScreenConnector()},
+                    {MainNavigatorRoutes.FeedbackType, context => new FeedbackTypeScreenConnector()}
                 };
                 if (Application.isEditor) {
                     var isExistSplash = SplashManager.isExistSplash();
                     if (isExistSplash) {
-                        routes.Add(MainNavigatorRoutes.Root, context => new SplashPage());
-                        routes.Add(MainNavigatorRoutes.Main, context => new MainScreen());
+                        routes.Add(key: MainNavigatorRoutes.Root, context => new SplashPage());
+                        routes.Add(key: MainNavigatorRoutes.Main, context => new MainScreen());
                     }
                     else {
-                        routes.Add(MainNavigatorRoutes.Root, context => new MainScreen());
+                        routes.Add(key: MainNavigatorRoutes.Root, context => new MainScreen());
                     }
                 }
                 else {
-                    routes.Add(MainNavigatorRoutes.Splash, context => new SplashPage());
-                    routes.Add(MainNavigatorRoutes.Main, context => new MainScreen());
-                    routes.Add(MainNavigatorRoutes.Root, context => new RootScreen());
+                    routes.Add(key: MainNavigatorRoutes.Splash, context => new SplashPage());
+                    routes.Add(key: MainNavigatorRoutes.Main, context => new MainScreen());
+                    routes.Add(key: MainNavigatorRoutes.Root, context => new RootScreen());
                 }
-
 
                 return routes;
             }
@@ -103,6 +110,7 @@ namespace ConnectApp.Main {
 
         public override Widget build(BuildContext context) {
             JPushPlugin.context = context;
+            QRScanPlugin.context = context;
             return new WillPopScope(
                 onWillPop: () => {
                     var promise = new Promise<bool>();

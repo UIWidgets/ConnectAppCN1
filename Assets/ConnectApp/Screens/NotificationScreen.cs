@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
+using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
@@ -11,8 +12,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
@@ -22,6 +23,7 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, NotificationScreenViewModel>(
                 converter: state => new NotificationScreenViewModel {
                     notificationLoading = state.notificationState.loading,
+                    page = state.notificationState.page,
                     pageTotal = state.notificationState.pageTotal,
                     notifications = state.notificationState.notifications,
                     mentions = state.notificationState.mentions,
@@ -41,6 +43,11 @@ namespace ConnectApp.screens {
                         pushToUserDetail = userId => dispatcher.dispatch(
                             new MainNavigatorPushToUserDetailAction {
                                 userId = userId
+                            }
+                        ),
+                        pushToTeamDetail = teamId => dispatcher.dispatch(
+                            new MainNavigatorPushToTeamDetailAction {
+                                teamId = teamId
                             }
                         )
                     };
@@ -68,7 +75,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    public class _NotificationScreenState : AutomaticKeepAliveClientMixin<NotificationScreen> {
+    public class _NotificationScreenState : AutomaticKeepAliveClientMixin<NotificationScreen>, RouteAware {
         const int firstPageNumber = 1;
         int _pageNumber = firstPageNumber;
         RefreshController _refreshController;
@@ -86,36 +93,43 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
+            StatusBarManager.statusBarStyle(false);
             this._refreshController = new RefreshController();
             this.navBarHeight = maxNavBarHeight;
             this.titleStyle = CTextStyle.H2;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchNotifications();
-                this.widget.actionModel.fetchNotifications(firstPageNumber);
+                this.widget.actionModel.fetchNotifications(arg: firstPageNumber);
             });
-            this._loginSubId = EventBus.subscribe(EventBusConstant.login_success, args => {
+            this._loginSubId = EventBus.subscribe(sName: EventBusConstant.login_success, args => {
                 this.navBarHeight = maxNavBarHeight;
                 this.titleStyle = CTextStyle.H2;
                 this.widget.actionModel.startFetchNotifications();
-                this.widget.actionModel.fetchNotifications(firstPageNumber);
+                this.widget.actionModel.fetchNotifications(arg: firstPageNumber);
             });
-            this._refreshSubId = EventBus.subscribe(EventBusConstant.refreshNotifications, args => {
+            this._refreshSubId = EventBus.subscribe(sName: EventBusConstant.refreshNotifications, args => {
                 this.navBarHeight = maxNavBarHeight;
                 this.titleStyle = CTextStyle.H2;
                 this.widget.actionModel.startFetchNotifications();
-                this.widget.actionModel.fetchNotifications(firstPageNumber);
+                this.widget.actionModel.fetchNotifications(arg: firstPageNumber);
             });
         }
 
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
+        }
+
         public override void dispose() {
-            EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
-            EventBus.unSubscribe(EventBusConstant.refreshNotifications, this._refreshSubId);
+            EventBus.unSubscribe(sName: EventBusConstant.login_success, id: this._loginSubId);
+            EventBus.unSubscribe(sName: EventBusConstant.refreshNotifications, id: this._refreshSubId);
+            Router.routeObserve.unsubscribe(this);
             base.dispose();
         }
 
         public override Widget build(BuildContext context) {
             base.build(context: context);
-            Widget content = new Container();
+            Widget content;
             var notifications = this.widget.viewModel.notifications;
             if (this.widget.viewModel.notificationLoading && notifications.Count == 0) {
                 content = new GlobalLoading();
@@ -129,13 +143,13 @@ namespace ConnectApp.screens {
                             true,
                             () => {
                                 this.widget.actionModel.startFetchNotifications();
-                                this.widget.actionModel.fetchNotifications(firstPageNumber);
+                                this.widget.actionModel.fetchNotifications(arg: firstPageNumber);
                             }
                         )
                     );
                 }
                 else {
-                    var enablePullUp = this._pageNumber < this.widget.viewModel.pageTotal;
+                    var enablePullUp = this.widget.viewModel.page < this.widget.viewModel.pageTotal;
                     var itemCount = enablePullUp ? notifications.Count : notifications.Count + 1;
                     content = new Container(
                         color: CColors.Background,
@@ -144,6 +158,7 @@ namespace ConnectApp.screens {
                             enablePullDown: true,
                             enablePullUp: enablePullUp,
                             onRefresh: this._onRefresh,
+                            hasBottomMargin: true,
                             child: ListView.builder(
                                 physics: new AlwaysScrollableScrollPhysics(),
                                 itemCount: itemCount,
@@ -166,7 +181,7 @@ namespace ConnectApp.screens {
                         new Flexible(
                             child: new NotificationListener<ScrollNotification>(
                                 onNotification: this._onNotification,
-                                child: new CustomScrollbar(content)
+                                child: new CustomScrollbar(child: content)
                             )
                         )
                     }
@@ -198,8 +213,9 @@ namespace ConnectApp.screens {
         Widget _buildNotificationCard(BuildContext context, int index) {
             var notifications = this.widget.viewModel.notifications;
             if (index == notifications.Count) {
-                return new EndView();
+                return new EndView(hasBottomMargin: true);
             }
+
             var notification = notifications[index: index];
             var user = this.widget.viewModel.userDict[key: notification.data.userId];
             return new NotificationCard(
@@ -207,14 +223,20 @@ namespace ConnectApp.screens {
                 user: user,
                 mentions: this.widget.viewModel.mentions,
                 () => {
-                    this.widget.actionModel.pushToArticleDetail(notification.data.projectId);
-                    AnalyticsManager.ClickEnterArticleDetail(
-                        "Notification_Article",
-                        articleId: notification.data.projectId,
-                        articleTitle: notification.data.projectTitle
-                    );
+                    if (notification.type == "followed" || notification.type == "team_followed") {
+                        this.widget.actionModel.pushToUserDetail(obj: notification.data.userId);
+                    }
+                    else {
+                        this.widget.actionModel.pushToArticleDetail(obj: notification.data.projectId);
+                        AnalyticsManager.ClickEnterArticleDetail(
+                            "Notification_Article",
+                            articleId: notification.data.projectId,
+                            articleTitle: notification.data.projectTitle
+                        );
+                    }
                 },
                 pushToUserDetail: this.widget.actionModel.pushToUserDetail,
+                this.widget.actionModel.pushToTeamDetail,
                 index == notifications.Count - 1,
                 new ObjectKey(value: notification.id)
             );
@@ -247,16 +269,24 @@ namespace ConnectApp.screens {
         }
 
         void _onRefresh(bool up) {
-            if (up) {
-                this._pageNumber = firstPageNumber;
-            }
-            else {
-                this._pageNumber++;
-            }
+            this._pageNumber = up ? firstPageNumber : this.widget.viewModel.page + 1;
 
-            this.widget.actionModel.fetchNotifications(this._pageNumber)
-                .Then(() => this._refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
-                .Catch(_ => this._refreshController.sendBack(up, RefreshStatus.failed));
+            this.widget.actionModel.fetchNotifications(arg: this._pageNumber)
+                .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
+        }
+
+        public void didPopNext() {
+            StatusBarManager.statusBarStyle(false);
+        }
+
+        public void didPush() {
+        }
+
+        public void didPop() {
+        }
+
+        public void didPushNext() {
         }
     }
 }

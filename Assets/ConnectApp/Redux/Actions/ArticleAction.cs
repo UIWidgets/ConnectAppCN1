@@ -5,6 +5,7 @@ using ConnectApp.Constants;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Utils;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
 using UnityEngine;
 
@@ -21,11 +22,27 @@ namespace ConnectApp.redux.actions {
     public class FetchArticleFailureAction : BaseAction {
     }
 
+    public class StartFetchFollowArticlesAction : RequestAction {
+    }
+
+    public class FetchFollowArticleSuccessAction : BaseAction {
+        public List<Article> projects;
+        public bool projectHasMore;
+        public List<Article> hottests;
+        public bool hottestHasMore;
+        public int pageNumber;
+        public int page;
+    }
+
+    public class FetchFollowArticleFailureAction : BaseAction {
+    }
+
     public class StartFetchArticleDetailAction : RequestAction {
     }
 
     public class FetchArticleDetailSuccessAction : BaseAction {
         public Project articleDetail;
+        public string articleId;
     }
 
     public class FetchArticleDetailFailureAction : BaseAction {
@@ -94,6 +111,9 @@ namespace ConnectApp.redux.actions {
     public class SendCommentSuccessAction : BaseAction {
         public Message message;
         public string articleId;
+        public string channelId;
+        public string parentMessageId;
+        public string upperMessageId;
     }
 
     public static partial class Actions {
@@ -111,6 +131,8 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new UserMapAction {userMap = articlesResponse.userMap});
                         dispatcher.dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
                         dispatcher.dispatch(new FollowMapAction {followMap = articlesResponse.followMap});
+                        dispatcher.dispatch(new LikeMapAction {likeMap = articlesResponse.likeMap});
+                        dispatcher.dispatch(new PlaceMapAction {placeMap = articlesResponse.placeMap});
                         dispatcher.dispatch(new FetchArticleSuccessAction {
                             offset = offset,
                             hottestHasMore = articlesResponse.hottestHasMore,
@@ -124,6 +146,30 @@ namespace ConnectApp.redux.actions {
             });
         }
 
+        public static object fetchFollowArticles(int pageNumber) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ArticleApi.FetchFollowArticles(pageNumber)
+                    .Then(followArticlesResponse => {
+                        dispatcher.dispatch(new UserMapAction {userMap = followArticlesResponse.userMap});
+                        dispatcher.dispatch(new TeamMapAction {teamMap = followArticlesResponse.teamMap});
+                        dispatcher.dispatch(new FollowMapAction {followMap = followArticlesResponse.followMap});
+                        dispatcher.dispatch(new LikeMapAction {likeMap = followArticlesResponse.likeMap});
+                        dispatcher.dispatch(new FetchFollowArticleSuccessAction {
+                            pageNumber = pageNumber,
+                            projects = followArticlesResponse.projects,
+                            projectHasMore = followArticlesResponse.projectHasMore,
+                            hottests = followArticlesResponse.hottests,
+                            hottestHasMore = followArticlesResponse.hottestHasMore,
+                            page = followArticlesResponse.page
+                        });
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new FetchFollowArticleFailureAction());
+                        Debug.Log(error);
+                    });
+            });
+        }
+
         public static object fetchArticleComments(string channelId, string currOldestMessageId = "") {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ArticleApi.FetchArticleComments(channelId, currOldestMessageId)
@@ -132,27 +178,38 @@ namespace ConnectApp.redux.actions {
                         var messageItems = new Dictionary<string, Message>();
                         var userMap = new Dictionary<string, User>();
                         responseComments.items.ForEach(message => {
-                            itemIds.Add(message.id);
-                            messageItems[message.id] = message;
-                            if (userMap.ContainsKey(message.author.id)) {
-                                userMap[message.author.id] = message.author;
+                            itemIds.Add(item: message.id);
+                            messageItems[key: message.id] = message;
+                            if (userMap.ContainsKey(key: message.author.id)) {
+                                userMap[key: message.author.id] = message.author;
                             }
                             else {
-                                userMap.Add(message.author.id, message.author);
+                                userMap.Add(key: message.author.id, value: message.author);
                             }
                         });
-                        dispatcher.dispatch(new UserMapAction {
-                            userMap = userMap
+                        responseComments.parents.ForEach(message => {
+                            if (messageItems.ContainsKey(key: message.id)) {
+                                messageItems[key: message.id] = message;
+                            }
+                            else {
+                                messageItems.Add(key: message.id, value: message);
+                            }
+
+                            if (userMap.ContainsKey(key: message.author.id)) {
+                                userMap[key: message.author.id] = message.author;
+                            }
+                            else {
+                                userMap.Add(key: message.author.id, value: message.author);
+                            }
                         });
-                        var hasMore = responseComments.hasMore;
-                        var lastCommentId = responseComments.currOldestMessageId;
+                        dispatcher.dispatch(new UserMapAction {userMap = userMap});
                         dispatcher.dispatch(new FetchArticleCommentsSuccessAction {
                             channelId = channelId,
                             itemIds = itemIds,
                             messageItems = messageItems,
                             isRefreshList = false,
-                            hasMore = hasMore,
-                            currOldestMessageId = lastCommentId
+                            hasMore = responseComments.hasMore,
+                            currOldestMessageId = responseComments.currOldestMessageId
                         });
                     })
                     .Catch(Debug.Log);
@@ -163,49 +220,66 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ArticleApi.FetchArticleDetail(articleId, isPush)
                     .Then(articleDetailResponse => {
-                        if (articleDetailResponse.project.comments.items.Count > 0) {
-                            var itemIds = new List<string>();
-                            var messageItems = new Dictionary<string, Message>();
-                            var userMap = new Dictionary<string, User>();
-                            articleDetailResponse.project.comments.items.ForEach(message => {
-                                itemIds.Add(item: message.id);
+                        var itemIds = new List<string>();
+                        var messageItems = new Dictionary<string, Message>();
+                        var userMap = new Dictionary<string, User>();
+                        articleDetailResponse.project.comments.items.ForEach(message => {
+                            itemIds.Add(item: message.id);
+                            messageItems[key: message.id] = message;
+                            if (userMap.ContainsKey(key: message.author.id)) {
+                                userMap[key: message.author.id] = message.author;
+                            }
+                            else {
+                                userMap.Add(key: message.author.id, value: message.author);
+                            }
+                        });
+                        articleDetailResponse.project.comments.parents.ForEach(message => {
+                            if (messageItems.ContainsKey(key: message.id)) {
                                 messageItems[key: message.id] = message;
-                                if (userMap.ContainsKey(key: message.author.id)) {
-                                    userMap[key: message.author.id] = message.author;
-                                }
-                                else {
-                                    userMap.Add(key: message.author.id, value: message.author);
-                                }
-                            });
-                            dispatcher.dispatch(new UserMapAction {
-                                userMap = userMap
-                            });
-                            dispatcher.dispatch(new FetchArticleCommentsSuccessAction {
-                                channelId = articleDetailResponse.project.channelId,
-                                itemIds = itemIds,
-                                messageItems = messageItems,
-                                isRefreshList = true,
-                                hasMore = articleDetailResponse.project.comments.hasMore,
-                                currOldestMessageId = articleDetailResponse.project.comments.currOldestMessageId
-                            });
-                        }
+                            }
+                            else {
+                                messageItems.Add(key: message.id, value: message);
+                            }
+
+                            if (userMap.ContainsKey(key: message.author.id)) {
+                                userMap[key: message.author.id] = message.author;
+                            }
+                            else {
+                                userMap.Add(key: message.author.id, value: message.author);
+                            }
+                        });
+                        dispatcher.dispatch(new UserMapAction {
+                            userMap = userMap
+                        });
+                        dispatcher.dispatch(new FetchArticleCommentsSuccessAction {
+                            channelId = articleDetailResponse.project.channelId,
+                            itemIds = itemIds,
+                            messageItems = messageItems,
+                            isRefreshList = true,
+                            hasMore = articleDetailResponse.project.comments.hasMore,
+                            currOldestMessageId = articleDetailResponse.project.comments.currOldestMessageId
+                        });
 
                         dispatcher.dispatch(new UserMapAction {
                             userMap = articleDetailResponse.project.userMap
+                        });
+                        dispatcher.dispatch(new UserMapAction {
+                            userMap = articleDetailResponse.project.mentionUsers
                         });
                         dispatcher.dispatch(new TeamMapAction {
                             teamMap = articleDetailResponse.project.teamMap
                         });
                         dispatcher.dispatch(new FollowMapAction {followMap = articleDetailResponse.project.followMap});
                         dispatcher.dispatch(new FetchArticleDetailSuccessAction {
-                            articleDetail = articleDetailResponse.project
+                            articleDetail = articleDetailResponse.project,
+                            articleId = articleId
                         });
                         dispatcher.dispatch(new SaveArticleHistoryAction {
                             article = articleDetailResponse.project.projectData
                         });
                     })
                     .Catch(error => {
-//                        dispatcher.dispatch(new FetchArticleDetailFailureAction());
+                        dispatcher.dispatch(new FetchArticleDetailFailureAction());
                         Debug.Log(error);
                     });
             });
@@ -258,20 +332,37 @@ namespace ConnectApp.redux.actions {
         }
 
         public static object sendComment(string articleId, string channelId, string content, string nonce,
-            string parentMessageId) {
+            string parentMessageId, string upperMessageId) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ArticleApi.SendComment(channelId, content, nonce, parentMessageId)
+                return ArticleApi.SendComment(
+                        channelId: channelId,
+                        content: content,
+                        nonce: nonce,
+                        parentMessageId: parentMessageId,
+                        upperMessageId: upperMessageId
+                    )
                     .Then(message => {
                         CustomDialogUtils.hiddenCustomDialog();
-                        CustomDialogUtils.showToast("发送成功", Icons.sentiment_satisfied);
+                        if (message.deleted) {
+                            if (parentMessageId.isNotEmpty()) {
+                                CustomDialogUtils.showToast("此条评论已被删除", iconData: Icons.sentiment_dissatisfied);
+                            }
+                        }
+                        else {
+                            CustomDialogUtils.showToast("发送成功", iconData: Icons.sentiment_satisfied);
+                        }
+
                         dispatcher.dispatch(new SendCommentSuccessAction {
                             message = message,
-                            articleId = articleId
+                            articleId = articleId,
+                            channelId = channelId,
+                            parentMessageId = parentMessageId,
+                            upperMessageId = upperMessageId
                         });
                     })
                     .Catch(error => {
                         CustomDialogUtils.hiddenCustomDialog();
-                        CustomDialogUtils.showToast("发送失败", Icons.sentiment_dissatisfied);
+                        CustomDialogUtils.showToast("发送失败", iconData: Icons.sentiment_dissatisfied);
                     });
             });
         }

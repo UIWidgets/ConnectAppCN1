@@ -14,6 +14,12 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
+    public class QRLoginParameter {
+        public string token;
+        public string action;
+    }
+
+    [Serializable]
     public class LikeArticleParameter {
         public string type;
         public string itemId;
@@ -28,7 +34,9 @@ namespace ConnectApp.Models.Api {
     public class SendCommentParameter {
         public string content;
         public string parentMessageId;
+        public string upperMessageId;
         public string nonce;
+        public bool app;
     }
 
     [Serializable]
@@ -36,6 +44,15 @@ namespace ConnectApp.Models.Api {
         public string itemType;
         public string itemId;
         public List<string> reasons;
+    }
+
+    [Serializable]
+    public class FeedbackParameter {
+        public string type;
+        public string name;
+        public string contact;
+        public string content;
+        public string data;
     }
 
     [Serializable]
@@ -58,6 +75,6 @@ namespace ConnectApp.Models.Api {
         public string device;
         public string eventType;
         public DateTime appTime;
-        public string data;
+        public List<Dictionary<string, string>> extraData;
     }
 }

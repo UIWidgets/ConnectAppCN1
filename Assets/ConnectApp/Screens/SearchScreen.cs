@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
+using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
@@ -29,14 +31,17 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, SearchScreenViewModel>(
                 converter: state => new SearchScreenViewModel {
                     searchKeyword = state.searchState.keyword,
-                    searchArticles = state.searchState.searchArticles.ContainsKey(key: state.searchState.keyword)
-                        ? state.searchState.searchArticles[key: state.searchState.keyword]
-                        : new List<Article>(),
+                    searchArticleIds = state.searchState.searchArticleIdDict.ContainsKey(key: state.searchState.keyword)
+                        ? state.searchState.searchArticleIdDict[key: state.searchState.keyword]
+                        : new List<string>(),
                     searchArticleHistoryList = state.searchState.searchArticleHistoryList,
                     popularSearchArticleList = state.popularSearchState.popularSearchArticles,
-                    searchUsers = state.searchState.searchUsers.ContainsKey(key: state.searchState.keyword)
-                        ? state.searchState.searchUsers[key: state.searchState.keyword]
-                        : new List<User>()
+                    searchUserIds = state.searchState.searchUserIdDict.ContainsKey(key: state.searchState.keyword)
+                        ? state.searchState.searchUserIdDict[key: state.searchState.keyword]
+                        : new List<string>(),
+                    searchTeamIds = state.searchState.searchTeamIdDict.ContainsKey(key: state.searchState.keyword)
+                        ? state.searchState.searchTeamIdDict[key: state.searchState.keyword]
+                        : new List<string>()
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new SearchScreenActionModel {
@@ -50,6 +55,9 @@ namespace ConnectApp.screens {
                         startSearchUser = () => dispatcher.dispatch(new StartSearchUserAction()),
                         searchUser = (keyword, pageNumber) => dispatcher.dispatch<IPromise>(
                             Actions.searchUsers(keyword, pageNumber)),
+                        startSearchTeam = () => dispatcher.dispatch(new StartSearchTeamAction()),
+                        searchTeam = (keyword, pageNumber) => dispatcher.dispatch<IPromise>(
+                            Actions.searchTeams(keyword, pageNumber)),
                         clearSearchResult = () => dispatcher.dispatch(new ClearSearchResultAction()),
                         saveSearchArticleHistory = keyword =>
                             dispatcher.dispatch(new SaveSearchArticleHistoryAction {keyword = keyword}),
@@ -82,31 +90,36 @@ namespace ConnectApp.screens {
         }
     }
 
-    class _SearchScreenState : State<SearchScreen> {
+    class _SearchScreenState : State<SearchScreen>, RouteAware {
         readonly TextEditingController _controller = new TextEditingController("");
         FocusNode _focusNode;
-        PageController _pageController;
         int _selectedIndex;
 
         public override void initState() {
             base.initState();
+            StatusBarManager.statusBarStyle(false);
             this._focusNode = new FocusNode();
-            this._pageController = new PageController();
             this._selectedIndex = 0;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 if (this.widget.viewModel.searchKeyword.Length > 0
-                    || this.widget.viewModel.searchArticles.Count > 0
-                    || this.widget.viewModel.searchUsers.Count > 0) {
+                    || this.widget.viewModel.searchArticleIds.Count > 0
+                    || this.widget.viewModel.searchUserIds.Count > 0
+                    || this.widget.viewModel.searchTeamIds.Count > 0) {
                     this.widget.actionModel.clearSearchResult();
                 }
 
                 this.widget.actionModel.fetchPopularSearch();
             });
         }
+        
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
+        }
 
         public override void dispose() {
             this._controller.dispose();
-            this._pageController.dispose();
+            Router.routeObserve.unsubscribe(this);
             base.dispose();
         }
 
@@ -127,21 +140,29 @@ namespace ConnectApp.screens {
             if (this._selectedIndex == 1) {
                 this._searchUser(text: text);
             }
+            if (this._selectedIndex == 2) {
+                this._searchTeam(text: text);
+            }
         }
 
         void _searchArticle(string text) {
-            this.widget.actionModel.saveSearchArticleHistory(text);
-            this.widget.actionModel.startSearchArticle(text);
-            this.widget.actionModel.searchArticle(text, 0);
+            this.widget.actionModel.saveSearchArticleHistory(obj: text);
+            this.widget.actionModel.startSearchArticle(obj: text);
+            this.widget.actionModel.searchArticle(arg1: text, 0);
         }
         
         void _searchUser(string text) {
             this.widget.actionModel.startSearchUser();
-            this.widget.actionModel.searchUser(text, 1);
+            this.widget.actionModel.searchUser(arg1: text, 1);
+        }
+
+        void _searchTeam(string text) {
+            this.widget.actionModel.startSearchTeam();
+            this.widget.actionModel.searchTeam(arg1: text, 1);
         }
 
         public override Widget build(BuildContext context) {
-            Widget child = new Container();
+            Widget child;
             if (this.widget.viewModel.searchKeyword.Length > 0) {
                 child = this._buildSearchResult();
             }
@@ -223,47 +244,17 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildSearchResult() {
-            return new Container(
-                child: new Column(
-                    children: new List<Widget> {
-                        this._buildSelectView(),
-                        this._buildContentView()
-                    }
-                )
-            );
-        }
-
-        Widget _buildSelectView() {
             return new CustomSegmentedControl(
-                new List<string> {"文章", "用户"},
-                newValue => {
-                    this.setState(() => this._selectedIndex = newValue);
-                    this._pageController.animateToPage(
-                        page: newValue,
-                        TimeSpan.FromMilliseconds(250),
-                        curve: Curves.ease
-                    );
+                new List<string> {"文章", "用户", "公司"},
+                new List<Widget> {
+                    new SearchArticleScreenConnector(),
+                    new SearchUserScreenConnector(),
+                    new SearchTeamScreenConnector()
                 },
-                currentIndex: this._selectedIndex
-            );
-        }
-
-        Widget _buildContentView() {
-            return new Flexible(
-                child: new Container(
-                    child: new PageView(
-                        physics: new BouncingScrollPhysics(),
-                        controller: this._pageController,
-                        onPageChanged: index => {
-                            this.setState(() => this._selectedIndex = index);
-                            this._searchResult(this.widget.viewModel.searchKeyword);
-                        },
-                        children: new List<Widget> {
-                            new SearchArticleScreenConnector(),
-                            new SearchUserScreenConnector()
-                        }
-                    )
-                )
+                newValue => {
+                    this._selectedIndex = newValue;
+                    this._searchResult(text: this.widget.viewModel.searchKeyword);
+                }
             );
         }
 
@@ -405,6 +396,19 @@ namespace ConnectApp.screens {
                     children: widgets
                 )
             );
+        }
+        
+        public void didPopNext() {
+            StatusBarManager.statusBarStyle(false);
+        }
+
+        public void didPush() {
+        }
+
+        public void didPop() {
+        }
+
+        public void didPushNext() {
         }
     }
 }

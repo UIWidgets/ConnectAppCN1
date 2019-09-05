@@ -13,6 +13,7 @@ namespace ConnectApp.Components {
     public enum ShareType {
         friends,
         moments,
+        miniProgram,
         clipBoard,
         block,
         report
@@ -108,7 +109,7 @@ namespace ConnectApp.Components {
                                         height: 49,
                                         color: CColors.Transparent,
                                         alignment: Alignment.center,
-                                        child: new Text("取消", style: CTextStyle.PLargeBody.copyWith(CColors.Cancel))
+                                        child: new Text("取消", style: CTextStyle.PLargeBody.copyWith(color: CColors.Cancel))
                                     )
                                 ),
                                 new Container(
@@ -123,7 +124,7 @@ namespace ConnectApp.Components {
 
         List<Widget> _buildShareItems() {
             var shareItems = new List<Widget>();
-            if (WechatPlugin.instance().inInstalled()) {
+            if (WechatPlugin.instance().isInstalled()) {
                 shareItems.Add(
                     _buildShareItem(
                         icon: Icons.WechatIcon,

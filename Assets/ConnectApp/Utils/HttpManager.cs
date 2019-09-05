@@ -2,9 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using ConnectApp.Api;
+using ConnectApp.Constants;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RSG;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
@@ -20,6 +23,7 @@ namespace ConnectApp.Utils {
 
     public static class HttpManager {
         const string COOKIE = "Cookie";
+        static string vsCookie;
 
         static UnityWebRequest initRequest(
             string url,
@@ -32,6 +36,7 @@ namespace ConnectApp.Utils {
             request.SetRequestHeader("X-Requested-With", "XmlHttpRequest");
             UnityWebRequest.ClearCookieCache();
             request.SetRequestHeader(COOKIE, _cookieHeader());
+            request.SetRequestHeader("AppVersion", Config.versionNumber);
             return request;
         }
 
@@ -43,11 +48,13 @@ namespace ConnectApp.Utils {
                 foreach (var keyValuePair in par) {
                     parameterString += $"{keyValuePair.Key}={keyValuePair.Value}&";
                 }
+
                 if (parameterString.Length > 0) {
                     var newParameterString = parameterString.Remove(parameterString.Length - 1);
                     newUri += $"?{newParameterString}";
                 }
             }
+
             return initRequest(url: newUri, method: Method.GET);
         }
 
@@ -59,6 +66,7 @@ namespace ConnectApp.Utils {
                 request.uploadHandler = new UploadHandlerRaw(bodyRaw);
                 request.SetRequestHeader("Content-Type", "application/json");
             }
+
             return request;
         }
 
@@ -126,7 +134,8 @@ namespace ConnectApp.Utils {
         }
 
         public static void clearCookie() {
-            PlayerPrefs.DeleteKey(COOKIE);
+            PlayerPrefs.SetString(COOKIE, vsCookie);
+            PlayerPrefs.Save();
         }
 
         public static string getCookie() {
@@ -170,6 +179,21 @@ namespace ConnectApp.Utils {
 
         public static bool isNetWorkError() {
             return Application.internetReachability == NetworkReachability.NotReachable;
+        }
+
+        public static void initVSCode() {
+            LoginApi.InitData().Then(initDataResponse => {
+                if (initDataResponse.VS.isNotEmpty()) {
+                    vsCookie = $"VS={initDataResponse.VS}";
+                    updateCookie(newCookie: vsCookie);
+                }
+
+                if (initDataResponse.showEggs.isNotEmpty()) {
+                    StoreProvider.store.dispatcher.dispatch(new InitEggsAction {showEggs = initDataResponse.showEggs});
+                }
+
+                StoreProvider.store.dispatcher.dispatch(new ScanEnabledAction {scanEnabled = initDataResponse.scanEnabled});
+            }).Catch(exception => { });
         }
     }
 }

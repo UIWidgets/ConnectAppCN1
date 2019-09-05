@@ -154,7 +154,12 @@ NSData *APNativeJSONData(id obj) {
         SendAuthResp *sendAuthResp = (SendAuthResp *) resp;
         [[WechatPlugin instance]sendCodeEvent:sendAuthResp.code stateId:sendAuthResp.state];
     }
-    
+    if ([resp isKindOfClass:[WXLaunchMiniProgramResp class]]) {
+        WXLaunchMiniProgramResp *miniResp = (WXLaunchMiniProgramResp *) resp;
+        if (miniResp.extMsg.length!=0) {
+            UIWidgetsMethodMessage(@"wechat", @"openUrl", @[miniResp.extMsg]);
+        }
+    }
 }
 
 
@@ -188,7 +193,6 @@ extern "C"  {
         strcpy(r, s);
         return r;
     }
-    
     void pickImage()//相册
     {
         [[PickImageController sharedInstance] showPicker:UIImagePickerControllerSourceTypeSavedPhotosAlbum];
@@ -204,6 +208,18 @@ extern "C"  {
     }
     bool isCameraAuthorization (){
         return [[PickImageController sharedInstance] isCameraAuthorization];
+        
+    }
+    bool isEnableNotification(){
+        BOOL isEnable = NO;
+        if ([[UIDevice currentDevice].systemVersion floatValue] >= 8.0f) { // iOS版本 >=8.0 处理逻辑
+            UIUserNotificationSettings *setting = [[UIApplication sharedApplication] currentUserNotificationSettings];
+            isEnable = (UIUserNotificationTypeNone == setting.types) ? NO : YES;
+        } else { // iOS版本 <8.0 处理逻辑
+            UIRemoteNotificationType type = [[UIApplication sharedApplication] enabledRemoteNotificationTypes];
+            isEnable = (UIRemoteNotificationTypeNone == type) ? NO : YES;
+        }
+        return isEnable;
     }
     
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Models.State;
@@ -5,6 +6,7 @@ using ConnectApp.Plugins;
 using ConnectApp.redux;
 using ConnectApp.Utils;
 using Unity.UIWidgets.engine;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -82,6 +84,40 @@ namespace ConnectApp.Main {
                         settings: settings,
                         (context, animation, secondaryAnimation) => builder(context)
                     );
+            }
+        }
+
+        void OnApplicationFocus(bool hasFocus) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            if (hasFocus) {
+                using (WindowProvider.of(JPushPlugin.context).getScope()) {
+                    AnalyticsManager.foucsTime = DateTime.UtcNow.ToString();
+                }
+            }
+            else {
+                using (WindowProvider.of(JPushPlugin.context).getScope()) {
+                    if (AnalyticsManager.foucsTime.isNotEmpty()) {
+                        AnalyticsManager.AnalyticsActiveTime(
+                            (DateTime.UtcNow - DateTime.Parse(AnalyticsManager.foucsTime)).Milliseconds);
+                        AnalyticsManager.foucsTime = null;
+                    }
+                }
+            }
+        }
+
+        void OnApplicationQuit() {
+            if (Application.isEditor) {
+                return;
+            }
+
+            using (WindowProvider.of(JPushPlugin.context).getScope()) {
+                if (AnalyticsManager.foucsTime.isNotEmpty()) {
+                    AnalyticsManager.AnalyticsActiveTime((DateTime.UtcNow - DateTime.Parse(AnalyticsManager.foucsTime))
+                        .Milliseconds);
+                }
             }
         }
     }

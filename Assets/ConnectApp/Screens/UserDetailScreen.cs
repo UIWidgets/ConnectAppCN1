@@ -15,8 +15,8 @@ using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -30,32 +30,30 @@ namespace ConnectApp.screens {
     public class UserDetailScreenConnector : StatelessWidget {
         public UserDetailScreenConnector(
             string userId,
+            bool isSlug = false,
             Key key = null
         ) : base(key: key) {
             this.userId = userId;
+            this.isSlug = isSlug;
         }
 
         readonly string userId;
+        readonly bool isSlug;
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, UserDetailScreenViewModel>(
                 converter: state => {
-                    var user = state.userState.userDict.ContainsKey(key: this.userId)
-                        ? state.userState.userDict[key: this.userId]
-                        : null;
-                    var articleOffset = user == null ? 0 : user.articles == null ? 0 : user.articles.Count;
+                    var user = this.fetchUser(this.userId, state.userState.userDict, state.userState.slugDict);
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
                     var followMap = state.followState.followDict.ContainsKey(key: currentUserId)
                         ? state.followState.followDict[key: currentUserId]
                         : new Dictionary<string, bool>();
                     return new UserDetailScreenViewModel {
-                        userId = this.userId,
                         userLoading = state.userState.userLoading,
                         userArticleLoading = state.userState.userArticleLoading,
-                        followUserLoading = state.userState.followUserLoading,
                         user = user,
+                        articleDict = state.articleState.articleDict,
                         followMap = followMap,
-                        articleOffset = articleOffset,
                         currentUserId = currentUserId,
                         isLoggedIn = state.loginState.isLoggedIn
                     };
@@ -65,12 +63,14 @@ namespace ConnectApp.screens {
                         startFetchUserProfile = () => dispatcher.dispatch(new StartFetchUserProfileAction()),
                         fetchUserProfile = () => dispatcher.dispatch<IPromise>(Actions.fetchUserProfile(this.userId)),
                         startFetchUserArticle = () => dispatcher.dispatch(new StartFetchUserArticleAction()),
-                        fetchUserArticle = offset =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchUserArticle(this.userId, offset)),
-                        startFollowUser = () => dispatcher.dispatch(new StartFetchFollowUserAction()),
-                        followUser = () => dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(this.userId)),
-                        startUnFollowUser = () => dispatcher.dispatch(new StartFetchUnFollowUserAction()),
-                        unFollowUser = () => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(this.userId)),
+                        fetchUserArticle = (userId, pageNumber) =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchUserArticle(userId, pageNumber)),
+                        startFollowUser = userId =>
+                            dispatcher.dispatch(new StartFollowUserAction {followUserId = userId}),
+                        followUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(userId)),
+                        startUnFollowUser = userId => dispatcher.dispatch(new StartUnFollowUserAction
+                            {unFollowUserId = userId}),
+                        unFollowUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(userId)),
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
@@ -90,9 +90,10 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new BlockArticleAction {articleId = articleId});
                             dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = articleId});
                         },
-                        pushToUserFollowing = userId => dispatcher.dispatch(
+                        pushToUserFollowing = (userId, initialPage) => dispatcher.dispatch(
                             new MainNavigatorPushToUserFollowingAction {
-                                userId = userId
+                                userId = userId,
+                                initialPage = initialPage
                             }
                         ),
                         pushToUserFollower = userId => dispatcher.dispatch(
@@ -111,6 +112,18 @@ namespace ConnectApp.screens {
                     return new UserDetailScreen(viewModel, actionModel);
                 }
             );
+        }
+
+        User fetchUser(string userId, Dictionary<string, User> userDict, Dictionary<string, string> slugDict) {
+            if (userDict.ContainsKey(userId)) {
+                return userDict[userId];
+            }
+
+            if (this.isSlug && slugDict.ContainsKey(userId)) {
+                return userDict[slugDict[userId]];
+            }
+
+            return null;
         }
     }
 
@@ -135,7 +148,7 @@ namespace ConnectApp.screens {
     class _UserDetailScreenState : State<UserDetailScreen>, TickerProvider, RouteAware {
         const float headerHeight = 256;
         const float _transformSpeed = 0.005f;
-        int _articleOffset;
+        int _articlePageNumber;
         RefreshController _refreshController;
         float _factor = 1;
         bool _isHaveTitle;
@@ -147,7 +160,7 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             StatusBarManager.statusBarStyle(true);
-            this._articleOffset = 0;
+            this._articlePageNumber = 1;
             this._refreshController = new RefreshController();
             this._isHaveTitle = false;
             this._hideNavBar = true;
@@ -163,9 +176,7 @@ namespace ConnectApp.screens {
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchUserProfile();
                 this.widget.actionModel.fetchUserProfile();
-
                 this.widget.actionModel.startFetchUserArticle();
-                this.widget.actionModel.fetchUserArticle(0);
             });
         }
 
@@ -175,7 +186,6 @@ namespace ConnectApp.screens {
         }
 
         public override void dispose() {
-            StatusBarManager.statusBarStyle(false);
             Router.routeObserve.unsubscribe(this);
             base.dispose();
         }
@@ -230,10 +240,15 @@ namespace ConnectApp.screens {
         }
 
         void _onRefresh(bool up) {
-            this._articleOffset = up ? 0 : this.widget.viewModel.articleOffset;
-            this.widget.actionModel.fetchUserArticle(this._articleOffset)
-                .Then(() => this._refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
-                .Catch(_ => this._refreshController.sendBack(up, RefreshStatus.failed));
+            if (up) {
+                this._articlePageNumber = 1;
+            }
+            else {
+                this._articlePageNumber++;
+            }
+            this.widget.actionModel.fetchUserArticle(arg1: this.widget.viewModel.user.id, arg2: this._articlePageNumber)
+                .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }
 
         public override Widget build(BuildContext context) {
@@ -242,12 +257,15 @@ namespace ConnectApp.screens {
                 this._topPadding = MediaQuery.of(context).padding.top;
             }
 
-            Widget content = new Container();
+            Widget content;
             if (this.widget.viewModel.userLoading && this.widget.viewModel.user == null) {
                 content = new GlobalLoading();
             }
-            else if (this.widget.viewModel.user == null) {
-                content = new Container();
+            else if (this.widget.viewModel.user == null || this.widget.viewModel.user.errorCode == "ResourceNotFound") {
+                content = new BlankView(
+                    "用户不存在",
+                    "image/default-following"
+                );
             }
             else {
                 content = this._buildUserContent(context: context);
@@ -257,6 +275,7 @@ namespace ConnectApp.screens {
                 color: CColors.White,
                 child: new CustomSafeArea(
                     top: false,
+                    bottom: false,
                     child: new Stack(
                         children: new List<Widget> {
                             content,
@@ -288,6 +307,8 @@ namespace ConnectApp.screens {
                 );
             }
 
+            var hasUser = !(this.widget.viewModel.user == null ||
+                            this.widget.viewModel.user.errorCode == "ResourceNotFound");
             return new Positioned(
                 left: 0,
                 top: 0,
@@ -312,7 +333,9 @@ namespace ConnectApp.screens {
                                     child: new Icon(
                                         icon: Icons.arrow_back,
                                         size: 24,
-                                        color: this._hideNavBar ? CColors.White : CColors.Icon
+                                        color: hasUser
+                                            ? (this._hideNavBar ? CColors.White : CColors.Icon)
+                                            : CColors.Icon
                                     )
                                 )
                             ),
@@ -334,20 +357,20 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildUserContent(BuildContext context) {
-            var articles = this.widget.viewModel.user.articles;
-            var articlesHasMore = this.widget.viewModel.user.articlesHasMore;
-            var userArticleLoading = this.widget.viewModel.userArticleLoading && articles == null;
+            var articleIds = this.widget.viewModel.user.articleIds;
+            var articlesHasMore = this.widget.viewModel.user.articlesHasMore ?? false;
+            var userArticleLoading = this.widget.viewModel.userArticleLoading && articleIds == null;
             int itemCount;
             if (userArticleLoading) {
                 itemCount = 3;
             }
             else {
-                if (articles == null) {
+                if (articleIds == null) {
                     itemCount = 3;
                 }
                 else {
-                    var articleCount = articlesHasMore ? articles.Count : articles.Count + 1;
-                    itemCount = 2 + (articles.Count == 0 ? 1 : articleCount);
+                    var articleCount = articlesHasMore ? articleIds.Count : articleIds.Count + 1;
+                    itemCount = 2 + (articleIds.Count == 0 ? 1 : articleCount);
                 }
             }
 
@@ -383,7 +406,7 @@ namespace ConnectApp.screens {
                                     );
                                 }
 
-                                if ((articles == null || articles.Count == 0) && index == 2) {
+                                if ((articleIds == null || articleIds.Count == 0) && index == 2) {
                                     var height = MediaQuery.of(context: context).size.height - headerHeight - 44;
                                     return new Container(
                                         height: height,
@@ -398,10 +421,13 @@ namespace ConnectApp.screens {
                                     return new EndView();
                                 }
 
-                                var article = articles[index - 2];
+                                var articleId = articleIds[index - 2];
+                                if (!this.widget.viewModel.articleDict.ContainsKey(key: articleId)) {
+                                    return new Container();
+                                }
 
+                                var article = this.widget.viewModel.articleDict[key: articleId];
                                 var linkUrl = CStringUtils.JointProjectShareLink(projectId: article.id);
-
                                 return new ArticleCard(
                                     article: article,
                                     () => this.widget.actionModel.pushToArticleDetail(obj: article.id),
@@ -419,7 +445,7 @@ namespace ConnectApp.screens {
                                             CustomDialogUtils.showCustomDialog(
                                                 child: new CustomLoadingDialog()
                                             );
-                                            string imageUrl = $"{article.thumbnail.url}.200x0x1.jpg";
+                                            string imageUrl = CImageUtils.SizeTo200ImageUrl(article.thumbnail.url);
                                             this.widget.actionModel.shareToWechat(arg1: type, arg2: article.title,
                                                     arg3: article.subTitle, arg4: linkUrl, arg5: imageUrl)
                                                 .Then(onResolved: CustomDialogUtils.hiddenCustomDialog)
@@ -468,7 +494,8 @@ namespace ConnectApp.screens {
                                         margin: EdgeInsets.only(right: 16),
                                         child: Avatar.User(
                                             user: user,
-                                            80
+                                            80,
+                                            true
                                         )
                                     ),
                                     new Expanded(
@@ -494,20 +521,20 @@ namespace ConnectApp.screens {
                                     children: new List<Widget> {
                                         new Row(
                                             children: new List<Widget> {
-                                                _buildFollowButton(
+                                                _buildFollowCount(
                                                     "关注",
-                                                    $"{user.followingCount}",
+                                                    $"{(user.followingUsersCount ?? 0) + (user.followingTeamsCount ?? 0)}",
                                                     () =>
                                                         this.widget.actionModel.pushToUserFollowing(
-                                                            this.widget.viewModel.userId)
+                                                            arg1: this.widget.viewModel.user.id, 0)
                                                 ),
                                                 new SizedBox(width: 16),
-                                                _buildFollowButton(
+                                                _buildFollowCount(
                                                     "粉丝",
-                                                    $"{user.followCount}",
+                                                    $"{user.followCount ?? 0}",
                                                     () =>
                                                         this.widget.actionModel.pushToUserFollower(
-                                                            this.widget.viewModel.userId)
+                                                            obj: this.widget.viewModel.user.id)
                                                 )
                                             }
                                         ),
@@ -538,7 +565,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        static Widget _buildFollowButton(string title, string subTitle, GestureTapCallback onTap) {
+        static Widget _buildFollowCount(string title, string subTitle, GestureTapCallback onTap) {
             return new GestureDetector(
                 onTap: onTap,
                 child: new Container(
@@ -566,7 +593,7 @@ namespace ConnectApp.screens {
 
         Widget _buildFollowButton(bool isTop = false) {
             if (this.widget.viewModel.isLoggedIn
-                && this.widget.viewModel.currentUserId == this.widget.viewModel.userId) {
+                && this.widget.viewModel.currentUserId == this.widget.viewModel.user.id) {
                 if (isTop) {
                     return new Container();
                 }
@@ -592,7 +619,7 @@ namespace ConnectApp.screens {
                                 return;
                             }
 
-                            this.widget.actionModel.pushToEditPersonalInfo(this.widget.viewModel.userId);
+                            this.widget.actionModel.pushToEditPersonalInfo(this.widget.viewModel.user.id);
                         }
                         else {
                             this.widget.actionModel.pushToLogin();
@@ -605,11 +632,11 @@ namespace ConnectApp.screens {
             string followText = "关注";
             Color followBgColor = CColors.PrimaryBlue;
             GestureTapCallback onTap = () => {
-                this.widget.actionModel.startFollowUser();
-                this.widget.actionModel.followUser();
+                this.widget.actionModel.startFollowUser(this.widget.viewModel.user.id);
+                this.widget.actionModel.followUser(this.widget.viewModel.user.id);
             };
             if (this.widget.viewModel.isLoggedIn
-                && this.widget.viewModel.followMap.ContainsKey(key: this.widget.viewModel.userId)) {
+                && this.widget.viewModel.followMap.ContainsKey(key: this.widget.viewModel.user.id)) {
                 isFollow = true;
                 followText = "已关注";
                 followBgColor = CColors.Transparent;
@@ -618,12 +645,12 @@ namespace ConnectApp.screens {
                         new ActionSheet(
                             title: "确定不再关注？",
                             items: new List<ActionSheetItem> {
-                                new ActionSheetItem("确定", ActionType.normal,
+                                new ActionSheetItem("确定", type: ActionType.normal,
                                     () => {
-                                        this.widget.actionModel.startUnFollowUser();
-                                        this.widget.actionModel.unFollowUser();
+                                        this.widget.actionModel.startUnFollowUser(this.widget.viewModel.user.id);
+                                        this.widget.actionModel.unFollowUser(this.widget.viewModel.user.id);
                                     }),
-                                new ActionSheetItem("取消", ActionType.cancel)
+                                new ActionSheetItem("取消", type: ActionType.cancel)
                             }
                         )
                     );
@@ -632,7 +659,7 @@ namespace ConnectApp.screens {
 
             Widget buttonChild;
             bool isEnable;
-            if (this.widget.viewModel.followUserLoading) {
+            if (this.widget.viewModel.user.followUserLoading ?? false) {
                 buttonChild = new CustomActivityIndicator(
                     loadingColor: isTop ? LoadingColor.black : LoadingColor.white,
                     size: LoadingSize.small
@@ -713,7 +740,7 @@ namespace ConnectApp.screens {
         }
 
         public void didPopNext() {
-            StatusBarManager.statusBarStyle(this._hideNavBar);
+            StatusBarManager.statusBarStyle(isLight: this._hideNavBar);
         }
 
         public void didPush() {

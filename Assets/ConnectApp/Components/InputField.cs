@@ -28,7 +28,8 @@ namespace ConnectApp.Components {
             Decoration decoration = null,
             TextStyle style = null,
             TextAlign textAlign = TextAlign.left,
-            int maxLines = 1,
+            Alignment alignment = null,
+            int? maxLines = 1,
             int? maxLength = null,
             bool maxLengthEnforced = true,
             bool autofocus = false,
@@ -36,6 +37,7 @@ namespace ConnectApp.Components {
             Widget prefix = null,
             Widget suffix = null,
             string hintText = null,
+            float? hintTextWidth = null,
             TextStyle hintStyle = null,
             string labelText = null,
             TextStyle labelStyle = null,
@@ -61,6 +63,7 @@ namespace ConnectApp.Components {
             this.decoration = decoration;
             this.style = style;
             this.textAlign = textAlign;
+            this.alignment = alignment ?? Alignment.center;
             this.maxLines = maxLines;
             this.maxLength = maxLength;
             this.maxLengthEnforced = maxLengthEnforced;
@@ -69,6 +72,7 @@ namespace ConnectApp.Components {
             this.prefix = prefix;
             this.suffix = suffix;
             this.hintText = hintText;
+            this.hintTextWidth = hintTextWidth;
             this.hintStyle = hintStyle;
             this.labelText = labelText;
             this.labelStyle = labelStyle;
@@ -94,7 +98,8 @@ namespace ConnectApp.Components {
         public readonly bool enabled;
         public readonly TextStyle style;
         public readonly TextAlign textAlign;
-        public readonly int maxLines;
+        public readonly Alignment alignment;
+        public readonly int? maxLines;
         public readonly int? maxLength;
         public readonly bool maxLengthEnforced;
         public readonly bool autofocus;
@@ -102,6 +107,7 @@ namespace ConnectApp.Components {
         public readonly Widget prefix;
         public readonly Widget suffix;
         public readonly string hintText;
+        public readonly float? hintTextWidth;
         public readonly TextStyle hintStyle;
         public readonly string labelText;
         public readonly TextStyle labelStyle;
@@ -268,8 +274,12 @@ namespace ConnectApp.Components {
                 child: new IgnorePointer(
                     ignoring: true,
                     child: new Container(
-                        alignment: Alignment.center,
-                        child: new Text(this.widget.hintText, style: this.widget.hintStyle)
+                        width: this.widget.hintTextWidth,
+                        alignment: this.widget.alignment,
+                        child: new Text(
+                            this.widget.hintText, 
+                            style: this.widget.hintStyle
+                        )
                     )
                 )
             );
@@ -368,7 +378,7 @@ namespace ConnectApp.Components {
                                     fit: StackFit.expand,
                                     children: new List<Widget> {
                                         new Container(
-                                            alignment: Alignment.center,
+                                            alignment: this.widget.alignment,
                                             child: editableText
                                         ),
                                         this._buildHintText()

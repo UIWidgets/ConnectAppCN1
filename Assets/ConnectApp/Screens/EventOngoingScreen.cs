@@ -13,6 +13,11 @@ using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
     public class EventOngoingScreenConnector : StatelessWidget {
+        public EventOngoingScreenConnector(
+            Key key = null
+        ) : base(key: key) {
+        }
+
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, EventsScreenViewModel>(
                 converter: state => new EventsScreenViewModel {
@@ -29,10 +34,10 @@ namespace ConnectApp.screens {
                                 eventId = eventId, eventType = eventType
                             }),
                         startFetchEventOngoing = () => dispatcher.dispatch(new StartFetchEventOngoingAction()),
-                        fetchEvents = (pageNumber, tab, mode) =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchEvents(pageNumber, tab, mode))
+                        fetchEvents = (pageNumber, tab) =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchEvents(pageNumber: pageNumber, tab: tab))
                     };
-                    return new EventOngoingScreen(viewModel, actionModel);
+                    return new EventOngoingScreen(viewModel: viewModel, actionModel: actionModel);
                 }
             );
         }
@@ -59,10 +64,9 @@ namespace ConnectApp.screens {
 
     public class _EventOngoingScreenState : AutomaticKeepAliveClientMixin<EventOngoingScreen> {
         const string eventTab = "ongoing";
-        const string eventMode = "offline";
         const int firstPageNumber = 1;
         RefreshController _ongoingRefreshController;
-        int pageNumber = firstPageNumber;
+        int _pageNumber = firstPageNumber;
 
         protected override bool wantKeepAlive {
             get { return true; }
@@ -73,7 +77,7 @@ namespace ConnectApp.screens {
             this._ongoingRefreshController = new RefreshController();
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchEventOngoing();
-                this.widget.actionModel.fetchEvents(firstPageNumber, eventTab, eventMode);
+                this.widget.actionModel.fetchEvents(arg1: firstPageNumber, arg2: eventTab);
             });
         }
 
@@ -91,7 +95,7 @@ namespace ConnectApp.screens {
                     true,
                     () => {
                         this.widget.actionModel.startFetchEventOngoing();
-                        this.widget.actionModel.fetchEvents(firstPageNumber, eventTab, eventMode);
+                        this.widget.actionModel.fetchEvents(arg1: firstPageNumber, arg2: eventTab);
                     }
                 );
             }
@@ -106,6 +110,7 @@ namespace ConnectApp.screens {
                         enablePullDown: true,
                         enablePullUp: enablePullUp,
                         onRefresh: this._ongoingRefresh,
+                        hasBottomMargin: true,
                         child: ListView.builder(
                             physics: new AlwaysScrollableScrollPhysics(),
                             itemCount: itemCount,
@@ -119,8 +124,9 @@ namespace ConnectApp.screens {
         Widget _buildEventCard(BuildContext context, int index) {
             var ongoingEvents = this.widget.viewModel.ongoingEvents;
             if (index == ongoingEvents.Count) {
-                return new EndView();
+                return new EndView(hasBottomMargin: true);
             }
+
             var eventId = ongoingEvents[index: index];
             var model = this.widget.viewModel.eventsDict[key: eventId];
             var placeName = model.placeId.isEmpty()
@@ -140,16 +146,16 @@ namespace ConnectApp.screens {
 
         void _ongoingRefresh(bool up) {
             if (up) {
-                this.pageNumber = firstPageNumber;
+                this._pageNumber = firstPageNumber;
             }
             else {
-                this.pageNumber++;
+                this._pageNumber++;
             }
 
-            this.widget.actionModel.fetchEvents(this.pageNumber, eventTab, eventMode)
-                .Then(() => this._ongoingRefreshController.sendBack(up,
+            this.widget.actionModel.fetchEvents(arg1: this._pageNumber, arg2: eventTab)
+                .Then(() => this._ongoingRefreshController.sendBack(up: up,
                     up ? RefreshStatus.completed : RefreshStatus.idle))
-                .Catch(_ => this._ongoingRefreshController.sendBack(up, RefreshStatus.failed));
+                .Catch(_ => this._ongoingRefreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }
     }
 }

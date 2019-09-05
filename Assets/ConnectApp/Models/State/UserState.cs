@@ -7,11 +7,13 @@ namespace ConnectApp.Models.State {
     public class UserState {
         public bool userLoading { get; set; }
         public bool userArticleLoading { get; set; }
-        public bool followUserLoading { get; set; }
         public bool followingLoading { get; set; }
+        public bool followingUserLoading { get; set; }
+        public bool followingTeamLoading { get; set; }
         public bool followerLoading { get; set; }
         public Dictionary<string, User> userDict { get; set; }
-        public string currentFollowId { get; set; }
+        public Dictionary<string, string> slugDict { get; set; }
+
         public string fullName { get; set; }
         public string title { get; set; }
         public JobRole jobRole { get; set; }

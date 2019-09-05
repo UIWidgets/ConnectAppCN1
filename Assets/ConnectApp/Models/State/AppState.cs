@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.Constants;
 using ConnectApp.Models.Model;
 using ConnectApp.Utils;
 using UnityEngine;
@@ -9,6 +10,8 @@ namespace ConnectApp.Models.State {
     public class AppState {
         public int Count { get; set; }
         public LoginState loginState { get; set; }
+
+        public EggState eggState { get; set; }
         public ArticleState articleState { get; set; }
         public EventState eventState { get; set; }
         public PopularSearchState popularSearchState { get; set; }
@@ -18,10 +21,12 @@ namespace ConnectApp.Models.State {
         public TeamState teamState { get; set; }
         public PlaceState placeState { get; set; }
         public FollowState followState { get; set; }
+        public LikeState likeState { get; set; }
         public MineState mineState { get; set; }
         public MessageState messageState { get; set; }
         public SettingState settingState { get; set; }
         public ReportState reportState { get; set; }
+        public FeedbackState feedbackState { get; set; }
 
         public static AppState initialState() {
             var loginInfo = UserInfoManager.initUserInfo();
@@ -36,12 +41,21 @@ namespace ConnectApp.Models.State {
                     isLoggedIn = isLogin,
                     loading = false
                 },
+                eggState = new EggState {
+                    showFirst = false,
+                    scanEnabled = false
+                },
                 articleState = new ArticleState {
-                    articleList = new List<string>(),
+                    recommendArticleIds = new List<string>(),
+                    followArticleIdDict = new Dictionary<string, List<string>>(),
+                    hotArticleIdDict = new Dictionary<string, List<string>>(),
                     articleDict = new Dictionary<string, Article>(),
                     articlesLoading = false,
+                    followArticlesLoading = false,
                     articleDetailLoading = false,
                     hottestHasMore = true,
+                    followArticleHasMore = false,
+                    hotArticleHasMore = false,
                     articleHistory = HistoryManager.articleHistoryList(isLogin ? loginInfo.userId : null),
                     blockArticleList = HistoryManager.blockArticleList(isLogin ? loginInfo.userId : null)
                 },
@@ -65,31 +79,38 @@ namespace ConnectApp.Models.State {
                 searchState = new SearchState {
                     searchArticleLoading = false,
                     searchUserLoading = false,
+                    searchTeamLoading = false,
                     searchFollowingLoading = false,
                     keyword = "",
                     searchFollowingKeyword = "",
-                    searchArticles = new Dictionary<string, List<Article>>(),
-                    searchUsers = new Dictionary<string, List<User>>(),
+                    searchArticleIdDict = new Dictionary<string, List<string>>(),
+                    searchUserIdDict = new Dictionary<string, List<string>>(),
+                    searchTeamIdDict = new Dictionary<string, List<string>>(),
                     searchFollowings = new List<User>(),
                     searchArticleCurrentPage = 0,
                     searchArticlePages = new List<int>(),
                     searchUserHasMore = false,
+                    searchTeamHasMore = false,
                     searchFollowingHasMore = false,
-                    searchArticleHistoryList = HistoryManager.searchArticleHistoryList(isLogin ? loginInfo.userId : null)
+                    searchArticleHistoryList =
+                        HistoryManager.searchArticleHistoryList(isLogin ? loginInfo.userId : null)
                 },
                 notificationState = new NotificationState {
                     loading = false,
+                    page = 1,
+                    pageTotal = 1,
                     notifications = new List<Notification>(),
                     mentions = new List<User>()
                 },
                 userState = new UserState {
                     userLoading = false,
                     userArticleLoading = false,
-                    followUserLoading = false,
                     followingLoading = false,
+                    followingUserLoading = false,
+                    followingTeamLoading = false,
                     followerLoading = false,
                     userDict = UserInfoManager.initUserDict(),
-                    currentFollowId = "",
+                    slugDict = new Dictionary<string, string>(),
                     fullName = "",
                     title = "",
                     jobRole = new JobRole(),
@@ -98,20 +119,19 @@ namespace ConnectApp.Models.State {
                 teamState = new TeamState {
                     teamLoading = false,
                     teamArticleLoading = false,
-                    followTeamLoading = false,
-                    teamFollowerLoading = false,
+                    followerLoading = false,
+                    memberLoading = false,
                     teamDict = new Dictionary<string, Team>(),
-                    currentFollowId = "",
-                    teamArticleDict = new Dictionary<string, List<Article>>(),
-                    teamFollowerDict = new Dictionary<string, List<User>>(),
-                    teamArticleHasMore = false,
-                    teamFollowerHasMore = false
+                    slugDict = new Dictionary<string, string>()
                 },
                 placeState = new PlaceState {
                     placeDict = new Dictionary<string, Place>()
                 },
                 followState = new FollowState {
                     followDict = new Dictionary<string, Dictionary<string, bool>>()
+                },
+                likeState = new LikeState {
+                    likeDict = new Dictionary<string, Dictionary<string, bool>>()
                 },
                 mineState = new MineState {
                     futureEventsList = new List<IEvent>(),
@@ -130,6 +150,10 @@ namespace ConnectApp.Models.State {
                     reviewUrl = ""
                 },
                 reportState = new ReportState {
+                    loading = false
+                },
+                feedbackState = new FeedbackState {
+                    feedbackType = FeedbackType.Advice,
                     loading = false
                 }
             };

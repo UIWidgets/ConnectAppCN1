@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.provider.Settings;
+import android.support.v4.app.NotificationManagerCompat;
+
 
 import com.unity3d.unityconnect.PickImageActivity;
 
@@ -83,5 +85,11 @@ public class CommonPlugin {
         Intent intent = new Intent(mContext,PickImageActivity.class);
         intent.putExtra("type", type);
         context.startActivity(intent);
+    }
+    
+    public static boolean isEnableNotification(){
+        NotificationManagerCompat notification = NotificationManagerCompat.from(mContext);
+        boolean isEnabled = notification.areNotificationsEnabled();
+        return isEnabled;
     }
 }

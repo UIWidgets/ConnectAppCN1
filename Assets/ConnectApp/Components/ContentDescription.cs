@@ -13,9 +13,12 @@ using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.Components {
     public static class ContentDescription {
+        const int codeBlockNumber = 10;
+        static readonly Color codeBlockBackgroundColor = Color.fromRGBO(110, 198, 255, 0.12f);
+
         public static List<Widget> map(BuildContext context, string cont, Dictionary<string, ContentMap> contentMap,
             Action<string> openUrl, Action<string> playVideo, Action browserImage = null) {
-            if (cont == null) {
+            if (cont == null || contentMap == null) {
                 return new List<Widget>();
             }
 
@@ -28,6 +31,10 @@ namespace ConnectApp.Components {
                 var block = blocks[i];
                 var type = block.type;
                 var text = block.text;
+                if (text.Contains("\u0000")) {
+                    text = text.Replace("\u0000", "");
+                }
+
                 switch (type) {
                     case "header-one": {
                         var inlineSpans = _RichStyle(text, content.entityMap, block.entityRanges,
@@ -48,9 +55,12 @@ namespace ConnectApp.Components {
                     }
                         break;
                     case "code-block": {
-                        var inlineSpans = _RichStyle(text, content.entityMap, block.entityRanges,
-                            block.inlineStyleRanges, openUrl, CTextStyle.PCodeStyle);
-                        widgets.Add(_CodeBlock(context, text, inlineSpans));
+                        var codeBlockList = _CodeBlock(text);
+                        if (codeBlockList.Count > 0) {
+                            foreach (var widget in codeBlockList) {
+                                widgets.Add(widget);
+                            }
+                        }
                     }
                         break;
                     case "unstyled": {
@@ -58,6 +68,12 @@ namespace ConnectApp.Components {
                             var inlineSpans = _RichStyle(text, content.entityMap, block.entityRanges,
                                 block.inlineStyleRanges, openUrl);
                             widgets.Add(_Unstyled(text, inlineSpans));
+                        }
+                        else if (text == "") {
+                            var child = new Container(
+                                color: CColors.White,
+                                child: new Text("" + Environment.NewLine, style: CTextStyle.PXLarge));
+                            widgets.Add(child);
                         }
                     }
                         break;
@@ -113,19 +129,19 @@ namespace ConnectApp.Components {
                         break;
                     case "atomic": {
                         var key = block.entityRanges.first().key.ToString();
-                        if (content.entityMap.ContainsKey(key)) {
-                            var dataMap = content.entityMap[key];
+                        if (content.entityMap.ContainsKey(key: key)) {
+                            var dataMap = content.entityMap[key: key];
                             var data = dataMap.data;
                             if (data.contentId.isNotEmpty()) {
-                                if (contentMap.ContainsKey(data.contentId)) {
-                                    var map = contentMap[data.contentId];
+                                if (contentMap.ContainsKey(key: data.contentId)) {
+                                    var map = contentMap[key: data.contentId];
                                     var url = map.url;
                                     var downloadUrl = map.downloadUrl ?? "";
                                     var contentType = map.contentType ?? "";
                                     var originalImage = map.originalImage == null
                                         ? map.thumbnail
                                         : map.originalImage;
-                                    widgets.Add(_Atomic(context, dataMap.type, contentType, data.title, originalImage,
+                                    widgets.Add(_Atomic(context, dataMap.type, contentType, data.title, data.url, originalImage,
                                         url, downloadUrl,
                                         openUrl, playVideo, browserImage));
                                 }
@@ -211,35 +227,44 @@ namespace ConnectApp.Components {
             );
         }
 
-        static Widget _CodeBlock(BuildContext context, string text, List<TextSpan> inlineSpans) {
-            if (text == null) {
-                return new Container();
+        static List<Widget> _CodeBlock(string text) {
+            List<Widget> codeBlockList = new List<Widget>();
+            if (string.IsNullOrEmpty(text)) {
+                codeBlockList.Add(new Container());
+            }
+            else {
+                var codeStringList = text.Split(Environment.NewLine.ToCharArray());
+                codeBlockList.Add(new Container(color: codeBlockBackgroundColor, height: 16));
+                for (int i = 0; i < codeStringList.Length; i++) {
+                    string codeBlockGroup = "";
+                    for (int j = 0; j < codeBlockNumber && i < codeStringList.Length; j++) {
+                        codeBlockGroup += codeStringList[i];
+                        if (i == codeStringList.Length - 1 && codeStringList.Length % codeBlockNumber != 0) {
+                            break;
+                        }
+
+                        if (j < codeBlockNumber - 1) {
+                            codeBlockGroup += Environment.NewLine;
+                            i++;
+                        }
+                    }
+
+                    var codeWidget = new Container(
+                        color: codeBlockBackgroundColor,
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: new Text(
+                            codeBlockGroup,
+                            style: CTextStyle.PCodeStyle
+                        )
+                    );
+                    codeBlockList.Add(item: codeWidget);
+                }
+
+                codeBlockList.Add(new Container(color: codeBlockBackgroundColor, height: 16));
+                codeBlockList.Add(new Container(color: CColors.White, height: 24));
             }
 
-            Widget child = new Text(
-                text,
-                style: CTextStyle.PCodeStyle
-            );
-            if (inlineSpans != null) {
-                child = new RichText(
-                    text: new TextSpan(
-                        children: inlineSpans
-                    )
-                );
-            }
-
-            return new Container(
-                color: CColors.White,
-                padding: EdgeInsets.only(bottom: 24),
-                child: new Container(
-                    color: Color.fromRGBO(110, 198, 255, 0.12f),
-                    width: MediaQuery.of(context).size.width,
-                    child: new Container(
-                        padding: EdgeInsets.all(16),
-                        child: child
-                    )
-                )
-            );
+            return codeBlockList;
         }
 
 
@@ -275,7 +300,7 @@ namespace ConnectApp.Components {
             );
         }
 
-        static Widget _Atomic(BuildContext context, string type, string contentType, string title,
+        static Widget _Atomic(BuildContext context, string type, string contentType, string title, string dataUrl,
             _OriginalImage originalImage,
             string url, string downloadUrl, Action<string> openUrl, Action<string> playVideo,
             Action browserImage = null) {
@@ -363,16 +388,21 @@ namespace ConnectApp.Components {
                     children: new List<Widget> {
                         new GestureDetector(
                             child: new PlaceholderImage(
-                                imageUrl,
-                                width,
-                                height,
+                                imageUrl: imageUrl,
+                                width: width,
+                                height: height,
                                 fit: BoxFit.cover
                             ), onTap: () => {
-                                if (browserImage!=null) {
-                                    browserImage();
+                                if (dataUrl.isNotEmpty()) {
+                                    openUrl(obj: dataUrl);
                                 }
-                            }),
-
+                                else {
+                                    if (browserImage != null) {
+                                        browserImage();
+                                    }
+                                }
+                            }
+                        ),
                         playButton
                     }
                 )
@@ -549,7 +579,7 @@ namespace ConnectApp.Components {
                     new TextSpan(
                         text.Substring(inlineOffset + inlineLength, entityOffset - inlineOffset - inlineLength),
                         newStyle),
-                    new TextSpan(text.Substring(entityOffset, entityLength), newStyle.copyWith(CColors.PrimaryBlue),
+                    new TextSpan(text.Substring(entityOffset, entityLength), newStyle.copyWith(color: CColors.PrimaryBlue),
                         recognizer: recognizer),
                     new TextSpan(text.Substring(entityOffset + entityLength, text.Length - entityOffset - entityLength),
                         newStyle)
@@ -560,7 +590,7 @@ namespace ConnectApp.Components {
             if (inlineOffset >= entityOffset + entityLength) {
                 var spans = new List<TextSpan> {
                     new TextSpan(text.Substring(0, entityOffset), newStyle),
-                    new TextSpan(text.Substring(entityOffset, entityLength), newStyle.copyWith(CColors.PrimaryBlue),
+                    new TextSpan(text.Substring(entityOffset, entityLength), newStyle.copyWith(color: CColors.PrimaryBlue),
                         recognizer: recognizer),
                     new TextSpan(
                         text.Substring(entityOffset + entityLength, inlineOffset - entityOffset - entityLength),
@@ -634,36 +664,46 @@ namespace ConnectApp.Components {
             TextStyle style
         ) {
             if (entityRanges != null && entityRanges.Count > 0) {
-                var entityRange = entityRanges.first();
-                var key = entityRange.key.ToString();
-                if (entityMap.ContainsKey(key)) {
-                    var data = entityMap[key];
-                    if (data.type == "LINK") {
-                        var offset = entityRange.offset;
-                        var length = entityRange.length;
-                        var leftText = text.Substring(0, offset);
-                        var currentText = text.Substring(offset, length);
-                        var rightText = text.Substring(length + offset, text.Length - length - offset);
-                        var recognizer = new TapGestureRecognizer {
-                            onTap = () => openUrl(data.data.url)
-                        };
-                        return new List<TextSpan> {
-                            new TextSpan(
-                                leftText,
-                                style
-                            ),
-                            new TextSpan(
-                                currentText,
-                                style.copyWith(CColors.PrimaryBlue),
-                                recognizer: recognizer
-                            ),
-                            new TextSpan(
-                                rightText,
-                                style
-                            )
-                        };
+                List<TextSpan> linkSpans = new List<TextSpan>();
+                var startIndex = 0;
+                entityRanges.ForEach(entityRange => {
+                    var key = entityRange.key.ToString();
+                    if (entityMap.ContainsKey(key: key)) {
+                        var data = entityMap[key: key];
+                        if (data.type == "LINK") {
+                            var offset = entityRange.offset;
+                            var length = entityRange.length;
+                            var leftText = offset - startIndex <= text.Length
+                                ? text.Substring(startIndex: startIndex, offset - startIndex)
+                                : text;
+
+                            var currentText = length - offset < text.Length
+                                ? text.Substring(startIndex: offset, length: length)
+                                : text;
+
+                            length = currentText.Length;
+                            var recognizer = new TapGestureRecognizer {
+                                onTap = () => openUrl(obj: data.data.url)
+                            };
+                            var linkSpan = new List<TextSpan> {
+                                new TextSpan(
+                                    text: leftText,
+                                    style: style
+                                ),
+                                new TextSpan(
+                                    text: currentText,
+                                    style.copyWith(color: CColors.PrimaryBlue),
+                                    recognizer: recognizer
+                                )
+                            };
+                            linkSpans.AddRange(collection: linkSpan);
+                            startIndex = length + offset;
+                        }
                     }
-                }
+                });
+                var rightText = text.Substring(startIndex: startIndex, text.Length - startIndex);
+                linkSpans.Add(new TextSpan(text: rightText, style: style));
+                return linkSpans;
             }
 
             return null;

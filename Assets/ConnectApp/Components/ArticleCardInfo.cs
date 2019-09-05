@@ -24,33 +24,31 @@ namespace ConnectApp.Components {
         readonly int viewCount;
 
         public override Widget build(BuildContext context) {
-            return new Container(
-                child: new Row(
-                    children: new List<Widget> {
-                        new Flexible(
-                            child: new Container(
-                                child: new Text(
-                                    $"{this.fullName}",
-                                    style: CTextStyle.PSmallBody3,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis
-                                )
-                            )
-                        ),
-                        new Container(
+            return new Row(
+                children: new List<Widget> {
+                    new Flexible(
+                        child: new Container(
                             child: new Text(
-                                $" · {DateConvert.DateStringFromNow(dt: this.time)}",
-                                style: CTextStyle.PSmallBody3
-                            )
-                        ),
-                        new Container(
-                            child: new Text(
-                                $" · 阅读 {this.viewCount}",
-                                style: CTextStyle.PSmallBody3
+                                $"{this.fullName}",
+                                style: CTextStyle.PSmallBody5,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis
                             )
                         )
-                    }
-                )
+                    ),
+                    new Container(
+                        child: new Text(
+                            $" · {DateConvert.DateStringFromNow(dt: this.time)}",
+                            style: CTextStyle.PSmallBody5
+                        )
+                    ),
+                    new Container(
+                        child: new Text(
+                            $" · 阅读 {this.viewCount}",
+                            style: CTextStyle.PSmallBody5
+                        )
+                    )
+                }
             );
         }
     }

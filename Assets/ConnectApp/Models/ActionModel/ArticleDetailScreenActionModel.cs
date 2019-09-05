@@ -20,14 +20,14 @@ namespace ConnectApp.Models.ActionModel {
         public Func<string, IPromise> likeArticle;
         public Func<Message, IPromise> likeComment;
         public Func<Message, IPromise> removeLikeComment;
-        public Func<string, string, string, string, IPromise> sendComment;
-        public Action startFollowUser;
+        public Func<string, string, string, string, string, IPromise> sendComment;
+        public Action<string> startFollowUser;
         public Func<string, IPromise> followUser;
-        public Action startUnFollowUser;
+        public Action<string> startUnFollowUser;
         public Func<string, IPromise> unFollowUser;
-        public Action startFollowTeam;
+        public Action<string> startFollowTeam;
         public Func<string, IPromise> followTeam;
-        public Action startUnFollowTeam;
+        public Action<string> startUnFollowTeam;
         public Func<string, IPromise> unFollowTeam;
         public Func<ShareType, string, string, string, string, IPromise> shareToWechat;
     }

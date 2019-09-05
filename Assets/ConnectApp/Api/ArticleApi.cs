@@ -5,6 +5,7 @@ using ConnectApp.Models.Model;
 using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
+using Unity.UIWidgets.foundation;
 
 namespace ConnectApp.Api {
     public static class ArticleApi {
@@ -25,6 +26,19 @@ namespace ConnectApp.Api {
             return promise;
         }
 
+        public static Promise<FetchFollowArticlesResponse> FetchFollowArticles(int pageNumber) {
+            var promise = new Promise<FetchFollowArticlesResponse>();
+            var para = new Dictionary<string, object> {
+                {"page", pageNumber}
+            };
+            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/followingFeeds", parameter: para);
+            HttpManager.resume(request).Then(responseText => {
+                var followArticlesResponse = JsonConvert.DeserializeObject<FetchFollowArticlesResponse>(responseText);
+                promise.Resolve(followArticlesResponse);
+            }).Catch(exception => { promise.Reject(exception); });
+            return promise;
+        }
+
         public static Promise<FetchArticleDetailResponse> FetchArticleDetail(string articleId, bool isPush = false) {
             var promise = new Promise<FetchArticleDetailResponse>();
             var para = new Dictionary<string, object> {
@@ -34,7 +48,7 @@ namespace ConnectApp.Api {
                 para.Add("isPush", "true");
             }
 
-            var request = HttpManager.GET($"{Config.apiAddress}/api/p/{articleId}", parameter: para);
+            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/p/{articleId}", parameter: para);
             HttpManager.resume(request).Then(responseText => {
                 var articleDetailResponse = JsonConvert.DeserializeObject<FetchArticleDetailResponse>(responseText);
                 promise.Resolve(articleDetailResponse);
@@ -42,17 +56,16 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static Promise<FetchCommentsResponse>
-            FetchArticleComments(string channelId, string currOldestMessageId) {
+        public static Promise<FetchCommentsResponse> FetchArticleComments(string channelId, string currOldestMessageId) {
             var promise = new Promise<FetchCommentsResponse>();
             var para = new Dictionary<string, object> {
                 {"limit", 5}
             };
-            if (currOldestMessageId.Length > 0) {
-                para.Add("before", currOldestMessageId);
+            if (currOldestMessageId != null && currOldestMessageId.isNotEmpty()) {
+                para.Add("before", value: currOldestMessageId);
             }
 
-            var request = HttpManager.GET($"{Config.apiAddress}/api/channels/{channelId}/messages", parameter: para);
+            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/channels/{channelId}/messages", parameter: para);
             HttpManager.resume(request).Then(responseText => {
                 var responseComments = JsonConvert.DeserializeObject<FetchCommentsResponse>(responseText);
                 promise.Resolve(responseComments);
@@ -100,18 +113,20 @@ namespace ConnectApp.Api {
 
 
         public static Promise<Message> SendComment(string channelId, string content, string nonce,
-            string parentMessageId = "") {
+            string parentMessageId = "", string upperMessageId = "") {
             var promise = new Promise<Message>();
             var para = new SendCommentParameter {
                 content = content,
                 parentMessageId = parentMessageId,
-                nonce = nonce
+                upperMessageId = upperMessageId,
+                nonce = nonce,
+                app = true
             };
-            var request = HttpManager.POST($"{Config.apiAddress}/api/channels/{channelId}/messages", para);
-            HttpManager.resume(request).Then(responseText => {
-                var message = JsonConvert.DeserializeObject<Message>(responseText);
-                promise.Resolve(message);
-            }).Catch(exception => { promise.Reject(exception); });
+            var request = HttpManager.POST($"{Config.apiAddress}/api/connectapp/channels/{channelId}/messages", parameter: para);
+            HttpManager.resume(request: request).Then(responseText => {
+                var message = JsonConvert.DeserializeObject<Message>(value: responseText);
+                promise.Resolve(value: message);
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
     }

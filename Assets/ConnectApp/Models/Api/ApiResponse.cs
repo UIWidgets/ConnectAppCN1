@@ -9,8 +9,23 @@ namespace ConnectApp.Models.Api {
         public Dictionary<string, Article> projectMap;
         public Dictionary<string, User> userMap;
         public Dictionary<string, Team> teamMap;
+        public Dictionary<string, Place> placeMap;
         public Dictionary<string, bool> followMap;
+        public Dictionary<string, bool> likeMap;
         public bool hottestHasMore;
+    }
+
+    [Serializable]
+    public class FetchFollowArticlesResponse {
+        public Dictionary<string, User> userMap;
+        public Dictionary<string, Team> teamMap;
+        public Dictionary<string, bool> followMap;
+        public Dictionary<string, bool> likeMap;
+        public List<Article> projects;
+        public bool projectHasMore;
+        public List<Article> hottests;
+        public bool hottestHasMore;
+        public int page;
     }
 
     [Serializable]
@@ -55,6 +70,8 @@ namespace ConnectApp.Models.Api {
         public List<Article> projects;
         public Dictionary<string, User> userMap;
         public Dictionary<string, Team> teamMap;
+        public Dictionary<string, Place> placeMap;
+        public Dictionary<string, bool> likeMap;
         public int currentPage;
         public List<int> pages;
     }
@@ -64,6 +81,13 @@ namespace ConnectApp.Models.Api {
         public bool hasMore;
         public List<User> users;
         public Dictionary<string, bool> followingMap;
+    }
+
+    [Serializable]
+    public class FetchSearchTeamResponse {
+        public List<Team> teams;
+        public Dictionary<string, bool> followingMap;
+        public bool hasMore;
     }
 
     [Serializable]
@@ -96,6 +120,9 @@ namespace ConnectApp.Models.Api {
         public bool followingsHasMore;
         public List<User> followers;
         public bool followersHasMore;
+        public int followingTeamsCount;
+        public List<Team> followingTeams;
+        public bool followingTeamsHasMore;
         public string currentUserId;
         public Dictionary<string, Team> teamMap;
         public Dictionary<string, Place> placeMap;
@@ -108,12 +135,23 @@ namespace ConnectApp.Models.Api {
         public Dictionary<string, User> userMap;
         public Dictionary<string, Team> teamMap;
         public Dictionary<string, Place> placeMap;
+        public Dictionary<string, bool> likeMap;
+        public Dictionary<string, bool> followMap;
         public Dictionary<string, Article> projectMap;
         public bool hasMore;
     }
 
     [Serializable]
     public class FetchFollowingResponse {
+        public List<Following> followings;
+        public bool hasMore;
+        public Dictionary<string, bool> followMap;
+        public Dictionary<string, User> userMap;
+        public Dictionary<string, Team> teamMap;
+    }
+
+    [Serializable]
+    public class FetchFollowingUserResponse {
         public List<User> followings;
         public bool followingsHasMore;
         public Dictionary<string, bool> followMap;
@@ -127,6 +165,14 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
+    public class FetchFollowingTeamResponse {
+        public List<Team> followingTeams;
+        public bool followingTeamsHasMore;
+        public Dictionary<string, bool> followMap;
+        public Dictionary<string, Place> placeMap;
+    }
+
+    [Serializable]
     public class FetchEditPersonalInfoResponse {
         public User user;
         public Dictionary<string, Place> placeMap;
@@ -136,6 +182,7 @@ namespace ConnectApp.Models.Api {
     public class FetchTeamResponse {
         public Team team;
         public Dictionary<string, Place> placeMap;
+        public Dictionary<string, bool> followMap;
     }
 
     [Serializable]
@@ -143,5 +190,25 @@ namespace ConnectApp.Models.Api {
         public Dictionary<string, bool> likeMap;
         public List<Article> projects;
         public bool projectsHasMore;
+    }
+
+    [Serializable]
+    public class FetchTeamMemberResponse {
+        public List<Member> members;
+        public Dictionary<string, User> userMap;
+        public Dictionary<string, bool> followMap;
+        public bool hasMore;
+    }
+
+    [Serializable]
+    public class ErrorResponse {
+        public string errorCode;
+    }
+
+    [Serializable]
+    public class FetchInitDataResponse {
+        public string VS;
+        public List<bool> showEggs;
+        public bool scanEnabled;
     }
 }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Main;
 using ConnectApp.Plugins;
+using ConnectApp.redux;
+using ConnectApp.redux.actions;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.async;
@@ -134,8 +136,9 @@ namespace ConnectApp.Components {
             this.cancelTimer();
             var splash = SplashManager.getSplash();
             AnalyticsManager.ClickSkipSplashPage(splash.id, splash.name, splash.url);
-            Router.navigator.pushReplacementNamed(MainNavigatorRoutes.Main);
+            StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushReplaceMainAction());
         }
+
 
         void cancelTimer() {
             this._timer?.cancel();

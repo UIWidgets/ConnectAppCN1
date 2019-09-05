@@ -11,6 +11,9 @@ namespace ConnectApp.Utils {
         const string _eventHistoryKey = "eventHistoryKey";
         const string _blockArticleKey = "blockArticleKey";
         const string _visitorId = "visitor";
+        const int _searchArticleHistoryLimit = 5;
+        const int _articleHistoryLimit = 50;
+        const int _eventHistoryLimit = 50;
 
         public static List<Article> articleHistoryList(string userId = _visitorId) {
             var articleHistory = PlayerPrefs.GetString(_articleHistoryKey + userId);
@@ -39,8 +42,8 @@ namespace ConnectApp.Utils {
 
             articleHistoryList.RemoveAll(item => item.id == article.id);
             articleHistoryList.Insert(0, article);
-            if (articleHistoryList.Count > 50) {
-                articleHistoryList.RemoveRange(50, articleHistoryList.Count - 50);
+            if (articleHistoryList.Count > _articleHistoryLimit) {
+                articleHistoryList.RemoveRange(_articleHistoryLimit, articleHistoryList.Count - _articleHistoryLimit);
             }
 
             var newArticleHistory = JsonConvert.SerializeObject(articleHistoryList);
@@ -88,8 +91,8 @@ namespace ConnectApp.Utils {
 
             eventHistoryList.RemoveAll(item => item.id == eventObj.id);
             eventHistoryList.Insert(0, eventObj);
-            if (eventHistoryList.Count > 50) {
-                eventHistoryList.RemoveRange(50, eventHistoryList.Count - 50);
+            if (eventHistoryList.Count > _eventHistoryLimit) {
+                eventHistoryList.RemoveRange(_eventHistoryLimit, eventHistoryList.Count - _eventHistoryLimit);
             }
 
             var newEventHistory = JsonConvert.SerializeObject(eventHistoryList);
@@ -140,8 +143,9 @@ namespace ConnectApp.Utils {
             }
 
             searchArticleHistoryList.Insert(0, keyword);
-            if (searchArticleHistoryList.Count > 5) {
-                searchArticleHistoryList.RemoveRange(5, searchArticleHistoryList.Count - 5);
+            if (searchArticleHistoryList.Count > _searchArticleHistoryLimit) {
+                searchArticleHistoryList.RemoveRange(_searchArticleHistoryLimit,
+                    searchArticleHistoryList.Count - _searchArticleHistoryLimit);
             }
 
             var newSearchHistory = JsonConvert.SerializeObject(searchArticleHistoryList);

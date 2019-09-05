@@ -21,11 +21,12 @@ namespace ConnectApp.screens {
                 converter: state => new SearchScreenViewModel {
                     searchArticleLoading = state.searchState.searchArticleLoading,
                     searchKeyword = state.searchState.keyword,
-                    searchArticles = state.searchState.searchArticles.ContainsKey(key: state.searchState.keyword)
-                        ? state.searchState.searchArticles[key: state.searchState.keyword]
+                    searchArticleIds = state.searchState.searchArticleIdDict.ContainsKey(key: state.searchState.keyword)
+                        ? state.searchState.searchArticleIdDict[key: state.searchState.keyword]
                         : null,
                     searchArticleCurrentPage = state.searchState.searchArticleCurrentPage,
                     searchArticlePages = state.searchState.searchArticlePages,
+                    articleDict = state.articleState.articleDict,
                     userDict = state.userState.userDict,
                     teamDict = state.teamState.teamDict,
                     blockArticleList = state.articleState.blockArticleList
@@ -82,20 +83,20 @@ namespace ConnectApp.screens {
                 this._pageNumber++;
             }
 
-            this.widget.actionModel.searchArticle(this.widget.viewModel.searchKeyword, this._pageNumber)
-                .Then(() => this._refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
-                .Catch(_ => this._refreshController.sendBack(up, RefreshStatus.failed));
+            this.widget.actionModel.searchArticle(arg1: this.widget.viewModel.searchKeyword, arg2: this._pageNumber)
+                .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }
 
         public override Widget build(BuildContext context) {
-            var searchArticles = this.widget.viewModel.searchArticles;
+            var searchArticleIds = this.widget.viewModel.searchArticleIds;
             var searchKeyword = this.widget.viewModel.searchKeyword ?? "";
             Widget child = new Container();
-            if (this.widget.viewModel.searchArticleLoading && searchArticles == null) {
+            if (this.widget.viewModel.searchArticleLoading && searchArticleIds == null) {
                 child = new GlobalLoading();
             }
             else if (searchKeyword.Length > 0) {
-                child = searchArticles != null && searchArticles.Count > 0
+                child = searchArticleIds != null && searchArticleIds.Count > 0
                     ? this._buildContent()
                     : new BlankView(
                         "哎呀，换个关键词试试吧",
@@ -110,11 +111,11 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildContent() {
-            var searchArticles = this.widget.viewModel.searchArticles;
+            var searchArticleIds = this.widget.viewModel.searchArticleIds;
             var currentPage = this.widget.viewModel.searchArticleCurrentPage;
             var pages = this.widget.viewModel.searchArticlePages;
             var hasMore = currentPage != pages.Count - 1;
-            var itemCount = hasMore ? searchArticles.Count : searchArticles.Count + 1;
+            var itemCount = hasMore ? searchArticleIds.Count : searchArticleIds.Count + 1;
             return new Container(
                 color: CColors.Background,
                 child: new CustomScrollbar(
@@ -134,15 +135,21 @@ namespace ConnectApp.screens {
         }
         
         Widget _buildArticleCard(BuildContext context, int index) {
-            var searchArticles = this.widget.viewModel.searchArticles;
-            if (index == searchArticles.Count) {
+            var searchArticleIds = this.widget.viewModel.searchArticleIds;
+            if (index == searchArticleIds.Count) {
                 return new EndView();
             }
-            var searchArticle = searchArticles[index: index];
-            if (this.widget.viewModel.blockArticleList.Contains(item: searchArticle.id)) {
+
+            var searchArticleId = searchArticleIds[index: index];
+            if (!this.widget.viewModel.articleDict.ContainsKey(key: searchArticleId)) {
                 return new Container();
             }
 
+            if (this.widget.viewModel.blockArticleList.Contains(item: searchArticleId)) {
+                return new Container();
+            }
+
+            var searchArticle = this.widget.viewModel.articleDict[key: searchArticleId];
             var fullName = "";
             if (searchArticle.ownerType == OwnerType.user.ToString()) {
                 if (this.widget.viewModel.userDict.ContainsKey(key: searchArticle.userId)) {
@@ -159,7 +166,7 @@ namespace ConnectApp.screens {
             return new RelatedArticleCard(
                 article: searchArticle,
                 fullName: fullName,
-                () => this.widget.actionModel.pushToArticleDetail(searchArticle.id),
+                () => this.widget.actionModel.pushToArticleDetail(obj: searchArticle.id),
                 index == 0
             );
         }

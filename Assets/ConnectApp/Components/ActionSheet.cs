@@ -120,7 +120,7 @@ namespace ConnectApp.Components {
                                 color: CColors.White,
                                 child: new Text(
                                     item.title,
-                                    style: CTextStyle.PLargeBody.copyWith(titleColor)
+                                    style: CTextStyle.PLargeBody.copyWith(color: titleColor)
                                 )
                             )
                         )

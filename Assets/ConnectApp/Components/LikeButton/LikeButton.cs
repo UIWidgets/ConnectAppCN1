@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ConnectApp.Components.LikeButton.Painter;
 using ConnectApp.Components.LikeButton.Utils;
 using ConnectApp.Constants;
+using ConnectApp.Utils;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -14,7 +15,7 @@ namespace ConnectApp.Components.LikeButton {
     public class LikeButton : StatefulWidget {
         public LikeButton(
             LikeWidgetBuilder likeBuilder = null,
-            LikeCountWidgetBuilder countBuilder = null,
+            bool showLikeCount = false,
             int? likeCount = null,
             float size = 30,
             float? bubblesSize = null,
@@ -33,7 +34,7 @@ namespace ConnectApp.Components.LikeButton {
             Key key = null
         ) : base(key: key) {
             this.likeBuilder = likeBuilder;
-            this.countBuilder = countBuilder;
+            this.showLikeCount = showLikeCount;
             this.likeCount = likeCount;
             this.size = size;
             this.bubblesSize = bubblesSize ?? size * 2.0f;
@@ -45,7 +46,7 @@ namespace ConnectApp.Components.LikeButton {
             this.likeCountAnimationType = likeCountAnimationType ?? LikeCountAnimationType.part;
             this.likeCountAnimationDuration = likeCountAnimationDuration ?? TimeSpan.FromMilliseconds(500);
             this.likeButtonPadding = likeButtonPadding;
-            this.likeCountPadding = likeCountPadding ?? EdgeInsets.only(3);
+            this.likeCountPadding = likeCountPadding ?? EdgeInsets.only(4);
             this.bubblesColor = bubblesColor ?? new BubblesColor(
                                     new Color(0xFFFFC107),
                                     new Color(0xFFFF9800),
@@ -60,7 +61,7 @@ namespace ConnectApp.Components.LikeButton {
         }
 
         public readonly LikeWidgetBuilder likeBuilder;
-        public readonly LikeCountWidgetBuilder countBuilder;
+        public readonly bool showLikeCount;
         public readonly int? likeCount;
         public readonly float size;
         public readonly float bubblesSize;
@@ -94,13 +95,13 @@ namespace ConnectApp.Components.LikeButton {
         Animation<float> _opacityAnimation;
 
         bool _isLiked;
-        int? _likeCount;
+        int _likeCount;
         int? _preLikeCount;
 
         public override void initState() {
             base.initState();
             this._isLiked = this.widget.isLiked;
-            this._likeCount = this.widget.likeCount;
+            this._likeCount = this.widget.likeCount ?? 0;
             this._preLikeCount = this._likeCount;
 
             this._controller =
@@ -134,13 +135,25 @@ namespace ConnectApp.Components.LikeButton {
                     mainAxisAlignment: this.widget.mainAxisAlignment,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: new List<Widget> {
-                        this._buildLikeButtonWidget(),
+                        this._buildLikeButtonWidget(), 
                         this._buildLikeCountWidget()
                     }
                 )
             );
         }
-        
+
+        Widget _buildLikeCountWidget() {
+            return !this.widget.showLikeCount
+                ? new Container()
+                : new Container(
+                    margin: EdgeInsets.only(4),
+                    child: new Text(
+                        CStringUtils.CountToString(count: this._likeCount, "点赞"),
+                        style: CTextStyle.PRegularBody5.merge(new TextStyle(height: 1))
+                    )
+                );
+        }
+
         Widget _buildLikeButtonWidget() {
             return new AnimatedBuilder(
                 animation: this._controller,
@@ -155,6 +168,7 @@ namespace ConnectApp.Components.LikeButton {
                         top = this.widget.likeButtonPadding.top;
                         bottom = this.widget.likeButtonPadding.bottom;
                     }
+
                     List<Widget> children = new List<Widget>();
                     if (this.widget.isShowBubbles) {
                         children.Add(
@@ -174,6 +188,7 @@ namespace ConnectApp.Components.LikeButton {
                             )
                         );
                     }
+
                     children.Add(
                         new Positioned(
                             top: (this.widget.size + top + bottom - this.widget.circleSize) / 2.0f,
@@ -214,125 +229,6 @@ namespace ConnectApp.Components.LikeButton {
             );
         }
 
-        Widget _buildLikeCountWidget() {
-            if (this._likeCount == null) {
-                return new Container();
-            }
-            var likeCount = this._likeCount.ToString();
-            var preLikeCount = this._preLikeCount.ToString();
-
-            int didIndex = 0;
-            if (preLikeCount.Length == likeCount.Length) {
-                for (; didIndex < likeCount.Length; didIndex++) {
-                    if (likeCount[didIndex] != preLikeCount[didIndex]) {
-                        break;
-                    }
-                }
-            }
-
-            bool allChange = preLikeCount.Length != likeCount.Length || didIndex == 0;
-
-            Widget result;
-
-            if (this.widget.likeCountAnimationType == LikeCountAnimationType.none ||
-                this._likeCount == this._preLikeCount) {
-                result = this._createLikeCountWidget(this._likeCount, this._isLiked, this._likeCount.ToString());
-            }
-            else if (this.widget.likeCountAnimationType == LikeCountAnimationType.part &&
-                     !allChange) {
-                var samePart = likeCount.Substring(0, didIndex);
-                var preText = preLikeCount.Substring(didIndex, preLikeCount.Length);
-                var text = likeCount.Substring(didIndex, likeCount.Length);
-                var preSameWidget = this._createLikeCountWidget(this._preLikeCount, !this._isLiked, samePart);
-                var currentSameWidget = this._createLikeCountWidget(this._likeCount, this._isLiked, samePart);
-                var preWidget = this._createLikeCountWidget(this._preLikeCount, !this._isLiked, preText);
-                var currentWidget = this._createLikeCountWidget(this._likeCount, this._isLiked, text);
-
-                result = new AnimatedBuilder(
-                    animation: this._likeCountController,
-                    builder: (b, w) => new Row(
-                        children: new List<Widget> {
-                            new Stack(
-                                fit: StackFit.passthrough,
-                                overflow: Overflow.clip,
-                                children: new List<Widget> {
-                                    new Opacity(
-                                        child: currentSameWidget,
-                                        opacity: this._opacityAnimation.value
-                                    ),
-                                    new Opacity(
-                                        child: preSameWidget,
-                                        opacity: 1 - this._opacityAnimation.value
-                                    )
-                                }
-                            ),
-                            new Stack(
-                                fit: StackFit.passthrough,
-                                overflow: Overflow.clip,
-                                children: new List<Widget> {
-                                    new FractionalTranslation(
-                                        child: currentWidget,
-                                        translation: this._preLikeCount > this._likeCount
-                                            ? this._slideCurrentValueAnimation.value
-                                            : -this._slideCurrentValueAnimation.value
-                                    ),
-                                    new FractionalTranslation(
-                                        child: preWidget,
-                                        translation: this._preLikeCount > this._likeCount
-                                            ? this._slidePreValueAnimation.value
-                                            : -this._slidePreValueAnimation.value
-                                    )
-                                }
-                            )
-                        }
-                    ));
-            }
-            else {
-                result = new AnimatedBuilder(
-                    animation: this._likeCountController,
-                    builder: (b, w) => new Stack(
-                        fit: StackFit.passthrough,
-                        overflow: Overflow.clip,
-                        children: new List<Widget> {
-                            new FractionalTranslation(
-                                child: this._createLikeCountWidget(this._likeCount, this._isLiked,
-                                    this._likeCount.ToString()),
-                                translation: this._preLikeCount > this._likeCount
-                                    ? this._slideCurrentValueAnimation.value
-                                    : -this._slideCurrentValueAnimation.value
-                            ),
-                            new FractionalTranslation(
-                                child: this._createLikeCountWidget(this._likeCount, !this._isLiked,
-                                    this._preLikeCount.ToString()),
-                                translation: this._preLikeCount > this._likeCount
-                                    ? this._slidePreValueAnimation.value
-                                    : -this._slidePreValueAnimation.value
-                            )
-                        }
-                    )
-                );
-            }
-
-            result = new ClipRect(
-                child: result,
-                clipper: new LikeCountClip()
-            );
-
-            if (this.widget.likeCountPadding != null) {
-                result = new Padding(
-                    padding: this.widget.likeCountPadding,
-                    child: result
-                );
-            }
-
-            return result;
-        }
-
-        Widget _createLikeCountWidget(int? likeCount, bool isLiked, string text) {
-            return this.widget.countBuilder?.Invoke(likeCount ?? 0, isLiked, text) ??
-                   new Text(text, style: new TextStyle(color: CColors.Grey));
-        }
-
         void _onTap() {
             if (this._controller.isAnimating || this._likeCountController.isAnimating) {
                 return;
@@ -367,7 +263,8 @@ namespace ConnectApp.Components.LikeButton {
                             this._controller.forward();
                         }
 
-                        if (this.widget.likeCountAnimationType != LikeCountAnimationType.none && this._likeCount != null) {
+                        if (this.widget.likeCountAnimationType != LikeCountAnimationType.none &&
+                            this._likeCount != null) {
                             this._likeCountController.reset();
                             this._likeCountController.forward();
                         }

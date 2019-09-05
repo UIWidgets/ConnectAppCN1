@@ -1,10 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Web;
+using ConnectApp.Constants;
+using ConnectApp.redux;
+using ConnectApp.redux.actions;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+using EventType = ConnectApp.Models.State.EventType;
 
 namespace ConnectApp.Plugins {
     public class WechatPlugin {
@@ -20,15 +26,17 @@ namespace ConnectApp.Plugins {
             return plugin;
         }
 
-        public static WechatPlugin plugin;
+        static WechatPlugin plugin;
 
         bool isListen;
 
         public BuildContext context;
 
-        public Action<string> codeCallBack;
+        Action<string> codeCallBack;
 
-        public void addListener() {
+        public string currentEventId;
+
+        void addListener() {
             if (!this.isListen) {
                 UIWidgetsMessageManager.instance.AddChannelMessageDelegate("wechat", this._handleMethodCall);
                 this.isListen = true;
@@ -39,6 +47,10 @@ namespace ConnectApp.Plugins {
             using (WindowProvider.of(this.context).getScope()) {
                 switch (method) {
                     case "callback": {
+                        if (args.isEmpty()) {
+                            return;
+                        }
+
                         var node = args[0];
                         var dict = JSON.Parse(node);
                         var type = dict["type"];
@@ -50,10 +62,62 @@ namespace ConnectApp.Plugins {
                         }
                     }
                         break;
+                    case "openUrl": {
+                        if (args.isEmpty()) {
+                            return;
+                        }
+
+                        openUrl(args.first());
+                    }
+                        break;
                 }
             }
         }
 
+        public static void openUrl(string schemeUrl) {
+            if (schemeUrl.isEmpty()) {
+                return;
+            }
+
+            var uri = new Uri(schemeUrl);
+            if (uri.Scheme.Equals("unityconnect")) {
+                if (uri.Host.Equals("connectapp")) {
+                    var type = "";
+                    if (uri.AbsolutePath.Equals("/project_detail")) {
+                        type = "project";
+                    }
+                    else if (uri.AbsolutePath.Equals("/event_detail")) {
+                        type = "event";
+                    }
+                    else {
+                        return;
+                    }
+
+                    var subType = HttpUtility.ParseQueryString(uri.Query).Get("type");
+                    var id = HttpUtility.ParseQueryString(uri.Query).Get("id");
+                    if (id != instance().currentEventId) {
+                        if (type == "event") {
+                            var eventType = EventType.offline;
+                            if (subType == "online") {
+                                eventType = EventType.online;
+                            }
+
+                            StoreProvider.store.dispatcher.dispatch(
+                                new MainNavigatorPushToEventDetailAction {eventId = id, eventType = eventType});
+                        }
+                        else if (type == "project") {
+                            if (subType == "article") {
+                                StoreProvider.store.dispatcher.dispatch(
+                                    new MainNavigatorPushToArticleDetailAction {articleId = id, isPush = false});
+                            }
+                        }
+                    }
+                }
+            }
+            else {
+                JPushPlugin.openUrl(schemeUrl);
+            }
+        }
 
         public void login(string stateId) {
             if (!Application.isEditor) {
@@ -76,8 +140,15 @@ namespace ConnectApp.Plugins {
             }
         }
 
+        public void shareToMiniProgram(string title, string description, string url, string imageBytes, string path) {
+            if (!Application.isEditor) {
+                this.addListener();
+                toMiNiProgram(title, description, url, imageBytes, Config.MINIID, path, Config.miniProgramType);
+            }
+        }
 
-        public bool inInstalled() {
+
+        public bool isInstalled() {
             if (!Application.isEditor) {
                 this.addListener();
                 return isInstallWechat();
@@ -85,18 +156,32 @@ namespace ConnectApp.Plugins {
 
             return false;
         }
+
+        public void toOpenMiNi(string path) {
+            if (!Application.isEditor) {
+                this.addListener();
+                openMiNi(Config.MINIID, path, Config.miniProgramType);
+            }
+        }
 #if UNITY_IOS
         [DllImport("__Internal")]
-        internal static extern void loginWechat(string stateId);
+        static extern void loginWechat(string stateId);
 
         [DllImport("__Internal")]
-        internal static extern bool isInstallWechat();
+        static extern bool isInstallWechat();
 
         [DllImport("__Internal")]
-        internal static extern void toFriends(string title, string description, string url, string imageBytes);
+        static extern void toFriends(string title, string description, string url, string imageBytes);
 
         [DllImport("__Internal")]
-        internal static extern void toTimeline(string title, string description, string url, string imageBytes);
+        static extern void toTimeline(string title, string description, string url, string imageBytes);
+
+        [DllImport("__Internal")]
+        internal static extern void toMiNiProgram(string title, string description, string url, string imageBytes,
+            string ysId, string path, int miniProgramType);
+
+        [DllImport("__Internal")]
+        internal static extern void openMiNi(string ysId, string path, int miniProgramType);
 
 #elif UNITY_ANDROID
         static AndroidJavaObject _plugin;
@@ -129,11 +214,22 @@ namespace ConnectApp.Plugins {
         static void toTimeline(string title, string description, string url, string imageBytes) {
             Plugin().Call("shareToTimeline", title, description, url, imageBytes);
         }
+
+        static void toMiNiProgram(string title, string description, string url, string imageBytes, string ysId,
+            string path,int miniProgramType) {
+            Plugin().Call("shareToMiNiProgram", title, description, url, imageBytes, ysId, path,miniProgramType);
+        }
+
+        static void openMiNi(string ysId, string path,int miniProgramType) {
+            Plugin().Call("openMiNi", Config.wechatAppId, ysId, path,miniProgramType);
+        }
 #else
         static bool isInstallWechat() {return true;}
         static void loginWechat(string stateId) {}
         static void toFriends(string title, string description, string url,string imageBytes) {}
         static void toTimeline(string title, string description, string url,string imageBytes) {}
+        static void toMiNiProgram(string title, string description, string url, string imageBytes,string ysId, string path) {}
+        static void openMiNi(string ysId, string path) {}
 #endif
     }
 }

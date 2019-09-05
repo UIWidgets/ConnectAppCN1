@@ -17,13 +17,12 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static Promise<FetchTeamArticleResponse> FetchTeamArticle(string teamId, int offset) {
+        public static Promise<FetchTeamArticleResponse> FetchTeamArticle(string teamId, int pageNumber) {
             var promise = new Promise<FetchTeamArticleResponse>();
             var para = new Dictionary<string, object> {
-                {"offset", offset},
-                {"teamId", teamId}
+                {"page", pageNumber}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}/api/u/getProjects", para);
+            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/teams/{teamId}/projects", para);
             HttpManager.resume(request: request).Then(responseText => {
                 var teamArticleResponse = JsonConvert.DeserializeObject<FetchTeamArticleResponse>(responseText);
                 promise.Resolve(teamArticleResponse);
@@ -45,6 +44,19 @@ namespace ConnectApp.Api {
             return promise;
         }
 
+        public static Promise<FetchTeamMemberResponse> FetchTeamMember(string teamId, int pageNumber) {
+            var promise = new Promise<FetchTeamMemberResponse>();
+            var para = new Dictionary<string, object> {
+                {"page", pageNumber}
+            };
+            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/teams/{teamId}/members", para);
+            HttpManager.resume(request: request).Then(responseText => {
+                var teamMemberResponse = JsonConvert.DeserializeObject<FetchTeamMemberResponse>(responseText);
+                promise.Resolve(teamMemberResponse);
+            }).Catch(exception => promise.Reject(exception));
+            return promise;
+        }
+
         public static Promise<bool> FetchFollowTeam(string teamId) {
             var promise = new Promise<bool>();
             var para = new FollowParameter {
@@ -55,7 +67,6 @@ namespace ConnectApp.Api {
             HttpManager.resume(request: request).Then(responseText => {
                 var followResponse = JsonConvert.DeserializeObject<Dictionary<string, bool>>(responseText);
                 promise.Resolve(followResponse["success"]);
-                
             }).Catch(exception => promise.Reject(exception));
             return promise;
         }
