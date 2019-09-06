@@ -579,7 +579,7 @@ namespace ConnectApp.Components {
                     new TextSpan(
                         text.Substring(inlineOffset + inlineLength, entityOffset - inlineOffset - inlineLength),
                         newStyle),
-                    new TextSpan(text.Substring(entityOffset, entityLength), newStyle.copyWith(CColors.PrimaryBlue),
+                    new TextSpan(text.Substring(entityOffset, entityLength), newStyle.copyWith(color: CColors.PrimaryBlue),
                         recognizer: recognizer),
                     new TextSpan(text.Substring(entityOffset + entityLength, text.Length - entityOffset - entityLength),
                         newStyle)
@@ -590,7 +590,7 @@ namespace ConnectApp.Components {
             if (inlineOffset >= entityOffset + entityLength) {
                 var spans = new List<TextSpan> {
                     new TextSpan(text.Substring(0, entityOffset), newStyle),
-                    new TextSpan(text.Substring(entityOffset, entityLength), newStyle.copyWith(CColors.PrimaryBlue),
+                    new TextSpan(text.Substring(entityOffset, entityLength), newStyle.copyWith(color: CColors.PrimaryBlue),
                         recognizer: recognizer),
                     new TextSpan(
                         text.Substring(entityOffset + entityLength, inlineOffset - entityOffset - entityLength),

@@ -206,7 +206,7 @@ namespace ConnectApp.Components {
                                 new Expanded(
                                     child: new Text(this.widget.message,
                                         maxLines: 3,
-                                        style: CTextStyle.PRegularError.copyWith(this.widget.color)
+                                        style: CTextStyle.PRegularError.copyWith(color: this.widget.color)
                                     )
                                 ),
                                 new CustomButton(

@@ -215,6 +215,7 @@ namespace ConnectApp.screens {
                     enablePullDown: true,
                     enablePullUp: this.widget.viewModel.hottestHasMore,
                     onRefresh: this._onRefresh,
+                    hasBottomMargin: true,
                     child: ListView.builder(
                         physics: new AlwaysScrollableScrollPhysics(),
                         itemCount: recommendArticleIds.Count,
@@ -226,6 +227,11 @@ namespace ConnectApp.screens {
 
                             if (!this.widget.viewModel.articleDict.ContainsKey(key: articleId)) {
                                 return new Container();
+                            }
+
+                            if (!this.widget.viewModel.hottestHasMore && recommendArticleIds.Count > 0 &&
+                                index + 1 == recommendArticleIds.Count) {
+                                return new EndView(hasBottomMargin: true);
                             }
 
                             var article = this.widget.viewModel.articleDict[key: articleId];

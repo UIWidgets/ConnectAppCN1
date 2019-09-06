@@ -7,7 +7,6 @@ using ConnectApp.Constants;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using RSG;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
@@ -188,11 +187,23 @@ namespace ConnectApp.Utils {
                     updateCookie(newCookie: vsCookie);
                 }
 
-                if (initDataResponse.showEggs.isNotEmpty()) {
-                    StoreProvider.store.dispatcher.dispatch(new InitEggsAction {showEggs = initDataResponse.showEggs});
+                var firstEgg = false;
+                var scan = false;
+                if (initDataResponse.config != null) {
+                    if (initDataResponse.config.eggs != null && initDataResponse.config.eggs.ContainsKey("firstEgg")) {
+                        firstEgg = initDataResponse.config.eggs["firstEgg"];
+                    }
+
+                    scan = initDataResponse.config.scan;
                 }
 
-                StoreProvider.store.dispatcher.dispatch(new ScanEnabledAction {scanEnabled = initDataResponse.scanEnabled});
+                if (initDataResponse.showEggs.isNotEmpty()) {
+                    StoreProvider.store.dispatcher.dispatch(new InitEggsAction {firstEgg = firstEgg});
+                }
+
+                StoreProvider.store.dispatcher.dispatch(new ScanEnabledAction {
+                    scanEnabled = scan
+                });
             }).Catch(exception => { });
         }
     }
