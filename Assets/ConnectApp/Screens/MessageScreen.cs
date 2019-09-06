@@ -143,6 +143,8 @@ namespace ConnectApp.screens {
             );
         }
     }
+    
+    
 
     public class MessageScreen : StatefulWidget {
         public MessageScreen(
@@ -208,7 +210,7 @@ namespace ConnectApp.screens {
                                 padding: EdgeInsets.only(left: 16),
                                 child: new Row(
                                     children: this.widget.viewModel.popularChannelInfo.Select(
-                                        buildPopularChannelImage
+                                        MessageBuildUtils.buildPopularChannelImage
                                     ).ToList()
                                 )
                             )
@@ -216,7 +218,7 @@ namespace ConnectApp.screens {
                     ) : new Container(),
                     this.widget.viewModel.channelInfo.isEmpty() ? (Widget) new Container()
                         : new Column(
-                            children: this.widget.viewModel.channelInfo.Select(buildChannelItem).ToList()
+                            children: this.widget.viewModel.channelInfo.Select(MessageBuildUtils.buildChannelItem).ToList()
                         ),
                     this.widget.viewModel.channelInfo.isEmpty() ? new Container(height: 24, color: CColors.White)
                         : new Container(height: 16),
@@ -261,7 +263,7 @@ namespace ConnectApp.screens {
                     ),
                     new Column(
                         children: this.widget.viewModel.discoverChannelInfo.Select(
-                            buildDiscoverChannelItem
+                            MessageBuildUtils.buildDiscoverChannelItem
                         ).ToList()
                     ),
                     new Container(height: 40)
@@ -283,6 +285,109 @@ namespace ConnectApp.screens {
             );
         }
         
+        Widget _buildNavigationBar() {
+            return new CustomNavigationBar(
+                new Text("群聊", style: CTextStyle.H2),
+                new List<Widget> {
+                    new CustomButton(
+                        onPressed: () => {
+                            this.widget.actionModel.pushToNotificatioins();
+                        },
+                        child: new Container(
+                            width: 28,
+                            height: 28,
+                            child: new Icon(Icons.outline_notification, color: CColors.Icon, size: 28)
+                        )
+                    )
+                },
+                backgroundColor: CColors.White,
+                0
+            );
+        }
+
+        public void didPopNext() {
+        }
+
+        public void didPush() {
+        }
+
+        public void didPop() {
+        }
+
+        public void didPushNext() {
+        }
+    }
+
+    public static class MessageBuildUtils {
+        public static Widget buildPopularChannelImage(ChannelInfo channelInfo) {
+            return new Container(
+                width: 120,
+                height: 120,
+                margin: EdgeInsets.only(right: 16),
+                child: new ClipRRect(
+                    borderRadius: BorderRadius.all(8),
+                    child: new Container(
+                        child: new Stack(
+                            children: new List<Widget> {
+                                Positioned.fill(
+                                    child: Image.network(
+                                        channelInfo.imageUrl,
+                                        fit: BoxFit.cover
+                                    )
+                                ),
+                                Positioned.fill(
+                                    child: new Container(
+                                         decoration: new BoxDecoration(
+                                            gradient: new LinearGradient(
+                                                begin: Alignment.topCenter,
+                                                end: Alignment.bottomCenter,
+                                                colors: new List<Color> {
+                                                    Color.fromARGB(20, 0, 0, 0),
+                                                    Color.fromARGB(80, 0, 0, 0),
+                                                }
+                                            )
+                                        )
+                                    )
+                                ),
+                                Positioned.fill(
+                                    child: new Column(
+                                        children: new List<Widget> {
+                                            new Container(
+                                                height: 72,
+                                                padding: EdgeInsets.symmetric(0, 8),
+                                                child: new Align(
+                                                    alignment: Alignment.bottomLeft,
+                                                    child: new Text(channelInfo.name,
+                                                        style: CTextStyle.PLargeMediumWhite)
+                                                )
+                                            ),
+                                            new Container(
+                                                padding: EdgeInsets.only(top: 4, left: 8),
+                                                child: new Row(
+                                                    children: new List<Widget> {
+                                                        new Container(
+                                                            width: 8,
+                                                            height: 8,
+                                                            decoration: new BoxDecoration(
+                                                                color: CColors.AquaMarine,
+                                                                borderRadius: BorderRadius.all(4)
+                                                            )
+                                                        ),
+                                                        new Container(width: 4),
+                                                        new Text($"{channelInfo.size}人", style: CTextStyle.PSmallWhite)
+                                                    }
+                                                )
+                                            )
+                                        }
+                                    )
+                                )
+                            }
+                        )
+                    )
+                )
+            );
+        }
+
         public static Widget buildChannelItem(ChannelInfo channelInfo) {
             Widget title = new Text(channelInfo.name, style: CTextStyle.PLargeMedium);
             return new Container(
@@ -416,107 +521,6 @@ namespace ConnectApp.screens {
                     }
                 )
             );
-        }
-
-        Widget _buildNavigationBar() {
-            return new CustomNavigationBar(
-                new Text("群聊", style: CTextStyle.H2),
-                new List<Widget> {
-                    new CustomButton(
-                        onPressed: () => {
-                            this.widget.actionModel.pushToNotificatioins();
-                        },
-                        child: new Container(
-                            width: 28,
-                            height: 28,
-                            child: new Icon(Icons.outline_notification, color: CColors.Icon, size: 28)
-                        )
-                    )
-                },
-                backgroundColor: CColors.White,
-                0
-            );
-        }
-
-        public static Widget buildPopularChannelImage(ChannelInfo channelInfo) {
-            return new Container(
-                width: 120,
-                height: 120,
-                margin: EdgeInsets.only(right: 16),
-                child: new ClipRRect(
-                    borderRadius: BorderRadius.all(8),
-                    child: new Container(
-                        child: new Stack(
-                            children: new List<Widget> {
-                                Positioned.fill(
-                                    child: Image.network(
-                                        channelInfo.imageUrl,
-                                        fit: BoxFit.cover
-                                    )
-                                ),
-                                Positioned.fill(
-                                    child: new Container(
-                                         decoration: new BoxDecoration(
-                                            gradient: new LinearGradient(
-                                                begin: Alignment.topCenter,
-                                                end: Alignment.bottomCenter,
-                                                colors: new List<Color> {
-                                                    Color.fromARGB(20, 0, 0, 0),
-                                                    Color.fromARGB(80, 0, 0, 0),
-                                                }
-                                            )
-                                        )
-                                    )
-                                ),
-                                Positioned.fill(
-                                    child: new Column(
-                                        children: new List<Widget> {
-                                            new Container(
-                                                height: 72,
-                                                padding: EdgeInsets.symmetric(0, 8),
-                                                child: new Align(
-                                                    alignment: Alignment.bottomLeft,
-                                                    child: new Text(channelInfo.name,
-                                                        style: CTextStyle.PLargeMediumWhite)
-                                                )
-                                            ),
-                                            new Container(
-                                                padding: EdgeInsets.only(top: 4, left: 8),
-                                                child: new Row(
-                                                    children: new List<Widget> {
-                                                        new Container(
-                                                            width: 8,
-                                                            height: 8,
-                                                            decoration: new BoxDecoration(
-                                                                color: CColors.AquaMarine,
-                                                                borderRadius: BorderRadius.all(4)
-                                                            )
-                                                        ),
-                                                        new Container(width: 4),
-                                                        new Text($"{channelInfo.size}人", style: CTextStyle.PSmallWhite)
-                                                    }
-                                                )
-                                            )
-                                        }
-                                    )
-                                )
-                            }
-                        )
-                    )
-                )
-            );
-        }
-
-        public void didPopNext() {
-        }
-
-        public void didPush() {
-        }
-
-        public void didPop() {
-        }
-
-        public void didPushNext() {
         }
     }
 }

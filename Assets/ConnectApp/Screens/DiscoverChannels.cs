@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Main;
@@ -136,9 +137,11 @@ namespace ConnectApp.screens {
 
         Widget _buildContent() {
             return new Container(
+                color: CColors.White,
                 child: new ListView(
-                    children: new List<Widget> {
-                    }
+                    padding: EdgeInsets.symmetric(16, 0),
+                    children: this.widget.viewModel.discoverChannelInfo.
+                        Select(MessageBuildUtils.buildDiscoverChannelItem).ToList()
                 )
             );
         }
