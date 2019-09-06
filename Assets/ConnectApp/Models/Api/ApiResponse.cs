@@ -75,7 +75,7 @@ namespace ConnectApp.Models.Api {
         public int currentPage;
         public List<int> pages;
     }
-    
+
     [Serializable]
     public class FetchSearchUserResponse {
         public bool hasMore;
@@ -210,5 +210,12 @@ namespace ConnectApp.Models.Api {
         public string VS;
         public List<bool> showEggs;
         public bool scanEnabled;
+    }
+
+    [Serializable]
+    public class UpdateAvatarResponse {
+        public string avatar;
+        public int profilePercent;
+        public string nextStep;
     }
 }
