@@ -22,6 +22,9 @@ namespace ConnectApp.redux.actions {
     
     public class MainNavigatorPushToDiscoverChannelsAction : BaseAction {
     }
+    
+    public class MainNavigatorPushToChannelDetailAction : BaseAction {
+    }
 
     public class MainNavigatorPushToRouteAction : BaseAction {
         public Route route;

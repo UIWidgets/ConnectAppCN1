@@ -139,6 +139,9 @@ namespace ConnectApp.screens {
                         },
                         pushToDiscoverChannels = () => {
                             dispatcher.dispatch(new MainNavigatorPushToDiscoverChannelsAction());
+                        },
+                        pushToChannelDetail = () => {
+                            dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction());
                         }
                     };
                     return new MessageScreen(viewModel, actionModel);
@@ -221,7 +224,11 @@ namespace ConnectApp.screens {
                     ) : new Container(),
                     this.widget.viewModel.channelInfo.isEmpty() ? (Widget) new Container()
                         : new Column(
-                            children: this.widget.viewModel.channelInfo.Select(MessageBuildUtils.buildChannelItem).ToList()
+                            children: this.widget.viewModel.channelInfo.Select((channelInfo) => {
+                                return MessageBuildUtils.buildChannelItem(
+                                    channelInfo,
+                                    this.widget.actionModel.pushToChannelDetail);
+                            }).ToList()
                         ),
                     this.widget.viewModel.channelInfo.isEmpty() ? new Container(height: 24, color: CColors.White)
                         : new Container(height: 16),
@@ -391,9 +398,9 @@ namespace ConnectApp.screens {
             );
         }
 
-        public static Widget buildChannelItem(ChannelInfo channelInfo) {
+        public static Widget buildChannelItem(ChannelInfo channelInfo, Action onTap = null) {
             Widget title = new Text(channelInfo.name, style: CTextStyle.PLargeMedium);
-            return new Container(
+            Widget ret = new Container(
                 color: channelInfo.isTop ? CColors.PrimaryBlue.withOpacity(0.04f) : CColors.White,
                 height: 72,
                 padding: EdgeInsets.symmetric(12, 16),
@@ -465,6 +472,15 @@ namespace ConnectApp.screens {
                     }
                 )
             );
+            
+            if (onTap != null) {
+                ret = new GestureDetector(
+                    onTap: () => { onTap(); },
+                    child: ret
+                );
+            }
+
+            return ret;
         }
 
         public static Widget buildDiscoverChannelItem(ChannelInfo channelInfo) {
