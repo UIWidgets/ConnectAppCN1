@@ -6,18 +6,26 @@ namespace ConnectApp.Components {
     public class NotificationDot : StatelessWidget {
 
         public readonly string content;
-        public NotificationDot(string content) {
+        public readonly BorderSide borderSide;
+        public NotificationDot(string content, BorderSide borderSide = null) {
             this.content = content;
+            this.borderSide = borderSide;
         }
         
         public override Widget build(BuildContext context) {
-            if (string.IsNullOrEmpty(this.content)) {
+            if (this.content == null) {
+                return new Container();
+            }
+            
+            if (this.content == "") {
                 return new Container(
                     width: 10,
                     height: 10,
                     decoration: new BoxDecoration(
                         borderRadius: BorderRadius.all(5),
-                        color: CColors.Error));
+                        color: CColors.Error
+                    )
+                );
             }
 
             return new Container(

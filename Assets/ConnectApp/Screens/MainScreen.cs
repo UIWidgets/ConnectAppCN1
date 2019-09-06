@@ -29,19 +29,22 @@ namespace ConnectApp.screens {
                                 1,
                                 Icons.outline_event,
                                 Icons.eventIcon,
-                                "活动"
+                                "活动",
+                                notification: "99"
                             ),
                             new CustomTabBarItem(
                                 2,
                                 Icons.outline_notification,
                                 Icons.notification,
-                                "群聊"
+                                "群聊",
+                                notification: "9"
                             ),
                             new CustomTabBarItem(
                                 3,
                                 Icons.mood,
                                 Icons.mood,
-                                "我的"
+                                "我的",
+                                notification: ""
                             )
                         },
                         backgroundColor: CColors.TabBarBg,

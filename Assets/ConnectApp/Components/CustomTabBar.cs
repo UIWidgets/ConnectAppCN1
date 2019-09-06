@@ -9,6 +9,7 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
+using Transform = Unity.UIWidgets.widgets.Transform;
 
 namespace ConnectApp.Components {
     public delegate bool SelectTabCallBack(int fromIndex, int toIndex);
@@ -141,13 +142,29 @@ namespace ConnectApp.Components {
                                         children: new List<Widget> {
                                             new Padding(
                                                 padding: EdgeInsets.only(top: 5),
-                                                child: new Icon(
-                                                    this._selectedIndex == item.index
-                                                        ? item.selectedIcon
-                                                        : item.normalIcon, size: item.size,
-                                                    color: this._selectedIndex == item.index
-                                                        ? item.activeColor
-                                                        : item.inActiveColor)
+                                                child: new Stack(
+                                                    children: new List<Widget> {
+                                                        new Icon(this._selectedIndex == item.index
+                                                                ? item.selectedIcon
+                                                                : item.normalIcon, size: item.size,
+                                                            color: this._selectedIndex == item.index
+                                                                ? item.activeColor
+                                                                : item.inActiveColor),
+                                                        Positioned.fill(
+                                                            child: new Align(
+                                                                alignment: Alignment.topLeft,
+                                                                child: new Transform(
+                                                                    transform: Matrix3.makeTrans(new Offset(16, 0)),
+                                                                    child: new NotificationDot(
+                                                                        item.notification,
+                                                                        borderSide: new BorderSide(
+                                                                            color: CColors.White, width: 2)
+                                                                        )
+                                                                )
+                                                            )
+                                                        )
+                                                    }
+                                                )
                                             ),
                                             new Padding(
                                                 padding: EdgeInsets.only(top: 2.5f),

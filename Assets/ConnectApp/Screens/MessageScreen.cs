@@ -281,7 +281,7 @@ namespace ConnectApp.screens {
                                                 ? (Widget) new Align(
                                                         alignment: Alignment.centerRight,
                                                         child: new NotificationDot(
-                                                            channelInfo.unread > 99 ? null : $"{channelInfo.unread}"
+                                                            channelInfo.unread > 99 ? "" : $"{channelInfo.unread}"
                                                         )
                                                     )
                                                 : new Container()
