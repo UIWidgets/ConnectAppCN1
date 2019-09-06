@@ -22,5 +22,8 @@ namespace ConnectApp.Models.ViewModel {
         public string latestMessage;
         public string time;
         public int unread = 0;
+        public bool isTop = false;
+        public bool silenced = false;
+        public bool joined = false;
     }
 }

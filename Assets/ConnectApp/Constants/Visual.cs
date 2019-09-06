@@ -360,7 +360,7 @@ namespace ConnectApp.Constants {
             fontFamily: "Roboto-Regular",
             color: CColors.PrimaryBlue
         );
-
+        
         public static readonly TextStyle Caption = new TextStyle(
             height: 1.53f,
             fontSize: 12,
@@ -474,5 +474,6 @@ namespace ConnectApp.Constants {
         public static readonly Color BrightLavender = new Color(0xFFC586F3);
         public static readonly Color Comet = new Color(0xFF636672);
         public static readonly Color AquaMarine = new Color(0xFF1DE9B6);
+        public static readonly Color LighBlueGrey = new Color(0xFFC7CBCF);
     }
 }
