@@ -75,7 +75,7 @@ namespace ConnectApp.Models.Api {
         public int currentPage;
         public List<int> pages;
     }
-    
+
     [Serializable]
     public class FetchSearchUserResponse {
         public bool hasMore;
@@ -210,5 +210,12 @@ namespace ConnectApp.Models.Api {
         public string VS;
         public List<bool> showEggs;
         public bool scanEnabled;
+        public InitDataConfig config;
+    }
+
+    [Serializable]
+    public class InitDataConfig {
+        public Dictionary<string, bool> eggs;
+        public bool scan;
     }
 }
