@@ -1183,6 +1183,34 @@ namespace ConnectApp.redux.reducers {
                     );
                     break;
                 }
+                
+                case MainNavigatorPushToNotificationAction _: {
+                    Router.navigator.push(new PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) =>
+                                new NotificationScreenConnector(),
+                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
+                                new PushPageTransition(
+                                    routeAnimation: animation,
+                                    child: child
+                                )
+                        )
+                    );
+                    break;
+                }
+                
+                case MainNavigatorPushToDiscoverChannelsAction _: {
+                    Router.navigator.push(new PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) =>
+                                new DiscoverChannelsScreenConnector(),
+                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
+                                new PushPageTransition(
+                                    routeAnimation: animation,
+                                    child: child
+                                )
+                        )
+                    );
+                    break;
+                }
 
                 case MainNavigatorPushToArticleDetailAction action: {
                     if (action.articleId != null) {

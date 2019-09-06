@@ -133,6 +133,9 @@ namespace ConnectApp.screens {
                     var actionModel = new MessageScreenActionModel {
                         pushToNotificatioins = () => {
                             dispatcher.dispatch(new MainNavigatorPushToNotificationAction());
+                        },
+                        pushToDiscoverChannels = () => {
+                            dispatcher.dispatch(new MainNavigatorPushToDiscoverChannelsAction());
                         }
                     };
                     return new MessageScreen(viewModel, actionModel);
@@ -205,7 +208,7 @@ namespace ConnectApp.screens {
                                 padding: EdgeInsets.only(left: 16),
                                 child: new Row(
                                     children: this.widget.viewModel.popularChannelInfo.Select(
-                                        this._buildPopularChannelImage
+                                        buildPopularChannelImage
                                     ).ToList()
                                 )
                             )
@@ -213,7 +216,7 @@ namespace ConnectApp.screens {
                     ) : new Container(),
                     this.widget.viewModel.channelInfo.isEmpty() ? (Widget) new Container()
                         : new Column(
-                            children: this.widget.viewModel.channelInfo.Select(this._buildChannelItem).ToList()
+                            children: this.widget.viewModel.channelInfo.Select(buildChannelItem).ToList()
                         ),
                     this.widget.viewModel.channelInfo.isEmpty() ? new Container(height: 24, color: CColors.White)
                         : new Container(height: 16),
@@ -231,7 +234,7 @@ namespace ConnectApp.screens {
                                 this.widget.viewModel.channelInfo.isEmpty()
                                     ? (Widget) new Container()
                                     : new GestureDetector(
-                                        onTap: () => {},
+                                        onTap: () => { this.widget.actionModel.pushToDiscoverChannels(); },
                                         child: new Container(
                                             color: CColors.Transparent,
                                             child: new Row(
@@ -258,7 +261,7 @@ namespace ConnectApp.screens {
                     ),
                     new Column(
                         children: this.widget.viewModel.discoverChannelInfo.Select(
-                            this._buildDiscoverChannelItem
+                            buildDiscoverChannelItem
                         ).ToList()
                     ),
                     new Container(height: 40)
@@ -280,7 +283,7 @@ namespace ConnectApp.screens {
             );
         }
         
-        Widget _buildChannelItem(ChannelInfo channelInfo) {
+        public static Widget buildChannelItem(ChannelInfo channelInfo) {
             Widget title = new Text(channelInfo.name, style: CTextStyle.PLargeMedium);
             return new Container(
                 color: channelInfo.isTop ? CColors.PrimaryBlue.withOpacity(0.04f) : CColors.White,
@@ -344,7 +347,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildDiscoverChannelItem(ChannelInfo channelInfo) {
+        public static Widget buildDiscoverChannelItem(ChannelInfo channelInfo) {
             Widget title = new Text(channelInfo.name,
                 style: CTextStyle.PLargeMedium,
                 maxLines: 1, overflow: TextOverflow.ellipsis);
@@ -435,7 +438,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildPopularChannelImage(ChannelInfo channelInfo) {
+        public static Widget buildPopularChannelImage(ChannelInfo channelInfo) {
             return new Container(
                 width: 120,
                 height: 120,
