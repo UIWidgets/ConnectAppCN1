@@ -25,5 +25,7 @@ namespace ConnectApp.Models.ViewModel {
         public bool isTop = false;
         public bool silenced = false;
         public bool joined = false;
+        public bool atMe = false;
+        public bool atAll = false;
     }
 }

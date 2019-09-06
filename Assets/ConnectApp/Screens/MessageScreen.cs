@@ -42,7 +42,9 @@ namespace ConnectApp.screens {
                             isHot = true,
                             latestMessage = "kgu: 嗨，大家好",
                             time = "11:43",
-                            isTop = true
+                            isTop = true,
+                            atMe = true,
+                            atAll = true
                         },
                         new ChannelInfo {
                             imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
@@ -51,7 +53,8 @@ namespace ConnectApp.screens {
                             isHot = true,
                             latestMessage = "搬砖大王: 如何使用rider断调试Android",
                             time = "11:43",
-                            unread = 9
+                            unread = 9,
+                            atAll = true
                         },
                         new ChannelInfo {
                             imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
@@ -412,9 +415,21 @@ namespace ConnectApp.screens {
                                     children: new List<Widget> {
                                         title,
                                         new Expanded(
-                                            child: new Text(channelInfo.latestMessage,
+                                            child: new RichText(
+                                                text: new TextSpan(
+                                                    channelInfo.atMe
+                                                        ? "[有人@我] "
+                                                        : channelInfo.atAll
+                                                            ? "[@所有人] "
+                                                            : "",
+                                                    children: new List<TextSpan> {
+                                                        new TextSpan(channelInfo.latestMessage,
+                                                            style: CTextStyle.PRegularBody4
+                                                        )
+                                                    },
+                                                    style: CTextStyle.PRegularError
+                                                ),
                                                 overflow: TextOverflow.ellipsis,
-                                                style: CTextStyle.PRegularBody4,
                                                 maxLines: 1)
                                         )
                                     }
