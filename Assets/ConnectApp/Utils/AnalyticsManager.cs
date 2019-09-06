@@ -12,6 +12,14 @@ using System.Runtime.InteropServices;
 
 namespace ConnectApp.Utils {
     public static class AnalyticsManager {
+        public enum QRState {
+            click,
+            check,
+            confirm,
+            cancel
+        }
+
+
         public static string foucsTime;
 
         // tab点击统计
@@ -448,6 +456,24 @@ namespace ConnectApp.Utils {
                 }
             };
             AnalyticsApi.AnalyticsApp(userId, device, "ClickEgg", DateTime.UtcNow, data);
+        }
+
+        public static void AnalyticsQRScan(QRState state, bool success = true) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            var userId = UserInfoManager.isLogin() ? UserInfoManager.initUserInfo().userId : null;
+            var device = deviceId() + (SystemInfo.deviceModel ?? "");
+            var data = new List<Dictionary<string, string>> {
+                new Dictionary<string, string> {
+                    {"key", "state"}, {"dataType", "string"}, {"value", state.ToString()}
+                },
+                new Dictionary<string, string> {
+                    {"key", "success"}, {"dataType", "bool"}, {"value", success.ToString()}
+                }
+            };
+            AnalyticsApi.AnalyticsApp(userId, device, "QRScan", DateTime.UtcNow, data);
         }
 
         public static string deviceId() {
