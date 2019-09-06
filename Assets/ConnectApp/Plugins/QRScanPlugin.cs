@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Web;
 using ConnectApp.Api;
+using ConnectApp.Components;
 using ConnectApp.Main;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
@@ -10,12 +10,12 @@ using ConnectApp.Utils;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.material;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
 namespace ConnectApp.Plugins {
     public static class QRScanPlugin {
-
         public static BuildContext context;
         static bool isListen;
         public static string qrCodeToken;
@@ -32,12 +32,10 @@ namespace ConnectApp.Plugins {
                 if (_loginSubId.isNotEmpty()) {
                     EventBus.unSubscribe(sName: EventBusConstant.login_success, id: _loginSubId);
                 }
-                _loginSubId = EventBus.subscribe(sName: EventBusConstant.login_success, args => {
+
+                _loginSubId = EventBus.subscribe(sName: EventBusConstant.login_success, _ => {
                     if (qrCodeToken.isNotEmpty()) {
-                        LoginApi.LoginByQr(token: qrCodeToken, "check");
-                        StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToQRScanLoginAction {
-                            token = qrCodeToken
-                        });
+                        checkToken(token: qrCodeToken);
                         qrCodeToken = null;
                     }
                 });
@@ -55,6 +53,30 @@ namespace ConnectApp.Plugins {
             }
         }
 
+        static void checkToken(string token) {
+            CustomDialogUtils.showCustomDialog(
+                child: new CustomLoadingDialog(
+                    message: "验证中"
+                )
+            );
+            LoginApi.LoginByQr(token: token, "check").Then(success => {
+                CustomDialogUtils.hiddenCustomDialog();
+                StoreProvider.store.dispatcher.dispatch(
+                    new MainNavigatorPushToQRScanLoginAction {
+                        token = token
+                    }
+                );
+                CustomDialogUtils.showToast("验证成功", iconData: Icons.sentiment_satisfied);
+                AnalyticsManager.AnalyticsQRScan(state: AnalyticsManager.QRState.check);
+            }).Catch(error => {
+                Debug.Log($"check api error: {error}");
+                CustomDialogUtils.hiddenCustomDialog();
+                PushToQRScan();
+                CustomDialogUtils.showToast("验证失败", iconData: Icons.sentiment_dissatisfied);
+                AnalyticsManager.AnalyticsQRScan(state: AnalyticsManager.QRState.check);
+            });
+        }
+
         static void _handleMethodCall(string method, List<JSONNode> args) {
             if (context != null) {
                 using (WindowProvider.of(context: context).getScope()) {
@@ -68,10 +90,7 @@ namespace ConnectApp.Plugins {
                                     if (token.isNotEmpty()) {
                                         var isLoggedIn = StoreProvider.store.getState().loginState.isLoggedIn;
                                         if (isLoggedIn) {
-                                            LoginApi.LoginByQr(token: token, "check");
-                                            StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToQRScanLoginAction {
-                                                token = token
-                                            });
+                                            checkToken(token: token);
                                         }
                                         else {
                                             qrCodeToken = token;
@@ -81,13 +100,17 @@ namespace ConnectApp.Plugins {
                                         }
                                     }
                                     else {
-                                        StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToWebViewAction {url = qrCode});
+                                        CustomDialogUtils.showToast("暂不支持该二维码类型", Icons.sentiment_dissatisfied);
                                     }
                                 }
                                 else {
-                                    StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToWebViewAction {url = qrCode});
+                                    CustomDialogUtils.showToast("暂不支持该二维码类型", Icons.sentiment_dissatisfied);
                                 }
                             }
+                            else if (!qrCode.Equals("pop")) {
+                                CustomDialogUtils.showToast("暂不支持该二维码类型", Icons.sentiment_dissatisfied);
+                            }
+
                             StatusBarManager.hideStatusBar(false);
                             StatusBarManager.statusBarStyle(false);
                             removeListener();
@@ -102,6 +125,7 @@ namespace ConnectApp.Plugins {
             addListener();
             if (!Application.isEditor) {
                 pushToQRScan();
+                AnalyticsManager.AnalyticsQRScan(state: AnalyticsManager.QRState.click);
             }
         }
 
