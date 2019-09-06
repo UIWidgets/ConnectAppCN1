@@ -49,7 +49,7 @@ namespace ConnectApp.Main {
         public static NavigatorState navigator {
             get { return globalKey.currentState as NavigatorState; }
         }
-        
+
         public static RouteObserve<PageRoute> routeObserve {
             get { return _routeObserve; }
         }
@@ -111,6 +111,7 @@ namespace ConnectApp.Main {
         public override Widget build(BuildContext context) {
             JPushPlugin.context = context;
             QRScanPlugin.context = context;
+            GloableContext.context = context;
             return new WillPopScope(
                 onWillPop: () => {
                     var promise = new Promise<bool>();

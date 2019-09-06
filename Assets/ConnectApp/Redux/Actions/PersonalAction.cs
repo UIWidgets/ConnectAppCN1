@@ -135,6 +135,10 @@ namespace ConnectApp.redux.actions {
         public User user;
     }
 
+    public class UpdateAvatarSuccessAction : BaseAction {
+        public string avatar;
+    }
+
     public static partial class Actions {
         public static object fetchUserProfile(string userId) {
             return new ThunkAction<AppState>((dispatcher, getState) => {

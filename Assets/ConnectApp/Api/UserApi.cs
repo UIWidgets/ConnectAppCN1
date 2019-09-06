@@ -4,6 +4,7 @@ using ConnectApp.Models.Api;
 using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
+using UnityEngine;
 
 namespace ConnectApp.Api {
     public static class UserApi {
@@ -126,6 +127,23 @@ namespace ConnectApp.Api {
                     JsonConvert.DeserializeObject<FetchEditPersonalInfoResponse>(responseText);
                 promise.Resolve(editPersonalInfoResponse);
             }).Catch(exception => promise.Reject(exception));
+            return promise;
+        }
+
+        public static Promise<UpdateAvatarResponse> UpdateAvatar(string avatar) {
+            var promise = new Promise<UpdateAvatarResponse>();
+            var para = new UpdateAvatarParameter {
+                avatar = $"data:image/jpeg;base64,{avatar}"
+            };
+            var request = HttpManager.POST($"{Config.apiAddress}/api/updateUserAvatar", para);
+            HttpManager.resume(request: request).Then(responseText => {
+                var updateAvatarResponse =
+                    JsonConvert.DeserializeObject<UpdateAvatarResponse>(responseText);
+                promise.Resolve(updateAvatarResponse);
+            }).Catch(exception => {
+                promise.Reject(exception);
+                Debug.Log($"pickImage ===== exception {exception}");
+            });
             return promise;
         }
     }

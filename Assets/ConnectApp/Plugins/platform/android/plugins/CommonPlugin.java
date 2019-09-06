@@ -84,6 +84,7 @@ public class CommonPlugin {
     private static void TakePhoto(String type,Context context){
         Intent intent = new Intent(mContext,PickImageActivity.class);
         intent.putExtra("type", type);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
     

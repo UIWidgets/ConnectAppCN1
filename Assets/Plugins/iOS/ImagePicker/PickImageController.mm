@@ -8,6 +8,7 @@
 #import "PickImageController.h"
 #import <Photos/Photos.h>
 #import "ImageCropController.h"
+#include "UIWidgetsMessageManager.h"
 
 @implementation PickImageController
 
@@ -44,12 +45,18 @@ static PickImageController *controller = nil;
         ImageCropController *crop = [[ImageCropController alloc]init];
         crop.image = image;
         __weak __typeof(self) wSelf = self;
-        crop.block = ^(UIImage * _Nonnull image) {
+        crop.block = ^(UIImage * _Nonnull resizeImage) {
             __strong __typeof(wSelf) sSelf = wSelf;
+            NSData *data = UIImageJPEGRepresentation(resizeImage, 0.5f);
+            NSString *encodedImageStr = [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+            NSData *json = [NSJSONSerialization dataWithJSONObject:@{@"image":encodedImageStr} options:NSJSONWritingPrettyPrinted error: nil];
+            NSString *jsonString = [[NSString alloc] initWithData:json encoding:NSUTF8StringEncoding];
+            UIWidgetsMethodMessage(@"pickImage", @"success", @[jsonString]);
             [sSelf pickImageDissmiss];
         };
         crop.cancelBlock = ^{
             __strong __typeof(wSelf) sSelf = wSelf;
+            UIWidgetsMethodMessage(@"pickImage", @"cancel", @[]);
             [sSelf pickImageDissmiss];
         };
         [picker pushViewController:crop animated:YES];
