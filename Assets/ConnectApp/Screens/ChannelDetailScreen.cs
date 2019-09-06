@@ -8,6 +8,7 @@ using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets.cupertino;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
@@ -201,6 +202,14 @@ namespace ConnectApp.screens {
                         new Container(height: 16, color: CColors.Background),
                         this._switchRow("设为置顶", this.viewModel.channelInfo.isTop, value => {}),
                         this._switchRow("消息免打扰", this.viewModel.channelInfo.silenced, value => {}),
+                        new Container(height: 16, color: CColors.Background),
+                        new Container(
+                            color: CColors.White,
+                            height: 60,
+                            child: new Center(
+                                child: new Text("退出群聊", style: CTextStyle.PLargeError)
+                            )
+                        )
                     }
                 )
             );

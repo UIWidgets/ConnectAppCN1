@@ -15,14 +15,15 @@ using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace ConnectApp.Components {
     class CustomSwitchUtils {
-        public const float _kTrackWidth = 51.0f;
-        public const float _kTrackHeight = 31.0f;
+        public const float _kTrackWidth = 50.0f;
+        public const float _kTrackHeight = 28.0f;
         public const float _kTrackRadius = _kTrackHeight / 2.0f;
+        public const float _kThumbRadius = 12.0f;
         public const float _kTrackInnerStart = _kTrackHeight / 2.0f;
         public const float _kTrackInnerEnd = _kTrackWidth - _kTrackInnerStart;
         public const float _kTrackInnerLength = _kTrackInnerEnd - _kTrackInnerStart;
-        public const float _kSwitchWidth = 59.0f;
-        public const float _kSwitchHeight = 39.0f;
+        public const float _kSwitchWidth = 51.0f;
+        public const float _kSwitchHeight = 31.0f;
         public const float _kCustomSwitchDisabledOpacity = 0.5f;
         public static readonly Color _kTrackColor = CColors.Separator;
         public static readonly TimeSpan _kReactionDuration = new TimeSpan(0, 0, 0, 0, 300);
@@ -447,22 +448,22 @@ namespace ConnectApp.Components {
             canvas.drawRRect(outerRRect, paint);
 
             float thumbLeft = MathUtils.lerpFloat(
-                trackRect.left + CustomSwitchUtils._kTrackInnerStart - CupertinoThumbPainter.radius,
-                trackRect.left + CustomSwitchUtils._kTrackInnerEnd - CupertinoThumbPainter.radius,
+                trackRect.left + CustomSwitchUtils._kTrackInnerStart - CustomSwitchUtils._kThumbRadius,
+                trackRect.left + CustomSwitchUtils._kTrackInnerEnd - CustomSwitchUtils._kThumbRadius,
                 visualPosition
             );
             float thumbRight = MathUtils.lerpFloat(
-                trackRect.left + CustomSwitchUtils._kTrackInnerStart + CupertinoThumbPainter.radius,
-                trackRect.left + CustomSwitchUtils._kTrackInnerEnd + CupertinoThumbPainter.radius,
+                trackRect.left + CustomSwitchUtils._kTrackInnerStart + CustomSwitchUtils._kThumbRadius,
+                trackRect.left + CustomSwitchUtils._kTrackInnerEnd + CustomSwitchUtils._kThumbRadius,
                 visualPosition
             );
             float thumbCenterY = offset.dy + this.size.height / 2.0f;
 
             this._thumbPainter.paint(canvas, Rect.fromLTRB(
                 thumbLeft,
-                thumbCenterY - CupertinoThumbPainter.radius,
+                thumbCenterY - CustomSwitchUtils._kThumbRadius,
                 thumbRight,
-                thumbCenterY + CupertinoThumbPainter.radius
+                thumbCenterY + CustomSwitchUtils._kThumbRadius
             ));
         }
 
