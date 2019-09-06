@@ -184,10 +184,12 @@ namespace ConnectApp.screens {
                 children: new List<Widget> {
                     this.widget.viewModel.channelInfo.isEmpty() ? new Container(
                         padding: EdgeInsets.only(left: 16, right: 16, top: 20),
+                        color: CColors.White,
                         child: new Text("热门群聊", style: CTextStyle.H5)
                     ) : new Container(),
                     this.widget.viewModel.channelInfo.isEmpty() ? new Container(
                         padding: EdgeInsets.only(top: 16),
+                        color: CColors.White,
                         child: new SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             child: new Container(
@@ -200,16 +202,17 @@ namespace ConnectApp.screens {
                             )
                         )
                     ) : new Container(),
-                    this.widget.viewModel.channelInfo.isEmpty() ? (Widget) new Container() : 
-                        new Column(
+                    this.widget.viewModel.channelInfo.isEmpty() ? (Widget) new Container()
+                        : new Column(
                             children: this.widget.viewModel.channelInfo.Select(this._buildChannelItem).ToList()
                         ),
-                    new Container(height: 40),
+                    this.widget.viewModel.channelInfo.isEmpty() ? new Container(height: 24, color: CColors.White)
+                        : new Container(height: 16),
                     new Container(
-                        padding: EdgeInsets.symmetric(0, 16),
+                        color: CColors.White,
+                        padding: EdgeInsets.all(16),
                         child: new Text("发现群聊", style: CTextStyle.H5)
                     ),
-                    new Container(height: 16),
                     new Column(
                         children: this.widget.viewModel.discoverChannelInfo.Select(
                             this._buildDiscoverChannelItem
@@ -219,7 +222,7 @@ namespace ConnectApp.screens {
                 }
             );
             return new Container(
-                color: CColors.White,
+                color: CColors.Background,
                 child: new Column(
                     children: new List<Widget> {
                         this._buildNavigationBar(),
