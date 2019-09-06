@@ -158,7 +158,7 @@ namespace ConnectApp.Components {
                                                                     child: new NotificationDot(
                                                                         item.notification,
                                                                         borderSide: new BorderSide(
-                                                                            color: CColors.White, width: 2)
+                                                                            color: CColors.White, width: 1)
                                                                         )
                                                                 )
                                                             )

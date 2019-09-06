@@ -23,7 +23,11 @@ namespace ConnectApp.Components {
                     height: 10,
                     decoration: new BoxDecoration(
                         borderRadius: BorderRadius.all(5),
-                        color: CColors.Error
+                        color: CColors.Error,
+                        border: this.borderSide == null ? null : Border.all(
+                            color: this.borderSide.color,
+                            width: this.borderSide.width
+                        )
                     )
                 );
             }
@@ -31,7 +35,10 @@ namespace ConnectApp.Components {
             return new Container(
                 decoration: new BoxDecoration(
                     borderRadius: BorderRadius.all(8),
-                    color: CColors.Error
+                    color: CColors.Error,
+                    border: this.borderSide == null ? null : Border.all(
+                        color: this.borderSide.color,
+                        width: this.borderSide.width)
                 ),
                 padding: EdgeInsets.symmetric(1, 4),
                 child: new Text($"{this.content}",
