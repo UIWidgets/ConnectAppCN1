@@ -54,14 +54,16 @@ namespace ConnectApp.screens {
                             name = "我们都爱玩游戏",
                             size = 199,
                             latestMessage = "Vatary: 去年发布的第一季实时动画课程",
-                            time = "11:43"
+                            time = "11:43",
+                            unread = 99
                         },
                         new ChannelInfo {
                             imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "今天你学Unity了吗",
                             size = 134,
                             latestMessage = "@海边的孙小鱼 视频中的项目可以分为以下几种",
-                            time = "11:43"
+                            time = "11:43",
+                            unread = 100
                         },
                         new ChannelInfo {
                             imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
@@ -272,17 +274,14 @@ namespace ConnectApp.screens {
                                     children: new List<Widget> {
                                         new Text(channelInfo.time, style: CTextStyle.PSmallBody4),
                                         new Expanded(
-                                            child: new Align(
-                                                alignment: Alignment.centerRight,
-                                                child: new Container(
-                                                    decoration: new BoxDecoration(
-                                                        borderRadius: BorderRadius.all(8),
-                                                        color: CColors.Error
-                                                    ),
-                                                    child: new Text($"{channelInfo.unread}",
-                                                        style: CTextStyle.PSmallWhite)
-                                                )
-                                            )
+                                            child: channelInfo.unread > 0
+                                                ? (Widget) new Align(
+                                                        alignment: Alignment.centerRight,
+                                                        child: new NotificationDot(
+                                                            channelInfo.unread > 99 ? null : $"{channelInfo.unread}"
+                                                        )
+                                                    )
+                                                : new Container()
                                         )
                                     }
                                 )

@@ -419,6 +419,13 @@ namespace ConnectApp.Constants {
             fontFamily: "Roboto-Regular",
             color: CColors.White
         );
+
+        public static readonly TextStyle PRedDot = new TextStyle(
+            height: 1.1f,
+            fontSize: 12,
+            fontFamily: "Roboto-Bold",
+            color: CColors.White
+        );
     }
 
     public static class CColors {
