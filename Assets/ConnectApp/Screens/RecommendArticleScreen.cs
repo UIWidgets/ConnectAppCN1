@@ -130,7 +130,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         this._buildNavigationBar(),
                         new Flexible(
-                            child: this._buildArticleList()
+                            child: this._buildArticleList(context)
                         )
                     }
                 )
@@ -188,7 +188,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildArticleList() {
+        Widget _buildArticleList(BuildContext context) {
             Widget content;
             var recommendArticleIds = this.widget.viewModel.recommendArticleIds;
             if (this.widget.viewModel.articlesLoading && recommendArticleIds.isEmpty()) {
@@ -198,15 +198,19 @@ namespace ConnectApp.screens {
                     itemBuilder: (cxt, index) => new ArticleLoading()
                 );
             }
-            else if (recommendArticleIds.Count <= 0) {
-                content = new BlankView(
-                    "哎呀，暂无推荐文章",
-                    "image/default-article",
-                    true,
-                    () => {
-                        this.widget.actionModel.startFetchArticles();
-                        this.widget.actionModel.fetchArticles(arg: initOffset);
-                    }
+            else if (0 == recommendArticleIds.Count) {
+                content = new Container(
+                    padding: EdgeInsets.only(bottom: CConstant.TabBarHeight +
+                                                     CCommonUtils.getSafeAreaBottomPadding(context: context)),
+                    child: new BlankView(
+                        "哎呀，暂无推荐文章",
+                        "image/default-article",
+                        true,
+                        () => {
+                            this.widget.actionModel.startFetchArticles();
+                            this.widget.actionModel.fetchArticles(arg: initOffset);
+                        }
+                    )
                 );
             }
             else {

@@ -56,7 +56,8 @@ namespace ConnectApp.Api {
             return promise;
         }
 
-        public static Promise<FetchCommentsResponse> FetchArticleComments(string channelId, string currOldestMessageId) {
+        public static Promise<FetchCommentsResponse>
+            FetchArticleComments(string channelId, string currOldestMessageId) {
             var promise = new Promise<FetchCommentsResponse>();
             var para = new Dictionary<string, object> {
                 {"limit", 5}
@@ -65,7 +66,8 @@ namespace ConnectApp.Api {
                 para.Add("before", value: currOldestMessageId);
             }
 
-            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/channels/{channelId}/messages", parameter: para);
+            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/channels/{channelId}/messages",
+                parameter: para);
             HttpManager.resume(request).Then(responseText => {
                 var responseComments = JsonConvert.DeserializeObject<FetchCommentsResponse>(responseText);
                 promise.Resolve(responseComments);
@@ -122,7 +124,8 @@ namespace ConnectApp.Api {
                 nonce = nonce,
                 app = true
             };
-            var request = HttpManager.POST($"{Config.apiAddress}/api/connectapp/channels/{channelId}/messages", parameter: para);
+            var request = HttpManager.POST($"{Config.apiAddress}/api/connectapp/channels/{channelId}/messages",
+                parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var message = JsonConvert.DeserializeObject<Message>(value: responseText);
                 promise.Resolve(value: message);

@@ -5,8 +5,10 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
@@ -85,18 +87,26 @@ namespace ConnectApp.screens {
             base.build(context: context);
             var ongoingEvents = this.widget.viewModel.ongoingEvents;
             if (this.widget.viewModel.eventOngoingLoading && ongoingEvents.isEmpty()) {
-                return new GlobalLoading();
+                return new Container(
+                    padding: EdgeInsets.only(bottom: CConstant.TabBarHeight +
+                                                     CCommonUtils.getSafeAreaBottomPadding(context: context)),
+                    child: new GlobalLoading()
+                );
             }
 
-            if (ongoingEvents.Count <= 0) {
-                return new BlankView(
-                    "暂无新活动，看看往期活动吧",
-                    "image/default-event",
-                    true,
-                    () => {
-                        this.widget.actionModel.startFetchEventOngoing();
-                        this.widget.actionModel.fetchEvents(arg1: firstPageNumber, arg2: eventTab);
-                    }
+            if (0 == ongoingEvents.Count) {
+                return new Container(
+                    padding: EdgeInsets.only(bottom: CConstant.TabBarHeight +
+                                                     CCommonUtils.getSafeAreaBottomPadding(context: context)),
+                    child: new BlankView(
+                        "暂无新活动，看看往期活动吧",
+                        "image/default-event",
+                        true,
+                        () => {
+                            this.widget.actionModel.startFetchEventOngoing();
+                            this.widget.actionModel.fetchEvents(arg1: firstPageNumber, arg2: eventTab);
+                        }
+                    )
                 );
             }
 
