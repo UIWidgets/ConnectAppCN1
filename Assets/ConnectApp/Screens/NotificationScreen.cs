@@ -133,7 +133,7 @@ namespace ConnectApp.screens {
             base.build(context: context);
             Widget content;
             var notifications = this.widget.viewModel.notifications;
-            if (this.widget.viewModel.notificationLoading && 0 == notifications.Count) {
+            if (!this._hasBeenLoaded || this.widget.viewModel.notificationLoading && 0 == notifications.Count) {
                 content = new Container(
                     padding: EdgeInsets.only(bottom: CConstant.TabBarHeight +
                                                      CCommonUtils.getSafeAreaBottomPadding(context: context)),
@@ -142,7 +142,7 @@ namespace ConnectApp.screens {
                 ;
                 this._hasBeenLoaded = true;
             }
-            else if (this._hasBeenLoaded && 0 == notifications.Count) {
+            else if (0 == notifications.Count) {
                 content = new Container(
                     padding: EdgeInsets.only(bottom: CConstant.TabBarHeight +
                                                      CCommonUtils.getSafeAreaBottomPadding(context: context)),

@@ -69,6 +69,7 @@ namespace ConnectApp.screens {
         const int firstPageNumber = 1;
         RefreshController _ongoingRefreshController;
         int _pageNumber = firstPageNumber;
+        bool _hasBeenLoaded;
 
         protected override bool wantKeepAlive {
             get { return true; }
@@ -76,6 +77,7 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
+            this._hasBeenLoaded = false;
             this._ongoingRefreshController = new RefreshController();
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchEventOngoing();
@@ -86,7 +88,8 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             base.build(context: context);
             var ongoingEvents = this.widget.viewModel.ongoingEvents;
-            if (this.widget.viewModel.eventOngoingLoading && ongoingEvents.isEmpty()) {
+            if (!this._hasBeenLoaded || this.widget.viewModel.eventOngoingLoading && ongoingEvents.isEmpty()) {
+                this._hasBeenLoaded = true;
                 return new Container(
                     padding: EdgeInsets.only(bottom: CConstant.TabBarHeight +
                                                      CCommonUtils.getSafeAreaBottomPadding(context: context)),
