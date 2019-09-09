@@ -84,7 +84,9 @@ namespace ConnectApp.screens {
                         child: new Column(
                             children: new List<Widget> {
                                 this._buildNavigationBar(),
-                                this._buildContent()
+                                new Expanded(
+                                    child: this._buildContent()
+                                )
                             }
                         )
                     )
@@ -111,10 +113,11 @@ namespace ConnectApp.screens {
                 );
             }
             return new Container(
-                color: CColors.White,
-                child: new Column(
+                color: CColors.Background,
+                child: new ListView(
                     children: new List<Widget> {
                         new Container(
+                            color: CColors.White,
                             padding: EdgeInsets.only(left: 16, right: 16, top: 16),
                             height: 64,
                             child: new Row(
@@ -151,7 +154,7 @@ namespace ConnectApp.screens {
                         new GestureDetector(
                             child: this._tapRow(this.viewModel.channelInfo.introduction, 2, 16, 16, true)
                         ),
-                        new Container(height: 16, color: CColors.Background),
+                        new Container(height: 16),
                         new Container(
                             color: CColors.White,
                             padding: EdgeInsets.only(16, 16, 8, 16),
@@ -195,14 +198,14 @@ namespace ConnectApp.screens {
                                 children: avatars
                             )
                         ),
-                        new Container(height: 16, color: CColors.Background),
+                        new Container(height: 16),
                         new GestureDetector(
                             child: this._tapRow("查找聊天内容", 1, 18, 18)
                         ),
-                        new Container(height: 16, color: CColors.Background),
+                        new Container(height: 16),
                         this._switchRow("设为置顶", this.viewModel.channelInfo.isTop, value => {}),
                         this._switchRow("消息免打扰", this.viewModel.channelInfo.silenced, value => {}),
-                        new Container(height: 16, color: CColors.Background),
+                        new Container(height: 16),
                         new Container(
                             color: CColors.White,
                             height: 60,
