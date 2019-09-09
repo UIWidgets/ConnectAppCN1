@@ -5,5 +5,6 @@ namespace ConnectApp.Models.ActionModel {
         public Action pushToNotificatioins;
         public Action pushToDiscoverChannels;
         public Action pushToChannelDetail;
+        public Action pushToChannel;
     }
 }

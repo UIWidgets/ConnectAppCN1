@@ -150,9 +150,9 @@ namespace ConnectApp.screens {
                         pushToDiscoverChannels = () => {
                             dispatcher.dispatch(new MainNavigatorPushToDiscoverChannelsAction());
                         },
-                        pushToChannelDetail = () => {
-                            dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction());
-                        }
+                        pushToChannel = () => {
+                            dispatcher.dispatch(new MainNavigatorPushToChannelAction());
+                        },
                     };
                     return new MessageScreen(viewModel, actionModel);
                 }
@@ -241,7 +241,7 @@ namespace ConnectApp.screens {
                             children: this.widget.viewModel.channelInfo.Select((channelInfo) => {
                                 return MessageBuildUtils.buildChannelItem(
                                     channelInfo,
-                                    this.widget.actionModel.pushToChannelDetail);
+                                    this.widget.actionModel.pushToChannel);
                             }).ToList()
                         ),
                     this.widget.viewModel.channelInfo.isEmpty()

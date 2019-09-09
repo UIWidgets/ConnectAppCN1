@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 
 namespace ConnectApp.Models.Model {
+    [Serializable]
     public class Channel {
         public string imageUrl;
         public string name;
@@ -16,5 +18,19 @@ namespace ConnectApp.Models.Model {
         public bool atAll = false;
         public List<User> members;
         public int numAdmins;
+    }
+
+    public enum ChannelMessageType {
+        text,
+        image,
+        file
+    }
+
+    [Serializable]
+    public class ChannelMessage {
+        public User sender;
+        public DateTime time;
+        public ChannelMessageType type;
+        public string content;
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ConnectApp.Components;
@@ -10,6 +11,7 @@ using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -20,50 +22,78 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
+            User codeboy = new User {
+                id = "codeboy",
+                name = "代码小哥",
+                avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+            };
+            User canteen = new User {
+                id = "canteen",
+                name = "佳能食堂",
+                avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+            };
+            User fish = new User {
+                id = "fish",
+                name = "海边的孙小鱼",
+                avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+            };
+            User dage = new User {
+                id = "dage",
+                name = "达哥",
+                avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+            };
             return new StoreConnector<AppState, ChannelScreenViewModel>(
                 converter: state => {
                     return new ChannelScreenViewModel {
-                        discoverChannelInfo = new List<Channel> {
-                            new Channel {
-                                imageUrl =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                                name = "Unite Shanghai 技术会场",
-                                members = new List<User>(),
-                                isHot = true,
-                                joined = true,
+                        channelInfo = new Channel {
+                            imageUrl =
+                                "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                            name = "UI Widgets 技术交流",
+                            members = new List<User> {},
+                            isHot = true,
+                            joined = true,
+                        },
+                        messages = new List<ChannelMessage> {
+                            new ChannelMessage {
+                                content = "听说Connect App是用UI Widgets做的？",
+                                sender = codeboy,
+                                time = new DateTime(2019, 9, 9, 7, 30, 10)
                             },
-                            new Channel {
-                                imageUrl =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                                name = "游戏开发日常吐槽",
-                                members = new List<User>(),
-                                isHot = true,
+                            new ChannelMessage {
+                                content = "是的",
+                                sender = canteen,
+                                time = new DateTime(2019, 9, 9, 7, 30, 22)
                             },
-                            new Channel {
-                                imageUrl =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                                name = "我们都爱玩游戏",
-                                members = new List<User>(),
-                                joined = true,
+                            new ChannelMessage {
+                                content = "彩蛋这个Demo可以下载吗？看起来很有意思",
+                                sender = fish,
+                                time = new DateTime(2019, 9, 9, 8, 30, 0)
                             },
-                            new Channel {
-                                imageUrl =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                                name = "今天你学Unity了吗",
-                                members = new List<User>(),
+                            new ChannelMessage {
+                                content = "可以参考这个教程https://unity.com/solutions/game",
+                                sender = dage,
+                                time = new DateTime(2019, 9, 9, 8, 30, 14)
                             },
-                            new Channel {
-                                imageUrl =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                                name = "Unity深圳Meetup",
-                                members = new List<User>(),
-                            }
-                        }
+                            new ChannelMessage {
+                                content = "可以参考这个教程https://unity.com/solutions/game",
+                                sender = dage,
+                                time = new DateTime(2019, 9, 9, 8, 30, 15)
+                            },
+                            new ChannelMessage {
+                                content = "可以参考这个教程https://unity.com/solutions/game",
+                                sender = dage,
+                                time = new DateTime(2019, 9, 9, 8, 30, 16)
+                            },
+                        },
+                        me = fish
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ChannelScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
+                        pushToChannelDetail = () => {
+                            dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction());
+                        }
                     };
                     return new ChannelScreen(viewModel, actionModel);
                 }
@@ -96,12 +126,14 @@ namespace ConnectApp.screens {
         readonly FocusNode _fullNameFocusNode = new FocusNode();
         readonly FocusNode _titleFocusNode = new FocusNode();
         Dictionary<string, string> _jobRole;
+        float messageBubbleWidth = 0;
 
         public override void initState() {
             base.initState();
         }
 
         public override Widget build(BuildContext context) {
+            this.messageBubbleWidth = MediaQuery.of(context).size.width * 0.7f;
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
@@ -125,20 +157,84 @@ namespace ConnectApp.screens {
             return new CustomAppBar(
                 onBack: () => this.widget.actionModel.mainRouterPop(),
                 new Text(
-                    "发现群聊",
+                    this.widget.viewModel.channelInfo.name,
                     style: CTextStyle.PXLargeMedium
                 )
             );
         }
 
         Widget _buildContent() {
+            List<Widget> messages = new List<Widget>();
+            for (int i = 0; i < this.widget.viewModel.messages.Count; i++) {
+                var message = this.widget.viewModel.messages[i];
+                messages.Add(this._buildMessage(
+                    message,
+                    showTime: i == 0 || (message.time -
+                                         this.widget.viewModel.messages[i-1].time) > TimeSpan.FromMinutes(5),
+                    left: message.sender.id != this.widget.viewModel.me.id
+                ));
+            }
             return new Container(
                 color: CColors.White,
+                padding: EdgeInsets.only(top: 16),
                 child: new ListView(
                     padding: EdgeInsets.symmetric(16, 0),
-                    children: this.widget.viewModel.discoverChannelInfo
-                        .Select(MessageBuildUtils.buildDiscoverChannelItem).ToList()
+                    children: messages
                 )
+            );
+        }
+
+        Widget _buildMessage(ChannelMessage message, bool showTime, bool left) {
+            Widget avatar = new Container(
+                padding: EdgeInsets.symmetric(0, 10),
+                child: Avatar.User(message.sender, size: 40)
+            );
+            Widget messageContent = new Column(
+                crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+                children: new List<Widget> {
+                    new Container(
+                        padding: EdgeInsets.only(bottom: 6),
+                        child: new Text(message.sender.name, style: CTextStyle.PSmallBody4)
+                    ),
+                    new Container(
+                        constraints: new BoxConstraints(
+                            maxWidth: this.messageBubbleWidth
+                        ),
+                        padding: EdgeInsets.symmetric(12, 12),
+                        decoration: new BoxDecoration(
+                            color: left ? CColors.VeryLightPinkThree : CColors.PaleSkyBlue,
+                            borderRadius: BorderRadius.all(10)
+                        ),
+                        child: new Text(message.content)
+                    )
+                }
+            );
+            return new Column(
+                crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+                children: new List<Widget> {
+                    showTime
+                        ? new Container(
+                            height: 36,
+                            padding: EdgeInsets.only(bottom: 16),
+                            child: new Center(
+                                child: new Text(
+                                    message.time.ToString("HH:mm"),
+                                    style: CTextStyle.PSmallBody5
+                                )
+                            )
+                        )
+                        : new Container(),
+                    new Container(
+                        padding: EdgeInsets.only(left: 2, right: 2, bottom: 16),
+                        child: new Row(
+                            mainAxisAlignment: left ? MainAxisAlignment.start : MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: left
+                                ? new List<Widget> { avatar, messageContent }
+                                : new List<Widget> { messageContent, avatar }
+                        )
+                    )
+                }
             );
         }
     }

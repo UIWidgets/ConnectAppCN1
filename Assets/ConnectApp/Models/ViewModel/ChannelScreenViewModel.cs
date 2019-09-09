@@ -3,6 +3,8 @@ using ConnectApp.Models.Model;
 
 namespace ConnectApp.Models.ViewModel {
     public class ChannelScreenViewModel {
-        public List<Channel> discoverChannelInfo;
+        public Channel channelInfo;
+        public List<ChannelMessage> messages;
+        public User me;
     }
 }

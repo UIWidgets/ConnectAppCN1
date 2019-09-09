@@ -1213,6 +1213,20 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 
+                case MainNavigatorPushToChannelAction _: {
+                    Router.navigator.push(new PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) =>
+                                new ChannelScreenConnector(),
+                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
+                                new PushPageTransition(
+                                    routeAnimation: animation,
+                                    child: child
+                                )
+                        )
+                    );
+                    break;
+                }
+                
                 case MainNavigatorPushToChannelDetailAction _: {
                     Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>

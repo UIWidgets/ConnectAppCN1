@@ -475,5 +475,7 @@ namespace ConnectApp.Constants {
         public static readonly Color Comet = new Color(0xFF636672);
         public static readonly Color AquaMarine = new Color(0xFF1DE9B6);
         public static readonly Color LighBlueGrey = new Color(0xFFC7CBCF);
+        public static readonly Color VeryLightPinkThree = new Color(0xFFF0F0F0);
+        public static readonly Color PaleSkyBlue = new Color(0xFFC5E8FF);
     }
 }
