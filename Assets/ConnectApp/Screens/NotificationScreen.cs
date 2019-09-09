@@ -85,8 +85,7 @@ namespace ConnectApp.screens {
         float navBarHeight;
         string _loginSubId;
         string _refreshSubId;
-        bool _hasBeenLoaded;
-
+        bool _hasBeenLoadedData;
 
         protected override bool wantKeepAlive {
             get { return true; }
@@ -98,22 +97,43 @@ namespace ConnectApp.screens {
             this._refreshController = new RefreshController();
             this.navBarHeight = maxNavBarHeight;
             this.titleStyle = CTextStyle.H2;
-            this._hasBeenLoaded = false;
+            this._hasBeenLoadedData = false;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchNotifications();
-                this.widget.actionModel.fetchNotifications(arg: firstPageNumber);
+                this.widget.actionModel.fetchNotifications(arg: firstPageNumber).Then(() => {
+                    if (this._hasBeenLoadedData) {
+                        return;
+                    }
+
+                    this._hasBeenLoadedData = true;
+                    this.setState(() => { });
+                });
             });
             this._loginSubId = EventBus.subscribe(sName: EventBusConstant.login_success, args => {
                 this.navBarHeight = maxNavBarHeight;
                 this.titleStyle = CTextStyle.H2;
                 this.widget.actionModel.startFetchNotifications();
-                this.widget.actionModel.fetchNotifications(arg: firstPageNumber);
+                this.widget.actionModel.fetchNotifications(arg: firstPageNumber).Then(() => {
+                    if (this._hasBeenLoadedData) {
+                        return;
+                    }
+
+                    this._hasBeenLoadedData = true;
+                    this.setState(() => { });
+                });
             });
             this._refreshSubId = EventBus.subscribe(sName: EventBusConstant.refreshNotifications, args => {
                 this.navBarHeight = maxNavBarHeight;
                 this.titleStyle = CTextStyle.H2;
                 this.widget.actionModel.startFetchNotifications();
-                this.widget.actionModel.fetchNotifications(arg: firstPageNumber);
+                this.widget.actionModel.fetchNotifications(arg: firstPageNumber).Then(() => {
+                    if (this._hasBeenLoadedData) {
+                        return;
+                    }
+
+                    this._hasBeenLoadedData = true;
+                    this.setState(() => { });
+                });
             });
         }
 
@@ -133,14 +153,12 @@ namespace ConnectApp.screens {
             base.build(context: context);
             Widget content;
             var notifications = this.widget.viewModel.notifications;
-            if (!this._hasBeenLoaded || this.widget.viewModel.notificationLoading && 0 == notifications.Count) {
+            if (!this._hasBeenLoadedData || this.widget.viewModel.notificationLoading && 0 == notifications.Count) {
                 content = new Container(
                     padding: EdgeInsets.only(bottom: CConstant.TabBarHeight +
                                                      CCommonUtils.getSafeAreaBottomPadding(context: context)),
                     child: new GlobalLoading()
                 );
-                ;
-                this._hasBeenLoaded = true;
             }
             else if (0 == notifications.Count) {
                 content = new Container(

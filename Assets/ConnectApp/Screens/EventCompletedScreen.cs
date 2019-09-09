@@ -69,7 +69,7 @@ namespace ConnectApp.screens {
         const int firstPageNumber = 1;
         RefreshController _completedRefreshController;
         int _pageNumber = firstPageNumber;
-        bool _hasBeenLoaded;
+        bool _hasBeenLoadedData;
 
         protected override bool wantKeepAlive {
             get { return true; }
@@ -77,19 +77,25 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            this._hasBeenLoaded = false;
+            this._hasBeenLoadedData = false;
             this._completedRefreshController = new RefreshController();
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchEventCompleted();
-                this.widget.actionModel.fetchEvents(arg1: firstPageNumber, arg2: eventTab);
+                this.widget.actionModel.fetchEvents(arg1: firstPageNumber, arg2: eventTab).Then(() => {
+                    if (this._hasBeenLoadedData) {
+                        return;
+                    }
+
+                    this._hasBeenLoadedData = true;
+                    this.setState(() => { });
+                });
             });
         }
 
         public override Widget build(BuildContext context) {
             base.build(context: context);
             var completedEvents = this.widget.viewModel.completedEvents;
-            if (!this._hasBeenLoaded || this.widget.viewModel.eventCompletedLoading && completedEvents.isEmpty()) {
-                this._hasBeenLoaded = true;
+            if (!this._hasBeenLoadedData || this.widget.viewModel.eventCompletedLoading && completedEvents.isEmpty()) {
                 return new Container(
                     padding: EdgeInsets.only(bottom: CConstant.TabBarHeight +
                                                      CCommonUtils.getSafeAreaBottomPadding(context: context)),

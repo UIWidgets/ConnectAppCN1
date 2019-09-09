@@ -106,17 +106,24 @@ namespace ConnectApp.screens {
         const float maxNavBarHeight = 96;
         const float minNavBarHeight = 44;
         float navBarHeight;
-        bool _hasBeenLoaded;
+        bool _hasBeenLoadedData;
 
         public override void initState() {
             base.initState();
             this._refreshController = new RefreshController();
             this.navBarHeight = maxNavBarHeight;
             this.titleStyle = CTextStyle.H2;
-            this._hasBeenLoaded = false;
+            this._hasBeenLoadedData = false;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchArticles();
-                this.widget.actionModel.fetchArticles(arg: initOffset);
+                this.widget.actionModel.fetchArticles(arg: initOffset).Then(() => {
+                    if (this._hasBeenLoadedData) {
+                        return;
+                    }
+
+                    this._hasBeenLoadedData = true;
+                    this.setState(() => { });
+                });
             });
         }
 
@@ -193,13 +200,12 @@ namespace ConnectApp.screens {
         Widget _buildArticleList(BuildContext context) {
             Widget content;
             var recommendArticleIds = this.widget.viewModel.recommendArticleIds;
-            if (!this._hasBeenLoaded || this.widget.viewModel.articlesLoading && recommendArticleIds.isEmpty()) {
+            if (!this._hasBeenLoadedData || this.widget.viewModel.articlesLoading && recommendArticleIds.isEmpty()) {
                 content = ListView.builder(
                     physics: new NeverScrollableScrollPhysics(),
                     itemCount: 6,
                     itemBuilder: (cxt, index) => new ArticleLoading()
                 );
-                this._hasBeenLoaded = true;
             }
             else if (0 == recommendArticleIds.Count) {
                 content = new Container(
