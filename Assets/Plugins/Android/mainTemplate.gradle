@@ -29,7 +29,11 @@ dependencies {
     implementation(name:'zxing-lib', ext:'aar')  
     implementation 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:+'
     implementation 'com.google.code.gson:gson:2.8.5'
-    implementation 'com.android.support:support-v4:28.0.0'
+    implementation 'com.android.support:appcompat-v7:27.1.0'
+    implementation 'com.github.dueeeke.dkplayer:dkplayer-java:3.0.3'
+    implementation 'com.github.dueeeke.dkplayer:player-exo:3.0.3'
+    implementation 'com.github.dueeeke.dkplayer:dkplayer-ui:3.0.3'
+
 }
 
 android {
