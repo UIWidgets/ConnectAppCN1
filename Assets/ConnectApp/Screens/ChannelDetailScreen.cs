@@ -54,7 +54,8 @@ namespace ConnectApp.screens {
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ChannelDetailScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
-                        pushToChannelMembers = () => dispatcher.dispatch(new MainNavigatorPushToChannelMembersAction())
+                        pushToChannelMembers = () => dispatcher.dispatch(new MainNavigatorPushToChannelMembersAction()),
+                        pushToChannelIntroduction = () => dispatcher.dispatch(new MainNavigatorPushToChannelIntroductionAction())
                     };
                     return new ChannelDetailScreen(actionModel, viewModel);
                 }
@@ -152,6 +153,7 @@ namespace ConnectApp.screens {
                             )
                         ),
                         new GestureDetector(
+                            onTap: () => { this.actionModel.pushToChannelIntroduction(); },
                             child: this._tapRow(this.viewModel.channelInfo.introduction, 2, 16, 16, true)
                         ),
                         new Container(height: 16),
