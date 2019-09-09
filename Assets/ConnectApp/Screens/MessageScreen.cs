@@ -31,8 +31,8 @@ namespace ConnectApp.screens {
 #if false
                     channelInfo = new List<ChannelInfo> {},
 #else
-                    channelInfo = new List<ChannelInfo> {
-                        new ChannelInfo {
+                    channelInfo = new List<Channel> {
+                        new Channel {
                             imageUrl =
                                 "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "UI Widgets 技术交流",
@@ -44,7 +44,7 @@ namespace ConnectApp.screens {
                             atMe = true,
                             atAll = true
                         },
-                        new ChannelInfo {
+                        new Channel {
                             imageUrl =
                                 "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "游戏开发日常吐槽",
@@ -55,7 +55,7 @@ namespace ConnectApp.screens {
                             unread = 9,
                             atAll = true
                         },
-                        new ChannelInfo {
+                        new Channel {
                             imageUrl =
                                 "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "我们都爱玩游戏",
@@ -64,7 +64,7 @@ namespace ConnectApp.screens {
                             time = "11:43",
                             unread = 99
                         },
-                        new ChannelInfo {
+                        new Channel {
                             imageUrl =
                                 "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "今天你学Unity了吗",
@@ -73,7 +73,7 @@ namespace ConnectApp.screens {
                             time = "11:43",
                             unread = 100
                         },
-                        new ChannelInfo {
+                        new Channel {
                             imageUrl =
                                 "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "Unity深圳Meetup",
@@ -85,28 +85,28 @@ namespace ConnectApp.screens {
                         }
                     },
 #endif
-                    popularChannelInfo = new List<ChannelInfo> {
-                        new ChannelInfo {
+                    popularChannelInfo = new List<Channel> {
+                        new Channel {
                             imageUrl =
                                 "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "VR/AR开发者",
                             members = new List<User>(),
                         },
-                        new ChannelInfo {
+                        new Channel {
                             imageUrl =
                                 "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "Unity\n教学联盟",
                             members = new List<User>(),
                         },
-                        new ChannelInfo {
+                        new Channel {
                             imageUrl =
                                 "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "Unity 2020\n校园招聘",
                             members = new List<User>(),
                         }
                     },
-                    discoverChannelInfo = new List<ChannelInfo> {
-                        new ChannelInfo {
+                    discoverChannelInfo = new List<Channel> {
+                        new Channel {
                             imageUrl =
                                 "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "Unite Shanghai 技术会场",
@@ -114,27 +114,27 @@ namespace ConnectApp.screens {
                             isHot = true,
                             joined = true,
                         },
-                        new ChannelInfo {
+                        new Channel {
                             imageUrl =
                                 "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "游戏开发日常吐槽",
                             members = new List<User>(),
                             isHot = true,
                         },
-                        new ChannelInfo {
+                        new Channel {
                             imageUrl =
                                 "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "我们都爱玩游戏",
                             members = new List<User>(),
                             joined = true,
                         },
-                        new ChannelInfo {
+                        new Channel {
                             imageUrl =
                                 "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "今天你学Unity了吗",
                             members = new List<User>(),
                         },
-                        new ChannelInfo {
+                        new Channel {
                             imageUrl =
                                 "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "Unity深圳Meetup",
@@ -342,7 +342,7 @@ namespace ConnectApp.screens {
     }
 
     public static class MessageBuildUtils {
-        public static Widget buildPopularChannelImage(ChannelInfo channelInfo) {
+        public static Widget buildPopularChannelImage(Channel channel) {
             return new Container(
                 width: 120,
                 height: 120,
@@ -354,7 +354,7 @@ namespace ConnectApp.screens {
                             children: new List<Widget> {
                                 Positioned.fill(
                                     child: Image.network(
-                                        channelInfo.imageUrl,
+                                        channel.imageUrl,
                                         fit: BoxFit.cover
                                     )
                                 ),
@@ -380,7 +380,7 @@ namespace ConnectApp.screens {
                                                 padding: EdgeInsets.symmetric(0, 8),
                                                 child: new Align(
                                                     alignment: Alignment.bottomLeft,
-                                                    child: new Text(channelInfo.name,
+                                                    child: new Text(channel.name,
                                                         style: CTextStyle.PLargeMediumWhite)
                                                 )
                                             ),
@@ -397,7 +397,7 @@ namespace ConnectApp.screens {
                                                             )
                                                         ),
                                                         new Container(width: 4),
-                                                        new Text($"{channelInfo.members.Count}人",
+                                                        new Text($"{channel.members.Count}人",
                                                             style: CTextStyle.PSmallWhite)
                                                     }
                                                 )
@@ -412,10 +412,10 @@ namespace ConnectApp.screens {
             );
         }
 
-        public static Widget buildChannelItem(ChannelInfo channelInfo, Action onTap = null) {
-            Widget title = new Text(channelInfo.name, style: CTextStyle.PLargeMedium);
+        public static Widget buildChannelItem(Channel channel, Action onTap = null) {
+            Widget title = new Text(channel.name, style: CTextStyle.PLargeMedium);
             Widget ret = new Container(
-                color: channelInfo.isTop ? CColors.PrimaryBlue.withOpacity(0.04f) : CColors.White,
+                color: channel.isTop ? CColors.PrimaryBlue.withOpacity(0.04f) : CColors.White,
                 height: 72,
                 padding: EdgeInsets.symmetric(12, 16),
                 child: new Row(
@@ -425,7 +425,7 @@ namespace ConnectApp.screens {
                             child: new Container(
                                 width: 48,
                                 height: 48,
-                                child: Image.network(channelInfo.imageUrl, fit: BoxFit.cover)
+                                child: Image.network(channel.imageUrl, fit: BoxFit.cover)
                             )
                         ),
                         new Expanded(
@@ -438,13 +438,13 @@ namespace ConnectApp.screens {
                                         new Expanded(
                                             child: new RichText(
                                                 text: new TextSpan(
-                                                    channelInfo.atMe
+                                                    channel.atMe
                                                         ? "[有人@我] "
-                                                        : channelInfo.atAll
+                                                        : channel.atAll
                                                             ? "[@所有人] "
                                                             : "",
                                                     children: new List<TextSpan> {
-                                                        new TextSpan(channelInfo.latestMessage,
+                                                        new TextSpan(channel.latestMessage,
                                                             style: CTextStyle.PRegularBody4
                                                         )
                                                     },
@@ -462,19 +462,19 @@ namespace ConnectApp.screens {
                             child: new Container(
                                 child: new Column(
                                     children: new List<Widget> {
-                                        new Text(channelInfo.time, style: CTextStyle.PSmallBody4),
+                                        new Text(channel.time, style: CTextStyle.PSmallBody4),
                                         new Expanded(
-                                            child: channelInfo.silenced || channelInfo.unread > 0
+                                            child: channel.silenced || channel.unread > 0
                                                 ? (Widget) new Align(
                                                     alignment: Alignment.centerRight,
-                                                    child: channelInfo.silenced
+                                                    child: channel.silenced
                                                         ? (Widget) new Icon(
                                                             Icons.notification,
                                                             size: 16, color: CColors.LighBlueGrey)
                                                         : new NotificationDot(
-                                                            channelInfo.unread > 99
+                                                            channel.unread > 99
                                                                 ? ""
-                                                                : $"{channelInfo.unread}"
+                                                                : $"{channel.unread}"
                                                         )
                                                 )
                                                 : new Container()
@@ -497,8 +497,8 @@ namespace ConnectApp.screens {
             return ret;
         }
 
-        public static Widget buildDiscoverChannelItem(ChannelInfo channelInfo) {
-            Widget title = new Text(channelInfo.name,
+        public static Widget buildDiscoverChannelItem(Channel channel) {
+            Widget title = new Text(channel.name,
                 style: CTextStyle.PLargeMedium,
                 maxLines: 1, overflow: TextOverflow.ellipsis);
             return new Container(
@@ -512,7 +512,7 @@ namespace ConnectApp.screens {
                             child: new Container(
                                 width: 48,
                                 height: 48,
-                                child: Image.network(channelInfo.imageUrl, fit: BoxFit.cover)
+                                child: Image.network(channel.imageUrl, fit: BoxFit.cover)
                             )
                         ),
                         new Expanded(
@@ -521,7 +521,7 @@ namespace ConnectApp.screens {
                                 child: new Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: new List<Widget> {
-                                        channelInfo.isHot
+                                        channel.isHot
                                             ? new Row(
                                                 children: new List<Widget> {
                                                     new Icon(Icons.favorite, color: CColors.Error, size: 18),
@@ -531,7 +531,7 @@ namespace ConnectApp.screens {
                                             )
                                             : title,
                                         new Expanded(
-                                            child: new Text($"{channelInfo.members.Count}成员",
+                                            child: new Text($"{channel.members.Count}成员",
                                                 style: CTextStyle.PRegularBody4,
                                                 maxLines: 1)
                                         )
@@ -545,13 +545,13 @@ namespace ConnectApp.screens {
                                 width: 60,
                                 height: 28,
                                 decoration: new BoxDecoration(
-                                    border: Border.all(color: channelInfo.joined
+                                    border: Border.all(color: channel.joined
                                         ? CColors.Disable2
                                         : CColors.PrimaryBlue),
                                     borderRadius: BorderRadius.all(14)
                                 ),
                                 child: new Center(
-                                    child: channelInfo.joined
+                                    child: channel.joined
                                         ? new Text(
                                             "已加入",
                                             style: CTextStyle.PRegularBody5.copyWith(height: 1)

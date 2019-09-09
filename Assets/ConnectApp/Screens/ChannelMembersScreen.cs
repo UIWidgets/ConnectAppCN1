@@ -19,7 +19,7 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ChannelMembersScreenViewModel>(
                 converter: state => new ChannelMembersScreenViewModel {
-                    channelInfo = new ChannelInfo {
+                    channel = new Channel {
                         imageUrl =
                             "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                         name = "UI Widgets 技术交流",
@@ -174,7 +174,7 @@ namespace ConnectApp.screens {
             return new CustomAppBar(
                 () => this.widget.actionModel.mainRouterPop(),
                 new Text(
-                    $"群聊成员({this.widget.viewModel.channelInfo.members.Count})",
+                    $"群聊成员({this.widget.viewModel.channel.members.Count})",
                     style: CTextStyle.PXLargeMedium
                 )
             );
@@ -183,16 +183,16 @@ namespace ConnectApp.screens {
         Widget _buildContent(BuildContext context) {
             List<Widget> specialMembers = new List<Widget>();
             List<Widget> members = new List<Widget>();
-            for (int i = 0; i <= this.widget.viewModel.channelInfo.numAdmins; i++) {
-                User user = this.widget.viewModel.channelInfo.members[i];
+            for (int i = 0; i <= this.widget.viewModel.channel.numAdmins; i++) {
+                User user = this.widget.viewModel.channel.members[i];
                 specialMembers.Add(buildMemberItem(context, user, i == 0 ? 0 : 1,
                     this.widget.viewModel.followed.Contains(user.name)));
             }
 
-            for (int i = this.widget.viewModel.channelInfo.numAdmins + 1;
-                i < this.widget.viewModel.channelInfo.members.Count;
+            for (int i = this.widget.viewModel.channel.numAdmins + 1;
+                i < this.widget.viewModel.channel.members.Count;
                 i++) {
-                User user = this.widget.viewModel.channelInfo.members[i];
+                User user = this.widget.viewModel.channel.members[i];
                 members.Add(buildMemberItem(context, user, 2, this.widget.viewModel.followed.Contains(user.name)));
             }
 

@@ -19,7 +19,7 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ChannelIntroductionScreenViewModel>(
                 converter: state => new ChannelIntroductionScreenViewModel {
-                    channelInfo = new ChannelInfo {
+                    channel = new Channel {
                         imageUrl =
                             "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                         name = "UI Widgets 技术交流",
@@ -122,7 +122,7 @@ namespace ConnectApp.screens {
                                         child: new Container(
                                             width: 48,
                                             height: 48,
-                                            child: Image.network(this.viewModel.channelInfo.imageUrl, fit: BoxFit.cover)
+                                            child: Image.network(this.viewModel.channel.imageUrl, fit: BoxFit.cover)
                                         )
                                     ),
                                     new Expanded(
@@ -131,12 +131,12 @@ namespace ConnectApp.screens {
                                             child: new Column(
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: new List<Widget> {
-                                                    new Text(this.viewModel.channelInfo.name,
+                                                    new Text(this.viewModel.channel.name,
                                                         style: CTextStyle.PLargeMedium,
                                                         maxLines: 1, overflow: TextOverflow.ellipsis),
                                                     new Expanded(
                                                         child: new Text(
-                                                            $"{this.viewModel.channelInfo.members.Count}名群成员",
+                                                            $"{this.viewModel.channel.members.Count}名群成员",
                                                             style: CTextStyle.PRegularBody4,
                                                             maxLines: 1)
                                                     )
@@ -150,7 +150,7 @@ namespace ConnectApp.screens {
                         new Container(
                             color: CColors.White,
                             padding: EdgeInsets.only(16, 0, 16, 16),
-                            child: new Text(this.viewModel.channelInfo.introduction)
+                            child: new Text(this.viewModel.channel.introduction)
                         ),
                     }
                 )

@@ -19,7 +19,7 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ChannelDetailScreenViewModel>(
                 converter: state => new ChannelDetailScreenViewModel {
-                    channelInfo = new ChannelInfo {
+                    channel = new Channel {
                         imageUrl =
                             "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                         name = "UI Widgets 技术交流",
@@ -112,8 +112,8 @@ namespace ConnectApp.screens {
             List<Widget> avatars = new List<Widget>();
             float avatarSize = (MediaQuery.of(context).size.width - 32 - 16 * 4) / 5;
             for (int i = 0; i < 5; i++) {
-                avatars.Add(this.viewModel.channelInfo.members.Count > i
-                    ? Avatar.User(this.viewModel.channelInfo.members[i], avatarSize)
+                avatars.Add(this.viewModel.channel.members.Count > i
+                    ? Avatar.User(this.viewModel.channel.members[i], avatarSize)
                     : (Widget) new Container(width: 56, height: 56)
                 );
             }
@@ -133,7 +133,7 @@ namespace ConnectApp.screens {
                                         child: new Container(
                                             width: 48,
                                             height: 48,
-                                            child: Image.network(this.viewModel.channelInfo.imageUrl, fit: BoxFit.cover)
+                                            child: Image.network(this.viewModel.channel.imageUrl, fit: BoxFit.cover)
                                         )
                                     ),
                                     new Expanded(
@@ -142,12 +142,12 @@ namespace ConnectApp.screens {
                                             child: new Column(
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: new List<Widget> {
-                                                    new Text(this.viewModel.channelInfo.name,
+                                                    new Text(this.viewModel.channel.name,
                                                         style: CTextStyle.PLargeMedium,
                                                         maxLines: 1, overflow: TextOverflow.ellipsis),
                                                     new Expanded(
                                                         child: new Text(
-                                                            $"{this.viewModel.channelInfo.members.Count}名群成员",
+                                                            $"{this.viewModel.channel.members.Count}名群成员",
                                                             style: CTextStyle.PRegularBody4,
                                                             maxLines: 1)
                                                     )
@@ -160,7 +160,7 @@ namespace ConnectApp.screens {
                         ),
                         new GestureDetector(
                             onTap: () => { this.actionModel.pushToChannelIntroduction(); },
-                            child: this._tapRow(this.viewModel.channelInfo.introduction, 2, 16, 16, true)
+                            child: this._tapRow(this.viewModel.channel.introduction, 2, 16, 16, true)
                         ),
                         new Container(height: 16),
                         new Container(
@@ -179,7 +179,7 @@ namespace ConnectApp.screens {
                                             child: new Row(
                                                 children: new List<Widget> {
                                                     new Text(
-                                                        $"查看{this.viewModel.channelInfo.members.Count}名群成员",
+                                                        $"查看{this.viewModel.channel.members.Count}名群成员",
                                                         style: new TextStyle(
                                                             fontSize: 12,
                                                             fontFamily: "Roboto-Regular",
@@ -211,8 +211,8 @@ namespace ConnectApp.screens {
                             child: this._tapRow("查找聊天内容", 1, 18, 18)
                         ),
                         new Container(height: 16),
-                        this._switchRow("设为置顶", this.viewModel.channelInfo.isTop, value => { }),
-                        this._switchRow("消息免打扰", this.viewModel.channelInfo.silenced, value => { }),
+                        this._switchRow("设为置顶", this.viewModel.channel.isTop, value => { }),
+                        this._switchRow("消息免打扰", this.viewModel.channel.silenced, value => { }),
                         new Container(height: 16),
                         new Container(
                             color: CColors.White,

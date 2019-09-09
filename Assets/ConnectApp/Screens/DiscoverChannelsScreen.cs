@@ -23,8 +23,8 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, DiscoverChannelsScreenViewModel>(
                 converter: state => {
                     return new DiscoverChannelsScreenViewModel {
-                        discoverChannelInfo = new List<ChannelInfo> {
-                            new ChannelInfo {
+                        discoverChannelInfo = new List<Channel> {
+                            new Channel {
                                 imageUrl =
                                     "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                                 name = "Unite Shanghai 技术会场",
@@ -32,27 +32,27 @@ namespace ConnectApp.screens {
                                 isHot = true,
                                 joined = true,
                             },
-                            new ChannelInfo {
+                            new Channel {
                                 imageUrl =
                                     "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                                 name = "游戏开发日常吐槽",
                                 members = new List<User>(),
                                 isHot = true,
                             },
-                            new ChannelInfo {
+                            new Channel {
                                 imageUrl =
                                     "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                                 name = "我们都爱玩游戏",
                                 members = new List<User>(),
                                 joined = true,
                             },
-                            new ChannelInfo {
+                            new Channel {
                                 imageUrl =
                                     "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                                 name = "今天你学Unity了吗",
                                 members = new List<User>(),
                             },
-                            new ChannelInfo {
+                            new Channel {
                                 imageUrl =
                                     "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                                 name = "Unity深圳Meetup",
