@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Web;
 using ConnectApp.Api;
 using ConnectApp.Components;
+using ConnectApp.Constants;
 using ConnectApp.Main;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
@@ -11,7 +12,6 @@ using ConnectApp.Utils;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.material;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 

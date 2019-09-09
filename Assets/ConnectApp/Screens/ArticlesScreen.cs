@@ -33,6 +33,9 @@ namespace ConnectApp.screens {
                             });
                             AnalyticsManager.ClickEnterSearch("Home_Article");
                         },
+                        pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
+                            routeName = MainNavigatorRoutes.Login
+                        }),
                         fetchReviewUrl = () => dispatcher.dispatch<IPromise>(Actions.fetchReviewUrl()),
                         pushToReality = () => {
                             dispatcher.dispatch(new EnterRealityAction());
@@ -144,10 +147,6 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             base.build(context: context);
-            if (!this.widget.viewModel.isLoggedIn) {
-                return new RecommendArticleScreenConnector();
-            }
-
             return new Container(
                 color: CColors.White,
                 child: new Column(
@@ -215,14 +214,22 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildContentView() {
+            ScrollPhysics physics;
+            if (this.widget.viewModel.isLoggedIn) {
+                physics = new BouncingScrollPhysics();
+            }
+            else {
+                physics = new NeverScrollableScrollPhysics();
+            }
+
             return new Flexible(
                 child: new Container(
                     child: new NotificationListener<ScrollNotification>(
                         onNotification: this._onNotification,
                         child: new PageView(
-                            physics: new BouncingScrollPhysics(),
+                            physics: physics,
                             controller: this._pageController,
-                            onPageChanged: index => { this.setState(() => this._selectedIndex = index); },
+                            onPageChanged: index => this.setState(() => this._selectedIndex = index),
                             children: new List<Widget> {
                                 new FollowArticleScreenConnector(),
                                 new RecommendArticleScreenConnector()
@@ -267,6 +274,12 @@ namespace ConnectApp.screens {
             return new CustomButton(
                 onPressed: () => {
                     if (this._selectedIndex != index) {
+                        if (index == 0) {
+                            if (!this.widget.viewModel.isLoggedIn) {
+                                this.widget.actionModel.pushToLogin();
+                                return;
+                            }
+                        }
                         this.setState(() => this._selectedIndex = index);
                         this._pageController.animateToPage(
                             page: index,
