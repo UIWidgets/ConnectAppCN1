@@ -86,7 +86,7 @@ namespace ConnectApp.screens {
                             children: new List<Widget> {
                                 this._buildNavigationBar(),
                                 new Expanded(
-                                    child: this._buildContent()
+                                    child: this._buildContent(context)
                                 )
                             }
                         )
@@ -105,11 +105,12 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildContent() {
+        Widget _buildContent(BuildContext context) {
             List<Widget> avatars = new List<Widget>();
+            float avatarSize = (MediaQuery.of(context).size.width - 32 - 16 * 4) / 5;
             for (int i = 0; i < 5; i++) {
                 avatars.Add(this.viewModel.channelInfo.members.Count > i
-                    ? Avatar.User(this.viewModel.channelInfo.members[i], 56)
+                    ? Avatar.User(this.viewModel.channelInfo.members[i], avatarSize)
                     : (Widget) new Container(width: 56, height: 56)
                 );
             }
