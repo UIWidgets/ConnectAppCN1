@@ -87,7 +87,7 @@ namespace ConnectApp.Components {
                 bottom: 0,
                 height: CConstant.TabBarHeight + this._bottomPadding,
                 child: new BackdropFilter(
-                    filter: ImageFilter.blur(20, 20),
+                    filter: ImageFilter.blur(25, 25),
                     child: new Container(
                         decoration: new BoxDecoration(
                             border: new Border(new BorderSide(CColors.Separator)),
@@ -139,15 +139,13 @@ namespace ConnectApp.Components {
                                     child: new Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: new List<Widget> {
-                                            new Padding(
-                                                padding: EdgeInsets.only(top: 5),
-                                                child: new Icon(
-                                                    this._selectedIndex == item.index
-                                                        ? item.selectedIcon
-                                                        : item.normalIcon, size: item.size,
-                                                    color: this._selectedIndex == item.index
-                                                        ? item.activeColor
-                                                        : item.inActiveColor)
+                                            new Icon(
+                                                this._selectedIndex == item.index
+                                                    ? item.selectedIcon
+                                                    : item.normalIcon, size: item.size,
+                                                color: this._selectedIndex == item.index
+                                                    ? item.activeColor
+                                                    : item.inActiveColor
                                             ),
                                             new Padding(
                                                 padding: EdgeInsets.only(top: 2.5f),
