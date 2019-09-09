@@ -38,6 +38,7 @@
         .jp_contentInsets(contentInsets)
         .jp_bgColor([UIColor blackColor])
         .jp_isClockwiseRotation(YES)
+        .jp_resizeWHScale(1.0)
         .jp_animationCurve(JPAnimationCurveEaseOut);
     }];
     self.view.backgroundColor = configure.bgColor;

@@ -1,12 +1,7 @@
 using System.Collections.Generic;
-using ConnectApp.Api;
-using ConnectApp.Components;
-using ConnectApp.redux;
-using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
-using Unity.UIWidgets.material;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 
@@ -35,10 +30,10 @@ namespace ConnectApp.Plugins {
                         case "success": {
                             var node = args[0];
                             var dict = JSON.Parse(node);
-                            var image = dict["image"];
+                            var image = (string) dict["image"];
                             if (image != null) {
                                 removeListener();
-                                updateAvatar(image);
+                                EventBus.publish(EventBusConstant.pickAvatarSuccess, new List<object> {image});
                             }
                         }
                             break;
@@ -49,20 +44,6 @@ namespace ConnectApp.Plugins {
                     }
                 }
             }
-        }
-
-        static void updateAvatar(string image) {
-            CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog());
-            UserApi.UpdateAvatar(image).Then(response => {
-                StoreProvider.store.dispatcher.dispatch(new UpdateAvatarSuccessAction {
-                    avatar = response.avatar
-                });
-                CustomDialogUtils.hiddenCustomDialog();
-                CustomDialogUtils.showToast("头像更新成功", Icons.sentiment_satisfied);
-            }).Catch(exception => {
-                CustomDialogUtils.hiddenCustomDialog();
-                CustomDialogUtils.showToast("头像更新失败", Icons.sentiment_dissatisfied);
-            });
         }
     }
 }

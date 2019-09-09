@@ -413,5 +413,15 @@ namespace ConnectApp.redux.actions {
                     );
             });
         }
+
+        public static object updateAvatar(string image) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return UserApi.UpdateAvatar(image).Then(response => {
+                    StoreProvider.store.dispatcher.dispatch(new UpdateAvatarSuccessAction {
+                        avatar = response.avatar
+                    });
+                }).Catch(exception => { });
+            });
+        }
     }
 }
