@@ -2162,7 +2162,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case InitEggsAction action: {
-                    state.eggState.showFirst = action.showEggs.First();
+                    state.eggState.showFirst = action.firstEgg;
                     break;
                 }
 

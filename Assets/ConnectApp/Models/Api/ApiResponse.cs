@@ -210,6 +210,13 @@ namespace ConnectApp.Models.Api {
         public string VS;
         public List<bool> showEggs;
         public bool scanEnabled;
+        public InitDataConfig config;
+    }
+
+    [Serializable]
+    public class InitDataConfig {
+        public Dictionary<string, bool> eggs;
+        public bool scan;
     }
 
     [Serializable]

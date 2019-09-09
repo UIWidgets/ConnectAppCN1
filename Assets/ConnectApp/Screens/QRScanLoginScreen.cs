@@ -67,11 +67,11 @@ namespace ConnectApp.screens {
     }
 
     public class _QRScanLoginScreenState : State<QRScanLoginScreen>, RouteAware {
-        bool _isLogin;
+        bool _needCancel;
 
         public override void initState() {
             base.initState();
-            this._isLogin = false;
+            this._needCancel = true;
         }
 
         public override void didChangeDependencies() {
@@ -85,7 +85,7 @@ namespace ConnectApp.screens {
         }
 
         public void didPop() {
-            if (!this._isLogin) {
+            if (this._needCancel) {
                 this.widget.cancelLoginByQr();
             }
         }
@@ -173,7 +173,7 @@ namespace ConnectApp.screens {
                         new CustomButton(
                             padding: EdgeInsets.zero,
                             onPressed: () => {
-                                this._isLogin = true;
+                                this._needCancel = false;
                                 CustomDialogUtils.showCustomDialog(
                                     child: new CustomLoadingDialog(
                                         message: "登录中"
