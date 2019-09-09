@@ -88,7 +88,7 @@ namespace ConnectApp.Components {
                 bottom: 0,
                 height: CConstant.TabBarHeight + this._bottomPadding,
                 child: new BackdropFilter(
-                    filter: ImageFilter.blur(20, 20),
+                    filter: ImageFilter.blur(25, 25),
                     child: new Container(
                         decoration: new BoxDecoration(
                             border: new Border(new BorderSide(CColors.Separator)),

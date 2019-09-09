@@ -6,6 +6,7 @@ using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.redux.actions;
+using ConnectApp.Reality;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
@@ -13,7 +14,6 @@ using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using EventType = ConnectApp.Models.State.EventType;
-using ConnectApp.Reality;
 
 namespace ConnectApp.redux.reducers {
     public static class AppReducer {
@@ -997,7 +997,8 @@ namespace ConnectApp.redux.reducers {
                         }
                         else {
                             var oldArticle = state.articleState.articleDict[key: searchArticle.id];
-                            state.articleState.articleDict[key: searchArticle.id] = oldArticle.Merge(other: searchArticle);
+                            state.articleState.articleDict[key: searchArticle.id] =
+                                oldArticle.Merge(other: searchArticle);
                         }
                     });
 
@@ -1516,7 +1517,7 @@ namespace ConnectApp.redux.reducers {
                     if (action.token != null) {
                         Router.navigator.push(new PageRouteBuilder(
                                 pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new QRScanLoginScreenConnector(token: action.token), 
+                                    new QRScanLoginScreenConnector(token: action.token),
                                 transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                     new ModalPageTransition(
                                         routeAnimation: animation,
@@ -2185,7 +2186,7 @@ namespace ConnectApp.redux.reducers {
 
                     break;
                 }
-                
+
                 case ChangeFeedbackTypeAction action: {
                     state.feedbackState.feedbackType = action.type;
                     break;
@@ -2207,7 +2208,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case InitEggsAction action: {
-                    state.eggState.showFirst = action.showEggs.First();
+                    state.eggState.showFirst = action.firstEgg;
                     break;
                 }
 

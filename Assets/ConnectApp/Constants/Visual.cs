@@ -450,7 +450,7 @@ namespace ConnectApp.Constants {
         public static readonly Color AvatarLoading = new Color(0xFFD8D8D8);
 
         public static readonly Color H5White = Color.fromRGBO(255, 255, 255, 0.8f);
-        public static readonly Color TabBarBg = Color.fromRGBO(255, 255, 255, 0.85f);
+        public static readonly Color TabBarBg = Color.fromRGBO(255, 255, 255, 0.8f);
 
         public static readonly Color Transparent = new Color(0x00000000);
         public static readonly Color White = new Color(0xFFFFFFFF);
