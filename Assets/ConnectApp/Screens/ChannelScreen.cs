@@ -145,7 +145,9 @@ namespace ConnectApp.screens {
                                 this._buildNavigationBar(),
                                 new Flexible(
                                     child: this._buildContent()
-                                )
+                                ),
+                                this._buildInputBar(),
+                                new Container(height: 34, color: CColors.White)
                             }
                         )
                     )
@@ -159,6 +161,14 @@ namespace ConnectApp.screens {
                 new Text(
                     this.widget.viewModel.channelInfo.name,
                     style: CTextStyle.PXLargeMedium
+                ),
+                rightWidget: new CustomButton(
+                    onPressed: () => { this.widget.actionModel.pushToChannelDetail(); },
+                    child: new Container(
+                        width: 28,
+                        height: 28,
+                        child: new Icon(Icons.ellipsis, color: CColors.Icon, size: 28)
+                    )
                 )
             );
         }
@@ -235,6 +245,62 @@ namespace ConnectApp.screens {
                         )
                     )
                 }
+            );
+        }
+
+        Widget _buildInputBar() {
+            return new Container(
+                height: 49,
+                padding: EdgeInsets.only(16, right: 10),
+                decoration: new BoxDecoration(
+                    border: new Border(new BorderSide(CColors.Separator)),
+                    color: CColors.White
+                ),
+                child: new Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: new List<Widget> {
+                        new Expanded(
+                            child: new Container(
+                                padding: EdgeInsets.only(16),
+                                height: 32,
+                                decoration: new BoxDecoration(
+                                    CColors.Separator2,
+                                    borderRadius: BorderRadius.all(16)
+                                ),
+                                alignment: Alignment.centerLeft,
+                                child: new Container(
+                                    child: new Text(
+                                        "说点想法...",
+                                        style: CTextStyle.PKeyboardTextStyle
+                                    )
+                                )
+                            )
+                        ),
+                        new CustomButton(
+                            padding: EdgeInsets.zero,
+                            onPressed: () => {},
+                            child: new Container(
+                                width: 44,
+                                height: 49,
+                                child: new Center(
+                                    child: new Icon(Icons.mood, size: 28, color: CColors.Icon)
+                                )
+                            )
+                        ),
+                        new CustomButton(
+                            padding: EdgeInsets.zero,
+                            onPressed: () => {},
+                            child: new Container(
+                                width: 44,
+                                height: 49,
+                                child: new Center(
+                                    child: new Icon(Icons.outline_event, size: 28, color: CColors.Icon)
+                                )
+                            )
+                        ),
+                    }
+                )
             );
         }
     }
