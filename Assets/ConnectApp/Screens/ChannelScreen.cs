@@ -236,10 +236,12 @@ namespace ConnectApp.screens {
                         padding: message.type == ChannelMessageType.text
                             ? EdgeInsets.symmetric(12, 12)
                             : EdgeInsets.zero,
-                        decoration: new BoxDecoration(
-                            color: left ? CColors.VeryLightPinkThree : CColors.PaleSkyBlue,
-                            borderRadius: BorderRadius.all(10)
-                        ),
+                        decoration: message.type == ChannelMessageType.image
+                            ? null
+                            : new BoxDecoration(
+                                color: left ? CColors.VeryLightPinkThree : CColors.PaleSkyBlue,
+                                borderRadius: BorderRadius.all(10)
+                            ),
                         child: message.type == ChannelMessageType.text
                             ? new Text(message.content)
                             : message.type == ChannelMessageType.image
