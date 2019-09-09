@@ -8,6 +8,7 @@ using ConnectApp.Plugins;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.Redux;
+using UnityEngine;
 
 namespace ConnectApp.redux.actions {
     public class LoginChangeEmailAction : BaseAction {
@@ -121,26 +122,37 @@ namespace ConnectApp.redux.actions {
 
         public static object loginByQr(string token, string action) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return LoginApi.LoginByQr(token: token, action: action)
-                    .Then(success => {
-                        if (action != "confirm") {
+                return LoginApi.LoginByQr(token: token, action: action).Then(success => {
+                    if (action == "cancel") {
+                        AnalyticsManager.AnalyticsQRScan(state: AnalyticsManager.QRState.cancel);
+                        return;
+                    }
+
+                    CustomDialogUtils.hiddenCustomDialog();
+                    dispatcher.dispatch(new MainNavigatorPopAction());
+                    CustomDialogUtils.showToast(
+                        success ? "登录成功" : "登录失败",
+                        success ? Icons.sentiment_satisfied : Icons.sentiment_dissatisfied
+                    );
+                    if (success) {
+                        AnalyticsManager.AnalyticsQRScan(state: AnalyticsManager.QRState.confirm);
+                    }
+                    else {
+                        AnalyticsManager.AnalyticsQRScan(state: AnalyticsManager.QRState.confirm, false);
+                    }
+                }).Catch(error => {
+                        Debug.Log($"confirm api error: {error}, action: {action}");
+                        if (action == "cancel") {
+                            AnalyticsManager.AnalyticsQRScan(state: AnalyticsManager.QRState.cancel, false);
                             return;
                         }
+
                         CustomDialogUtils.hiddenCustomDialog();
                         dispatcher.dispatch(new MainNavigatorPopAction());
-                        CustomDialogUtils.showToast(
-                            success ? "扫码成功" : "扫码失败",
-                            success ? Icons.sentiment_satisfied : Icons.sentiment_dissatisfied
-                        );
-                    })
-                    .Catch(error => {
-                        if (action != "confirm") {
-                            return;
-                        }
-                        CustomDialogUtils.hiddenCustomDialog();
-                        dispatcher.dispatch(new MainNavigatorPopAction());
-                        CustomDialogUtils.showToast("扫码失败", iconData: Icons.sentiment_dissatisfied);
-                    });
+                        CustomDialogUtils.showToast("登录失败", iconData: Icons.sentiment_dissatisfied);
+                        AnalyticsManager.AnalyticsQRScan(state: AnalyticsManager.QRState.confirm, false);
+                    }
+                );
             });
         }
 

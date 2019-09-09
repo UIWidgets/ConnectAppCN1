@@ -7,6 +7,8 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.Components {
     public delegate bool SelectTabCallBack(int fromIndex, int toIndex);
@@ -41,22 +43,25 @@ namespace ConnectApp.Components {
     public class CustomTabBarState : State<CustomTabBar> {
         PageController _pageController;
         int _selectedIndex;
-
-        const int KTabBarHeight = 49;
+        float _bottomPadding;
 
         public override void initState() {
             base.initState();
             this._selectedIndex = 0;
+            this._bottomPadding = 0;
             this._pageController = new PageController(this._selectedIndex);
         }
 
         public override Widget build(BuildContext context) {
+            if (this._bottomPadding != MediaQuery.of(context).padding.bottom &&
+                Application.platform != RuntimePlatform.Android) {
+                this._bottomPadding = MediaQuery.of(context).padding.bottom;
+            }
+
             return new Container(
-                child: new Column(
+                child: new Stack(
                     children: new List<Widget> {
-                        new Flexible(
-                            child: this._buildContentView()
-                        ),
+                        this._buildContentView(),
                         this._buildBottomTabBar()
                     }
                 )
@@ -76,15 +81,31 @@ namespace ConnectApp.Components {
         }
 
         Widget _buildBottomTabBar() {
-            return new Container(
-                decoration: new BoxDecoration(
-                    border: new Border(new BorderSide(CColors.Separator)),
-                    color: this.widget.backgroundColor
-                ),
-                height: KTabBarHeight,
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: this._buildItems()
+            return new Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                height: CConstant.TabBarHeight + this._bottomPadding,
+                child: new BackdropFilter(
+                    filter: ImageFilter.blur(25, 25),
+                    child: new Container(
+                        decoration: new BoxDecoration(
+                            border: new Border(new BorderSide(CColors.Separator)),
+                            color: this.widget.backgroundColor
+                        ),
+                        child: new Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: new List<Widget> {
+                                new Flexible(
+                                    child: new Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                        children: this._buildItems()
+                                    )
+                                ),
+                                new Container(height: this._bottomPadding)
+                            }
+                        )
+                    )
                 )
             );
         }
@@ -118,15 +139,13 @@ namespace ConnectApp.Components {
                                     child: new Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: new List<Widget> {
-                                            new Padding(
-                                                padding: EdgeInsets.only(top: 5),
-                                                child: new Icon(
-                                                    this._selectedIndex == item.index
-                                                        ? item.selectedIcon
-                                                        : item.normalIcon, size: item.size,
-                                                    color: this._selectedIndex == item.index
-                                                        ? item.activeColor
-                                                        : item.inActiveColor)
+                                            new Icon(
+                                                this._selectedIndex == item.index
+                                                    ? item.selectedIcon
+                                                    : item.normalIcon, size: item.size,
+                                                color: this._selectedIndex == item.index
+                                                    ? item.activeColor
+                                                    : item.inActiveColor
                                             ),
                                             new Padding(
                                                 padding: EdgeInsets.only(top: 2.5f),

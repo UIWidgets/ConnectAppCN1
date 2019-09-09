@@ -12,8 +12,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
@@ -85,7 +85,7 @@ namespace ConnectApp.screens {
         float navBarHeight;
         string _loginSubId;
         string _refreshSubId;
-
+        bool _hasBeenLoadedData;
 
         protected override bool wantKeepAlive {
             get { return true; }
@@ -97,21 +97,43 @@ namespace ConnectApp.screens {
             this._refreshController = new RefreshController();
             this.navBarHeight = maxNavBarHeight;
             this.titleStyle = CTextStyle.H2;
+            this._hasBeenLoadedData = false;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchNotifications();
-                this.widget.actionModel.fetchNotifications(arg: firstPageNumber);
+                this.widget.actionModel.fetchNotifications(arg: firstPageNumber).Then(() => {
+                    if (this._hasBeenLoadedData) {
+                        return;
+                    }
+
+                    this._hasBeenLoadedData = true;
+                    this.setState(() => { });
+                });
             });
             this._loginSubId = EventBus.subscribe(sName: EventBusConstant.login_success, args => {
                 this.navBarHeight = maxNavBarHeight;
                 this.titleStyle = CTextStyle.H2;
                 this.widget.actionModel.startFetchNotifications();
-                this.widget.actionModel.fetchNotifications(arg: firstPageNumber);
+                this.widget.actionModel.fetchNotifications(arg: firstPageNumber).Then(() => {
+                    if (this._hasBeenLoadedData) {
+                        return;
+                    }
+
+                    this._hasBeenLoadedData = true;
+                    this.setState(() => { });
+                });
             });
             this._refreshSubId = EventBus.subscribe(sName: EventBusConstant.refreshNotifications, args => {
                 this.navBarHeight = maxNavBarHeight;
                 this.titleStyle = CTextStyle.H2;
                 this.widget.actionModel.startFetchNotifications();
-                this.widget.actionModel.fetchNotifications(arg: firstPageNumber);
+                this.widget.actionModel.fetchNotifications(arg: firstPageNumber).Then(() => {
+                    if (this._hasBeenLoadedData) {
+                        return;
+                    }
+
+                    this._hasBeenLoadedData = true;
+                    this.setState(() => { });
+                });
             });
         }
 
@@ -119,7 +141,7 @@ namespace ConnectApp.screens {
             base.didChangeDependencies();
             Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
         }
-        
+
         public override void dispose() {
             EventBus.unSubscribe(sName: EventBusConstant.login_success, id: this._loginSubId);
             EventBus.unSubscribe(sName: EventBusConstant.refreshNotifications, id: this._refreshSubId);
@@ -131,41 +153,46 @@ namespace ConnectApp.screens {
             base.build(context: context);
             Widget content;
             var notifications = this.widget.viewModel.notifications;
-            if (this.widget.viewModel.notificationLoading && notifications.Count == 0) {
-                content = new GlobalLoading();
+            if (!this._hasBeenLoadedData || this.widget.viewModel.notificationLoading && 0 == notifications.Count) {
+                content = new Container(
+                    padding: EdgeInsets.only(bottom: CConstant.TabBarHeight +
+                                                     CCommonUtils.getSafeAreaBottomPadding(context: context)),
+                    child: new GlobalLoading()
+                );
+            }
+            else if (0 == notifications.Count) {
+                content = new Container(
+                    padding: EdgeInsets.only(bottom: CConstant.TabBarHeight +
+                                                     CCommonUtils.getSafeAreaBottomPadding(context: context)),
+                    child: new BlankView(
+                        "好冷清，多和小伙伴们互动呀",
+                        "image/default-notification",
+                        true,
+                        () => {
+                            this.widget.actionModel.startFetchNotifications();
+                            this.widget.actionModel.fetchNotifications(arg: firstPageNumber);
+                        }
+                    )
+                );
             }
             else {
-                if (notifications.Count <= 0) {
-                    content = new Container(
-                        child: new BlankView(
-                            "好冷清，多和小伙伴们互动呀",
-                            "image/default-notification",
-                            true,
-                            () => {
-                                this.widget.actionModel.startFetchNotifications();
-                                this.widget.actionModel.fetchNotifications(arg: firstPageNumber);
-                            }
+                var enablePullUp = this.widget.viewModel.page < this.widget.viewModel.pageTotal;
+                var itemCount = enablePullUp ? notifications.Count : notifications.Count + 1;
+                content = new Container(
+                    color: CColors.Background,
+                    child: new SmartRefresher(
+                        controller: this._refreshController,
+                        enablePullDown: true,
+                        enablePullUp: enablePullUp,
+                        onRefresh: this._onRefresh,
+                        hasBottomMargin: true,
+                        child: ListView.builder(
+                            physics: new AlwaysScrollableScrollPhysics(),
+                            itemCount: itemCount,
+                            itemBuilder: this._buildNotificationCard
                         )
-                    );
-                }
-                else {
-                    var enablePullUp = this.widget.viewModel.page < this.widget.viewModel.pageTotal;
-                    var itemCount = enablePullUp ? notifications.Count : notifications.Count + 1;
-                    content = new Container(
-                        color: CColors.Background,
-                        child: new SmartRefresher(
-                            controller: this._refreshController,
-                            enablePullDown: true,
-                            enablePullUp: enablePullUp,
-                            onRefresh: this._onRefresh,
-                            child: ListView.builder(
-                                physics: new AlwaysScrollableScrollPhysics(),
-                                itemCount: itemCount,
-                                itemBuilder: this._buildNotificationCard
-                            )
-                        )
-                    );
-                }
+                    )
+                );
             }
 
             return new Container(
@@ -212,7 +239,7 @@ namespace ConnectApp.screens {
         Widget _buildNotificationCard(BuildContext context, int index) {
             var notifications = this.widget.viewModel.notifications;
             if (index == notifications.Count) {
-                return new EndView();
+                return new EndView(hasBottomMargin: true);
             }
 
             var notification = notifications[index: index];
@@ -274,7 +301,7 @@ namespace ConnectApp.screens {
                 .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }
-        
+
         public void didPopNext() {
             StatusBarManager.statusBarStyle(false);
         }

@@ -6,8 +6,10 @@ using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
@@ -67,6 +69,7 @@ namespace ConnectApp.screens {
         const int firstPageNumber = 1;
         RefreshController _completedRefreshController;
         int _pageNumber = firstPageNumber;
+        bool _hasBeenLoadedData;
 
         protected override bool wantKeepAlive {
             get { return true; }
@@ -74,29 +77,45 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
+            this._hasBeenLoadedData = false;
             this._completedRefreshController = new RefreshController();
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchEventCompleted();
-                this.widget.actionModel.fetchEvents(arg1: firstPageNumber, arg2: eventTab);
+                this.widget.actionModel.fetchEvents(arg1: firstPageNumber, arg2: eventTab).Then(() => {
+                    if (this._hasBeenLoadedData) {
+                        return;
+                    }
+
+                    this._hasBeenLoadedData = true;
+                    this.setState(() => { });
+                });
             });
         }
 
         public override Widget build(BuildContext context) {
             base.build(context: context);
             var completedEvents = this.widget.viewModel.completedEvents;
-            if (this.widget.viewModel.eventCompletedLoading && completedEvents.isEmpty()) {
-                return new GlobalLoading();
+            if (!this._hasBeenLoadedData || this.widget.viewModel.eventCompletedLoading && completedEvents.isEmpty()) {
+                return new Container(
+                    padding: EdgeInsets.only(bottom: CConstant.TabBarHeight +
+                                                     CCommonUtils.getSafeAreaBottomPadding(context: context)),
+                    child: new GlobalLoading()
+                );
             }
 
-            if (completedEvents.Count <= 0) {
-                return new BlankView(
-                    "暂无往期活动，看看新活动吧",
-                    "image/default-event",
-                    true,
-                    () => {
-                        this.widget.actionModel.startFetchEventCompleted();
-                        this.widget.actionModel.fetchEvents(arg1: firstPageNumber, arg2: eventTab);
-                    }
+            if (0 == completedEvents.Count) {
+                return new Container(
+                    padding: EdgeInsets.only(bottom: CConstant.TabBarHeight +
+                                                     CCommonUtils.getSafeAreaBottomPadding(context: context)),
+                    child: new BlankView(
+                        "暂无往期活动，看看新活动吧",
+                        "image/default-event",
+                        true,
+                        () => {
+                            this.widget.actionModel.startFetchEventCompleted();
+                            this.widget.actionModel.fetchEvents(arg1: firstPageNumber, arg2: eventTab);
+                        }
+                    )
                 );
             }
 
@@ -110,6 +129,7 @@ namespace ConnectApp.screens {
                         enablePullDown: true,
                         enablePullUp: enablePullUp,
                         onRefresh: this._completedRefresh,
+                        hasBottomMargin: true,
                         child: ListView.builder(
                             physics: new AlwaysScrollableScrollPhysics(),
                             itemCount: itemCount,
@@ -123,8 +143,9 @@ namespace ConnectApp.screens {
         Widget _buildEventCard(BuildContext context, int index) {
             var completedEvents = this.widget.viewModel.completedEvents;
             if (index == completedEvents.Count) {
-                return new EndView();
+                return new EndView(hasBottomMargin: true);
             }
+
             var eventId = completedEvents[index: index];
             var model = this.widget.viewModel.eventsDict[key: eventId];
             var place = model.placeId.isEmpty()

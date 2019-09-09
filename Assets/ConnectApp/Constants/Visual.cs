@@ -3,6 +3,10 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.Constants {
+    public static class CConstant {
+        public static readonly float TabBarHeight = 49;
+    }
+
     public static class Icons {
         public static readonly IconData UnityLogo = new IconData(0xe61d, "iconfont");
         public static readonly IconData UnityTabIcon = new IconData(0xe623, "iconfont");
@@ -432,6 +436,7 @@ namespace ConnectApp.Constants {
         public static readonly Color AvatarLoading = new Color(0xFFD8D8D8);
 
         public static readonly Color H5White = Color.fromRGBO(255, 255, 255, 0.8f);
+        public static readonly Color TabBarBg = Color.fromRGBO(255, 255, 255, 0.8f);
 
         public static readonly Color Transparent = new Color(0x00000000);
         public static readonly Color White = new Color(0xFFFFFFFF);

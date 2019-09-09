@@ -236,11 +236,19 @@ namespace ConnectApp.Components {
                             child: new Row(
                                 children: new List<Widget> {
                                     new Expanded(
-                                        child: new Text(
-                                            data: this.article.subTitle,
-                                            style: CTextStyle.PRegularBody3,
-                                            maxLines: 3,
-                                            overflow: TextOverflow.ellipsis
+                                        child: new Container(
+                                            height: imageHeight,
+                                            child: new Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: new List<Widget> {
+                                                    new Text(
+                                                        data: this.article.subTitle,
+                                                        style: CTextStyle.PRegularBody3,
+                                                        maxLines: 3,
+                                                        overflow: TextOverflow.ellipsis
+                                                    )
+                                                }
+                                            )
                                         )
                                     ),
                                     new Container(
@@ -317,7 +325,8 @@ namespace ConnectApp.Components {
                                                 new Container(
                                                     margin: EdgeInsets.only(6),
                                                     child: new Text(
-                                                        CStringUtils.CountToString(count: this.article.commentCount, "评论"),
+                                                        CStringUtils.CountToString(count: this.article.commentCount,
+                                                            "评论"),
                                                         style: CTextStyle.PRegularBody5.merge(new TextStyle(height: 1))
                                                     )
                                                 )
