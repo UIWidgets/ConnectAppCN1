@@ -6,6 +6,7 @@ using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
 using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
+using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
@@ -38,7 +39,7 @@ namespace ConnectApp.screens {
                         new ChannelInfo {
                             imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "UI Widgets 技术交流",
-                            size = 420,
+                            members = new List<User>(),
                             isHot = true,
                             latestMessage = "kgu: 嗨，大家好",
                             time = "11:43",
@@ -49,7 +50,7 @@ namespace ConnectApp.screens {
                         new ChannelInfo {
                             imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "游戏开发日常吐槽",
-                            size = 208,
+                            members = new List<User>(),
                             isHot = true,
                             latestMessage = "搬砖大王: 如何使用rider断调试Android",
                             time = "11:43",
@@ -59,7 +60,7 @@ namespace ConnectApp.screens {
                         new ChannelInfo {
                             imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "我们都爱玩游戏",
-                            size = 199,
+                            members = new List<User>(),
                             latestMessage = "Vatary: 去年发布的第一季实时动画课程",
                             time = "11:43",
                             unread = 99
@@ -67,7 +68,7 @@ namespace ConnectApp.screens {
                         new ChannelInfo {
                             imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "今天你学Unity了吗",
-                            size = 134,
+                            members = new List<User>(),
                             latestMessage = "@海边的孙小鱼 视频中的项目可以分为以下几种",
                             time = "11:43",
                             unread = 100
@@ -75,7 +76,7 @@ namespace ConnectApp.screens {
                         new ChannelInfo {
                             imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "Unity深圳Meetup",
-                            size = 199,
+                            members = new List<User>(),
                             latestMessage = "码农小哥: 这个Demo可以下载吗？",
                             time = "11:43",
                             unread = 15,
@@ -87,48 +88,48 @@ namespace ConnectApp.screens {
                         new ChannelInfo {
                             imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "VR/AR开发者",
-                            size = 117,
+                            members = new List<User>(),
                         },
                         new ChannelInfo {
                             imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "Unity\n教学联盟",
-                            size = 58,
+                            members = new List<User>(),
                         },
                         new ChannelInfo {
                             imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "Unity 2020\n校园招聘",
-                            size = 20,
+                            members = new List<User>(),
                         }
                     },
                     discoverChannelInfo = new List<ChannelInfo> {
                         new ChannelInfo {
                             imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "Unite Shanghai 技术会场",
-                            size = 420,
+                            members = new List<User>(),
                             isHot = true,
                             joined = true,
                         },
                         new ChannelInfo {
                             imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "游戏开发日常吐槽",
-                            size = 208,
+                            members = new List<User>(),
                             isHot = true,
                         },
                         new ChannelInfo {
                             imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "我们都爱玩游戏",
-                            size = 199,
+                            members = new List<User>(),
                             joined = true,
                         },
                         new ChannelInfo {
                             imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "今天你学Unity了吗",
-                            size = 134,
+                            members = new List<User>(),
                         },
                         new ChannelInfo {
                             imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "Unity深圳Meetup",
-                            size = 199,
+                            members = new List<User>(),
                         }
                     }
                 },
@@ -384,7 +385,7 @@ namespace ConnectApp.screens {
                                                             )
                                                         ),
                                                         new Container(width: 4),
-                                                        new Text($"{channelInfo.size}人", style: CTextStyle.PSmallWhite)
+                                                        new Text($"{channelInfo.members.Count}人", style: CTextStyle.PSmallWhite)
                                                     }
                                                 )
                                             )
@@ -517,7 +518,7 @@ namespace ConnectApp.screens {
                                             )
                                             : title,
                                         new Expanded(
-                                            child: new Text($"{channelInfo.size}成员",
+                                            child: new Text($"{channelInfo.members.Count}成员",
                                                 style: CTextStyle.PRegularBody4,
                                                 maxLines: 1)
                                         )

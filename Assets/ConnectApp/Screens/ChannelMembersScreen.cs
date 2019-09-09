@@ -18,10 +18,10 @@ using Icons = ConnectApp.Constants.Icons;
 using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.screens {
-    public class ChannelDetailScreenConnector : StatelessWidget {
+    public class ChannelMembersScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
-            return new StoreConnector<AppState, ChannelDetailScreenViewModel>(
-                converter: state => new ChannelDetailScreenViewModel {
+            return new StoreConnector<AppState, ChannelMembersScreenViewModel>(
+                converter: state => new ChannelMembersScreenViewModel {
                     channelInfo = new ChannelInfo {
                         imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                         name = "UI Widgets 技术交流",
@@ -52,28 +52,27 @@ namespace ConnectApp.screens {
                     }
                 },
                 builder: (context1, viewModel, dispatcher) => {
-                    var actionModel = new ChannelDetailScreenActionModel {
+                    var actionModel = new ChannelMembersScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
-                        pushToChannelMembers = () => dispatcher.dispatch(new MainNavigatorPushToChannelMembersAction())
                     };
-                    return new ChannelDetailScreen(actionModel, viewModel);
+                    return new ChannelMembersScreen(actionModel, viewModel);
                 }
             );
         }
     }
 
-    public class ChannelDetailScreen : StatelessWidget {
-        public ChannelDetailScreen(
-            ChannelDetailScreenActionModel actionModel = null,
-            ChannelDetailScreenViewModel viewModel = null,
+    public class ChannelMembersScreen : StatelessWidget {
+        public ChannelMembersScreen(
+            ChannelMembersScreenActionModel actionModel = null,
+            ChannelMembersScreenViewModel viewModel = null,
             Key key = null
         ) : base(key: key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
 
-        readonly ChannelDetailScreenActionModel actionModel;
-        readonly ChannelDetailScreenViewModel viewModel;
+        readonly ChannelMembersScreenActionModel actionModel;
+        readonly ChannelMembersScreenViewModel viewModel;
 
         public override Widget build(BuildContext context) {
             return new Container(
@@ -165,7 +164,7 @@ namespace ConnectApp.screens {
                                         child: new Container()
                                     ),
                                     new GestureDetector(
-                                        onTap: () => { this.actionModel.pushToChannelMembers(); },
+                                        onTap: () => { },
                                         child: new Container(
                                             color: CColors.Transparent,
                                             child: new Row(

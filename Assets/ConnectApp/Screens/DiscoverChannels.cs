@@ -36,31 +36,31 @@ namespace ConnectApp.screens {
                             new ChannelInfo {
                                 imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                                 name = "Unite Shanghai 技术会场",
-                                size = 420,
+                                members = new List<User>(),
                                 isHot = true,
                                 joined = true,
                             },
                             new ChannelInfo {
                                 imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                                 name = "游戏开发日常吐槽",
-                                size = 208,
+                                members = new List<User>(),
                                 isHot = true,
                             },
                             new ChannelInfo {
                                 imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                                 name = "我们都爱玩游戏",
-                                size = 199,
+                                members = new List<User>(),
                                 joined = true,
                             },
                             new ChannelInfo {
                                 imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                                 name = "今天你学Unity了吗",
-                                size = 134,
+                                members = new List<User>(),
                             },
                             new ChannelInfo {
                                 imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                                 name = "Unity深圳Meetup",
-                                size = 199,
+                                members = new List<User>(),
                             }
                         }
                     };

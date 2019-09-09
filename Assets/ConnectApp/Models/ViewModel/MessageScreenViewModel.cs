@@ -17,7 +17,6 @@ namespace ConnectApp.Models.ViewModel {
     public class ChannelInfo {
         public string imageUrl;
         public string name;
-        public int size;
         public bool isHot;
         public string latestMessage;
         public string time;
