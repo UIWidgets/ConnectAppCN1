@@ -76,6 +76,7 @@ namespace ConnectApp.screens {
         float _titleFontSize;
         float _navBarHeight;
         string _loginSubId;
+        string _logoutSubId;
 
         protected override bool wantKeepAlive {
             get { return true; }
@@ -95,18 +96,33 @@ namespace ConnectApp.screens {
             this._loginSubId = EventBus.subscribe(sName: EventBusConstant.login_success, args => {
                 if (this._selectedIndex != 1) {
                     this._selectedIndex = 1;
-                    this._pageController = new PageController(initialPage: this._selectedIndex);
+                    this._pageController.animateToPage(
+                        page: this._selectedIndex,
+                        TimeSpan.FromMilliseconds(250),
+                        curve: Curves.ease
+                    );
+                }
+            });
+            this._logoutSubId = EventBus.subscribe(sName: EventBusConstant.logout_success, args => {
+                if (this._selectedIndex != 1) {
+                    this._selectedIndex = 1;
+                    this._pageController.animateToPage(
+                        page: this._selectedIndex,
+                        TimeSpan.FromMilliseconds(250),
+                        curve: Curves.ease
+                    );
                 }
             });
         }
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
         }
 
         public override void dispose() {
             EventBus.unSubscribe(sName: EventBusConstant.login_success, id: this._loginSubId);
+            EventBus.unSubscribe(sName: EventBusConstant.logout_success, id: this._logoutSubId);
             Router.routeObserve.unsubscribe(this);
             base.dispose();
         }
