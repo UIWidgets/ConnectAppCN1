@@ -28,5 +28,6 @@ namespace ConnectApp.Models.ViewModel {
         public bool atMe = false;
         public bool atAll = false;
         public List<User> members;
+        public int numAdmins;
     }
 }

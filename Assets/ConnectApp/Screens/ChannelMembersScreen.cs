@@ -12,6 +12,8 @@ using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using Icons = ConnectApp.Constants.Icons;
@@ -37,18 +39,61 @@ namespace ConnectApp.screens {
                         atAll = true,
                         members = new List<User> {
                             new User {
+                                name = "毛毛",
+                                title = "产品经理",
                                 avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             },
                             new User {
+                                name = "尚尚",
+                                title = "独立游戏开发者",
                                 avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             },
                             new User {
+                                name = "奇甲机器人 Long Long Long Long Long Name",
+                                title = "Unity开发者",
                                 avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             },
                             new User {
+                                name = "mooc mooc mooc mooc mooc mooc mooc mooc mooc mooc mooc mooc",
+                                title = "原画设计师",
                                 avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             },
-                        }
+                            new User {
+                                name = "mooc",
+                                title = "原画设计师",
+                                avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                            },
+                            new User {
+                                name = "mooc",
+                                title = "原画设计师",
+                                avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                            },
+                            new User {
+                                name = "mooc",
+                                title = "原画设计师",
+                                avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                            },
+                            new User {
+                                name = "mooc",
+                                title = "原画设计师",
+                                avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                            },
+                            new User {
+                                name = "mooc",
+                                title = "原画设计师",
+                                avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                            },
+                            new User {
+                                name = "mooc",
+                                title = "原画设计师",
+                                avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                            },
+                        },
+                        numAdmins = 2,
+                    },
+                    followed = new HashSet<string> {
+                        "毛毛",
+                        "尚尚",
                     }
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -61,7 +106,9 @@ namespace ConnectApp.screens {
         }
     }
 
-    public class ChannelMembersScreen : StatelessWidget {
+
+
+    public class ChannelMembersScreen : StatefulWidget {
         public ChannelMembersScreen(
             ChannelMembersScreenActionModel actionModel = null,
             ChannelMembersScreenViewModel viewModel = null,
@@ -71,8 +118,32 @@ namespace ConnectApp.screens {
             this.actionModel = actionModel;
         }
 
-        readonly ChannelMembersScreenActionModel actionModel;
-        readonly ChannelMembersScreenViewModel viewModel;
+        public readonly ChannelMembersScreenActionModel actionModel;
+        public readonly ChannelMembersScreenViewModel viewModel;
+
+        public override State createState() {
+            return new _ChannelMembersScreenState();
+        }
+    }
+    class _ChannelMembersScreenState : State<ChannelMembersScreen> {
+        TextEditingController _controller;
+        string _title;
+
+        public override void initState() {
+            base.initState();
+            this._controller = new TextEditingController("");
+//            SchedulerBinding.instance.addPostFrameCallback(_ => {
+//                if (this.widget.viewModel.searchFollowingKeyword.Length > 0
+//                    || this.widget.viewModel.searchFollowingUsers.Count > 0) {
+//                    this.widget.actionModel.clearSearchFollowingResult();
+//                }
+//            });
+        }
+
+        public override void dispose() {
+            this._controller.dispose();
+            base.dispose();
+        }
 
         public override Widget build(BuildContext context) {
             return new Container(
@@ -84,7 +155,7 @@ namespace ConnectApp.screens {
                             children: new List<Widget> {
                                 this._buildNavigationBar(),
                                 new Expanded(
-                                    child: this._buildContent()
+                                    child: this._buildContent(context)
                                 )
                             }
                         )
@@ -95,163 +166,140 @@ namespace ConnectApp.screens {
 
         Widget _buildNavigationBar() {
             return new CustomAppBar(
-                () => this.actionModel.mainRouterPop(),
+                () => this.widget.actionModel.mainRouterPop(),
                 new Text(
-                    "群聊资料",
+                    $"群聊成员({this.widget.viewModel.channelInfo.members.Count})",
                     style: CTextStyle.PXLargeMedium
                 )
             );
         }
 
-        Widget _buildContent() {
-            List<Widget> avatars = new List<Widget>();
-            for (int i = 0; i < 5; i++) {
-                avatars.Add(this.viewModel.channelInfo.members.Count > i
-                    ? Avatar.User(this.viewModel.channelInfo.members[i], 56)
-                    : (Widget) new Container(width: 56, height: 56)
-                );
+        Widget _buildContent(BuildContext context) {
+            List<Widget> specialMembers = new List<Widget>();
+            List<Widget> members = new List<Widget>();
+            for (int i = 0; i <= this.widget.viewModel.channelInfo.numAdmins; i++) {
+                User user = this.widget.viewModel.channelInfo.members[i];
+                specialMembers.Add(buildMemberItem(context, user, i == 0 ? 0 : 1, this.widget.viewModel.followed.Contains(user.name)));
+            }
+            for (int i = this.widget.viewModel.channelInfo.numAdmins + 1; i < this.widget.viewModel.channelInfo.members.Count; i++) {
+                User user = this.widget.viewModel.channelInfo.members[i];
+                members.Add(buildMemberItem(context, user, 2, this.widget.viewModel.followed.Contains(user.name)));
             }
             return new Container(
                 color: CColors.Background,
                 child: new ListView(
                     children: new List<Widget> {
-                        new Container(
-                            color: CColors.White,
-                            padding: EdgeInsets.only(left: 16, right: 16, top: 16),
-                            height: 64,
-                            child: new Row(
-                                children: new List<Widget> {
-                                    new ClipRRect(
-                                        borderRadius: BorderRadius.all(4),
-                                        child: new Container(
-                                            width: 48,
-                                            height: 48,
-                                            child: Image.network(this.viewModel.channelInfo.imageUrl, fit: BoxFit.cover)
-                                        )
-                                    ),
-                                    new Expanded(
-                                        child: new Container(
-                                            padding: EdgeInsets.only(16),
-                                            child: new Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: new List<Widget> {
-                                                    new Text(this.viewModel.channelInfo.name,
-                                                        style: CTextStyle.PLargeMedium,
-                                                        maxLines: 1, overflow: TextOverflow.ellipsis),
-                                                    new Expanded(
-                                                        child: new Text($"{this.viewModel.channelInfo.members.Count}名群成员",
-                                                            style: CTextStyle.PRegularBody4,
-                                                            maxLines: 1)
-                                                    )
-                                                }
-                                            )
-                                        )
-                                    ),
-                                }
-                            )
-                        ),
-                        new GestureDetector(
-                            child: this._tapRow(this.viewModel.channelInfo.introduction, 2, 16, 16, true)
-                        ),
+                        this._buildSearchBar(),
+                        new Column(children: specialMembers),
                         new Container(height: 16),
-                        new Container(
-                            color: CColors.White,
-                            padding: EdgeInsets.only(16, 16, 8, 16),
-                            child: new Row(
-                                children: new List<Widget> {
-                                    new Text("群聊成员", style: CTextStyle.PLargeBody),
-                                    new Expanded(
-                                        child: new Container()
-                                    ),
-                                    new GestureDetector(
-                                        onTap: () => { },
-                                        child: new Container(
-                                            color: CColors.Transparent,
-                                            child: new Row(
-                                                children: new List<Widget> {
-                                                    new Text(
-                                                        $"查看{this.viewModel.channelInfo.members.Count}名群成员",
-                                                        style: new TextStyle(
-                                                            fontSize: 12,
-                                                            fontFamily: "Roboto-Regular",
-                                                            color: CColors.TextBody4
-                                                        )
-                                                    ),
-                                                    new Icon(
-                                                        icon: Icons.chevron_right,
-                                                        size: 20,
-                                                        color: Color.fromRGBO(199, 203, 207, 1)
-                                                    )
-                                                }
-                                            )
-                                        )
-                                    )
-                                }
-                            )
-                        ),
-                        new Container(
-                            color: CColors.White,
-                            padding: EdgeInsets.only(16, 0, 16, 16),
-                            child: new Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: avatars
-                            )
-                        ),
-                        new Container(height: 16),
-                        new GestureDetector(
-                            child: this._tapRow("查找聊天内容", 1, 18, 18)
-                        ),
-                        new Container(height: 16),
-                        this._switchRow("设为置顶", this.viewModel.channelInfo.isTop, value => {}),
-                        this._switchRow("消息免打扰", this.viewModel.channelInfo.silenced, value => {}),
-                        new Container(height: 16),
-                        new Container(
-                            color: CColors.White,
-                            height: 60,
-                            child: new Center(
-                                child: new Text("退出群聊", style: CTextStyle.PLargeError)
-                            )
-                        )
+                        new Column(children: members),
                     }
                 )
             );
         }
-
-        Widget _tapRow(string content, int maxLines, int paddingTop, int paddingBottom, bool smallFont = false) {
+        
+        Widget _buildSearchBar() {
             return new Container(
                 color: CColors.White,
-                padding: EdgeInsets.only(16, right: 16, top: paddingTop, bottom: paddingBottom),
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: new List<Widget> {
-                        new Expanded(
-                            child: new Text(content,
-                                style: smallFont ? CTextStyle.PRegularBody : CTextStyle.PLargeBody,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: maxLines)
-                        ),
-                        new Icon(
-                            icon: Icons.arrow_forward,
-                            size: 16,
-                            color: CColors.Icon
+                padding: EdgeInsets.only(16, 16, 16, 12),
+                child: new InputField(
+                    decoration: new BoxDecoration(
+                        color: CColors.Separator2,
+                        borderRadius: BorderRadius.all(8)
+                    ),
+                    height: 40,
+                    controller: this._controller,
+                    style: CTextStyle.PLargeBody2,
+                    prefix: new Container(
+                        padding: EdgeInsets.only(11, 9, 7, 9),
+                        child: new Icon(
+                            icon: Icons.search,
+                            color: CColors.BrownGrey
                         )
-                    }));
+                    ),
+                    hintText: "搜索",
+                    hintStyle: CTextStyle.PLargeBody4,
+                    cursorColor: CColors.PrimaryBlue,
+                    textInputAction: TextInputAction.search,
+                    clearButtonMode: InputFieldClearButtonMode.whileEditing,
+                    onChanged: text => {
+                        if (text == null || text.Length <= 0) {
+                            // this.widget.actionModel.clearSearchFollowingResult();
+                        }
+                    }
+                    // onSubmitted: this._searchFollowing
+                )
+            );
         }
-
-        Widget _switchRow(string content, bool value, ValueChanged<bool> onChanged) {
+        
+        public static Widget buildMemberItem(BuildContext context, User user, int type, bool followed) {
+            Widget title = new Text(user.name, style: CTextStyle.PMediumBody,
+                maxLines: 1, overflow: TextOverflow.ellipsis);
             return new Container(
                 color: CColors.White,
-                padding: EdgeInsets.symmetric(16, 18),
+                height: 72,
+                padding: EdgeInsets.symmetric(12, 16),
                 child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: new List<Widget> {
+                        Avatar.User(user, 48),
                         new Expanded(
-                            child: new Text(content,
-                                style: CTextStyle.PLargeBody,
-                                overflow: TextOverflow.ellipsis)
+                            child: new Container(
+                                padding: EdgeInsets.symmetric(0, 16),
+                                child: new Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: new List<Widget> {
+                                        type == 0 || type == 1
+                                            ? new Row(
+                                                children: new List<Widget> {
+                                                    new Flexible(child: title),
+                                                    new Container(
+                                                        decoration: new BoxDecoration(
+                                                            color: type == 0 ? CColors.Tan : CColors.Portage,
+                                                            borderRadius: BorderRadius.all(2)
+                                                        ),
+                                                        padding: EdgeInsets.symmetric(0, 4),
+                                                        margin: EdgeInsets.only(4),
+                                                        child: new Text(type == 0 ? "群主" : "管理员",
+                                                            style: CTextStyle.PSmallWhite.copyWith(height: 1.2f))
+                                                    )
+                                                }
+                                            )
+                                            : title,
+                                        new Expanded(
+                                            child: new Text(user.title, style: CTextStyle.PRegularBody4,
+                                                maxLines: 1, overflow: TextOverflow.ellipsis)
+                                        )
+                                    }
+                                )
+                            )
                         ),
-                        new CustomSwitch(value, onChanged, activeColor: CColors.PrimaryBlue),
-                    }));
+                        new CustomButton(
+                           padding: EdgeInsets.zero,
+                           child: new Container(
+                               width: 60,
+                               height: 28,
+                               decoration: new BoxDecoration(
+                                   border: Border.all(color: followed
+                                       ? CColors.Disable2
+                                       : CColors.PrimaryBlue),
+                                   borderRadius: BorderRadius.all(14)
+                               ),
+                               child: new Center(
+                                   child: followed
+                                       ? new Text(
+                                           "已关注",
+                                           style: CTextStyle.PRegularBody5.copyWith(height: 1)
+                                       )
+                                       : new Text(
+                                           "关注",
+                                           style: CTextStyle.PRegularBlue.copyWith(height: 1)
+                                       )
+                               )
+                           )
+                        )
+                    }
+                )
+            );
         }
     }
 }
