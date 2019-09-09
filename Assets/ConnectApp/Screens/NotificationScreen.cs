@@ -35,6 +35,7 @@ namespace ConnectApp.screens {
                         fetchNotifications = pageNumber =>
                             dispatcher.dispatch<IPromise>(Actions.fetchNotifications(pageNumber)),
                         fetchMakeAllSeen = () => dispatcher.dispatch<IPromise>(Actions.fetchMakeAllSeen()),
+                        mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         pushToArticleDetail = id => dispatcher.dispatch(
                             new MainNavigatorPushToArticleDetailAction {
                                 articleId = id
@@ -216,19 +217,28 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildNavigationBar() {
-            return new AnimatedContainer(
-                height: this.navBarHeight,
-                duration: TimeSpan.Zero,
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.end,
+            return new Container(
+                color: CColors.White,
+                width: MediaQuery.of(context: this.context).size.width,
+                height: 94,
+                child: new Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
+                        new CustomButton(
+                            padding: EdgeInsets.symmetric(8, 16),
+                            onPressed: () => this.widget.actionModel.mainRouterPop(),
+                            child: new Icon(
+                                icon: Icons.arrow_back,
+                                size: 24,
+                                color: CColors.Icon
+                            )
+                        ),
                         new Container(
-                            padding: EdgeInsets.only(16, bottom: 8),
-                            child: new AnimatedDefaultTextStyle(
-                                child: new Text("通知"),
-                                style: this.titleStyle,
-                                duration: new TimeSpan(0, 0, 0, 0, 100)
+                            margin: EdgeInsets.only(16, bottom: 8),
+                            child: new Text(
+                                "通知",
+                                style: CTextStyle.H2
                             )
                         )
                     }
