@@ -6,18 +6,13 @@ using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
-using Unity.UIWidgets.cupertino;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
-using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Icons = ConnectApp.Constants.Icons;
-using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.screens {
     public class ChannelMembersScreenConnector : StatelessWidget {
@@ -25,7 +20,8 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, ChannelMembersScreenViewModel>(
                 converter: state => new ChannelMembersScreenViewModel {
                     channelInfo = new ChannelInfo {
-                        imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                        imageUrl =
+                            "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                         name = "UI Widgets 技术交流",
                         isHot = true,
                         latestMessage = "kgu: 嗨，大家好",
@@ -33,60 +29,70 @@ namespace ConnectApp.screens {
                         isTop = true,
                         atMe = true,
                         introduction = "UIWidgets是一个可以独立使用的 Unity Package (https://github.com/UnityTech/UIWidgets)。"
-                                     + "它将Flutter(https://flutter.io/)的App框架与Unity渲染引擎相结合，"
-                                     + "让您可以在Unity编辑器中使用一套代码构建出可以同时在PC、网页及移动设备上运行的原生应用。"
-                                     + "此外，您还可以在您的3D游戏或者Unity编辑器插件中用它来构建复杂的UI层，替换UGUI和IMGUI。",
+                                       + "它将Flutter(https://flutter.io/)的App框架与Unity渲染引擎相结合，"
+                                       + "让您可以在Unity编辑器中使用一套代码构建出可以同时在PC、网页及移动设备上运行的原生应用。"
+                                       + "此外，您还可以在您的3D游戏或者Unity编辑器插件中用它来构建复杂的UI层，替换UGUI和IMGUI。",
                         atAll = true,
                         members = new List<User> {
                             new User {
                                 name = "毛毛",
                                 title = "产品经理",
-                                avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                avatar =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             },
                             new User {
                                 name = "尚尚",
                                 title = "独立游戏开发者",
-                                avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                avatar =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             },
                             new User {
                                 name = "奇甲机器人 Long Long Long Long Long Name",
                                 title = "Unity开发者",
-                                avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                avatar =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             },
                             new User {
                                 name = "mooc mooc mooc mooc mooc mooc mooc mooc mooc mooc mooc mooc",
                                 title = "原画设计师",
-                                avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                avatar =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             },
                             new User {
                                 name = "mooc",
                                 title = "原画设计师",
-                                avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                avatar =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             },
                             new User {
                                 name = "mooc",
                                 title = "原画设计师",
-                                avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                avatar =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             },
                             new User {
                                 name = "mooc",
                                 title = "原画设计师",
-                                avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                avatar =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             },
                             new User {
                                 name = "mooc",
                                 title = "原画设计师",
-                                avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                avatar =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             },
                             new User {
                                 name = "mooc",
                                 title = "原画设计师",
-                                avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                avatar =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             },
                             new User {
                                 name = "mooc",
                                 title = "原画设计师",
-                                avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                avatar =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             },
                         },
                         numAdmins = 2,
@@ -107,7 +113,6 @@ namespace ConnectApp.screens {
     }
 
 
-
     public class ChannelMembersScreen : StatefulWidget {
         public ChannelMembersScreen(
             ChannelMembersScreenActionModel actionModel = null,
@@ -125,6 +130,7 @@ namespace ConnectApp.screens {
             return new _ChannelMembersScreenState();
         }
     }
+
     class _ChannelMembersScreenState : State<ChannelMembersScreen> {
         TextEditingController _controller;
         string _title;
@@ -179,12 +185,17 @@ namespace ConnectApp.screens {
             List<Widget> members = new List<Widget>();
             for (int i = 0; i <= this.widget.viewModel.channelInfo.numAdmins; i++) {
                 User user = this.widget.viewModel.channelInfo.members[i];
-                specialMembers.Add(buildMemberItem(context, user, i == 0 ? 0 : 1, this.widget.viewModel.followed.Contains(user.name)));
+                specialMembers.Add(buildMemberItem(context, user, i == 0 ? 0 : 1,
+                    this.widget.viewModel.followed.Contains(user.name)));
             }
-            for (int i = this.widget.viewModel.channelInfo.numAdmins + 1; i < this.widget.viewModel.channelInfo.members.Count; i++) {
+
+            for (int i = this.widget.viewModel.channelInfo.numAdmins + 1;
+                i < this.widget.viewModel.channelInfo.members.Count;
+                i++) {
                 User user = this.widget.viewModel.channelInfo.members[i];
                 members.Add(buildMemberItem(context, user, 2, this.widget.viewModel.followed.Contains(user.name)));
             }
+
             return new Container(
                 color: CColors.Background,
                 child: new ListView(
@@ -197,7 +208,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         Widget _buildSearchBar() {
             return new Container(
                 color: CColors.White,
@@ -231,7 +242,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         public static Widget buildMemberItem(BuildContext context, User user, int type, bool followed) {
             Widget title = new Text(user.name, style: CTextStyle.PMediumBody,
                 maxLines: 1, overflow: TextOverflow.ellipsis);
@@ -274,28 +285,28 @@ namespace ConnectApp.screens {
                             )
                         ),
                         new CustomButton(
-                           padding: EdgeInsets.zero,
-                           child: new Container(
-                               width: 60,
-                               height: 28,
-                               decoration: new BoxDecoration(
-                                   border: Border.all(color: followed
-                                       ? CColors.Disable2
-                                       : CColors.PrimaryBlue),
-                                   borderRadius: BorderRadius.all(14)
-                               ),
-                               child: new Center(
-                                   child: followed
-                                       ? new Text(
-                                           "已关注",
-                                           style: CTextStyle.PRegularBody5.copyWith(height: 1)
-                                       )
-                                       : new Text(
-                                           "关注",
-                                           style: CTextStyle.PRegularBlue.copyWith(height: 1)
-                                       )
-                               )
-                           )
+                            padding: EdgeInsets.zero,
+                            child: new Container(
+                                width: 60,
+                                height: 28,
+                                decoration: new BoxDecoration(
+                                    border: Border.all(color: followed
+                                        ? CColors.Disable2
+                                        : CColors.PrimaryBlue),
+                                    borderRadius: BorderRadius.all(14)
+                                ),
+                                child: new Center(
+                                    child: followed
+                                        ? new Text(
+                                            "已关注",
+                                            style: CTextStyle.PRegularBody5.copyWith(height: 1)
+                                        )
+                                        : new Text(
+                                            "关注",
+                                            style: CTextStyle.PRegularBlue.copyWith(height: 1)
+                                        )
+                                )
+                            )
                         )
                     }
                 )

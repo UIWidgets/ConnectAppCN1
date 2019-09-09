@@ -2,24 +2,15 @@ using System.Collections.Generic;
 using System.Linq;
 using ConnectApp.Components;
 using ConnectApp.Constants;
-using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
-using ConnectApp.Utils;
-using Newtonsoft.Json;
-using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
-using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using Avatar = ConnectApp.Components.Avatar;
-using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.screens {
     public class DiscoverChannelsScreenConnector : StatelessWidget {
@@ -34,31 +25,36 @@ namespace ConnectApp.screens {
                     return new DiscoverChannelsScreenViewModel {
                         discoverChannelInfo = new List<ChannelInfo> {
                             new ChannelInfo {
-                                imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                imageUrl =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                                 name = "Unite Shanghai 技术会场",
                                 members = new List<User>(),
                                 isHot = true,
                                 joined = true,
                             },
                             new ChannelInfo {
-                                imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                imageUrl =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                                 name = "游戏开发日常吐槽",
                                 members = new List<User>(),
                                 isHot = true,
                             },
                             new ChannelInfo {
-                                imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                imageUrl =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                                 name = "我们都爱玩游戏",
                                 members = new List<User>(),
                                 joined = true,
                             },
                             new ChannelInfo {
-                                imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                imageUrl =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                                 name = "今天你学Unity了吗",
                                 members = new List<User>(),
                             },
                             new ChannelInfo {
-                                imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                imageUrl =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                                 name = "Unity深圳Meetup",
                                 members = new List<User>(),
                             }
@@ -140,11 +136,10 @@ namespace ConnectApp.screens {
                 color: CColors.White,
                 child: new ListView(
                     padding: EdgeInsets.symmetric(16, 0),
-                    children: this.widget.viewModel.discoverChannelInfo.
-                        Select(MessageBuildUtils.buildDiscoverChannelItem).ToList()
+                    children: this.widget.viewModel.discoverChannelInfo
+                        .Select(MessageBuildUtils.buildDiscoverChannelItem).ToList()
                 )
             );
         }
-
     }
 }

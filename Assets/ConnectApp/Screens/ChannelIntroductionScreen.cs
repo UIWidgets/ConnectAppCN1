@@ -6,15 +6,12 @@ using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
-using Unity.UIWidgets.cupertino;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Icons = ConnectApp.Constants.Icons;
 using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.screens {
@@ -23,7 +20,8 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, ChannelIntroductionScreenViewModel>(
                 converter: state => new ChannelIntroductionScreenViewModel {
                     channelInfo = new ChannelInfo {
-                        imageUrl = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                        imageUrl =
+                            "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                         name = "UI Widgets 技术交流",
                         isHot = true,
                         latestMessage = "kgu: 嗨，大家好",
@@ -31,22 +29,26 @@ namespace ConnectApp.screens {
                         isTop = true,
                         atMe = true,
                         introduction = "UIWidgets是一个可以独立使用的 Unity Package (https://github.com/UnityTech/UIWidgets)。"
-                                     + "它将Flutter(https://flutter.io/)的App框架与Unity渲染引擎相结合，"
-                                     + "让您可以在Unity编辑器中使用一套代码构建出可以同时在PC、网页及移动设备上运行的原生应用。"
-                                     + "此外，您还可以在您的3D游戏或者Unity编辑器插件中用它来构建复杂的UI层，替换UGUI和IMGUI。",
+                                       + "它将Flutter(https://flutter.io/)的App框架与Unity渲染引擎相结合，"
+                                       + "让您可以在Unity编辑器中使用一套代码构建出可以同时在PC、网页及移动设备上运行的原生应用。"
+                                       + "此外，您还可以在您的3D游戏或者Unity编辑器插件中用它来构建复杂的UI层，替换UGUI和IMGUI。",
                         atAll = true,
                         members = new List<User> {
                             new User {
-                                avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                avatar =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             },
                             new User {
-                                avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                avatar =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             },
                             new User {
-                                avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                avatar =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             },
                             new User {
-                                avatar = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                avatar =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             },
                         }
                     }
@@ -133,7 +135,8 @@ namespace ConnectApp.screens {
                                                         style: CTextStyle.PLargeMedium,
                                                         maxLines: 1, overflow: TextOverflow.ellipsis),
                                                     new Expanded(
-                                                        child: new Text($"{this.viewModel.channelInfo.members.Count}名群成员",
+                                                        child: new Text(
+                                                            $"{this.viewModel.channelInfo.members.Count}名群成员",
                                                             style: CTextStyle.PRegularBody4,
                                                             maxLines: 1)
                                                     )
