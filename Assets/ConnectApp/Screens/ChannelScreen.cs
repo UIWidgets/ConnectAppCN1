@@ -306,7 +306,7 @@ namespace ConnectApp.screens {
                                 color: left || message.type == ChannelMessageType.file
                                     ? CColors.VeryLightPinkThree
                                     : CColors.PaleSkyBlue,
-                                borderRadius: BorderRadius.all(16)
+                                borderRadius: BorderRadius.all(10)
                             ),
                         child: message.type == ChannelMessageType.text
                             ? new Text(message.content, style: CTextStyle.PLargeBody)
@@ -443,7 +443,7 @@ namespace ConnectApp.screens {
         public readonly float ratio;
         public readonly float radius;
 
-        public _ImageMessage(string url, float size, float ratio, float radius = 16) {
+        public _ImageMessage(string url, float size, float ratio, float radius = 10) {
             this.url = url;
             this.size = size;
             this.ratio = ratio;
