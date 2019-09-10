@@ -138,7 +138,8 @@ namespace ConnectApp.screens {
                                 time = new DateTime(2019, 9, 9, 8, 30, 16)
                             },
                         },
-                        me = fish
+                        me = fish,
+                        newMessageCount = 100
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -189,18 +190,48 @@ namespace ConnectApp.screens {
                 color: CColors.White,
                 child: new CustomSafeArea(
                     bottom: false,
-                    child: new Container(
-                        color: CColors.Background,
-                        child: new Column(
-                            children: new List<Widget> {
-                                this._buildNavigationBar(),
-                                new Flexible(
-                                    child: this._buildContent()
-                                ),
-                                this._buildInputBar(),
-                                new Container(height: 34, color: CColors.White)
-                            }
-                        )
+                    child: new Stack(
+                        children: new List<Widget> {
+                             new Container(
+                                color: CColors.Background,
+                                child: new Column(
+                                    children: new List<Widget> {
+                                        this._buildNavigationBar(),
+                                        this._buildContent(),
+                                        this._buildInputBar(),
+                                        new Container(height: 34, color: CColors.White)
+                                    }
+                                )
+                             ),
+                             this.widget.viewModel.newMessageCount == 0
+                                 ? (Widget)new Container()
+                                 : new Column(
+                                     children: new List<Widget> {
+                                         new Expanded(child: new Container()),
+                                         new Row(
+                                             children: new List<Widget> {
+                                                 new Expanded(child: new Container()),
+                                                 new Container(
+                                                     height: 40,
+                                                     decoration: new BoxDecoration(
+                                                         color: CColors.Error,
+                                                         borderRadius: BorderRadius.all(20)
+                                                     ),
+                                                     padding: EdgeInsets.symmetric(0, 16),
+                                                     child: new Center(
+                                                         child: new Text(
+                                                             $"{CStringUtils.CountToString(this.widget.viewModel.newMessageCount)}条新消息未读",
+                                                             style: CTextStyle.PRegularWhite.copyWith(height: 1)
+                                                         )
+                                                     )
+                                                 ),
+                                                 new Expanded(child: new Container()),
+                                             }
+                                         ),
+                                         new Container(height: 99)
+                                     }
+                                 )
+                        }
                     )
                 )
             );
@@ -236,7 +267,7 @@ namespace ConnectApp.screens {
                 ));
             }
 
-            return new Container(
+            Widget ret = new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(top: 16),
                 child: new ListView(
@@ -244,6 +275,10 @@ namespace ConnectApp.screens {
                     children: messages
                 )
             );
+            
+            ret = new Flexible(child: ret);
+
+            return ret;
         }
 
         Widget _buildMessage(ChannelMessage message, bool showTime, bool left) {
@@ -344,7 +379,7 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildInputBar() {
-            return new Container(
+            Widget ret = new Container(
                 height: 49,
                 padding: EdgeInsets.only(16, right: 10),
                 decoration: new BoxDecoration(
@@ -397,6 +432,8 @@ namespace ConnectApp.screens {
                     }
                 )
             );
+
+            return ret;
         }
     }
 
