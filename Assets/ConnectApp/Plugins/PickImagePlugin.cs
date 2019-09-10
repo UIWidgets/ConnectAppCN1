@@ -24,8 +24,8 @@ namespace ConnectApp.Plugins {
         }
 
         static void _handleMethodCall(string method, List<JSONNode> args) {
-            if (GloableContext.context != null) {
-                using (WindowProvider.of(GloableContext.context).getScope()) {
+            if (GlobalContext.context != null) {
+                using (WindowProvider.of(GlobalContext.context).getScope()) {
                     switch (method) {
                         case "success": {
                             var node = args[0];

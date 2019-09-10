@@ -13,6 +13,7 @@ import com.jph.takephoto.app.TakePhotoActivity;
 import com.jph.takephoto.compress.CompressConfig;
 import com.jph.takephoto.model.CropOptions;
 import com.jph.takephoto.model.TResult;
+import com.jph.takephoto.model.TakePhotoOptions;
 import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
 
 import java.io.ByteArrayOutputStream;
@@ -28,6 +29,7 @@ public class PickImageActivity extends TakePhotoActivity {
         super.onCreate(savedInstanceState);
         String type = this.getIntent().getStringExtra("type");
         TakePhoto takePhoto = getTakePhoto();
+        
         CropOptions.Builder builder = new CropOptions.Builder();
         builder.setAspectX(800).setAspectY(800);
         builder.setWithOwnCrop(true);
@@ -39,18 +41,25 @@ public class PickImageActivity extends TakePhotoActivity {
             }
         }
         Uri imageUri = Uri.fromFile(file);
+        
         CompressConfig config = new CompressConfig.Builder()
                 .setMaxSize(102400)
                 .setMaxPixel(400)
                 .enableReserveRaw(true)
                 .create();
         takePhoto.onEnableCompress(config, true);
+
+        TakePhotoOptions takePhotoOptions = new TakePhotoOptions.Builder().create();
+        takePhotoOptions.setCorrectImage(true);
+        takePhotoOptions.setWithOwnGallery(false);
+        takePhoto.setTakePhotoOptions(takePhotoOptions);
+
         //在这里判断是打开本地相册还是直接照相
         if(type.equals("takePhoto"))
         {
             takePhoto.onPickFromCaptureWithCrop(imageUri,builder.create());
         }else{
-            takePhoto.onPickFromDocumentsWithCrop(imageUri,builder.create());
+            takePhoto.onPickFromGalleryWithCrop(imageUri,builder.create());
         }
     }
 

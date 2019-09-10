@@ -307,7 +307,7 @@ namespace ConnectApp.screens {
                                 right: 0,
                                 child: new Container(
                                     height: 32,
-                                    color: Color.fromRGBO(0, 0, 0, 0.5f),
+                                    color: Color.fromRGBO(0, 0, 0, 0.3f),
                                     child: new Container(
                                         color: CColors.Transparent,
                                         child: new Icon(Icons.camera_alt, size: 20, color: CColors.White))
