@@ -68,5 +68,21 @@ namespace ConnectApp.Utils {
             }
             return "";
         }
+
+        public static string FileSize(long bytes) {
+            if (bytes < 1024) {
+                return $"{bytes}B";
+            }
+
+            if (bytes < 1024 * 1024) {
+                return $"{bytes / 1024.0f:F}K";
+            }
+
+            if (bytes < 1024 * 1024 * 1024) {
+                return $"{bytes / (1024.0f * 1024):F}M";
+            }
+
+            return $"{bytes / (1024.0f * 1024 * 1024):F}G";
+        }
     }
 }

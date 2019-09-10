@@ -7,6 +7,7 @@ using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -92,6 +93,34 @@ namespace ConnectApp.screens {
                                 sender = fish,
                                 time = new DateTime(2019, 9, 9, 8, 30, 9),
                                 type = ChannelMessageType.image,
+                            },
+                            new ChannelMessage {
+                                content = "UI Widgets入门教程-第二版.pdf",
+                                sender = dage,
+                                time = new DateTime(2019, 9, 9, 8, 30, 13),
+                                type = ChannelMessageType.file,
+                                fileSize = 2670000
+                            },
+                            new ChannelMessage {
+                                content = "UI Widgets入门教程-第二版.pdf",
+                                sender = dage,
+                                time = new DateTime(2019, 9, 9, 8, 30, 13),
+                                type = ChannelMessageType.file,
+                                fileSize = 267
+                            },
+                            new ChannelMessage {
+                                content = "UI Widgets入门教程-第二版.pdf",
+                                sender = dage,
+                                time = new DateTime(2019, 9, 9, 8, 30, 13),
+                                type = ChannelMessageType.file,
+                                fileSize = 2670
+                            },
+                            new ChannelMessage {
+                                content = "UI Widgets入门教程-第二版.pdf",
+                                sender = dage,
+                                time = new DateTime(2019, 9, 9, 8, 30, 13),
+                                type = ChannelMessageType.file,
+                                fileSize = 2670000000
                             },
                             new ChannelMessage {
                                 content = "可以参考这个教程https://unity.com/solutions/game",
@@ -234,23 +263,53 @@ namespace ConnectApp.screens {
                             maxWidth: this.messageBubbleWidth
                         ),
                         padding: message.type == ChannelMessageType.text
-                            ? EdgeInsets.symmetric(12, 12)
+                            ? EdgeInsets.symmetric(8, 12)
                             : EdgeInsets.zero,
                         decoration: message.type == ChannelMessageType.image
                             ? null
                             : new BoxDecoration(
-                                color: left ? CColors.VeryLightPinkThree : CColors.PaleSkyBlue,
-                                borderRadius: BorderRadius.all(10)
+                                color: left || message.type == ChannelMessageType.file
+                                    ? CColors.VeryLightPinkThree
+                                    : CColors.PaleSkyBlue,
+                                borderRadius: BorderRadius.all(16)
                             ),
                         child: message.type == ChannelMessageType.text
-                            ? new Text(message.content)
+                            ? new Text(message.content, style: CTextStyle.PLargeBody)
                             : message.type == ChannelMessageType.image
                                 ? new _ImageMessage(
                                     url: message.content,
                                     size: 140,
                                     ratio: 16.0f / 9.0f
                                 )
-                                : (Widget) new Container()
+                                : (Widget) new Container(
+                                    padding: EdgeInsets.symmetric(12, 16),
+                                    child: new Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: new List<Widget> {
+                                            new Expanded(
+                                                child: new Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: new List<Widget> {
+                                                        new Text(message.content, style: CTextStyle.PLargeBody),
+                                                        new Container(height: 4),
+                                                        new Text(CStringUtils.FileSize(message.fileSize),
+                                                            style: CTextStyle.PSmallBody4)
+                                                    }
+                                                )
+                                            ),
+                                            new Container(width: 16),
+                                            new Container(
+                                                decoration: new BoxDecoration(
+                                                    color: CColors.VeryLightPinkThree,
+                                                    borderRadius: BorderRadius.all(16)
+                                                ),
+                                                width: 41.9f,
+                                                height: 47.9f,
+                                                child: Image.asset("image/pdf-file-icon")
+                                            )
+                                        }
+                                    )
+                                )
                     )
                 }
             );
@@ -362,31 +421,39 @@ namespace ConnectApp.screens {
         
         Image image;
         Size size;
+        ImageStream stream;
+
+        void _updateSize(ImageInfo info, bool _) {
+            if (info.image.width > info.image.height * this.widget.ratio) {
+                this.size = new Size(this.widget.size, this.widget.size / this.widget.ratio);
+            }
+            else if (info.image.width > info.image.height) {
+                this.size = new Size(this.widget.size, 
+                    this.widget.size / info.image.width * info.image.height);
+            }
+            else if (info.image.width > info.image.height / this.widget.ratio) {
+                this.size = new Size(this.widget.size / info.image.height * info.image.width,
+                    this.widget.size);
+            }
+            else {
+                this.size = new Size(this.widget.size / this.widget.ratio, this.widget.size);
+            }
+            this.setState(() => {});
+        }
 
         public override void initState() {
             base.initState();
             this.image = Image.network(this.widget.url);
-            this.image.image
-                .resolve(new ImageConfiguration())
-                .addListener((ImageInfo info, bool _) => {
-                    if (info.image.width > info.image.height * this.widget.ratio) {
-                        this.size = new Size(this.widget.size, this.widget.size / this.widget.ratio);
-                    }
-                    else if (info.image.width > info.image.height) {
-                        this.size = new Size(this.widget.size, 
-                            this.widget.size / info.image.width * info.image.height);
-                    }
-                    else if (info.image.width > info.image.height / this.widget.ratio) {
-                        this.size = new Size(this.widget.size / info.image.height * info.image.width,
-                            this.widget.size);
-                    }
-                    else {
-                        this.size = new Size(this.widget.size / this.widget.ratio, this.widget.size);
-                    }
-                    this.setState(() => {});
-                });
+            this.stream = this.image.image
+                .resolve(new ImageConfiguration());
+            this.stream.addListener(this._updateSize);
         }
-        
+
+        public override void dispose() {
+            this.stream.removeListener(this._updateSize);
+            base.dispose();
+        }
+
         public override Widget build(BuildContext context) {
             return this.size == null
                 ? new Container(width: this.widget.size, height: this.widget.size, decoration: new BoxDecoration(

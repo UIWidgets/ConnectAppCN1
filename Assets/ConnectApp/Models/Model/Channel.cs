@@ -32,5 +32,6 @@ namespace ConnectApp.Models.Model {
         public DateTime time;
         public ChannelMessageType type = ChannelMessageType.text;
         public string content;
+        public long fileSize;
     }
 }
