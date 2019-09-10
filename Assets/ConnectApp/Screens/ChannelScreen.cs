@@ -198,11 +198,10 @@ namespace ConnectApp.screens {
                                     children: new List<Widget> {
                                         this._buildNavigationBar(),
                                         this._buildContent(),
-                                        this._buildInputBar(),
-                                        new Container(height: 34, color: CColors.White)
                                     }
                                 )
                              ),
+                            this._buildInputBar(),
                              this.widget.viewModel.newMessageCount == 0
                                  ? (Widget)new Container()
                                  : new Column(
@@ -391,7 +390,7 @@ namespace ConnectApp.screens {
                 padding: EdgeInsets.only(16, right: 10),
                 decoration: new BoxDecoration(
                     border: new Border(new BorderSide(CColors.Separator)),
-                    color: CColors.White
+                    color: CColors.TabBarBg
                 ),
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -438,6 +437,19 @@ namespace ConnectApp.screens {
                         ),
                     }
                 )
+            );
+            
+            ret = new Column(
+                children: new List<Widget> {
+                    new Expanded(child: new Container()),
+                    ret,
+                    new Container(height: 34, color: CColors.TabBarBg)
+                }
+            );
+            
+            ret = new BackdropFilter(
+                filter : ImageFilter.blur(25, 25),
+                child: ret
             );
 
             return ret;
