@@ -200,7 +200,7 @@ namespace ConnectApp.screens {
                 color: CColors.Background,
                 child: new ListView(
                     children: new List<Widget> {
-                        this._buildSearchBar(),
+                        // this._buildSearchBar(),
                         new Column(children: specialMembers),
                         new Container(height: 16),
                         new Column(children: members),
