@@ -5,8 +5,10 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
@@ -67,6 +69,7 @@ namespace ConnectApp.screens {
         const int firstPageNumber = 1;
         RefreshController _ongoingRefreshController;
         int _pageNumber = firstPageNumber;
+        bool _hasBeenLoadedData;
 
         protected override bool wantKeepAlive {
             get { return true; }
@@ -74,29 +77,45 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
+            this._hasBeenLoadedData = false;
             this._ongoingRefreshController = new RefreshController();
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchEventOngoing();
-                this.widget.actionModel.fetchEvents(arg1: firstPageNumber, arg2: eventTab);
+                this.widget.actionModel.fetchEvents(arg1: firstPageNumber, arg2: eventTab).Then(() => {
+                    if (this._hasBeenLoadedData) {
+                        return;
+                    }
+
+                    this._hasBeenLoadedData = true;
+                    this.setState(() => { });
+                });
             });
         }
 
         public override Widget build(BuildContext context) {
             base.build(context: context);
             var ongoingEvents = this.widget.viewModel.ongoingEvents;
-            if (this.widget.viewModel.eventOngoingLoading && ongoingEvents.isEmpty()) {
-                return new GlobalLoading();
+            if (!this._hasBeenLoadedData || this.widget.viewModel.eventOngoingLoading && ongoingEvents.isEmpty()) {
+                return new Container(
+                    padding: EdgeInsets.only(bottom: CConstant.TabBarHeight +
+                                                     CCommonUtils.getSafeAreaBottomPadding(context: context)),
+                    child: new GlobalLoading()
+                );
             }
 
-            if (ongoingEvents.Count <= 0) {
-                return new BlankView(
-                    "暂无新活动，看看往期活动吧",
-                    "image/default-event",
-                    true,
-                    () => {
-                        this.widget.actionModel.startFetchEventOngoing();
-                        this.widget.actionModel.fetchEvents(arg1: firstPageNumber, arg2: eventTab);
-                    }
+            if (0 == ongoingEvents.Count) {
+                return new Container(
+                    padding: EdgeInsets.only(bottom: CConstant.TabBarHeight +
+                                                     CCommonUtils.getSafeAreaBottomPadding(context: context)),
+                    child: new BlankView(
+                        "暂无新活动，看看往期活动吧",
+                        "image/default-event",
+                        true,
+                        () => {
+                            this.widget.actionModel.startFetchEventOngoing();
+                            this.widget.actionModel.fetchEvents(arg1: firstPageNumber, arg2: eventTab);
+                        }
+                    )
                 );
             }
 
