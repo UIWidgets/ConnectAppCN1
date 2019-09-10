@@ -215,7 +215,14 @@ namespace ConnectApp.screens {
                                                      height: 40,
                                                      decoration: new BoxDecoration(
                                                          color: CColors.Error,
-                                                         borderRadius: BorderRadius.all(20)
+                                                         borderRadius: BorderRadius.all(20),
+                                                         boxShadow: new List<BoxShadow> {
+                                                             new BoxShadow(
+                                                                 color: CColors.Black.withOpacity(0.2f),
+                                                                 blurRadius: 8,
+                                                                 spreadRadius: 0,
+                                                                 offset: new Offset(0, 2))
+                                                         }
                                                      ),
                                                      padding: EdgeInsets.symmetric(0, 16),
                                                      child: new Center(
