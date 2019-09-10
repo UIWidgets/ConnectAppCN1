@@ -425,7 +425,7 @@ namespace ConnectApp.screens {
                                 width: 44,
                                 height: 49,
                                 child: new Center(
-                                    child: new Icon(Icons.outline_event, size: 28, color: CColors.Icon)
+                                    child: new Icon(Icons.outline_photo_size_select_actual, size: 28, color: CColors.Icon)
                                 )
                             )
                         ),

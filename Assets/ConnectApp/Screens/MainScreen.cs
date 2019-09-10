@@ -34,8 +34,8 @@ namespace ConnectApp.screens {
                             ),
                             new CustomTabBarItem(
                                 2,
-                                Icons.outline_notification,
-                                Icons.notification,
+                                Icons.outline_question_answer,
+                                Icons.question_answer,
                                 "群聊",
                                 notification: "9"
                             ),

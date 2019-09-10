@@ -15,6 +15,11 @@ namespace ConnectApp.Constants {
         public static readonly IconData WechatIcon = new IconData(0xe61f, "iconfont");
 
         public static readonly IconData description = new IconData(0xe873, "Material Icons");
+        public static readonly IconData question_answer = new IconData(0xe8af, "Material Icons");
+        public static readonly IconData outline_question_answer = new IconData(0xeaa4, "Outline Material Icons");
+        public static readonly IconData whatshot = new IconData(0xe80e, "Material Icons");
+        public static readonly IconData outline_photo_size_select_actual = new IconData(0xebca, "Outline Material Icons");
+        public static readonly IconData notifications_off = new IconData(0xe7f6, "Material Icons");
         public static readonly IconData outline_description = new IconData(0xe621, "iconfont");
         public static readonly IconData eventIcon = new IconData(0xe60b, "iconfont");
         public static readonly IconData outline_event = new IconData(0xe614, "iconfont");

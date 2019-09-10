@@ -469,7 +469,7 @@ namespace ConnectApp.screens {
                                                     alignment: Alignment.centerRight,
                                                     child: channel.silenced
                                                         ? (Widget) new Icon(
-                                                            Icons.notification,
+                                                            Icons.notifications_off,
                                                             size: 16, color: CColors.LighBlueGrey)
                                                         : new NotificationDot(
                                                             channel.unread > 99
@@ -524,7 +524,7 @@ namespace ConnectApp.screens {
                                         channel.isHot
                                             ? new Row(
                                                 children: new List<Widget> {
-                                                    new Icon(Icons.favorite, color: CColors.Error, size: 18),
+                                                    new Icon(Icons.whatshot, color: CColors.Error, size: 18),
                                                     new Container(width: 7),
                                                     new Expanded(child: title)
                                                 }

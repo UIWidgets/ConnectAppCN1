@@ -30,6 +30,7 @@ namespace ConnectApp.Main {
 
         static void LoadFonts() {
             FontManager.instance.addFont(Resources.Load<Font>("font/Material Icons"), "Material Icons");
+            FontManager.instance.addFont(Resources.Load<Font>("font/Outline Material Icons"), "Outline Material Icons");
             FontManager.instance.addFont(Resources.Load<Font>("font/Roboto-Regular"), "Roboto-Regular");
             FontManager.instance.addFont(Resources.Load<Font>("font/Roboto-Medium"), "Roboto-Medium");
             FontManager.instance.addFont(Resources.Load<Font>("font/Roboto-Bold"), "Roboto-Bold");
