@@ -20,6 +20,11 @@ namespace ConnectApp.Utils {
         public const string POST = "POST";
     }
 
+    public class HttpResponseContent {
+        public string text;
+        public Dictionary<string, string> headers;
+    }
+
     public static class HttpManager {
         const string COOKIE = "Cookie";
         static string vsCookie;
@@ -81,7 +86,13 @@ namespace ConnectApp.Utils {
             return promise;
         }
 
-        static IEnumerator sendRequest(Promise<string> promise, UnityWebRequest request) {
+        public static Promise<HttpResponseContent> resumeAll(UnityWebRequest request) {
+            var promise = new Promise<HttpResponseContent>();
+            Window.instance.startCoroutine(sendRequestAll(promise, request));
+            return promise;
+        }
+        
+        static IEnumerator sendRequestAll(Promise<HttpResponseContent> promise, UnityWebRequest request) {
             yield return request.SendWebRequest();
             if (request.isNetworkError) {
                 promise.Reject(new Exception("NetworkError"));
@@ -99,6 +110,33 @@ namespace ConnectApp.Utils {
                     updateCookie(cookie);
                 }
 
+                var content = new HttpResponseContent {
+                    text = request.downloadHandler.text,
+                    headers = request.GetResponseHeaders()
+                };
+                
+                promise.Resolve(content);
+            }
+        }
+
+        static IEnumerator sendRequest(Promise<string> promise, UnityWebRequest request) {
+            yield return request.SendWebRequest();
+            if (request.isNetworkError) {
+                promise.Reject(new Exception("NetworkError"));
+            }
+            else if (request.responseCode == 401) {
+                StoreProvider.store.dispatcher.dispatch(new LogoutAction());
+                promise.Reject(new Exception(request.downloadHandler.text));
+            }
+            else if (request.responseCode != 200) {
+                promise.Reject(new Exception(request.downloadHandler.text));
+            }
+            else {
+                if (request.GetResponseHeaders().ContainsKey("Set-Cookie")) {
+                    var cookie = request.GetResponseHeaders()["Set-Cookie"];
+                    updateCookie(cookie);
+                }
+                
                 promise.Resolve(request.downloadHandler.text);
             }
         }
@@ -139,6 +177,28 @@ namespace ConnectApp.Utils {
 
         public static string getCookie() {
             return _cookieHeader();
+        }
+
+        public static string getCookie(string key) {
+            var cookie = getCookie();
+            if (cookie.isNotEmpty()) {
+                var cookieArr = cookie.Split(';');
+                foreach (var c in cookieArr) {
+                    var carr = c.Split('=');
+
+                    if (carr.Length != 2) {
+                        continue;
+                    }
+
+                    var name = carr[0];
+                    var value = carr[1];
+                    if (name == key) {
+                        return value;
+                    }
+                }
+            }
+
+            return null;
         }
 
         static void updateCookie(string newCookie) {

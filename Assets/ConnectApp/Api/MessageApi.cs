@@ -5,9 +5,24 @@ using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.foundation;
+using UnityEngine;
 
 namespace ConnectApp.Api {
     public static class MessageApi {
+        public static void ConnectToFeed(Dictionary<string, string> header) {
+            SocketGateway.instance.Connect(() => 
+            {
+                if (HttpManager.getCookie().isNotEmpty()) {
+                    var sessionId = HttpManager.getCookie("LS");
+                    var commitId = header["X-Last-Commmit-Hash"];
+                    SocketGateway.instance.Identify(sessionId, commitId);
+                }
+            },
+                message => {
+                    Debug.Log("msg = " + message + " " + Application.targetFrameRate);
+                });
+        }
+        
         public static Promise<FetchCommentsResponse> FetchMessages(string channelId, string currOldestMessageId) {
             var promise = new Promise<FetchCommentsResponse>();
             var para = new Dictionary<string, object> ();

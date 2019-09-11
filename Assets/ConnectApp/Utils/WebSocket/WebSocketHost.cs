@@ -36,7 +36,7 @@ namespace ConnectApp.Utils {
 
         static bool _singletonChecker = false;
 
-        WebSocketManager _webSocketManager;
+        SocketGateway _socketGateway;
 
         void Awake() {
             if (_singletonChecker) {
@@ -45,8 +45,7 @@ namespace ConnectApp.Utils {
             }
             _singletonChecker = true;
             
-            this._webSocketManager = new WebSocketManager(this);
-            DontDestroyOnLoad(this.gameObject);
+            this._socketGateway = new SocketGateway(this);
         }
     }
 }

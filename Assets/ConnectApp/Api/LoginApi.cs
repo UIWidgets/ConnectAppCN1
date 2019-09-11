@@ -15,9 +15,13 @@ namespace ConnectApp.Api {
                 password = password
             };
             var request = HttpManager.POST($"{Config.apiAddress}/api/connectapp/auth/live/login", para);
-            HttpManager.resume(request).Then(responseText => {
+            HttpManager.resumeAll(request).Then(responseContent => {
+                var responseText = responseContent.text;
                 var loginInfo = JsonConvert.DeserializeObject<LoginInfo>(responseText);
                 promise.Resolve(loginInfo);
+                
+                MessageApi.ConnectToFeed(responseContent.headers);
+                
             }).Catch(exception => { promise.Reject(exception); });
             return promise;
         }

@@ -218,4 +218,88 @@ namespace ConnectApp.Models.Api {
         public Dictionary<string, bool> eggs;
         public bool scan;
     }
+
+    [Serializable]
+    public class SocketGatewayResponse {
+        public string url;
+        public List<string> urls;
+    }
+
+    [Serializable]
+    public class SocketRequestPayload {
+        //opcode
+        public int op;
+        //data body
+        public SocketRequestData d;
+    }
+    
+    [Serializable]
+    public class SocketRequestData {
+    }
+
+    [Serializable]
+    public class SocketIdentifyRequest : SocketRequestData {
+        public string ls;
+        public string commitId;
+        public Dictionary<string, string> properties;
+    }
+
+    [Serializable]
+    public class SocketResumeRequest : SocketRequestData {
+        public string sessionId;
+        public int seq;
+    }
+
+    [Serializable]
+    public class SocketResponsePayload {
+        //opcode
+        public int op;
+        //seq
+        public int s;
+        //type
+        public string type;
+        //data
+        public SocketResponseData d;
+    }
+
+    [Serializable]
+    public class SocketResponseData {
+        public string sessionId;
+        public string userId;
+        public List<SocketResponseReadState> readState;
+        public List<SocketResponseLastMessages> lastMessages;
+        public List<SocketResponseRelationShips> relationships;
+    }
+
+    [Serializable]
+    public class SocketResponseReadState {
+        public string channelId;
+        public string lastMessageId;
+        public string lastMentionid;
+        public int mentionCount;
+    }
+
+    [Serializable]
+    public class SocketResponseLastMessages {
+        public string id;
+        public string type;
+        public string channelId;
+        public SocketResponseLastMessagesAuthor author;
+        public string content;
+        public string nonce;
+        public bool mentionEveryone;
+    }
+
+    [Serializable]
+    public class SocketResponseLastMessagesAuthor {
+        public string id;
+    }
+
+    [Serializable]
+    public class SocketResponseRelationShips {
+        public string otherUserId;
+        public string status;
+        public string actionUserId;
+        public string channelId;
+    }
 }
