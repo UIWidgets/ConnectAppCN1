@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
@@ -12,12 +13,11 @@ using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
-using Avatar = ConnectApp.Components.Avatar;
 using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.screens {
@@ -52,6 +52,7 @@ namespace ConnectApp.screens {
                         editPersonalInfo = (fullName, title, jobRoleId, placeId) =>
                             dispatcher.dispatch<IPromise>(Actions.editPersonalInfo(fullName, title, jobRoleId,
                                 placeId)),
+                        updateAvatar = image => dispatcher.dispatch<IPromise>(Actions.updateAvatar(image)),
                         changeFullName = fullName =>
                             dispatcher.dispatch(new ChangePersonalFullNameAction {fullName = fullName}),
                         changeTitle = title =>
@@ -95,6 +96,9 @@ namespace ConnectApp.screens {
         readonly FocusNode _titleFocusNode = new FocusNode();
         Dictionary<string, string> _jobRole;
 
+        string _pickImageSubId;
+        string _pickedImage;
+
         public override void initState() {
             base.initState();
             StatusBarManager.statusBarStyle(false);
@@ -123,6 +127,16 @@ namespace ConnectApp.screens {
                     }
                 });
             });
+
+            this._pickImageSubId = EventBus.subscribe(sName: EventBusConstant.pickAvatarSuccess, args => {
+                this._pickedImage = (string) args[0];
+                this.setState();
+            });
+        }
+
+        public override void dispose() {
+            EventBus.unSubscribe(EventBusConstant.pickAvatarSuccess, this._pickImageSubId);
+            base.dispose();
         }
 
         void _editPersonalInfo() {
@@ -136,10 +150,29 @@ namespace ConnectApp.screens {
                 this.widget.viewModel.title,
                 this.widget.viewModel.jobRole.id,
                 this.widget.viewModel.place
-            ).Then(() => {
+            ).Then(() => { this.updateAvatar(true); }).Catch(error => { this.updateAvatar(false); });
+        }
+
+        void updateAvatar(bool editSuccess) {
+            if (!editSuccess) {
+                CustomDialogUtils.hiddenCustomDialog();
+                CustomDialogUtils.showToast("提交失败", Icons.sentiment_dissatisfied);
+                return;
+            }
+
+            if (this._pickedImage.isEmpty()) {
                 CustomDialogUtils.hiddenCustomDialog();
                 this.widget.actionModel.mainRouterPop();
-            }).Catch(error => CustomDialogUtils.hiddenCustomDialog());
+            }
+            else {
+                this.widget.actionModel.updateAvatar(this._pickedImage).Then(() => {
+                    CustomDialogUtils.hiddenCustomDialog();
+                    this.widget.actionModel.mainRouterPop();
+                }).Catch(error => {
+                    CustomDialogUtils.hiddenCustomDialog();
+                    CustomDialogUtils.showToast("提交失败", Icons.sentiment_dissatisfied);
+                });
+            }
         }
 
         public override Widget build(BuildContext context) {
@@ -192,7 +225,7 @@ namespace ConnectApp.screens {
             return new Container(
                 child: new ListView(
                     children: new List<Widget> {
-                        // this._buildHeader(),
+                        this._buildHeader(),
                         this._buildInputItem(
                             "昵称",
                             "请输入你的昵称",
@@ -226,11 +259,70 @@ namespace ConnectApp.screens {
                 new Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: new List<Widget> {
-                        Avatar.User(
-                            user: user,
-                            120
+                        new GestureDetector(
+                            child: this._buildAvatar(user),
+                            onTap: PickImageManager.showActionSheet
                         )
                     }
+                )
+            );
+        }
+
+        Widget _buildAvatar(User user) {
+            var avatarSize = 120;
+            var border = Border.all(
+                color: CColors.White,
+                width: 2
+            );
+
+            var httpsUrl = user.avatar;
+            // fix Android 9 http request error 
+            if (httpsUrl.Contains("http://")) {
+                httpsUrl = httpsUrl.Replace("http://", "https://");
+            }
+
+            var image = this._pickedImage.isEmpty()
+                ? Image.network(httpsUrl)
+                : Image.memory(Convert.FromBase64String(this._pickedImage));
+            var child = (user.avatar.isEmpty() && this._pickedImage.isEmpty())
+                ? new Container(
+                    child: new _Placeholder(
+                        user.id ?? "",
+                        user.fullName ?? "",
+                        size: avatarSize
+                    )
+                )
+                : new Container(
+                    width: avatarSize,
+                    height: avatarSize,
+                    color: CColors.AvatarLoading,
+                    child: image
+                );
+            return new Container(
+                width: 120,
+                height: 120,
+                decoration: new BoxDecoration(
+                    borderRadius: BorderRadius.circular(60),
+                    border: border
+                ),
+                child: new ClipRRect(
+                    borderRadius: BorderRadius.circular(avatarSize),
+                    child: new Stack(
+                        children: new List<Widget> {
+                            child,
+                            new Positioned(
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
+                                child: new Container(
+                                    height: 32,
+                                    color: Color.fromRGBO(0, 0, 0, 0.3f),
+                                    child: new Container(
+                                        color: CColors.Transparent,
+                                        child: new Icon(Icons.camera_alt, size: 20, color: CColors.White))
+                                )
+                            )
+                        })
                 )
             );
         }
