@@ -118,7 +118,6 @@ namespace ConnectApp.redux.actions {
                     .Catch(error => {
                         CustomDialogUtils.hiddenCustomDialog();
                         dispatcher.dispatch(new LoginByWechatFailureAction());
-                        Debug.Log(message: error);
                     });
             });
         }
