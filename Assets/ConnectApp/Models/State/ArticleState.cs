@@ -9,12 +9,14 @@ namespace ConnectApp.Models.State {
         public bool followArticlesLoading { get; set; }
         public bool articleDetailLoading { get; set; }
         public List<string> recommendArticleIds { get; set; }
-        public Dictionary<string, List<string>> followArticleIdDict { get; set; }
+        public Dictionary<string, List<Feed>> followArticleIdDict { get; set; }
         public Dictionary<string, List<string>> hotArticleIdDict { get; set; }
         public bool hottestHasMore { get; set; }
         public bool followArticleHasMore { get; set; }
         public bool hotArticleHasMore { get; set; }
         public int hotArticlePage { get; set; }
+        public bool feedHasNew { get; set; }
+        public bool feedIsFirst { get; set; }
         public Dictionary<string, Article> articleDict { get; set; }
         public List<Article> articleHistory { get; set; }
         public List<string> blockArticleList { get; set; }

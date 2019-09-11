@@ -10,6 +10,10 @@ using Unity.UIWidgets.Redux;
 using UnityEngine;
 
 namespace ConnectApp.redux.actions {
+    public class ArticleMapAction : BaseAction {
+        public Dictionary<string, Article> articleMap;
+    }
+
     public class StartFetchArticlesAction : RequestAction {
     }
 
@@ -17,6 +21,7 @@ namespace ConnectApp.redux.actions {
         public List<Article> articleList;
         public bool hottestHasMore;
         public int offset;
+        public bool feedHasNew;
     }
 
     public class FetchArticleFailureAction : BaseAction {
@@ -26,12 +31,14 @@ namespace ConnectApp.redux.actions {
     }
 
     public class FetchFollowArticleSuccessAction : BaseAction {
-        public List<Article> projects;
-        public bool projectHasMore;
-        public List<Article> hottests;
-        public bool hottestHasMore;
+        public List<Feed> feeds;
+        public bool feedHasNew;
+        public bool feedIsFirst;
+        public bool feedHasMore;
+        public List<HottestItem> hotItems;
+        public bool hotHasMore;
+        public int hotPage;
         public int pageNumber;
-        public int page;
     }
 
     public class FetchFollowArticleFailureAction : BaseAction {
@@ -117,9 +124,9 @@ namespace ConnectApp.redux.actions {
     }
 
     public static partial class Actions {
-        public static object fetchArticles(int offset) {
+        public static object fetchArticles(string userId, int offset) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ArticleApi.FetchArticles(offset)
+                return ArticleApi.FetchArticles(userId: userId, offset: offset)
                     .Then(articlesResponse => {
                         var articleList = new List<Article>();
                         articlesResponse.hottests.ForEach(item => {
@@ -132,11 +139,11 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new TeamMapAction {teamMap = articlesResponse.teamMap});
                         dispatcher.dispatch(new FollowMapAction {followMap = articlesResponse.followMap});
                         dispatcher.dispatch(new LikeMapAction {likeMap = articlesResponse.likeMap});
-                        dispatcher.dispatch(new PlaceMapAction {placeMap = articlesResponse.placeMap});
                         dispatcher.dispatch(new FetchArticleSuccessAction {
                             offset = offset,
                             hottestHasMore = articlesResponse.hottestHasMore,
-                            articleList = articleList
+                            articleList = articleList,
+                            feedHasNew = articlesResponse.feedHasNew
                         });
                     })
                     .Catch(error => {
@@ -146,21 +153,25 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object fetchFollowArticles(int pageNumber) {
+        public static object fetchFollowArticles(int pageNumber, string beforeTime, string afterTime, bool isFirst, bool isHot) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ArticleApi.FetchFollowArticles(pageNumber)
+                return ArticleApi.FetchFollowArticles(pageNumber: pageNumber, beforeTime: beforeTime,
+                        afterTime: afterTime, isFirst: isFirst, isHot: isHot)
                     .Then(followArticlesResponse => {
+                        dispatcher.dispatch(new ArticleMapAction {articleMap = followArticlesResponse.projectSimpleMap});
                         dispatcher.dispatch(new UserMapAction {userMap = followArticlesResponse.userMap});
                         dispatcher.dispatch(new TeamMapAction {teamMap = followArticlesResponse.teamMap});
                         dispatcher.dispatch(new FollowMapAction {followMap = followArticlesResponse.followMap});
                         dispatcher.dispatch(new LikeMapAction {likeMap = followArticlesResponse.likeMap});
                         dispatcher.dispatch(new FetchFollowArticleSuccessAction {
-                            pageNumber = pageNumber,
-                            projects = followArticlesResponse.projects,
-                            projectHasMore = followArticlesResponse.projectHasMore,
-                            hottests = followArticlesResponse.hottests,
-                            hottestHasMore = followArticlesResponse.hottestHasMore,
-                            page = followArticlesResponse.page
+                            feeds = followArticlesResponse.feeds,
+                            feedHasNew = followArticlesResponse.feedHasNew,
+                            feedIsFirst = followArticlesResponse.feedIsFirst,
+                            feedHasMore = followArticlesResponse.feedHasMore,
+                            hotItems = followArticlesResponse.hotItems,
+                            hotHasMore = followArticlesResponse.hotHasMore,
+                            hotPage = followArticlesResponse.hotPage,
+                            pageNumber = pageNumber
                         });
                     })
                     .Catch(error => {
@@ -172,7 +183,7 @@ namespace ConnectApp.redux.actions {
 
         public static object fetchArticleComments(string channelId, string currOldestMessageId = "") {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ArticleApi.FetchArticleComments(channelId, currOldestMessageId)
+                return ArticleApi.FetchArticleComments(channelId: channelId, currOldestMessageId: currOldestMessageId)
                     .Then(responseComments => {
                         var itemIds = new List<string>();
                         var messageItems = new Dictionary<string, Message>();

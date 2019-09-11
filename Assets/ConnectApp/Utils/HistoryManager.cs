@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace ConnectApp.Utils {
     public static class HistoryManager {
+        const string _homeAfterTimeKey = "homeAfterTimeKey";
         const string _searchArticleHistoryKey = "searchArticleHistoryKey";
         const string _articleHistoryKey = "articleHistoryKey";
         const string _eventHistoryKey = "eventHistoryKey";
@@ -14,6 +15,25 @@ namespace ConnectApp.Utils {
         const int _searchArticleHistoryLimit = 5;
         const int _articleHistoryLimit = 50;
         const int _eventHistoryLimit = 50;
+
+        public static string homeAfterTime(string userId) {
+            if (!PlayerPrefs.HasKey(_homeAfterTimeKey + userId)) {
+                return "";
+            }
+
+            return PlayerPrefs.GetString(_homeAfterTimeKey + userId);
+        }
+
+        public static void saveHomeAfterTime(string afterTime, string userId) {
+            PlayerPrefs.SetString(_homeAfterTimeKey + userId, value: afterTime);
+            PlayerPrefs.Save();
+        }
+
+        public static void deleteHomeAfterTime(string userId) {
+            if (PlayerPrefs.HasKey(_homeAfterTimeKey + userId)) {
+                PlayerPrefs.DeleteKey(_homeAfterTimeKey + userId);
+            }
+        }
 
         public static List<Article> articleHistoryList(string userId = _visitorId) {
             var articleHistory = PlayerPrefs.GetString(_articleHistoryKey + userId);
