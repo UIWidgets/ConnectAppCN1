@@ -52,11 +52,11 @@ namespace ConnectApp.screens {
                 converter: state => {
                     return new ChannelScreenViewModel {
                         channelInfo = new ChannelView {
-                            imageUrl =
+                            thumbnail =
                                 "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "UI Widgets 技术交流",
                             members = new List<User> { },
-                            isHot = true,
+                            live = true,
                             joined = true,
                         },
                         messages = new List<ChannelMessageView> {
@@ -265,7 +265,7 @@ namespace ConnectApp.screens {
                     message,
                     showTime: i == 0 || (message.time -
                                          this.widget.viewModel.messages[i - 1].time) > TimeSpan.FromMinutes(5),
-                    left: message.sender.id != this.widget.viewModel.me.id
+                    left: message.author.id != this.widget.viewModel.me.id
                 ));
             }
 
@@ -286,14 +286,14 @@ namespace ConnectApp.screens {
         Widget _buildMessage(ChannelMessageView message, bool showTime, bool left) {
             Widget avatar = new Container(
                 padding: EdgeInsets.symmetric(0, 10),
-                child: Avatar.User(message.sender, size: 40)
+                child: Avatar.User(message.author, size: 40)
             );
             Widget messageContent = new Column(
                 crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end,
                 children: new List<Widget> {
                     new Container(
                         padding: EdgeInsets.only(bottom: 6),
-                        child: new Text(message.sender.name, style: CTextStyle.PSmallBody4)
+                        child: new Text(message.author.name, style: CTextStyle.PSmallBody4)
                     ),
                     new Container(
                         constraints: new BoxConstraints(

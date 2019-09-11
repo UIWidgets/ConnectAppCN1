@@ -24,23 +24,7 @@ namespace ConnectApp.screens {
                 converter: state => {
                     return new DiscoverChannelsScreenViewModel {
                         discoverChannelInfo = state.channelState.publicChannels.Select(
-                            channel => {
-                                return new ChannelView {
-                                    silenced = channel.isMute,
-                                    atAll = channel.lastMessage.content.Contains("@all"),
-                                    members = new List<User>(),
-                                    id = channel.id,
-                                    groupId = channel.groupId,
-                                    thumbnail = channel.thumbnail,
-                                    imageUrl = channel.imageUrl,
-                                    name = channel.name,
-                                    topic = channel.topic,
-                                    memberCount = channel.memberCount,
-                                    isMute = channel.isMute,
-                                    live = channel.live,
-                                    lastMessage = channel.lastMessage
-                                };
-                            }
+                            ChannelView.fromChannel
                         ).ToList()
                     };
                 },
