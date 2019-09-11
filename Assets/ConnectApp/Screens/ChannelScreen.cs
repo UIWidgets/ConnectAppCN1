@@ -382,8 +382,7 @@ namespace ConnectApp.screens {
 
         Widget _buildInputBar() {
             Widget ret = new Container(
-                height: 49,
-                padding: EdgeInsets.only(16, right: 10),
+                padding: EdgeInsets.only(16, right: 10, bottom: 34),
                 decoration: new BoxDecoration(
                     border: new Border(new BorderSide(CColors.Separator)),
                     color: CColors.TabBarBg
@@ -436,16 +435,16 @@ namespace ConnectApp.screens {
                 )
             );
 
-            ret = new Column(
-                children: new List<Widget> {
-                    new Expanded(child: new Container()),
-                    ret,
-                    new Container(height: 34, color: CColors.TabBarBg)
-                }
-            );
-
             ret = new BackdropFilter(
-                filter: ImageFilter.blur(25, 25),
+                filter: ImageFilter.blur(10, 10),
+                child: ret
+            );
+            
+            ret = new Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                height: 83,
                 child: ret
             );
 
