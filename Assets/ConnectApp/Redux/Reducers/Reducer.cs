@@ -5,8 +5,8 @@ using ConnectApp.Components;
 using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
-using ConnectApp.redux.actions;
 using ConnectApp.Reality;
+using ConnectApp.redux.actions;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
@@ -858,6 +858,24 @@ namespace ConnectApp.redux.reducers {
                         }
 
                         state.userState.userDict = userDict;
+                    }
+
+                    break;
+                }
+
+                case UserLicenseMapAction action: {
+                    if (action.userLicenseMap != null && action.userLicenseMap.isNotEmpty()) {
+                        var userLicenseDict = state.userState.userLicenseDict;
+                        foreach (var keyValuePair in action.userLicenseMap) {
+                            if (userLicenseDict.ContainsKey(key: keyValuePair.Key)) {
+                                userLicenseDict[key: keyValuePair.Key] = keyValuePair.Value;
+                            }
+                            else {
+                                userLicenseDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
+                            }
+                        }
+
+                        state.userState.userLicenseDict = userLicenseDict;
                     }
 
                     break;
@@ -2171,6 +2189,7 @@ namespace ConnectApp.redux.reducers {
                     state.eggState.scanEnabled = action.scanEnabled;
                     break;
                 }
+
                 case EnterRealityAction _: {
                     // Enter Reality
                     RealityManager.TriggerSwitch();

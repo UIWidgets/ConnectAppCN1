@@ -142,6 +142,8 @@ namespace ConnectApp.redux.actions {
                             }
                         });
                         dispatcher.dispatch(new UserMapAction {userMap = userMap});
+                        dispatcher.dispatch(new UserLicenseMapAction
+                            {userLicenseMap = searchUserResponse.userLicenseMap});
                         dispatcher.dispatch(new SearchUserSuccessAction {
                             keyword = keyword,
                             pageNumber = pageNumber,
@@ -173,7 +175,7 @@ namespace ConnectApp.redux.actions {
                     });
             });
         }
-        
+
         public static object popularSearchUser() {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return SearchApi.PopularSearchUser()

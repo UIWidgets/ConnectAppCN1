@@ -12,8 +12,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
@@ -45,6 +45,7 @@ namespace ConnectApp.screens {
                         members = members,
                         membersHasMore = team.membersHasMore ?? false,
                         userDict = state.userState.userDict,
+                        userLicenseDict = state.userState.userLicenseDict,
                         followMap = followMap,
                         currentUserId = currentUserId,
                         isLoggedIn = state.loginState.isLoggedIn
@@ -267,10 +268,11 @@ namespace ConnectApp.screens {
 
             return new UserCard(
                 user: user,
+                CCommonUtils.GetUserLicense(userId: user.id, userLicenseMap: this.widget.viewModel.userLicenseDict),
                 () => this.widget.actionModel.pushToUserDetail(obj: user.id),
                 userType: userType,
                 () => this._onFollow(userType: userType, userId: user.id),
-                new ObjectKey(value: user.id)
+                key: new ObjectKey(value: user.id)
             );
         }
 

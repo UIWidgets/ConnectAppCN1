@@ -1,3 +1,5 @@
+using ConnectApp.redux;
+using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.widgets;
@@ -22,6 +24,13 @@ namespace ConnectApp.Components {
         public override void initState() {
             base.initState();
             HttpManager.initVSCode();
+            if (UserInfoManager.isLogin()) {
+                var userId = UserInfoManager.initUserInfo().userId ?? "";
+                if (userId.isNotEmpty()) {
+                    StoreProvider.store.dispatcher.dispatch(Actions.fetchUserProfile(userId: userId));
+                }
+            }
+
             var needCheckUpdater = VersionManager.needCheckUpdater();
             if (needCheckUpdater) {
                 VersionManager.checkForUpdates(type: CheckVersionType.first);

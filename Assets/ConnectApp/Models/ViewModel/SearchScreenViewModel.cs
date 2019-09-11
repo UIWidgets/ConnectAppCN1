@@ -19,6 +19,7 @@ namespace ConnectApp.Models.ViewModel {
         public List<string> searchUserHistoryList;
         public Dictionary<string, Article> articleDict;
         public Dictionary<string, User> userDict;
+        public Dictionary<string, UserLicense> userLicenseDict;
         public Dictionary<string, Team> teamDict;
         public List<PopularSearch> popularSearchArticleList;
         public List<PopularSearch> popularSearchUserList;

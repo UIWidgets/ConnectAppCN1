@@ -147,30 +147,12 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch<IPromise>(fetchUserArticle(userId: userProfileResponse.user.id, 1));
                         dispatcher.dispatch(new PlaceMapAction {placeMap = userProfileResponse.placeMap});
                         dispatcher.dispatch(new TeamMapAction {teamMap = userProfileResponse.teamMap});
-                        var userMap = new Dictionary<string, User>();
-                        (userProfileResponse.followings ?? new List<User>()).ForEach(followingUser => {
-                            if (userMap.ContainsKey(key: followingUser.id)) {
-                                userMap[key: followingUser.id] = followingUser;
-                            }
-                            else {
-                                userMap.Add(key: followingUser.id, value: followingUser);
-                            }
-                        });
-                        (userProfileResponse.followers ?? new List<User>()).ForEach(followerUser => {
-                            if (userMap.ContainsKey(key: followerUser.id)) {
-                                userMap[key: followerUser.id] = followerUser;
-                            }
-                            else {
-                                userMap.Add(key: followerUser.id, value: followerUser);
-                            }
-                        });
-                        dispatcher.dispatch(new UserMapAction {userMap = userMap});
                         dispatcher.dispatch(new FollowMapAction {followMap = userProfileResponse.followMap});
+                        dispatcher.dispatch(new UserLicenseMapAction
+                            {userLicenseMap = userProfileResponse.userLicenseMap});
                         var user = userProfileResponse.user;
                         user.followingUsersCount = userProfileResponse.followingCount;
-                        user.followingUsers = userProfileResponse.followings;
                         user.followingUsersHasMore = userProfileResponse.followingsHasMore;
-                        user.followers = userProfileResponse.followers;
                         user.followersHasMore = userProfileResponse.followersHasMore;
                         user.followingTeamsCount = userProfileResponse.followingTeamsCount;
                         user.followingTeams = userProfileResponse.followingTeams;
@@ -303,6 +285,8 @@ namespace ConnectApp.redux.actions {
                             userMap.Add(key: followingUser.id, value: followingUser);
                         });
                         dispatcher.dispatch(new UserMapAction {userMap = userMap});
+                        dispatcher.dispatch(new UserLicenseMapAction
+                            {userLicenseMap = followingUserResponse.userLicenseMap});
                         dispatcher.dispatch(new FetchFollowingUserSuccessAction {
                             followingUsers = followingUserResponse.followings,
                             followingUsersHasMore = followingUserResponse.followingsHasMore,
@@ -336,6 +320,8 @@ namespace ConnectApp.redux.actions {
                             userMap.Add(key: follower.id, value: follower);
                         });
                         dispatcher.dispatch(new UserMapAction {userMap = userMap});
+                        dispatcher.dispatch(new UserLicenseMapAction
+                            {userLicenseMap = followerResponse.userLicenseMap});
                         dispatcher.dispatch(new FetchFollowerSuccessAction {
                             followers = followerResponse.followers,
                             followersHasMore = followerResponse.followersHasMore,

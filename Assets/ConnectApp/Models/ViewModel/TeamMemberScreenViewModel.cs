@@ -8,6 +8,7 @@ namespace ConnectApp.Models.ViewModel {
         public List<Member> members;
         public bool membersHasMore;
         public Dictionary<string, User> userDict;
+        public Dictionary<string, UserLicense> userLicenseDict;
         public Dictionary<string, bool> followMap;
         public string currentUserId;
         public bool isLoggedIn;
