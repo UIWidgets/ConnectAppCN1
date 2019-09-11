@@ -23,42 +23,25 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, DiscoverChannelsScreenViewModel>(
                 converter: state => {
                     return new DiscoverChannelsScreenViewModel {
-                        discoverChannelInfo = new List<Channel> {
-                            new Channel {
-                                imageUrl =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                                name = "Unite Shanghai 技术会场",
-                                members = new List<User>(),
-                                isHot = true,
-                                joined = true,
-                            },
-                            new Channel {
-                                imageUrl =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                                name = "游戏开发日常吐槽",
-                                members = new List<User>(),
-                                isHot = true,
-                            },
-                            new Channel {
-                                imageUrl =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                                name = "我们都爱玩游戏",
-                                members = new List<User>(),
-                                joined = true,
-                            },
-                            new Channel {
-                                imageUrl =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                                name = "今天你学Unity了吗",
-                                members = new List<User>(),
-                            },
-                            new Channel {
-                                imageUrl =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                                name = "Unity深圳Meetup",
-                                members = new List<User>(),
+                        discoverChannelInfo = state.channelState.publicChannels.Select(
+                            channel => {
+                                return new ChannelView {
+                                    silenced = channel.isMute,
+                                    atAll = channel.lastMessage.content.Contains("@all"),
+                                    members = new List<User>(),
+                                    id = channel.id,
+                                    groupId = channel.groupId,
+                                    thumbnail = channel.thumbnail,
+                                    imageUrl = channel.imageUrl,
+                                    name = channel.name,
+                                    topic = channel.topic,
+                                    memberCount = channel.memberCount,
+                                    isMute = channel.isMute,
+                                    live = channel.live,
+                                    lastMessage = channel.lastMessage
+                                };
                             }
-                        }
+                        ).ToList()
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {

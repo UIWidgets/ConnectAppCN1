@@ -27,6 +27,7 @@ namespace ConnectApp.Models.State {
         public SettingState settingState { get; set; }
         public ReportState reportState { get; set; }
         public FeedbackState feedbackState { get; set; }
+        public ChannelState channelState { get; set; }
 
         public static AppState initialState() {
             var loginInfo = UserInfoManager.initUserInfo();
@@ -155,6 +156,12 @@ namespace ConnectApp.Models.State {
                 feedbackState = new FeedbackState {
                     feedbackType = FeedbackType.Advice,
                     loading = false
+                },
+                channelState = new ChannelState {
+                    publicChannels = new List<Channel>(),
+                    publicChannelCurrentPage = 0,
+                    publicChannelPages = new List<int>(),
+                    publicChannelTotal = 0
                 }
             };
         }

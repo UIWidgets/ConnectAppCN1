@@ -67,6 +67,14 @@ namespace ConnectApp.Utils {
             var dt = startTime.AddMilliseconds(timespan);
             return DateStringFromNow(dt, true);
         }
+        
+        public static DateTime DateTimeFromNonce(string nonce) {
+            var startTime = TimeZoneInfo.ConvertTime(new DateTime(2016, 1, 1), TimeZoneInfo.Local);
+            var span = Convert.ToInt64(nonce, 16);
+            var shifted = (span + 1) >> 22;
+            var timespan = (shifted - 1);
+            return startTime.AddMilliseconds(timespan);
+        }
 
         public static EventStatus GetEventStatus(TimeMap begin) {
             if (begin == null) {

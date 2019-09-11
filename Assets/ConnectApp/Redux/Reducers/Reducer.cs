@@ -2250,6 +2250,14 @@ namespace ConnectApp.redux.reducers {
                     RealityManager.TriggerSwitch();
                     break;
                 }
+
+                case PublicChannelsAction action: {
+                    state.channelState.publicChannels = action.channels;
+                    state.channelState.publicChannelCurrentPage = action.currentPage;
+                    state.channelState.publicChannelPages = action.pages;
+                    state.channelState.publicChannelTotal = action.total;
+                    break;
+                }
             }
 
             return state;
