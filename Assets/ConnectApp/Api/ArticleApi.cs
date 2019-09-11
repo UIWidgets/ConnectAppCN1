@@ -13,9 +13,6 @@ namespace ConnectApp.Api {
             var promise = new Promise<FetchArticlesResponse>();
             var para = new Dictionary<string, object> {
                 {"language", "zh_CN"},
-                {"hottestHasMore", "true"},
-                {"feedHasMore", "false"},
-                {"isApp", "true"},
                 {"hottestOffset", offset},
                 {"afterTime", HistoryManager.homeAfterTime(userId: userId)}
             };
