@@ -8,7 +8,6 @@ using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
-using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
@@ -77,19 +76,22 @@ namespace ConnectApp.screens {
                                 time = new DateTime(2019, 9, 9, 8, 30, 0)
                             },
                             new ChannelMessage {
-                                content = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                content =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                                 sender = fish,
                                 time = new DateTime(2019, 9, 9, 8, 30, 7),
                                 type = ChannelMessageType.image
                             },
                             new ChannelMessage {
-                                content = "https://connect-prd-cdn.unity.com/20190902/p/images/b961e571-8da0-41aa-9e54-fda0fef95ba8_image2_9.png",
+                                content =
+                                    "https://connect-prd-cdn.unity.com/20190902/p/images/b961e571-8da0-41aa-9e54-fda0fef95ba8_image2_9.png",
                                 sender = dage,
                                 time = new DateTime(2019, 9, 9, 8, 30, 8),
                                 type = ChannelMessageType.image,
                             },
                             new ChannelMessage {
-                                content = "https://connect-prd-cdn.unity.com/20190829/p/images/6a9e4f35-43a2-41ef-bb90-626698ef4876_17.gif",
+                                content =
+                                    "https://connect-prd-cdn.unity.com/20190829/p/images/6a9e4f35-43a2-41ef-bb90-626698ef4876_17.gif",
                                 sender = fish,
                                 time = new DateTime(2019, 9, 9, 8, 30, 9),
                                 type = ChannelMessageType.image,
@@ -192,7 +194,7 @@ namespace ConnectApp.screens {
                     bottom: false,
                     child: new Stack(
                         children: new List<Widget> {
-                             new Container(
+                            new Container(
                                 color: CColors.Background,
                                 child: new Column(
                                     children: new List<Widget> {
@@ -200,43 +202,37 @@ namespace ConnectApp.screens {
                                         this._buildContent(),
                                     }
                                 )
-                             ),
+                            ),
                             this._buildInputBar(),
-                             this.widget.viewModel.newMessageCount == 0
-                                 ? (Widget)new Container()
-                                 : new Column(
-                                     children: new List<Widget> {
-                                         new Expanded(child: new Container()),
-                                         new Row(
-                                             children: new List<Widget> {
-                                                 new Expanded(child: new Container()),
-                                                 new Container(
-                                                     height: 40,
-                                                     decoration: new BoxDecoration(
-                                                         color: CColors.Error,
-                                                         borderRadius: BorderRadius.all(20),
-                                                         boxShadow: new List<BoxShadow> {
-                                                             new BoxShadow(
-                                                                 color: CColors.Black.withOpacity(0.2f),
-                                                                 blurRadius: 8,
-                                                                 spreadRadius: 0,
-                                                                 offset: new Offset(0, 2))
-                                                         }
-                                                     ),
-                                                     padding: EdgeInsets.symmetric(0, 16),
-                                                     child: new Center(
-                                                         child: new Text(
-                                                             $"{CStringUtils.CountToString(this.widget.viewModel.newMessageCount)}条新消息未读",
-                                                             style: CTextStyle.PRegularWhite.copyWith(height: 1)
-                                                         )
-                                                     )
-                                                 ),
-                                                 new Expanded(child: new Container()),
-                                             }
-                                         ),
-                                         new Container(height: 99)
-                                     }
-                                 )
+                            this.widget.viewModel.newMessageCount == 0
+                                ? (Widget) new Container()
+                                : Positioned.fill(
+                                    child: new Align(
+                                        alignment: Alignment.bottomCenter,
+                                        child: new Transform(
+                                            transform: Matrix3.makeTrans(0, -99),
+                                            child: new Container(
+                                                height: 40,
+                                                decoration: new BoxDecoration(
+                                                    color: CColors.Error,
+                                                    borderRadius: BorderRadius.all(20),
+                                                    boxShadow: new List<BoxShadow> {
+                                                        new BoxShadow(
+                                                            color: CColors.Black.withOpacity(0.2f),
+                                                            blurRadius: 8,
+                                                            spreadRadius: 0,
+                                                            offset: new Offset(0, 2))
+                                                    }
+                                                ),
+                                                padding: EdgeInsets.symmetric(9, 16),
+                                                child: new Text(
+                                                    $"{CStringUtils.CountToString(this.widget.viewModel.newMessageCount)}条新消息未读",
+                                                    style: CTextStyle.PRegularWhite.copyWith(height: 1.2f)
+                                                )
+                                            )
+                                        )
+                                    )
+                                ),
                         }
                     )
                 )
@@ -281,7 +277,7 @@ namespace ConnectApp.screens {
                     children: messages
                 )
             );
-            
+
             ret = new Flexible(child: ret);
 
             return ret;
@@ -354,7 +350,7 @@ namespace ConnectApp.screens {
                     )
                 }
             );
-            
+
             return new Column(
                 crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end,
                 children: new List<Widget> {
@@ -431,14 +427,15 @@ namespace ConnectApp.screens {
                                 width: 44,
                                 height: 49,
                                 child: new Center(
-                                    child: new Icon(Icons.outline_photo_size_select_actual, size: 28, color: CColors.Icon)
+                                    child: new Icon(Icons.outline_photo_size_select_actual, size: 28,
+                                        color: CColors.Icon)
                                 )
                             )
                         ),
                     }
                 )
             );
-            
+
             ret = new Column(
                 children: new List<Widget> {
                     new Expanded(child: new Container()),
@@ -446,9 +443,9 @@ namespace ConnectApp.screens {
                     new Container(height: 34, color: CColors.TabBarBg)
                 }
             );
-            
+
             ret = new BackdropFilter(
-                filter : ImageFilter.blur(25, 25),
+                filter: ImageFilter.blur(25, 25),
                 child: ret
             );
 
@@ -468,13 +465,13 @@ namespace ConnectApp.screens {
             this.ratio = ratio;
             this.radius = radius;
         }
+
         public override State createState() {
             return new _ImageMessageState();
         }
     }
-    
+
     class _ImageMessageState : State<_ImageMessage> {
-        
         Image image;
         Size size;
         ImageStream stream;
@@ -484,7 +481,7 @@ namespace ConnectApp.screens {
                 this.size = new Size(this.widget.size, this.widget.size / this.widget.ratio);
             }
             else if (info.image.width > info.image.height) {
-                this.size = new Size(this.widget.size, 
+                this.size = new Size(this.widget.size,
                     this.widget.size / info.image.width * info.image.height);
             }
             else if (info.image.width > info.image.height / this.widget.ratio) {
@@ -494,7 +491,8 @@ namespace ConnectApp.screens {
             else {
                 this.size = new Size(this.widget.size / this.widget.ratio, this.widget.size);
             }
-            this.setState(() => {});
+
+            this.setState(() => { });
         }
 
         public override void initState() {
