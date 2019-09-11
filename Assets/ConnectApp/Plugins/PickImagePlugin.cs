@@ -12,7 +12,7 @@ namespace ConnectApp.Plugins {
                 return;
             }
 
-            UIWidgetsMessageManager.instance.AddChannelMessageDelegate("pickImage", _handleMethodCall);
+            UIWidgetsMessageManager.instance.AddChannelMessageDelegate("pickImage", del: _handleMethodCall);
         }
 
         public static void removeListener() {
@@ -20,27 +20,28 @@ namespace ConnectApp.Plugins {
                 return;
             }
 
-            UIWidgetsMessageManager.instance.RemoveChannelMessageDelegate("pickImage", _handleMethodCall);
+            UIWidgetsMessageManager.instance.RemoveChannelMessageDelegate("pickImage", del: _handleMethodCall);
         }
 
         static void _handleMethodCall(string method, List<JSONNode> args) {
             if (GlobalContext.context != null) {
-                using (WindowProvider.of(GlobalContext.context).getScope()) {
+                using (WindowProvider.of(context: GlobalContext.context).getScope()) {
                     switch (method) {
                         case "success": {
                             var node = args[0];
-                            var dict = JSON.Parse(node);
+                            var dict = JSON.Parse(aJSON: node);
                             var image = (string) dict["image"];
                             if (image != null) {
                                 removeListener();
-                                EventBus.publish(EventBusConstant.pickAvatarSuccess, new List<object> {image});
+                                EventBus.publish(sName: EventBusConstant.pickAvatarSuccess, new List<object> {image});
                             }
-                        }
+
                             break;
+                        }
                         case "cancel": {
                             removeListener();
-                        }
                             break;
+                        }
                     }
                 }
             }

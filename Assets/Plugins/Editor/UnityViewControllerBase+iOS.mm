@@ -96,7 +96,7 @@
 }
 - (void) viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
-    _isHidden = NO;
+    _isHidden = YES;
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(updateApperance:) name:@"UpdateStatusBarStyle" object:nil];
 }
 
