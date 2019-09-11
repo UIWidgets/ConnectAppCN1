@@ -150,10 +150,16 @@ namespace ConnectApp.screens {
                 this.widget.viewModel.title,
                 this.widget.viewModel.jobRole.id,
                 this.widget.viewModel.place
-            ).Then(this.updateAvatar).Catch(error => this.updateAvatar());
+            ).Then(() => { this.updateAvatar(true); }).Catch(error => { this.updateAvatar(false); });
         }
 
-        void updateAvatar() {
+        void updateAvatar(bool editSuccess) {
+            if (!editSuccess) {
+                CustomDialogUtils.hiddenCustomDialog();
+                CustomDialogUtils.showToast("提交失败", Icons.sentiment_dissatisfied);
+                return;
+            }
+
             if (this._pickedImage.isEmpty()) {
                 CustomDialogUtils.hiddenCustomDialog();
                 this.widget.actionModel.mainRouterPop();
@@ -162,7 +168,10 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.updateAvatar(this._pickedImage).Then(() => {
                     CustomDialogUtils.hiddenCustomDialog();
                     this.widget.actionModel.mainRouterPop();
-                }).Catch(error => CustomDialogUtils.hiddenCustomDialog());
+                }).Catch(error => {
+                    CustomDialogUtils.hiddenCustomDialog();
+                    CustomDialogUtils.showToast("提交失败", Icons.sentiment_dissatisfied);
+                });
             }
         }
 

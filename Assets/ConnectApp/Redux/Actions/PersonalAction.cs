@@ -408,9 +408,7 @@ namespace ConnectApp.redux.actions {
                             coverImageWithCDN = editPersonalInfoResponse.user.coverImage
                         };
                         UserInfoManager.saveUserInfo(loginInfo: loginInfo);
-                    })
-                    .Catch(error => Debug.Log($"{error}")
-                    );
+                    });
             });
         }
 
@@ -420,7 +418,7 @@ namespace ConnectApp.redux.actions {
                     StoreProvider.store.dispatcher.dispatch(new UpdateAvatarSuccessAction {
                         avatar = response.avatar
                     });
-                }).Catch(exception => { });
+                });
             });
         }
     }
