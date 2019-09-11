@@ -33,6 +33,9 @@ namespace ConnectApp.screens {
                             });
                             AnalyticsManager.ClickEnterSearch("Home_Article");
                         },
+                        pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
+                            routeName = MainNavigatorRoutes.Login
+                        }),
                         fetchReviewUrl = () => dispatcher.dispatch<IPromise>(Actions.fetchReviewUrl()),
                         pushToReality = () => {
                             dispatcher.dispatch(new EnterRealityAction());
@@ -73,6 +76,7 @@ namespace ConnectApp.screens {
         float _titleFontSize;
         float _navBarHeight;
         string _loginSubId;
+        string _logoutSubId;
 
         protected override bool wantKeepAlive {
             get { return true; }
@@ -92,18 +96,33 @@ namespace ConnectApp.screens {
             this._loginSubId = EventBus.subscribe(sName: EventBusConstant.login_success, args => {
                 if (this._selectedIndex != 1) {
                     this._selectedIndex = 1;
-                    this._pageController = new PageController(initialPage: this._selectedIndex);
+                    this._pageController.animateToPage(
+                        page: this._selectedIndex,
+                        TimeSpan.FromMilliseconds(250),
+                        curve: Curves.ease
+                    );
+                }
+            });
+            this._logoutSubId = EventBus.subscribe(sName: EventBusConstant.logout_success, args => {
+                if (this._selectedIndex != 1) {
+                    this._selectedIndex = 1;
+                    this._pageController.animateToPage(
+                        page: this._selectedIndex,
+                        TimeSpan.FromMilliseconds(250),
+                        curve: Curves.ease
+                    );
                 }
             });
         }
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
         }
 
         public override void dispose() {
             EventBus.unSubscribe(sName: EventBusConstant.login_success, id: this._loginSubId);
+            EventBus.unSubscribe(sName: EventBusConstant.logout_success, id: this._logoutSubId);
             Router.routeObserve.unsubscribe(this);
             base.dispose();
         }
@@ -144,10 +163,6 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             base.build(context: context);
-            if (!this.widget.viewModel.isLoggedIn) {
-                return new RecommendArticleScreenConnector();
-            }
-
             return new Container(
                 color: CColors.White,
                 child: new Column(
@@ -215,14 +230,22 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildContentView() {
+            ScrollPhysics physics;
+            if (this.widget.viewModel.isLoggedIn) {
+                physics = new BouncingScrollPhysics();
+            }
+            else {
+                physics = new NeverScrollableScrollPhysics();
+            }
+
             return new Flexible(
                 child: new Container(
                     child: new NotificationListener<ScrollNotification>(
                         onNotification: this._onNotification,
                         child: new PageView(
-                            physics: new BouncingScrollPhysics(),
+                            physics: physics,
                             controller: this._pageController,
-                            onPageChanged: index => { this.setState(() => this._selectedIndex = index); },
+                            onPageChanged: index => this.setState(() => this._selectedIndex = index),
                             children: new List<Widget> {
                                 new FollowArticleScreenConnector(),
                                 new RecommendArticleScreenConnector()
@@ -267,6 +290,12 @@ namespace ConnectApp.screens {
             return new CustomButton(
                 onPressed: () => {
                     if (this._selectedIndex != index) {
+                        if (index == 0) {
+                            if (!this.widget.viewModel.isLoggedIn) {
+                                this.widget.actionModel.pushToLogin();
+                                return;
+                            }
+                        }
                         this.setState(() => this._selectedIndex = index);
                         this._pageController.animateToPage(
                             page: index,

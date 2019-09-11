@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
@@ -13,7 +11,6 @@ using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
@@ -41,12 +38,6 @@ namespace ConnectApp.screens {
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ArticlesScreenActionModel {
-                        pushToSearch = () => {
-                            dispatcher.dispatch(new MainNavigatorPushToAction {
-                                routeName = MainNavigatorRoutes.Search
-                            });
-                            AnalyticsManager.ClickEnterSearch("Home_Article");
-                        },
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
@@ -68,11 +59,7 @@ namespace ConnectApp.screens {
                         startFetchArticles = () => dispatcher.dispatch(new StartFetchArticlesAction()),
                         fetchArticles = offset => dispatcher.dispatch<IPromise>(Actions.fetchArticles(offset: offset)),
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
-                            Actions.shareToWechat(type, title, description, linkUrl, imageUrl)),
-                        pushToReality = () => {
-                            dispatcher.dispatch(new EnterRealityAction());
-                            AnalyticsManager.AnalyticsClickEgg(1);
-                        }
+                            Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
                     };
                     return new RecommendArticleScreen(viewModel: viewModel, actionModel: actionModel);
                 }
@@ -102,17 +89,11 @@ namespace ConnectApp.screens {
         const int initOffset = 0;
         int offset = initOffset;
         RefreshController _refreshController;
-        TextStyle titleStyle;
-        const float maxNavBarHeight = 96;
-        const float minNavBarHeight = 44;
-        float navBarHeight;
         bool _hasBeenLoadedData;
 
         public override void initState() {
             base.initState();
             this._refreshController = new RefreshController();
-            this.navBarHeight = maxNavBarHeight;
-            this.titleStyle = CTextStyle.H2;
             this._hasBeenLoadedData = false;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchArticles();
@@ -134,66 +115,8 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             base.build(context: context);
             return new Container(
-                color: CColors.White,
-                child: new Column(
-                    children: new List<Widget> {
-                        this._buildNavigationBar(),
-                        new Flexible(
-                            child: this._buildArticleList(context)
-                        )
-                    }
-                )
-            );
-        }
-
-        Widget _buildNavigationBar() {
-            if (this.widget.viewModel.isLoggedIn) {
-                return new Container();
-            }
-
-            return new AnimatedContainer(
-                height: this.navBarHeight,
-                color: CColors.White,
-                duration: TimeSpan.Zero,
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: new List<Widget> {
-                        new Container(
-                            padding: EdgeInsets.only(16, bottom: 8),
-                            child: new AnimatedDefaultTextStyle(
-                                child: new Text("推荐"),
-                                style: this.titleStyle,
-                                duration: TimeSpan.FromMilliseconds(100)
-                            )
-                        ),
-                        new Row(
-                            children: new List<Widget> {
-                                this.widget.viewModel.showFirstEgg
-                                    ? new CustomButton(
-                                        padding: EdgeInsets.only(16, 10, 8, 10),
-                                        onPressed: () => this.widget.actionModel.pushToReality(),
-                                        child: new Container(
-                                            color: CColors.Transparent,
-                                            child: new EggButton()
-                                        )
-                                    )
-                                    : (Widget) new Container(
-                                        height: 44
-                                    ),
-                                new CustomButton(
-                                    padding: EdgeInsets.only(8, 8, 16, 8),
-                                    onPressed: () => this.widget.actionModel.pushToSearch(),
-                                    child: new Icon(
-                                        icon: Icons.search,
-                                        size: 28,
-                                        color: CColors.Icon
-                                    )
-                                )
-                            }
-                        )
-                    }
-                )
+                color: CColors.Background,
+                child: this._buildArticleList(context: context)
             );
         }
 
@@ -303,20 +226,7 @@ namespace ConnectApp.screens {
                 );
             }
 
-            if (this.widget.viewModel.isLoggedIn) {
-                return new Container(
-                    color: CColors.Background,
-                    child: new CustomScrollbar(child: content)
-                );
-            }
-
-            return new NotificationListener<ScrollNotification>(
-                onNotification: this._onNotification,
-                child: new Container(
-                    color: CColors.Background,
-                    child: new CustomScrollbar(child: content)
-                )
-            );
+            return new CustomScrollbar(child: content);
         }
 
         void _onRefresh(bool up) {
@@ -324,32 +234,6 @@ namespace ConnectApp.screens {
             this.widget.actionModel.fetchArticles(arg: this.offset)
                 .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
-        }
-
-        bool _onNotification(ScrollNotification notification) {
-            var pixels = notification.metrics.pixels;
-            SchedulerBinding.instance.addPostFrameCallback(_ => {
-                if (pixels > 0 && pixels <= maxNavBarHeight - minNavBarHeight) {
-                    this.titleStyle = CTextStyle.H5;
-                    this.navBarHeight = maxNavBarHeight - pixels;
-                    this.setState(() => { });
-                }
-                else if (pixels <= 0) {
-                    if (this.navBarHeight <= maxNavBarHeight) {
-                        this.titleStyle = CTextStyle.H2;
-                        this.navBarHeight = maxNavBarHeight;
-                        this.setState(() => { });
-                    }
-                }
-                else if (pixels > maxNavBarHeight - minNavBarHeight) {
-                    if (!(this.navBarHeight <= minNavBarHeight)) {
-                        this.titleStyle = CTextStyle.H5;
-                        this.navBarHeight = minNavBarHeight;
-                        this.setState(() => { });
-                    }
-                }
-            });
-            return true;
         }
     }
 }
