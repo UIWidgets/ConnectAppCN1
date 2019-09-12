@@ -288,7 +288,93 @@ namespace ConnectApp.screens {
             if (message.type == ChannelMessageType.image) {
                 Debug.Log($"Image: {message.content}");
             }
-            Widget messageContent = new Column(
+
+            Widget messageContent = new Container();
+            switch (message.type) {
+                case ChannelMessageType.text:
+                    messageContent = new Text(message.content, style: CTextStyle.PLargeBody);
+                    break;
+                case ChannelMessageType.image:
+                    messageContent = new _ImageMessage(
+                        url: message.content,
+                        size: 140,
+                        ratio: 16.0f / 9.0f
+                    );
+                    break;
+                case ChannelMessageType.file:
+                    messageContent = new Container(
+                        padding: EdgeInsets.symmetric(12, 16),
+                        child: new Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: new List<Widget> {
+                                new Expanded(
+                                    child: new Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: new List<Widget> {
+                                            new Text(message.content, style: CTextStyle.PLargeBody),
+                                            new Container(height: 4),
+                                            new Text(CStringUtils.FileSize(message.fileSize),
+                                                style: CTextStyle.PSmallBody4)
+                                        }
+                                    )
+                                ),
+                                new Container(width: 16),
+                                new Container(
+                                    decoration: new BoxDecoration(
+                                        color: CColors.VeryLightPinkThree,
+                                        borderRadius: BorderRadius.all(16)
+                                    ),
+                                    width: 41.9f,
+                                    height: 47.9f,
+                                    child: Image.asset("image/pdf-file-icon")
+                                )
+                            }
+                        )
+                    );
+                    break;
+                case ChannelMessageType.embed:
+                    messageContent = new Container(
+                        padding: EdgeInsets.all(12),
+                        child: new Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: new List<Widget> {
+                                new Text(message.content, style: CTextStyle.PLargeBody),
+                                new Container(height: 12),
+                                new Container(
+                                    padding: EdgeInsets.all(12),
+                                    color: CColors.White,
+                                    child: new Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: new List<Widget> {
+                                            new Text(message.embeds[0].embedData.title ?? "",
+                                                style: CTextStyle.PLargeMediumBlue),
+                                            new Container(height: 4),
+                                            message.embeds[0].embedData.description == null
+                                                ? new Container()
+                                                : new Container(
+                                                    padding: EdgeInsets.only(bottom: 4),
+                                                    child: new Text(message.embeds[0].embedData.description ?? "",
+                                                        style: CTextStyle.PRegularBody3, maxLines: 4,
+                                                        overflow: TextOverflow.ellipsis)),
+                                            new Row(
+                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                children: new List<Widget> {
+                                                    Image.network(message.embeds[0].embedData.image,
+                                                        width: 14, height: 14, fit: BoxFit.cover),
+                                                    new Container(width: 4),
+                                                    new Text(message.embeds[0].embedData.name ?? "",
+                                                        style: CTextStyle.PMediumBody)
+                                                }
+                                            )
+                                        }
+                                    )
+                                )
+                            }
+                        )
+                    );
+                    break;
+            }
+            messageContent = new Column(
                 crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end,
                 children: new List<Widget> {
                     new Container(
@@ -310,43 +396,7 @@ namespace ConnectApp.screens {
                                     : CColors.PaleSkyBlue,
                                 borderRadius: BorderRadius.all(10)
                             ),
-                        child: message.type == ChannelMessageType.text
-                            ? new Text(message.content, style: CTextStyle.PLargeBody)
-                            : message.type == ChannelMessageType.image
-                                ? new _ImageMessage(
-                                    url: message.content,
-                                    size: 140,
-                                    ratio: 16.0f / 9.0f
-                                )
-                                : (Widget) new Container(
-                                    padding: EdgeInsets.symmetric(12, 16),
-                                    child: new Row(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: new List<Widget> {
-                                            new Expanded(
-                                                child: new Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: new List<Widget> {
-                                                        new Text(message.content, style: CTextStyle.PLargeBody),
-                                                        new Container(height: 4),
-                                                        new Text(CStringUtils.FileSize(message.fileSize),
-                                                            style: CTextStyle.PSmallBody4)
-                                                    }
-                                                )
-                                            ),
-                                            new Container(width: 16),
-                                            new Container(
-                                                decoration: new BoxDecoration(
-                                                    color: CColors.VeryLightPinkThree,
-                                                    borderRadius: BorderRadius.all(16)
-                                                ),
-                                                width: 41.9f,
-                                                height: 47.9f,
-                                                child: Image.asset("image/pdf-file-icon")
-                                            )
-                                        }
-                                    )
-                                )
+                        child: messageContent
                     )
                 }
             );

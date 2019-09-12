@@ -33,6 +33,7 @@ namespace ConnectApp.Models.Model {
         public List<User> replyUsers;
         public List<User> lowerUsers;
         public List<Reaction> reactions;
+        public List<Embed> embeds;
         public bool pending;
         public string deletedTime;
     }
@@ -47,5 +48,20 @@ namespace ConnectApp.Models.Model {
         public int height;
         public int size;
         public int duration;
+    }
+
+    [Serializable]
+    public class Embed {
+        public string embedType;
+        public EmbedData embedData;
+    }
+
+    [Serializable]
+    public class EmbedData {
+        public string description;
+        public string image;
+        public string name;
+        public string title;
+        public string url;
     }
 }

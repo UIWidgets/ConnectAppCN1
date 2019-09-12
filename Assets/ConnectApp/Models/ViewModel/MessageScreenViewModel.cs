@@ -57,7 +57,8 @@ namespace ConnectApp.Models.ViewModel {
     public enum ChannelMessageType {
         text,
         image,
-        file
+        file,
+        embed
     }
 
     public class ChannelMessageView {
@@ -80,26 +81,37 @@ namespace ConnectApp.Models.ViewModel {
         public List<User> lowerUsers;
         public bool pending;
         public bool deleted;
+        public List<Reaction> reactions;
+        public List<Embed> embeds;
 
         public static ChannelMessageView fromChannelMessage(ChannelMessage message) {
             if (message == null) {
                 return new ChannelMessageView();
             }
             ChannelMessageType type = message.content != null || message.attachments.Count == 0
-                ? ChannelMessageType.text
+                ? message.embeds.Count == 0 ? ChannelMessageType.text : ChannelMessageType.embed
                 : message.attachments[0].contentType.StartsWith("image")
                     ? ChannelMessageType.image
                     : ChannelMessageType.file;
+            string content = message.content;
+            switch (type) {
+                case ChannelMessageType.text:
+                case ChannelMessageType.embed:
+                    content = content ?? "";
+                    break;
+                case ChannelMessageType.image:
+                    content = message.attachments[0].url;
+                    break;
+                case ChannelMessageType.file:
+                    content = message.attachments[0].filename;
+                    break;
+            }
             return new ChannelMessageView {
                 id = message.id,
                 nonce = message.nonce,
                 channelId = message.channelId,
                 author = message.author,
-                content = type == ChannelMessageType.text
-                    ? message.content ?? ""
-                    : type == ChannelMessageType.image
-                        ? message.attachments[0].url
-                        : message.attachments[0].filename,
+                content = content,
                 fileSize = type == ChannelMessageType.file ? message.attachments[0].size : 0,
                 time = DateConvert.DateTimeFromNonce(message.nonce),
                 attachments = message.attachments,
@@ -112,7 +124,9 @@ namespace ConnectApp.Models.ViewModel {
                 replyUsers = message.replyUsers,
                 lowerUsers = message.lowerUsers,
                 pending = message.pending,
-                deleted = message.deletedTime != null
+                deleted = message.deletedTime != null,
+                embeds = message.embeds,
+                reactions = message.reactions
             };
         }
     }
