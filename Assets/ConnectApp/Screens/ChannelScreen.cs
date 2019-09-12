@@ -138,10 +138,12 @@ namespace ConnectApp.screens {
                     var actionModel = new ChannelScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         fetchMessages = () => {
-                            dispatcher.dispatch<IPromise>(Actions.fetchChannelMessages(viewModel.channelInfo.id));
+                            dispatcher.dispatch<IPromise>(Actions.fetchChannelMessages(this.channelId));
                         },
                         pushToChannelDetail = () => {
-                            dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction());
+                            dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction {
+                                channelId = this.channelId
+                            });
                         }
                     };
                     return new ChannelScreen(viewModel, actionModel);

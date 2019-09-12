@@ -118,21 +118,18 @@ namespace ConnectApp.screens {
                                 thumbnail =
                                     "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                                 name = "VR/AR开发者",
-                                members = new List<User>(),
                             },
                             new ChannelView {
                                 id = "00b6435ce0000002",
                                 thumbnail =
                                     "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                                 name = "Unity\n教学联盟",
-                                members = new List<User>(),
                             },
                             new ChannelView {
                                 id = "00b6435ce0000002",
                                 thumbnail =
                                     "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                                 name = "Unity 2020\n校园招聘",
-                                members = new List<User>(),
                             }
                         },
                         discoverChannelInfo = state.channelState.publicChannels
@@ -404,7 +401,7 @@ namespace ConnectApp.screens {
                                                             )
                                                         ),
                                                         new Container(width: 4),
-                                                        new Text($"{channel.members.Count}人",
+                                                        new Text($"{channel.memberCount}人",
                                                             style: CTextStyle.PSmallWhite)
                                                     }
                                                 )

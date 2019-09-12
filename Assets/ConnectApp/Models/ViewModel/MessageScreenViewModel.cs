@@ -33,13 +33,12 @@ namespace ConnectApp.Models.ViewModel {
         public bool joined = false;
         public bool atMe = false;
         public bool atAll = false;
-        public List<User> members;
-        public int numAdmins;
+        public List<string> memberIds;
 
         public static ChannelView fromChannel(Channel channel) {
             return new ChannelView {
                 atAll = channel?.lastMessage?.content?.Contains("@all") ?? false,
-                members = new List<User>(),
+                memberIds = new List<string>(),
                 id = channel?.id,
                 groupId = channel?.groupId,
                 thumbnail = channel?.thumbnail,

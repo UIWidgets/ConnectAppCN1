@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Models.Api;
+using ConnectApp.Models.Model;
 using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
@@ -19,8 +20,8 @@ namespace ConnectApp.Api {
             };
             var request = HttpManager.GET($"{Config.apiAddress}/api/c", parameter: para);
             HttpManager.resume(request).Then(responseText => {
-                var articlesResponse = JsonConvert.DeserializeObject<FetchPublicChannelsResponse>(responseText);
-                promise.Resolve(articlesResponse);
+                var publicChannelsResponse = JsonConvert.DeserializeObject<FetchPublicChannelsResponse>(responseText);
+                promise.Resolve(publicChannelsResponse);
             }).Catch(exception => { promise.Reject(exception); });
             return promise;
         }
@@ -37,8 +38,18 @@ namespace ConnectApp.Api {
             }
             var request = HttpManager.GET($"{Config.apiAddress}/api/channels/{channelId}/messages", parameter: para);
             HttpManager.resume(request).Then(responseText => {
-                var articlesResponse = JsonConvert.DeserializeObject<FetchChannelMessagesResponse>(responseText);
-                promise.Resolve(articlesResponse);
+                var channelMessagesResponse = JsonConvert.DeserializeObject<FetchChannelMessagesResponse>(responseText);
+                promise.Resolve(channelMessagesResponse);
+            }).Catch(exception => { promise.Reject(exception); });
+            return promise;
+        }
+        
+        public static Promise<List<ChannelMember>> FetchChannelMembers(string channelId) {
+            var promise = new Promise<List<ChannelMember>>();
+            var request = HttpManager.GET($"{Config.apiAddress}/api/channels/{channelId}/members");
+            HttpManager.resume(request).Then(responseText => {
+                var channelMemberResponse = JsonConvert.DeserializeObject<List<ChannelMember>>(responseText);
+                promise.Resolve(channelMemberResponse);
             }).Catch(exception => { promise.Reject(exception); });
             return promise;
         }

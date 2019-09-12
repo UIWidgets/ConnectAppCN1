@@ -17,45 +17,19 @@ using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.screens {
     public class ChannelIntroductionScreenConnector : StatelessWidget {
+        public ChannelIntroductionScreenConnector(string channelId, Key key = null) : base(key : key) {
+            this.channelId = channelId;
+        }
+
+        public readonly string channelId;
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ChannelIntroductionScreenViewModel>(
                 converter: state => new ChannelIntroductionScreenViewModel {
-                    channel = new ChannelView {
-                        thumbnail = 
-                            "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                        name = "UI Widgets 技术交流",
-                        live = true,
-                        isTop = true,
-                        atMe = true,
-                        topic = "UIWidgets是一个可以独立使用的 Unity Package (https://github.com/UnityTech/UIWidgets)。"
-                                       + "它将Flutter(https://flutter.io/)的App框架与Unity渲染引擎相结合，"
-                                       + "让您可以在Unity编辑器中使用一套代码构建出可以同时在PC、网页及移动设备上运行的原生应用。"
-                                       + "此外，您还可以在您的3D游戏或者Unity编辑器插件中用它来构建复杂的UI层，替换UGUI和IMGUI。",
-                        atAll = true,
-                        members = new List<User> {
-                            new User {
-                                avatar =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                            },
-                            new User {
-                                avatar =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                            },
-                            new User {
-                                avatar =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                            },
-                            new User {
-                                avatar =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                            },
-                        }
-                    }
+                    channel = state.channelState.channelDict[this.channelId]
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ChannelIntroductionScreenActionModel {
-                        mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
-                        pushToChannelMembers = () => dispatcher.dispatch(new MainNavigatorPushToChannelMembersAction())
+                        mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction())
                     };
                     return new ChannelIntroductionScreen(actionModel, viewModel);
                 }
@@ -135,7 +109,7 @@ namespace ConnectApp.screens {
                                                         maxLines: 1, overflow: TextOverflow.ellipsis),
                                                     new Expanded(
                                                         child: new Text(
-                                                            $"{this.viewModel.channel.members.Count}名群成员",
+                                                            $"{this.viewModel.channel.memberCount}名群成员",
                                                             style: CTextStyle.PRegularBody4,
                                                             maxLines: 1)
                                                     )

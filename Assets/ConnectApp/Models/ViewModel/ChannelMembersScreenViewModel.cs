@@ -4,6 +4,8 @@ using ConnectApp.Models.Model;
 namespace ConnectApp.Models.ViewModel {
     public class ChannelMembersScreenViewModel {
         public ChannelView channel;
-        public HashSet<string> followed;
+        public Dictionary<string, bool> followed;
+        public List<ChannelMember> members;
+        public int nAdmin;
     }
 }

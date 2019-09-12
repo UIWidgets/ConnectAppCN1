@@ -165,7 +165,8 @@ namespace ConnectApp.Models.State {
                     publicChannelTotal = 0,
                     joinedChannels = new List<string>(),
                     channelDict = new Dictionary<string, ChannelView>(),
-                    messageDict = new Dictionary<string, ChannelMessageView>()
+                    messageDict = new Dictionary<string, ChannelMessageView>(),
+                    membersDict = new Dictionary<string, ChannelMember>()
                 }
             };
         }
