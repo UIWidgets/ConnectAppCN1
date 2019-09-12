@@ -65,6 +65,7 @@ namespace ConnectApp.Utils {
 
             this.m_Socket.OnClose += (sender, e) => {
                 this.m_Host.Enqueue(() => {
+                    Debug.Log(e);
                     OnClose?.Invoke();
                 });
             };

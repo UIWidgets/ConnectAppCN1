@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using ConnectApp.Api;
 using ConnectApp.Constants;
 using ConnectApp.Models.Api;
 using Newtonsoft.Json;
@@ -78,7 +79,7 @@ namespace ConnectApp.Utils {
             this._Close();
         }
 
-        public void Connect(Action onConnected, Action<string> onMessage) {
+        public void Connect(Action onConnected, Action<string, SocketResponseDataBase> onMessage) {
             if (this.readyState != GatewayState.CLOSED) {
                 return;
             }
@@ -94,8 +95,8 @@ namespace ConnectApp.Utils {
                                 onConnected.Invoke();
                             }
                         },
-                        OnMessage: content => {
-                            onMessage?.Invoke(content);
+                        OnMessage: (type, data) => {
+                            onMessage?.Invoke(type, data);
                         },
                         OnClose: () => {
                             Debug.Log("OnClose");
@@ -203,8 +204,7 @@ namespace ConnectApp.Utils {
             }
         }
 
-
-        void _CreateWebSocket(string url, Action OnConnected, Action<string> OnMessage, Action OnClose) {
+        void _CreateWebSocket(string url, Action OnConnected, Action<string, SocketResponseDataBase> OnMessage, Action OnClose) {
             this.m_Socket.Connect(url, 
                 OnConnected: () => {
                     this.m_lastDispatchTs = Time.frameCount;
@@ -216,25 +216,25 @@ namespace ConnectApp.Utils {
                         return;
                     }
                     var content = Encoding.UTF8.GetString (bytes);
+                    Debug.Log(content);
+                    var response = JsonConvert.DeserializeObject<IFrame>(content);
                     
-                    Debug.Log("content = " + content);
-
-                    var response = JsonConvert.DeserializeObject<SocketResponsePayload>(content);
-
-                    if (response.s > 0) {
-                        this.seq = response.s;
+                    if (response.sequence > 0) {
+                        this.seq = response.sequence;
                     }
 
-                    if (response.op == SocketGatewayUtils.OPCODE_DISPATCH) {
-                        var type = response.type;
-                        var data = response.d;
-
-                        if (type == "READY" || type == "RESUMED") {
+                    var type = response.type;
+                    SocketResponseDataBase data = null;
+                    
+                    if (response.opCode == SocketGatewayUtils.OPCODE_DISPATCH) {
+                        if (type == DispatchMsgType.READY || type == DispatchMsgType.RESUMED) {
                             switch (type) {
-                                case "READY":
-                                    this.sessionId = data.sessionId;
+                                case DispatchMsgType.READY:
+                                    var sessionResponse = (SocketResponseSession) response;
+                                    this.sessionId = sessionResponse.data.sessionId;
+                                    data = sessionResponse.data;
                                     break;
-                                case "RESUMED":
+                                case DispatchMsgType.RESUMED:
                                     break;
                             }
 
@@ -244,9 +244,21 @@ namespace ConnectApp.Utils {
                             
                             this.m_PayloadQueue.Clear();
                         }
+                        else {
+                            switch (type) {
+                                case DispatchMsgType.MESSAGE_CREATE:
+                                case DispatchMsgType.MESSAGE_UPDATE:
+                                case DispatchMsgType.MESSAGE_DELETE:
+                                    var messageResponse = (SocketResponseCreateMsg) response;
+                                    data = messageResponse.data;
+                                    break;
+                            }
+                        }
                     }
                     
-                    OnMessage?.Invoke(content);
+                    //Debug.Log("On Message =" + content);
+                    
+                    OnMessage?.Invoke(type, data);
                 },
                 OnError: msg => {
                     OnClose?.Invoke();

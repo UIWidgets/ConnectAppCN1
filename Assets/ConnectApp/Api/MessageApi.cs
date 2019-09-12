@@ -18,8 +18,30 @@ namespace ConnectApp.Api {
                     SocketGateway.instance.Identify(sessionId, commitId);
                 }
             },
-                message => {
-                    Debug.Log("msg = " + message + " " + Application.targetFrameRate);
+                (type, data) => {
+                    switch (type) {
+                        case DispatchMsgType.INVALID_LS:
+                            break;
+                        case DispatchMsgType.READY:
+                            var sessionData = (SocketResponseSessionData) data;
+                            var sessionId = sessionData.sessionId;
+                            Debug.Log("sessionId = " + sessionId);
+                            break;
+                        case DispatchMsgType.RESUMED:
+                            break;
+                        case DispatchMsgType.MESSAGE_CREATE:
+                            var messageData = (SocketResponseCreateMsgData) data;
+                            Debug.Log($"message = {messageData.content}  author = {messageData.author.fullname} id = {messageData.id}");
+                            break;
+                        case DispatchMsgType.MESSAGE_UPDATE:
+                            var updateMessageData = (SocketResponseCreateMsgData) data;
+                            Debug.Log($"update message = {updateMessageData.content}  author = {updateMessageData.author.fullname} id = {updateMessageData.id}");
+                            break;
+                        case DispatchMsgType.MESSAGE_DELETE:
+                            var deleteMessageData = (SocketResponseCreateMsgData) data;
+                            Debug.Log($"delete message = {deleteMessageData.content}  author = {deleteMessageData.author.fullname} id = {deleteMessageData.id}");
+                            break;
+                    }
                 });
         }
         
