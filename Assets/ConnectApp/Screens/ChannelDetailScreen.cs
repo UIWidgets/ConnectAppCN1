@@ -207,10 +207,9 @@ namespace ConnectApp.screens {
                             )
                         ),
                         new Container(height: 16),
-                        new GestureDetector(
-                            child: this._tapRow("查找聊天内容", 1, 18, 18)
-                        ),
-                        new Container(height: 16),
+//                        new GestureDetector(
+//                            child: this._tapRow("查找聊天内容", 1, 18, 18)
+//                        ),
                         this._switchRow("设为置顶", this.viewModel.channel.isTop, value => { }),
                         this._switchRow("消息免打扰", this.viewModel.channel.silenced, value => { }),
                         new Container(height: 16),

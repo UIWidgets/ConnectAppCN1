@@ -150,19 +150,6 @@ namespace ConnectApp.Components {
                                                             color: this._selectedIndex == item.index
                                                                 ? item.activeColor
                                                                 : item.inActiveColor),
-                                                        Positioned.fill(
-                                                            child: new Align(
-                                                                alignment: Alignment.topLeft,
-                                                                child: new Transform(
-                                                                    transform: Matrix3.makeTrans(new Offset(16, 0)),
-                                                                    child: new NotificationDot(
-                                                                        item.notification,
-                                                                        borderSide: new BorderSide(
-                                                                            color: CColors.White, width: 1)
-                                                                        )
-                                                                )
-                                                            )
-                                                        )
                                                     }
                                                 )
                                             ),
@@ -175,6 +162,19 @@ namespace ConnectApp.Components {
                                                             : item.inActiveColor))
                                             )
                                         }
+                                    )
+                                )
+                            ),
+                            Positioned.fill(
+                                child: new Align(
+                                    alignment: Alignment.topLeft,
+                                    child: new Transform(
+                                        transform: Matrix3.makeTrans(new Offset(46, 5)),
+                                        child: new NotificationDot(
+                                            item.notification,
+                                            borderSide: new BorderSide(
+                                                color: CColors.White, width: 2)
+                                            )
                                     )
                                 )
                             )

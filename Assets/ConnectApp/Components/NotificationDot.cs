@@ -17,37 +17,41 @@ namespace ConnectApp.Components {
                 return new Container();
             }
 
+            Widget ret;
             if (this.content == "") {
-                return new Container(
+                ret = new Container(
                     width: 10,
                     height: 10,
                     decoration: new BoxDecoration(
                         borderRadius: BorderRadius.all(5),
-                        color: CColors.Error,
-                        border: this.borderSide == null
-                            ? null
-                            : Border.all(
-                                color: this.borderSide.color,
-                                width: this.borderSide.width
-                            )
+                        color: CColors.Error
                     )
                 );
             }
+            else {
+                ret = new Container(
+                    decoration: new BoxDecoration(
+                        borderRadius: BorderRadius.all(8),
+                        color: CColors.Error
+                    ),
+                    padding: EdgeInsets.symmetric(1, 4),
+                    child: new Text($"{this.content}",
+                        style: CTextStyle.PRedDot)
+                );
+            }
 
-            return new Container(
-                decoration: new BoxDecoration(
-                    borderRadius: BorderRadius.all(8),
-                    color: CColors.Error,
-                    border: this.borderSide == null
-                        ? null
-                        : Border.all(
-                            color: this.borderSide.color,
-                            width: this.borderSide.width)
-                ),
-                padding: EdgeInsets.symmetric(1, 4),
-                child: new Text($"{this.content}",
-                    style: CTextStyle.PRedDot)
-            );
+            if (this.borderSide != null) {
+                ret = new Container(
+                    padding: EdgeInsets.all(this.borderSide.width),
+                    decoration: new BoxDecoration(
+                        borderRadius: BorderRadius.all(8 + this.borderSide.width),
+                        color: this.borderSide.color
+                    ),
+                    child: ret
+                );
+            }
+
+            return ret;
         }
     }
 }
