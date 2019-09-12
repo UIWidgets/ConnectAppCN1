@@ -218,4 +218,27 @@ namespace ConnectApp.Models.Api {
         public Dictionary<string, bool> eggs;
         public bool scan;
     }
+
+    [Serializable]
+    public class FetchPublicChannelsResponse {
+        public List<Channel> items;
+        public int currentPage;
+        public List<int> pages;
+        public int total;
+    }
+
+    [Serializable]
+    public class FetchChannelMessagesResponse {
+        public List<ChannelMessage> items;
+        public int currentPage;
+        public List<int> pages;
+        public int total;
+    }
+
+    [Serializable]
+    public class UpdateAvatarResponse {
+        public string avatar;
+        public int profilePercent;
+        public string nextStep;
+    }
 }

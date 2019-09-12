@@ -94,12 +94,12 @@ namespace ConnectApp.Main {
             }
 
             if (hasFocus) {
-                using (WindowProvider.of(JPushPlugin.context).getScope()) {
+                using (WindowProvider.of(GlobalContext.context).getScope()) {
                     AnalyticsManager.foucsTime = DateTime.UtcNow.ToString();
                 }
             }
             else {
-                using (WindowProvider.of(JPushPlugin.context).getScope()) {
+                using (WindowProvider.of(GlobalContext.context).getScope()) {
                     if (AnalyticsManager.foucsTime.isNotEmpty()) {
                         AnalyticsManager.AnalyticsActiveTime(
                             (DateTime.UtcNow - DateTime.Parse(AnalyticsManager.foucsTime)).Milliseconds);
@@ -114,7 +114,7 @@ namespace ConnectApp.Main {
                 return;
             }
 
-            using (WindowProvider.of(JPushPlugin.context).getScope()) {
+            using (WindowProvider.of(GlobalContext.context).getScope()) {
                 if (AnalyticsManager.foucsTime.isNotEmpty()) {
                     AnalyticsManager.AnalyticsActiveTime((DateTime.UtcNow - DateTime.Parse(AnalyticsManager.foucsTime))
                         .Milliseconds);

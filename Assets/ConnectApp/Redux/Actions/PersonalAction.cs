@@ -135,6 +135,10 @@ namespace ConnectApp.redux.actions {
         public User user;
     }
 
+    public class UpdateAvatarSuccessAction : BaseAction {
+        public string avatar;
+    }
+
     public static partial class Actions {
         public static object fetchUserProfile(string userId) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
@@ -404,9 +408,17 @@ namespace ConnectApp.redux.actions {
                             coverImageWithCDN = editPersonalInfoResponse.user.coverImage
                         };
                         UserInfoManager.saveUserInfo(loginInfo: loginInfo);
-                    })
-                    .Catch(error => Debug.Log($"{error}")
-                    );
+                    });
+            });
+        }
+
+        public static object updateAvatar(string image) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return UserApi.UpdateAvatar(image).Then(response => {
+                    StoreProvider.store.dispatcher.dispatch(new UpdateAvatarSuccessAction {
+                        avatar = response.avatar
+                    });
+                });
             });
         }
     }

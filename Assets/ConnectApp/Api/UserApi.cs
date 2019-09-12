@@ -11,9 +11,9 @@ namespace ConnectApp.Api {
             var promise = new Promise<FetchUserProfileResponse>();
             var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/u/{userId}");
             HttpManager.resume(request: request).Then(responseText => {
-                var userProfileResponse = JsonConvert.DeserializeObject<FetchUserProfileResponse>(responseText);
-                promise.Resolve(userProfileResponse);
-            }).Catch(exception => promise.Reject(exception));
+                var userProfileResponse = JsonConvert.DeserializeObject<FetchUserProfileResponse>(value: responseText);
+                promise.Resolve(value: userProfileResponse);
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
 
@@ -23,11 +23,11 @@ namespace ConnectApp.Api {
                 {"page", pageNumber},
                 {"type", "article"}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/u/{userId}/activities", para);
+            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/u/{userId}/activities", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
-                var userArticleResponse = JsonConvert.DeserializeObject<FetchUserArticleResponse>(responseText);
-                promise.Resolve(userArticleResponse);
-            }).Catch(exception => promise.Reject(exception));
+                var userArticleResponse = JsonConvert.DeserializeObject<FetchUserArticleResponse>(value: responseText);
+                promise.Resolve(value: userArticleResponse);
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
 
@@ -37,11 +37,11 @@ namespace ConnectApp.Api {
                 type = "user",
                 followeeId = userId
             };
-            var request = HttpManager.POST($"{Config.apiAddress}/api/follow", para);
+            var request = HttpManager.POST($"{Config.apiAddress}/api/follow", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
-                var followResponse = JsonConvert.DeserializeObject<Dictionary<string, bool>>(responseText);
+                var followResponse = JsonConvert.DeserializeObject<Dictionary<string, bool>>(value: responseText);
                 promise.Resolve(followResponse["success"]);
-            }).Catch(exception => promise.Reject(exception));
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
 
@@ -50,11 +50,11 @@ namespace ConnectApp.Api {
             var para = new FollowParameter {
                 followeeId = userId
             };
-            var request = HttpManager.POST($"{Config.apiAddress}/api/unfollow", para);
+            var request = HttpManager.POST($"{Config.apiAddress}/api/unfollow", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
-                var unFollowResponse = JsonConvert.DeserializeObject<Dictionary<string, bool>>(responseText);
+                var unFollowResponse = JsonConvert.DeserializeObject<Dictionary<string, bool>>(value: responseText);
                 promise.Resolve(unFollowResponse["success"]);
-            }).Catch(exception => promise.Reject(exception));
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
 
@@ -63,11 +63,13 @@ namespace ConnectApp.Api {
             var para = new Dictionary<string, object> {
                 {"offset", offset}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/u/{userId}/followingUsers", para);
+            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/u/{userId}/followingUsers",
+                parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
-                var followingUserResponse = JsonConvert.DeserializeObject<FetchFollowingUserResponse>(responseText);
-                promise.Resolve(followingUserResponse);
-            }).Catch(exception => promise.Reject(exception));
+                var followingUserResponse =
+                    JsonConvert.DeserializeObject<FetchFollowingUserResponse>(value: responseText);
+                promise.Resolve(value: followingUserResponse);
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
 
@@ -76,11 +78,11 @@ namespace ConnectApp.Api {
             var para = new Dictionary<string, object> {
                 {"offset", offset}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/u/{userId}/followers", para);
+            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/u/{userId}/followers", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
-                var followerResponse = JsonConvert.DeserializeObject<FetchFollowerResponse>(responseText);
-                promise.Resolve(followerResponse);
-            }).Catch(exception => promise.Reject(exception));
+                var followerResponse = JsonConvert.DeserializeObject<FetchFollowerResponse>(value: responseText);
+                promise.Resolve(value: followerResponse);
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
 
@@ -89,11 +91,13 @@ namespace ConnectApp.Api {
             var para = new Dictionary<string, object> {
                 {"offset", offset}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/u/{userId}/followingTeams", para);
+            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/u/{userId}/followingTeams",
+                parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
-                var followingTeamResponse = JsonConvert.DeserializeObject<FetchFollowingTeamResponse>(responseText);
-                promise.Resolve(followingTeamResponse);
-            }).Catch(exception => promise.Reject(exception));
+                var followingTeamResponse =
+                    JsonConvert.DeserializeObject<FetchFollowingTeamResponse>(value: responseText);
+                promise.Resolve(value: followingTeamResponse);
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
 
@@ -103,11 +107,11 @@ namespace ConnectApp.Api {
                 {"needTeam", "true"},
                 {"offset", offset}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/u/{userId}/followings", para);
+            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/u/{userId}/followings", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
-                var followingResponse = JsonConvert.DeserializeObject<FetchFollowingResponse>(responseText);
-                promise.Resolve(followingResponse);
-            }).Catch(exception => promise.Reject(exception));
+                var followingResponse = JsonConvert.DeserializeObject<FetchFollowingResponse>(value: responseText);
+                promise.Resolve(value: followingResponse);
+            }).Catch(exception => promise.Reject(ex: exception));
             return promise;
         }
 
@@ -120,12 +124,26 @@ namespace ConnectApp.Api {
                 jobRoleId = jobRoleId,
                 placeId = placeId
             };
-            var request = HttpManager.POST($"{Config.apiAddress}/api/updateUserBasicInfo", para);
+            var request = HttpManager.POST($"{Config.apiAddress}/api/updateUserBasicInfo", parameter: para);
             HttpManager.resume(request: request).Then(responseText => {
                 var editPersonalInfoResponse =
-                    JsonConvert.DeserializeObject<FetchEditPersonalInfoResponse>(responseText);
-                promise.Resolve(editPersonalInfoResponse);
-            }).Catch(exception => promise.Reject(exception));
+                    JsonConvert.DeserializeObject<FetchEditPersonalInfoResponse>(value: responseText);
+                promise.Resolve(value: editPersonalInfoResponse);
+            }).Catch(exception => promise.Reject(ex: exception));
+            return promise;
+        }
+
+        public static Promise<UpdateAvatarResponse> UpdateAvatar(string avatar) {
+            var promise = new Promise<UpdateAvatarResponse>();
+            var para = new UpdateAvatarParameter {
+                avatar = $"data:image/jpeg;base64,{avatar}"
+            };
+            var request = HttpManager.POST($"{Config.apiAddress}/api/updateUserAvatar", parameter: para);
+            HttpManager.resume(request: request).Then(responseText => {
+                var updateAvatarResponse =
+                    JsonConvert.DeserializeObject<UpdateAvatarResponse>(value: responseText);
+                promise.Resolve(value: updateAvatarResponse);
+            }).Catch(exception => { promise.Reject(ex: exception); });
             return promise;
         }
     }
