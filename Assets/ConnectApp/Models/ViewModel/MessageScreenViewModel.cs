@@ -100,12 +100,13 @@ namespace ConnectApp.Models.ViewModel {
                     content = content ?? "";
                     break;
                 case ChannelMessageType.image:
-                    content = message.attachments[0].url;
+                    content = CImageUtils.SizeTo200ImageUrl(message.attachments[0].url);
                     break;
                 case ChannelMessageType.file:
                     content = message.attachments[0].filename;
                     break;
             }
+
             return new ChannelMessageView {
                 id = message.id,
                 nonce = message.nonce,

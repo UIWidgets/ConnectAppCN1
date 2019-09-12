@@ -2270,6 +2270,8 @@ namespace ConnectApp.redux.reducers {
                     for (var i = 0; i < action.channels.Count; i++) {
                         state.channelState.channelDict[action.channels[i].id] =
                             ChannelView.fromChannel(action.channels[i]);
+                        state.channelState.channelDict[action.channels[i].id].lastMessage =
+                            ChannelMessageView.fromChannelMessage(action.channels[i].lastMessage);
                     }
                     break;
                 }
