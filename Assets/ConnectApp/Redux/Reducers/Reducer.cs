@@ -2268,6 +2268,7 @@ namespace ConnectApp.redux.reducers {
                     state.channelState.publicChannelPages = action.pages;
                     state.channelState.publicChannelTotal = action.total;
                     for (var i = 0; i < action.channels.Count; i++) {
+                        Debug.Log($"Channel ID = {action.channels[i].id}");
                         state.channelState.channelDict[action.channels[i].id] =
                             ChannelView.fromChannel(action.channels[i]);
                     }
@@ -2276,13 +2277,13 @@ namespace ConnectApp.redux.reducers {
                 
                 case ChannelMessagesAction action: {
                     var channel = state.channelState.channelDict[action.channelId];
+                    channel.messages = new List<ChannelMessageView>();
                     for (var i = 0; i < action.messages.Count; i++) {
-                        state.channelState.messageDict[action.messages[i].id] =
+                         var channelMessage =
                             ChannelMessageView.fromChannelMessage(action.messages[i]);
+                         state.channelState.messageDict[action.messages[i].id] = channelMessage;
+                         channel.messages.Add(channelMessage);
                     }
-
-                    channel.messages =
-                        action.messages.Select(message => state.channelState.messageDict[message.id]).ToList();
                     break;
                 }
             }

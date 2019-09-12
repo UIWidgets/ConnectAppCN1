@@ -5,6 +5,7 @@ using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.foundation;
+using UnityEngine;
 
 namespace ConnectApp.Api {
     public static class ChannelApi {
@@ -35,6 +36,7 @@ namespace ConnectApp.Api {
                 para["after"] = after;
             }
             var request = HttpManager.GET($"{Config.apiAddress}/api/channels/{channelId}/messages", parameter: para);
+            Debug.Log(request.uri);
             HttpManager.resume(request).Then(responseText => {
                 var articlesResponse = JsonConvert.DeserializeObject<FetchChannelMessagesResponse>(responseText);
                 promise.Resolve(articlesResponse);

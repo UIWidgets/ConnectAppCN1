@@ -47,7 +47,8 @@ namespace ConnectApp.Models.ViewModel {
                 memberCount = channel?.memberCount ?? 0,
                 isMute = channel?.isMute ?? false,
                 live = channel?.live ?? false,
-                lastMessage = ChannelMessageView.fromChannelMessage(channel?.lastMessage)
+                lastMessage = ChannelMessageView.fromChannelMessage(channel?.lastMessage),
+                messages = new List<ChannelMessageView>()
             };
         }
     }

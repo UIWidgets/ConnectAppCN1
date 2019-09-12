@@ -15,7 +15,10 @@ using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Avatar = ConnectApp.Components.Avatar;
 using Image = Unity.UIWidgets.widgets.Image;
+using Transform = Unity.UIWidgets.widgets.Transform;
 
 namespace ConnectApp.screens {
     public class ChannelScreenConnector : StatelessWidget {
@@ -55,8 +58,10 @@ namespace ConnectApp.screens {
             };
             return new StoreConnector<AppState, ChannelScreenViewModel>(
                 converter: state => {
+                    Debug.Log($"channel Id = {this.channelId}");
                     return new ChannelScreenViewModel {
                         channelInfo = new ChannelView {
+                            id = this.channelId,
                             thumbnail =
                                 "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                             name = "UI Widgets 技术交流",
@@ -64,87 +69,91 @@ namespace ConnectApp.screens {
                             live = true,
                             joined = true,
                         },
+#if false
                         messages = new List<ChannelMessageView> {
-//                            new ChannelMessage {
-//                                content = "听说Connect App是用UI Widgets做的？",
-//                                sender = codeboy,
-//                                time = new DateTime(2019, 9, 9, 7, 30, 10)
-//                            },
-//                            new ChannelMessage {
-//                                content = "是的",
-//                                sender = canteen,
-//                                time = new DateTime(2019, 9, 9, 7, 30, 22)
-//                            },
-//                            new ChannelMessage {
-//                                content = "彩蛋这个Demo可以下载吗？看起来很有意思",
-//                                sender = fish,
-//                                time = new DateTime(2019, 9, 9, 8, 30, 0)
-//                            },
-//                            new ChannelMessage {
-//                                content =
-//                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-//                                sender = fish,
-//                                time = new DateTime(2019, 9, 9, 8, 30, 7),
-//                                type = ChannelMessageType.image
-//                            },
-//                            new ChannelMessage {
-//                                content =
-//                                    "https://connect-prd-cdn.unity.com/20190902/p/images/b961e571-8da0-41aa-9e54-fda0fef95ba8_image2_9.png",
-//                                sender = dage,
-//                                time = new DateTime(2019, 9, 9, 8, 30, 8),
-//                                type = ChannelMessageType.image,
-//                            },
-//                            new ChannelMessage {
-//                                content =
-//                                    "https://connect-prd-cdn.unity.com/20190829/p/images/6a9e4f35-43a2-41ef-bb90-626698ef4876_17.gif",
-//                                sender = fish,
-//                                time = new DateTime(2019, 9, 9, 8, 30, 9),
-//                                type = ChannelMessageType.image,
-//                            },
-//                            new ChannelMessage {
-//                                content = "UI Widgets入门教程-第二版.pdf",
-//                                sender = dage,
-//                                time = new DateTime(2019, 9, 9, 8, 30, 13),
-//                                type = ChannelMessageType.file,
-//                                fileSize = 2670000
-//                            },
-//                            new ChannelMessage {
-//                                content = "UI Widgets入门教程-第二版.pdf",
-//                                sender = dage,
-//                                time = new DateTime(2019, 9, 9, 8, 30, 13),
-//                                type = ChannelMessageType.file,
-//                                fileSize = 267
-//                            },
-//                            new ChannelMessage {
-//                                content = "UI Widgets入门教程-第二版.pdf",
-//                                sender = dage,
-//                                time = new DateTime(2019, 9, 9, 8, 30, 13),
-//                                type = ChannelMessageType.file,
-//                                fileSize = 2670
-//                            },
-//                            new ChannelMessage {
-//                                content = "UI Widgets入门教程-第二版.pdf",
-//                                sender = dage,
-//                                time = new DateTime(2019, 9, 9, 8, 30, 13),
-//                                type = ChannelMessageType.file,
-//                                fileSize = 2670000000
-//                            },
-//                            new ChannelMessage {
-//                                content = "可以参考这个教程https://unity.com/solutions/game",
-//                                sender = dage,
-//                                time = new DateTime(2019, 9, 9, 8, 30, 14)
-//                            },
-//                            new ChannelMessage {
-//                                content = "可以参考这个教程https://unity.com/solutions/game",
-//                                sender = dage,
-//                                time = new DateTime(2019, 9, 9, 8, 30, 15)
-//                            },
-//                            new ChannelMessage {
-//                                content = "可以参考这个教程https://unity.com/solutions/game",
-//                                sender = dage,
-//                                time = new DateTime(2019, 9, 9, 8, 30, 16)
-//                            },
+                            new ChannelMessage {
+                                content = "听说Connect App是用UI Widgets做的？",
+                                sender = codeboy,
+                                time = new DateTime(2019, 9, 9, 7, 30, 10)
+                            },
+                            new ChannelMessage {
+                                content = "是的",
+                                sender = canteen,
+                                time = new DateTime(2019, 9, 9, 7, 30, 22)
+                            },
+                            new ChannelMessage {
+                                content = "彩蛋这个Demo可以下载吗？看起来很有意思",
+                                sender = fish,
+                                time = new DateTime(2019, 9, 9, 8, 30, 0)
+                            },
+                            new ChannelMessage {
+                                content =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                sender = fish,
+                                time = new DateTime(2019, 9, 9, 8, 30, 7),
+                                type = ChannelMessageType.image
+                            },
+                            new ChannelMessage {
+                                content =
+                                    "https://connect-prd-cdn.unity.com/20190902/p/images/b961e571-8da0-41aa-9e54-fda0fef95ba8_image2_9.png",
+                                sender = dage,
+                                time = new DateTime(2019, 9, 9, 8, 30, 8),
+                                type = ChannelMessageType.image,
+                            },
+                            new ChannelMessage {
+                                content =
+                                    "https://connect-prd-cdn.unity.com/20190829/p/images/6a9e4f35-43a2-41ef-bb90-626698ef4876_17.gif",
+                                sender = fish,
+                                time = new DateTime(2019, 9, 9, 8, 30, 9),
+                                type = ChannelMessageType.image,
+                            },
+                            new ChannelMessage {
+                                content = "UI Widgets入门教程-第二版.pdf",
+                                sender = dage,
+                                time = new DateTime(2019, 9, 9, 8, 30, 13),
+                                type = ChannelMessageType.file,
+                                fileSize = 2670000
+                            },
+                            new ChannelMessage {
+                                content = "UI Widgets入门教程-第二版.pdf",
+                                sender = dage,
+                                time = new DateTime(2019, 9, 9, 8, 30, 13),
+                                type = ChannelMessageType.file,
+                                fileSize = 267
+                            },
+                            new ChannelMessage {
+                                content = "UI Widgets入门教程-第二版.pdf",
+                                sender = dage,
+                                time = new DateTime(2019, 9, 9, 8, 30, 13),
+                                type = ChannelMessageType.file,
+                                fileSize = 2670
+                            },
+                            new ChannelMessage {
+                                content = "UI Widgets入门教程-第二版.pdf",
+                                sender = dage,
+                                time = new DateTime(2019, 9, 9, 8, 30, 13),
+                                type = ChannelMessageType.file,
+                                fileSize = 2670000000
+                            },
+                            new ChannelMessage {
+                                content = "可以参考这个教程https://unity.com/solutions/game",
+                                sender = dage,
+                                time = new DateTime(2019, 9, 9, 8, 30, 14)
+                            },
+                            new ChannelMessage {
+                                content = "可以参考这个教程https://unity.com/solutions/game",
+                                sender = dage,
+                                time = new DateTime(2019, 9, 9, 8, 30, 15)
+                            },
+                            new ChannelMessage {
+                                content = "可以参考这个教程https://unity.com/solutions/game",
+                                sender = dage,
+                                time = new DateTime(2019, 9, 9, 8, 30, 16)
+                            },
                         },
+#else
+                        messages = state.channelState.channelDict[this.channelId].messages,
+#endif
                         me = fish,
                         newMessageCount = 100
                     };
