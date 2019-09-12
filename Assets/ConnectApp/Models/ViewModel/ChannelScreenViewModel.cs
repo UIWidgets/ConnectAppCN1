@@ -6,6 +6,6 @@ namespace ConnectApp.Models.ViewModel {
         public ChannelView channelInfo;
         public List<ChannelMessageView> messages;
         public int newMessageCount;
-        public User me;
+        public string me;
     }
 }
