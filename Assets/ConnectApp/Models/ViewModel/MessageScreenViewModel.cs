@@ -69,6 +69,15 @@ namespace ConnectApp.Models.ViewModel {
         public ChannelMessageType type = ChannelMessageType.text;
         public string content;
         public long fileSize;
+        public Attachment attachment;
+        public bool mentionEveryone;
+        public List<User> mentions;
+        public bool starred;
+        public List<string> replyMessageIds;
+        public List<string> lowerMessageIds;
+        public List<User> replyUsers;
+        public List<User> lowerUsers;
+        public bool pending;
 
         public static ChannelMessageView fromChannelMessage(ChannelMessage message) {
             return new ChannelMessageView {
@@ -80,6 +89,15 @@ namespace ConnectApp.Models.ViewModel {
                 fileSize = 0,
                 time = DateConvert.DateTimeFromNonce(message?.nonce),
                 type = ChannelMessageType.text,
+                attachment = message?.attachment,
+                mentionEveryone = message?.mentionEveryone ?? false,
+                mentions = message?.mentions,
+                starred = message?.starred ?? false,
+                replyMessageIds = message?.replyMessageIds,
+                lowerMessageIds = message?.lowerMessageIds,
+                replyUsers = message?.replyUsers,
+                lowerUsers = message?.lowerUsers,
+                pending = message?.pending ?? false,
             };
         }
     }
