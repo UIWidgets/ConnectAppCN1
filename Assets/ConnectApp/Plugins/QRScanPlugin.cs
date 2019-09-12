@@ -17,7 +17,6 @@ using UnityEngine;
 
 namespace ConnectApp.Plugins {
     public static class QRScanPlugin {
-        public static BuildContext context;
         static bool isListen;
         public static string qrCodeToken;
         static string _loginSubId;
@@ -79,8 +78,8 @@ namespace ConnectApp.Plugins {
         }
 
         static void _handleMethodCall(string method, List<JSONNode> args) {
-            if (context != null) {
-                using (WindowProvider.of(context: context).getScope()) {
+            if (GlobalContext.context != null) {
+                using (WindowProvider.of(context: GlobalContext.context).getScope()) {
                     switch (method) {
                         case "OnReceiveQRCode": {
                             string qrCode = args[0];
@@ -134,7 +133,6 @@ namespace ConnectApp.Plugins {
         [DllImport("__Internal")]
         static extern void pushToQRScan();
 #elif UNITY_ANDROID
-
         static AndroidJavaObject _plugin;
 
         static AndroidJavaObject Plugin() {

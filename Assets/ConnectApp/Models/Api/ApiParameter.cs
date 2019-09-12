@@ -77,4 +77,9 @@ namespace ConnectApp.Models.Api {
         public DateTime appTime;
         public List<Dictionary<string, string>> extraData;
     }
+
+    [Serializable]
+    public class UpdateAvatarParameter {
+        public string avatar;
+    }
 }

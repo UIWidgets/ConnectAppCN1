@@ -226,4 +226,11 @@ namespace ConnectApp.Models.Api {
         public List<int> pages;
         public int total;
     }
+
+    [Serializable]
+    public class UpdateAvatarResponse {
+        public string avatar;
+        public int profilePercent;
+        public string nextStep;
+    }
 }
