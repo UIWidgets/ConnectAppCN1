@@ -70,6 +70,7 @@ namespace ConnectApp.Utils {
         
         public static DateTime DateTimeFromNonce(string nonce) {
             var startTime = TimeZoneInfo.ConvertTime(new DateTime(2016, 1, 1), TimeZoneInfo.Local);
+            if (string.IsNullOrEmpty(nonce)) return startTime;
             var span = Convert.ToInt64(nonce, 16);
             var shifted = (span + 1) >> 22;
             var timespan = (shifted - 1);

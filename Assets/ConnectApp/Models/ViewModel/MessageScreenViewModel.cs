@@ -36,17 +36,17 @@ namespace ConnectApp.Models.ViewModel {
 
         public static ChannelView fromChannel(Channel channel) {
             return new ChannelView {
-                atAll = channel.lastMessage.content.Contains("@all"),
+                atAll = channel?.lastMessage?.content?.Contains("@all") ?? false,
                 members = new List<User>(),
-                id = channel.id,
-                groupId = channel.groupId,
-                thumbnail = channel.thumbnail,
-                name = channel.name,
-                topic = channel.topic,
-                memberCount = channel.memberCount,
-                isMute = channel.isMute,
-                live = channel.live,
-                lastMessage = ChannelMessageView.fromChannelMessage(channel.lastMessage)
+                id = channel?.id,
+                groupId = channel?.groupId,
+                thumbnail = channel?.thumbnail,
+                name = channel?.name,
+                topic = channel?.topic,
+                memberCount = channel?.memberCount ?? 0,
+                isMute = channel?.isMute ?? false,
+                live = channel?.live ?? false,
+                lastMessage = ChannelMessageView.fromChannelMessage(channel?.lastMessage)
             };
         }
     }
@@ -70,13 +70,13 @@ namespace ConnectApp.Models.ViewModel {
 
         public static ChannelMessageView fromChannelMessage(ChannelMessage message) {
             return new ChannelMessageView {
-                id = message.id,
-                nonce = message.nonce,
-                channelId = message.channelId,
-                author = message.author,
-                content = message.content,
+                id = message?.id,
+                nonce = message?.nonce,
+                channelId = message?.channelId,
+                author = message?.author,
+                content = message?.content,
                 fileSize = 0,
-                time = DateConvert.DateTimeFromNonce(message.nonce),
+                time = DateConvert.DateTimeFromNonce(message?.nonce),
                 type = ChannelMessageType.text,
             };
         }

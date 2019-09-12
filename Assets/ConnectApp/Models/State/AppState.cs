@@ -161,7 +161,8 @@ namespace ConnectApp.Models.State {
                     publicChannels = new List<Channel>(),
                     publicChannelCurrentPage = 0,
                     publicChannelPages = new List<int>(),
-                    publicChannelTotal = 0
+                    publicChannelTotal = 0,
+                    joinedChannels = new List<Channel>()
                 }
             };
         }

@@ -16,114 +16,130 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Color = Unity.UIWidgets.ui.Color;
 using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.screens {
     public class MessageScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, MessageScreenViewModel>(
-                converter: state => new MessageScreenViewModel {
-                    notificationLoading = state.notificationState.loading,
-                    page = state.notificationState.page,
-                    pageTotal = state.notificationState.pageTotal,
-                    notifications = state.notificationState.notifications,
-                    mentions = state.notificationState.mentions,
-                    userDict = state.userState.userDict,
+                converter: state => {
+                    return new MessageScreenViewModel {
+                        notificationLoading = state.notificationState.loading,
+                        page = state.notificationState.page,
+                        pageTotal = state.notificationState.pageTotal,
+                        notifications = state.notificationState.notifications,
+                        mentions = state.notificationState.mentions,
+                        userDict = state.userState.userDict,
 #if false
-                    channelInfo = new List<ChannelInfo> {},
+                        channelInfo = state.channelState.joinedChannels.Select(ChannelView.fromChannel).ToList(),
 #else
-                    channelInfo = new List<ChannelView> {
-                        new ChannelView {
-                            thumbnail =
-                                "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                            name = "UI Widgets 技术交流",
-                            members = new List<User>(),
-                            live = true,
-                            lastMessage = new ChannelMessageView {
-                                content = "kgu: 嗨，大家好",
-                                time = DateConvert.DateTimeFromNonce("0604553dcdbfffff"),
-                                timeString = DateConvert.DateTimeFromNonce("0604553dcdbfffff").ToString("HH:mm")
+                        channelInfo = new List<ChannelView> {
+                            new ChannelView {
+                                id = "00b6435ce0000002",
+                                thumbnail =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                name = "UI Widgets 技术交流",
+                                members = new List<User>(),
+                                live = true,
+                                lastMessage = new ChannelMessageView {
+                                    content = "kgu: 嗨，大家好",
+                                    time = DateConvert.DateTimeFromNonce("0604553dcdbfffff"),
+                                    timeString = DateConvert.DateTimeFromNonce("0604553dcdbfffff").ToString("HH:mm")
+                                },
+                                isTop = true,
+                                atMe = true,
+                                atAll = true
                             },
-                            isTop = true,
-                            atMe = true,
-                            atAll = true
+                            new ChannelView {
+                                id = "00b6435ce0000002",
+                                thumbnail =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                name = "游戏开发日常吐槽",
+                                members = new List<User>(),
+                                live = true,
+                                lastMessage = new ChannelMessageView {
+                                    content = "搬砖大王: 如何使用rider断调试Android",
+                                    time = DateConvert.DateTimeFromNonce("0604553dcdbfffff"),
+                                    timeString = DateConvert.DateTimeFromNonce("0604553dcdbfffff").ToString("HH:mm")
+                                },
+                                unread = 9,
+                                atAll = true
+                            },
+                            new ChannelView {
+                                id = "00b6435ce0000002",
+                                thumbnail =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                name = "我们都爱玩游戏",
+                                members = new List<User>(),
+                                lastMessage = new ChannelMessageView {
+                                    content = "Vatary: 去年发布的第一季实时动画课程",
+                                    time = DateConvert.DateTimeFromNonce("0604553dcdbfffff"),
+                                    timeString = DateConvert.DateTimeFromNonce("0604553dcdbfffff").ToString("HH:mm")
+                                },
+                                unread = 99
+                            },
+                            new ChannelView {
+                                id = "00b6435ce0000002",
+                                thumbnail =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                name = "今天你学Unity了吗",
+                                members = new List<User>(),
+                                lastMessage = new ChannelMessageView {
+                                    content = "@海边的孙小鱼 视频中的项目可以分为以下几种",
+                                    time = DateConvert.DateTimeFromNonce("0604553dcdbfffff"),
+                                    timeString = DateConvert.DateTimeFromNonce("0604553dcdbfffff").ToString("HH:mm")
+                                },
+                                unread = 100
+                            },
+                            new ChannelView {
+                                id = "00b6435ce0000002",
+                                thumbnail =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                name = "Unity深圳Meetup",
+                                members = new List<User>(),
+                                lastMessage = new ChannelMessageView {
+                                    content = "码农小哥: 这个Demo可以下载吗？",
+                                    time = DateConvert.DateTimeFromNonce("0604553dcdbfffff"),
+                                    timeString = DateConvert.DateTimeFromNonce("0604553dcdbfffff").ToString("HH:mm")
+                                },
+                                unread = 15,
+                                isMute = true
+                            }
                         },
-                        new ChannelView {
-                            thumbnail =
-                                "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                            name = "游戏开发日常吐槽",
-                            members = new List<User>(),
-                            live = true,
-                            lastMessage = new ChannelMessageView {
-                                content = "搬砖大王: 如何使用rider断调试Android",
-                                time = DateConvert.DateTimeFromNonce("0604553dcdbfffff"),
-                                timeString = DateConvert.DateTimeFromNonce("0604553dcdbfffff").ToString("HH:mm")
-                            },
-                            unread = 9,
-                            atAll = true
-                        },
-                        new ChannelView {
-                            thumbnail =
-                                "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                            name = "我们都爱玩游戏",
-                            members = new List<User>(),
-                            lastMessage = new ChannelMessageView {
-                                content = "Vatary: 去年发布的第一季实时动画课程",
-                                time = DateConvert.DateTimeFromNonce("0604553dcdbfffff"),
-                                timeString = DateConvert.DateTimeFromNonce("0604553dcdbfffff").ToString("HH:mm")
-                            },
-                            unread = 99
-                        },
-                        new ChannelView {
-                            thumbnail =
-                                "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                            name = "今天你学Unity了吗",
-                            members = new List<User>(),
-                            lastMessage = new ChannelMessageView {
-                                content = "@海边的孙小鱼 视频中的项目可以分为以下几种",
-                                time = DateConvert.DateTimeFromNonce("0604553dcdbfffff"),
-                                timeString = DateConvert.DateTimeFromNonce("0604553dcdbfffff").ToString("HH:mm")
-                            },
-                            unread = 100
-                        },
-                        new ChannelView {
-                            thumbnail =
-                                "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                            name = "Unity深圳Meetup",
-                            members = new List<User>(),
-                            lastMessage = new ChannelMessageView {
-                                content = "码农小哥: 这个Demo可以下载吗？",
-                                time = DateConvert.DateTimeFromNonce("0604553dcdbfffff"),
-                                timeString = DateConvert.DateTimeFromNonce("0604553dcdbfffff").ToString("HH:mm")
-                            },
-                            unread = 15,
-                            isMute = true
-                        }
-                    },
 #endif
-                    popularChannelInfo = new List<ChannelView> {
-                        new ChannelView {
-                            thumbnail =
-                                "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                            name = "VR/AR开发者",
-                            members = new List<User>(),
+                        popularChannelInfo = new List<ChannelView> {
+                            new ChannelView {
+                                id = "00b6435ce0000002",
+                                thumbnail =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                name = "VR/AR开发者",
+                                members = new List<User>(),
+                            },
+                            new ChannelView {
+                                id = "00b6435ce0000002",
+                                thumbnail =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                name = "Unity\n教学联盟",
+                                members = new List<User>(),
+                            },
+                            new ChannelView {
+                                id = "00b6435ce0000002",
+                                thumbnail =
+                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
+                                name = "Unity 2020\n校园招聘",
+                                members = new List<User>(),
+                            }
                         },
-                        new ChannelView {
-                            thumbnail =
-                                "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                            name = "Unity\n教学联盟",
-                            members = new List<User>(),
-                        },
-                        new ChannelView {
-                            thumbnail =
-                                "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                            name = "Unity 2020\n校园招聘",
-                            members = new List<User>(),
-                        }
-                    },
-                    discoverChannelInfo = state.channelState.publicChannels.Select(ChannelView.fromChannel).ToList()
+                        discoverChannelInfo = state.channelState.publicChannels
+                            .Select(ChannelView.fromChannel)
+                            .Take(state.channelState.joinedChannels.Count > 0
+                                ? 8
+                                : state.channelState.publicChannels.Count)
+                            .ToList()
+                    };
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new MessageScreenActionModel {
@@ -133,8 +149,10 @@ namespace ConnectApp.screens {
                         pushToDiscoverChannels = () => {
                             dispatcher.dispatch(new MainNavigatorPushToDiscoverChannelsAction());
                         },
-                        pushToChannel = () => {
-                            dispatcher.dispatch(new MainNavigatorPushToChannelAction());
+                        pushToChannel = channelId => {
+                            dispatcher.dispatch(new MainNavigatorPushToChannelAction {
+                                channelId = channelId
+                            });
                         },
                         fetchPublicChannels = () => { dispatcher.dispatch<IPromise>(Actions.fetchPublicChannels()); }
                     };
@@ -228,7 +246,7 @@ namespace ConnectApp.screens {
                             children: this.widget.viewModel.channelInfo.Select((channelInfo) => {
                                 return MessageBuildUtils.buildChannelItem(
                                     channelInfo,
-                                    this.widget.actionModel.pushToChannel);
+                                    () => this.widget.actionModel.pushToChannel(channelInfo.id));
                             }).ToList()
                         ),
                     this.widget.viewModel.channelInfo.isEmpty()

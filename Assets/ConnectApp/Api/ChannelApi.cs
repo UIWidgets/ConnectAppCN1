@@ -13,7 +13,8 @@ namespace ConnectApp.Api {
             var para = new Dictionary<string, object> {
                 {"k", "[%22q:%22]"},
                 {"lt", "public"},
-                {"workspaceId", "058d9079fac00000"},
+                // {"workspaceId", "058d9079fac00000"}, // TEST
+                {"workspaceId", "05a748aedac0c000"}, // PROD
             };
             var request = HttpManager.GET($"{Config.apiAddress}/api/c", parameter: para);
             HttpManager.resume(request).Then(responseText => {
