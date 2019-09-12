@@ -8,6 +8,7 @@ using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
+using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
@@ -19,9 +20,13 @@ using Image = Unity.UIWidgets.widgets.Image;
 namespace ConnectApp.screens {
     public class ChannelScreenConnector : StatelessWidget {
         public ChannelScreenConnector(
+            string channelId,
             Key key = null
         ) : base(key: key) {
+            this.channelId = channelId;
         }
+
+        public readonly string channelId;
 
         public override Widget build(BuildContext context) {
             User codeboy = new User {
@@ -147,6 +152,9 @@ namespace ConnectApp.screens {
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ChannelScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
+                        fetchMessages = () => {
+                            dispatcher.dispatch<IPromise>(Actions.fetchChannelMessages(viewModel.channelInfo.id));
+                        },
                         pushToChannelDetail = () => {
                             dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction());
                         }
@@ -184,6 +192,7 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
+            this.widget.actionModel.fetchMessages();
         }
 
         public override Widget build(BuildContext context) {

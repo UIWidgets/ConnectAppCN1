@@ -24,7 +24,7 @@ namespace ConnectApp.screens {
                 converter: state => {
                     return new DiscoverChannelsScreenViewModel {
                         discoverChannelInfo = state.channelState.publicChannels.Select(
-                            ChannelView.fromChannel
+                            channelId => state.channelState.channelDict[channelId]
                         ).ToList()
                     };
                 },

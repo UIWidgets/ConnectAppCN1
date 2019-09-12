@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
+using ConnectApp.Models.ViewModel;
 using ConnectApp.Utils;
 using UnityEngine;
 
@@ -158,11 +159,13 @@ namespace ConnectApp.Models.State {
                     loading = false
                 },
                 channelState = new ChannelState {
-                    publicChannels = new List<Channel>(),
+                    publicChannels = new List<string>(),
                     publicChannelCurrentPage = 0,
                     publicChannelPages = new List<int>(),
                     publicChannelTotal = 0,
-                    joinedChannels = new List<Channel>()
+                    joinedChannels = new List<string>(),
+                    channelDict = new Dictionary<string, ChannelView>(),
+                    messageDict = new Dictionary<string, ChannelMessageView>()
                 }
             };
         }

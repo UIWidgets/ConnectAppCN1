@@ -5,6 +5,7 @@ using ConnectApp.Components;
 using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
+using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using ConnectApp.Reality;
 using ConnectApp.screens;
@@ -1214,10 +1215,10 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 
-                case MainNavigatorPushToChannelAction _: {
+                case MainNavigatorPushToChannelAction action: {
                     Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                                new ChannelScreenConnector(),
+                                new ChannelScreenConnector(action.channelId),
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new PushPageTransition(
                                     routeAnimation: animation,
@@ -2262,10 +2263,26 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case PublicChannelsAction action: {
-                    state.channelState.publicChannels = action.channels;
+                    state.channelState.publicChannels = action.channels.Select(channel => channel.id).ToList();
                     state.channelState.publicChannelCurrentPage = action.currentPage;
                     state.channelState.publicChannelPages = action.pages;
                     state.channelState.publicChannelTotal = action.total;
+                    for (var i = 0; i < action.channels.Count; i++) {
+                        state.channelState.channelDict[action.channels[i].id] =
+                            ChannelView.fromChannel(action.channels[i]);
+                    }
+                    break;
+                }
+                
+                case ChannelMessagesAction action: {
+                    var channel = state.channelState.channelDict[action.channelId];
+                    for (var i = 0; i < action.messages.Count; i++) {
+                        state.channelState.messageDict[action.messages[i].id] =
+                            ChannelMessageView.fromChannelMessage(action.messages[i]);
+                    }
+
+                    channel.messages =
+                        action.messages.Select(message => state.channelState.messageDict[message.id]).ToList();
                     break;
                 }
             }

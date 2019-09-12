@@ -134,7 +134,7 @@ namespace ConnectApp.screens {
                             }
                         },
                         discoverChannelInfo = state.channelState.publicChannels
-                            .Select(ChannelView.fromChannel)
+                            .Select(channelId => state.channelState.channelDict[channelId])
                             .Take(state.channelState.joinedChannels.Count > 0
                                 ? 8
                                 : state.channelState.publicChannels.Count)

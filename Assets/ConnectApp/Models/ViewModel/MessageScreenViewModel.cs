@@ -26,6 +26,7 @@ namespace ConnectApp.Models.ViewModel {
         public bool isMute;
         public bool live;
         public ChannelMessageView lastMessage;
+        public List<ChannelMessageView> messages;
         public int unread = 0;
         public bool isTop = false;
         public bool joined = false;
