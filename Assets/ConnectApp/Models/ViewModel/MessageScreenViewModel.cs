@@ -70,7 +70,7 @@ namespace ConnectApp.Models.ViewModel {
         public ChannelMessageType type = ChannelMessageType.text;
         public string content;
         public long fileSize;
-        public Attachment attachment;
+        public List<Attachment> attachments;
         public bool mentionEveryone;
         public List<User> mentions;
         public bool starred;
@@ -79,26 +79,40 @@ namespace ConnectApp.Models.ViewModel {
         public List<User> replyUsers;
         public List<User> lowerUsers;
         public bool pending;
+        public bool deleted;
 
         public static ChannelMessageView fromChannelMessage(ChannelMessage message) {
+            if (message == null) {
+                return new ChannelMessageView();
+            }
+            ChannelMessageType type = message.content != null || message.attachments.Count == 0
+                ? ChannelMessageType.text
+                : message.attachments[0].contentType.StartsWith("image")
+                    ? ChannelMessageType.image
+                    : ChannelMessageType.file;
             return new ChannelMessageView {
-                id = message?.id,
-                nonce = message?.nonce,
-                channelId = message?.channelId,
-                author = message?.author,
-                content = message?.content,
-                fileSize = 0,
-                time = DateConvert.DateTimeFromNonce(message?.nonce),
-                type = ChannelMessageType.text,
-                attachment = message?.attachment,
-                mentionEveryone = message?.mentionEveryone ?? false,
-                mentions = message?.mentions,
-                starred = message?.starred ?? false,
-                replyMessageIds = message?.replyMessageIds,
-                lowerMessageIds = message?.lowerMessageIds,
-                replyUsers = message?.replyUsers,
-                lowerUsers = message?.lowerUsers,
-                pending = message?.pending ?? false,
+                id = message.id,
+                nonce = message.nonce,
+                channelId = message.channelId,
+                author = message.author,
+                content = type == ChannelMessageType.text
+                    ? message.content ?? ""
+                    : type == ChannelMessageType.image
+                        ? message.attachments[0].url
+                        : message.attachments[0].filename,
+                fileSize = type == ChannelMessageType.file ? message.attachments[0].size : 0,
+                time = DateConvert.DateTimeFromNonce(message.nonce),
+                attachments = message.attachments,
+                type = type,
+                mentionEveryone = message.mentionEveryone,
+                mentions = message.mentions,
+                starred = message.starred,
+                replyMessageIds = message.replyMessageIds,
+                lowerMessageIds = message.lowerMessageIds,
+                replyUsers = message.replyUsers,
+                lowerUsers = message.lowerUsers,
+                pending = message.pending,
+                deleted = message.deletedTime != null
             };
         }
     }

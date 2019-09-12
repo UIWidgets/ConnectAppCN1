@@ -33,43 +33,16 @@ namespace ConnectApp.screens {
         public readonly string channelId;
 
         public override Widget build(BuildContext context) {
-            User codeboy = new User {
-                id = "codeboy",
-                name = "代码小哥",
-                avatar =
-                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-            };
-            User canteen = new User {
-                id = "canteen",
-                name = "佳能食堂",
-                avatar =
-                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-            };
             User fish = new User {
                 id = "fish",
-                name = "海边的孙小鱼",
-                avatar =
-                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-            };
-            User dage = new User {
-                id = "dage",
-                name = "达哥",
+                fullName = "海边的孙小鱼",
                 avatar =
                     "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
             };
             return new StoreConnector<AppState, ChannelScreenViewModel>(
                 converter: state => {
-                    Debug.Log($"channel Id = {this.channelId}");
                     return new ChannelScreenViewModel {
-                        channelInfo = new ChannelView {
-                            id = this.channelId,
-                            thumbnail =
-                                "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                            name = "UI Widgets 技术交流",
-                            members = new List<User> { },
-                            live = true,
-                            joined = true,
-                        },
+                        channelInfo = state.channelState.channelDict[this.channelId],
 #if false
                         messages = new List<ChannelMessageView> {
                             new ChannelMessage {
@@ -292,7 +265,7 @@ namespace ConnectApp.screens {
 
             Widget ret = new Container(
                 color: CColors.White,
-                padding: EdgeInsets.only(top: 16),
+                padding: EdgeInsets.only(top: 16, bottom: 99),
                 child: new ListView(
                     padding: EdgeInsets.symmetric(16, 0),
                     children: messages
@@ -305,6 +278,9 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildMessage(ChannelMessageView message, bool showTime, bool left) {
+            if (message.deleted) {
+                return new Container();
+            }
             Widget avatar = new Container(
                 padding: EdgeInsets.symmetric(0, 10),
                 child: Avatar.User(message.author, size: 40)
@@ -314,7 +290,7 @@ namespace ConnectApp.screens {
                 children: new List<Widget> {
                     new Container(
                         padding: EdgeInsets.only(bottom: 6),
-                        child: new Text(message.author.name, style: CTextStyle.PSmallBody4)
+                        child: new Text(message.author.fullName, style: CTextStyle.PSmallBody4)
                     ),
                     new Container(
                         constraints: new BoxConstraints(

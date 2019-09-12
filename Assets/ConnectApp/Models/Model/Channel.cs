@@ -19,11 +19,12 @@ namespace ConnectApp.Models.Model {
     [Serializable]
     public class ChannelMessage {
         public string id;
+        public string type;
         public string nonce;
         public string channelId;
         public string content;
         public User author;
-        public Attachment attachment;
+        public List<Attachment> attachments;
         public bool mentionEveryone;
         public List<User> mentions;
         public bool starred;
@@ -31,7 +32,9 @@ namespace ConnectApp.Models.Model {
         public List<string> lowerMessageIds;
         public List<User> replyUsers;
         public List<User> lowerUsers;
+        public List<Reaction> reactions;
         public bool pending;
+        public string deletedTime;
     }
 
     [Serializable]
