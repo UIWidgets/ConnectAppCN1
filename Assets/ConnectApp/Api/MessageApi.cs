@@ -9,7 +9,21 @@ using UnityEngine;
 
 namespace ConnectApp.Api {
     public static class MessageApi {
-        public static void ConnectToFeed(Dictionary<string, string> header) {
+
+        public static void DisConnectFromWSS() {
+            SocketGateway.instance.Close();
+        }
+        
+        
+        public static void ConnectToWSS(Dictionary<string, string> header) {
+            if (HttpManager.getCookie().isNotEmpty()) {
+                var sessionId = HttpManager.getCookie("LS");
+                if (sessionId == null) {
+                    Debug.Log("Connect to Message Feed Failed: no sessionId available !");
+                    return;
+                }
+            }
+            
             SocketGateway.instance.Connect(() => 
             {
                 if (HttpManager.getCookie().isNotEmpty()) {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ConnectApp.Api;
 using ConnectApp.Components;
 using ConnectApp.Main;
 using ConnectApp.Models.Model;
@@ -95,6 +96,7 @@ namespace ConnectApp.redux.reducers {
                 case LogoutAction _: {
                     EventBus.publish(sName: EventBusConstant.logout_success, new List<object>());
                     HttpManager.clearCookie();
+                    MessageApi.DisConnectFromWSS();
                     state.loginState.loginInfo = new LoginInfo();
                     state.loginState.isLoggedIn = false;
                     UserInfoManager.clearUserInfo();

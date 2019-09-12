@@ -45,6 +45,7 @@ namespace ConnectApp.Utils {
         }
 
         public static UnityWebRequest GET(string uri, object parameter = null) {
+            Debug.Log("GET TTTTTT " + uri);
             var newUri = uri;
             if (parameter != null) {
                 string parameterString = "";
@@ -63,6 +64,7 @@ namespace ConnectApp.Utils {
         }
 
         public static UnityWebRequest POST(string uri, object parameter = null) {
+            Debug.Log("POST TTTTTT " + uri);
             var request = initRequest(url: uri, method: Method.POST);
             if (parameter != null) {
                 var body = JsonConvert.SerializeObject(value: parameter);

@@ -116,6 +116,7 @@ namespace ConnectApp.Models.Api {
     public class SocketResponseCreateMsgData : SocketResponseDataBase {
         public string id;
         public string type;
+        public string nonce;
         public string channelId;
         public SocketResponseUser author;
         public string content;

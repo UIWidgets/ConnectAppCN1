@@ -17,11 +17,11 @@ namespace ConnectApp.Api {
             var request = HttpManager.POST($"{Config.apiAddress}/api/connectapp/auth/live/login", para);
             HttpManager.resumeAll(request).Then(responseContent => {
                 var responseText = responseContent.text;
+                var header = responseContent.headers;
                 var loginInfo = JsonConvert.DeserializeObject<LoginInfo>(responseText);
+                
+                MessageApi.ConnectToWSS(header);
                 promise.Resolve(loginInfo);
-                
-                MessageApi.ConnectToFeed(responseContent.headers);
-                
             }).Catch(exception => { promise.Reject(exception); });
             return promise;
         }
@@ -74,8 +74,12 @@ namespace ConnectApp.Api {
             var promise = new Promise<FetchInitDataResponse>();
             var request =
                 HttpManager.GET($"{Config.apiAddress}/api/connectapp/initData");
-            HttpManager.resume(request).Then(responseText => {
+            HttpManager.resumeAll(request).Then(response => {
+                var responseText = response.text;
+                var headers = response.headers;
                 var initDataResponse = JsonConvert.DeserializeObject<FetchInitDataResponse>(responseText);
+                
+                MessageApi.ConnectToWSS(headers);
                 promise.Resolve(initDataResponse);
             }).Catch(exception => { promise.Reject(exception); });
             return promise;
