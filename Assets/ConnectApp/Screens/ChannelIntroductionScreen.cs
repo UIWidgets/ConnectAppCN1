@@ -25,11 +25,6 @@ namespace ConnectApp.screens {
                             "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
                         name = "UI Widgets 技术交流",
                         live = true,
-                        lastMessage = new ChannelMessageView {
-                            content = "kgu: 嗨，大家好",
-                            time = DateConvert.DateTimeFromNonce("0604553dcdbfffff"),
-                            timeString = DateConvert.DateTimeFromNonce("0604553dcdbfffff").ToString("HH:mm")
-                        },
                         isTop = true,
                         atMe = true,
                         topic = "UIWidgets是一个可以独立使用的 Unity Package (https://github.com/UnityTech/UIWidgets)。"

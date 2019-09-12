@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
@@ -152,7 +153,9 @@ namespace ConnectApp.screens {
                             },
                         },
 #else
-                        messages = state.channelState.channelDict[this.channelId].messages,
+                        messages = state.channelState.channelDict[this.channelId].messageIds.Select(
+                            messageId => state.channelState.messageDict[messageId]
+                        ).ToList(),
 #endif
                         me = fish,
                         newMessageCount = 100

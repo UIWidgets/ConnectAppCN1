@@ -25,8 +25,9 @@ namespace ConnectApp.Models.ViewModel {
         public int memberCount;
         public bool isMute;
         public bool live;
+        public string lastMessageId;
         public ChannelMessageView lastMessage;
-        public List<ChannelMessageView> messages;
+        public List<string> messageIds;
         public int unread = 0;
         public bool isTop = false;
         public bool joined = false;
@@ -47,8 +48,8 @@ namespace ConnectApp.Models.ViewModel {
                 memberCount = channel?.memberCount ?? 0,
                 isMute = channel?.isMute ?? false,
                 live = channel?.live ?? false,
-                lastMessage = ChannelMessageView.fromChannelMessage(channel?.lastMessage),
-                messages = new List<ChannelMessageView>()
+                lastMessageId = channel?.lastMessage?.id,
+                messageIds = new List<string>()
             };
         }
     }

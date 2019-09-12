@@ -2277,12 +2277,12 @@ namespace ConnectApp.redux.reducers {
                 
                 case ChannelMessagesAction action: {
                     var channel = state.channelState.channelDict[action.channelId];
-                    channel.messages = new List<ChannelMessageView>();
+                    channel.messageIds = new List<string>();
                     for (var i = 0; i < action.messages.Count; i++) {
                          var channelMessage =
                             ChannelMessageView.fromChannelMessage(action.messages[i]);
                          state.channelState.messageDict[action.messages[i].id] = channelMessage;
-                         channel.messages.Add(channelMessage);
+                         channel.messageIds.Add(channelMessage.id);
                     }
                     break;
                 }
