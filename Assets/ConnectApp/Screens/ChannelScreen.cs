@@ -97,7 +97,10 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            this.widget.actionModel.fetchMessages(null, null);
+            string id = this.widget.viewModel.messages.isNotEmpty()
+                ? this.widget.viewModel.messages.last().id
+                : null;
+            this.widget.actionModel.fetchMessages(null, id);
         }
 
         public override void dispose() {
@@ -177,7 +180,7 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildContent() {
-            if (this.widget.viewModel.messageLoading) {
+            if (this.widget.viewModel.messageLoading && this.widget.viewModel.messages.isEmpty()) {
                 return new Flexible(
                     child: new GlobalLoading()
                 );
