@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Utils;
 
@@ -82,6 +83,54 @@ namespace ConnectApp.Models.ViewModel {
         public bool deleted;
         public List<Reaction> reactions;
         public List<Embed> embeds;
+
+        public static ChannelMessageView fromPushMessage(SocketResponseMessageData message) {
+            if (message == null) {
+                return new ChannelMessageView();
+            }
+            
+            ChannelMessageType type = message.content != null || message.attachments.Count == 0
+                ? message.embeds.Count == 0 ? ChannelMessageType.text : ChannelMessageType.embed
+                : message.attachments[0].contentType.StartsWith("image")
+                    ? ChannelMessageType.image
+                    : ChannelMessageType.file;
+            string content = message.content;
+            switch (type) {
+                case ChannelMessageType.text:
+                case ChannelMessageType.embed:
+                    content = content ?? "";
+                    break;
+                case ChannelMessageType.image:
+                    content = CImageUtils.SizeTo200ImageUrl(message.attachments[0].url);
+                    break;
+                case ChannelMessageType.file:
+                    content = message.attachments[0].filename;
+                    break;
+            }
+
+            return new ChannelMessageView {
+                id = message.id,
+                nonce = message.nonce,
+                channelId = message.channelId,
+                author = message.author,
+                content = content,
+                fileSize = type == ChannelMessageType.file ? message.attachments[0].size : 0,
+                time = DateConvert.DateTimeFromNonce(message.nonce),
+                attachments = message.attachments,
+                type = type,
+                mentionEveryone = message.mentionEveryone,
+                mentions = message.mentions,
+                starred = message.starred,
+                replyMessageIds = message.replyMessageIds,
+                lowerMessageIds = message.lowerMessageIds,
+                replyUsers = message.replyUsers,
+                lowerUsers = message.lowerUsers,
+                pending = message.pending,
+                deleted = message.deletedTime != null,
+                embeds = message.embeds,
+                reactions = message.reactions
+            };
+        }
 
         public static ChannelMessageView fromChannelMessage(ChannelMessage message) {
             if (message == null) {

@@ -9,55 +9,6 @@ using UnityEngine;
 
 namespace ConnectApp.Api {
     public static class MessageApi {
-
-        public static void DisConnectFromWSS() {
-            SocketGateway.instance.Close();
-        }
-        
-        
-        public static void ConnectToWSS(Dictionary<string, string> header) {
-            if (HttpManager.getCookie().isNotEmpty()) {
-                var sessionId = HttpManager.getCookie("LS");
-                if (sessionId == null) {
-                    Debug.Log("Connect to Message Feed Failed: no sessionId available !");
-                    return;
-                }
-            }
-            
-            SocketGateway.instance.Connect(() => 
-            {
-                if (HttpManager.getCookie().isNotEmpty()) {
-                    var sessionId = HttpManager.getCookie("LS");
-                    var commitId = header["X-Last-Commmit-Hash"];
-                    SocketGateway.instance.Identify(sessionId, commitId);
-                }
-            },
-                (type, data) => {
-                    switch (type) {
-                        case DispatchMsgType.INVALID_LS:
-                            break;
-                        case DispatchMsgType.READY:
-                            var sessionData = (SocketResponseSessionData) data;
-                            var sessionId = sessionData.sessionId;
-                            Debug.Log("sessionId = " + sessionId);
-                            break;
-                        case DispatchMsgType.RESUMED:
-                            break;
-                        case DispatchMsgType.MESSAGE_CREATE:
-                            var messageData = (SocketResponseCreateMsgData) data;
-                            Debug.Log($"message = {messageData.content}  author = {messageData.author.fullname} id = {messageData.id}");
-                            break;
-                        case DispatchMsgType.MESSAGE_UPDATE:
-                            var updateMessageData = (SocketResponseCreateMsgData) data;
-                            Debug.Log($"update message = {updateMessageData.content}  author = {updateMessageData.author.fullname} id = {updateMessageData.id}");
-                            break;
-                        case DispatchMsgType.MESSAGE_DELETE:
-                            var deleteMessageData = (SocketResponseCreateMsgData) data;
-                            Debug.Log($"delete message = {deleteMessageData.content}  author = {deleteMessageData.author.fullname} id = {deleteMessageData.id}");
-                            break;
-                    }
-                });
-        }
         
         public static Promise<FetchCommentsResponse> FetchMessages(string channelId, string currOldestMessageId) {
             var promise = new Promise<FetchCommentsResponse>();

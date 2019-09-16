@@ -20,7 +20,7 @@ namespace ConnectApp.Api {
                 var header = responseContent.headers;
                 var loginInfo = JsonConvert.DeserializeObject<LoginInfo>(responseText);
                 
-                MessageApi.ConnectToWSS(header);
+                SocketApi.ConnectToWSS(header);
                 promise.Resolve(loginInfo);
             }).Catch(exception => { promise.Reject(exception); });
             return promise;
@@ -79,7 +79,7 @@ namespace ConnectApp.Api {
                 var headers = response.headers;
                 var initDataResponse = JsonConvert.DeserializeObject<FetchInitDataResponse>(responseText);
                 
-                MessageApi.ConnectToWSS(headers);
+                SocketApi.ConnectToWSS(headers);
                 promise.Resolve(initDataResponse);
             }).Catch(exception => { promise.Reject(exception); });
             return promise;

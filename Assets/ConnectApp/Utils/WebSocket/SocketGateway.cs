@@ -258,7 +258,7 @@ namespace ConnectApp.Utils {
                         return;
                     }
                     var content = Encoding.UTF8.GetString (bytes);
-                    Debug.Log(content);
+                    //Debug.Log(content);
                     var response = JsonConvert.DeserializeObject<IFrame>(content);
                     
                     if (response.sequence > 0) {
@@ -291,7 +291,7 @@ namespace ConnectApp.Utils {
                                 case DispatchMsgType.MESSAGE_CREATE:
                                 case DispatchMsgType.MESSAGE_UPDATE:
                                 case DispatchMsgType.MESSAGE_DELETE:
-                                    var messageResponse = (SocketResponseCreateMsg) response;
+                                    var messageResponse = (SocketResponseMessage) response;
                                     data = messageResponse.data;
                                     break;
                             }

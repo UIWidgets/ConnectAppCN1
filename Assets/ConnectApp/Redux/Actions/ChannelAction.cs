@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ConnectApp.Api;
+using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using Unity.UIWidgets.Redux;
@@ -94,5 +95,20 @@ namespace ConnectApp.redux.actions {
     }
     
     public class FetchChannelMemberFailureAction : BaseAction {
+    }
+
+    public class PushReadyAction : BaseAction {
+    }
+
+    public class PushNewMessageAction : BaseAction {
+        public SocketResponseMessageData messageData;
+    }
+
+    public class PushModifyMessageAction : BaseAction {
+        public SocketResponseMessageData messageData;
+    }
+
+    public class PushDeleteMessageAction : BaseAction {
+        public SocketResponseMessageData messageData;
     }
 }
