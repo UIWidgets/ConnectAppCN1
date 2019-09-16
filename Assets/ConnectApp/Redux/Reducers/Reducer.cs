@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ConnectApp.Api;
 using ConnectApp.Components;
 using ConnectApp.Main;
 using ConnectApp.Models.Model;
@@ -95,6 +96,7 @@ namespace ConnectApp.redux.reducers {
                 case LogoutAction _: {
                     EventBus.publish(sName: EventBusConstant.logout_success, new List<object>());
                     HttpManager.clearCookie();
+                    SocketApi.DisConnectFromWSS();
                     state.loginState.loginInfo = new LoginInfo();
                     state.loginState.isLoggedIn = false;
                     UserInfoManager.clearUserInfo();
@@ -2329,6 +2331,48 @@ namespace ConnectApp.redux.reducers {
                          state.channelState.membersDict[channelMember.id] = channelMember;
                          channel.memberIds.Add(channelMember.id);
                     }
+                    break;
+                }
+                case PushReadyAction action: {
+                    Debug.Log("WebSocket Online!");
+                    break;
+                }
+                case PushNewMessageAction action: {
+                    var message = action.messageData;
+                    //workaround for test, remove when release !!!
+                    if (!state.channelState.channelDict.ContainsKey(message.channelId)) {
+                        break;
+                    }
+                    
+                    var channel = state.channelState.channelDict[message.channelId];
+                    //ignore duplicated message
+                    if (!channel.messageIds.Contains(message.id)) {
+                        var channelMessage = ChannelMessageView.fromPushMessage(message);
+                        state.channelState.messageDict[channelMessage.id] = channelMessage;
+                        channel.messageIds.Add(channelMessage.id);
+                    }
+                    break;
+                }
+                case PushModifyMessageAction action: {
+                    var message = action.messageData;
+                    //workaround for test, remove when release !!!
+                    if (!state.channelState.channelDict.ContainsKey(message.channelId)) {
+                        break;
+                    }
+                    
+                    var channel = state.channelState.channelDict[message.channelId];
+                    
+                    var channelMessage = ChannelMessageView.fromPushMessage(message);
+                    state.channelState.messageDict[channelMessage.id] = channelMessage;
+                    
+                    //insert new if not exists yet
+                    if (!channel.messageIds.Contains(message.id)) {
+                        channel.messageIds.Add(channelMessage.id);
+                    }
+                    break;
+                }
+                case PushDeleteMessageAction action: {
+                    //TODO
                     break;
                 }
             }
