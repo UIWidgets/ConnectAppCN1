@@ -14,6 +14,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
@@ -33,103 +34,13 @@ namespace ConnectApp.screens {
         public readonly string channelId;
 
         public override Widget build(BuildContext context) {
-            User fish = new User {
-                id = "fish",
-                fullName = "海边的孙小鱼",
-                avatar =
-                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-            };
             return new StoreConnector<AppState, ChannelScreenViewModel>(
                 converter: state => {
                     return new ChannelScreenViewModel {
                         channelInfo = state.channelState.channelDict[this.channelId],
-#if false
-                        messages = new List<ChannelMessageView> {
-                            new ChannelMessage {
-                                content = "听说Connect App是用UI Widgets做的？",
-                                sender = codeboy,
-                                time = new DateTime(2019, 9, 9, 7, 30, 10)
-                            },
-                            new ChannelMessage {
-                                content = "是的",
-                                sender = canteen,
-                                time = new DateTime(2019, 9, 9, 7, 30, 22)
-                            },
-                            new ChannelMessage {
-                                content = "彩蛋这个Demo可以下载吗？看起来很有意思",
-                                sender = fish,
-                                time = new DateTime(2019, 9, 9, 8, 30, 0)
-                            },
-                            new ChannelMessage {
-                                content =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                                sender = fish,
-                                time = new DateTime(2019, 9, 9, 8, 30, 7),
-                                type = ChannelMessageType.image
-                            },
-                            new ChannelMessage {
-                                content =
-                                    "https://connect-prd-cdn.unity.com/20190902/p/images/b961e571-8da0-41aa-9e54-fda0fef95ba8_image2_9.png",
-                                sender = dage,
-                                time = new DateTime(2019, 9, 9, 8, 30, 8),
-                                type = ChannelMessageType.image,
-                            },
-                            new ChannelMessage {
-                                content =
-                                    "https://connect-prd-cdn.unity.com/20190829/p/images/6a9e4f35-43a2-41ef-bb90-626698ef4876_17.gif",
-                                sender = fish,
-                                time = new DateTime(2019, 9, 9, 8, 30, 9),
-                                type = ChannelMessageType.image,
-                            },
-                            new ChannelMessage {
-                                content = "UI Widgets入门教程-第二版.pdf",
-                                sender = dage,
-                                time = new DateTime(2019, 9, 9, 8, 30, 13),
-                                type = ChannelMessageType.file,
-                                fileSize = 2670000
-                            },
-                            new ChannelMessage {
-                                content = "UI Widgets入门教程-第二版.pdf",
-                                sender = dage,
-                                time = new DateTime(2019, 9, 9, 8, 30, 13),
-                                type = ChannelMessageType.file,
-                                fileSize = 267
-                            },
-                            new ChannelMessage {
-                                content = "UI Widgets入门教程-第二版.pdf",
-                                sender = dage,
-                                time = new DateTime(2019, 9, 9, 8, 30, 13),
-                                type = ChannelMessageType.file,
-                                fileSize = 2670
-                            },
-                            new ChannelMessage {
-                                content = "UI Widgets入门教程-第二版.pdf",
-                                sender = dage,
-                                time = new DateTime(2019, 9, 9, 8, 30, 13),
-                                type = ChannelMessageType.file,
-                                fileSize = 2670000000
-                            },
-                            new ChannelMessage {
-                                content = "可以参考这个教程https://unity.com/solutions/game",
-                                sender = dage,
-                                time = new DateTime(2019, 9, 9, 8, 30, 14)
-                            },
-                            new ChannelMessage {
-                                content = "可以参考这个教程https://unity.com/solutions/game",
-                                sender = dage,
-                                time = new DateTime(2019, 9, 9, 8, 30, 15)
-                            },
-                            new ChannelMessage {
-                                content = "可以参考这个教程https://unity.com/solutions/game",
-                                sender = dage,
-                                time = new DateTime(2019, 9, 9, 8, 30, 16)
-                            },
-                        },
-#else
                         messages = state.channelState.channelDict[this.channelId].messageIds.Select(
                             messageId => state.channelState.messageDict[messageId]
                         ).ToList(),
-#endif
                         me = state.loginState.loginInfo.userId,
                         newMessageCount = 0
                     };
@@ -144,7 +55,9 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction {
                                 channelId = this.channelId
                             });
-                        }
+                        },
+                        sendMessage = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
+                            Actions.sendMessage(channelId, content, nonce, parentMessageId)),
                     };
                     return new ChannelScreen(viewModel, actionModel);
                 }
@@ -171,8 +84,8 @@ namespace ConnectApp.screens {
     }
 
     class _ChannelScreenState : State<ChannelScreen> {
-        TextEditingController _fullNameController;
-        TextEditingController _titleController;
+        readonly TextEditingController _textController = new TextEditingController("");
+        readonly FocusNode _focusNode = new FocusNode();
 
         Dictionary<string, string> _jobRole;
         float messageBubbleWidth = 0;
@@ -180,6 +93,12 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             this.widget.actionModel.fetchMessages();
+        }
+
+        public override void dispose() {
+            this._textController.dispose();
+            this._focusNode.dispose();
+            base.dispose();
         }
 
         public override Widget build(BuildContext context) {
@@ -364,7 +283,7 @@ namespace ConnectApp.screens {
                                     child: new Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: new List<Widget> {
-                                            new Text(message.embeds[0].embedData.title,
+                                            new Text(message.embeds[0].embedData.title ?? "",
                                                 style: CTextStyle.PLargeMediumBlue),
                                             new Container(height: 4),
                                             message.embeds[0].embedData.description == null
@@ -377,7 +296,7 @@ namespace ConnectApp.screens {
                                             new Row(
                                                 crossAxisAlignment: CrossAxisAlignment.center,
                                                 children: new List<Widget> {
-                                                    Image.network(message.embeds[0].embedData.image,
+                                                    Image.network(message.embeds[0].embedData.image ?? "",
                                                         width: 14, height: 14, fit: BoxFit.cover),
                                                     new Container(width: 4),
                                                     new Text(message.embeds[0].embedData.name ?? "",
@@ -461,18 +380,26 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new Expanded(
                             child: new Container(
-                                padding: EdgeInsets.only(16),
+                                padding: EdgeInsets.symmetric(0, 16),
                                 height: 32,
                                 decoration: new BoxDecoration(
                                     CColors.Separator2,
                                     borderRadius: BorderRadius.all(16)
                                 ),
                                 alignment: Alignment.centerLeft,
-                                child: new Container(
-                                    child: new Text(
-                                        "说点想法...",
-                                        style: CTextStyle.PKeyboardTextStyle
-                                    )
+                                child: new InputField(
+                                    // key: _textFieldKey,
+                                    controller: this._textController,
+                                    focusNode: this._focusNode,
+                                    height: 32,
+                                    style: CTextStyle.PRegularBody,
+                                    hintText: "说点想法…",
+                                    hintStyle: CTextStyle.PRegularBody4,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 1,
+                                    cursorColor: CColors.PrimaryBlue,
+                                    textInputAction: TextInputAction.send,
+                                    onSubmitted: this._handleSubmit
                                 )
                             )
                         ),
@@ -517,6 +444,11 @@ namespace ConnectApp.screens {
             );
 
             return ret;
+        }
+
+        void _handleSubmit(string text) {
+            this.widget.actionModel.sendMessage(this.widget.viewModel.channelInfo.id, text, Snowflake.CreateNonce(), "")
+                .Catch(_ => { CustomDialogUtils.showToast("消息发送失败", Icons.error_outline); });
         }
     }
 

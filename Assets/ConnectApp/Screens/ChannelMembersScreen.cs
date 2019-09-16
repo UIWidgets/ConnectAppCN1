@@ -133,7 +133,7 @@ namespace ConnectApp.screens {
             return new CustomAppBar(
                 () => this.widget.actionModel.mainRouterPop(),
                 new Text(
-                    $"群聊成员({this.widget.viewModel.members.Count})",
+                    $"群聊成员({this.widget.viewModel.channel.memberCount})",
                     style: CTextStyle.PXLargeMedium
                 )
             );
@@ -231,7 +231,7 @@ namespace ConnectApp.screens {
                                     children: new List<Widget> {
                                         fullName,
                                         new Expanded(
-                                            child: new Text(member.user.title, style: CTextStyle.PRegularBody4,
+                                            child: new Text(member.user.title ?? "", style: CTextStyle.PRegularBody4,
                                                 maxLines: 1, overflow: TextOverflow.ellipsis)
                                         )
                                     }

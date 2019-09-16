@@ -448,7 +448,7 @@ namespace ConnectApp.screens {
                                                             ? "[@所有人] "
                                                             : "",
                                                     children: new List<TextSpan> {
-                                                        new TextSpan(channel.lastMessage.content,
+                                                        new TextSpan(channel.lastMessage.content ?? "",
                                                             style: CTextStyle.PRegularBody4
                                                         )
                                                     },
@@ -466,7 +466,7 @@ namespace ConnectApp.screens {
                             child: new Container(
                                 child: new Column(
                                     children: new List<Widget> {
-                                        new Text(channel.lastMessage.timeString, style: CTextStyle.PSmallBody4),
+                                        new Text(channel.lastMessage.timeString ?? "", style: CTextStyle.PSmallBody4),
                                         new Expanded(
                                             child: channel.isMute || channel.unread > 0
                                                 ? (Widget) new Align(
