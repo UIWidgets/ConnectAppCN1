@@ -187,9 +187,18 @@ namespace ConnectApp.screens {
             Widget ret = new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(top: 16, bottom: 99),
-                child: new ListView(
+                child: ListView.builder(
                     padding: EdgeInsets.symmetric(16, 0),
-                    children: messages
+                    itemCount: this.widget.viewModel.messages.Count,
+                    itemBuilder: (context, index) => {
+                        var message = this.widget.viewModel.messages[index];
+                        return this._buildMessage(message,
+                            showTime: index == 0 || (message.time -
+                                                     this.widget.viewModel.messages[index - 1].time) >
+                                      TimeSpan.FromMinutes(5),
+                            left: message.author.id != this.widget.viewModel.me
+                        );
+                    }
                 )
             );
 
