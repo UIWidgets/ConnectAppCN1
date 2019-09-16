@@ -64,4 +64,17 @@ namespace ConnectApp.Models.Model {
         public string title;
         public string url;
     }
+
+    [Serializable]
+    public class ChannelMember {
+        public string id;
+        public string channelId;
+        public User user;
+        public string role;
+        public bool isBanned;
+        public bool kicked;
+        public bool left;
+        public bool guideFinished;
+        public bool showTerms;
+    }
 }

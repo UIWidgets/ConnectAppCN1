@@ -33,13 +33,12 @@ namespace ConnectApp.Models.ViewModel {
         public bool joined = false;
         public bool atMe = false;
         public bool atAll = false;
-        public List<User> members;
-        public int numAdmins;
+        public List<string> memberIds;
 
         public static ChannelView fromChannel(Channel channel) {
             return new ChannelView {
                 atAll = channel?.lastMessage?.content?.Contains("@all") ?? false,
-                members = new List<User>(),
+                memberIds = new List<string>(),
                 id = channel?.id,
                 groupId = channel?.groupId,
                 thumbnail = channel?.thumbnail,
@@ -100,12 +99,13 @@ namespace ConnectApp.Models.ViewModel {
                     content = content ?? "";
                     break;
                 case ChannelMessageType.image:
-                    content = message.attachments[0].url;
+                    content = CImageUtils.SizeTo200ImageUrl(message.attachments[0].url);
                     break;
                 case ChannelMessageType.file:
                     content = message.attachments[0].filename;
                     break;
             }
+
             return new ChannelMessageView {
                 id = message.id,
                 nonce = message.nonce,

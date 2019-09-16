@@ -130,18 +130,20 @@ namespace ConnectApp.screens {
                             messageId => state.channelState.messageDict[messageId]
                         ).ToList(),
 #endif
-                        me = fish,
-                        newMessageCount = 100
+                        me = state.loginState.loginInfo.userId,
+                        newMessageCount = 0
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ChannelScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         fetchMessages = () => {
-                            dispatcher.dispatch<IPromise>(Actions.fetchChannelMessages(viewModel.channelInfo.id));
+                            dispatcher.dispatch<IPromise>(Actions.fetchChannelMessages(this.channelId));
                         },
                         pushToChannelDetail = () => {
-                            dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction());
+                            dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction {
+                                channelId = this.channelId
+                            });
                         }
                     };
                     return new ChannelScreen(viewModel, actionModel);
@@ -259,7 +261,7 @@ namespace ConnectApp.screens {
                     message,
                     showTime: i == 0 || (message.time -
                                          this.widget.viewModel.messages[i - 1].time) > TimeSpan.FromMinutes(5),
-                    left: message.author.id != this.widget.viewModel.me.id
+                    left: message.author.id != this.widget.viewModel.me
                 ));
             }
 
@@ -333,12 +335,28 @@ namespace ConnectApp.screens {
                     );
                     break;
                 case ChannelMessageType.embed:
+                    var content = message.content;
+                    Widget contentWidget = new Text(content, style: CTextStyle.PLargeBody);
+                    if (message.embeds[0].embedData.url != null && content.Contains(message.embeds[0].embedData.url)) {
+                        int startIndex = content.IndexOf(message.embeds[0].embedData.url, StringComparison.Ordinal);
+                        int endIndex = startIndex + message.embeds[0].embedData.url.Length;
+                        string prev = content.Substring(0, startIndex);
+                        string post = content.Substring(endIndex);
+                        contentWidget = new RichText(text: new TextSpan(
+                            prev,
+                            style: CTextStyle.PLargeBody,
+                            children: new List<TextSpan> {
+                                new TextSpan(message.embeds[0].embedData.url, style: CTextStyle.PLargeBlue),
+                                new TextSpan(post, style: CTextStyle.PLargeBody),
+                            }
+                        ));
+                    }
                     messageContent = new Container(
                         padding: EdgeInsets.all(12),
                         child: new Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: new List<Widget> {
-                                new Text(message.content, style: CTextStyle.PLargeBody),
+                                contentWidget,
                                 new Container(height: 12),
                                 new Container(
                                     padding: EdgeInsets.all(12),
@@ -346,7 +364,7 @@ namespace ConnectApp.screens {
                                     child: new Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: new List<Widget> {
-                                            new Text(message.embeds[0].embedData.title ?? "",
+                                            new Text(message.embeds[0].embedData.title,
                                                 style: CTextStyle.PLargeMediumBlue),
                                             new Container(height: 4),
                                             message.embeds[0].embedData.description == null

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
@@ -7,6 +8,7 @@ using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
+using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
@@ -17,46 +19,30 @@ using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.screens {
     public class ChannelDetailScreenConnector : StatelessWidget {
+        public ChannelDetailScreenConnector(string channelId, Key key = null) : base(key : key) {
+            this.channelId = channelId;
+        }
+
+        public readonly string channelId;
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ChannelDetailScreenViewModel>(
                 converter: state => new ChannelDetailScreenViewModel {
-                    channel = new ChannelView {
-                        thumbnail = "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                        name = "UI Widgets 技术交流",
-                        live = true,
-                        isTop = true,
-                        atMe = true,
-                        topic = "UIWidgets是一个可以独立使用的 Unity Package (https://github.com/UnityTech/UIWidgets)。"
-                                       + "它将Flutter(https://flutter.io/)的App框架与Unity渲染引擎相结合，"
-                                       + "让您可以在Unity编辑器中使用一套代码构建出可以同时在PC、网页及移动设备上运行的原生应用。"
-                                       + "此外，您还可以在您的3D游戏或者Unity编辑器插件中用它来构建复杂的UI层，替换UGUI和IMGUI。",
-                        atAll = true,
-                        members = new List<User> {
-                            new User {
-                                avatar =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                            },
-                            new User {
-                                avatar =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                            },
-                            new User {
-                                avatar =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                            },
-                            new User {
-                                avatar =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                            },
-                        }
-                    }
+                    channel = state.channelState.channelDict[this.channelId],
+                    members = state.channelState.channelDict[this.channelId].memberIds.Select(
+                        memberId => state.channelState.membersDict[memberId]
+                    ).ToList()
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ChannelDetailScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
-                        pushToChannelMembers = () => dispatcher.dispatch(new MainNavigatorPushToChannelMembersAction()),
+                        pushToChannelMembers = () => dispatcher.dispatch(new MainNavigatorPushToChannelMembersAction {
+                            channelId = this.channelId
+                        }),
                         pushToChannelIntroduction = () =>
-                            dispatcher.dispatch(new MainNavigatorPushToChannelIntroductionAction())
+                            dispatcher.dispatch(new MainNavigatorPushToChannelIntroductionAction {
+                                channelId = this.channelId
+                            }),
+                        fetchMembers = () => dispatcher.dispatch<IPromise>(Actions.fetchChannelMembers(this.channelId))
                     };
                     return new ChannelDetailScreen(actionModel, viewModel);
                 }
@@ -64,7 +50,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    public class ChannelDetailScreen : StatelessWidget {
+    public class ChannelDetailScreen : StatefulWidget {
         public ChannelDetailScreen(
             ChannelDetailScreenActionModel actionModel = null,
             ChannelDetailScreenViewModel viewModel = null,
@@ -74,8 +60,19 @@ namespace ConnectApp.screens {
             this.actionModel = actionModel;
         }
 
-        readonly ChannelDetailScreenActionModel actionModel;
-        readonly ChannelDetailScreenViewModel viewModel;
+        public readonly ChannelDetailScreenActionModel actionModel;
+        public readonly ChannelDetailScreenViewModel viewModel;
+
+        public override State createState() {
+            return new _ChannelDetailScreenState();
+        }
+    }
+    
+    class _ChannelDetailScreenState : State<ChannelDetailScreen> {
+        public override void initState() {
+            base.initState();
+            this.widget.actionModel.fetchMembers();
+        }
 
         public override Widget build(BuildContext context) {
             return new Container(
@@ -98,7 +95,7 @@ namespace ConnectApp.screens {
 
         Widget _buildNavigationBar() {
             return new CustomAppBar(
-                () => this.actionModel.mainRouterPop(),
+                () => this.widget.actionModel.mainRouterPop(),
                 new Text(
                     "群聊资料",
                     style: CTextStyle.PXLargeMedium
@@ -110,8 +107,8 @@ namespace ConnectApp.screens {
             List<Widget> avatars = new List<Widget>();
             float avatarSize = (MediaQuery.of(context).size.width - 32 - 16 * 4) / 5;
             for (int i = 0; i < 5; i++) {
-                avatars.Add(this.viewModel.channel.members.Count > i
-                    ? Avatar.User(this.viewModel.channel.members[i], avatarSize)
+                avatars.Add(this.widget.viewModel.members.Count > i
+                    ? Avatar.User(this.widget.viewModel.members[i].user, avatarSize)
                     : (Widget) new Container(width: 56, height: 56)
                 );
             }
@@ -131,7 +128,7 @@ namespace ConnectApp.screens {
                                         child: new Container(
                                             width: 48,
                                             height: 48,
-                                            child: Image.network(this.viewModel.channel.thumbnail, fit: BoxFit.cover)
+                                            child: Image.network(this.widget.viewModel.channel.thumbnail, fit: BoxFit.cover)
                                         )
                                     ),
                                     new Expanded(
@@ -140,12 +137,12 @@ namespace ConnectApp.screens {
                                             child: new Column(
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: new List<Widget> {
-                                                    new Text(this.viewModel.channel.name,
+                                                    new Text(this.widget.viewModel.channel.name,
                                                         style: CTextStyle.PLargeMedium,
                                                         maxLines: 1, overflow: TextOverflow.ellipsis),
                                                     new Expanded(
                                                         child: new Text(
-                                                            $"{this.viewModel.channel.members.Count}名群成员",
+                                                            $"{this.widget.viewModel.channel.memberCount}名群成员",
                                                             style: CTextStyle.PRegularBody4,
                                                             maxLines: 1)
                                                     )
@@ -157,8 +154,8 @@ namespace ConnectApp.screens {
                             )
                         ),
                         new GestureDetector(
-                            onTap: () => { this.actionModel.pushToChannelIntroduction(); },
-                            child: this._tapRow(this.viewModel.channel.topic, 2, 16, 16, true)
+                            onTap: () => { this.widget.actionModel.pushToChannelIntroduction(); },
+                            child: this._tapRow(this.widget.viewModel.channel.topic, 2, 16, 16, true)
                         ),
                         new Container(height: 16),
                         new Container(
@@ -171,13 +168,13 @@ namespace ConnectApp.screens {
                                         child: new Container()
                                     ),
                                     new GestureDetector(
-                                        onTap: () => { this.actionModel.pushToChannelMembers(); },
+                                        onTap: () => { this.widget.actionModel.pushToChannelMembers(); },
                                         child: new Container(
                                             color: CColors.Transparent,
                                             child: new Row(
                                                 children: new List<Widget> {
                                                     new Text(
-                                                        $"查看{this.viewModel.channel.members.Count}名群成员",
+                                                        $"查看{this.widget.viewModel.channel.memberCount}名群成员",
                                                         style: new TextStyle(
                                                             fontSize: 12,
                                                             fontFamily: "Roboto-Regular",
@@ -208,8 +205,8 @@ namespace ConnectApp.screens {
 //                        new GestureDetector(
 //                            child: this._tapRow("查找聊天内容", 1, 18, 18)
 //                        ),
-                        this._switchRow("设为置顶", this.viewModel.channel.isTop, value => { }),
-                        this._switchRow("消息免打扰", this.viewModel.channel.isMute, value => { }),
+                        this._switchRow("设为置顶", this.widget.viewModel.channel.isTop, value => { }),
+                        this._switchRow("消息免打扰", this.widget.viewModel.channel.isMute, value => { }),
                         new Container(height: 16),
                         new Container(
                             color: CColors.White,

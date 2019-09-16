@@ -41,6 +41,21 @@ namespace ConnectApp.redux.actions {
                     });
             });
         }
+        
+        public static object fetchChannelMembers(string channelId) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.FetchChannelMembers(channelId).Then(channelMemberResponse => {
+                        dispatcher.dispatch(new ChannelMemberAction {
+                            channelId = channelId,
+                            members = channelMemberResponse
+                        });
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new FetchChannelMemberFailureAction());
+                        Debug.Log(error);
+                    });
+            });
+        }
     }
 
     public class PublicChannelsAction {
@@ -57,10 +72,27 @@ namespace ConnectApp.redux.actions {
         public List<int> pages;
         public int total;
     }
+
+    public class ChannelMemberAction {
+        public string channelId;
+        public List<ChannelMember> members;
+    }
+    
+    public class FetchPublicChannelsSuccessAction : BaseAction {
+    }
     
     public class FetchPublicChannelsFailureAction : BaseAction {
     }
     
+    public class FetchChannelMessagesSuccessAction : BaseAction {
+    }
+    
     public class FetchChannelMessagesFailureAction : BaseAction {
+    }
+    
+    public class FetchChannelMemberSuccessAction : BaseAction {
+    }
+    
+    public class FetchChannelMemberFailureAction : BaseAction {
     }
 }

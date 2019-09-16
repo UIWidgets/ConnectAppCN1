@@ -1231,10 +1231,10 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 
-                case MainNavigatorPushToChannelDetailAction _: {
+                case MainNavigatorPushToChannelDetailAction action: {
                     Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                                new ChannelDetailScreenConnector(),
+                                new ChannelDetailScreenConnector(action.channelId),
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new PushPageTransition(
                                     routeAnimation: animation,
@@ -1245,10 +1245,10 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 
-                case MainNavigatorPushToChannelMembersAction _: {
+                case MainNavigatorPushToChannelMembersAction action: {
                     Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                                new ChannelMembersScreenConnector(),
+                                new ChannelMembersScreenConnector(action.channelId),
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new PushPageTransition(
                                     routeAnimation: animation,
@@ -1259,10 +1259,10 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 
-                case MainNavigatorPushToChannelIntroductionAction _: {
+                case MainNavigatorPushToChannelIntroductionAction action: {
                     Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                                new ChannelIntroductionScreenConnector(),
+                                new ChannelIntroductionScreenConnector(action.channelId),
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new PushPageTransition(
                                     routeAnimation: animation,
@@ -2272,6 +2272,8 @@ namespace ConnectApp.redux.reducers {
                     for (var i = 0; i < action.channels.Count; i++) {
                         state.channelState.channelDict[action.channels[i].id] =
                             ChannelView.fromChannel(action.channels[i]);
+                        state.channelState.channelDict[action.channels[i].id].lastMessage =
+                            ChannelMessageView.fromChannelMessage(action.channels[i].lastMessage);
                     }
                     break;
                 }
@@ -2282,8 +2284,19 @@ namespace ConnectApp.redux.reducers {
                     for (var i = action.messages.Count-1; i >= 0; i--) {
                          var channelMessage =
                             ChannelMessageView.fromChannelMessage(action.messages[i]);
-                         state.channelState.messageDict[action.messages[i].id] = channelMessage;
+                         state.channelState.messageDict[channelMessage.id] = channelMessage;
                          channel.messageIds.Add(channelMessage.id);
+                    }
+                    break;
+                }
+
+                case ChannelMemberAction action: {
+                    var channel = state.channelState.channelDict[action.channelId];
+                    channel.memberIds = new List<string>();
+                    for (var i = 0; i < action.members.Count; i++) {
+                        var channelMember = action.members[i];
+                         state.channelState.membersDict[channelMember.id] = channelMember;
+                         channel.memberIds.Add(channelMember.id);
                     }
                     break;
                 }

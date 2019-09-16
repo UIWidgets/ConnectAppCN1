@@ -11,5 +11,6 @@ namespace ConnectApp.Models.State {
         public int publicChannelTotal;
         public Dictionary<string, ChannelView> channelDict;
         public Dictionary<string, ChannelMessageView> messageDict;
+        public Dictionary<string, ChannelMember> membersDict;
     }
 }
