@@ -9,6 +9,7 @@
 #include "UIWidgetsMessageManager.h"
 #import "NSString+Cookie.h"
 #import "Masonry.h"
+#import "PlayerDetailController.h"
 static AVPlayerController *avp = nil;
 
 @implementation AVPlayerController
@@ -32,20 +33,17 @@ static AVPlayerController *avp = nil;
     return _wmPlayer;
 }
 
-- (void)initPlayerWithVideoUrl:(NSString*)videoUrl cookie:(NSString*)cookie left:(CGFloat)left top:(CGFloat)top width:(CGFloat)width height:(CGFloat)height isPop:(BOOL)isPop{
+- (void)initPlayerWithVideoUrl:(NSString*)videoUrl cookie:(NSString*)cookie left:(CGFloat)left top:(CGFloat)top width:(CGFloat)width height:(CGFloat)height isPop:(BOOL)isPop needUpdate:(BOOL)needUpdate{
     _marginTop = top;
-    NSString *Cookie = [NSString stringWithFormat:@"%@; path=/; domain=.connect.unity.com;",cookie];
-    WMPlayerModel *model = [[WMPlayerModel alloc]init];
-    NSDictionary *options = @{AVURLAssetHTTPCookiesKey : @[[Cookie cookie]]};
-    AVURLAsset *videoURLAsset = [AVURLAsset URLAssetWithURL:[NSURL URLWithString:videoUrl] options:options];
-    model.playerItem = [AVPlayerItem playerItemWithAsset:videoURLAsset];
-    model.verticalVideo = false;
-    self.wmPlayer.playerModel = model;
+    if (videoUrl.length>0) {
+        self.wmPlayer.playerModel = [self setupModelWithUrl:videoUrl cookie:cookie];
+    }
     self.wmPlayer.backBtnStyle = isPop?BackBtnStylePop:BackBtnStyleNone;
     self.wmPlayer.loopPlay = NO;//设置是否循环播放
     self.wmPlayer.tintColor = [UIColor colorWithRed:243.0/255 green:33.0/255 blue:148.0/255 alpha:1];//改变播放器着色
     self.wmPlayer.enableBackgroundMode = NO;//开启后台播放模式
     self.wmPlayer.delegate = self;
+    self.wmPlayer.needUpdateLincense = needUpdate;
     [UnityGetGLView() addSubview:self.wmPlayer];
     [self.wmPlayer mas_makeConstraints:^(MASConstraintMaker *make) {
         make.leading.trailing.equalTo(self.wmPlayer.superview);
@@ -63,6 +61,22 @@ static AVPlayerController *avp = nil;
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil
      ];
+}
+
+-(WMPlayerModel *)setupModelWithUrl:(NSString *)videoUrl cookie:(NSString *)cookie{
+    NSString *Cookie = [NSString stringWithFormat:@"%@; path=/; domain=.connect.unity.com;",cookie];
+    WMPlayerModel *model = [[WMPlayerModel alloc]init];
+    NSDictionary *options = @{AVURLAssetHTTPCookiesKey : @[[Cookie cookie]]};
+    AVURLAsset *videoURLAsset = [AVURLAsset URLAssetWithURL:[NSURL URLWithString:videoUrl] options:options];
+    model.playerItem = [AVPlayerItem playerItemWithAsset:videoURLAsset];
+    model.verticalVideo = false;
+    return model;
+}
+- (void)wmplayer:(WMPlayer *)wmplayer clickedBuyLinceseButton:(UIButton *)shareBtn{
+    UIWidgetsMethodMessage(@"player", @"BuyLincese", @[@""]);
+}
+- (void)wmplayer:(WMPlayer *)wmplayer clickedUpdateLinceseButton:(UIButton *)updateBtn{
+    UIWidgetsMethodMessage(@"player", @"UpdateLincese", @[@""]);
 }
 
 - (void)wmplayer:(WMPlayer *)wmplayer clickedCloseButton:(UIButton *)backBtn{
@@ -89,21 +103,33 @@ static AVPlayerController *avp = nil;
     [UIViewController attemptRotationToDeviceOrientation];
 }
 - (void)play{
-    [self.wmPlayer play];
+    if (self.wmPlayer) {
+        [self.wmPlayer play];
+    }
 }
 
 - (void)pause{
-    [self.wmPlayer pause];
+    if (self.wmPlayer) {
+        [self.wmPlayer pause];
+    }
 }
 
 - (void)show{
-    [self.wmPlayer play];
-    self.wmPlayer.hidden = NO;
+    if (self.wmPlayer) {
+        self.wmPlayer.hidden = NO;
+    }
 }
 
 - (void)hidden{
-    [self.wmPlayer pause];
-    self.wmPlayer.hidden = YES;
+    if (self.wmPlayer) {
+        self.wmPlayer.hidden = YES;
+    }
+}
+
+- (void)configPlayerWithVideUrl:(NSString *)url cookie:(NSString *)cookie{
+    if (self.wmPlayer) {
+        [self.wmPlayer setPlayerModel:[self setupModelWithUrl:url cookie:cookie]];
+    }
 }
 
 
@@ -158,11 +184,6 @@ static AVPlayerController *avp = nil;
         self.wmPlayer.isFullscreen = NO;
     }else{
         [self.wmPlayer mas_remakeConstraints:^(MASConstraintMaker *make) {
-//            if([WMPlayer IsiPhoneX]){
-//                make.edges.mas_equalTo(UIEdgeInsetsMake(self.wmPlayer.playerModel.verticalVideo?14:0, 0, 0, 0));
-//            }else{
-//                make.edges.mas_equalTo(UIEdgeInsetsMake(0, 0, 0, 0));
-//            }
             make.edges.mas_equalTo(UIEdgeInsetsMake(0, 0, 0, 0));
         }];
         self.wmPlayer.isFullscreen = YES;

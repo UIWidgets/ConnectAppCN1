@@ -1,11 +1,9 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 #if UNITY_IOS
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using Newtonsoft.Json;
+
 #elif UNITY_ANDROID
-using UnityEngine;
 #endif
 
 
@@ -49,18 +47,17 @@ namespace ConnectApp.Plugins {
 
         [DllImport("__Internal")]
         static extern void loginEvent(string loginType);
-        
+
         [DllImport("__Internal")]
-        static extern void countEvent(string eventId,string extra);
-        
+        static extern void countEvent(string eventId, string extra);
+
         [DllImport("__Internal")]
-        static extern void calculateEvent(string eventId,string value,string extra);
-        
+        static extern void calculateEvent(string eventId, string value, string extra);
+
         [DllImport("__Internal")]
-        static extern void browseEvent(string eventId,string name, string type,string duration, string extra);
+        static extern void browseEvent(string eventId, string name, string type, string duration, string extra);
 
 #elif UNITY_ANDROID
-
         static AndroidJavaObject _plugin;
 
         static AndroidJavaObject Plugin() {

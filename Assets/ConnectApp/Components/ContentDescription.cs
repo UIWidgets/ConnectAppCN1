@@ -17,7 +17,8 @@ namespace ConnectApp.Components {
         static readonly Color codeBlockBackgroundColor = Color.fromRGBO(110, 198, 255, 0.12f);
 
         public static List<Widget> map(BuildContext context, string cont, Dictionary<string, ContentMap> contentMap,
-            Action<string> openUrl, Action<string> playVideo, Action browserImage = null) {
+            Dictionary<string, VideoSliceMap> videoSliceMap,
+            Action<string> openUrl, Action<string, bool> playVideo, Action browserImage = null) {
             if (cont == null || contentMap == null) {
                 return new List<Widget>();
             }
@@ -136,14 +137,25 @@ namespace ConnectApp.Components {
                                 if (contentMap.ContainsKey(key: data.contentId)) {
                                     var map = contentMap[key: data.contentId];
                                     var url = map.url;
-                                    var downloadUrl = map.downloadUrl ?? "";
+                                    var attachmentId = map.attachmentId ?? "";
                                     var contentType = map.contentType ?? "";
                                     var originalImage = map.originalImage == null
                                         ? map.thumbnail
                                         : map.originalImage;
-                                    widgets.Add(_Atomic(context, dataMap.type, contentType, data.title, data.url, originalImage,
-                                        url, downloadUrl,
-                                        openUrl, playVideo, browserImage));
+                                    var needUpdate = false;
+                                    if (videoSliceMap.isNotEmpty() && videoSliceMap.ContainsKey(map.attachmentId)) {
+                                        var videoSlice = videoSliceMap[map.attachmentId];
+                                        if (videoSlice.verifyType == "license" &&
+                                            videoSlice.verifyArg == "premium_above" && UserInfoManager.isLogin() &&
+                                            UserInfoManager.initUserInfo().anonymous) {
+                                            needUpdate = true;
+                                        }
+                                    }
+
+                                    widgets.Add(_Atomic(context, dataMap.type, contentType, data.title, data.url,
+                                        originalImage,
+                                        url, attachmentId,
+                                        openUrl, playVideo, needUpdate, browserImage));
                                 }
                             }
                         }
@@ -302,7 +314,7 @@ namespace ConnectApp.Components {
 
         static Widget _Atomic(BuildContext context, string type, string contentType, string title, string dataUrl,
             _OriginalImage originalImage,
-            string url, string downloadUrl, Action<string> openUrl, Action<string> playVideo,
+            string url, string attachmentId, Action<string> openUrl, Action<string, bool> playVideo, bool needUpdate,
             Action browserImage = null) {
             if (type == "ATTACHMENT" && contentType != "video/mp4") {
                 return new Container();
@@ -317,7 +329,7 @@ namespace ConnectApp.Components {
                         child: new CustomButton(
                             onPressed: () => {
                                 if (type == "ATTACHMENT") {
-                                    playVideo($"{downloadUrl}?noLoginRequired=true");
+                                    playVideo($"{Config.apiAddress}/playlist/{attachmentId}", needUpdate);
                                 }
                                 else {
                                     if (url == null || url.Length <= 0) {
@@ -579,7 +591,8 @@ namespace ConnectApp.Components {
                     new TextSpan(
                         text.Substring(inlineOffset + inlineLength, entityOffset - inlineOffset - inlineLength),
                         newStyle),
-                    new TextSpan(text.Substring(entityOffset, entityLength), newStyle.copyWith(color: CColors.PrimaryBlue),
+                    new TextSpan(text.Substring(entityOffset, entityLength),
+                        newStyle.copyWith(color: CColors.PrimaryBlue),
                         recognizer: recognizer),
                     new TextSpan(text.Substring(entityOffset + entityLength, text.Length - entityOffset - entityLength),
                         newStyle)
@@ -590,7 +603,8 @@ namespace ConnectApp.Components {
             if (inlineOffset >= entityOffset + entityLength) {
                 var spans = new List<TextSpan> {
                     new TextSpan(text.Substring(0, entityOffset), newStyle),
-                    new TextSpan(text.Substring(entityOffset, entityLength), newStyle.copyWith(color: CColors.PrimaryBlue),
+                    new TextSpan(text.Substring(entityOffset, entityLength),
+                        newStyle.copyWith(color: CColors.PrimaryBlue),
                         recognizer: recognizer),
                     new TextSpan(
                         text.Substring(entityOffset + entityLength, inlineOffset - entityOffset - entityLength),

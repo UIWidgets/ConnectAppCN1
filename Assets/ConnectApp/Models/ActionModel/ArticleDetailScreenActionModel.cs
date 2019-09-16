@@ -7,7 +7,7 @@ using RSG;
 namespace ConnectApp.Models.ActionModel {
     public class ArticleDetailScreenActionModel : BaseActionModel {
         public Action<string> openUrl;
-        public Action<string> playVideo;
+        public Action<string, bool> playVideo;
         public Action browserImage;
         public Action<string> pushToArticleDetail;
         public Action<string> pushToUserDetail;

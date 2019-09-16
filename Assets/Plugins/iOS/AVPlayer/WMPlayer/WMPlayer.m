@@ -14,7 +14,7 @@
 
 #import "WMPlayer.h"
 #import "Masonry.h"
-
+#import "UpdateView.h"
 //****************************宏*********************************
 #define WMPlayerSrcName(file) [@"WMPlayer.bundle" stringByAppendingPathComponent:file]
 #define WMPlayerFrameworkSrcName(file) [@"Frameworks/WMPlayer.framework/WMPlayer.bundle" stringByAppendingPathComponent:file]
@@ -94,6 +94,9 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
 @property (nonatomic,assign) double    seekTime;
 //视频填充模式
 @property (nonatomic, copy) NSString   *videoGravity;
+
+@property (nonatomic,strong) UpdateView *updateView;
+
 @end
 
 
@@ -145,7 +148,7 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
     [[AVAudioSession sharedInstance]setActive: YES error: &activationErr];
     //wmplayer内部的一个view，用来管理子视图
     self.contentView = [UIView new];
-    self.contentView.backgroundColor = [UIColor blackColor];
+    self.contentView.backgroundColor = [UIColor colorWithWhite:0 alpha:0.9];
     [self addSubview:self.contentView];
     self.backgroundColor = [UIColor blackColor];
 
@@ -158,6 +161,13 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
     //设置默认值
     self.enableVolumeGesture = YES;
     self.enableFastForwardGesture = YES;
+    
+    self.updateView = [[UpdateView alloc]init];
+    self.updateView.hidden = YES;
+    [self.updateView.updateButton addTarget:self action:@selector(updateLincese:) forControlEvents:UIControlEventTouchUpInside];
+    [self.updateView.buyButton addTarget:self action:@selector(buyLincese:) forControlEvents:UIControlEventTouchUpInside];
+    [self.contentView addSubview:self.updateView];
+    
     
     //小菊花
     self.loadingView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
@@ -279,10 +289,10 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
     self.rateBtn.hidden = YES;
 
     //titleLabel
-    self.titleLabel = [UILabel new];
-    self.titleLabel.textColor = [UIColor whiteColor];
-    self.titleLabel.font = [UIFont systemFontOfSize:15.0];
-    [self.topView addSubview:self.titleLabel];
+//    self.titleLabel = [UILabel new];
+//    self.titleLabel.textColor = [UIColor whiteColor];
+//    self.titleLabel.font = [UIFont systemFontOfSize:15.0];
+//    [self.topView addSubview:self.titleLabel];
     
     //加载失败的提示label
     self.loadFailedLabel = [UILabel new];
@@ -312,6 +322,8 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
     [doubleTap setDelaysTouchesBegan:YES];
     [self.singleTap requireGestureRecognizerToFail:doubleTap];//如果双击成立，则取消单击手势（双击的时候不会走单击事件）
     [self.contentView addGestureRecognizer:doubleTap];
+    
+
 }
 #pragma mark - Gesture Delegate
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
@@ -398,6 +410,9 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
     }];
     [self.loadFailedLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.center.equalTo(self.contentView);
+    }];
+    [self.updateView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.edges.mas_equalTo(UIEdgeInsetsMake(0, 0, 0, 0));
     }];
 }
 -(void)setRate:(CGFloat)rate{
@@ -528,6 +543,21 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
         [self.delegate wmplayer:self clickedCloseButton:sender];
     }
 }
+
+#pragma mark
+#pragma mark - 点击update lincese
+-(void)updateLincese:(UIButton *)sender{
+    NSLog(@"updateLincese");
+    if (self.delegate&&[self.delegate respondsToSelector:@selector(wmplayer:clickedUpdateLinceseButton:)]) {
+        [self.delegate wmplayer:self clickedUpdateLinceseButton:sender];
+    }
+}
+-(void)buyLincese:(UIButton *)sender{
+    NSLog(@"buyLincese");
+    if (self.delegate&&[self.delegate respondsToSelector:@selector(wmplayer:clickedBuyLinceseButton:)]) {
+        [self.delegate wmplayer:self clickedBuyLinceseButton:sender];
+    }
+}
 #pragma mark
 #pragma mark - 分享按钮点击func
 -(void)shareTheVideo:(UIButton *)sender{
@@ -599,6 +629,9 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
 #pragma mark
 #pragma mark - 单击手势方法
 - (void)handleSingleTap:(UITapGestureRecognizer *)sender{
+    if (_needUpdateLincense&&!self.updateView.hidden) {
+        return;
+    }
     if (self.isLockScreen) {
         if (self.lockBtn.alpha) {
             self.lockBtn.alpha = 0.0;
@@ -785,11 +818,12 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
     self.shareBtn.hidden = isFullscreen;
     if (isFullscreen) {
         self.lockBtn.hidden = self.playerModel.verticalVideo;
+        self.backBtn.hidden = NO;
     }
-    
     self.fullScreenBtn.selected= isFullscreen;
     if (!isFullscreen) {
         self.bottomProgress.alpha = 0.0;
+        self.backBtn.hidden = _backBtnStyle == BackBtnStyleNone? YES: NO;
     }
     if ([WMPlayer IsiPhoneX]) {
         if (self.isFullscreen) {
@@ -797,19 +831,32 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
                 if (self.playerModel.verticalVideo) {
                     make.edges.mas_equalTo(UIEdgeInsetsMake(20, 0, 20, 0));
                 }else{
-                    make.edges.mas_equalTo(UIEdgeInsetsMake(0, 70, 0, 70));
+                    make.edges.mas_equalTo(UIEdgeInsetsMake(0, 0, 0, 0));
                 }
             }];
             [self.bottomView mas_remakeConstraints:^(MASConstraintMaker *make) {
-                make.leading.trailing.bottom.equalTo(self.contentView);
+                make.leading.equalTo(self.contentView).mas_offset(50);
+                make.trailing.equalTo(self.contentView).mas_offset(-50);
+                make.bottom.equalTo(self.contentView).mas_offset(0);
                 make.height.mas_equalTo(90);
             }];
+            [self.topView mas_remakeConstraints:^(MASConstraintMaker *make) {
+                make.leading.equalTo(self.contentView).mas_offset(50);
+                make.trailing.equalTo(self.contentView).mas_offset(-50);
+                make.top.equalTo(self.contentView).mas_offset(0);
+                make.height.mas_equalTo(90);
+            }];
+        
         }else{
             [self.contentView mas_remakeConstraints:^(MASConstraintMaker *make) {
                 make.edges.mas_equalTo(UIEdgeInsetsMake(0, 0, 0, 0));
             }];
             [self.bottomView mas_remakeConstraints:^(MASConstraintMaker *make) {
                 make.leading.trailing.bottom.equalTo(self.contentView);
+                make.height.mas_equalTo(50);
+            }];
+            [self.topView mas_remakeConstraints:^(MASConstraintMaker *make) {
+                make.leading.trailing.top.equalTo(self.contentView);
                 make.height.mas_equalTo(50);
             }];
         }
@@ -824,10 +871,13 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
         [self.backBtn setImage:WMPlayerImage(@"close.png") forState:UIControlStateNormal];
         [self.backBtn setImage:WMPlayerImage(@"close.png") forState:UIControlStateSelected];
     }else{
-        [self.backBtn setImage:nil forState:UIControlStateNormal];
-        [self.backBtn setImage:nil forState:UIControlStateSelected];
+        [self.backBtn setImage:WMPlayerImage(@"player_icon_nav_back.png") forState:UIControlStateNormal];
+        [self.backBtn setImage:WMPlayerImage(@"player_icon_nav_back.png") forState:UIControlStateSelected];
         [self.shareBtn setImage:nil forState:UIControlStateNormal];
         [self.shareBtn setImage:nil forState:UIControlStateSelected];
+        self.backBtn.hidden = YES;
+        self.shareBtn.hidden = YES;
+
     }
 }
 -(void)setIsHiddenTopAndBottomView:(BOOL)isHiddenTopAndBottomView{
@@ -861,6 +911,11 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
 #pragma mark
 #pragma mark--播放完成
 - (void)moviePlayDidEnd:(NSNotification *)notification {
+    if (_needUpdateLincense) {
+        self.updateView.hidden = NO;
+        self.enableVolumeGesture = NO;
+        self.enableFastForwardGesture = NO;
+    }
     if (self.delegate&&[self.delegate respondsToSelector:@selector(wmplayerFinishedPlay:)]) {
         [self.delegate wmplayerFinishedPlay:self];
     }
@@ -869,7 +924,12 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
             if (self.isLockScreen) {
                 [self lockAction:self.lockBtn];
             }else{
-                [self showControlView];
+                if (_needUpdateLincense) {
+                    [self hiddenControlView];
+                }else{
+                    [self showControlView];
+
+                }
             }
             if(!self.loopPlay){
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{

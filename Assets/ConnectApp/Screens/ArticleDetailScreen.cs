@@ -14,8 +14,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -60,9 +60,11 @@ namespace ConnectApp.screens {
                             routeName = MainNavigatorRoutes.Login
                         }),
                         openUrl = url => OpenUrlUtil.OpenUrl(url, dispatcher),
-                        playVideo = url => dispatcher.dispatch(new MainNavigatorPushToVideoPlayerAction {
-                            url = url
-                        }),
+                        playVideo = (url, needUpdate) => {
+                            dispatcher.dispatch(new MainNavigatorPushToVideoPlayerAction {
+                                url = url
+                            });
+                        },
                         pushToArticleDetail = id => dispatcher.dispatch(
                             new MainNavigatorPushToArticleDetailAction {
                                 articleId = id
@@ -352,6 +354,7 @@ namespace ConnectApp.screens {
                     context: context,
                     cont: this._article.body,
                     contentMap: this._article.contentMap,
+                    this._article.videoSliceMap,
                     openUrl: this.widget.actionModel.openUrl,
                     playVideo: this.widget.actionModel.playVideo
                 )

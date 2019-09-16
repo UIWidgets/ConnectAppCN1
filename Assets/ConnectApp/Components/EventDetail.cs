@@ -15,7 +15,7 @@ namespace ConnectApp.Components {
             bool isShowImage,
             IEvent eventObj = null,
             Action<string> openUrl = null,
-            Action<string> playVideo = null,
+            Action<string, bool> playVideo = null,
             Action<string> pushToUserDetail = null,
             Widget topWidget = null,
             Key titleKey = null,
@@ -33,7 +33,7 @@ namespace ConnectApp.Components {
         readonly IEvent eventObj;
         readonly bool isShowImage;
         readonly Action<string> openUrl;
-        readonly Action<string> playVideo;
+        readonly Action<string, bool> playVideo;
         readonly Action<string> pushToUserDetail;
         readonly Widget topWidget;
         readonly Key titleKey;
@@ -50,7 +50,7 @@ namespace ConnectApp.Components {
                 items.Insert(0, this.topWidget);
             }
 
-            items.AddRange(ContentDescription.map(context, this.eventObj.content, this.eventObj.contentMap,
+            items.AddRange(ContentDescription.map(context, this.eventObj.content, this.eventObj.contentMap, null,
                 this.openUrl, this.playVideo
             ));
             items.Add(this._buildContentLecturerList());

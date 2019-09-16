@@ -70,7 +70,7 @@ namespace ConnectApp.screens {
                             routeName = MainNavigatorRoutes.Login
                         }),
                         pushToUserDetail = userId => {
-                            EventBus.publish(EventBusConstant.pauseVideoPlayer, new List<object>());
+                            AVPlayerPlugin.hiddenPlayer();
                             dispatcher.dispatch(
                                 new MainNavigatorPushToUserDetailAction {
                                     userId = userId
@@ -78,7 +78,7 @@ namespace ConnectApp.screens {
                             );
                         },
                         openUrl = url => {
-                            EventBus.publish(EventBusConstant.pauseVideoPlayer, new List<object>());
+                            AVPlayerPlugin.hiddenPlayer();
                             OpenUrlUtil.OpenUrl(url, dispatcher);
                         },
                         copyText = text => dispatcher.dispatch(new CopyTextAction {text = text}),
@@ -134,6 +134,7 @@ namespace ConnectApp.screens {
         float _titleHeight;
         bool _isHaveTitle;
         string _loginSubId;
+        string _shareActionSubId;
         bool _showNavBarShadow;
         bool _isFullScreen;
         float _bottomPadding;
@@ -142,7 +143,10 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             StatusBarManager.statusBarStyle(false);
-
+            AVPlayerPlugin.initVideoPlayer("", "",
+                0, (int) MediaQuery.of(this.context).padding.top, MediaQuery.of(this.context).size.width,
+                MediaQuery.of(this.context).size.width * 9 / 16, true);
+            AVPlayerPlugin.hiddenPlayer();
             this._showNavBarShadow = true;
             this._titleHeight = 0.0f;
             this._isHaveTitle = false;
@@ -168,6 +172,11 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.startFetchEventDetail();
                 this.widget.actionModel.fetchEventDetail(this.widget.viewModel.eventId, EventType.online);
             });
+            this._shareActionSubId = EventBus.subscribe(EventBusConstant.shareAction, args => {
+                if (this.widget.viewModel.eventsDict.ContainsKey(this.widget.viewModel.eventId)) {
+                    this._showShareView(this.widget.viewModel.eventsDict[this.widget.viewModel.eventId]);
+                }
+            });
         }
 
         public override void didChangeDependencies() {
@@ -176,8 +185,8 @@ namespace ConnectApp.screens {
         }
 
         public override void dispose() {
-            AVPlayerPlugin.removePlayer();
             EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
+            EventBus.unSubscribe(EventBusConstant.shareAction, this._shareActionSubId);
             Router.routeObserve.unsubscribe(this);
             this._textController.dispose();
             this._controller.dispose();
@@ -377,9 +386,8 @@ namespace ConnectApp.screens {
         Widget _buildEventHeader(BuildContext context, IEvent eventObj, EventType eventType, EventStatus eventStatus,
             bool isLoggedIn) {
             if (isLoggedIn && eventStatus == EventStatus.past && eventObj.record.isNotEmpty()) {
-                AVPlayerPlugin.initVideoPlayer(eventObj.record, HttpManager.getCookie(),
-                    0, (int) MediaQuery.of(this.context).padding.top, MediaQuery.of(this.context).size.width,
-                    MediaQuery.of(this.context).size.width * 9 / 16, true);
+                AVPlayerPlugin.configVideoPlayer(eventObj.record, HttpManager.getCookie());
+                AVPlayerPlugin.showPlayer();
                 return new Container(
                     color: CColors.Black,
                     height: MediaQuery.of(this.context).size.width * 9 / 16
@@ -873,17 +881,16 @@ namespace ConnectApp.screens {
 
         public void didPopNext() {
             StatusBarManager.statusBarStyle(false);
-            VideoPlayerManager.instance.isRotation = true;
         }
 
         public void didPush() {
         }
 
         public void didPop() {
+            AVPlayerPlugin.removePlayer();
         }
 
         public void didPushNext() {
-            VideoPlayerManager.instance.isRotation = false;
         }
     }
 }

@@ -56,6 +56,7 @@ namespace ConnectApp.Models.Model {
         public string url;
         public string downloadUrl;
         public string contentType;
+        public string attachmentId;
     }
 
     [Serializable]
@@ -63,5 +64,15 @@ namespace ConnectApp.Models.Model {
         public string url;
         public int width;
         public int height;
+    }
+
+    [Serializable]
+    public class VideoSliceMap {
+        public string id;
+        public string origin;
+        public string verifyType;
+        public string verifyArg;
+        public int trialSlicesCount;
+        public int limitSeconds;
     }
 }

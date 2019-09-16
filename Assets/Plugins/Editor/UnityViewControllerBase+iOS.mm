@@ -78,13 +78,12 @@
 {
     BOOL _isHidden;
     BOOL _isLight;
-    BOOL _isSupport;
 }
 - (NSUInteger)supportedInterfaceOrientations
 {
     NSAssert(UnityShouldAutorotate(), @"UnityDefaultViewController should be used only if unity is set to autorotate");
 
-    return _isSupport?UIInterfaceOrientationMaskAllButUpsideDown:UIInterfaceOrientationMaskPortrait;
+    return EnabledAutorotationInterfaceOrientations();
 }
 - (BOOL)prefersStatusBarHidden
 {
@@ -110,9 +109,6 @@
         _isHidden = [[na.userInfo valueForKey:@"value"] boolValue];
         [self setNeedsStatusBarAppearanceUpdate];
 
-    }
-    if ([[na.userInfo objectForKey:@"key"]isEqualToString:@"supportOrientation"]){
-        _isSupport = [[na.userInfo valueForKey:@"value"] boolValue];
     }
 }
 

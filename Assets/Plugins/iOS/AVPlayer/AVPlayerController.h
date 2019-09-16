@@ -21,7 +21,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, copy) NSString *cookie;
 
-- (void)initPlayerWithVideoUrl:(NSString*)videoUrl cookie:(NSString*)cookie left:(CGFloat)left top:(CGFloat)top width:(CGFloat)width height:(CGFloat)height isPop:(BOOL)isPop;
+- (void)initPlayerWithVideoUrl:(NSString*)videoUrl cookie:(NSString*)cookie left:(CGFloat)left top:(CGFloat)top width:(CGFloat)width height:(CGFloat)height isPop:(BOOL)isPop needUpdate:(BOOL)needUpdate;
+
+- (void)configPlayerWithVideUrl:(NSString *)url cookie:(NSString *)cookie;
 
 - (void)play;
 

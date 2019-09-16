@@ -60,6 +60,10 @@ typedef NS_ENUM(NSUInteger,WMControlType) {
 -(void)wmplayer:(WMPlayer *)wmplayer clickedCloseButton:(UIButton *)backBtn;
 //点击分享按钮代理方法
 -(void)wmplayer:(WMPlayer *)wmplayer clickedShareButton:(UIButton *)shareBtn;
+//点击关闭按钮代理方法
+-(void)wmplayer:(WMPlayer *)wmplayer clickedUpdateLinceseButton:(UIButton *)updateBtn;
+//点击分享按钮代理方法
+-(void)wmplayer:(WMPlayer *)wmplayer clickedBuyLinceseButton:(UIButton *)shareBtn;
 //点击全屏按钮代理方法
 -(void)wmplayer:(WMPlayer *)wmplayer clickedFullScreenButton:(UIButton *)fullScreenBtn;
 //点击锁定🔒按钮的方法
@@ -136,7 +140,10 @@ typedef NS_ENUM(NSUInteger,WMControlType) {
 @property (nonatomic, assign) WMPlayerLayerGravity    playerLayerGravity;
 //是否是锁定屏幕旋转状态
 @property (nonatomic,assign,readonly) BOOL isLockScreen;
-
+/**
+ 是否更新lincense
+ */
+@property (nonatomic,assign) BOOL needUpdateLincense;
 
 /**
  自定义实例化方法初始化方式（-方法）
@@ -195,5 +202,6 @@ typedef NS_ENUM(NSUInteger,WMControlType) {
 +(CGAffineTransform)getCurrentDeviceOrientation;
 //判断是否为iPhone X系列
 +(BOOL)IsiPhoneX;
+
 @end
 

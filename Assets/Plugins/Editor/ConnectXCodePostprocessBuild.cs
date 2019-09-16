@@ -98,13 +98,6 @@ namespace Plugins.Editor {
             FileUtil.CopyFileOrDirectory(Application.dataPath + "/Plugins/Editor/UnityVIewControllerBase+iOS.mm",
                 destFile);
 
-            var destHandingFile = path + "/Classes/UI/UnityAppController+ViewHandling.mm";
-
-            FileUtil.DeleteFileOrDirectory(destHandingFile);
-            // 自定义覆盖controller文件，动态修改状态栏
-            FileUtil.CopyFileOrDirectory(Application.dataPath + "/Plugins/Editor/UnityAppController+ViewHandling.mm",
-                destHandingFile);
-
             var destBaseFile = path + "/Classes/UI/UnityVIewControllerBase.mm";
 
             FileUtil.DeleteFileOrDirectory(destBaseFile);

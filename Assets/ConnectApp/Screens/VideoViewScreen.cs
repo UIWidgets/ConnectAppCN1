@@ -24,23 +24,21 @@ namespace ConnectApp.screens {
         }
     }
 
-    public class _VideoViewScreenState : State<VideoViewScreen> {
+    public class _VideoViewScreenState : State<VideoViewScreen>, RouteAware {
         bool _isFullScreen;
 
         public override void initState() {
             base.initState();
             StatusBarManager.hideStatusBar(true);
-            var width = MediaQuery.of(this.context).size.width;
-            var height = width * 9 / 16;
-            var originY = (MediaQuery.of(this.context).size.height - height) / 2;
+        }
 
-            AVPlayerPlugin.initVideoPlayer(this.widget.url, HttpManager.getCookie(), 0, originY, width, height, false);
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
         }
 
         public override void dispose() {
-            StatusBarManager.hideStatusBar(false);
-            StatusBarManager.statusBarStyle(false);
-            AVPlayerPlugin.removePlayer();
+            Router.routeObserve.unsubscribe(this);
             base.dispose();
         }
 
@@ -48,22 +46,10 @@ namespace ConnectApp.screens {
             return new Container(
                 color: CColors.Black,
                 child: new CustomSafeArea(
-//                    top: !this._isFullScreen,
-//                    bottom: !this._isFullScreen,
                     child: new Container(
                         color: CColors.Black,
                         child: new Stack(
                             children: new List<Widget> {
-//                                new Align(
-//                                    alignment: Alignment.center,
-//                                    child: new CustomVideoPlayer(this.widget.url,
-//                                        context,
-//                                        new Container(),
-//                                        isFullScreen => {
-//                                            this.setState(() => { this._isFullScreen = isFullScreen; });
-//                                        }, 0, true
-//                                    )
-//                                ),
                                 new Positioned(
                                     top: 0, left: 0, right: 0, child: this._isFullScreen
                                         ? new Container()
@@ -87,6 +73,26 @@ namespace ConnectApp.screens {
                     )
                 )
             );
+        }
+
+        public void didPopNext() {
+        }
+
+        public void didPush() {
+            var width = MediaQuery.of(this.context).size.width;
+            var height = width * 9 / 16;
+            var originY = (MediaQuery.of(this.context).size.height - height) / 2;
+
+            AVPlayerPlugin.initVideoPlayer(this.widget.url, HttpManager.getCookie(), 0, originY, width, height, false);
+        }
+
+        public void didPop() {
+            AVPlayerPlugin.removePlayer();
+            StatusBarManager.hideStatusBar(false);
+            StatusBarManager.statusBarStyle(false);
+        }
+
+        public void didPushNext() {
         }
     }
 }
