@@ -13,7 +13,7 @@ namespace ConnectApp.Models.State {
         public bool followerLoading { get; set; }
         public Dictionary<string, User> userDict { get; set; }
         public Dictionary<string, string> slugDict { get; set; }
-
+        public Dictionary<string, UserLicense> userLicenseDict { get; set; }
         public string fullName { get; set; }
         public string title { get; set; }
         public JobRole jobRole { get; set; }

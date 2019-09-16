@@ -7,6 +7,7 @@ using ConnectApp.Models.State;
 using ConnectApp.Plugins;
 using ConnectApp.screens;
 using ConnectApp.Utils;
+using RSG;
 using Unity.UIWidgets.Redux;
 using UnityEngine;
 
@@ -63,6 +64,7 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new LoginByEmailSuccessAction {
                             loginInfo = loginInfo
                         });
+                        dispatcher.dispatch<IPromise>(fetchUserProfile(loginInfo.userId));
                         dispatcher.dispatch(new MainNavigatorPopAction());
                         dispatcher.dispatch(new CleanEmailAndPasswordAction());
                         UserInfoManager.saveUserInfo(loginInfo);

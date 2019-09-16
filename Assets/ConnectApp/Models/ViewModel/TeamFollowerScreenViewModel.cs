@@ -9,6 +9,7 @@ namespace ConnectApp.Models.ViewModel {
         public bool followersHasMore;
         public int userOffset;
         public Dictionary<string, User> userDict;
+        public Dictionary<string, UserLicense> userLicenseDict;
         public Dictionary<string, bool> followMap;
         public string currentUserId;
         public bool isLoggedIn;

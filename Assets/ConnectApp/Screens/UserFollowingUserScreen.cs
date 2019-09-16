@@ -8,6 +8,7 @@ using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
@@ -47,6 +48,7 @@ namespace ConnectApp.screens {
                         followingUsersHasMore = user.followingUsersHasMore ?? false,
                         followingUserOffset = followingUsers.Count,
                         userDict = state.userState.userDict,
+                        userLicenseDict = state.userState.userLicenseDict,
                         followMap = followMap,
                         currentUserId = currentUserId,
                         isLoggedIn = state.loginState.isLoggedIn
@@ -190,6 +192,8 @@ namespace ConnectApp.screens {
                                         var searchUser = this.widget.viewModel.searchFollowingUsers[index: index];
                                         return new UserCard(
                                             user: searchUser,
+                                            CCommonUtils.GetUserLicense(userId: searchUser.id,
+                                                userLicenseMap: this.widget.viewModel.userLicenseDict),
                                             () => this.widget.actionModel.pushToUserDetail(obj: searchUser.id),
                                             key: new ObjectKey(value: searchUser.id)
                                         );
@@ -262,10 +266,12 @@ namespace ConnectApp.screens {
 
                                 return new UserCard(
                                     user: followingUser,
+                                    CCommonUtils.GetUserLicense(userId: followingUser.id,
+                                        userLicenseMap: this.widget.viewModel.userLicenseDict),
                                     () => this.widget.actionModel.pushToUserDetail(obj: followingUser.id),
                                     userType: userType,
                                     () => this._onFollow(userType: userType, userId: followingUser.id),
-                                    new ObjectKey(value: followingUser.id)
+                                    key: new ObjectKey(value: followingUser.id)
                                 );
                             }
                         )
