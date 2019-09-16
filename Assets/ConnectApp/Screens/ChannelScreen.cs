@@ -254,6 +254,7 @@ namespace ConnectApp.screens {
                     );
                     break;
                 case ChannelMessageType.file:
+#if false
                     messageContent = new Container(
                         padding: EdgeInsets.symmetric(12, 16),
                         child: new Row(
@@ -283,6 +284,12 @@ namespace ConnectApp.screens {
                             }
                         )
                     );
+#else
+                    messageContent = new Container(
+                        padding: EdgeInsets.symmetric(12, 16),
+                        child: new Text("[你收到一个文件，请在浏览器上查看]", style: CTextStyle.PLargeBody5)
+                    );
+#endif
                     break;
                 case ChannelMessageType.embed:
                     var content = message.content;
@@ -332,8 +339,11 @@ namespace ConnectApp.screens {
                                                         : Image.network(message.embeds[0].embedData.image ?? "",
                                                             width: 14, height: 14, fit: BoxFit.cover),
                                                     new Container(width: 4),
-                                                    new Text(message.embeds[0].embedData.name ?? "",
-                                                        style: CTextStyle.PMediumBody)
+                                                    new Expanded(
+                                                        child: new Text(message.embeds[0].embedData.name ?? "",
+                                                            style: CTextStyle.PMediumBody,
+                                                            overflow: TextOverflow.ellipsis)
+                                                    )
                                                 }
                                             )
                                         }
