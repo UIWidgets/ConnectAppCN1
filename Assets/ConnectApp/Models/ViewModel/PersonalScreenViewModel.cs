@@ -6,6 +6,7 @@ namespace ConnectApp.Models.ViewModel {
         public bool isLoggedIn;
         public LoginInfo user;
         public Dictionary<string, User> userDict;
+        public Dictionary<string, UserLicense> userLicenseDict;
         public bool scanEnabled;
     }
 }

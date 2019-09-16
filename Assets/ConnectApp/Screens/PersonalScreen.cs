@@ -1,8 +1,8 @@
-using System;
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Main;
+using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.Plugins;
@@ -23,17 +23,20 @@ namespace ConnectApp.screens {
                     isLoggedIn = state.loginState.isLoggedIn,
                     user = state.loginState.loginInfo,
                     userDict = state.userState.userDict,
+                    userLicenseDict = state.userState.userLicenseDict,
                     scanEnabled = state.eggState.scanEnabled
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     return new PersonalScreen(
                         viewModel: viewModel,
-                        routeName => dispatcher.dispatch(new MainNavigatorPushToAction {
-                            routeName = routeName
-                        }),
-                        userId => dispatcher.dispatch(new MainNavigatorPushToUserDetailAction {
-                            userId = userId
-                        })
+                        new PersonalScreenActionModel {
+                            mainRouterPushTo = routeName => dispatcher.dispatch(new MainNavigatorPushToAction {
+                                routeName = routeName
+                            }),
+                            pushToUserDetail = userId => dispatcher.dispatch(new MainNavigatorPushToUserDetailAction {
+                                userId = userId
+                            })
+                        }
                     );
                 }
             );
@@ -43,18 +46,15 @@ namespace ConnectApp.screens {
     public class PersonalScreen : StatefulWidget {
         public PersonalScreen(
             PersonalScreenViewModel viewModel = null,
-            Action<string> mainRouterPushTo = null,
-            Action<string> pushToUserDetail = null,
+            PersonalScreenActionModel actionModel = null,
             Key key = null
         ) : base(key: key) {
             this.viewModel = viewModel;
-            this.mainRouterPushTo = mainRouterPushTo;
-            this.pushToUserDetail = pushToUserDetail;
+            this.actionModel = actionModel;
         }
 
         public readonly PersonalScreenViewModel viewModel;
-        public readonly Action<string> mainRouterPushTo;
-        public readonly Action<string> pushToUserDetail;
+        public readonly PersonalScreenActionModel actionModel;
 
         public override State createState() {
             return new _PersonalScreenState();
@@ -117,7 +117,8 @@ namespace ConnectApp.screens {
                             margin: EdgeInsets.only(top: 16),
                             child: new CustomButton(
                                 padding: EdgeInsets.zero,
-                                onPressed: () => this.widget.mainRouterPushTo(obj: MainNavigatorRoutes.Login),
+                                onPressed: () =>
+                                    this.widget.actionModel.mainRouterPushTo(obj: MainNavigatorRoutes.Login),
                                 child: new Container(
                                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                                     decoration: new BoxDecoration(
@@ -152,7 +153,7 @@ namespace ConnectApp.screens {
             }
 
             return new GestureDetector(
-                onTap: () => this.widget.pushToUserDetail(obj: user.id),
+                onTap: () => this.widget.actionModel.pushToUserDetail(obj: user.id),
                 child: new Container(
                     padding: EdgeInsets.only(16, bottom: 16),
                     color: CColors.White,
@@ -173,36 +174,37 @@ namespace ConnectApp.screens {
                                         child: new Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: new List<Widget> {
-                                                new Text(
-                                                    user.fullName ?? user.name,
-                                                    style: CTextStyle.H4,
-                                                    maxLines: 1,
-                                                    overflow: TextOverflow.ellipsis
+                                                new Row(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: new List<Widget> {
+                                                        new Flexible(
+                                                            child: new Text(
+                                                                user.fullName ?? user.name,
+                                                                style: CTextStyle.H4,
+                                                                maxLines: 1,
+                                                                overflow: TextOverflow.ellipsis
+                                                            )
+                                                        ),
+                                                        CImageUtils.GenBadgeImage(
+                                                            badges: user.badges,
+                                                            CCommonUtils.GetUserLicense(
+                                                                userId: user.id,
+                                                                userLicenseMap: this.widget.viewModel.userLicenseDict
+                                                            ),
+                                                            EdgeInsets.only(4, 6)
+                                                        )
+                                                    }
                                                 ),
                                                 titleWidget
                                             }
                                         )
                                     ),
                                     new Container(
-                                        padding: EdgeInsets.only(right: 16),
-                                        margin: EdgeInsets.only(12),
-                                        child: new Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: new List<Widget> {
-                                                new Text(
-                                                    "个人主页",
-                                                    style: new TextStyle(
-                                                        fontSize: 14,
-                                                        fontFamily: "Roboto-Regular",
-                                                        color: CColors.TextBody4
-                                                    )
-                                                ),
-                                                new Icon(
-                                                    icon: Icons.chevron_right,
-                                                    size: 24,
-                                                    color: Color.fromRGBO(199, 203, 207, 1)
-                                                )
-                                            }
+                                        padding: EdgeInsets.only(12, right: 16),
+                                        child: new Icon(
+                                            icon: Icons.chevron_right,
+                                            size: 24,
+                                            color: Color.fromRGBO(199, 203, 207, 1)
                                         )
                                     )
                                 }
@@ -243,18 +245,18 @@ namespace ConnectApp.screens {
                         var routeName = this.widget.viewModel.isLoggedIn
                             ? MainNavigatorRoutes.MyEvent
                             : MainNavigatorRoutes.Login;
-                        this.widget.mainRouterPushTo(obj: routeName);
+                        this.widget.actionModel.mainRouterPushTo(obj: routeName);
                     }
                 ),
                 new PersonalCardItem(
                     icon: Icons.eye,
                     "浏览历史",
-                    () => this.widget.mainRouterPushTo(obj: MainNavigatorRoutes.History)
+                    () => this.widget.actionModel.mainRouterPushTo(obj: MainNavigatorRoutes.History)
                 ),
                 new PersonalCardItem(
                     icon: Icons.settings,
                     "设置",
-                    () => this.widget.mainRouterPushTo(obj: MainNavigatorRoutes.Setting)
+                    () => this.widget.actionModel.mainRouterPushTo(obj: MainNavigatorRoutes.Setting)
                 )
             };
             var widgets = new List<Widget>();

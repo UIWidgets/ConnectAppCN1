@@ -60,7 +60,8 @@ namespace ConnectApp.screens {
                         hasMore = state.messageState.hasMore,
                         sendMessageLoading = state.messageState.sendMessageLoading,
                         channelMessageDict = state.messageState.channelMessageDict,
-                        eventsDict = state.eventState.eventsDict
+                        eventsDict = state.eventState.eventsDict,
+                        userLicenseDict = state.userState.userLicenseDict
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -434,8 +435,9 @@ namespace ConnectApp.screens {
             return new Expanded(
                 child: new EventDetail(
                     false,
-                    eventObj,
-                    this.widget.actionModel.openUrl,
+                    userLicenseDict: this.widget.viewModel.userLicenseDict,
+                    eventObj: eventObj,
+                    openUrl: this.widget.actionModel.openUrl,
                     pushToUserDetail: this.widget.actionModel.pushToUserDetail,
                     titleKey: eventTitleKey
                 )

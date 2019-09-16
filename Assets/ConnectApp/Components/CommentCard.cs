@@ -13,6 +13,7 @@ namespace ConnectApp.Components {
     public class CommentCard : StatelessWidget {
         public CommentCard(
             Message message,
+            string userLicense,
             bool isPraised,
             string parentName = null,
             string parentAuthorId = null,
@@ -23,6 +24,7 @@ namespace ConnectApp.Components {
             Key key = null
         ) : base(key: key) {
             this.message = message;
+            this.userLicense = userLicense;
             this.isPraised = isPraised;
             this.parentName = parentName;
             this.parentAuthorId = parentAuthorId;
@@ -33,6 +35,7 @@ namespace ConnectApp.Components {
         }
 
         readonly Message message;
+        readonly string userLicense;
         readonly bool isPraised;
         readonly string parentName;
         readonly string parentAuthorId;
@@ -131,14 +134,27 @@ namespace ConnectApp.Components {
                         new Expanded(
                             child: new GestureDetector(
                                 onTap: () => this.pushToUserDetail(obj: this.message.author.id),
-                                child: new Text(
-                                    data: this.message.author.fullName,
-                                    style: textStyle
+                                child: new Row(
+                                    children: new List<Widget> {
+                                        new Flexible(
+                                            child: new Text(
+                                                this.message.author.fullName,
+                                                style: textStyle,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis
+                                            )
+                                        ),
+                                        CImageUtils.GenBadgeImage(
+                                            badges: this.message.author.badges,
+                                            license: this.userLicense,
+                                            EdgeInsets.only(4)
+                                        )
+                                    }
                                 )
                             )
                         ),
                         new CustomButton(
-                            padding: EdgeInsets.only(8, 0, 0, 8),
+                            padding: EdgeInsets.only(16, 0, 0, 8),
                             onPressed: this.moreCallBack,
                             child: new Icon(
                                 icon: Icons.ellipsis,
@@ -158,7 +174,7 @@ namespace ConnectApp.Components {
                 mentionEveryone: this.message.mentionEveryone,
                 userId => this.pushToUserDetail(obj: userId)
             );
-            List<TextSpan> textSpans = new List<TextSpan> ();
+            List<TextSpan> textSpans = new List<TextSpan>();
             if (this.parentName.isNotEmpty()) {
                 textSpans.AddRange(new List<TextSpan> {
                     new TextSpan(
@@ -178,6 +194,7 @@ namespace ConnectApp.Components {
                     )
                 });
             }
+
             textSpans.AddRange(collection: content);
             return new Container(
                 margin: EdgeInsets.only(top: 3, bottom: 5),

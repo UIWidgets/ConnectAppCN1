@@ -24,6 +24,7 @@ namespace ConnectApp.screens {
         }
 
         readonly string userId;
+
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, UserFollowingScreenViewModel>(
                 converter: state => {
@@ -50,15 +51,18 @@ namespace ConnectApp.screens {
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new UserFollowingScreenActionModel {
                         startFetchFollowingTeam = () => dispatcher.dispatch(new StartFetchFollowingTeamAction()),
-                        fetchFollowingTeam = offset => dispatcher.dispatch<IPromise>(Actions.fetchFollowingTeam(this.userId, offset)),
+                        fetchFollowingTeam = offset =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowingTeam(this.userId, offset)),
                         startFollowTeam = followTeamId => dispatcher.dispatch(new StartFetchFollowTeamAction {
                             followTeamId = followTeamId
                         }),
-                        followTeam = followTeamId => dispatcher.dispatch<IPromise>(Actions.fetchFollowTeam(followTeamId)),
+                        followTeam = followTeamId =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowTeam(followTeamId)),
                         startUnFollowTeam = unFollowTeamId => dispatcher.dispatch(new StartFetchUnFollowTeamAction {
                             unFollowTeamId = unFollowTeamId
                         }),
-                        unFollowTeam = unFollowTeamId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowTeam(unFollowTeamId)),
+                        unFollowTeam = unFollowTeamId =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchUnFollowTeam(unFollowTeamId)),
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
@@ -86,7 +90,7 @@ namespace ConnectApp.screens {
 
         public readonly UserFollowingScreenViewModel viewModel;
         public readonly UserFollowingScreenActionModel actionModel;
-        
+
         public override State createState() {
             return new _UserFollowingTeamScreenState();
         }
@@ -97,7 +101,7 @@ namespace ConnectApp.screens {
         RefreshController _refreshController;
 
         public override void initState() {
-            base.initState(); 
+            base.initState();
             this._offset = 0;
             this._refreshController = new RefreshController();
             SchedulerBinding.instance.addPostFrameCallback(_ => {
@@ -130,6 +134,7 @@ namespace ConnectApp.screens {
                         )
                     );
                 }
+
                 if (userType == UserType.unFollow) {
                     this.widget.actionModel.startFollowTeam(obj: teamId);
                     this.widget.actionModel.followTeam(arg: teamId);
@@ -145,7 +150,8 @@ namespace ConnectApp.screens {
             var followingTeams = this.widget.viewModel.followingTeams;
             if (this.widget.viewModel.followingTeamLoading && followingTeams.isEmpty()) {
                 content = new GlobalLoading();
-            } else if (followingTeams.Count <= 0) {
+            }
+            else if (followingTeams.Count <= 0) {
                 content = new BlankView(
                     "没有关注的公司，去首页看看吧",
                     "image/default-following"
@@ -168,6 +174,7 @@ namespace ConnectApp.screens {
                     )
                 );
             }
+
             return new Container(
                 color: CColors.Background,
                 child: content
@@ -195,20 +202,24 @@ namespace ConnectApp.screens {
                     var team = this.widget.viewModel.teamDict[key: followingTeam.id];
                     followTeamLoading = team.followTeamLoading ?? false;
                 }
+
                 if (this.widget.viewModel.currentUserId == followingTeam.id) {
                     userType = UserType.me;
-                } else if (followTeamLoading) {
+                }
+                else if (followTeamLoading) {
                     userType = UserType.loading;
-                } else if (this.widget.viewModel.followMap.ContainsKey(key: followingTeam.id)) {
+                }
+                else if (this.widget.viewModel.followMap.ContainsKey(key: followingTeam.id)) {
                     userType = UserType.follow;
                 }
             }
+
             return new TeamCard(
                 team: followingTeam,
                 () => this.widget.actionModel.pushToTeamDetail(obj: followingTeam.id),
                 userType: userType,
                 () => this._onFollow(userType: userType, teamId: followingTeam.id),
-                new ObjectKey(value: followingTeam.id)
+                key: new ObjectKey(value: followingTeam.id)
             );
         }
     }
