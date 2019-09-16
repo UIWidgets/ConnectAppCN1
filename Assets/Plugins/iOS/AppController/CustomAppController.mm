@@ -16,19 +16,25 @@
 #import "JPushPlugin.h"
 #import <AVFoundation/AVFoundation.h>
 #import "UUIDUtils.h"
+#import "PickImageController.h"
 
 static NSString *gameObjectName = @"jpush";
 
 @interface CustomAppController : UnityAppController<WXApiDelegate>
+
+
 @end
 IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
 
 @implementation CustomAppController
 
+
+
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions
 {
+    
     [super application:application didFinishLaunchingWithOptions:launchOptions];
-
+    
     [application setApplicationIconBadgeNumber:0];
     [WXApi registerApp: @"wx0ab79f0c7db7ca52"];
     [[JPushEventCache sharedInstance] handFinishLaunchOption:launchOptions];
@@ -157,7 +163,7 @@ NSData *APNativeJSONData(id obj) {
 }
 
 
-extern "C" {
+extern "C"  {
     
     void pauseAudioSession(){
         AVAudioSession *session = [AVAudioSession sharedInstance];
@@ -175,6 +181,7 @@ extern "C" {
     bool isOpenSensor() {
         return true;
     }
+    
     const char *getDeviceID()
     {
         NSString *result = [UUIDUtils getUUID];
@@ -186,7 +193,23 @@ extern "C" {
         strcpy(r, s);
         return r;
     }
-    
+    void pickImage()//相册
+    {
+        [[PickImageController sharedInstance] showPicker:UIImagePickerControllerSourceTypeSavedPhotosAlbum];
+        
+    }
+    void takeCamera()
+    {
+        [[PickImageController sharedInstance] showPicker:UIImagePickerControllerSourceTypeCamera];
+        
+    }
+    bool isPhotoLibraryAuthorization (){
+        return [[PickImageController sharedInstance] isPhotoLibraryAuthorization];
+    }
+    bool isCameraAuthorization (){
+        return [[PickImageController sharedInstance] isCameraAuthorization];
+        
+    }
     bool isEnableNotification(){
         BOOL isEnable = NO;
         if ([[UIDevice currentDevice].systemVersion floatValue] >= 8.0f) { // iOS版本 >=8.0 处理逻辑

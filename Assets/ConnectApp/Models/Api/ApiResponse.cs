@@ -18,6 +18,7 @@ namespace ConnectApp.Models.Api {
     [Serializable]
     public class FetchFollowArticlesResponse {
         public Dictionary<string, User> userMap;
+        public Dictionary<string, UserLicense> userLicenseMap;
         public Dictionary<string, Team> teamMap;
         public Dictionary<string, bool> followMap;
         public Dictionary<string, bool> likeMap;
@@ -77,6 +78,7 @@ namespace ConnectApp.Models.Api {
     public class FetchSearchUserResponse {
         public bool hasMore;
         public List<User> users;
+        public Dictionary<string, UserLicense> userLicenseMap;
         public Dictionary<string, bool> followingMap;
     }
 
@@ -96,6 +98,7 @@ namespace ConnectApp.Models.Api {
     public class FetchCommentsResponse {
         public List<Message> items;
         public List<Message> parents;
+        public Dictionary<string, UserLicense> userLicenseMap;
         public string currOldestMessageId;
         public bool hasMore;
         public bool hasMoreNew;
@@ -113,9 +116,7 @@ namespace ConnectApp.Models.Api {
         public User user;
         public Dictionary<string, bool> followMap;
         public int followingCount;
-        public List<User> followings;
         public bool followingsHasMore;
-        public List<User> followers;
         public bool followersHasMore;
         public int followingTeamsCount;
         public List<Team> followingTeams;
@@ -124,6 +125,7 @@ namespace ConnectApp.Models.Api {
         public Dictionary<string, Team> teamMap;
         public Dictionary<string, Place> placeMap;
         public Dictionary<string, JobRole> jobRoleMap;
+        public Dictionary<string, UserLicense> userLicenseMap;
     }
 
     [Serializable]
@@ -150,6 +152,7 @@ namespace ConnectApp.Models.Api {
     [Serializable]
     public class FetchFollowingUserResponse {
         public List<User> followings;
+        public Dictionary<string, UserLicense> userLicenseMap;
         public bool followingsHasMore;
         public Dictionary<string, bool> followMap;
     }
@@ -157,6 +160,7 @@ namespace ConnectApp.Models.Api {
     [Serializable]
     public class FetchFollowerResponse {
         public List<User> followers;
+        public Dictionary<string, UserLicense> userLicenseMap;
         public bool followersHasMore;
         public Dictionary<string, bool> followMap;
     }
@@ -186,6 +190,7 @@ namespace ConnectApp.Models.Api {
     public class FetchTeamArticleResponse {
         public Dictionary<string, bool> likeMap;
         public List<Article> projects;
+        public Dictionary<string, UserLicense> userLicenseMap;
         public bool projectsHasMore;
     }
 
@@ -214,5 +219,12 @@ namespace ConnectApp.Models.Api {
     public class InitDataConfig {
         public Dictionary<string, bool> eggs;
         public bool scan;
+    }
+
+    [Serializable]
+    public class UpdateAvatarResponse {
+        public string avatar;
+        public int profilePercent;
+        public string nextStep;
     }
 }

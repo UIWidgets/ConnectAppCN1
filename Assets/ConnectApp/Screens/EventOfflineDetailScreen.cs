@@ -41,7 +41,8 @@ namespace ConnectApp.screens {
                     eventDetailLoading = state.eventState.eventDetailLoading,
                     joinEventLoading = state.eventState.joinEventLoading,
                     channelId = state.eventState.channelId,
-                    eventsDict = state.eventState.eventsDict
+                    eventsDict = state.eventState.eventsDict,
+                    userLicenseDict = state.userState.userLicenseDict
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new EventDetailScreenActionModel {
@@ -199,8 +200,9 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new EventDetail(
                             true,
-                            eventObj,
-                            this.widget.actionModel.openUrl,
+                            userLicenseDict: this.widget.viewModel.userLicenseDict,
+                            eventObj: eventObj,
+                            openUrl: this.widget.actionModel.openUrl,
                             pushToUserDetail: this.widget.actionModel.pushToUserDetail,
                             titleKey: eventTitleKey
                         ),
@@ -208,7 +210,7 @@ namespace ConnectApp.screens {
                             left: 0,
                             top: 0,
                             right: 0,
-                            child: this._buildHeadTop(eventObj)
+                            child: this._buildHeadTop(eventObj: eventObj)
                         )
                     }
                 )

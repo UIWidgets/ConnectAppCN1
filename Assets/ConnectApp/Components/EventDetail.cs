@@ -13,6 +13,7 @@ namespace ConnectApp.Components {
     public class EventDetail : StatelessWidget {
         public EventDetail(
             bool isShowImage,
+            Dictionary<string, UserLicense> userLicenseDict,
             IEvent eventObj = null,
             Action<string> openUrl = null,
             Action<string> playVideo = null,
@@ -21,6 +22,7 @@ namespace ConnectApp.Components {
             Key titleKey = null,
             Key key = null
         ) : base(key: key) {
+            this.userLicenseDict = userLicenseDict;
             this.eventObj = eventObj;
             this.openUrl = openUrl;
             this.playVideo = playVideo;
@@ -31,6 +33,7 @@ namespace ConnectApp.Components {
         }
 
         readonly IEvent eventObj;
+        readonly Dictionary<string, UserLicense> userLicenseDict;
         readonly bool isShowImage;
         readonly Action<string> openUrl;
         readonly Action<string> playVideo;
@@ -111,22 +114,41 @@ namespace ConnectApp.Components {
                                             child: Avatar.User(user, 32)
                                         )
                                     ),
-                                    new Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: new List<Widget> {
-                                            new GestureDetector(
-                                                onTap: () => this.pushToUserDetail(user.id),
-                                                child: new Text(
-                                                    user.fullName ?? "",
-                                                    style: CTextStyle.PMediumBody
+                                    new Expanded(
+                                        child: new Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: new List<Widget> {
+                                                new GestureDetector(
+                                                    onTap: () => this.pushToUserDetail(user.id),
+                                                    child: new Row(
+                                                        children: new List<Widget> {
+                                                            new Flexible(
+                                                                child: new Text(
+                                                                    user.fullName ?? user.name ?? "",
+                                                                    style: CTextStyle.PMediumBody.merge(
+                                                                        new TextStyle(height: 1)),
+                                                                    maxLines: 1,
+                                                                    overflow: TextOverflow.ellipsis
+                                                                )
+                                                            ),
+                                                            CImageUtils.GenBadgeImage(
+                                                                badges: user.badges,
+                                                                CCommonUtils.GetUserLicense(
+                                                                    userId: user.id,
+                                                                    userLicenseMap: this.userLicenseDict
+                                                                ),
+                                                                EdgeInsets.only(4)
+                                                            )
+                                                        }
+                                                    )
+                                                ),
+                                                new Text(
+                                                    $"{DateConvert.DateStringFromNow(this.eventObj.createdTime ?? DateTime.Now)}发布",
+                                                    style: CTextStyle.PSmallBody3
                                                 )
-                                            ),
-                                            new Text(
-                                                $"{DateConvert.DateStringFromNow(this.eventObj.createdTime ?? DateTime.Now)}发布",
-                                                style: CTextStyle.PSmallBody3
-                                            )
-                                        }
+                                            }
+                                        )
                                     )
                                 }
                             )
@@ -188,17 +210,30 @@ namespace ConnectApp.Components {
                                             mainAxisAlignment: MainAxisAlignment.center,
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: new List<Widget> {
-                                                new Container(
-                                                    child: new Text(
-                                                        host.fullName ?? host.name ?? "",
-                                                        maxLines: 1,
-                                                        overflow: TextOverflow.ellipsis,
-                                                        style: new TextStyle(
-                                                            color: CColors.TextBody,
-                                                            fontFamily: "Roboto-Medium",
-                                                            fontSize: 16
+                                                new Row(
+                                                    children: new List<Widget> {
+                                                        new Flexible(
+                                                            child: new Text(
+                                                                host.fullName ?? host.name ?? "",
+                                                                maxLines: 1,
+                                                                style: new TextStyle(
+                                                                    color: CColors.TextBody,
+                                                                    height: 1,
+                                                                    fontFamily: "Roboto-Medium",
+                                                                    fontSize: 16
+                                                                ),
+                                                                overflow: TextOverflow.ellipsis
+                                                            )
+                                                        ),
+                                                        CImageUtils.GenBadgeImage(
+                                                            badges: host.badges,
+                                                            CCommonUtils.GetUserLicense(
+                                                                userId: host.id,
+                                                                userLicenseMap: this.userLicenseDict
+                                                            ),
+                                                            EdgeInsets.only(4)
                                                         )
-                                                    )
+                                                    }
                                                 ),
                                                 host.title.isNotEmpty()
                                                     ? new Container(

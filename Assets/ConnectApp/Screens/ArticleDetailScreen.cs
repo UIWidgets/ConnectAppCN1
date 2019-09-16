@@ -48,6 +48,7 @@ namespace ConnectApp.screens {
                     channelMessageList = state.messageState.channelMessageList,
                     channelMessageDict = state.messageState.channelMessageDict,
                     userDict = state.userState.userDict,
+                    userLicenseDict = state.userState.userLicenseDict,
                     teamDict = state.teamState.teamDict,
                     followMap = state.followState.followDict.ContainsKey(state.loginState.loginInfo.userId ?? "")
                         ? state.followState.followDict[state.loginState.loginInfo.userId ?? ""]
@@ -538,10 +539,35 @@ namespace ConnectApp.screens {
                 ? Avatar.User(user: this._user, 32)
                 : Avatar.Team(team: this._team, 32);
 
-            var text = this._article.ownerType == "user"
-                ? this._user.fullName ?? this._user.name
-                : this._team.name;
-            var description = this._article.ownerType == "user" ? this._user.title : "";
+            string name;
+            Widget badge;
+            string description;
+            if (this._article.ownerType == "user") {
+                // user
+                name = this._user.fullName ?? this._user.name;
+                badge = CImageUtils.GenBadgeImage(
+                    badges: this._user.badges,
+                    CCommonUtils.GetUserLicense(
+                        userId: this._user.id,
+                        userLicenseMap: this.widget.viewModel.userLicenseDict
+                    ),
+                    EdgeInsets.only(4)
+                );
+                description = this._user.title;
+            }
+            else {
+                // team
+                name = this._team.name;
+                badge = CImageUtils.GenBadgeImage(
+                    badges: this._team.badges,
+                    CCommonUtils.GetUserLicense(
+                        userId: this._team.id
+                    ),
+                    EdgeInsets.only(4)
+                );
+                description = "";
+            }
+
             var time = this._article.publishedTime;
             Widget descriptionWidget = new Container();
             if (description.isNotEmpty()) {
@@ -582,7 +608,7 @@ namespace ConnectApp.screens {
                                             }
                                         },
                                         child: new Container(
-                                            margin: EdgeInsets.only(top: 24, bottom: 24),
+                                            margin: EdgeInsets.only(top: 24, right: 16, bottom: 24),
                                             color: CColors.Transparent,
                                             child: new Row(
                                                 mainAxisSize: MainAxisSize.min,
@@ -591,23 +617,34 @@ namespace ConnectApp.screens {
                                                         margin: EdgeInsets.only(right: 8),
                                                         child: _avatar
                                                     ),
-                                                    new Column(
-                                                        mainAxisAlignment: MainAxisAlignment.center,
-                                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                                        children: new List<Widget> {
-                                                            new Text(
-                                                                data: text,
-                                                                style: CTextStyle.PRegularBody
-                                                            ),
-                                                            descriptionWidget
-                                                        }
+                                                    new Expanded(
+                                                        child: new Column(
+                                                            mainAxisAlignment: MainAxisAlignment.center,
+                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                            children: new List<Widget> {
+                                                                new Row(
+                                                                    children: new List<Widget> {
+                                                                        new Flexible(
+                                                                            child: new Text(
+                                                                                data: name,
+                                                                                style: CTextStyle.PRegularBody.merge(
+                                                                                    new TextStyle(height: 1)),
+                                                                                maxLines: 1,
+                                                                                overflow: TextOverflow.ellipsis
+                                                                            )
+                                                                        ),
+                                                                        badge
+                                                                    }
+                                                                ),
+                                                                descriptionWidget
+                                                            }
+                                                        )
                                                     )
                                                 }
                                             )
                                         )
                                     )
                                 ),
-                                new SizedBox(width: 8),
                                 this._buildFollowButton()
                             }
                         ),
@@ -795,6 +832,8 @@ namespace ConnectApp.screens {
                 }
 
                 var message = messageDict[key: commentId];
+                var userLicense = CCommonUtils.GetUserLicense(userId: message.author.id,
+                    userLicenseMap: this.widget.viewModel.userLicenseDict);
                 bool isPraised = _isPraised(message: message, loginUserId: this.widget.viewModel.loginUserId);
                 var parentName = "";
                 var parentAuthorId = "";
@@ -827,6 +866,7 @@ namespace ConnectApp.screens {
                 contentHeights += contentHeight;
                 var card = new CommentCard(
                     message: message,
+                    userLicense: userLicense,
                     isPraised: isPraised,
                     parentName: parentName,
                     parentAuthorId: parentAuthorId,

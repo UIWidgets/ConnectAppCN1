@@ -10,6 +10,7 @@ namespace ConnectApp.Models.Model {
         public List<Article> projects;
         public Dictionary<string, ContentMap> contentMap;
         public Dictionary<string, User> userMap;
+        public Dictionary<string, UserLicense> userLicenseMap;
         public Dictionary<string, Team> teamMap;
         public Dictionary<string, bool> followMap;
         public Dictionary<string, User> mentionUsers;

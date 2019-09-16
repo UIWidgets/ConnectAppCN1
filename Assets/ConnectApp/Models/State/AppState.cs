@@ -114,6 +114,7 @@ namespace ConnectApp.Models.State {
                     followerLoading = false,
                     userDict = UserInfoManager.initUserDict(),
                     slugDict = new Dictionary<string, string>(),
+                    userLicenseDict = new Dictionary<string, UserLicense>(),
                     fullName = "",
                     title = "",
                     jobRole = new JobRole(),

@@ -160,6 +160,8 @@ namespace ConnectApp.redux.actions {
                     .Then(followArticlesResponse => {
                         dispatcher.dispatch(new ArticleMapAction {articleMap = followArticlesResponse.projectSimpleMap});
                         dispatcher.dispatch(new UserMapAction {userMap = followArticlesResponse.userMap});
+                        dispatcher.dispatch(new UserLicenseMapAction
+                            {userLicenseMap = followArticlesResponse.userLicenseMap});
                         dispatcher.dispatch(new TeamMapAction {teamMap = followArticlesResponse.teamMap});
                         dispatcher.dispatch(new FollowMapAction {followMap = followArticlesResponse.followMap});
                         dispatcher.dispatch(new LikeMapAction {likeMap = followArticlesResponse.likeMap});
@@ -214,6 +216,8 @@ namespace ConnectApp.redux.actions {
                             }
                         });
                         dispatcher.dispatch(new UserMapAction {userMap = userMap});
+                        dispatcher.dispatch(new UserLicenseMapAction
+                            {userLicenseMap = responseComments.userLicenseMap});
                         dispatcher.dispatch(new FetchArticleCommentsSuccessAction {
                             channelId = channelId,
                             itemIds = itemIds,
@@ -262,6 +266,8 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new UserMapAction {
                             userMap = userMap
                         });
+                        dispatcher.dispatch(new UserLicenseMapAction
+                            {userLicenseMap = articleDetailResponse.project.userLicenseMap});
                         dispatcher.dispatch(new FetchArticleCommentsSuccessAction {
                             channelId = articleDetailResponse.project.channelId,
                             itemIds = itemIds,

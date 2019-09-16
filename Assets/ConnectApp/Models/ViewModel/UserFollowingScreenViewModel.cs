@@ -18,6 +18,7 @@ namespace ConnectApp.Models.ViewModel {
         public int followingUserOffset;
         public int followingTeamOffset;
         public Dictionary<string, User> userDict;
+        public Dictionary<string, UserLicense> userLicenseDict;
         public Dictionary<string, Team> teamDict;
         public Dictionary<string, bool> followMap;
         public string currentUserId;

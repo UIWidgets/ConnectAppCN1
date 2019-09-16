@@ -60,6 +60,7 @@ namespace ConnectApp.screens {
                         hotArticlePage = state.articleState.hotArticlePage,
                         articleDict = state.articleState.articleDict,
                         userDict = state.userState.userDict,
+                        userLicenseDict = state.userState.userLicenseDict,
                         teamDict = state.teamState.teamDict,
                         likeMap = likeMap,
                         followMap = followMap,
@@ -612,6 +613,7 @@ namespace ConnectApp.screens {
                 return FollowArticleCard.User(
                     article: article,
                     user: user,
+                    CCommonUtils.GetUserLicense(userId: user.id, userLicenseMap: this.widget.viewModel.userLicenseDict),
                     this.widget.viewModel.likeMap.ContainsKey(key: article.id),
                     userType: userType,
                     () => this.widget.actionModel.pushToArticleDetail(obj: article.id),
