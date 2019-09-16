@@ -100,4 +100,7 @@ namespace ConnectApp.redux.actions {
     
     public class FetchChannelMemberFailureAction : BaseAction {
     }
+    
+    public class StartSendChannelMessageAction : RequestAction {
+    }
 }

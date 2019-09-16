@@ -9,6 +9,7 @@ namespace ConnectApp.Models.State {
         public int publicChannelCurrentPage;
         public List<int> publicChannelPages;
         public int publicChannelTotal;
+        public bool messageLoading;
         public Dictionary<string, ChannelView> channelDict;
         public Dictionary<string, ChannelMessageView> messageDict;
         public Dictionary<string, ChannelMember> membersDict;

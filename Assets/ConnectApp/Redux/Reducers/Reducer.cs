@@ -1216,6 +1216,7 @@ namespace ConnectApp.redux.reducers {
                 }
                 
                 case MainNavigatorPushToChannelAction action: {
+                    state.channelState.messageLoading = true;
                     Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
                                 new ChannelScreenConnector(action.channelId),
@@ -2310,7 +2311,13 @@ namespace ConnectApp.redux.reducers {
 
                         channel.messageIds = ret;
                     }
+                    state.channelState.messageLoading = false;
 
+                    break;
+                }
+                
+                case FetchChannelMessagesFailureAction _: {
+                    state.channelState.messageLoading = false;
                     break;
                 }
 

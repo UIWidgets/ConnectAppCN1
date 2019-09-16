@@ -44,6 +44,7 @@ namespace ConnectApp.screens {
                             messageId => state.channelState.messageDict[messageId]
                         ).ToList(),
                         me = state.loginState.loginInfo.userId,
+                        messageLoading = state.channelState.messageLoading,
                         newMessageCount = 0
                     };
                 },
@@ -60,7 +61,7 @@ namespace ConnectApp.screens {
                         },
                         sendMessage = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
                             Actions.sendMessage(channelId, content, nonce, parentMessageId)),
-                        startSendMessage = () => dispatcher.dispatch(new StartSendMessageAction()),
+                        startSendMessage = () => dispatcher.dispatch(new StartSendChannelMessageAction()),
                     };
                     return new ChannelScreen(viewModel, actionModel);
                 }
@@ -176,6 +177,12 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildContent() {
+            if (this.widget.viewModel.messageLoading) {
+                return new Flexible(
+                    child: new GlobalLoading()
+                );
+            }
+            
             List<Widget> messages = new List<Widget>();
             for (int i = 0; i < this.widget.viewModel.messages.Count; i++) {
                 var message = this.widget.viewModel.messages[i];
