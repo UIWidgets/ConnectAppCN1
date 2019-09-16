@@ -489,7 +489,7 @@ namespace ConnectApp.screens {
         }
 
         void _onRefresh(bool up) {
-            if (!up) {
+            if (up) {
                 string id = this.widget.viewModel.messages.isNotEmpty()
                     ? this.widget.viewModel.messages.first().id
                     : null;
