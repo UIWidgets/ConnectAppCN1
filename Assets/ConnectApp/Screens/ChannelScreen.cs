@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using ConnectApp.Components;
+using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.Model;
@@ -49,7 +51,7 @@ namespace ConnectApp.screens {
                     var actionModel = new ChannelScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         fetchMessages = (before, after) => {
-                            dispatcher.dispatch<IPromise>(Actions.fetchChannelMessages(this.channelId, before, after));
+                            return dispatcher.dispatch<IPromise>(Actions.fetchChannelMessages(this.channelId, before, after));
                         },
                         pushToChannelDetail = () => {
                             dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction {
@@ -87,6 +89,7 @@ namespace ConnectApp.screens {
     class _ChannelScreenState : State<ChannelScreen> {
         readonly TextEditingController _textController = new TextEditingController();
         readonly FocusNode _focusNode = new FocusNode();
+        readonly RefreshController _refreshController = new RefreshController();
 
         Dictionary<string, string> _jobRole;
         float messageBubbleWidth = 0;
@@ -187,18 +190,25 @@ namespace ConnectApp.screens {
             Widget ret = new Container(
                 color: CColors.White,
                 padding: EdgeInsets.only(top: 16, bottom: 99),
-                child: ListView.builder(
-                    padding: EdgeInsets.symmetric(16, 0),
-                    itemCount: this.widget.viewModel.messages.Count,
-                    itemBuilder: (context, index) => {
-                        var message = this.widget.viewModel.messages[index];
-                        return this._buildMessage(message,
-                            showTime: index == 0 || (message.time -
-                                                     this.widget.viewModel.messages[index - 1].time) >
-                                      TimeSpan.FromMinutes(5),
-                            left: message.author.id != this.widget.viewModel.me
-                        );
-                    }
+                child: new SmartRefresher(
+                    controller: this._refreshController,
+                    enablePullDown: true,
+                    enablePullUp: false,
+                    onRefresh: this._onRefresh,
+                    headerBuilder: (context, mode) => new SmartRefreshHeader(mode), 
+                    child: ListView.builder(
+                        padding: EdgeInsets.symmetric(16, 0),
+                        itemCount: this.widget.viewModel.messages.Count,
+                        itemBuilder: (context, index) => {
+                            var message = this.widget.viewModel.messages[index];
+                            return this._buildMessage(message,
+                                showTime: index == 0 || (message.time -
+                                                         this.widget.viewModel.messages[index - 1].time) >
+                                          TimeSpan.FromMinutes(5),
+                                left: message.author.id != this.widget.viewModel.me
+                            );
+                        }
+                    )
                 )
             );
 
@@ -305,8 +315,10 @@ namespace ConnectApp.screens {
                                             new Row(
                                                 crossAxisAlignment: CrossAxisAlignment.center,
                                                 children: new List<Widget> {
-                                                    Image.network(message.embeds[0].embedData.image ?? "",
-                                                        width: 14, height: 14, fit: BoxFit.cover),
+                                                    message.embeds[0].embedData.image == null
+                                                        ? (Widget) new Container(width: 14, height: 14)
+                                                        : Image.network(message.embeds[0].embedData.image ?? "",
+                                                            width: 14, height: 14, fit: BoxFit.cover),
                                                     new Container(width: 4),
                                                     new Text(message.embeds[0].embedData.name ?? "",
                                                         style: CTextStyle.PMediumBody)
@@ -356,7 +368,11 @@ namespace ConnectApp.screens {
                             padding: EdgeInsets.only(bottom: 16),
                             child: new Center(
                                 child: new Text(
-                                    message.time.ToString("HH:mm"),
+                                    message.time.Date == DateTime.Today
+                                        ? message.time.ToString("HH:mm")
+                                        : message.time.Year == DateTime.Today.Year
+                                            ? message.time.ToString("M月d日 HH:mm")
+                                            : message.time.ToString("yyyy年M月d日 HH:mm"),
                                     style: CTextStyle.PSmallBody5
                                 )
                             )
@@ -471,6 +487,19 @@ namespace ConnectApp.screens {
                         this.setState(() => this._textController.clear());
                     });
         }
+
+        void _onRefresh(bool up) {
+            if (!up) {
+                string id = this.widget.viewModel.messages.isNotEmpty()
+                    ? this.widget.viewModel.messages.first().id
+                    : null;
+                this.widget.actionModel.fetchMessages(id, null).Then(
+                    () => this._refreshController.sendBack(true, RefreshStatus.completed)
+                ).Catch(
+                    (error) => this._refreshController.sendBack(true, RefreshStatus.failed)
+                );
+            }
+        }
     }
 
     class _ImageMessage : StatefulWidget {
@@ -529,7 +558,7 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
-            return this.size == null
+            return this.size == null || this.widget.url == null
                 ? new Container(width: this.widget.size, height: this.widget.size, decoration: new BoxDecoration(
                     color: CColors.Disable,
                     borderRadius: BorderRadius.all(this.widget.radius)

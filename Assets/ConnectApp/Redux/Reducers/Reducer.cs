@@ -2300,7 +2300,11 @@ namespace ConnectApp.redux.reducers {
                              ret.Add(channelMessage.id);
                         }
 
-                        for (var i = 0; i < channel.messageIds.Count; i++) {
+                        if (channel.messageIds[0] != action.before) {
+                            ret.Add(channel.messageIds[0]);
+                        }
+
+                        for (var i = 1; i < channel.messageIds.Count; i++) {
                             ret.Add(channel.messageIds[i]);
                         }
 
