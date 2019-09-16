@@ -167,9 +167,9 @@ namespace ConnectApp.Components {
                             ),
                             Positioned.fill(
                                 child: new Align(
-                                    alignment: Alignment.topLeft,
+                                    alignment: Alignment.center,
                                     child: new Transform(
-                                        transform: Matrix3.makeTrans(new Offset(46, 5)),
+                                        transform: Matrix3.makeTrans(new Offset(12, -8)),
                                         child: new NotificationDot(
                                             item.notification,
                                             borderSide: new BorderSide(
