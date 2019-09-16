@@ -19,8 +19,8 @@ namespace ConnectApp.Api {
                 var responseText = responseContent.text;
                 var header = responseContent.headers;
                 var loginInfo = JsonConvert.DeserializeObject<LoginInfo>(responseText);
+                loginInfo.external_Headers = header;
                 
-                SocketApi.ConnectToWSS(header);
                 promise.Resolve(loginInfo);
             }).Catch(exception => { promise.Reject(exception); });
             return promise;
@@ -32,8 +32,12 @@ namespace ConnectApp.Api {
                 code = code
             };
             var request = HttpManager.POST($"{Config.apiAddress}/api/connectapp/auth/live/wechat", para);
-            HttpManager.resume(request).Then(responseText => {
+            HttpManager.resumeAll(request).Then(responseContent => {
+                var responseText = responseContent.text;
+                var header = responseContent.headers;
                 var loginInfo = JsonConvert.DeserializeObject<LoginInfo>(responseText);
+                loginInfo.external_Headers = header;
+                
                 promise.Resolve(loginInfo);
             }).Catch(exception => { promise.Reject(exception); });
             return promise;
@@ -78,8 +82,11 @@ namespace ConnectApp.Api {
                 var responseText = response.text;
                 var headers = response.headers;
                 var initDataResponse = JsonConvert.DeserializeObject<FetchInitDataResponse>(responseText);
+
+                if (UserInfoManager.isLogin()) {
+                    SocketApi.ConnectToWSS(headers, false);
+                }
                 
-                SocketApi.ConnectToWSS(headers);
                 promise.Resolve(initDataResponse);
             }).Catch(exception => { promise.Reject(exception); });
             return promise;

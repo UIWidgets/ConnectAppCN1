@@ -20,13 +20,21 @@ namespace ConnectApp.Api {
         }
         
         
-        public static void ConnectToWSS(Dictionary<string, string> header) {
+        public static void ConnectToWSS(Dictionary<string, string> header, bool forceConnect = true) {
             if (HttpManager.getCookie().isNotEmpty()) {
                 var sessionId = HttpManager.getCookie("LS");
                 if (sessionId == null) {
                     Debug.Log("Connect to Message Feed Failed: no sessionId available !");
                     return;
                 }
+            }
+            
+            D.assert(SocketGateway.instance != null);
+            if (SocketGateway.instance == null) {
+                return;
+            }
+            if (!forceConnect && !SocketGateway.instance.readyForConnect) {
+                return;
             }
             
             SocketGateway.instance.Connect(() => 

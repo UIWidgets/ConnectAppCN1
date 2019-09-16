@@ -66,6 +66,8 @@ namespace ConnectApp.redux.reducers {
                         HistoryManager.searchArticleHistoryList(userId: action.loginInfo.userId);
                     state.articleState.blockArticleList =
                         HistoryManager.blockArticleList(userId: action.loginInfo.userId);
+                    
+                    SocketApi.ConnectToWSS(action.loginInfo.external_Headers);
                     break;
                 }
 
@@ -85,6 +87,8 @@ namespace ConnectApp.redux.reducers {
                         HistoryManager.searchArticleHistoryList(userId: action.loginInfo.userId);
                     state.articleState.blockArticleList =
                         HistoryManager.blockArticleList(userId: action.loginInfo.userId);
+                    
+                    SocketApi.ConnectToWSS(action.loginInfo.external_Headers);
                     break;
                 }
 
