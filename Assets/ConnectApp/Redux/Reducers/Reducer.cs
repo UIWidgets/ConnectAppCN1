@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ConnectApp.Api;
 using ConnectApp.Components;
 using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
+using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using ConnectApp.Reality;
 using ConnectApp.screens;
@@ -94,6 +96,7 @@ namespace ConnectApp.redux.reducers {
                 case LogoutAction _: {
                     EventBus.publish(sName: EventBusConstant.logout_success, new List<object>());
                     HttpManager.clearCookie();
+                    SocketApi.DisConnectFromWSS();
                     state.loginState.loginInfo = new LoginInfo();
                     state.loginState.isLoggedIn = false;
                     UserInfoManager.clearUserInfo();
@@ -1214,10 +1217,10 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 
-                case MainNavigatorPushToChannelAction _: {
+                case MainNavigatorPushToChannelAction action: {
                     Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                                new ChannelScreenConnector(),
+                                new ChannelScreenConnector(action.channelId),
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new PushPageTransition(
                                     routeAnimation: animation,
@@ -1228,10 +1231,10 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 
-                case MainNavigatorPushToChannelDetailAction _: {
+                case MainNavigatorPushToChannelDetailAction action: {
                     Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                                new ChannelDetailScreenConnector(),
+                                new ChannelDetailScreenConnector(action.channelId),
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new PushPageTransition(
                                     routeAnimation: animation,
@@ -1242,10 +1245,10 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 
-                case MainNavigatorPushToChannelMembersAction _: {
+                case MainNavigatorPushToChannelMembersAction action: {
                     Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                                new ChannelMembersScreenConnector(),
+                                new ChannelMembersScreenConnector(action.channelId),
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new PushPageTransition(
                                     routeAnimation: animation,
@@ -1256,10 +1259,10 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 
-                case MainNavigatorPushToChannelIntroductionAction _: {
+                case MainNavigatorPushToChannelIntroductionAction action: {
                     Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                                new ChannelIntroductionScreenConnector(),
+                                new ChannelIntroductionScreenConnector(action.channelId),
                             transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                 new PushPageTransition(
                                     routeAnimation: animation,
@@ -1951,6 +1954,16 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case UpdateAvatarSuccessAction action: {
+                    var userId = state.loginState.loginInfo.userId;
+                    var user = state.userState.userDict[userId];
+                    user.avatar = action.avatar;
+                    state.userState.userDict[userId] = user;
+                    state.loginState.loginInfo.userAvatar = action.avatar;
+                    UserInfoManager.saveUserInfo(state.loginState.loginInfo);
+                    break;
+                }
+
                 case StartFetchTeamAction _: {
                     state.teamState.teamLoading = true;
                     break;
@@ -2248,6 +2261,85 @@ namespace ConnectApp.redux.reducers {
                 case EnterRealityAction _: {
                     // Enter Reality
                     RealityManager.TriggerSwitch();
+                    break;
+                }
+
+                case PublicChannelsAction action: {
+                    state.channelState.publicChannels = action.channels.Select(channel => channel.id).ToList();
+                    state.channelState.publicChannelCurrentPage = action.currentPage;
+                    state.channelState.publicChannelPages = action.pages;
+                    state.channelState.publicChannelTotal = action.total;
+                    for (var i = 0; i < action.channels.Count; i++) {
+                        state.channelState.channelDict[action.channels[i].id] =
+                            ChannelView.fromChannel(action.channels[i]);
+                        state.channelState.channelDict[action.channels[i].id].lastMessage =
+                            ChannelMessageView.fromChannelMessage(action.channels[i].lastMessage);
+                    }
+                    break;
+                }
+                
+                case ChannelMessagesAction action: {
+                    var channel = state.channelState.channelDict[action.channelId];
+                    channel.messageIds = new List<string>();
+                    for (var i = action.messages.Count-1; i >= 0; i--) {
+                         var channelMessage =
+                            ChannelMessageView.fromChannelMessage(action.messages[i]);
+                         state.channelState.messageDict[channelMessage.id] = channelMessage;
+                         channel.messageIds.Add(channelMessage.id);
+                    }
+                    break;
+                }
+
+                case ChannelMemberAction action: {
+                    var channel = state.channelState.channelDict[action.channelId];
+                    channel.memberIds = new List<string>();
+                    for (var i = 0; i < action.members.Count; i++) {
+                        var channelMember = action.members[i];
+                         state.channelState.membersDict[channelMember.id] = channelMember;
+                         channel.memberIds.Add(channelMember.id);
+                    }
+                    break;
+                }
+                case PushReadyAction action: {
+                    Debug.Log("WebSocket Online!");
+                    break;
+                }
+                case PushNewMessageAction action: {
+                    var message = action.messageData;
+                    //workaround for test, remove when release !!!
+                    if (!state.channelState.channelDict.ContainsKey(message.channelId)) {
+                        break;
+                    }
+                    
+                    var channel = state.channelState.channelDict[message.channelId];
+                    //ignore duplicated message
+                    if (!channel.messageIds.Contains(message.id)) {
+                        var channelMessage = ChannelMessageView.fromPushMessage(message);
+                        state.channelState.messageDict[channelMessage.id] = channelMessage;
+                        channel.messageIds.Add(channelMessage.id);
+                    }
+                    break;
+                }
+                case PushModifyMessageAction action: {
+                    var message = action.messageData;
+                    //workaround for test, remove when release !!!
+                    if (!state.channelState.channelDict.ContainsKey(message.channelId)) {
+                        break;
+                    }
+                    
+                    var channel = state.channelState.channelDict[message.channelId];
+                    
+                    var channelMessage = ChannelMessageView.fromPushMessage(message);
+                    state.channelState.messageDict[channelMessage.id] = channelMessage;
+                    
+                    //insert new if not exists yet
+                    if (!channel.messageIds.Contains(message.id)) {
+                        channel.messageIds.Add(channelMessage.id);
+                    }
+                    break;
+                }
+                case PushDeleteMessageAction action: {
+                    //TODO
                     break;
                 }
             }

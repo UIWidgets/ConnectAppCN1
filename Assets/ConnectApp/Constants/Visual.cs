@@ -62,6 +62,7 @@ namespace ConnectApp.Constants {
         public static readonly IconData open_in_browser = new IconData(0xe89d, "Material Icons");
         public static readonly IconData qr_scan = new IconData(0xe624, "iconfont");
         public static readonly IconData computer = new IconData(0xe625, "iconfont");
+        public static readonly IconData camera_alt = new IconData(0xe3b0, "Material Icons");
     }
 
     public static class CTextStyle {

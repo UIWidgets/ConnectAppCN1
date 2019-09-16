@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
@@ -6,105 +7,62 @@ using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
+using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.service;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Avatar = ConnectApp.Components.Avatar;
+using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.screens {
     public class ChannelMembersScreenConnector : StatelessWidget {
+        
+        public ChannelMembersScreenConnector(string channelId, Key key = null) : base(key : key) {
+            this.channelId = channelId;
+        }
+
+        public readonly string channelId;
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ChannelMembersScreenViewModel>(
-                converter: state => new ChannelMembersScreenViewModel {
-                    channel = new Channel {
-                        imageUrl =
-                            "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                        name = "UI Widgets 技术交流",
-                        isHot = true,
-                        latestMessage = "kgu: 嗨，大家好",
-                        time = "11:43",
-                        isTop = true,
-                        atMe = true,
-                        introduction = "UIWidgets是一个可以独立使用的 Unity Package (https://github.com/UnityTech/UIWidgets)。"
-                                       + "它将Flutter(https://flutter.io/)的App框架与Unity渲染引擎相结合，"
-                                       + "让您可以在Unity编辑器中使用一套代码构建出可以同时在PC、网页及移动设备上运行的原生应用。"
-                                       + "此外，您还可以在您的3D游戏或者Unity编辑器插件中用它来构建复杂的UI层，替换UGUI和IMGUI。",
-                        atAll = true,
-                        members = new List<User> {
-                            new User {
-                                name = "毛毛",
-                                title = "产品经理",
-                                avatar =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                            },
-                            new User {
-                                name = "尚尚",
-                                title = "独立游戏开发者",
-                                avatar =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                            },
-                            new User {
-                                name = "奇甲机器人 Long Long Long Long Long Name",
-                                title = "Unity开发者",
-                                avatar =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                            },
-                            new User {
-                                name = "mooc mooc mooc mooc mooc mooc mooc mooc mooc mooc mooc mooc",
-                                title = "原画设计师",
-                                avatar =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                            },
-                            new User {
-                                name = "mooc",
-                                title = "原画设计师",
-                                avatar =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                            },
-                            new User {
-                                name = "mooc",
-                                title = "原画设计师",
-                                avatar =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                            },
-                            new User {
-                                name = "mooc",
-                                title = "原画设计师",
-                                avatar =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                            },
-                            new User {
-                                name = "mooc",
-                                title = "原画设计师",
-                                avatar =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                            },
-                            new User {
-                                name = "mooc",
-                                title = "原画设计师",
-                                avatar =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                            },
-                            new User {
-                                name = "mooc",
-                                title = "原画设计师",
-                                avatar =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                            },
-                        },
-                        numAdmins = 2,
-                    },
-                    followed = new HashSet<string> {
-                        "毛毛",
-                        "尚尚",
+                converter: state => {
+                    var hasFollowDict =
+                        state.followState.followDict.TryGetValue(state.loginState.loginInfo.userId, out var followDict);
+                    var members = state.channelState.channelDict[this.channelId].memberIds.Select(
+                        memberId => state.channelState.membersDict[memberId]
+                    ).ToList();
+                    members.Sort((m1, m2) => {
+                        if (m1.role == m2.role) return 0;
+                        if (m1.role == "member") return 1;
+                        if (m2.role == "member") return -1;
+                        if (m1.role == "moderator") return 1;
+                        if (m2.role == "moderator") return -1;
+                        if (m1.role == "admin") return 1;
+                        if (m2.role == "admin") return -1;
+                        return 0;
+                    });
+                    int nAdmin = 0;
+                    for (int i = 0; i < members.Count; i++) {
+                        if (members[i].role == "moderator") {
+                            nAdmin = i - 1;
+                            break;
+                        }
                     }
+                    return new ChannelMembersScreenViewModel {
+                        channel = state.channelState.channelDict[this.channelId],
+                        followed = hasFollowDict ? followDict : new Dictionary<string, bool>(),
+                        members = members,
+                        nAdmin = nAdmin
+                    };
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ChannelMembersScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
+                        fetchMembers = () => dispatcher.dispatch<IPromise>(Actions.fetchChannelMembers(this.channelId))
                     };
                     return new ChannelMembersScreen(actionModel, viewModel);
                 }
@@ -138,6 +96,7 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             this._controller = new TextEditingController("");
+            this.widget.actionModel.fetchMembers();
 //            SchedulerBinding.instance.addPostFrameCallback(_ => {
 //                if (this.widget.viewModel.searchFollowingKeyword.Length > 0
 //                    || this.widget.viewModel.searchFollowingUsers.Count > 0) {
@@ -174,26 +133,32 @@ namespace ConnectApp.screens {
             return new CustomAppBar(
                 () => this.widget.actionModel.mainRouterPop(),
                 new Text(
-                    $"群聊成员({this.widget.viewModel.channel.members.Count})",
+                    $"群聊成员({this.widget.viewModel.members.Count})",
                     style: CTextStyle.PXLargeMedium
                 )
             );
         }
 
         Widget _buildContent(BuildContext context) {
+            if (this.widget.viewModel.members.Count == 0) {
+                return new Container(color: CColors.Background);
+            }
             List<Widget> specialMembers = new List<Widget>();
             List<Widget> members = new List<Widget>();
-            for (int i = 0; i <= this.widget.viewModel.channel.numAdmins; i++) {
-                User user = this.widget.viewModel.channel.members[i];
+            Debug.Log($"Members count {this.widget.viewModel.members.Count}");
+            Debug.Log($"nAdmin {this.widget.viewModel.nAdmin}");
+            for (int i = 0; i <= this.widget.viewModel.nAdmin; i++) {
+                User user = this.widget.viewModel.members[i].user;
                 specialMembers.Add(buildMemberItem(context, user, i == 0 ? 0 : 1,
-                    this.widget.viewModel.followed.Contains(user.name)));
+                    this.widget.viewModel.followed.TryGetValue(user.id, out bool followed) && followed));
             }
 
-            for (int i = this.widget.viewModel.channel.numAdmins + 1;
-                i < this.widget.viewModel.channel.members.Count;
+            for (int i = this.widget.viewModel.nAdmin + 1;
+                i < this.widget.viewModel.members.Count;
                 i++) {
-                User user = this.widget.viewModel.channel.members[i];
-                members.Add(buildMemberItem(context, user, 2, this.widget.viewModel.followed.Contains(user.name)));
+                User user = this.widget.viewModel.members[i].user;
+                members.Add(buildMemberItem(context, user, 2,
+                    this.widget.viewModel.followed.TryGetValue(user.id, out bool followed) && followed));
             }
 
             return new Container(

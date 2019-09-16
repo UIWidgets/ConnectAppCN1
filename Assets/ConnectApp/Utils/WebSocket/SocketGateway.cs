@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using ConnectApp.Api;
 using ConnectApp.Constants;
 using ConnectApp.Models.Api;
 using Newtonsoft.Json;
@@ -21,8 +20,6 @@ namespace ConnectApp.Utils {
         public const int OPCODE_RESUME = 2;
         public const int OPCODE_STATUS_UPDATE = 3;
         public const int OPCODE_PING = 4;
-
-        public const int heartBeatInterval = 15000;    //ms
     }
     
     public class SocketGateway {
@@ -48,7 +45,10 @@ namespace ConnectApp.Utils {
 
         WebSocket m_Socket;
 
-        int m_lastDispatchTs;
+        BackOff backoff;
+
+        Action onConnect;
+        Action<string, SocketResponseDataBase> onMessage;
 
         string sessionId;
         string m_GatewayUrl;
@@ -74,17 +74,45 @@ namespace ConnectApp.Utils {
             
             this.m_CandidateURLs = new List<string>();
             this.m_PayloadQueue = new List<string>();
+            this.backoff = new BackOff(host, 1000, 60000);
 
             this.m_Socket = new WebSocket(host);
             this._Close();
         }
 
-        public void Connect(Action onConnected, Action<string, SocketResponseDataBase> onMessage) {
+
+        int OnFail(bool reset = true) {
+            this._Close(reset);
+            this.backoff.Cancel();
+            int delay = this.backoff.OnFail(() => {
+                this.Connect(this.onConnect, this.onMessage, true);
+            });
+            return delay;
+        }
+
+        public void Connect(Action onConnected, Action<string, SocketResponseDataBase> onMessage, bool reconnect = false) {
             if (this.readyState != GatewayState.CLOSED) {
+                Debug.Log("fatal error: cannot Connect to WS when the current connection is still alive");
                 return;
             }
 
+            if (!reconnect) {
+                this.onConnect = onConnected;
+                this.onMessage = onMessage;
+                this._closeRequired = false;
+            }
+            else {
+                Debug.Assert(this.onConnect != null, "fatal error: reconnect before initial connect !");
+                Debug.Assert(this.onMessage != null, "fatal error: reconnect before initial connect !");
+            }
+
             this.readyState = GatewayState.CONNECTING;
+
+            if (this.backoff.pending && !this.resumable) {
+                //TODO: notify reconnecting
+            }
+            
+            this.backoff.Cancel();
             
             this._SelectGateway(url => {
                 if (url != null) {
@@ -96,6 +124,7 @@ namespace ConnectApp.Utils {
                             }
                         },
                         OnMessage: (type, data) => {
+                            this.backoff.OnSucceed();
                             onMessage?.Invoke(type, data);
                         },
                         OnClose: () => {
@@ -103,10 +132,17 @@ namespace ConnectApp.Utils {
                             this.m_Socket.Close();
                             this.m_Socket = null;
                             this._Close();
+                            
+                            bool reset = !this.resumable || this.backoff.fail > 0;
+                            var delay = this.OnFail(reset) / 1000f;
+                            
+                            Debug.Log($"connection failed, retry in {delay} seconds");
+                            return reset;
                         });
                 }
                 else {
-                    Debug.Assert(false, "url is null, Cannot connect!");
+                    var delay = this.OnFail();
+                    Debug.Log($"gateway discovery failed, retry in {delay} seconds");
                 }
             });
         }
@@ -122,13 +158,15 @@ namespace ConnectApp.Utils {
             this.m_Socket = null;
         }
 
-        public void Reconnect() {
-            //TODO
+        void Reconnect() {
+            if (this.backoff.pending) {
+                this.Connect(this.onConnect, this.onMessage, true);
+            }
         }
 
 
         void _SelectGateway(Action<string> callback, bool sticky = true) {
-            if (sticky && this.m_GatewayUrl != null) {
+            if (sticky && this.m_GatewayUrl != null && this.backoff.fail < 3) {
                 callback(this.m_GatewayUrl);
                 return;
             }
@@ -136,8 +174,6 @@ namespace ConnectApp.Utils {
             if (this.m_CandidateURLs.Count > 0) {
                 var url = this.m_CandidateURLs[0];
                 this.m_CandidateURLs.RemoveAt(0);
-                this.m_CandidateURLs.Add(url);
-
                 this.m_GatewayUrl = $"{url}/v1";
                 callback(this.m_GatewayUrl);
                 return;
@@ -203,11 +239,17 @@ namespace ConnectApp.Utils {
                 this.seq = 0;
             }
         }
+        
+        
+        void _OnClose(Func<bool> OnClose) {
+            if (!this._closeRequired && OnClose != null && OnClose()) {
+                Debug.Log("socket disconnected, try reconnect in short time");
+            }
+        }
 
-        void _CreateWebSocket(string url, Action OnConnected, Action<string, SocketResponseDataBase> OnMessage, Action OnClose) {
+        void _CreateWebSocket(string url, Action OnConnected, Action<string, SocketResponseDataBase> OnMessage, Func<bool> OnClose) {
             this.m_Socket.Connect(url, 
                 OnConnected: () => {
-                    this.m_lastDispatchTs = Time.frameCount;
                     OnConnected.Invoke();
                 },
                 
@@ -216,7 +258,7 @@ namespace ConnectApp.Utils {
                         return;
                     }
                     var content = Encoding.UTF8.GetString (bytes);
-                    Debug.Log(content);
+                    //Debug.Log(content);
                     var response = JsonConvert.DeserializeObject<IFrame>(content);
                     
                     if (response.sequence > 0) {
@@ -249,7 +291,7 @@ namespace ConnectApp.Utils {
                                 case DispatchMsgType.MESSAGE_CREATE:
                                 case DispatchMsgType.MESSAGE_UPDATE:
                                 case DispatchMsgType.MESSAGE_DELETE:
-                                    var messageResponse = (SocketResponseCreateMsg) response;
+                                    var messageResponse = (SocketResponseMessage) response;
                                     data = messageResponse.data;
                                     break;
                             }
@@ -261,12 +303,10 @@ namespace ConnectApp.Utils {
                     OnMessage?.Invoke(type, data);
                 },
                 OnError: msg => {
-                    OnClose?.Invoke();
-                    Debug.Log("OnError" + msg);
+                    this._OnClose(OnClose);
                 },
                 OnClose: () => {
-                    OnClose?.Invoke();
-                    Debug.Log("OnClose");
+                    this._OnClose(OnClose);
                 });
         }
     }

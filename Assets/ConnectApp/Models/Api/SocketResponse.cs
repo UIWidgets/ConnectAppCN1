@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.Models.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -57,8 +58,8 @@ namespace ConnectApp.Models.Api {
                 case DispatchMsgType.MESSAGE_CREATE:
                 case DispatchMsgType.MESSAGE_UPDATE:
                 case DispatchMsgType.MESSAGE_DELETE:
-                    var createMsgData = serializer.Deserialize<SocketResponseCreateMsgData>(dataReader);
-                    return new SocketResponseCreateMsg {
+                    var createMsgData = serializer.Deserialize<SocketResponseMessageData>(dataReader);
+                    return new SocketResponseMessage {
                         type = type,
                         opCode = int.Parse(jObject["op"].ToString()),
                         sequence = int.Parse(jObject["s"].ToString()),
@@ -113,28 +114,28 @@ namespace ConnectApp.Models.Api {
     public class SocketResponseSession : Frame<SocketResponseSessionData> {
     }
 
-    public class SocketResponseCreateMsgData : SocketResponseDataBase {
+    //Copy from and should be consistent with Models/Model/ChannelMessage
+    public class SocketResponseMessageData : SocketResponseDataBase {
         public string id;
         public string type;
+        public string nonce;
         public string channelId;
-        public SocketResponseUser author;
         public string content;
+        public User author;
+        public List<Attachment> attachments;
         public bool mentionEveryone;
+        public List<User> mentions;
+        public bool starred;
+        public List<string> replyMessageIds;
+        public List<string> lowerMessageIds;
+        public List<User> replyUsers;
+        public List<User> lowerUsers;
+        public List<Reaction> reactions;
+        public List<Embed> embeds;
+        public bool pending;
+        public string deletedTime;
     }
 
-    public class SocketResponseCreateMsg : Frame<SocketResponseCreateMsgData> {
-    }
-
-    public class SocketResponseUser {
-        public string id;
-        public string username;
-        public string fullname;
-        public string avatar;
-        public string title;
-        public string presenceStatus;
-        public int likeCount;
-        public int followCount;
-        public bool isStaff;
-        public bool isBot;
+    public class SocketResponseMessage : Frame<SocketResponseMessageData> {
     }
 }

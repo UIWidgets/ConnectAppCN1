@@ -24,15 +24,19 @@ namespace ConnectApp.redux.actions {
     }
     
     public class MainNavigatorPushToChannelAction : BaseAction {
+        public string channelId;
     }
     
     public class MainNavigatorPushToChannelDetailAction : BaseAction {
+        public string channelId;
     }
 
     public class MainNavigatorPushToChannelMembersAction : BaseAction {
+        public string channelId;
     }
     
     public class MainNavigatorPushToChannelIntroductionAction : BaseAction {
+        public string channelId;
     }
     
     public class MainNavigatorPushToRouteAction : BaseAction {
