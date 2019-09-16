@@ -92,6 +92,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case LogoutAction _: {
+                    EventBus.publish(sName: EventBusConstant.logout_success, new List<object>());
                     HttpManager.clearCookie();
                     state.loginState.loginInfo = new LoginInfo();
                     state.loginState.isLoggedIn = false;
@@ -1863,6 +1864,16 @@ namespace ConnectApp.redux.reducers {
                         state.userState.userDict[key: action.user.id] = oldUser.Merge(action.user);
                     }
 
+                    break;
+                }
+
+                case UpdateAvatarSuccessAction action: {
+                    var userId = state.loginState.loginInfo.userId;
+                    var user = state.userState.userDict[userId];
+                    user.avatar = action.avatar;
+                    state.userState.userDict[userId] = user;
+                    state.loginState.loginInfo.userAvatar = action.avatar;
+                    UserInfoManager.saveUserInfo(state.loginState.loginInfo);
                     break;
                 }
 

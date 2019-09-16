@@ -47,11 +47,13 @@ namespace ConnectApp.Utils {
 
     public static class EventBusConstant {
         public const string login_success = "LOGIN_SUCCEED";
+        public const string logout_success = "LOGOUT_SUCCEED";
         public const string pauseVideoPlayer = "PAUSE_VIDEO_PLAYER";
         public const string refreshNotifications = "REFRESH_NOTIFICATIONS";
         public const string fullScreen = "FULL_SCREEN";
         public const string changeOrientation = "CHANGE_ORIENTATION";
         public const string follow_user = "FOLLOW_USER";
         public const string shareAction = "SHARE_ACTION";
+        public const string pickAvatarSuccess = "PICK_AVATAR_SUCCESS";
     }
 }

@@ -1,9 +1,13 @@
 package com.unity3d.unityconnect.plugins;
 import android.content.Context;
+import android.content.Intent;
+import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.provider.Settings;
 import android.support.v4.app.NotificationManagerCompat;
 
+
+import com.unity3d.unityconnect.PickImageActivity;
 
 public class CommonPlugin {
 
@@ -50,6 +54,16 @@ public class CommonPlugin {
         return isOpen;
     }
 
+
+    public static void pickImage(){
+        TakePhoto("pickImage",mContext);
+    }
+
+    public static void takeCamera(){
+        TakePhoto("takePhoto",mContext);
+    }
+
+
     private static int getSensorState(Context context){
         int sensorState = 0;
         try {
@@ -64,6 +78,14 @@ public class CommonPlugin {
     public static String getDeviceID() {
         String uuid = UUIDUtils.getUUID();
         return uuid;
+    }
+
+
+    private static void TakePhoto(String type,Context context){
+        Intent intent = new Intent(mContext,PickImageActivity.class);
+        intent.putExtra("type", type);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
     }
     
     public static boolean isEnableNotification(){

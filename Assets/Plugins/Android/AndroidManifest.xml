@@ -4,7 +4,7 @@
   <!-- Required -->
   <permission android:name="com.unity3d.unityconnect.permission.JPUSH_MESSAGE" android:protectionLevel="signature" />
   <application android:theme="@android:style/Theme.Material.Light.LightStatusBar" android:icon="@mipmap/app_icon" android:label="@string/app_name" android:name=".CustomApplication" tools:targetApi="m" android:isGame="true" android:banner="@drawable/app_banner" android:roundIcon="@mipmap/app_icon_round">
-    <activity android:label="@string/app_name" android:name="com.unity3d.unityconnect.UnityPlayerActivityStatusBar" android:screenOrientation="portrait" android:launchMode="singleTask" android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale|layoutDirection|density" android:hardwareAccelerated="true">
+    <activity android:label="@string/app_name" android:name="com.unity3d.unityconnect.UnityPlayerActivityStatusBar" android:screenOrientation="sensorPortrait" android:launchMode="singleTask" android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|fontScale|layoutDirection|density" android:hardwareAccelerated="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
@@ -22,13 +22,14 @@
         <data android:scheme="unityconnect" />
       </intent-filter>
       <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
-      <meta-data android:name="android.notch_support" android:value="true" />
     </activity>
     <activity android:name=".wxapi.WXEntryActivity" android:label="@string/app_name" android:theme="@android:style/Theme.Translucent.NoTitleBar" android:exported="true" android:launchMode="singleTask">
     </activity>
     <activity android:name="com.google.zxing.android.CaptureActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar">
     </activity>
     <activity android:name=".QRScanActivity" android:screenOrientation="portrait" android:theme="@android:style/Theme.NoTitleBar">
+    </activity>
+    <activity android:name=".PickImageActivity" android:screenOrientation="portrait">
     </activity>
     <!-- Required SDK核心功能-->
     <activity android:name="cn.jpush.android.ui.PushActivity" android:configChanges="orientation|keyboardHidden" android:theme="@android:style/Theme.NoTitleBar" android:exported="false">
@@ -106,10 +107,9 @@
     <meta-data android:name="JPUSH_CHANNEL" android:value="official" />
     <meta-data android:name="JPUSH_APPKEY" android:value="a50eff2d99416a0495f02766" />
     <!--  </>值来自开发者平台取得的AppKey-->
-    <meta-data android:name="unity.build-id" android:value="30bfc6e5-72e6-4a2f-b970-e8a981c95a7e" />
+    <meta-data android:name="unity.build-id" android:value="3e8be9b1-f8c6-422b-bee4-18011bbd995e" />
     <meta-data android:name="unity.splash-mode" android:value="0" />
     <meta-data android:name="unity.splash-enable" android:value="True" />
-    <meta-data android:name="notch.config" android:value="portrait|landscape" />
   </application>
   <uses-feature android:glEsVersion="0x00020000" />
   <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
@@ -128,16 +128,14 @@
   <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" tools:ignore="ProtectedPermissions" />
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
   <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+  <uses-permission android:name="android.permission.CAMERA" />
   <!-- Optional for location -->
   <uses-permission android:name="android.permission.VIBRATE" />
   <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
   <!-- 用于开启 debug 版本的应用在6.0 系统上 层叠窗口权限 -->
   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
   <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-  <uses-permission android:name="android.permission.CAMERA" />
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
   <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
   <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
-  <!--<uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />-->
-  <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
 </manifest>

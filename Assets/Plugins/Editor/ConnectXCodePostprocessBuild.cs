@@ -41,8 +41,7 @@ namespace Plugins.Editor {
             proj.AddFrameworkToProject(target, "CoreTelephony.framework", true);
             proj.AddFrameworkToProject(target, "CoreServices.framework", true);
             proj.AddFrameworkToProject(target, "MediaPlayer.framework", true);
-
-            proj.AddBuildProperty(target, "OTHER_LDFLAGS", "-ObjC");
+            proj.AddFrameworkToProject(target, "Photos.framework", false);
             proj.AddBuildProperty(target, "OTHER_LDFLAGS", "-all_load");
 
             //associated-domains
@@ -50,10 +49,8 @@ namespace Plugins.Editor {
             string fileName = "unityconnect.entitlements";
             string filePath = Path.Combine(path, fileName);
             //Debug.Log ("filePath: " + filePath);
-            string fileContent = @"<?xml version=""1.0"" encoding=""UTF-8""?>
-<!DOCTYPE plist PUBLIC ""-//Apple//DTD PLIST 1.0//EN"" ""http://www.apple.com/DTDs/PropertyList-1.0.dtd 
-
-"">
+            string fileContent =
+                @"<?xml version=""1.0"" encoding=""UTF-8""?><!DOCTYPE plist PUBLIC ""-//Apple//DTD PLIST 1.0//EN"" ""http://www.apple.com/DTDs/PropertyList-1.0.dtd"">
 <plist version=""1.0"">
 <dict>
     <key>com.apple.developer.associated-domains</key>
@@ -165,10 +162,9 @@ namespace Plugins.Editor {
 
             // 出口合规信息
             rootDict.SetBoolean("ITSAppUsesNonExemptEncryption", false);
-
-            // 相机 权限
+            
             rootDict.SetString("NSCameraUsageDescription", "App需要您的同意,才能访问相机");
-
+            rootDict.SetString("NSPhotoLibraryUsageDescription", "App需要您的同意,才能访问相册");
             // remove exit on suspend if it exists.
             string exitsOnSuspendKey = "UIApplicationExitsOnSuspend";
             if (rootDict.values.ContainsKey(exitsOnSuspendKey)) {

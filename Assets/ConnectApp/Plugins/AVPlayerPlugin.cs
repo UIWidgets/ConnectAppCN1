@@ -72,8 +72,8 @@ namespace ConnectApp.Plugins {
         }
 
         static void _handleMethodCall(string method, List<JSONNode> args) {
-            if (JPushPlugin.context != null) {
-                using (WindowProvider.of(JPushPlugin.context).getScope()) {
+            if (GlobalContext.context != null) {
+                using (WindowProvider.of(GlobalContext.context).getScope()) {
                     switch (method) {
                         case "PopPage": {
                             StoreProvider.store.dispatcher.dispatch(new MainNavigatorPopAction());

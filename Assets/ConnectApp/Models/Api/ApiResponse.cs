@@ -218,4 +218,11 @@ namespace ConnectApp.Models.Api {
         public Dictionary<string, bool> eggs;
         public bool scan;
     }
+
+    [Serializable]
+    public class UpdateAvatarResponse {
+        public string avatar;
+        public int profilePercent;
+        public string nextStep;
+    }
 }
