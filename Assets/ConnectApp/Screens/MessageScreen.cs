@@ -418,7 +418,6 @@ namespace ConnectApp.screens {
 
         public static Widget buildChannelItem(ChannelView channel, Action onTap = null) {
             Widget title = new Text(channel.name, style: CTextStyle.PLargeMedium);
-            Debug.Log(channel.lastMessage);
             Widget ret = new Container(
                 color: channel.isTop ? CColors.PrimaryBlue.withOpacity(0.04f) : CColors.White,
                 height: 72,

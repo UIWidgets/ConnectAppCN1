@@ -39,15 +39,15 @@ namespace ConnectApp.screens {
                         if (m1.role == m2.role) return 0;
                         if (m1.role == "member") return 1;
                         if (m2.role == "member") return -1;
-                        if (m1.role == "moderator") return 1;
-                        if (m2.role == "moderator") return -1;
                         if (m1.role == "admin") return 1;
                         if (m2.role == "admin") return -1;
+                        if (m1.role == "moderator") return -1;
+                        if (m2.role == "moderator") return 1;
                         return 0;
                     });
                     int nAdmin = 0;
                     for (int i = 0; i < members.Count; i++) {
-                        if (members[i].role == "moderator") {
+                        if (members[i].role == "member") {
                             nAdmin = i - 1;
                             break;
                         }
@@ -120,7 +120,7 @@ namespace ConnectApp.screens {
                             children: new List<Widget> {
                                 this._buildNavigationBar(),
                                 new Expanded(
-                                    child: this._buildContent(context)
+                                    child: this._buildContent()
                                 )
                             }
                         )
@@ -139,36 +139,24 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildContent(BuildContext context) {
-            if (this.widget.viewModel.members.Count == 0) {
-                return new Container(color: CColors.Background);
-            }
-            List<Widget> specialMembers = new List<Widget>();
-            List<Widget> members = new List<Widget>();
-            Debug.Log($"Members count {this.widget.viewModel.members.Count}");
-            Debug.Log($"nAdmin {this.widget.viewModel.nAdmin}");
-            for (int i = 0; i <= this.widget.viewModel.nAdmin; i++) {
-                User user = this.widget.viewModel.members[i].user;
-                specialMembers.Add(buildMemberItem(context, user, i == 0 ? 0 : 1,
-                    this.widget.viewModel.followed.TryGetValue(user.id, out bool followed) && followed));
-            }
-
-            for (int i = this.widget.viewModel.nAdmin + 1;
-                i < this.widget.viewModel.members.Count;
-                i++) {
-                User user = this.widget.viewModel.members[i].user;
-                members.Add(buildMemberItem(context, user, 2,
-                    this.widget.viewModel.followed.TryGetValue(user.id, out bool followed) && followed));
-            }
-
+        Widget _buildContent() {
             return new Container(
                 color: CColors.Background,
-                child: new ListView(
-                    children: new List<Widget> {
-                        // this._buildSearchBar(),
-                        new Column(children: specialMembers),
-                        new Container(height: 16),
-                        new Column(children: members),
+                child: ListView.builder(itemCount: this.widget.viewModel.members.Count + 1,
+                    itemBuilder: (context, index) => {
+                        if (index == this.widget.viewModel.nAdmin + 1) {
+                            return new Container(height: 16);
+                        }
+                        ChannelMember member = null;
+                        if (index <= this.widget.viewModel.nAdmin) {
+                            member = this.widget.viewModel.members[index];
+                        }
+                        else {
+                            member = this.widget.viewModel.members[index-1];
+                        }
+
+                        return buildMemberItem(context, member,
+                            this.widget.viewModel.followed.TryGetValue(member.user.id, out bool followed) && followed);
                     }
                 )
             );
@@ -208,41 +196,42 @@ namespace ConnectApp.screens {
             );
         }
 
-        public static Widget buildMemberItem(BuildContext context, User user, int type, bool followed) {
-            Widget title = new Text(user.name, style: CTextStyle.PMediumBody,
+        public static Widget buildMemberItem(BuildContext context, ChannelMember member, bool followed) {
+            Widget fullName = new Text(member.user.fullName, style: CTextStyle.PMediumBody,
                 maxLines: 1, overflow: TextOverflow.ellipsis);
+            if (member.role != "member") {
+                fullName = new Row(
+                    children: new List<Widget> {
+                        new Flexible(child: fullName),
+                        new Container(
+                            decoration: new BoxDecoration(
+                                color: member.role != "admin" ? CColors.Tan : CColors.Portage,
+                                borderRadius: BorderRadius.all(2)
+                            ),
+                            padding: EdgeInsets.symmetric(0, 4),
+                            margin: EdgeInsets.only(4),
+                            child: new Text(member.role == "admin" ? "管理员" : "群主",
+                                style: CTextStyle.PSmallWhite.copyWith(height: 1.2f))
+                        )
+                    }
+                );
+            }
             return new Container(
                 color: CColors.White,
                 height: 72,
                 padding: EdgeInsets.symmetric(12, 16),
                 child: new Row(
                     children: new List<Widget> {
-                        Avatar.User(user, 48),
+                        Avatar.User(member.user, 48),
                         new Expanded(
                             child: new Container(
                                 padding: EdgeInsets.symmetric(0, 16),
                                 child: new Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: new List<Widget> {
-                                        type == 0 || type == 1
-                                            ? new Row(
-                                                children: new List<Widget> {
-                                                    new Flexible(child: title),
-                                                    new Container(
-                                                        decoration: new BoxDecoration(
-                                                            color: type == 0 ? CColors.Tan : CColors.Portage,
-                                                            borderRadius: BorderRadius.all(2)
-                                                        ),
-                                                        padding: EdgeInsets.symmetric(0, 4),
-                                                        margin: EdgeInsets.only(4),
-                                                        child: new Text(type == 0 ? "群主" : "管理员",
-                                                            style: CTextStyle.PSmallWhite.copyWith(height: 1.2f))
-                                                    )
-                                                }
-                                            )
-                                            : title,
+                                        fullName,
                                         new Expanded(
-                                            child: new Text(user.title, style: CTextStyle.PRegularBody4,
+                                            child: new Text(member.user.title, style: CTextStyle.PRegularBody4,
                                                 maxLines: 1, overflow: TextOverflow.ellipsis)
                                         )
                                     }
