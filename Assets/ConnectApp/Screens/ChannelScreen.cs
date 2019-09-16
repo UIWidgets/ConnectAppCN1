@@ -199,14 +199,16 @@ namespace ConnectApp.screens {
                 padding: EdgeInsets.only(top: 16, bottom: 99),
                 child: new SmartRefresher(
                     controller: this._refreshController,
-                    enablePullDown: true,
-                    enablePullUp: false,
+                    enablePullDown: false,
+                    enablePullUp: true,
                     onRefresh: this._onRefresh,
+                    reverse: true,
                     headerBuilder: (context, mode) => new SmartRefreshHeader(mode), 
                     child: ListView.builder(
                         padding: EdgeInsets.symmetric(16, 0),
                         itemCount: this.widget.viewModel.messages.Count,
                         itemBuilder: (context, index) => {
+                            index = this.widget.viewModel.messages.Count - 1 - index;
                             var message = this.widget.viewModel.messages[index];
                             return this._buildMessage(message,
                                 showTime: index == 0 || (message.time -
@@ -496,7 +498,7 @@ namespace ConnectApp.screens {
         }
 
         void _onRefresh(bool up) {
-            if (up) {
+            if (!up) {
                 string id = this.widget.viewModel.messages.isNotEmpty()
                     ? this.widget.viewModel.messages.first().id
                     : null;
