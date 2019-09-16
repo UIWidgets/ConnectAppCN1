@@ -24,12 +24,15 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object fetchChannelMessages(string channelId) {
+        public static object fetchChannelMessages(string channelId, string before = null, string after = null) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ChannelApi.FetchChannelMessages(channelId).Then(channelMessagesResponse => {
+                return ChannelApi.FetchChannelMessages(channelId, before, after)
+                    .Then(channelMessagesResponse => {
                         dispatcher.dispatch(new ChannelMessagesAction {
                             channelId = channelId,
                             messages = channelMessagesResponse.items,
+                            before = before,
+                            after = after,
                             currentPage = channelMessagesResponse.currentPage,
                             pages = channelMessagesResponse.pages,
                             total = channelMessagesResponse.total
@@ -68,6 +71,8 @@ namespace ConnectApp.redux.actions {
     public class ChannelMessagesAction {
         public string channelId;
         public List<ChannelMessage> messages;
+        public string before;
+        public string after;
         public int currentPage;
         public List<int> pages;
         public int total;

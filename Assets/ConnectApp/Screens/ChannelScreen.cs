@@ -48,8 +48,8 @@ namespace ConnectApp.screens {
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ChannelScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
-                        fetchMessages = () => {
-                            dispatcher.dispatch<IPromise>(Actions.fetchChannelMessages(this.channelId));
+                        fetchMessages = (before, after) => {
+                            dispatcher.dispatch<IPromise>(Actions.fetchChannelMessages(this.channelId, before, after));
                         },
                         pushToChannelDetail = () => {
                             dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction {
@@ -58,6 +58,7 @@ namespace ConnectApp.screens {
                         },
                         sendMessage = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
                             Actions.sendMessage(channelId, content, nonce, parentMessageId)),
+                        startSendMessage = () => dispatcher.dispatch(new StartSendMessageAction()),
                     };
                     return new ChannelScreen(viewModel, actionModel);
                 }
@@ -84,7 +85,7 @@ namespace ConnectApp.screens {
     }
 
     class _ChannelScreenState : State<ChannelScreen> {
-        readonly TextEditingController _textController = new TextEditingController("");
+        readonly TextEditingController _textController = new TextEditingController();
         readonly FocusNode _focusNode = new FocusNode();
 
         Dictionary<string, string> _jobRole;
@@ -92,12 +93,11 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            this.widget.actionModel.fetchMessages();
+            this.widget.actionModel.fetchMessages(null, null);
         }
 
         public override void dispose() {
             this._textController.dispose();
-            this._focusNode.dispose();
             base.dispose();
         }
 
@@ -447,8 +447,20 @@ namespace ConnectApp.screens {
         }
 
         void _handleSubmit(string text) {
+            this.widget.actionModel.startSendMessage();
             this.widget.actionModel.sendMessage(this.widget.viewModel.channelInfo.id, text, Snowflake.CreateNonce(), "")
-                .Catch(_ => { CustomDialogUtils.showToast("消息发送失败", Icons.error_outline); });
+                .Catch(_ => { CustomDialogUtils.showToast("消息发送失败", Icons.error_outline); })
+                .Then(
+                    () => {
+                        if (this.widget.viewModel.messages.isNotEmpty()) {
+                            this.widget.actionModel.fetchMessages(null, this.widget.viewModel.messages.last().id);
+                        }
+                        else {
+                            this.widget.actionModel.fetchMessages(null, null);
+                        }
+
+                        this.setState(() => this._textController.clear());
+                    });
         }
     }
 

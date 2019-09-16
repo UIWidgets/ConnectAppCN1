@@ -2278,13 +2278,35 @@ namespace ConnectApp.redux.reducers {
                 
                 case ChannelMessagesAction action: {
                     var channel = state.channelState.channelDict[action.channelId];
-                    channel.messageIds = new List<string>();
-                    for (var i = action.messages.Count-1; i >= 0; i--) {
-                         var channelMessage =
-                            ChannelMessageView.fromChannelMessage(action.messages[i]);
-                         state.channelState.messageDict[channelMessage.id] = channelMessage;
-                         channel.messageIds.Add(channelMessage.id);
+                    if (channel.messageIds == null || (action.after == null && action.before == null)) {
+                        channel.messageIds = new List<string>();
                     }
+
+                    if (action.after != null || channel.messageIds.isEmpty()) {
+                        D.assert(channel.messageIds.isEmpty() || channel.messageIds.last() == action.after);
+                        for (var i = action.messages.Count-1; i >= 0; i--) {
+                             var channelMessage =
+                                ChannelMessageView.fromChannelMessage(action.messages[i]);
+                             state.channelState.messageDict[channelMessage.id] = channelMessage;
+                             channel.messageIds.Add(channelMessage.id);
+                        }
+                    } else if (action.before != null) {
+                        D.assert(channel.messageIds.first() == action.before);
+                        List<string> ret = new List<string>();
+                        for (var i = action.messages.Count-1; i >= 0; i--) {
+                             var channelMessage =
+                                ChannelMessageView.fromChannelMessage(action.messages[i]);
+                             state.channelState.messageDict[channelMessage.id] = channelMessage;
+                             ret.Add(channelMessage.id);
+                        }
+
+                        for (var i = 0; i < channel.messageIds.Count; i++) {
+                            ret.Add(channel.messageIds[i]);
+                        }
+
+                        channel.messageIds = ret;
+                    }
+
                     break;
                 }
 
