@@ -1,18 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
-using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.gestures;
+using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
@@ -21,6 +21,8 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Avatar = ConnectApp.Components.Avatar;
+using Color = UnityEngine.Color;
+using Icons = ConnectApp.Constants.Icons;
 using Image = Unity.UIWidgets.widgets.Image;
 using Transform = Unity.UIWidgets.widgets.Transform;
 
@@ -92,15 +94,20 @@ namespace ConnectApp.screens {
         }
     }
 
-    class _ChannelScreenState : State<ChannelScreen> {
+    class _ChannelScreenState : TickerProviderStateMixin<ChannelScreen> {
         readonly TextEditingController _textController = new TextEditingController();
         readonly FocusNode _focusNode = new FocusNode();
         readonly RefreshController _refreshController = new RefreshController();
+        TabController _emojiTabController;
 
         Dictionary<string, string> _jobRole;
         float messageBubbleWidth = 0;
         long lastSavedNonce;
         bool showEmojiBoard = false;
+
+        float inputBarHeight {
+            get { return this.showEmojiBoard ? 83 + 244 : 83; }
+        }
 
         public override void initState() {
             base.initState();
@@ -111,6 +118,9 @@ namespace ConnectApp.screens {
             if (this.widget.viewModel.messages.isNotEmpty()) {
                 // this.widget.actionModel.markAsRead(this.widget.viewModel.messages.last().nonce);
             }
+            this._emojiTabController = new TabController(
+                length: (this.emojiList.Count-1) / 24 + 1,
+                vsync: this);
         }
 
         public override void deactivate() {
@@ -123,11 +133,39 @@ namespace ConnectApp.screens {
 
         public override void dispose() {
             this._textController.dispose();
+            this._emojiTabController.dispose();
             base.dispose();
         }
 
         public override Widget build(BuildContext context) {
             this.messageBubbleWidth = MediaQuery.of(context).size.width * 0.7f;
+            Widget newMessage = Positioned.fill(
+                child: new Align(
+                    alignment: Alignment.bottomCenter,
+                    child: new Transform(
+                        transform: Matrix3.makeTrans(0, -(this.inputBarHeight + 16)),
+                        child: new Container(
+                            height: 40,
+                            decoration: new BoxDecoration(
+                                color: CColors.Error,
+                                borderRadius: BorderRadius.all(20),
+                                boxShadow: new List<BoxShadow> {
+                                    new BoxShadow(
+                                        color: CColors.Black.withOpacity(0.2f),
+                                        blurRadius: 8,
+                                        spreadRadius: 0,
+                                        offset: new Offset(0, 2))
+                                }
+                            ),
+                            padding: EdgeInsets.symmetric(9, 16),
+                            child: new Text(
+                                $"{CStringUtils.CountToString(this.widget.viewModel.newMessageCount)}条新消息未读",
+                                style: CTextStyle.PRegularWhite.copyWith(height: 1.2f)
+                            )
+                        )
+                    )
+                )
+            );
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
@@ -144,35 +182,7 @@ namespace ConnectApp.screens {
                                 )
                             ),
                             this._buildInputBar(),
-                            this.widget.viewModel.newMessageCount == 0
-                                ? (Widget) new Container()
-                                : Positioned.fill(
-                                    child: new Align(
-                                        alignment: Alignment.bottomCenter,
-                                        child: new Transform(
-                                            transform: Matrix3.makeTrans(0, -99),
-                                            child: new Container(
-                                                height: 40,
-                                                decoration: new BoxDecoration(
-                                                    color: CColors.Error,
-                                                    borderRadius: BorderRadius.all(20),
-                                                    boxShadow: new List<BoxShadow> {
-                                                        new BoxShadow(
-                                                            color: CColors.Black.withOpacity(0.2f),
-                                                            blurRadius: 8,
-                                                            spreadRadius: 0,
-                                                            offset: new Offset(0, 2))
-                                                    }
-                                                ),
-                                                padding: EdgeInsets.symmetric(9, 16),
-                                                child: new Text(
-                                                    $"{CStringUtils.CountToString(this.widget.viewModel.newMessageCount)}条新消息未读",
-                                                    style: CTextStyle.PRegularWhite.copyWith(height: 1.2f)
-                                                )
-                                            )
-                                        )
-                                    )
-                                ),
+                            this.widget.viewModel.newMessageCount == 0 ? new Container() : newMessage,
                         }
                     )
                 )
@@ -203,7 +213,7 @@ namespace ConnectApp.screens {
                     child: new GlobalLoading()
                 );
             }
-            
+
             List<Widget> messages = new List<Widget>();
             for (int i = 0; i < this.widget.viewModel.messages.Count; i++) {
                 var message = this.widget.viewModel.messages[i];
@@ -224,9 +234,9 @@ namespace ConnectApp.screens {
                     onRefresh: this._onRefresh,
                     onOffsetChange: this._handleScrollListener,
                     reverse: true,
-                    headerBuilder: (context, mode) => new SmartRefreshHeader(mode), 
+                    headerBuilder: (context, mode) => new SmartRefreshHeader(mode),
                     child: ListView.builder(
-                        padding: EdgeInsets.only(top: 16, bottom: 99),
+                        padding: EdgeInsets.only(top: 16, bottom: this.inputBarHeight + 16),
                         itemCount: this.widget.viewModel.messages.Count,
                         itemBuilder: (context, index) => {
                             index = this.widget.viewModel.messages.Count - 1 - index;
@@ -251,6 +261,7 @@ namespace ConnectApp.screens {
             if (message.deleted) {
                 return new Container();
             }
+
             Widget avatar = new Container(
                 padding: EdgeInsets.symmetric(0, 10),
                 child: Avatar.User(message.author, size: 40)
@@ -272,42 +283,10 @@ namespace ConnectApp.screens {
                     );
                     break;
                 case ChannelMessageType.file:
-#if false
-                    messageContent = new Container(
-                        padding: EdgeInsets.symmetric(12, 16),
-                        child: new Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: new List<Widget> {
-                                new Expanded(
-                                    child: new Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: new List<Widget> {
-                                            new Text(message.content, style: CTextStyle.PLargeBody),
-                                            new Container(height: 4),
-                                            new Text(CStringUtils.FileSize(message.fileSize),
-                                                style: CTextStyle.PSmallBody4)
-                                        }
-                                    )
-                                ),
-                                new Container(width: 16),
-                                new Container(
-                                    decoration: new BoxDecoration(
-                                        color: CColors.VeryLightPinkThree,
-                                        borderRadius: BorderRadius.all(16)
-                                    ),
-                                    width: 41.9f,
-                                    height: 47.9f,
-                                    child: Image.asset("image/pdf-file-icon")
-                                )
-                            }
-                        )
-                    );
-#else
                     messageContent = new Container(
                         padding: EdgeInsets.symmetric(12, 16),
                         child: new Text("[你收到一个文件，请在浏览器上查看]", style: CTextStyle.PLargeBody5)
                     );
-#endif
                     break;
                 case ChannelMessageType.embed:
                     var content = message.content;
@@ -326,6 +305,7 @@ namespace ConnectApp.screens {
                             }
                         ));
                     }
+
                     messageContent = new Container(
                         padding: EdgeInsets.all(12),
                         child: new Column(
@@ -372,6 +352,7 @@ namespace ConnectApp.screens {
                     );
                     break;
             }
+
             messageContent = new Column(
                 crossAxisAlignment: left ? CrossAxisAlignment.start : CrossAxisAlignment.end,
                 children: new List<Widget> {
@@ -430,74 +411,82 @@ namespace ConnectApp.screens {
 
         Widget _buildInputBar() {
             Widget ret = new Container(
-                padding: EdgeInsets.only(16, right: 10, bottom: 34),
+                padding: EdgeInsets.only(bottom: 34),
                 decoration: new BoxDecoration(
                     border: new Border(new BorderSide(CColors.Separator)),
-                    color: CColors.TabBarBg
+                    color: this.showEmojiBoard ? CColors.White : CColors.TabBarBg
                 ),
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: new List<Widget> {
-                        new Expanded(
-                            child: new Container(
-                                padding: EdgeInsets.symmetric(0, 16),
-                                height: 32,
-                                decoration: new BoxDecoration(
-                                    CColors.Separator2,
-                                    borderRadius: BorderRadius.all(16)
+                child: new Column(children: new List<Widget> {
+                        new Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: new List<Widget> {
+                                new Container(width: 16),
+                                new Expanded(
+                                    child: new Container(
+                                        padding: EdgeInsets.symmetric(0, 16),
+                                        height: 32,
+                                        decoration: new BoxDecoration(
+                                            CColors.Separator2,
+                                            borderRadius: BorderRadius.all(16)
+                                        ),
+                                        alignment: Alignment.centerLeft,
+                                        child: new InputField(
+                                            // key: _textFieldKey,
+                                            controller: this._textController,
+                                            focusNode: this._focusNode,
+                                            height: 32,
+                                            style: CTextStyle.PRegularBody,
+                                            hintText: "说点想法…",
+                                            hintStyle: CTextStyle.PRegularBody4,
+                                            keyboardType: TextInputType.multiline,
+                                            maxLines: 1,
+                                            cursorColor: CColors.PrimaryBlue,
+                                            textInputAction: TextInputAction.send,
+                                            onSubmitted: this._handleSubmit
+                                        )
+                                    )
                                 ),
-                                alignment: Alignment.centerLeft,
-                                child: new InputField(
-                                    // key: _textFieldKey,
-                                    controller: this._textController,
-                                    focusNode: this._focusNode,
-                                    height: 32,
-                                    style: CTextStyle.PRegularBody,
-                                    hintText: "说点想法…",
-                                    hintStyle: CTextStyle.PRegularBody4,
-                                    keyboardType: TextInputType.multiline,
-                                    maxLines: 1,
-                                    cursorColor: CColors.PrimaryBlue,
-                                    textInputAction: TextInputAction.send,
-                                    onSubmitted: this._handleSubmit
-                                )
-                            )
+                                new CustomButton(
+                                    padding: EdgeInsets.zero,
+                                    onPressed: () => { this.setState(() => {
+                                        this.showEmojiBoard = !this.showEmojiBoard;
+                                    }); },
+                                    child: new Container(
+                                        width: 44,
+                                        height: 49,
+                                        child: new Center(
+                                            child: new Icon(Icons.mood, size: 28, color: CColors.Icon)
+                                        )
+                                    )
+                                ),
+                                new CustomButton(
+                                    padding: EdgeInsets.zero,
+                                    onPressed: () => { },
+                                    child: new Container(
+                                        width: 44,
+                                        height: 49,
+                                        child: new Center(
+                                            child: new Icon(Icons.outline_photo_size_select_actual, size: 28,
+                                                color: CColors.Icon)
+                                        )
+                                    )
+                                ),
+                                new Container(width: 10)
+                            }
                         ),
-                        new CustomButton(
-                            padding: EdgeInsets.zero,
-                            onPressed: () => {
-                                this.setState(() => { this.showEmojiBoard = true; });
-                            },
-                            child: new Container(
-                                width: 44,
-                                height: 49,
-                                child: new Center(
-                                    child: new Icon(Icons.mood, size: 28, color: CColors.Icon)
-                                )
-                            )
-                        ),
-                        new CustomButton(
-                            padding: EdgeInsets.zero,
-                            onPressed: () => { },
-                            child: new Container(
-                                width: 44,
-                                height: 49,
-                                child: new Center(
-                                    child: new Icon(Icons.outline_photo_size_select_actual, size: 28,
-                                        color: CColors.Icon)
-                                )
-                            )
-                        ),
+                        this.showEmojiBoard ? this._buildEmojiBoard() : new Container()
                     }
                 )
             );
 
-            ret = new BackdropFilter(
-                filter: ImageFilter.blur(10, 10),
-                child: ret
-            );
-            
+            if (!this.showEmojiBoard) {
+                ret = new BackdropFilter(
+                    filter: ImageFilter.blur(10, 10),
+                    child: ret
+                );
+            }
+
             ret = new Positioned(
                 left: 0,
                 right: 0,
@@ -506,6 +495,144 @@ namespace ConnectApp.screens {
             );
 
             return ret;
+        }
+
+        List<int> emojiList = new List<int> {
+            0x1F600, 0x1F603, 0x1F604, 0x1F601, 0x1F606, 0x1F605, 0x1F602, 0x1F923, 0x1F62D,
+            0x1F617, 0x1F619, 0x1F61A, 0x1F618, 0x263A, 0x1F60A, 0x1F970, 0x1F60D, 0x1F929,
+            0x1F917, 0x1F642, 0x1F643, 0x1F609, 0x1F60B, 0x1F61B, 0x1F61D, 0x1F61C, 0x1F92A,
+            0x1F914, 0x1F928, 0x1F9D0, 0x1F644, 0x1F60F, 0x1F612, 0x1F623, 0x1F614, 0x1F60C,
+            0x2639, 0x1F641, 0x1F615, 0x1F61F, 0x1F97A, 0x1F62C, 0x1F910, 0x1F92B, 0x1F92D,
+            0x1F630, 0x1F628, 0x1F627, 0x1F626, 0x1F62E, 0x1F62F, 0x1F632, 0x1F633, 0x1F92F,
+            0x1F622, 0x1F625, 0x1F613, 0x1F61E, 0x1F616, 0x1F629, 0x1F62B, 0x1F635, 0x1F631,
+            0x1F922, 0x1F92E, 0x1F927, 0x1F637, 0x1F974, 0x1F912, 0x1F915, 0x1F975, 0x1F976,
+            0x1F636, 0x1F610, 0x1F611, 0x1F624, 0x1F924, 0x1F634, 0x1F62A, 0x1F607, 0x1F920,
+            0x1F973, 0x1F60E, 0x1F913, 0x1F925
+        };
+
+        Widget _buildEmojiBoard() {
+            List<Widget> emojiPages = new List<Widget>();
+            for (int i = 0; i < this.emojiList.Count; i += 24) {
+                List<Widget> rows = new List<Widget>();
+                for (int j = 0; j < 3; j++) {
+                    List<Widget> emojis = new List<Widget>();
+                    emojis.Add(new Flexible(child: new Container()));
+                    for (int k = 0; k < 8; k++) {
+                        int index = i + j * 8 + k;
+                        string text;
+                        if (index < this.emojiList.Count) {
+                            if (this.emojiList[index] > 0x10000) {
+                                text = char.ConvertFromUtf32(this.emojiList[index]);
+                            }
+                            else {
+                                text = $"{(char) this.emojiList[index]}";
+                            }
+                        }
+                        else {
+                            text = "";
+                        }
+
+                        emojis.Add(new GestureDetector(
+                            onTap: text != ""
+                                ? (GestureTapCallback) (() => {
+                                    var selection = this._textController.selection;
+                                    this._textController.text =
+                                        this._textController.text.Substring(0, selection.start) +
+                                        text +
+                                        this._textController.text.Substring(selection.end);
+                                    this._textController.selection =
+                                        TextSelection.collapsed(selection.start + text.Length);
+                                })
+                                : null,
+                            child: new Container(
+                                width: 40,
+                                height: 40,
+                                padding: k == 0 ? EdgeInsets.zero : EdgeInsets.only(left: 2),
+                                child: new Center(
+                                    child: new Text(
+                                        text,
+                                        style: new TextStyle(fontSize: 24, height: 1)
+                                    )
+                                )
+                            )
+                        ));
+                    }
+                    emojis.Add(new Flexible(child: new Container()));
+                    if (j > 0) {
+                        rows.Add(new Container(height: 8));
+                    }
+                    rows.Add(new Row(
+                        children: emojis
+                    ));
+                }
+                Widget page = new Container(
+                    width: MediaQuery.of(this.context).size.width,
+                    child: new Column(
+                        children: rows
+                    )
+                );
+                emojiPages.Add(page);
+            }
+            return new Column(
+                children: new List<Widget> {
+                    new Container(
+                        decoration: new BoxDecoration(
+                            color: CColors.White,
+                            border: new Border(new BorderSide(color: CColors.Separator))
+                        ),
+                        padding: EdgeInsets.symmetric(24),
+                        child: new Column(
+                            children: new List<Widget> {
+                                new Container(
+                                    height: 136,
+                                    child: new TabBarView(
+                                        controller: this._emojiTabController,
+                                        children: emojiPages
+                                    )
+                                ),
+                                new Container(height: 16),
+                                new CustomTabPageSelector(
+                                    controller: this._emojiTabController,
+                                    indicatorSize: 8,
+                                    selectedColor: CColors.PrimaryBlue,
+                                    color: CColors.Disable2
+                                )
+                            } 
+                        )
+                    ),
+                    new Container(
+                        color: CColors.EmojiBottomBar,
+                        height: 36,
+                        child: new Row(
+                            children: new List<Widget> {
+                                new Container(width: 16),
+                                new GestureDetector(
+                                    child: new Container(height: 36, width: 44,
+                                        child: new Center(child: new Icon(Icons.outline_time, size: 20)))
+                                ),
+                                new GestureDetector(
+                                    child: new Container(height: 36, width: 44,
+                                        decoration: new BoxDecoration(color: CColors.White),
+                                        child: new Center(child: new Text(char.ConvertFromUtf32(0x1f642),
+                                            style: new TextStyle(fontSize: 24, height: 1))))
+                                ),
+                                new Expanded(child: new Container()),
+                                new GestureDetector(
+                                    child: new Container(
+                                        width: 60, height: 16,
+                                        decoration: new BoxDecoration(
+                                            border: new Border(left: new BorderSide(color: CColors.Separator))
+                                        ),
+                                        child: new Center(
+                                            child: new Text("发送",
+                                                style: CTextStyle.PMediumBlue.copyWith(height: 1)))
+                                    )
+                                )
+                            }
+                        )
+                    )
+                }
+            );
         }
 
         void _handleSubmit(string text) {
