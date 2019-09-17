@@ -11,11 +11,13 @@ using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using RSG;
+using Unity.UIWidgets.debugger;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
@@ -26,10 +28,6 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, MessageScreenViewModel>(
                 converter: state => {
-                    for (int i = 0; i < state.channelState.joinedChannels.Count; i++) {
-                        Debug.Log(state.channelState.channelDict[state.channelState.joinedChannels[i]].name);
-                        Debug.Log(state.channelState.channelDict[state.channelState.joinedChannels[i]].unread);
-                    }
                     return new MessageScreenViewModel {
                         notificationLoading = state.notificationState.loading,
                         page = state.notificationState.page,
@@ -83,16 +81,17 @@ namespace ConnectApp.screens {
                         fetchPublicChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchPublicChannels()),
                         fetchJoinedChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchJoinedChannels()),
                         fetchMessages = () => {
-                            Debug.Log($"Fetching messages from message screen {viewModel.joinedChannels.Count}");
                             for (int i = 0; i < viewModel.joinedChannels.Count; i++) {
                                 var channel = viewModel.joinedChannels[i];
-                                Debug.Log($"Fetching channel messages {channel.id}: after: {channel.messageIds.isNotEmpty()}");
-                                dispatcher.dispatch<IPromise>(
-                                    Actions.fetchChannelMessages(channel.id, null, 
-                                        channel.messageIds.isNotEmpty()
-                                        ? channel.messageIds.last()
-                                        : null));
+                                if (!channel.upToDate) {
+                                    dispatcher.dispatch<IPromise>(
+                                        Actions.fetchChannelMessages(channel.id, null,
+                                            channel.messageIds.isNotEmpty()
+                                            ? channel.messageIds.last()
+                                            : null));
+                                }
                             }
+
                         }
                     };
                     return new MessageScreen(viewModel, actionModel);
@@ -146,6 +145,23 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             base.build(context: context);
+            Widget viewAll = new Row(
+                children: new List<Widget> {
+                    new Text(
+                        "查看全部",
+                        style: new TextStyle(
+                            fontSize: 12,
+                            fontFamily: "Roboto-Regular",
+                            color: CColors.TextBody4
+                        )
+                    ),
+                    new Icon(
+                        icon: Icons.chevron_right,
+                        size: 20,
+                        color: Color.fromRGBO(199, 203, 207, 1)
+                    )
+                }
+            );
             Widget content = new ListView(
                 children: new List<Widget> {
                     this.widget.viewModel.joinedChannels.isEmpty()
@@ -201,23 +217,7 @@ namespace ConnectApp.screens {
                                         onTap: () => { this.widget.actionModel.pushToDiscoverChannels(); },
                                         child: new Container(
                                             color: CColors.Transparent,
-                                            child: new Row(
-                                                children: new List<Widget> {
-                                                    new Text(
-                                                        "查看全部",
-                                                        style: new TextStyle(
-                                                            fontSize: 12,
-                                                            fontFamily: "Roboto-Regular",
-                                                            color: CColors.TextBody4
-                                                        )
-                                                    ),
-                                                    new Icon(
-                                                        icon: Icons.chevron_right,
-                                                        size: 20,
-                                                        color: Color.fromRGBO(199, 203, 207, 1)
-                                                    )
-                                                }
-                                            )
+                                            child: viewAll
                                         )
                                     )
                             }
@@ -388,11 +388,7 @@ namespace ConnectApp.screens {
                     ? (Widget) new Icon(
                         Icons.notifications_off,
                         size: 16, color: CColors.LighBlueGrey)
-                    : new NotificationDot(
-                        channel.unread > 99
-                            ? ""
-                            : $"{channel.unread}"
-                    )
+                    : new NotificationDot(CStringUtils.NotificationText(channel.unread))
             );
 
             icon = new Container(

@@ -14,20 +14,17 @@ namespace ConnectApp.Utils {
                 return;
             }
             var infoStr = JsonConvert.SerializeObject(unread);
-            Debug.Log($"Unread info: {infoStr}");
             PlayerPrefs.SetString(_unreadAfter, infoStr);
             PlayerPrefs.Save();
         }
         
         public static Dictionary<string, long> getUnread() {
             var info = PlayerPrefs.GetString(_unreadAfter);
-            Debug.Log($"Unread info: {info}");
             if (info.isNotEmpty()) {
                 try {
                     return JsonConvert.DeserializeObject<Dictionary<string, long>>(info);
                 }
                 catch (Exception e) {
-                    Debug.Log("Unable to read channel unread message info");
                     return new Dictionary<string, long>();
                 }
             }

@@ -77,6 +77,14 @@ namespace ConnectApp.Utils {
             return startTime.AddMilliseconds(timespan);
         }
 
+        public static string DateTimeString(this DateTime time) {
+            return time.Date == DateTime.Today
+                ? time.ToString("HH:mm")
+                : time.Year == DateTime.Today.Year
+                    ? time.ToString("M月d日 HH:mm")
+                    : time.ToString("yyyy年M月d日 HH:mm");
+        }
+
         public static EventStatus GetEventStatus(TimeMap begin) {
             if (begin == null) {
                 return EventStatus.future;

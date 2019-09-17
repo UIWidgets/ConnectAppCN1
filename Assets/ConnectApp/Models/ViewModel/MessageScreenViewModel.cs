@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Utils;
@@ -37,6 +38,7 @@ namespace ConnectApp.Models.ViewModel {
         public bool atAll = false;
         public bool hasMore = false;
         public bool hasMoreNew = false;
+        public bool upToDate = true;
         public List<string> memberIds;
 
         public static ChannelView fromChannel(Channel channel) {
@@ -150,6 +152,7 @@ namespace ConnectApp.Models.ViewModel {
                 content = content,
                 fileSize = type == ChannelMessageType.file ? message.attachments[0].size : 0,
                 time = DateConvert.DateTimeFromNonce(message.nonce),
+                timeString = DateConvert.DateTimeFromNonce(message.nonce).ToString("HH:mm"),
                 attachments = message.attachments,
                 type = type,
                 mentionEveryone = message.mentionEveryone,
@@ -197,6 +200,7 @@ namespace ConnectApp.Models.ViewModel {
                 content = content,
                 fileSize = type == ChannelMessageType.file ? message.attachments[0].size : 0,
                 time = DateConvert.DateTimeFromNonce(message.nonce),
+                timeString = DateConvert.DateTimeFromNonce(message.nonce).ToString("HH:mm"),
                 attachments = message.attachments,
                 type = type,
                 mentionEveryone = message.mentionEveryone,

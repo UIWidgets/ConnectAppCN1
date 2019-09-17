@@ -3,6 +3,8 @@ using ConnectApp.Api;
 using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
+using ConnectApp.Models.ViewModel;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
 using UnityEngine;
 
@@ -34,6 +36,9 @@ namespace ConnectApp.redux.actions {
                             pages = channelResponse.pages,
                             total = channelResponse.total
                         });
+                        for (int i = 0; i < channelResponse.items.Count; i++) {
+                            dispatcher.dispatch(fetchChannelMessages(channelResponse.items[i].id));
+                        }
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchJoinedChannelsFailureAction());

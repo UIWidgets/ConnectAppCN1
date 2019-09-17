@@ -2296,10 +2296,7 @@ namespace ConnectApp.redux.reducers {
                     channel.hasMore = action.hasMore;
                     channel.hasMoreNew = action.hasMoreNew;
 
-                    long unreadAfter = 0;
-                    if (state.channelState.unreadDict.TryGetValue(action.channelId, out unreadAfter)) {
-                        Debug.Log($"Unread after: {unreadAfter}");
-                    }
+                    state.channelState.unreadDict.TryGetValue(action.channelId, out long unreadAfter);
 
                     if (action.after != null || channel.messageIds.isEmpty()) {
                         D.assert(channel.messageIds.isEmpty() || channel.messageIds.last() == action.after);
@@ -2333,6 +2330,11 @@ namespace ConnectApp.redux.reducers {
                         channel.messageIds = ret;
                     }
                     state.channelState.messageLoading = false;
+                    state.channelState.totalUnread = 0;
+                    for (int i = 0; i < state.channelState.joinedChannels.Count; i++) {
+                        state.channelState.totalUnread += state.channelState.getJoinedChannel(i).unread;
+                    }
+                    channel.upToDate = state.channelState.upToDate(channel.id);
 
                     break;
                 }

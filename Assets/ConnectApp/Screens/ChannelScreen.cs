@@ -108,7 +108,7 @@ namespace ConnectApp.screens {
                 : null;
             this.widget.actionModel.fetchMessages(null, id);
             if (this.widget.viewModel.messages.isNotEmpty()) {
-                this.widget.actionModel.markAsRead(this.widget.viewModel.messages.last().nonce);
+                // this.widget.actionModel.markAsRead(this.widget.viewModel.messages.last().nonce);
             }
         }
 
@@ -220,7 +220,7 @@ namespace ConnectApp.screens {
                 child: new SmartRefresher(
                     controller: this._refreshController,
                     enablePullDown: false,
-                    enablePullUp: this.widget.viewModel.hasMore,
+                    enablePullUp: true,
                     onRefresh: this._onRefresh,
                     onOffsetChange: this._handleScrollListener,
                     reverse: true,
@@ -408,11 +408,7 @@ namespace ConnectApp.screens {
                             padding: EdgeInsets.only(bottom: 16),
                             child: new Center(
                                 child: new Text(
-                                    message.time.Date == DateTime.Today
-                                        ? message.time.ToString("HH:mm")
-                                        : message.time.Year == DateTime.Today.Year
-                                            ? message.time.ToString("M月d日 HH:mm")
-                                            : message.time.ToString("yyyy年M月d日 HH:mm"),
+                                    message.time.DateTimeString(),
                                     style: CTextStyle.PSmallBody5
                                 )
                             )
