@@ -13,7 +13,7 @@ namespace ConnectApp.screens {
                 color: CColors.White,
                 child: new CustomSafeArea(
                     bottom: false,
-                    child: new CustomTabBar(
+                    child: new CustomTabBarConnector(
                         new List<Widget> {
                             new ArticlesScreenConnector(),
                             new EventsScreen(),
