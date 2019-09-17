@@ -100,6 +100,7 @@ namespace ConnectApp.screens {
         Dictionary<string, string> _jobRole;
         float messageBubbleWidth = 0;
         long lastSavedNonce;
+        bool showEmojiBoard = false;
 
         public override void initState() {
             base.initState();
@@ -216,7 +217,6 @@ namespace ConnectApp.screens {
 
             Widget ret = new Container(
                 color: CColors.White,
-                padding: EdgeInsets.only(top: 16, bottom: 99),
                 child: new SmartRefresher(
                     controller: this._refreshController,
                     enablePullDown: false,
@@ -226,7 +226,7 @@ namespace ConnectApp.screens {
                     reverse: true,
                     headerBuilder: (context, mode) => new SmartRefreshHeader(mode), 
                     child: ListView.builder(
-                        padding: EdgeInsets.symmetric(16, 0),
+                        padding: EdgeInsets.only(top: 16, bottom: 99),
                         itemCount: this.widget.viewModel.messages.Count,
                         itemBuilder: (context, index) => {
                             index = this.widget.viewModel.messages.Count - 1 - index;
@@ -466,7 +466,9 @@ namespace ConnectApp.screens {
                         ),
                         new CustomButton(
                             padding: EdgeInsets.zero,
-                            onPressed: () => { },
+                            onPressed: () => {
+                                this.setState(() => { this.showEmojiBoard = true; });
+                            },
                             child: new Container(
                                 width: 44,
                                 height: 49,
@@ -500,7 +502,6 @@ namespace ConnectApp.screens {
                 left: 0,
                 right: 0,
                 bottom: 0,
-                height: 83,
                 child: ret
             );
 
