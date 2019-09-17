@@ -309,7 +309,7 @@ namespace ConnectApp.Utils {
                         return;
                     }
                     var content = Encoding.UTF8.GetString (bytes);
-                    //Debug.Log(content);
+                    //Debug.Log("On Message ==>" + content);
                     var response = JsonConvert.DeserializeObject<IFrame>(content);
                     
                     if (response.sequence > 0) {
@@ -326,6 +326,8 @@ namespace ConnectApp.Utils {
                                     var sessionResponse = (SocketResponseSession) response;
                                     this.sessionId = sessionResponse.data.sessionId;
                                     data = sessionResponse.data;
+                                    
+                                    //Debug.Log(content);
                                     break;
                                 case DispatchMsgType.RESUMED:
                                     break;
@@ -344,6 +346,19 @@ namespace ConnectApp.Utils {
                                 case DispatchMsgType.MESSAGE_DELETE:
                                     var messageResponse = (SocketResponseMessage) response;
                                     data = messageResponse.data;
+                                    break;
+                                case DispatchMsgType.PING:
+                                    var pingResponse = (SocketResponsePing) response;
+                                    data = pingResponse.data;
+                                    break;
+                                case DispatchMsgType.PRESENCE_UPDATE:
+                                    var presenceUpdateResponse = (SocketResponsePresentUpdate) response;
+                                    data = presenceUpdateResponse.data;
+                                    break;
+                                case DispatchMsgType.CHANNEL_MEMBER_ADD:
+                                case DispatchMsgType.CHANNEL_MEMBER_REMOVE:
+                                    var memberChangeResponse = (SocketResponseChannelMemberChange) response;
+                                    data = memberChangeResponse.data;
                                     break;
                             }
                         }

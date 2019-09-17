@@ -53,7 +53,8 @@ namespace ConnectApp.Api {
                             var sessionData = (SocketResponseSessionData) data;
                             var sessionId = sessionData.sessionId;
                             
-                            StoreProvider.store.dispatcher.dispatch(new PushReadyAction());
+                            StoreProvider.store.dispatcher.dispatch(new PushReadyAction {
+                                readyData = sessionData});
                             break;
                         case DispatchMsgType.RESUMED:
                             break;
@@ -67,15 +68,40 @@ namespace ConnectApp.Api {
                         case DispatchMsgType.MESSAGE_UPDATE:
                             var updateMessageData = (SocketResponseMessageData) data;
                             
-                            StoreProvider.store.dispatcher.dispatch(new PushNewMessageAction {
+                            StoreProvider.store.dispatcher.dispatch(new PushModifyMessageAction {
                                 messageData = updateMessageData
                             });
                             break;
                         case DispatchMsgType.MESSAGE_DELETE:
                             var deleteMessageData = (SocketResponseMessageData) data;
                             
-                            StoreProvider.store.dispatcher.dispatch(new PushNewMessageAction {
+                            StoreProvider.store.dispatcher.dispatch(new PushDeleteMessageAction {
                                 messageData = deleteMessageData
+                            });
+                            break;
+                        case DispatchMsgType.PING:
+                            //var pingData = (SocketResponsePingData) data;
+                            //do nothing
+                            break;
+                        case DispatchMsgType.PRESENCE_UPDATE:
+                            var presenceUpdateData = (SocketResponsePresentUpdateData) data;
+
+                            StoreProvider.store.dispatcher.dispatch(new PushPresentUpdateAction {
+                                presentUpdateData = presenceUpdateData
+                            });
+                            break;
+                        case DispatchMsgType.CHANNEL_MEMBER_ADD:
+                            var memberAddData = (SocketResponseChannelMemberChangeData) data;
+                            
+                            StoreProvider.store.dispatcher.dispatch(new PushChannelAddMemberAction {
+                                memberData = memberAddData
+                            });
+                            break;
+                        case DispatchMsgType.CHANNEL_MEMBER_REMOVE:
+                            var memberRemoveData = (SocketResponseChannelMemberChangeData) data;
+                            
+                            StoreProvider.store.dispatcher.dispatch(new PushChannelRemoveMemberAction {
+                                memberData = memberRemoveData
                             });
                             break;
                     }

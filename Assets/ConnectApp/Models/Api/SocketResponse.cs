@@ -13,9 +13,10 @@ namespace ConnectApp.Models.Api {
         public const string MESSAGE_CREATE = "MESSAGE_CREATE";
         public const string MESSAGE_UPDATE = "MESSAGE_UPDATE";
         public const string MESSAGE_DELETE = "MESSAGE_DELETE";
-
-        public const string CHANNEL_MEMBER_ADD = null;
-        public const string CHANNEL_MEMBER_REMOVE = null;
+        public const string PRESENCE_UPDATE = "PRESENCE_UPDATE";
+        public const string PING = "PING";
+        public const string CHANNEL_MEMBER_ADD = "CHANNEL_MEMBER_ADD";
+        public const string CHANNEL_MEMBER_REMOVE = "CHANNEL_MEMBER_REMOVE";
     }
 
     public class FrameConverter : JsonConverter {
@@ -65,6 +66,31 @@ namespace ConnectApp.Models.Api {
                         sequence = int.Parse(jObject["s"].ToString()),
                         data = createMsgData
                     };
+                case DispatchMsgType.PING:
+                    var pingMsgData = serializer.Deserialize<SocketResponsePingData>(dataReader);
+                    return new SocketResponsePing {
+                        type = type,
+                        opCode = int.Parse(jObject["op"].ToString()),
+                        sequence = int.Parse(jObject["s"].ToString()),
+                        data = pingMsgData
+                    };
+                case DispatchMsgType.PRESENCE_UPDATE:
+                    var presenceUpdateData = serializer.Deserialize<SocketResponsePresentUpdateData>(dataReader);
+                    return new SocketResponsePresentUpdate {
+                        type = type,
+                        opCode = int.Parse(jObject["op"].ToString()),
+                        sequence = int.Parse(jObject["s"].ToString()),
+                        data = presenceUpdateData
+                    };
+                case DispatchMsgType.CHANNEL_MEMBER_ADD:
+                case DispatchMsgType.CHANNEL_MEMBER_REMOVE:
+                    var memberChangeData = serializer.Deserialize<SocketResponseChannelMemberChangeData>(dataReader);
+                    return new SocketResponseChannelMemberChange {
+                        type = type,
+                        opCode = int.Parse(jObject["op"].ToString()),
+                        sequence = int.Parse(jObject["s"].ToString()),
+                        data = memberChangeData
+                    };
                 default:
                     var defaultData = serializer.Deserialize<SocketResponseNullData>(dataReader);
                     return new SocketResponseNull {
@@ -109,6 +135,62 @@ namespace ConnectApp.Models.Api {
     
     public class SocketResponseSessionData : SocketResponseDataBase {
         public string sessionId;
+        public string userId;
+        public List<ChannelReadState> readState;
+        public List<ChannelMessageLite> lastMessages;
+        public List<NormalChannelLite> publicChannels;
+        public List<NormalChannelLite> lobbyChannels;
+    }
+
+    [Serializable]
+    public class ChannelReadState {
+        public string channelId;
+        public string lastMessageId;
+        public string lastMentionId;
+        public int mentionCount;
+    }
+
+    public class NormalChannelLite {
+        public string id;
+        public string workspaceId;
+        public string type;
+        public string liveChannelId;
+        public bool live;
+        public string groupId;
+        public string thumbnail;
+        public int commentCount;
+        public string name;
+        public string topic;
+        public List<ChannelTag> tags;
+        public int memberCount;
+        public int onlineMemberCount;
+        public bool isArchived;
+        public bool isHidden;
+        [JsonProperty("readonly")] public bool Readonly;
+        public bool isMute;
+        public string lastMessageId;
+    }
+
+    public class ChannelTag {
+        public string id;
+        public string type;
+        public string name;
+    }
+
+    public class ChannelMessageLite {
+        public string id;
+        public string type;
+        public string channelId;
+        public MessageUserLite author;
+        public string content;
+        public string nonce;
+        public bool mentionEveryone;
+        public List<MessageUserLite> mentions;
+        public List<Attachment> attachments;
+    }
+
+    public class MessageUserLite {
+        public string id;
     }
     
     public class SocketResponseSession : Frame<SocketResponseSessionData> {
@@ -137,5 +219,40 @@ namespace ConnectApp.Models.Api {
     }
 
     public class SocketResponseMessage : Frame<SocketResponseMessageData> {
+    }
+
+    public class SocketResponsePresentUpdateData : SocketResponseDataBase {
+        public string userId;
+        public string channelId;
+        public string status;
+    }
+
+    public class SocketResponsePresentUpdate : Frame<SocketResponsePresentUpdateData> {
+    }
+
+    public class SocketResponsePingData : SocketResponseDataBase {
+        public long ts;
+    }
+
+    public class SocketResponsePing : Frame<SocketResponsePingData> {
+        
+    }
+
+    public class SocketResponseChannelMemberChangeData : SocketResponseDataBase {
+        public string id;
+        public string channelId;
+        public string workspaceId;
+        public User user;
+        public string role;
+        public bool isBanned;
+        public bool kicked;
+        public bool left;
+        public bool guideFinished;
+        public bool showTerms;
+        public int memberCount;
+    }
+
+    public class SocketResponseChannelMemberChange : Frame<SocketResponseChannelMemberChangeData> {
+        
     }
 }
