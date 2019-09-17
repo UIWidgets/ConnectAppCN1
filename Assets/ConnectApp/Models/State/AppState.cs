@@ -166,7 +166,8 @@ namespace ConnectApp.Models.State {
                     joinedChannels = new List<string>(),
                     channelDict = new Dictionary<string, ChannelView>(),
                     messageDict = new Dictionary<string, ChannelMessageView>(),
-                    membersDict = new Dictionary<string, ChannelMember>()
+                    membersDict = new Dictionary<string, ChannelMember>(),
+                    unreadDict = ChannelUnreadMessageManager.getUnread() ?? new Dictionary<string, long>()
                 }
             };
         }

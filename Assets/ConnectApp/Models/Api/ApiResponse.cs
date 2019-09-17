@@ -226,13 +226,20 @@ namespace ConnectApp.Models.Api {
         public List<int> pages;
         public int total;
     }
+    
+    [Serializable]
+    public class FetchJoinedChannelsResponse {
+        public List<Channel> items;
+        public int currentPage;
+        public List<int> pages;
+        public int total;
+    }
 
     [Serializable]
     public class FetchChannelMessagesResponse {
         public List<ChannelMessage> items;
-        public int currentPage;
-        public List<int> pages;
-        public int total;
+        public bool hasMore;
+        public bool hasMoreNew;
     }
 
     [Serializable]

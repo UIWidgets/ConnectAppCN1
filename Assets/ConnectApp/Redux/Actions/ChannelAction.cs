@@ -24,6 +24,23 @@ namespace ConnectApp.redux.actions {
                     });
             });
         }
+        
+        public static object fetchJoinedChannels() {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.FetchJoinedChannels().Then(channelResponse => {
+                        dispatcher.dispatch(new JoinedChannelsAction {
+                            channels = channelResponse.items,
+                            currentPage = channelResponse.currentPage,
+                            pages = channelResponse.pages,
+                            total = channelResponse.total
+                        });
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new FetchJoinedChannelsFailureAction());
+                        Debug.Log(error);
+                    });
+            });
+        }
 
         public static object fetchChannelMessages(string channelId, string before = null, string after = null) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
@@ -33,10 +50,7 @@ namespace ConnectApp.redux.actions {
                             channelId = channelId,
                             messages = channelMessagesResponse.items,
                             before = before,
-                            after = after,
-                            currentPage = channelMessagesResponse.currentPage,
-                            pages = channelMessagesResponse.pages,
-                            total = channelMessagesResponse.total
+                            after = after
                         });
                     })
                     .Catch(error => {
@@ -68,15 +82,21 @@ namespace ConnectApp.redux.actions {
         public List<int> pages;
         public int total;
     }
+    
+    public class JoinedChannelsAction {
+        public List<Channel> channels;
+        public int currentPage;
+        public List<int> pages;
+        public int total;
+    }
 
     public class ChannelMessagesAction {
         public string channelId;
         public List<ChannelMessage> messages;
         public string before;
         public string after;
-        public int currentPage;
-        public List<int> pages;
-        public int total;
+        public bool hasMore;
+        public bool hasMoreNew;
     }
 
     public class ChannelMemberAction {
@@ -88,6 +108,12 @@ namespace ConnectApp.redux.actions {
     }
     
     public class FetchPublicChannelsFailureAction : BaseAction {
+    }
+    
+    public class FetchJoinedChannelsSuccessAction : BaseAction {
+    }
+    
+    public class FetchJoinedChannelsFailureAction : BaseAction {
     }
     
     public class FetchChannelMessagesSuccessAction : BaseAction {
@@ -103,6 +129,11 @@ namespace ConnectApp.redux.actions {
     }
 
     public class StartSendChannelMessageAction : RequestAction {
+    }
+
+    public class MarkChannelMessageAsRead : RequestAction {
+        public string channelId;
+        public long nonce;
     }
 
     public class PushReadyAction : BaseAction {

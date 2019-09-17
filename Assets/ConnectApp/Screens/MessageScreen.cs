@@ -26,6 +26,10 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, MessageScreenViewModel>(
                 converter: state => {
+                    for (int i = 0; i < state.channelState.joinedChannels.Count; i++) {
+                        Debug.Log(state.channelState.channelDict[state.channelState.joinedChannels[i]].name);
+                        Debug.Log(state.channelState.channelDict[state.channelState.joinedChannels[i]].unread);
+                    }
                     return new MessageScreenViewModel {
                         notificationLoading = state.notificationState.loading,
                         page = state.notificationState.page,
@@ -33,86 +37,9 @@ namespace ConnectApp.screens {
                         notifications = state.notificationState.notifications,
                         mentions = state.notificationState.mentions,
                         userDict = state.userState.userDict,
-#if false
-                        channelInfo = state.channelState.joinedChannels.Select(ChannelView.fromChannel).ToList(),
-#else
-                        channelInfo = state.channelState.publicChannels.Select(
+                        joinedChannels = state.channelState.joinedChannels.Select(
                             channelId => state.channelState.channelDict[channelId]).ToList(),
-//                        channelInfo = new List<ChannelView> {
-//                            new ChannelView {
-//                                id = "00b6435ce0000002",
-//                                thumbnail =
-//                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-//                                name = "UI Widgets 技术交流",
-//                                members = new List<User>(),
-//                                live = true,
-//                                lastMessage = new ChannelMessageView {
-//                                    content = "kgu: 嗨，大家好",
-//                                    time = DateConvert.DateTimeFromNonce("0604553dcdbfffff"),
-//                                    timeString = DateConvert.DateTimeFromNonce("0604553dcdbfffff").ToString("HH:mm")
-//                                },
-//                                isTop = true,
-//                                atMe = true,
-//                                atAll = true
-//                            },
-//                            new ChannelView {
-//                                id = "00b6435ce0000002",
-//                                thumbnail =
-//                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-//                                name = "游戏开发日常吐槽",
-//                                members = new List<User>(),
-//                                live = true,
-//                                lastMessage = new ChannelMessageView {
-//                                    content = "搬砖大王: 如何使用rider断调试Android",
-//                                    time = DateConvert.DateTimeFromNonce("0604553dcdbfffff"),
-//                                    timeString = DateConvert.DateTimeFromNonce("0604553dcdbfffff").ToString("HH:mm")
-//                                },
-//                                unread = 9,
-//                                atAll = true
-//                            },
-//                            new ChannelView {
-//                                id = "00b6435ce0000002",
-//                                thumbnail =
-//                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-//                                name = "我们都爱玩游戏",
-//                                members = new List<User>(),
-//                                lastMessage = new ChannelMessageView {
-//                                    content = "Vatary: 去年发布的第一季实时动画课程",
-//                                    time = DateConvert.DateTimeFromNonce("0604553dcdbfffff"),
-//                                    timeString = DateConvert.DateTimeFromNonce("0604553dcdbfffff").ToString("HH:mm")
-//                                },
-//                                unread = 99
-//                            },
-//                            new ChannelView {
-//                                id = "00b6435ce0000002",
-//                                thumbnail =
-//                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-//                                name = "今天你学Unity了吗",
-//                                members = new List<User>(),
-//                                lastMessage = new ChannelMessageView {
-//                                    content = "@海边的孙小鱼 视频中的项目可以分为以下几种",
-//                                    time = DateConvert.DateTimeFromNonce("0604553dcdbfffff"),
-//                                    timeString = DateConvert.DateTimeFromNonce("0604553dcdbfffff").ToString("HH:mm")
-//                                },
-//                                unread = 100
-//                            },
-//                            new ChannelView {
-//                                id = "00b6435ce0000002",
-//                                thumbnail =
-//                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-//                                name = "Unity深圳Meetup",
-//                                members = new List<User>(),
-//                                lastMessage = new ChannelMessageView {
-//                                    content = "码农小哥: 这个Demo可以下载吗？",
-//                                    time = DateConvert.DateTimeFromNonce("0604553dcdbfffff"),
-//                                    timeString = DateConvert.DateTimeFromNonce("0604553dcdbfffff").ToString("HH:mm")
-//                                },
-//                                unread = 15,
-//                                isMute = true
-//                            }
-//                        },
-#endif
-                        popularChannelInfo = new List<ChannelView> {
+                        popularChannels = new List<ChannelView> {
                             new ChannelView {
                                 id = "00b6435ce0000002",
                                 thumbnail =
@@ -132,9 +59,9 @@ namespace ConnectApp.screens {
                                 name = "Unity 2020\n校园招聘",
                             }
                         },
-                        discoverChannelInfo = state.channelState.publicChannels
+                        publicChannels = state.channelState.publicChannels
                             .Select(channelId => state.channelState.channelDict[channelId])
-                            .Take(state.channelState.joinedChannels.Count > 0
+                            .Take(state.channelState.publicChannels.Count > 0
                                 ? 8
                                 : state.channelState.publicChannels.Count)
                             .ToList()
@@ -153,7 +80,20 @@ namespace ConnectApp.screens {
                                 channelId = channelId
                             });
                         },
-                        fetchPublicChannels = () => { dispatcher.dispatch<IPromise>(Actions.fetchPublicChannels()); }
+                        fetchPublicChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchPublicChannels()),
+                        fetchJoinedChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchJoinedChannels()),
+                        fetchMessages = () => {
+                            Debug.Log($"Fetching messages from message screen {viewModel.joinedChannels.Count}");
+                            for (int i = 0; i < viewModel.joinedChannels.Count; i++) {
+                                var channel = viewModel.joinedChannels[i];
+                                Debug.Log($"Fetching channel messages {channel.id}: after: {channel.messageIds.isNotEmpty()}");
+                                dispatcher.dispatch<IPromise>(
+                                    Actions.fetchChannelMessages(channel.id, null, 
+                                        channel.messageIds.isNotEmpty()
+                                        ? channel.messageIds.last()
+                                        : null));
+                            }
+                        }
                     };
                     return new MessageScreen(viewModel, actionModel);
                 }
@@ -199,30 +139,23 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             SchedulerBinding.instance.addPostFrameCallback(_ => {
+                this.widget.actionModel.fetchJoinedChannels();
                 this.widget.actionModel.fetchPublicChannels();
             });
-        }
-
-        public override void didChangeDependencies() {
-            base.didChangeDependencies();
-        }
-
-        public override void dispose() {
-            base.dispose();
         }
 
         public override Widget build(BuildContext context) {
             base.build(context: context);
             Widget content = new ListView(
                 children: new List<Widget> {
-                    this.widget.viewModel.channelInfo.isEmpty()
+                    this.widget.viewModel.joinedChannels.isEmpty()
                         ? new Container(
                             padding: EdgeInsets.only(left: 16, right: 16, top: 20),
                             color: CColors.White,
                             child: new Text("热门群聊", style: CTextStyle.H5)
                         )
                         : new Container(),
-                    this.widget.viewModel.channelInfo.isEmpty()
+                    this.widget.viewModel.joinedChannels.isEmpty()
                         ? new Container(
                             padding: EdgeInsets.only(top: 16),
                             color: CColors.White,
@@ -231,7 +164,7 @@ namespace ConnectApp.screens {
                                 child: new Container(
                                     padding: EdgeInsets.only(left: 16),
                                     child: new Row(
-                                        children: this.widget.viewModel.popularChannelInfo.Select(
+                                        children: this.widget.viewModel.popularChannels.Select(
                                             MessageBuildUtils.buildPopularChannelImage
                                         ).ToList()
                                     )
@@ -239,21 +172,21 @@ namespace ConnectApp.screens {
                             )
                         )
                         : new Container(),
-                    this.widget.viewModel.channelInfo.isEmpty()
+                    this.widget.viewModel.joinedChannels.isEmpty()
                         ? (Widget) new Container()
                         : new Column(
-                            children: this.widget.viewModel.channelInfo.Select((channelInfo) => {
+                            children: this.widget.viewModel.joinedChannels.Select((channelInfo) => {
                                 return MessageBuildUtils.buildChannelItem(
                                     channelInfo,
                                     () => this.widget.actionModel.pushToChannel(channelInfo.id));
                             }).ToList()
                         ),
-                    this.widget.viewModel.channelInfo.isEmpty()
+                    this.widget.viewModel.joinedChannels.isEmpty()
                         ? new Container(height: 24, color: CColors.White)
                         : new Container(height: 16),
                     new Container(
                         color: CColors.White,
-                        padding: this.widget.viewModel.channelInfo.isEmpty()
+                        padding: this.widget.viewModel.joinedChannels.isEmpty()
                             ? EdgeInsets.all(16)
                             : EdgeInsets.only(16, 16, 8, 16),
                         child: new Row(
@@ -262,7 +195,7 @@ namespace ConnectApp.screens {
                                 new Expanded(
                                     child: new Container()
                                 ),
-                                this.widget.viewModel.channelInfo.isEmpty()
+                                this.widget.viewModel.joinedChannels.isEmpty()
                                     ? (Widget) new Container()
                                     : new GestureDetector(
                                         onTap: () => { this.widget.actionModel.pushToDiscoverChannels(); },
@@ -291,7 +224,7 @@ namespace ConnectApp.screens {
                         )
                     ),
                     new Column(
-                        children: this.widget.viewModel.discoverChannelInfo.Select(
+                        children: this.widget.viewModel.publicChannels.Select(
                             MessageBuildUtils.buildDiscoverChannelItem
                         ).ToList()
                     ),
@@ -418,75 +351,82 @@ namespace ConnectApp.screens {
 
         public static Widget buildChannelItem(ChannelView channel, Action onTap = null) {
             Widget title = new Text(channel.name, style: CTextStyle.PLargeMedium);
+            
+            Widget message = new RichText(
+                text: new TextSpan(
+                    channel.atMe
+                        ? "[有人@我] "
+                        : channel.atAll
+                            ? "[@所有人] "
+                            : "",
+                    children: new List<TextSpan> {
+                        new TextSpan(channel.lastMessage.content ?? "",
+                            style: CTextStyle.PRegularBody4
+                        )
+                    },
+                    style: CTextStyle.PRegularError
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1);
+
+            Widget body = new Container(
+                padding: EdgeInsets.only(left: 16),
+                child: new Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: new List<Widget> {
+                        title,
+                        new Expanded(
+                            child: message
+                        )
+                    }
+                )
+            );
+            
+            Widget icon = new Align(
+                alignment: Alignment.centerRight,
+                child: channel.isMute
+                    ? (Widget) new Icon(
+                        Icons.notifications_off,
+                        size: 16, color: CColors.LighBlueGrey)
+                    : new NotificationDot(
+                        channel.unread > 99
+                            ? ""
+                            : $"{channel.unread}"
+                    )
+            );
+
+            icon = new Container(
+                width: 32,
+                child: new Container(
+                    child: new Column(
+                        children: new List<Widget> {
+                            new Text(channel.lastMessage.timeString ?? "", style: CTextStyle.PSmallBody4),
+                            new Expanded(
+                                child: channel.isMute || channel.unread > 0 ? icon : new Container()
+                            )
+                        }
+                    )
+                )
+            );
+
+            Widget avatar = new ClipRRect(
+                borderRadius: BorderRadius.all(4),
+                child: new Container(
+                    width: 48,
+                    height: 48,
+                    child: Image.network(channel.thumbnail, fit: BoxFit.cover)
+                )
+            );
+            
             Widget ret = new Container(
                 color: channel.isTop ? CColors.PrimaryBlue.withOpacity(0.04f) : CColors.White,
                 height: 72,
                 padding: EdgeInsets.symmetric(12, 16),
                 child: new Row(
                     children: new List<Widget> {
-                        new ClipRRect(
-                            borderRadius: BorderRadius.all(4),
-                            child: new Container(
-                                width: 48,
-                                height: 48,
-                                child: Image.network(channel.thumbnail, fit: BoxFit.cover)
-                            )
-                        ),
-                        new Expanded(
-                            child: new Container(
-                                padding: EdgeInsets.only(left: 16),
-                                child: new Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: new List<Widget> {
-                                        title,
-                                        new Expanded(
-                                            child: new RichText(
-                                                text: new TextSpan(
-                                                    channel.atMe
-                                                        ? "[有人@我] "
-                                                        : channel.atAll
-                                                            ? "[@所有人] "
-                                                            : "",
-                                                    children: new List<TextSpan> {
-                                                        new TextSpan(channel.lastMessage.content ?? "",
-                                                            style: CTextStyle.PRegularBody4
-                                                        )
-                                                    },
-                                                    style: CTextStyle.PRegularError
-                                                ),
-                                                overflow: TextOverflow.ellipsis,
-                                                maxLines: 1)
-                                        )
-                                    }
-                                )
-                            )
-                        ),
-                        new Container(
-                            width: 32,
-                            child: new Container(
-                                child: new Column(
-                                    children: new List<Widget> {
-                                        new Text(channel.lastMessage.timeString ?? "", style: CTextStyle.PSmallBody4),
-                                        new Expanded(
-                                            child: channel.isMute || channel.unread > 0
-                                                ? (Widget) new Align(
-                                                    alignment: Alignment.centerRight,
-                                                    child: channel.isMute
-                                                        ? (Widget) new Icon(
-                                                            Icons.notifications_off,
-                                                            size: 16, color: CColors.LighBlueGrey)
-                                                        : new NotificationDot(
-                                                            channel.unread > 99
-                                                                ? ""
-                                                                : $"{channel.unread}"
-                                                        )
-                                                )
-                                                : new Container()
-                                        )
-                                    }
-                                )
-                            )
-                        )
+                        avatar,
+                        new Expanded(child: body),
+                        icon
                     }
                 )
             );

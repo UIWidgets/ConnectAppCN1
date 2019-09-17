@@ -52,7 +52,8 @@ namespace ConnectApp.screens {
                     var actionModel = new ChannelScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         fetchMessages = (before, after) => {
-                            return dispatcher.dispatch<IPromise>(Actions.fetchChannelMessages(this.channelId, before, after));
+                            return dispatcher.dispatch<IPromise>(
+                                Actions.fetchChannelMessages(this.channelId, before, after));
                         },
                         pushToChannelDetail = () => {
                             dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction {
@@ -62,6 +63,10 @@ namespace ConnectApp.screens {
                         sendMessage = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
                             Actions.sendMessage(channelId, content, nonce, parentMessageId)),
                         startSendMessage = () => dispatcher.dispatch(new StartSendChannelMessageAction()),
+                        markAsRead = nonce => dispatcher.dispatch(new MarkChannelMessageAsRead {
+                            channelId = this.channelId,
+                            nonce = nonce
+                        })
                     };
                     return new ChannelScreen(viewModel, actionModel);
                 }
@@ -94,6 +99,7 @@ namespace ConnectApp.screens {
 
         Dictionary<string, string> _jobRole;
         float messageBubbleWidth = 0;
+        long lastSavedNonce;
 
         public override void initState() {
             base.initState();
@@ -101,6 +107,17 @@ namespace ConnectApp.screens {
                 ? this.widget.viewModel.messages.last().id
                 : null;
             this.widget.actionModel.fetchMessages(null, id);
+            if (this.widget.viewModel.messages.isNotEmpty()) {
+                this.widget.actionModel.markAsRead(this.widget.viewModel.messages.last().nonce);
+            }
+        }
+
+        public override void deactivate() {
+            if (this.widget.viewModel.messages.isNotEmpty() &&
+                this.widget.viewModel.messages.last().nonce != this.lastSavedNonce) {
+                this.widget.actionModel.markAsRead(this.widget.viewModel.messages.last().nonce);
+                this.lastSavedNonce = this.widget.viewModel.messages.last().nonce;
+            }
         }
 
         public override void dispose() {
@@ -203,8 +220,9 @@ namespace ConnectApp.screens {
                 child: new SmartRefresher(
                     controller: this._refreshController,
                     enablePullDown: false,
-                    enablePullUp: true,
+                    enablePullUp: this.widget.viewModel.hasMore,
                     onRefresh: this._onRefresh,
+                    onOffsetChange: this._handleScrollListener,
                     reverse: true,
                     headerBuilder: (context, mode) => new SmartRefreshHeader(mode), 
                     child: ListView.builder(
@@ -520,6 +538,17 @@ namespace ConnectApp.screens {
                 ).Catch(
                     (error) => this._refreshController.sendBack(true, RefreshStatus.failed)
                 );
+            }
+        }
+
+        void _handleScrollListener(bool up, float offset) {
+            if (this._refreshController.scrollController.offset <=
+                this._refreshController.scrollController.position.minScrollExtent) {
+                if (this.widget.viewModel.messages.isNotEmpty() &&
+                    this.widget.viewModel.messages.last().nonce != this.lastSavedNonce) {
+                    this.widget.actionModel.markAsRead(this.widget.viewModel.messages.last().nonce);
+                    this.lastSavedNonce = this.widget.viewModel.messages.last().nonce;
+                }
             }
         }
     }

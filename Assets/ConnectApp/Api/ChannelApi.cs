@@ -26,6 +26,22 @@ namespace ConnectApp.Api {
             return promise;
         }
         
+        public static Promise<FetchJoinedChannelsResponse> FetchJoinedChannels() {
+            var promise = new Promise<FetchJoinedChannelsResponse>();
+            var para = new Dictionary<string, object> {
+                {"k", "[%22q:%22]"},
+                {"lt", "public"},
+                // {"workspaceId", "058d9079fac00000"}, // TEST
+                {"workspaceId", "05a748aedac0c000"}, // PROD
+            };
+            var request = HttpManager.GET($"{Config.apiAddress}/api/c", parameter: para);
+            HttpManager.resume(request).Then(responseText => {
+                var joinedChannelsResponse = JsonConvert.DeserializeObject<FetchJoinedChannelsResponse>(responseText);
+                promise.Resolve(joinedChannelsResponse);
+            }).Catch(exception => { promise.Reject(exception); });
+            return promise;
+        }
+        
         public static Promise<FetchChannelMessagesResponse> FetchChannelMessages(
             string channelId, string before = null, string after = null) {
             D.assert(before == null || after == null);

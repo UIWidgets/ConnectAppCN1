@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Utils;
+using Unity.UIWidgets.foundation;
 
 namespace ConnectApp.Models.ViewModel {
     public class MessageScreenViewModel {
@@ -12,9 +13,9 @@ namespace ConnectApp.Models.ViewModel {
         public List<Notification> notifications;
         public List<User> mentions;
         public Dictionary<string, User> userDict;
-        public List<ChannelView> channelInfo;
-        public List<ChannelView> popularChannelInfo;
-        public List<ChannelView> discoverChannelInfo;
+        public List<ChannelView> joinedChannels;
+        public List<ChannelView> popularChannels;
+        public List<ChannelView> publicChannels;
     }
 
     public class ChannelView {
@@ -34,11 +35,13 @@ namespace ConnectApp.Models.ViewModel {
         public bool joined = false;
         public bool atMe = false;
         public bool atAll = false;
+        public bool hasMore = false;
+        public bool hasMoreNew = false;
         public List<string> memberIds;
 
         public static ChannelView fromChannel(Channel channel) {
             return new ChannelView {
-                atAll = channel?.lastMessage?.content?.Contains("@all") ?? false,
+                atAll = channel?.lastMessage?.mentionEveryone ?? false,
                 memberIds = new List<string>(),
                 id = channel?.id,
                 groupId = channel?.groupId,
@@ -49,8 +52,39 @@ namespace ConnectApp.Models.ViewModel {
                 isMute = channel?.isMute ?? false,
                 live = channel?.live ?? false,
                 lastMessageId = channel?.lastMessage?.id,
+                lastMessage = ChannelMessageView.fromChannelMessage(channel?.lastMessage),
                 messageIds = new List<string>()
             };
+        }
+
+        public void updateFromChannel(Channel channel) {
+            this.atAll = this.atAll || (channel?.lastMessage?.mentionEveryone ?? false);
+            this.id = channel?.id ?? this.id;
+            this.groupId = channel?.groupId ?? this.groupId;
+            this.thumbnail = channel?.thumbnail ?? this.thumbnail;
+            this.name = channel?.name ?? this.name;
+            this.topic = channel?.topic ?? this.topic;
+            this.memberCount = channel?.memberCount ?? this.memberCount;
+            this.isMute = channel?.isMute ?? this.isMute;
+            this.live = channel?.live ?? this.live;
+            this.lastMessage = channel?.lastMessage == null
+                ? this.lastMessage
+                : ChannelMessageView.fromChannelMessage(channel.lastMessage);
+            this.lastMessageId = channel?.lastMessage?.id ?? this.lastMessageId;
+        }
+
+        public void handleUnreadMessage(ChannelMessageView message, string userId) {
+            for (int k = 0; k < message.mentions.Count; k++) {
+                if (message.mentions[k].id == userId) {
+                    this.atMe = true;
+                }
+            }
+
+            if (message.mentionEveryone) {
+                this.atAll = true;
+            }
+
+            this.unread += 1;
         }
     }
 
@@ -63,7 +97,7 @@ namespace ConnectApp.Models.ViewModel {
 
     public class ChannelMessageView {
         public string id;
-        public string nonce;
+        public long nonce;
         public string channelId;
         public User author;
         public DateTime time;
@@ -110,7 +144,7 @@ namespace ConnectApp.Models.ViewModel {
 
             return new ChannelMessageView {
                 id = message.id,
-                nonce = message.nonce,
+                nonce = string.IsNullOrEmpty(message.nonce) ? 0 : Convert.ToInt64(message.nonce, 16),
                 channelId = message.channelId,
                 author = message.author,
                 content = content,
@@ -157,7 +191,7 @@ namespace ConnectApp.Models.ViewModel {
 
             return new ChannelMessageView {
                 id = message.id,
-                nonce = message.nonce,
+                nonce = string.IsNullOrEmpty(message.nonce) ? 0 : Convert.ToInt64(message.nonce, 16),
                 channelId = message.channelId,
                 author = message.author,
                 content = content,

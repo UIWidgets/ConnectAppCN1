@@ -2279,19 +2279,38 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 
+                case JoinedChannelsAction action: {
+                    state.channelState.joinedChannels = action.channels.Select(channel => channel.id).ToList();
+                    for (var i = 0; i < action.channels.Count; i++) {
+                        state.channelState.updateChannel(action.channels[i]);
+                    }
+                    break;
+                }
+                
                 case ChannelMessagesAction action: {
                     var channel = state.channelState.channelDict[action.channelId];
                     if (channel.messageIds == null || (action.after == null && action.before == null)) {
                         channel.messageIds = new List<string>();
                     }
 
+                    channel.hasMore = action.hasMore;
+                    channel.hasMoreNew = action.hasMoreNew;
+
+                    long unreadAfter = 0;
+                    if (state.channelState.unreadDict.TryGetValue(action.channelId, out unreadAfter)) {
+                        Debug.Log($"Unread after: {unreadAfter}");
+                    }
+
                     if (action.after != null || channel.messageIds.isEmpty()) {
                         D.assert(channel.messageIds.isEmpty() || channel.messageIds.last() == action.after);
-                        for (var i = action.messages.Count-1; i >= 0; i--) {
-                             var channelMessage =
+                        for (var i = action.messages.Count - 1; i >= 0; i--) {
+                            var channelMessage =
                                 ChannelMessageView.fromChannelMessage(action.messages[i]);
-                             state.channelState.messageDict[channelMessage.id] = channelMessage;
-                             channel.messageIds.Add(channelMessage.id);
+                            state.channelState.messageDict[channelMessage.id] = channelMessage;
+                            channel.messageIds.Add(channelMessage.id);
+                            if (channelMessage.nonce > unreadAfter) {
+                                channel.handleUnreadMessage(channelMessage, state.loginState.loginInfo.userId);
+                            }
                         }
                     } else if (action.before != null) {
                         D.assert(channel.messageIds.first() == action.before);
@@ -2333,6 +2352,17 @@ namespace ConnectApp.redux.reducers {
                     }
                     break;
                 }
+
+                case MarkChannelMessageAsRead action: {
+                    state.channelState.unreadDict[action.channelId] = action.nonce;
+                    var channel = state.channelState.channelDict[action.channelId];
+                    channel.atAll = false;
+                    channel.atMe = false;
+                    channel.unread = 0;
+                    ChannelUnreadMessageManager.saveUnread(state.channelState.unreadDict);
+                    break;
+                }
+
                 case PushReadyAction action: {
                     Debug.Log("WebSocket Online!");
                     break;
@@ -2350,6 +2380,7 @@ namespace ConnectApp.redux.reducers {
                         var channelMessage = ChannelMessageView.fromPushMessage(message);
                         state.channelState.messageDict[channelMessage.id] = channelMessage;
                         channel.messageIds.Add(channelMessage.id);
+                        channel.handleUnreadMessage(channelMessage, state.loginState.loginInfo.userId);
                     }
                     break;
                 }

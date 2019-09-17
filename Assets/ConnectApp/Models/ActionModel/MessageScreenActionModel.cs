@@ -1,4 +1,5 @@
 using System;
+using RSG;
 
 namespace ConnectApp.Models.ActionModel {
     public class MessageScreenActionModel : BaseActionModel {
@@ -6,6 +7,8 @@ namespace ConnectApp.Models.ActionModel {
         public Action pushToDiscoverChannels;
         public Action pushToChannelDetail;
         public Action<string> pushToChannel;
-        public Action fetchPublicChannels;
+        public Func<IPromise> fetchPublicChannels;
+        public Func<IPromise> fetchJoinedChannels;
+        public Action fetchMessages;
     }
 }
