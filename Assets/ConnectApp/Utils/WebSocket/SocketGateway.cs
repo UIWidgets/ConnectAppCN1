@@ -19,7 +19,7 @@ namespace ConnectApp.Utils {
         public const int OPCODE_IDENTIFY = 1;
         public const int OPCODE_RESUME = 2;
         public const int OPCODE_STATUS_UPDATE = 3;
-        public const int OPCODE_PING = 4;
+        public const int OPCODE_PING = 9;
 
         public const int heartBeatInterval = 15000;
     }

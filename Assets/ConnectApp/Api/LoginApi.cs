@@ -50,10 +50,17 @@ namespace ConnectApp.Api {
                 action = action
             };
             var request = HttpManager.POST($"{Config.apiAddress}/api/auth/qrlogin", para);
-            HttpManager.resume(request).Then(responseText => {
+            HttpManager.resumeAll(request).Then(responseContent => {
+                var responseText = responseContent.text;
+                var header = responseContent.headers;
                 var successDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(responseText);
                 var success = successDictionary.ContainsKey("success") ? successDictionary["success"] : false;
                 promise.Resolve((bool)success);
+
+                if ((bool)success) {
+                    SocketApi.ConnectToWSS(header);
+                }
+                
             }).Catch(exception => promise.Reject(exception));
             return promise;
         }
