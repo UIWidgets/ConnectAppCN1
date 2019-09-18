@@ -99,6 +99,8 @@ namespace ConnectApp.Utils {
             return delay;
         }
 
+        bool _sslHandShakeError = false;
+
         public void Connect(Action onConnected, Action<string, SocketResponseDataBase> onMessage, bool reconnect = false) {
             if (this.readyState != GatewayState.CLOSED) {
                 Debug.Log("fatal error: cannot Connect to WS when the current connection is still alive");
@@ -136,7 +138,13 @@ namespace ConnectApp.Utils {
                             this.backoff.OnSucceed();
                             onMessage?.Invoke(type, data);
                         },
-                        OnClose: () => {
+                        OnClose: code => {
+                            var sslProtocolHack = (System.Security.Authentication.SslProtocols)(WebSocket.SslProtocolsHack.Tls12 | WebSocket.SslProtocolsHack.Tls11 | WebSocket.SslProtocolsHack.Tls);
+                            //TlsHandshakeFailure
+                            if (code == 1015 && this.m_Socket.checkSslProtocolHackFlag(sslProtocolHack)) {
+                                this._sslHandShakeError = true;
+                            }
+                            
                             Debug.Log("OnClose");
                             this.m_Socket.Close();
                             this.m_Socket = null;
@@ -188,14 +196,17 @@ namespace ConnectApp.Utils {
                 return;
             }
 
-            var request = HttpManager.GET($"{Config.apiAddress}/api/socketgw", null);
+            var requestUrl = $"{Config.apiAddress}/api/socketgw";
+            var request = HttpManager.GET(requestUrl, null);
+            
+            //Debug.Log("request url = " + requestUrl);
             
             HttpManager.resume(request).Then(responseText => {
                 var socketGatewayResponse = JsonConvert.DeserializeObject<SocketGatewayResponse>(responseText);
                 this.m_CandidateURLs = socketGatewayResponse.urls ?? new List<string> { socketGatewayResponse.url };
                 
                 //TEST INVALID URL:
-                //this.m_CandidateURLs.Insert(0, "wss://connect-badgateway.unity.com:443");
+                //this.m_CandidateURLs.Insert(0, "wss://connect-test-gw.unity.com");
                 this._SelectGateway(callback, false);
             }).Catch(exception => {
                 callback(null);
@@ -270,13 +281,13 @@ namespace ConnectApp.Utils {
         }
         
         
-        void _OnClose(Func<bool> OnClose) {
+        void _OnClose(Func<int, bool> OnClose, int code = 0) {
             if (this._heartBeater != -1) {
                 this.m_Host.CancelDelayCall(this._heartBeater);
                 this._heartBeater = -1;
             }
             
-            if (!this._closeRequired && OnClose != null && OnClose()) {
+            if (!this._closeRequired && OnClose != null && OnClose(code)) {
                 Debug.Log("socket disconnected");
             }
         }
@@ -294,10 +305,11 @@ namespace ConnectApp.Utils {
             });
         }
 
-        void _CreateWebSocket(string url, Action OnConnected, Action<string, SocketResponseDataBase> OnMessage, Func<bool> OnClose) {
+        void _CreateWebSocket(string url, Action OnConnected, Action<string, SocketResponseDataBase> OnMessage, Func<int, bool> OnClose) {
             var heartBeater = -1;
+            //Debug.Log("socket connect to " + url);
             
-            this.m_Socket = this.m_Socket ?? new WebSocket(this.m_Host);
+            this.m_Socket = this.m_Socket ?? new WebSocket(this.m_Host, this._sslHandShakeError);
             this.m_Socket.Connect(url, 
                 OnConnected: () => {
                     OnConnected.Invoke();
@@ -369,8 +381,8 @@ namespace ConnectApp.Utils {
                 OnError: msg => {
                     this._OnClose(OnClose);
                 },
-                OnClose: () => {
-                    this._OnClose(OnClose);
+                OnClose: code => {
+                    this._OnClose(OnClose, code);
                 });
         }
     }
