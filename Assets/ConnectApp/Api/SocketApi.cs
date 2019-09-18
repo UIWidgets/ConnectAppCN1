@@ -20,7 +20,7 @@ namespace ConnectApp.Api {
         }
         
         
-        public static void ConnectToWSS(Dictionary<string, string> header, bool forceConnect = true) {
+        public static void ConnectToWSS(bool forceConnect = true) {
             if (HttpManager.getCookie().isNotEmpty()) {
                 var sessionId = HttpManager.getCookie("LS");
                 if (sessionId == null) {
@@ -37,11 +37,10 @@ namespace ConnectApp.Api {
                 return;
             }
             
-            SocketGateway.instance.Connect(() => 
+            SocketGateway.instance.Connect(commitId => 
             {
                 if (HttpManager.getCookie().isNotEmpty()) {
                     var sessionId = HttpManager.getCookie("LS");
-                    var commitId = header["X-Last-Commmit-Hash"];
                     SocketGateway.instance.Identify(sessionId, commitId);
                 }
             },

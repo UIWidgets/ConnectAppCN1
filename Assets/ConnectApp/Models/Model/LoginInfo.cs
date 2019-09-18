@@ -12,7 +12,5 @@ namespace ConnectApp.Models.Model {
         public bool anonymous;
         public string title;
         public string coverImageWithCDN;
-
-        public Dictionary<string, string> external_Headers;
     }
 }

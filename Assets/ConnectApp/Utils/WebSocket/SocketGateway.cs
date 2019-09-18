@@ -50,11 +50,12 @@ namespace ConnectApp.Utils {
 
         BackOff backoff;
 
-        Action onConnect;
+        Action<string> onConnect;
         Action<string, SocketResponseDataBase> onMessage;
 
         string sessionId;
         string m_GatewayUrl;
+        string m_CommitId;
         int seq;
 
         bool _closeRequired;
@@ -81,6 +82,7 @@ namespace ConnectApp.Utils {
 
             m_Instance = this;
             this.m_Host = host;
+            this.m_CommitId = null;
             
             this.m_CandidateURLs = new List<string>();
             this.m_PayloadQueue = new List<string>();
@@ -101,7 +103,7 @@ namespace ConnectApp.Utils {
 
         bool _sslHandShakeError = false;
 
-        public void Connect(Action onConnected, Action<string, SocketResponseDataBase> onMessage, bool reconnect = false) {
+        public void Connect(Action<string> onConnected, Action<string, SocketResponseDataBase> onMessage, bool reconnect = false) {
             if (this.readyState != GatewayState.CLOSED) {
                 Debug.Log("fatal error: cannot Connect to WS when the current connection is still alive");
                 return;
@@ -129,9 +131,10 @@ namespace ConnectApp.Utils {
                 if (url != null) {
                     this._CreateWebSocket(url, 
                         OnConnected: () => {
+                            Debug.Assert(this.m_CommitId != null, "fatal error: commit Id is not correctly set before connection!");
                             this.readyState = GatewayState.OPEN;
                             if (!this._Resume()) {
-                                onConnected.Invoke();
+                                onConnected.Invoke(this.m_CommitId);
                             }
                         },
                         OnMessage: (type, data) => {
@@ -139,6 +142,8 @@ namespace ConnectApp.Utils {
                             onMessage?.Invoke(type, data);
                         },
                         OnClose: code => {
+                            
+                            //https://github.com/sta/websocket-sharp/issues/219
                             var sslProtocolHack = (System.Security.Authentication.SslProtocols)(WebSocket.SslProtocolsHack.Tls12 | WebSocket.SslProtocolsHack.Tls11 | WebSocket.SslProtocolsHack.Tls);
                             //TlsHandshakeFailure
                             if (code == 1015 && this.m_Socket.checkSslProtocolHackFlag(sslProtocolHack)) {
@@ -201,7 +206,11 @@ namespace ConnectApp.Utils {
             
             //Debug.Log("request url = " + requestUrl);
             
-            HttpManager.resume(request).Then(responseText => {
+            HttpManager.resumeAll(request).Then(responseContent => {
+                var responseText = responseContent.text;
+                var header = responseContent.headers;
+                this.m_CommitId = header["X-Last-Commmit-Hash"];
+                
                 var socketGatewayResponse = JsonConvert.DeserializeObject<SocketGatewayResponse>(responseText);
                 this.m_CandidateURLs = socketGatewayResponse.urls ?? new List<string> { socketGatewayResponse.url };
                 

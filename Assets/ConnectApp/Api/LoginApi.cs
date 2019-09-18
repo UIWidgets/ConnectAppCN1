@@ -15,12 +15,8 @@ namespace ConnectApp.Api {
                 password = password
             };
             var request = HttpManager.POST($"{Config.apiAddress}/api/connectapp/auth/live/login", para);
-            HttpManager.resumeAll(request).Then(responseContent => {
-                var responseText = responseContent.text;
-                var header = responseContent.headers;
-                var loginInfo = JsonConvert.DeserializeObject<LoginInfo>(responseText);
-                loginInfo.external_Headers = header;
-                
+            HttpManager.resume(request).Then(responseText => {
+                var loginInfo = JsonConvert.DeserializeObject<LoginInfo>(responseText);      
                 promise.Resolve(loginInfo);
             }).Catch(exception => { promise.Reject(exception); });
             return promise;
@@ -32,12 +28,8 @@ namespace ConnectApp.Api {
                 code = code
             };
             var request = HttpManager.POST($"{Config.apiAddress}/api/connectapp/auth/live/wechat", para);
-            HttpManager.resumeAll(request).Then(responseContent => {
-                var responseText = responseContent.text;
-                var header = responseContent.headers;
-                var loginInfo = JsonConvert.DeserializeObject<LoginInfo>(responseText);
-                loginInfo.external_Headers = header;
-                
+            HttpManager.resume(request).Then(responseText => {
+                var loginInfo = JsonConvert.DeserializeObject<LoginInfo>(responseText); 
                 promise.Resolve(loginInfo);
             }).Catch(exception => { promise.Reject(exception); });
             return promise;
@@ -50,15 +42,13 @@ namespace ConnectApp.Api {
                 action = action
             };
             var request = HttpManager.POST($"{Config.apiAddress}/api/auth/qrlogin", para);
-            HttpManager.resumeAll(request).Then(responseContent => {
-                var responseText = responseContent.text;
-                var header = responseContent.headers;
+            HttpManager.resume(request).Then(responseText => {
                 var successDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(responseText);
                 var success = successDictionary.ContainsKey("success") ? successDictionary["success"] : false;
                 promise.Resolve((bool)success);
 
                 if ((bool)success) {
-                    SocketApi.ConnectToWSS(header);
+                    SocketApi.ConnectToWSS();
                 }
                 
             }).Catch(exception => promise.Reject(exception));
@@ -85,13 +75,11 @@ namespace ConnectApp.Api {
             var promise = new Promise<FetchInitDataResponse>();
             var request =
                 HttpManager.GET($"{Config.apiAddress}/api/connectapp/initData");
-            HttpManager.resumeAll(request).Then(response => {
-                var responseText = response.text;
-                var headers = response.headers;
+            HttpManager.resume(request).Then(responseText => {
                 var initDataResponse = JsonConvert.DeserializeObject<FetchInitDataResponse>(responseText);
 
                 if (UserInfoManager.isLogin()) {
-                    SocketApi.ConnectToWSS(headers, false);
+                    SocketApi.ConnectToWSS(false);
                 }
                 
                 promise.Resolve(initDataResponse);
