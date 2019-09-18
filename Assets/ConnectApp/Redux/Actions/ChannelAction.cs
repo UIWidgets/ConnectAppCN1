@@ -19,6 +19,9 @@ namespace ConnectApp.redux.actions {
                             discoverPage = channelResponse.discoverPage,
                             channelMap = channelResponse.channelMap
                         });
+                        for (int i = 0; i < channelResponse.joinedList.Count; i++) {
+                            dispatcher.dispatch(fetchChannelMessages(channelResponse.joinedList[i]));
+                        }
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchPublicChannelsFailureAction());
