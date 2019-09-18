@@ -66,8 +66,14 @@ namespace ConnectApp.redux.reducers {
                         HistoryManager.searchArticleHistoryList(userId: action.loginInfo.userId);
                     state.articleState.blockArticleList =
                         HistoryManager.blockArticleList(userId: action.loginInfo.userId);
-                    
-                    SocketApi.ConnectToWSS(action.loginInfo.external_Headers);
+
+                    try {
+                        SocketApi.ConnectToWSS(action.loginInfo.external_Headers);
+                    }
+                    catch (Exception e) {
+                        Debug.Log(e);
+                    }
+
                     break;
                 }
 
@@ -100,7 +106,6 @@ namespace ConnectApp.redux.reducers {
                 case LogoutAction _: {
                     EventBus.publish(sName: EventBusConstant.logout_success, new List<object>());
                     HttpManager.clearCookie();
-                    SocketApi.DisConnectFromWSS();
                     state.loginState.loginInfo = new LoginInfo();
                     state.loginState.isLoggedIn = false;
                     UserInfoManager.clearUserInfo();
@@ -108,6 +113,7 @@ namespace ConnectApp.redux.reducers {
                     state.eventState.eventHistory = HistoryManager.eventHistoryList();
                     state.searchState.searchArticleHistoryList = HistoryManager.searchArticleHistoryList();
                     state.articleState.blockArticleList = HistoryManager.blockArticleList();
+                    SocketApi.DisConnectFromWSS();
                     break;
                 }
 

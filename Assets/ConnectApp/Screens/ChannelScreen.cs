@@ -110,13 +110,13 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            string id = this.widget.viewModel.messages.isNotEmpty()
-                ? this.widget.viewModel.messages.last().id
-                : null;
-            this.widget.actionModel.fetchMessages(null, id);
-            if (this.widget.viewModel.messages.isNotEmpty()) {
-                // this.widget.actionModel.markAsRead(this.widget.viewModel.messages.last().nonce);
-            }
+            // string id = this.widget.viewModel.messages.isNotEmpty()
+            //     ? this.widget.viewModel.messages.last().id
+            //     : null;
+            // this.widget.actionModel.fetchMessages(null, id);
+            // if (this.widget.viewModel.messages.isNotEmpty()) {
+            //     this.widget.actionModel.markAsRead(this.widget.viewModel.messages.last().nonce);
+            // }
             this._emojiTabController = new TabController(
                 length: (this.emojiList.Count-1) / 24 + 1,
                 vsync: this);

@@ -21,6 +21,7 @@ namespace ConnectApp.redux.actions {
                         });
                         for (int i = 0; i < channelResponse.joinedList.Count; i++) {
                             dispatcher.dispatch(fetchChannelMessages(channelResponse.joinedList[i]));
+                            dispatcher.dispatch(fetchChannelMembers(channelResponse.joinedList[i]));
                         }
                     })
                     .Catch(error => {

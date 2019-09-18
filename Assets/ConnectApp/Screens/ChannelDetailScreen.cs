@@ -71,7 +71,7 @@ namespace ConnectApp.screens {
     class _ChannelDetailScreenState : State<ChannelDetailScreen> {
         public override void initState() {
             base.initState();
-            this.widget.actionModel.fetchMembers();
+            // this.widget.actionModel.fetchMembers();
         }
 
         public override Widget build(BuildContext context) {
@@ -128,7 +128,9 @@ namespace ConnectApp.screens {
                                         child: new Container(
                                             width: 48,
                                             height: 48,
-                                            child: Image.network(this.widget.viewModel.channel.thumbnail, fit: BoxFit.cover)
+                                            child: Image.network(
+                                                this.widget.viewModel.channel?.thumbnail ?? "",
+                                                fit: BoxFit.cover)
                                         )
                                     ),
                                     new Expanded(

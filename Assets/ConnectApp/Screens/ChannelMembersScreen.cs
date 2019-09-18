@@ -96,13 +96,7 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             this._controller = new TextEditingController("");
-            this.widget.actionModel.fetchMembers();
-//            SchedulerBinding.instance.addPostFrameCallback(_ => {
-//                if (this.widget.viewModel.searchFollowingKeyword.Length > 0
-//                    || this.widget.viewModel.searchFollowingUsers.Count > 0) {
-//                    this.widget.actionModel.clearSearchFollowingResult();
-//                }
-//            });
+            // this.widget.actionModel.fetchMembers();
         }
 
         public override void dispose() {

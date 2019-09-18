@@ -122,9 +122,6 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            SchedulerBinding.instance.addPostFrameCallback(_ => {
-                this.widget.actionModel.fetchChannels();
-            });
         }
 
         public override Widget build(BuildContext context) {
