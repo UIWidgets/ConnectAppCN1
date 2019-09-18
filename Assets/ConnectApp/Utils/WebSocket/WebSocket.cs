@@ -1,6 +1,8 @@
 using System;
+using System.Security.Authentication;
 using System.Text;
 using UnityEngine;
+using WebSocketSharp;
 
 namespace ConnectApp.Utils {
     
@@ -20,10 +22,15 @@ namespace ConnectApp.Utils {
 
         WebSocketSharp.WebSocket m_Socket;
 
-        public WebSocket(WebSocketHost host)
+        readonly bool m_useSslHandShakeHack;
+
+        const bool EnableWebSocketSharpLog = false;
+
+        public WebSocket(WebSocketHost host, bool useSslHandShakeHack)
         {
             this.m_State = WebSocketState.NotConnected;
             this.m_Host = host;
+            this.m_useSslHandShakeHack = useSslHandShakeHack;
         }
 
         public void Send(string content) {
@@ -35,15 +42,36 @@ namespace ConnectApp.Utils {
             Debug.Assert(this.m_Socket != null, "fatal error: Cannot send data because the websocket is null.");
             this.m_Socket.Send(buffer);
         }
+        
+        public enum SslProtocolsHack {
+            Tls = 192,
+            Tls11 = 768,
+            Tls12 = 3072
+        }
+
+        public bool checkSslProtocolHackFlag(SslProtocols flags) {
+            return this.m_Socket.SslConfiguration.EnabledSslProtocols != flags;
+        }
 
         //add callbacks here as parameters
         public void Connect(string url, Action OnConnected, Action<byte[]> OnMessage,
-            Action<string> OnError, Action OnClose)
+            Action<string> OnError, Action<int> OnClose)
         {
             Debug.Assert(this.m_State == WebSocketState.NotConnected, $"fatal error: Cannot Connect to {url} because the socket is already set up.");
             this.m_State = WebSocketState.Connecting;
             
             this.m_Socket = new WebSocketSharp.WebSocket(url);
+            if (this.m_useSslHandShakeHack) {
+                var sslProtocolHack = (SslProtocols)(SslProtocolsHack.Tls12 | SslProtocolsHack.Tls11 | SslProtocolsHack.Tls);
+                this.m_Socket.SslConfiguration.EnabledSslProtocols = sslProtocolHack;
+            }
+
+            if (EnableWebSocketSharpLog) {
+                this.m_Socket.Log.Level = LogLevel.Debug;
+                this.m_Socket.Log.File = @"log.txt";
+            }
+
+
             this.m_Socket.OnOpen += (sender, e) => {
                 this.m_State = WebSocketState.Connected;
                 this.m_Host.Enqueue(() => {
@@ -65,8 +93,8 @@ namespace ConnectApp.Utils {
 
             this.m_Socket.OnClose += (sender, e) => {
                 this.m_Host.Enqueue(() => {
-                    Debug.Log(e);
-                    OnClose?.Invoke();
+                    //Debug.Log("error code: " + e.Code + " : reason: " + e.Reason);
+                    OnClose?.Invoke(e.Code);
                 });
             };
             
