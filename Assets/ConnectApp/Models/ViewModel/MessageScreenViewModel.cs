@@ -136,17 +136,17 @@ namespace ConnectApp.Models.ViewModel {
         public string timeString;
         public ChannelMessageType type = ChannelMessageType.text;
         public string content;
-        public long fileSize;
+        public long fileSize = 0;
         public List<Attachment> attachments;
-        public bool mentionEveryone;
+        public bool mentionEveryone = false;
         public List<User> mentions;
-        public bool starred;
+        public bool starred = false;
         public List<string> replyMessageIds;
         public List<string> lowerMessageIds;
         public List<User> replyUsers;
         public List<User> lowerUsers;
-        public bool pending;
-        public bool deleted;
+        public bool pending = false;
+        public bool deleted = false;
         public List<Reaction> reactions;
         public List<Embed> embeds;
 
@@ -200,19 +200,43 @@ namespace ConnectApp.Models.ViewModel {
         }
         
         public static ChannelMessageView fromChannelMessageLite(ChannelMessageLite message) {
-            return fromChannelMessage(new ChannelMessage {
+            if (message == null) {
+                return new ChannelMessageView();
+            }
+            ChannelMessageType type = message.content != null || message.attachments.Count == 0
+                ? ChannelMessageType.text
+                : message.attachments[0].contentType.StartsWith("image")
+                    ? ChannelMessageType.image
+                    : ChannelMessageType.file;
+            string content = message.content;
+            switch (type) {
+                case ChannelMessageType.text:
+                    break;
+                case ChannelMessageType.image:
+                    content = message.attachments[0].url;
+                    break;
+                case ChannelMessageType.file:
+                    content = message.attachments[0].filename;
+                    break;
+            }
+            long nonce = string.IsNullOrEmpty(message.nonce) ? 0 : Convert.ToInt64(message.nonce, 16);
+
+            return new ChannelMessageView {
                 id = message.id,
-                nonce = message.nonce,
+                nonce = nonce,
                 channelId = message.channelId,
                 author = new User {
                     id = message.author.id
                 },
-                content = message.content,
+                content = content,
+                fileSize = type == ChannelMessageType.file ? message.attachments[0].size : 0,
+                time = DateConvert.DateTimeFromNonce(message.nonce),
+                timeString = DateConvert.DateTimeFromNonce(message.nonce, true).ToString("HH:mm"),
                 attachments = message.attachments,
-                type = message.type,
+                type = type,
                 mentionEveryone = message.mentionEveryone,
-                mentions = message.mentions.Select(user => new User{id = user.id}).ToList(),
-            });
+                mentions = message.mentions?.Select(user => new User{id = user.id}).ToList()
+            };
         }
 
         public static ChannelMessageView fromChannelMessage(ChannelMessage message) {
@@ -227,20 +251,22 @@ namespace ConnectApp.Models.ViewModel {
             string content = message.content;
             switch (type) {
                 case ChannelMessageType.text:
+                    break;
                 case ChannelMessageType.embed:
                     content = content ?? "";
                     break;
                 case ChannelMessageType.image:
-                    content = CImageUtils.SizeTo200ImageUrl(message.attachments[0].url);
+                    content = message.attachments[0].url;
                     break;
                 case ChannelMessageType.file:
                     content = message.attachments[0].filename;
                     break;
             }
+            long nonce = string.IsNullOrEmpty(message.nonce) ? 0 : Convert.ToInt64(message.nonce, 16);
 
             return new ChannelMessageView {
                 id = message.id,
-                nonce = string.IsNullOrEmpty(message.nonce) ? 0 : Convert.ToInt64(message.nonce, 16),
+                nonce = nonce,
                 channelId = message.channelId,
                 author = message.author,
                 content = content,

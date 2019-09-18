@@ -339,7 +339,10 @@ namespace ConnectApp.screens {
         public static Widget buildChannelItem(ChannelView channel, Action onTap = null) {
             Widget title = new Text(channel.name, style: CTextStyle.PLargeMedium);
             string text = channel.lastMessage == null || string.IsNullOrEmpty(channel.lastMessage.content)
-                ? "" : (channel.lastMessage.author?.fullName ?? "") + ": " + (channel.lastMessage.content ?? "");
+                ? ""
+                : (channel.lastMessage.author?.fullName == null
+                       ? "" : channel.lastMessage.author?.fullName + ": ") +
+                   (channel.lastMessage.content ?? "");
             Widget message = new RichText(
                 text: new TextSpan(
                     channel.atMe

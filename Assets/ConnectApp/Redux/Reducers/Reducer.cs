@@ -2427,6 +2427,8 @@ namespace ConnectApp.redux.reducers {
                         if (state.channelState.channelDict.TryGetValue(channelId, out var channel)) {
                             channel.lastMessageId = message.id;
                             channel.lastMessage = ChannelMessageView.fromChannelMessageLite(message);
+                            channel.lastMessage.author =
+                                state.channelState.membersDict[channel.lastMessage.author.id].user;
                         }
                     }
 
