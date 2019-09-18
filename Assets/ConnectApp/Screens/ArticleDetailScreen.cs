@@ -61,9 +61,11 @@ namespace ConnectApp.screens {
                             routeName = MainNavigatorRoutes.Login
                         }),
                         openUrl = url => OpenUrlUtil.OpenUrl(url, dispatcher),
-                        playVideo = (url, needUpdate) => {
+                        playVideo = (url, needUpdate, limitSeconds) => {
                             dispatcher.dispatch(new MainNavigatorPushToVideoPlayerAction {
-                                url = url
+                                url = url,
+                                needUpdate = needUpdate,
+                                limitSeconds = limitSeconds
                             });
                         },
                         pushToArticleDetail = id => dispatcher.dispatch(
@@ -357,7 +359,11 @@ namespace ConnectApp.screens {
                     contentMap: this._article.contentMap,
                     this._article.videoSliceMap,
                     openUrl: this.widget.actionModel.openUrl,
-                    playVideo: this.widget.actionModel.playVideo
+                    playVideo: this.widget.actionModel.playVideo,
+                    UserInfoManager.isLogin()
+                        ? CCommonUtils.GetUserLicense(UserInfoManager.initUserInfo().userId,
+                            this.widget.viewModel.userLicenseDict)
+                        : ""
                 )
             );
             // originItems.Add(this._buildActionCards(this._article.like));

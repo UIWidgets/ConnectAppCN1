@@ -275,8 +275,8 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
     //shareBtn
     self.shareBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     self.shareBtn.showsTouchWhenHighlighted = YES;
-    [self.shareBtn setImage:WMPlayerImage(@"close.png") forState:UIControlStateNormal];
-    [self.shareBtn setImage:WMPlayerImage(@"close.png") forState:UIControlStateSelected];
+    [self.shareBtn setImage:WMPlayerImage(@"share.png") forState:UIControlStateNormal];
+    [self.shareBtn setImage:WMPlayerImage(@"share.png") forState:UIControlStateSelected];
     [self.shareBtn addTarget:self action:@selector(shareTheVideo:) forControlEvents:UIControlEventTouchUpInside];
     [self.topView addSubview:self.shareBtn];
     
@@ -289,10 +289,10 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
     self.rateBtn.hidden = YES;
 
     //titleLabel
-//    self.titleLabel = [UILabel new];
-//    self.titleLabel.textColor = [UIColor whiteColor];
-//    self.titleLabel.font = [UIFont systemFontOfSize:15.0];
-//    [self.topView addSubview:self.titleLabel];
+    self.titleLabel = [UILabel new];
+    self.titleLabel.textColor = [UIColor whiteColor];
+    self.titleLabel.font = [UIFont systemFontOfSize:15.0];
+    [self.topView addSubview:self.titleLabel];
     
     //加载失败的提示label
     self.loadFailedLabel = [UILabel new];
@@ -629,7 +629,7 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
 #pragma mark
 #pragma mark - 单击手势方法
 - (void)handleSingleTap:(UITapGestureRecognizer *)sender{
-    if (_needUpdateLincense&&!self.updateView.hidden) {
+    if (self.playerModel.needUpdateLincense&&!self.updateView.hidden) {
         return;
     }
     if (self.isLockScreen) {
@@ -911,7 +911,7 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
 #pragma mark
 #pragma mark--播放完成
 - (void)moviePlayDidEnd:(NSNotification *)notification {
-    if (_needUpdateLincense) {
+    if (self.playerModel.needUpdateLincense) {
         self.updateView.hidden = NO;
         self.enableVolumeGesture = NO;
         self.enableFastForwardGesture = NO;
@@ -924,7 +924,7 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
             if (self.isLockScreen) {
                 [self lockAction:self.lockBtn];
             }else{
-                if (_needUpdateLincense) {
+                if (self.playerModel.needUpdateLincense) {
                     [self hiddenControlView];
                 }else{
                     [self showControlView];
@@ -1150,9 +1150,20 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
 
     CMTime playerDuration = [self playerItemDuration];
     CGFloat totalTime = (CGFloat)CMTimeGetSeconds(playerDuration);
-
-   
     long long nowTime = self.currentItem.currentTime.value/self.currentItem.currentTime.timescale;
+    
+    if (self.playerModel.needUpdateLincense&&self.playerModel.limitSeconds>0) {
+        if (nowTime>=self.playerModel.limitSeconds) {
+            [self.player pause];
+            self.updateView.hidden = NO;
+            self.enableVolumeGesture = NO;
+            self.enableFastForwardGesture = NO;
+            [self hiddenControlView];
+            return;
+        }
+        
+    }
+    
     self.leftTimeLabel.text = [self convertTime:nowTime];
     self.rightTimeLabel.text = [self convertTime:self.totalTime];
     

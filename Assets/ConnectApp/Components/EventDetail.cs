@@ -16,7 +16,7 @@ namespace ConnectApp.Components {
             Dictionary<string, UserLicense> userLicenseDict,
             IEvent eventObj = null,
             Action<string> openUrl = null,
-            Action<string, bool> playVideo = null,
+            Action<string, bool, int> playVideo = null,
             Action<string> pushToUserDetail = null,
             Widget topWidget = null,
             Key titleKey = null,
@@ -36,7 +36,7 @@ namespace ConnectApp.Components {
         readonly Dictionary<string, UserLicense> userLicenseDict;
         readonly bool isShowImage;
         readonly Action<string> openUrl;
-        readonly Action<string, bool> playVideo;
+        readonly Action<string, bool, int> playVideo;
         readonly Action<string> pushToUserDetail;
         readonly Widget topWidget;
         readonly Key titleKey;
@@ -54,7 +54,7 @@ namespace ConnectApp.Components {
             }
 
             items.AddRange(ContentDescription.map(context, this.eventObj.content, this.eventObj.contentMap, null,
-                this.openUrl, this.playVideo
+                this.openUrl, this.playVideo, ""
             ));
             items.Add(this._buildContentLecturerList());
             return new CustomScrollbar(

@@ -140,10 +140,7 @@ typedef NS_ENUM(NSUInteger,WMControlType) {
 @property (nonatomic, assign) WMPlayerLayerGravity    playerLayerGravity;
 //是否是锁定屏幕旋转状态
 @property (nonatomic,assign,readonly) BOOL isLockScreen;
-/**
- 是否更新lincense
- */
-@property (nonatomic,assign) BOOL needUpdateLincense;
+
 
 /**
  自定义实例化方法初始化方式（-方法）

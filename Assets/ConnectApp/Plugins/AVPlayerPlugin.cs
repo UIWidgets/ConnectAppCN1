@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
+using ConnectApp.Constants;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
@@ -12,9 +12,10 @@ using UnityEngine;
 namespace ConnectApp.Plugins {
     public class AVPlayerPlugin {
         public static bool isExistPlayer;
+        public static bool isConfigPlayer;
 
         public static void initVideoPlayer(string url, string cookie, float left, float top, float width, float height,
-            bool isPop, bool needUpdate = false) {
+            bool isPop, bool needUpdate = false, int limitSeconds = 0) {
             if (Application.isEditor) {
                 return;
             }
@@ -26,7 +27,7 @@ namespace ConnectApp.Plugins {
             isExistPlayer = true;
             Screen.orientation = ScreenOrientation.AutoRotation;
             var ratio = Application.platform == RuntimePlatform.Android ? Window.instance.devicePixelRatio : 1.0f;
-            InitPlayer(url, cookie, left, top * ratio, width * ratio, height * ratio, isPop, needUpdate);
+            InitPlayer(url, cookie, left, top * ratio, width * ratio, height * ratio, isPop, needUpdate, limitSeconds);
             UIWidgetsMessageManager.instance.AddChannelMessageDelegate("player", _handleMethodCall);
         }
 
@@ -35,6 +36,7 @@ namespace ConnectApp.Plugins {
                 return;
             }
 
+            isConfigPlayer = true;
             ConfigPlayer(url, cookie);
         }
 
@@ -45,6 +47,7 @@ namespace ConnectApp.Plugins {
 
             Screen.orientation = ScreenOrientation.Portrait;
             isExistPlayer = false;
+            isConfigPlayer = false;
             VideoRelease();
             UIWidgetsMessageManager.instance.RemoveChannelMessageDelegate("player", _handleMethodCall);
         }
@@ -64,10 +67,7 @@ namespace ConnectApp.Plugins {
                 return;
             }
 
-            if (isExistPlayer) {
-                Screen.orientation = ScreenOrientation.AutoRotation;
-            }
-
+            Screen.orientation = ScreenOrientation.AutoRotation;
             VideoShow();
         }
 
@@ -84,15 +84,11 @@ namespace ConnectApp.Plugins {
                             break;
                         }
                         case "BuyLincese": {
-                            StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
-                                url = "https://www.baidu.com"
-                            });
+                            Application.OpenURL(Config.unityStoreUrl);
                             break;
                         }
                         case "UpdateLincese": {
-                            StoreProvider.store.dispatcher.dispatch(new MainNavigatorPushToWebViewAction {
-                                url = "https://www.baidu.com"
-                            });
+                            Application.OpenURL(Config.unityLearnPremiumUrl);
                             break;
                         }
                     }
@@ -104,7 +100,7 @@ namespace ConnectApp.Plugins {
 #if UNITY_IOS
         [DllImport("__Internal")]
         internal static extern void InitPlayer(string url, string cookie, float left, float top, float width,
-            float height, bool isPop, bool needUpdate);
+            float height, bool isPop, bool needUpdate, int limitSeconds);
 
         [DllImport("__Internal")]
         internal static extern void ConfigPlayer(string url, string cookie);
@@ -141,14 +137,18 @@ namespace ConnectApp.Plugins {
         }
 
         static void InitPlayer(string url, string cookie, float left, float top, float width, float height,
-            bool isPop) {
-            Plugin().Call("InitPlayer", url, cookie, left, top, width, height, isPop);
+            bool isPop, bool needUpdate, int limitSeconds) {
+            Plugin().Call("InitPlayer", url, cookie, left, top, width, height, isPop, needUpdate, limitSeconds);
+        }
+
+        static void ConfigPlayer(string url, string cookie) {
+            Plugin().Call("ConfigPlayer", url, cookie);
         }
 
         static void VideoRelease() {
             Plugin().Call("VideoRelease");
         }
-        
+
         static void VideoPause() {
             Plugin().Call("VideoPause");
         }
@@ -156,7 +156,7 @@ namespace ConnectApp.Plugins {
         static void VideoPlay() {
             Plugin().Call("VideoPlay");
         }
-        
+
         static void VideoHidden() {
             Plugin().Call("VideoHidden");
         }

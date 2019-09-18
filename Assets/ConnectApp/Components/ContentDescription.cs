@@ -18,7 +18,7 @@ namespace ConnectApp.Components {
 
         public static List<Widget> map(BuildContext context, string cont, Dictionary<string, ContentMap> contentMap,
             Dictionary<string, VideoSliceMap> videoSliceMap,
-            Action<string> openUrl, Action<string, bool> playVideo, Action browserImage = null) {
+            Action<string> openUrl, Action<string, bool, int> playVideo, string licence, Action browserImage = null) {
             if (cont == null || contentMap == null) {
                 return new List<Widget>();
             }
@@ -138,24 +138,27 @@ namespace ConnectApp.Components {
                                     var map = contentMap[key: data.contentId];
                                     var url = map.url;
                                     var attachmentId = map.attachmentId ?? "";
+                                    var downloadUrl = map.downloadUrl ?? "";
                                     var contentType = map.contentType ?? "";
                                     var originalImage = map.originalImage == null
                                         ? map.thumbnail
                                         : map.originalImage;
                                     var needUpdate = false;
-                                    if (videoSliceMap.isNotEmpty() && videoSliceMap.ContainsKey(map.attachmentId)) {
+                                    var limitSeconds = 0;
+                                    if (videoSliceMap != null && videoSliceMap.isNotEmpty() &&
+                                        videoSliceMap.ContainsKey(map.attachmentId)) {
                                         var videoSlice = videoSliceMap[map.attachmentId];
                                         if (videoSlice.verifyType == "license" &&
-                                            videoSlice.verifyArg == "premium_above" && UserInfoManager.isLogin() &&
-                                            UserInfoManager.initUserInfo().anonymous) {
+                                            videoSlice.verifyArg == "premium_above" && licence.isEmpty()) {
                                             needUpdate = true;
+                                            limitSeconds = videoSlice.limitSeconds;
                                         }
                                     }
 
                                     widgets.Add(_Atomic(context, dataMap.type, contentType, data.title, data.url,
                                         originalImage,
-                                        url, attachmentId,
-                                        openUrl, playVideo, needUpdate, browserImage));
+                                        url, downloadUrl, attachmentId,
+                                        openUrl, playVideo, needUpdate, limitSeconds, browserImage));
                                 }
                             }
                         }
@@ -314,7 +317,8 @@ namespace ConnectApp.Components {
 
         static Widget _Atomic(BuildContext context, string type, string contentType, string title, string dataUrl,
             _OriginalImage originalImage,
-            string url, string attachmentId, Action<string> openUrl, Action<string, bool> playVideo, bool needUpdate,
+            string url, string downloadUrl, string attachmentId, Action<string> openUrl,
+            Action<string, bool, int> playVideo, bool needUpdate, int limitSeconds,
             Action browserImage = null) {
             if (type == "ATTACHMENT" && contentType != "video/mp4") {
                 return new Container();
@@ -329,7 +333,13 @@ namespace ConnectApp.Components {
                         child: new CustomButton(
                             onPressed: () => {
                                 if (type == "ATTACHMENT") {
-                                    playVideo($"{Config.apiAddress}/playlist/{attachmentId}", needUpdate);
+                                    if (url.isEmpty()) {
+                                        playVideo(downloadUrl, false, 0);
+                                    }
+                                    else {
+                                        playVideo($"{Config.apiAddress}/playlist/{attachmentId}", needUpdate,
+                                            limitSeconds);
+                                    }
                                 }
                                 else {
                                     if (url == null || url.Length <= 0) {

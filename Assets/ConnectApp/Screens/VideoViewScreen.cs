@@ -11,13 +11,20 @@ using Unity.UIWidgets.widgets;
 namespace ConnectApp.screens {
     public class VideoViewScreen : StatefulWidget {
         public VideoViewScreen(
-            string url = null,
+            string url,
+            bool needUpdate,
+            int limitSeconds,
             Key key = null
         ) : base(key) {
             this.url = url;
+            this.needUpdate = needUpdate;
+            this.limitSeconds = limitSeconds;
         }
 
         public readonly string url;
+        public readonly bool needUpdate;
+        public readonly int limitSeconds;
+
 
         public override State createState() {
             return new _VideoViewScreenState();
@@ -51,7 +58,7 @@ namespace ConnectApp.screens {
                         child: new Stack(
                             children: new List<Widget> {
                                 new Positioned(
-                                    top: 0, left: 0, right: 0, child: this._isFullScreen
+                                    top: 0, left: 16, right: 0, child: this._isFullScreen
                                         ? new Container()
                                         : new Container(
                                             child: new Row(
@@ -83,7 +90,8 @@ namespace ConnectApp.screens {
             var height = width * 9 / 16;
             var originY = (MediaQuery.of(this.context).size.height - height) / 2;
 
-            AVPlayerPlugin.initVideoPlayer(this.widget.url, HttpManager.getCookie(), 0, originY, width, height, false);
+            AVPlayerPlugin.initVideoPlayer(this.widget.url, HttpManager.getCookie(), 0, originY, width, height, false,
+                this.widget.needUpdate, this.widget.limitSeconds);
         }
 
         public void didPop() {

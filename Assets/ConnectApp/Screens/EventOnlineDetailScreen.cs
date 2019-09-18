@@ -387,8 +387,11 @@ namespace ConnectApp.screens {
         Widget _buildEventHeader(BuildContext context, IEvent eventObj, EventType eventType, EventStatus eventStatus,
             bool isLoggedIn) {
             if (isLoggedIn && eventStatus == EventStatus.past && eventObj.record.isNotEmpty()) {
-                AVPlayerPlugin.configVideoPlayer(eventObj.record, HttpManager.getCookie());
-                AVPlayerPlugin.showPlayer();
+                if (eventObj.record.isNotEmpty() && !AVPlayerPlugin.isConfigPlayer && AVPlayerPlugin.isExistPlayer) {
+                    AVPlayerPlugin.configVideoPlayer(eventObj.record, HttpManager.getCookie());
+                    AVPlayerPlugin.showPlayer();
+                }
+
                 return new Container(
                     color: CColors.Black,
                     height: MediaQuery.of(this.context).size.width * 9 / 16

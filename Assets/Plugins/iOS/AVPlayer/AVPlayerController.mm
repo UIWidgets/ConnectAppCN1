@@ -9,7 +9,7 @@
 #include "UIWidgetsMessageManager.h"
 #import "NSString+Cookie.h"
 #import "Masonry.h"
-#import "PlayerDetailController.h"
+
 static AVPlayerController *avp = nil;
 
 @implementation AVPlayerController
@@ -33,17 +33,17 @@ static AVPlayerController *avp = nil;
     return _wmPlayer;
 }
 
-- (void)initPlayerWithVideoUrl:(NSString*)videoUrl cookie:(NSString*)cookie left:(CGFloat)left top:(CGFloat)top width:(CGFloat)width height:(CGFloat)height isPop:(BOOL)isPop needUpdate:(BOOL)needUpdate{
+- (void)initPlayerWithVideoUrl:(NSString*)videoUrl cookie:(NSString*)cookie left:(CGFloat)left top:(CGFloat)top width:(CGFloat)width height:(CGFloat)height isPop:(BOOL)isPop needUpdate:(BOOL)needUpdate limitSeconds:(int)limitSeconds{
     _marginTop = top;
     if (videoUrl.length>0) {
-        self.wmPlayer.playerModel = [self setupModelWithUrl:videoUrl cookie:cookie];
+        self.wmPlayer.playerModel = [self setupModelWithUrl:videoUrl cookie:cookie needUpdate:needUpdate limitSeconds:limitSeconds];
     }
     self.wmPlayer.backBtnStyle = isPop?BackBtnStylePop:BackBtnStyleNone;
     self.wmPlayer.loopPlay = NO;//设置是否循环播放
     self.wmPlayer.tintColor = [UIColor colorWithRed:243.0/255 green:33.0/255 blue:148.0/255 alpha:1];//改变播放器着色
     self.wmPlayer.enableBackgroundMode = NO;//开启后台播放模式
     self.wmPlayer.delegate = self;
-    self.wmPlayer.needUpdateLincense = needUpdate;
+    self.wmPlayer.loopPlay = NO;
     [UnityGetGLView() addSubview:self.wmPlayer];
     [self.wmPlayer mas_makeConstraints:^(MASConstraintMaker *make) {
         make.leading.trailing.equalTo(self.wmPlayer.superview);
@@ -63,13 +63,15 @@ static AVPlayerController *avp = nil;
      ];
 }
 
--(WMPlayerModel *)setupModelWithUrl:(NSString *)videoUrl cookie:(NSString *)cookie{
+-(WMPlayerModel *)setupModelWithUrl:(NSString *)videoUrl cookie:(NSString *)cookie needUpdate:(BOOL)needUpdate limitSeconds:(int)limitSeconds{
     NSString *Cookie = [NSString stringWithFormat:@"%@; path=/; domain=.connect.unity.com;",cookie];
     WMPlayerModel *model = [[WMPlayerModel alloc]init];
     NSDictionary *options = @{AVURLAssetHTTPCookiesKey : @[[Cookie cookie]]};
     AVURLAsset *videoURLAsset = [AVURLAsset URLAssetWithURL:[NSURL URLWithString:videoUrl] options:options];
     model.playerItem = [AVPlayerItem playerItemWithAsset:videoURLAsset];
     model.verticalVideo = false;
+    model.needUpdateLincense = needUpdate;
+    model.limitSeconds = limitSeconds;
     return model;
 }
 - (void)wmplayer:(WMPlayer *)wmplayer clickedBuyLinceseButton:(UIButton *)shareBtn{
@@ -128,12 +130,13 @@ static AVPlayerController *avp = nil;
 
 - (void)configPlayerWithVideUrl:(NSString *)url cookie:(NSString *)cookie{
     if (self.wmPlayer) {
-        [self.wmPlayer setPlayerModel:[self setupModelWithUrl:url cookie:cookie]];
+        [self.wmPlayer setPlayerModel:[self setupModelWithUrl:url cookie:cookie needUpdate:false limitSeconds:0]];
     }
 }
 
 
 - (void)removePlayer{
+    [self.wmPlayer resetWMPlayer];
     [self.wmPlayer pause];
     [self.wmPlayer removeFromSuperview];
     self.wmPlayer = nil;
