@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
+using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
-using Unity.UIWidgets.ui;
 
 namespace ConnectApp.Components {
     public enum UserType {
@@ -19,27 +19,33 @@ namespace ConnectApp.Components {
     public class UserCard : StatelessWidget {
         public UserCard(
             User user,
+            string license,
             GestureTapCallback onTap = null,
             UserType userType = UserType.unFollow,
             GestureTapCallback onFollow = null,
+            bool isSearchCard = false,
             Key key = null
         ) : base(key: key) {
             this.user = user;
+            this.license = license;
             this.onTap = onTap;
             this.userType = userType;
             this.onFollow = onFollow;
+            this.isSearchCard = isSearchCard;
         }
 
         readonly User user;
+        readonly string license;
         readonly GestureTapCallback onTap;
         readonly UserType userType;
         readonly GestureTapCallback onFollow;
+        readonly bool isSearchCard;
 
         public override Widget build(BuildContext context) {
             if (this.user == null) {
                 return new Container();
             }
-            
+
             return new GestureDetector(
                 onTap: this.onTap,
                 child: new Container(
@@ -54,16 +60,32 @@ namespace ConnectApp.Components {
                                         Avatar.User(user: this.user, 48),
                                         new Expanded(
                                             child: new Container(
-                                                margin: EdgeInsets.only(12),
+                                                padding: EdgeInsets.only(12, right: 16),
                                                 child: new Column(
                                                     mainAxisAlignment: MainAxisAlignment.center,
                                                     crossAxisAlignment: CrossAxisAlignment.start,
                                                     children: new List<Widget> {
-                                                        new Text(
-                                                            data: this.user.fullName,
-                                                            style: CTextStyle.PMediumBody,
-                                                            maxLines: 1,
-                                                            overflow: TextOverflow.ellipsis
+                                                        new Row(
+                                                            children: new List<Widget> {
+                                                                new Flexible(
+                                                                    child: new Text(
+                                                                        data: this.user.fullName,
+                                                                        style: new TextStyle(
+                                                                            fontSize: this.isSearchCard ? 16 : 14,
+                                                                            height: 1,
+                                                                            fontFamily: "Roboto-Medium",
+                                                                            color: CColors.TextBody
+                                                                        ),
+                                                                        maxLines: 1,
+                                                                        overflow: TextOverflow.ellipsis
+                                                                    )
+                                                                ),
+                                                                CImageUtils.GenBadgeImage(
+                                                                    badges: this.user.badges,
+                                                                    license: this.license,
+                                                                    EdgeInsets.only(4)
+                                                                )
+                                                            }
                                                         ),
                                                         this._buildUserTitle()
                                                     }
@@ -73,7 +95,6 @@ namespace ConnectApp.Components {
                                     }
                                 )
                             ),
-                            new SizedBox(width: 8),
                             new FollowButton(
                                 userType: this.userType,
                                 onFollow: this.onFollow

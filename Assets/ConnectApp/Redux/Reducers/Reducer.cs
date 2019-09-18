@@ -870,6 +870,24 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case UserLicenseMapAction action: {
+                    if (action.userLicenseMap != null && action.userLicenseMap.isNotEmpty()) {
+                        var userLicenseDict = state.userState.userLicenseDict;
+                        foreach (var keyValuePair in action.userLicenseMap) {
+                            if (userLicenseDict.ContainsKey(key: keyValuePair.Key)) {
+                                userLicenseDict[key: keyValuePair.Key] = keyValuePair.Value;
+                            }
+                            else {
+                                userLicenseDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
+                            }
+                        }
+
+                        state.userState.userLicenseDict = userLicenseDict;
+                    }
+
+                    break;
+                }
+
                 case TeamMapAction action: {
                     if (action.teamMap != null && action.teamMap.isNotEmpty()) {
                         var teamDict = state.teamState.teamDict;
@@ -2263,6 +2281,7 @@ namespace ConnectApp.redux.reducers {
                     state.eggState.scanEnabled = action.scanEnabled;
                     break;
                 }
+
                 case EnterRealityAction _: {
                     // Enter Reality
                     RealityManager.TriggerSwitch();

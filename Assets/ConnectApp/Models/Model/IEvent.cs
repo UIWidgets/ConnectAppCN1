@@ -31,7 +31,7 @@ namespace ConnectApp.Models.Model {
         public bool? isNotFirst; //加载详情后 置为true
         public string record;
         public float recordDuration;
-
+        public Dictionary<string, UserLicense> userLicenseMap;
 
         IEvent copyWith(
             string id = null,
@@ -59,7 +59,8 @@ namespace ConnectApp.Models.Model {
             Dictionary<string, ContentMap> contentMap = null,
             bool? isNotFirst = null,
             string record = null,
-            float? recordDuration = null
+            float? recordDuration = null,
+            Dictionary<string, UserLicense> userLicenseMap = null
         ) {
             return new IEvent {
                 id = id ?? this.id,
@@ -87,7 +88,8 @@ namespace ConnectApp.Models.Model {
                 contentMap = contentMap ?? this.contentMap,
                 isNotFirst = isNotFirst ?? this.isNotFirst,
                 record = record ?? this.record,
-                recordDuration = recordDuration ?? this.recordDuration
+                recordDuration = recordDuration ?? this.recordDuration,
+                userLicenseMap = userLicenseMap ?? this.userLicenseMap
             };
         }
 
@@ -122,7 +124,8 @@ namespace ConnectApp.Models.Model {
                 contentMap: other.contentMap,
                 isNotFirst: other.isNotFirst,
                 record: other.record,
-                recordDuration: other.recordDuration
+                recordDuration: other.recordDuration,
+                userLicenseMap: other.userLicenseMap
             );
         }
     }

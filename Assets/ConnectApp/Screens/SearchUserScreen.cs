@@ -7,6 +7,7 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
@@ -35,6 +36,7 @@ namespace ConnectApp.screens {
                         searchUserIds = searchUserIds,
                         searchUserHasMore = state.searchState.searchUserHasMore,
                         userDict = state.userState.userDict,
+                        userLicenseDict = state.userState.userLicenseDict,
                         followMap = followMap,
                         currentUserId = currentUserId,
                         isLoggedIn = state.loginState.isLoggedIn
@@ -216,9 +218,12 @@ namespace ConnectApp.screens {
 
             return new UserCard(
                 user: searchUser,
+                CCommonUtils.GetUserLicense(userId: searchUser.id,
+                    userLicenseMap: this.widget.viewModel.userLicenseDict),
                 () => this.widget.actionModel.pushToUserDetail(obj: searchUser.id),
                 userType: userType,
                 () => this._onFollow(userType: userType, userId: searchUser.id),
+                true,
                 new ObjectKey(value: searchUser.id)
             );
         }

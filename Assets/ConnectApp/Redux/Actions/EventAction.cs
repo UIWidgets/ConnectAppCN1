@@ -130,6 +130,7 @@ namespace ConnectApp.redux.actions {
                             }
                         });
                         dispatcher.dispatch(new UserMapAction {userMap = userMap});
+                        dispatcher.dispatch(new UserLicenseMapAction {userLicenseMap = eventObj.userLicenseMap});
                         if (getState().eventState.eventsDict.ContainsKey(eventObj.id)) {
                             var oldEventObj = getState().eventState.eventsDict[eventObj.id];
                             var newEventObj = eventObj;
