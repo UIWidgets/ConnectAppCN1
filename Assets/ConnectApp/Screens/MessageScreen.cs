@@ -37,26 +37,12 @@ namespace ConnectApp.screens {
                         userDict = state.userState.userDict,
                         joinedChannels = state.channelState.joinedChannels.Select(
                             channelId => state.channelState.channelDict[channelId]).ToList(),
-                        popularChannels = new List<ChannelView> {
-                            new ChannelView {
-                                id = "00b6435ce0000002",
-                                thumbnail =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                                name = "VR/AR开发者",
-                            },
-                            new ChannelView {
-                                id = "00b6435ce0000002",
-                                thumbnail =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                                name = "Unity\n教学联盟",
-                            },
-                            new ChannelView {
-                                id = "00b6435ce0000002",
-                                thumbnail =
-                                    "https://connect-prd-cdn.unity.com/20190830/p/images/9796aa86-b799-4fcc-a2df-ac6d1293ea8e_image1_1_1280x720.jpg",
-                                name = "Unity 2020\n校园招聘",
-                            }
-                        },
+                        popularChannels = state.channelState.publicChannels
+                            .Select(channelId => state.channelState.channelDict[channelId])
+                            .Take(state.channelState.publicChannels.Count > 0
+                                ? 8
+                                : state.channelState.publicChannels.Count)
+                            .ToList(),
                         publicChannels = state.channelState.publicChannels
                             .Select(channelId => state.channelState.channelDict[channelId])
                             .Take(state.channelState.publicChannels.Count > 0
@@ -78,8 +64,7 @@ namespace ConnectApp.screens {
                                 channelId = channelId
                             });
                         },
-                        fetchPublicChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchPublicChannels()),
-                        fetchJoinedChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchJoinedChannels()),
+                        fetchChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchChannels(1)),
                         fetchMessages = () => {
                             for (int i = 0; i < viewModel.joinedChannels.Count; i++) {
                                 var channel = viewModel.joinedChannels[i];
@@ -138,8 +123,7 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             SchedulerBinding.instance.addPostFrameCallback(_ => {
-                this.widget.actionModel.fetchJoinedChannels();
-                this.widget.actionModel.fetchPublicChannels();
+                this.widget.actionModel.fetchChannels();
             });
         }
 
@@ -291,7 +275,7 @@ namespace ConnectApp.screens {
                             children: new List<Widget> {
                                 Positioned.fill(
                                     child: Image.network(
-                                        channel.thumbnail,
+                                        channel?.thumbnail ?? "",
                                         fit: BoxFit.cover
                                     )
                                 ),
@@ -409,7 +393,7 @@ namespace ConnectApp.screens {
                 child: new Container(
                     width: 48,
                     height: 48,
-                    child: Image.network(channel.thumbnail, fit: BoxFit.cover)
+                    child: Image.network(channel?.thumbnail ?? "", fit: BoxFit.cover)
                 )
             );
             
@@ -451,7 +435,7 @@ namespace ConnectApp.screens {
                             child: new Container(
                                 width: 48,
                                 height: 48,
-                                child: Image.network(channel.thumbnail, fit: BoxFit.cover)
+                                child: Image.network(channel?.thumbnail ?? "", fit: BoxFit.cover)
                             )
                         ),
                         new Expanded(

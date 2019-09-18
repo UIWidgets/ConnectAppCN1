@@ -10,14 +10,14 @@ using UnityEngine;
 
 namespace ConnectApp.redux.actions {
     public static partial class Actions {
-        public static object fetchPublicChannels() {
+        public static object fetchChannels(int page) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ChannelApi.FetchPublicChannels().Then(channelResponse => {
-                        dispatcher.dispatch(new PublicChannelsAction {
-                            channels = channelResponse.items,
-                            currentPage = channelResponse.currentPage,
-                            pages = channelResponse.pages,
-                            total = channelResponse.total
+                return ChannelApi.FetchChannels(page).Then(channelResponse => {
+                        dispatcher.dispatch(new ChannelsAction {
+                            discoverList = channelResponse.discoverList,
+                            joinedList = channelResponse.joinedList,
+                            discoverPage = channelResponse.discoverPage,
+                            channelMap = channelResponse.channelMap
                         });
                     })
                     .Catch(error => {
@@ -27,26 +27,6 @@ namespace ConnectApp.redux.actions {
             });
         }
         
-        public static object fetchJoinedChannels() {
-            return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ChannelApi.FetchJoinedChannels().Then(channelResponse => {
-                        dispatcher.dispatch(new JoinedChannelsAction {
-                            channels = channelResponse.items,
-                            currentPage = channelResponse.currentPage,
-                            pages = channelResponse.pages,
-                            total = channelResponse.total
-                        });
-                        for (int i = 0; i < channelResponse.items.Count; i++) {
-                            dispatcher.dispatch(fetchChannelMessages(channelResponse.items[i].id));
-                        }
-                    })
-                    .Catch(error => {
-                        dispatcher.dispatch(new FetchJoinedChannelsFailureAction());
-                        Debug.Log(error);
-                    });
-            });
-        }
-
         public static object fetchChannelMessages(string channelId, string before = null, string after = null) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.FetchChannelMessages(channelId, before, after)
@@ -81,11 +61,12 @@ namespace ConnectApp.redux.actions {
         }
     }
 
-    public class PublicChannelsAction {
-        public List<Channel> channels;
-        public int currentPage;
-        public List<int> pages;
-        public int total;
+    public class ChannelsAction {
+        public List<string> discoverList;
+        public List<string> joinedList;
+        public int discoverPage;
+        public Dictionary<string, Channel> channelMap;
+
     }
     
     public class JoinedChannelsAction {

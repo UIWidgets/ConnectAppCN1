@@ -161,9 +161,7 @@ namespace ConnectApp.Models.State {
                 },
                 channelState = new ChannelState {
                     publicChannels = new List<string>(),
-                    publicChannelCurrentPage = 0,
-                    publicChannelPages = new List<int>(),
-                    publicChannelTotal = 0,
+                    discoverPage = 1,
                     joinedChannels = new List<string>(),
                     channelDict = new Dictionary<string, ChannelView>(),
                     messageDict = new Dictionary<string, ChannelMessageView>(),

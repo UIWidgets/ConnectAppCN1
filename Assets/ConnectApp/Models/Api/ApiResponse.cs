@@ -225,11 +225,11 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
-    public class FetchPublicChannelsResponse {
-        public List<Channel> items;
-        public int currentPage;
-        public List<int> pages;
-        public int total;
+    public class FetchChannelsResponse {
+        public List<string> discoverList;
+        public List<string> joinedList;
+        public int discoverPage;
+        public Dictionary<string, Channel> channelMap;
     }
     
     [Serializable]

@@ -2288,24 +2288,12 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case PublicChannelsAction action: {
-                    state.channelState.publicChannels = action.channels.Select(channel => channel.id).ToList();
-                    state.channelState.publicChannelCurrentPage = action.currentPage;
-                    state.channelState.publicChannelPages = action.pages;
-                    state.channelState.publicChannelTotal = action.total;
-                    for (var i = 0; i < action.channels.Count; i++) {
-                        state.channelState.channelDict[action.channels[i].id] =
-                            ChannelView.fromChannel(action.channels[i]);
-                        state.channelState.channelDict[action.channels[i].id].lastMessage =
-                            ChannelMessageView.fromChannelMessage(action.channels[i].lastMessage);
-                    }
-                    break;
-                }
-                
-                case JoinedChannelsAction action: {
-                    state.channelState.joinedChannels = action.channels.Select(channel => channel.id).ToList();
-                    for (var i = 0; i < action.channels.Count; i++) {
-                        state.channelState.updateChannel(action.channels[i]);
+                case ChannelsAction action: {
+                    state.channelState.publicChannels = action.discoverList;
+                    state.channelState.discoverPage = action.discoverPage;
+                    state.channelState.joinedChannels = action.joinedList;
+                    foreach (var entry in action.channelMap) {
+                        state.channelState.updateChannel(entry.Value);
                     }
                     break;
                 }

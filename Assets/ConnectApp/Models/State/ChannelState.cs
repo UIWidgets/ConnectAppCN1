@@ -8,9 +8,7 @@ namespace ConnectApp.Models.State {
     public class ChannelState {
         public List<string> publicChannels;
         public List<string> joinedChannels;
-        public int publicChannelCurrentPage;
-        public List<int> publicChannelPages;
-        public int publicChannelTotal;
+        public int discoverPage;
         public bool messageLoading;
         public int totalUnread;
         public Dictionary<string, ChannelView> channelDict;
