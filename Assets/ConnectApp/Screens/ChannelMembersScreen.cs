@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ConnectApp.Components;
@@ -56,13 +57,24 @@ namespace ConnectApp.screens {
                         channel = state.channelState.channelDict[this.channelId],
                         followed = hasFollowDict ? followDict : new Dictionary<string, bool>(),
                         members = members,
-                        nAdmin = nAdmin
+                        nAdmin = nAdmin,
+                        isLoggedIn = state.loginState.isLoggedIn
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ChannelMembersScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
-                        fetchMembers = () => dispatcher.dispatch<IPromise>(Actions.fetchChannelMembers(this.channelId))
+                        fetchMembers = () => dispatcher.dispatch<IPromise>(Actions.fetchChannelMembers(this.channelId)),
+                        startFollowUser = followUserId => dispatcher.dispatch(new StartFollowUserAction {
+                            followUserId = followUserId
+                        }),
+                        followUser = followUserId =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(followUserId)),
+                        startUnFollowUser = unFollowUserId => dispatcher.dispatch(new StartUnFollowUserAction {
+                            unFollowUserId = unFollowUserId
+                        }),
+                        unFollowUser = unFollowUserId =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(unFollowUserId)),
                     };
                     return new ChannelMembersScreen(actionModel, viewModel);
                 }
@@ -150,10 +162,39 @@ namespace ConnectApp.screens {
                         }
 
                         return buildMemberItem(context, member,
-                            this.widget.viewModel.followed.TryGetValue(member.user.id, out bool followed) && followed);
+                            this.widget.viewModel.followed.TryGetValue(member.user.id, out bool followed) &&
+                                followed,
+                            this._onFollow);
                     }
                 )
             );
+        }
+        
+        void _onFollow(bool followed, string userId) {
+            if (this.widget.viewModel.isLoggedIn) {
+                if (followed) {
+                    ActionSheetUtils.showModalActionSheet(
+                        new ActionSheet(
+                            title: "确定不再关注？",
+                            items: new List<ActionSheetItem> {
+                                new ActionSheetItem("确定", type: ActionType.normal,
+                                    () => {
+                                        this.widget.actionModel.startUnFollowUser(obj: userId);
+                                        this.widget.actionModel.unFollowUser(arg: userId);
+                                    }),
+                                new ActionSheetItem("取消", type: ActionType.cancel)
+                            }
+                        )
+                    );
+                }
+                else {
+                    this.widget.actionModel.startFollowUser(obj: userId);
+                    this.widget.actionModel.followUser(arg: userId);
+                }
+            }
+            else {
+                this.widget.actionModel.pushToLogin();
+            }
         }
 
         Widget _buildSearchBar() {
@@ -190,7 +231,8 @@ namespace ConnectApp.screens {
             );
         }
 
-        public static Widget buildMemberItem(BuildContext context, ChannelMember member, bool followed) {
+        public static Widget buildMemberItem(BuildContext context, ChannelMember member, bool followed,
+            Action<bool, string> onFollow) {
             Widget fullName = new Text(member.user.fullName, style: CTextStyle.PMediumBody,
                 maxLines: 1, overflow: TextOverflow.ellipsis);
             if (member.role != "member") {
@@ -233,6 +275,7 @@ namespace ConnectApp.screens {
                             )
                         ),
                         new CustomButton(
+                            onPressed: () => { onFollow(followed, member.user.id); },
                             padding: EdgeInsets.zero,
                             child: new Container(
                                 width: 60,
