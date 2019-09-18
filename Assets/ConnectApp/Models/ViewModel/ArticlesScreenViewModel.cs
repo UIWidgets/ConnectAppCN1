@@ -7,7 +7,7 @@ namespace ConnectApp.Models.ViewModel {
         public bool followArticlesLoading;
         public bool followingLoading;
         public List<string> recommendArticleIds;
-        public List<Feed> followArticleIds;
+        public List<string> followArticleIds;
         public List<string> hotArticleIds;
         public List<Following> followings;
         public Dictionary<string, Article> articleDict;

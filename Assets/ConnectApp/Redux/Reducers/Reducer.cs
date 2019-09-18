@@ -154,24 +154,37 @@ namespace ConnectApp.redux.reducers {
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
                     if (currentUserId.isNotEmpty()) {
                         if (action.feeds != null && action.feeds.Count > 0) {
+                            var followArticleIds = new List<string>();
+                            action.feeds.ForEach(feed => {
+                                if (feed.itemIds != null && feed.itemIds.Count > 0) {
+                                    followArticleIds.Add(feed.itemIds[0]);
+                                }
+                            });
                             if (state.articleState.followArticleIdDict.ContainsKey(key: currentUserId)) {
                                 if (action.pageNumber == 1) {
-                                    state.articleState.followArticleIdDict[key: currentUserId] = action.feeds;
+                                    state.articleState.beforeTime = action.feeds.last().actionTime;
+                                    state.articleState.afterTime = action.feeds.first().actionTime;
+                                    if (state.loginState.isLoggedIn) {
+                                        HistoryManager.saveHomeAfterTime(afterTime: state.articleState.afterTime,
+                                            userId: state.loginState.loginInfo.userId);
+                                    }
+                                    state.articleState.followArticleIdDict[key: currentUserId] = followArticleIds;
                                 }
                                 else {
+                                    state.articleState.beforeTime = action.feeds.last().actionTime;
                                     var projectIds = state.articleState.followArticleIdDict[key: currentUserId];
-                                    projectIds.AddRange(collection: action.feeds);
+                                    projectIds.AddRange(collection: followArticleIds);
                                     state.articleState.followArticleIdDict[key: currentUserId] = projectIds;
                                 }
                             }
                             else {
-                                state.articleState.followArticleIdDict.Add(key: currentUserId, value: action.feeds);
-                            }
-
-                            if (state.loginState.isLoggedIn) {
-                                var firstFeed = state.articleState.followArticleIdDict[key: currentUserId].first();
-                                HistoryManager.saveHomeAfterTime(afterTime: firstFeed.actionTime,
-                                    userId: state.loginState.loginInfo.userId);
+                                state.articleState.beforeTime = action.feeds.last().actionTime;
+                                state.articleState.afterTime = action.feeds.first().actionTime;
+                                if (state.loginState.isLoggedIn) {
+                                    HistoryManager.saveHomeAfterTime(afterTime: state.articleState.afterTime,
+                                        userId: state.loginState.loginInfo.userId);
+                                }
+                                state.articleState.followArticleIdDict.Add(key: currentUserId, value: followArticleIds);
                             }
                         }
 

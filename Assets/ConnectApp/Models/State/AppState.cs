@@ -10,7 +10,6 @@ namespace ConnectApp.Models.State {
     public class AppState {
         public int Count { get; set; }
         public LoginState loginState { get; set; }
-
         public EggState eggState { get; set; }
         public ArticleState articleState { get; set; }
         public EventState eventState { get; set; }
@@ -47,7 +46,7 @@ namespace ConnectApp.Models.State {
                 },
                 articleState = new ArticleState {
                     recommendArticleIds = new List<string>(),
-                    followArticleIdDict = new Dictionary<string, List<Feed>>(),
+                    followArticleIdDict = new Dictionary<string, List<string>>(),
                     hotArticleIdDict = new Dictionary<string, List<string>>(),
                     articleDict = new Dictionary<string, Article>(),
                     articlesLoading = false,
@@ -59,6 +58,8 @@ namespace ConnectApp.Models.State {
                     followArticleHasMore = false,
                     hotArticleHasMore = false,
                     hotArticlePage = 0,
+                    beforeTime = "",
+                    afterTime = "",
                     articleHistory = HistoryManager.articleHistoryList(isLogin ? loginInfo.userId : null),
                     blockArticleList = HistoryManager.blockArticleList(isLogin ? loginInfo.userId : null)
                 },

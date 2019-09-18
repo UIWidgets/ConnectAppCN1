@@ -32,7 +32,7 @@ namespace ConnectApp.screens {
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
                     var followArticleIds = state.articleState.followArticleIdDict.ContainsKey(key: currentUserId)
                         ? state.articleState.followArticleIdDict[key: currentUserId]
-                        : new List<Feed>();
+                        : new List<string>();
                     var hotArticleIds = state.articleState.hotArticleIdDict.ContainsKey(key: currentUserId)
                         ? state.articleState.hotArticleIdDict[key: currentUserId]
                         : new List<string>();
@@ -46,8 +46,6 @@ namespace ConnectApp.screens {
                     var followMap = state.followState.followDict.ContainsKey(key: currentUserId)
                         ? state.followState.followDict[key: currentUserId]
                         : new Dictionary<string, bool>();
-                    var beforeTime = followArticleIds.isNotEmpty() ? followArticleIds.last().actionTime : "";
-                    var afterTime = followArticleIds.isNotEmpty() ? followArticleIds.first().actionTime : "";
                     return new ArticlesScreenViewModel {
                         followArticlesLoading = state.articleState.followArticlesLoading,
                         followingLoading = state.userState.followingLoading,
@@ -66,8 +64,8 @@ namespace ConnectApp.screens {
                         followMap = followMap,
                         isLoggedIn = state.loginState.isLoggedIn,
                         currentUserId = state.loginState.loginInfo.userId ?? "",
-                        beforeTime = beforeTime,
-                        afterTime = afterTime
+                        beforeTime = state.articleState.beforeTime,
+                        afterTime = state.articleState.afterTime
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -547,35 +545,18 @@ namespace ConnectApp.screens {
                 return this._buildFollowingList();
             }
 
+            var articleIds = isFollow
+                ? this.widget.viewModel.followArticleIds
+                : this.widget.viewModel.hotArticleIds;
             var newIndex = this.widget.viewModel.followings.isNotEmpty()
                 ? index - 1
                 : index;
 
-            var count = isFollow
-                ? this.widget.viewModel.followArticleIds.Count
-                : this.widget.viewModel.hotArticleIds.Count;
-            if (newIndex == count) {
+            if (newIndex == articleIds.Count) {
                 return new EndView(hasBottomMargin: true);
             }
 
-            string articleId;
-            if (isFollow) {
-                var followArticleId = this.widget.viewModel.followArticleIds[index: newIndex];
-                if (followArticleId.itemIds != null && followArticleId.itemIds.Count > 0) {
-                    articleId = followArticleId.itemIds[0];
-                }
-                else {
-                    articleId = "";
-                }
-            }
-            else {
-                articleId = this.widget.viewModel.hotArticleIds[index: newIndex];
-            }
-
-            if (articleId.isEmpty()) {
-                return new Container();
-            }
-
+            var articleId = articleIds[index: newIndex];
             if (!this.widget.viewModel.articleDict.ContainsKey(key: articleId)) {
                 return new Container();
             }
