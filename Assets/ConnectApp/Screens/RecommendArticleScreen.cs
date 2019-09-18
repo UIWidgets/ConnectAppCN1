@@ -34,6 +34,7 @@ namespace ConnectApp.screens {
                     teamDict = state.teamState.teamDict,
                     isLoggedIn = state.loginState.isLoggedIn,
                     hosttestOffset = state.articleState.recommendArticleIds.Count,
+                    currentUserId = state.loginState.loginInfo.userId ?? "",
                     showFirstEgg = state.eggState.showFirst
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -57,7 +58,8 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = articleId});
                         },
                         startFetchArticles = () => dispatcher.dispatch(new StartFetchArticlesAction()),
-                        fetchArticles = offset => dispatcher.dispatch<IPromise>(Actions.fetchArticles(offset: offset)),
+                        fetchArticles = (userId, offset) =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchArticles(userId: userId, offset: offset)),
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
                             Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
                     };
@@ -97,7 +99,7 @@ namespace ConnectApp.screens {
             this._hasBeenLoadedData = false;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchArticles();
-                this.widget.actionModel.fetchArticles(arg: initOffset).Then(() => {
+                this.widget.actionModel.fetchArticles(arg1: this.widget.viewModel.currentUserId, arg2: initOffset).Then(() => {
                     if (this._hasBeenLoadedData) {
                         return;
                     }
@@ -140,7 +142,7 @@ namespace ConnectApp.screens {
                         true,
                         () => {
                             this.widget.actionModel.startFetchArticles();
-                            this.widget.actionModel.fetchArticles(arg: initOffset);
+                            this.widget.actionModel.fetchArticles(arg1: this.widget.viewModel.currentUserId, arg2: initOffset);
                         }
                     )
                 );
@@ -231,7 +233,7 @@ namespace ConnectApp.screens {
 
         void _onRefresh(bool up) {
             this.offset = up ? initOffset : this.widget.viewModel.hosttestOffset;
-            this.widget.actionModel.fetchArticles(arg: this.offset)
+            this.widget.actionModel.fetchArticles(arg1: this.widget.viewModel.currentUserId, arg2: this.offset)
                 .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }

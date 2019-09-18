@@ -5,14 +5,14 @@ using ConnectApp.Models.Model;
 namespace ConnectApp.Models.Api {
     [Serializable]
     public class FetchArticlesResponse {
-        public List<hottestItem> hottests;
+        public List<HottestItem> hottests;
         public Dictionary<string, Article> projectMap;
         public Dictionary<string, User> userMap;
         public Dictionary<string, Team> teamMap;
-        public Dictionary<string, Place> placeMap;
         public Dictionary<string, bool> followMap;
         public Dictionary<string, bool> likeMap;
         public bool hottestHasMore;
+        public bool feedHasNew;
     }
 
     [Serializable]
@@ -22,17 +22,14 @@ namespace ConnectApp.Models.Api {
         public Dictionary<string, Team> teamMap;
         public Dictionary<string, bool> followMap;
         public Dictionary<string, bool> likeMap;
-        public List<Article> projects;
-        public bool projectHasMore;
-        public List<Article> hottests;
-        public bool hottestHasMore;
-        public int page;
-    }
-
-    [Serializable]
-    public class hottestItem {
-        public string id;
-        public string itemId;
+        public Dictionary<string, Article> projectSimpleMap;
+        public List<Feed> feeds;
+        public bool feedHasNew;
+        public bool feedIsFirst;
+        public bool feedHasMore;
+        public List<HottestItem> hotItems;
+        public bool hotHasMore;
+        public int hotPage;
     }
 
     [Serializable]

@@ -121,4 +121,16 @@ namespace ConnectApp.Models.Model {
             );
         }
     }
+
+    [Serializable]
+    public class Feed {
+        public List<string> itemIds;
+        public string actionTime;
+    }
+
+    [Serializable]
+    public class HottestItem {
+        public string id;
+        public string itemId;
+    }
 }
