@@ -17,6 +17,7 @@ namespace ConnectApp.Constants {
         public static readonly IconData description = new IconData(0xe873, "Material Icons");
         public static readonly IconData question_answer = new IconData(0xe8af, "Material Icons");
         public static readonly IconData outline_question_answer = new IconData(0xeaa4, "Outline Material Icons");
+        public static readonly IconData outline_time = new IconData(0xebed, "Outline Material Icons");
         public static readonly IconData whatshot = new IconData(0xe80e, "Material Icons");
         public static readonly IconData outline_photo_size_select_actual = new IconData(0xebca, "Outline Material Icons");
         public static readonly IconData notifications_off = new IconData(0xe7f6, "Material Icons");
@@ -468,6 +469,7 @@ namespace ConnectApp.Constants {
 
         public static readonly Color Background = new Color(0xFFF5F5F5);
         public static readonly Color Icon = new Color(0xFF979A9E);
+        public static readonly Color EmojiBottomBar = new Color(0xFFF4F4F4);
 
         public static readonly Color Gerakdine = new Color(0xFFFF8686);
         public static readonly Color Tan = new Color(0xFFFFAB6D);

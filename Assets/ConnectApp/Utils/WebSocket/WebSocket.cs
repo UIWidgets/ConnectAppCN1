@@ -24,7 +24,7 @@ namespace ConnectApp.Utils {
 
         readonly bool m_useSslHandShakeHack;
 
-        const bool EnableWebSocketSharpLog = false;
+        const bool EnableWebSocketSharpLog = true;
 
         public WebSocket(WebSocketHost host, bool useSslHandShakeHack)
         {

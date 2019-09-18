@@ -113,6 +113,7 @@ namespace ConnectApp.Models.State {
                     followerLoading = false,
                     userDict = UserInfoManager.initUserDict(),
                     slugDict = new Dictionary<string, string>(),
+                    userLicenseDict = new Dictionary<string, UserLicense>(),
                     fullName = "",
                     title = "",
                     jobRole = new JobRole(),
@@ -160,13 +161,12 @@ namespace ConnectApp.Models.State {
                 },
                 channelState = new ChannelState {
                     publicChannels = new List<string>(),
-                    publicChannelCurrentPage = 0,
-                    publicChannelPages = new List<int>(),
-                    publicChannelTotal = 0,
+                    discoverPage = 1,
                     joinedChannels = new List<string>(),
                     channelDict = new Dictionary<string, ChannelView>(),
                     messageDict = new Dictionary<string, ChannelMessageView>(),
-                    membersDict = new Dictionary<string, ChannelMember>()
+                    membersDict = new Dictionary<string, ChannelMember>(),
+                    unreadDict = ChannelUnreadMessageManager.getUnread() ?? new Dictionary<string, long>()
                 }
             };
         }

@@ -84,5 +84,17 @@ namespace ConnectApp.Utils {
 
             return $"{bytes / (1024.0f * 1024 * 1024):F}G";
         }
+
+        public static string NotificationText(int num) {
+            if (num == 0) {
+                return null;
+            }
+
+            if (num < 100) {
+                return $"{num}";
+            }
+
+            return "";
+        }
     }
 }

@@ -18,6 +18,7 @@ namespace ConnectApp.screens {
             Key key = null
         ) : base(key: key) {
         }
+
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, SearchScreenViewModel>(
                 converter: state => {
@@ -51,18 +52,20 @@ namespace ConnectApp.screens {
                         startFollowTeam = followTeamId => dispatcher.dispatch(new StartFetchFollowTeamAction {
                             followTeamId = followTeamId
                         }),
-                        followTeam = followTeamId => dispatcher.dispatch<IPromise>(Actions.fetchFollowTeam(followTeamId)),
+                        followTeam = followTeamId =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowTeam(followTeamId)),
                         startUnFollowTeam = unFollowTeamId => dispatcher.dispatch(new StartFetchUnFollowTeamAction {
                             unFollowTeamId = unFollowTeamId
                         }),
-                        unFollowTeam = unFollowTeamId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowTeam(unFollowTeamId))
+                        unFollowTeam = unFollowTeamId =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchUnFollowTeam(unFollowTeamId))
                     };
                     return new SearchTeamScreen(viewModel, actionModel);
                 }
             );
         }
     }
-    
+
     public class SearchTeamScreen : StatefulWidget {
         public SearchTeamScreen(
             SearchScreenViewModel viewModel = null,
@@ -121,6 +124,7 @@ namespace ConnectApp.screens {
                         )
                     );
                 }
+
                 if (userType == UserType.unFollow) {
                     this.widget.actionModel.startFollowTeam(obj: teamId);
                     this.widget.actionModel.followTeam(arg: teamId);
@@ -174,11 +178,12 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         Widget _buildTeamCard(BuildContext context, int index) {
             if (index == 0) {
                 return new CustomDivider(color: CColors.White);
             }
+
             var searchTeamIds = this.widget.viewModel.searchTeamIds;
             if (index == searchTeamIds.Count + 1) {
                 return new EndView();
@@ -197,17 +202,21 @@ namespace ConnectApp.screens {
             else {
                 if (this.widget.viewModel.currentUserId == searchTeam.id) {
                     userType = UserType.me;
-                } else if (searchTeam.followTeamLoading ?? false) {
+                }
+                else if (searchTeam.followTeamLoading ?? false) {
                     userType = UserType.loading;
-                } else if (this.widget.viewModel.followMap.ContainsKey(key: searchTeam.id)) {
+                }
+                else if (this.widget.viewModel.followMap.ContainsKey(key: searchTeam.id)) {
                     userType = UserType.follow;
                 }
             }
+
             return new TeamCard(
                 team: searchTeam,
                 () => this.widget.actionModel.pushToTeamDetail(obj: searchTeam.id),
                 userType: userType,
                 () => this._onFollow(userType: userType, teamId: searchTeam.id),
+                true,
                 new ObjectKey(value: searchTeam.id)
             );
         }

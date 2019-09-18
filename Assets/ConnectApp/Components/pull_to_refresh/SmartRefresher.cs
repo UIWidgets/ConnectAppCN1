@@ -30,6 +30,7 @@ namespace ConnectApp.Components.pull_to_refresh {
             bool enablePullUp = DefaultConstants.default_enablePullUp,
             bool enablePullDown = DefaultConstants.default_enablePullDown,
             bool enableOverScroll = DefaultConstants.default_enableOverScroll,
+            bool reverse = false,
             OnRefresh onRefresh = null,
             OnOffsetChange onOffsetChange = null,
             RefreshController controller = null,
@@ -58,6 +59,7 @@ namespace ConnectApp.Components.pull_to_refresh {
             this.onOffsetChange = onOffsetChange;
             this.controller = controller ?? new RefreshController();
             this.onNotification = onNotification;
+            this.reverse = reverse;
         }
 
         public readonly ScrollView child;
@@ -91,6 +93,7 @@ namespace ConnectApp.Components.pull_to_refresh {
 
         public readonly NotificationListenerCallback<ScrollNotification> onNotification;
 
+        public readonly bool reverse;
 
         public override State createState() {
             return new _SmartRefresherState();
@@ -393,6 +396,7 @@ namespace ConnectApp.Components.pull_to_refresh {
                             right: 0.0f,
                             child: new NotificationListener<ScrollNotification>(
                                 child: new CustomScrollView(
+                                    reverse: this.widget.reverse,
                                     physics: new RefreshScrollPhysics(enableOverScroll: this.widget.enableOverScroll),
                                     controller: this._scrollController,
                                     slivers: slivers

@@ -7,5 +7,6 @@ namespace ConnectApp.Models.ViewModel {
         public Dictionary<string, bool> followed;
         public List<ChannelMember> members;
         public int nAdmin;
+        public bool isLoggedIn;
     }
 }

@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
+using ConnectApp.Models.State;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -13,6 +15,40 @@ using Transform = Unity.UIWidgets.widgets.Transform;
 
 namespace ConnectApp.Components {
     public delegate bool SelectTabCallBack(int fromIndex, int toIndex);
+
+    public class CustomTabBarConnector : StatelessWidget {
+        public CustomTabBarConnector(
+            List<Widget> controllers,
+            List<CustomTabBarItem> items,
+            Color backgroundColor,
+            SelectTabCallBack tapCallBack = null,
+            Key key = null
+        ) : base(key: key) {
+            this.tapCallBack = tapCallBack;
+            this.backgroundColor = backgroundColor;
+            this.controllers = controllers;
+            this.items = items;
+        }
+
+        public readonly SelectTabCallBack tapCallBack;
+        public readonly Color backgroundColor;
+        public readonly List<Widget> controllers;
+        public readonly List<CustomTabBarItem> items;
+
+        public override Widget build(BuildContext context) {
+            return new StoreConnector<AppState, object>(
+                converter: state => null,
+                builder: (context1, viewModel, dispatcher) => {
+                    return new CustomTabBar(
+                        controllers: this.controllers,
+                        items: this.items,
+                        backgroundColor: this.backgroundColor,
+                        tapCallBack: this.tapCallBack
+                    );
+                }
+            );
+        }
+    }
 
     public class CustomTabBar : StatefulWidget {
         public CustomTabBar(
@@ -167,14 +203,14 @@ namespace ConnectApp.Components {
                             ),
                             Positioned.fill(
                                 child: new Align(
-                                    alignment: Alignment.topLeft,
+                                    alignment: Alignment.center,
                                     child: new Transform(
-                                        transform: Matrix3.makeTrans(new Offset(46, 5)),
+                                        transform: Matrix3.makeTrans(new Offset(12, -8)),
                                         child: new NotificationDot(
                                             item.notification,
                                             borderSide: new BorderSide(
                                                 color: CColors.White, width: 2)
-                                            )
+                                        )
                                     )
                                 )
                             )

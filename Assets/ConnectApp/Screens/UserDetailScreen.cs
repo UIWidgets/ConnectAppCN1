@@ -15,8 +15,8 @@ using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -52,6 +52,7 @@ namespace ConnectApp.screens {
                         userLoading = state.userState.userLoading,
                         userArticleLoading = state.userState.userArticleLoading,
                         user = user,
+                        userLicenseDict = state.userState.userLicenseDict,
                         articleDict = state.articleState.articleDict,
                         followMap = followMap,
                         currentUserId = currentUserId,
@@ -246,6 +247,7 @@ namespace ConnectApp.screens {
             else {
                 this._articlePageNumber++;
             }
+
             this.widget.actionModel.fetchUserArticle(arg1: this.widget.viewModel.user.id, arg2: this._articlePageNumber)
                 .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
@@ -502,11 +504,26 @@ namespace ConnectApp.screens {
                                         child: new Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: new List<Widget> {
-                                                new Text(
-                                                    user.fullName ?? user.name,
-                                                    style: CTextStyle.H4White,
-                                                    maxLines: 1,
-                                                    overflow: TextOverflow.ellipsis
+                                                new Row(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: new List<Widget> {
+                                                        new Flexible(
+                                                            child: new Text(
+                                                                user.fullName ?? user.name,
+                                                                style: CTextStyle.H4White,
+                                                                maxLines: 1,
+                                                                overflow: TextOverflow.ellipsis
+                                                            )
+                                                        ),
+                                                        CImageUtils.GenBadgeImage(
+                                                            badges: user.badges,
+                                                            CCommonUtils.GetUserLicense(
+                                                                userId: user.id,
+                                                                userLicenseMap: this.widget.viewModel.userLicenseDict
+                                                            ),
+                                                            EdgeInsets.only(4, 6)
+                                                        )
+                                                    }
                                                 ),
                                                 titleWidget
                                             }

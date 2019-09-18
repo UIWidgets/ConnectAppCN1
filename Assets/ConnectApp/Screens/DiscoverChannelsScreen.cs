@@ -7,6 +7,7 @@ using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
@@ -23,14 +24,19 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, DiscoverChannelsScreenViewModel>(
                 converter: state => {
                     return new DiscoverChannelsScreenViewModel {
-                        discoverChannelInfo = state.channelState.publicChannels.Select(
+                        publicChannels = state.channelState.publicChannels.Select(
                             channelId => state.channelState.channelDict[channelId]
-                        ).ToList()
+                        ).ToList(),
+                        joinedChannels = state.channelState.joinedChannels.Select(
+                            channelId => state.channelState.channelDict[channelId]).ToList(),
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new DiscoverChannelsScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
+                        joinChannel = (channelId, groupId) => {
+                            dispatcher.dispatch<IPromise>(Actions.joinChannel(channelId, groupId));
+                        }
                     };
                     return new DiscoverChannelsScreen(viewModel, actionModel);
                 }
@@ -103,8 +109,10 @@ namespace ConnectApp.screens {
                 color: CColors.White,
                 child: new ListView(
                     padding: EdgeInsets.symmetric(16, 0),
-                    children: this.widget.viewModel.discoverChannelInfo
-                        .Select(MessageBuildUtils.buildDiscoverChannelItem).ToList()
+                    children: this.widget.viewModel.publicChannels
+                        .Select((channel) => MessageBuildUtils.buildDiscoverChannelItem(
+                                channel, this.widget.actionModel.joinChannel)
+                        ).ToList()
                 )
             );
         }
