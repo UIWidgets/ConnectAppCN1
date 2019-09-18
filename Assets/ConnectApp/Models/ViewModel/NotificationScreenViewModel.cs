@@ -9,5 +9,6 @@ namespace ConnectApp.Models.ViewModel {
         public List<Notification> notifications;
         public List<User> mentions;
         public Dictionary<string, User> userDict;
+        public Dictionary<string, Team> teamDict;
     }
 }

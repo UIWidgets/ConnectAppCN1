@@ -3,6 +3,7 @@ using System.Linq;
 using ConnectApp.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
 
 namespace ConnectApp.redux.actions {
@@ -23,28 +24,43 @@ namespace ConnectApp.redux.actions {
     public static partial class Actions {
         public static object fetchNotifications(int pageNumber) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return NotificationApi.FetchNotifications(pageNumber)
+                return NotificationApi.FetchNotifications(pageNumber: pageNumber)
                     .Then(notificationResponse => {
                         var results = notificationResponse.results;
                         if (results != null && results.Count > 0) {
                             var userMap = notificationResponse.userMap;
+                            Dictionary<string, Team> teamMap = new Dictionary<string, Team>();
                             results.ForEach(item => {
                                 var data = item.data;
-                                var user = new User {
-                                    id = data.userId,
-                                    fullName = data.fullname,
-                                    avatar = data.avatarWithCDN
-                                };
-                                if (userMap.ContainsKey(key: data.userId)) {
-                                    userMap[key: data.userId] = user;
+                                if (data.userId.isNotEmpty()) {
+                                    var user = new User {
+                                        id = data.userId,
+                                        fullName = data.fullname,
+                                        avatar = data.avatarWithCDN
+                                    };
+                                    if (userMap.ContainsKey(key: data.userId)) {
+                                        userMap[key: data.userId] = user;
+                                    }
+                                    else {
+                                        userMap.Add(key: data.userId, value: user);
+                                    }
                                 }
-                                else {
-                                    userMap.Add(key: data.userId, value: user);
+                                if (data.teamId.isNotEmpty()) {
+                                    var team = new Team {
+                                        id = data.teamId,
+                                        name = data.teamName,
+                                        avatar = data.teamAvatarWithCDN ?? ""
+                                    };
+                                    if (teamMap.ContainsKey(key: data.teamId)) {
+                                        teamMap[key: data.teamId] = team;
+                                    }
+                                    else {
+                                        teamMap.Add(key: data.teamId, value: team);
+                                    }
                                 }
                             });
-                            dispatcher.dispatch(new UserMapAction {
-                                userMap = userMap
-                            });
+                            dispatcher.dispatch(new UserMapAction {userMap = userMap});
+                            dispatcher.dispatch(new TeamMapAction {teamMap = teamMap});
                         }
 
                         dispatcher.dispatch(new FetchNotificationsSuccessAction {
