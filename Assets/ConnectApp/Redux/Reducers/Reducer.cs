@@ -2329,9 +2329,9 @@ namespace ConnectApp.redux.reducers {
                                 ChannelMessageView.fromChannelMessage(action.messages[i]);
                             state.channelState.messageDict[channelMessage.id] = channelMessage;
                             channel.messageIds.Add(channelMessage.id);
-                            if (channelMessage.nonce > unreadAfter) {
-                                channel.handleUnreadMessage(channelMessage, state.loginState.loginInfo.userId);
-                            }
+                            // if (channelMessage.nonce > unreadAfter) {
+                            //     channel.handleUnreadMessage(channelMessage, state.loginState.loginInfo.userId);
+                            // }
                         }
                     } else if (action.before != null) {
                         D.assert(channel.messageIds.first() == action.before);
@@ -2405,7 +2405,41 @@ namespace ConnectApp.redux.reducers {
 
                 case PushReadyAction action: {
                     var sessionReadyData = action.readyData;
-                    //TODO: read the session data to initiate channel dynamic info
+                    Debug.Log($"Ready Data {action.readyData}");
+                    for (int i = 0; i < sessionReadyData.lobbyChannels.Count; i++) {
+                        var channel = sessionReadyData.lobbyChannels[i];
+                        state.channelState.updateNormalChannelLite(channel);
+                        if (!state.channelState.joinedChannels.Contains(channel.id)) {
+                            state.channelState.joinedChannels.Add(channel.id);
+                        }
+                    }
+                    for (int i = 0; i < sessionReadyData.publicChannels.Count; i++) {
+                        var channel = sessionReadyData.publicChannels[i];
+                        state.channelState.updateNormalChannelLite(channel);
+                        if (!state.channelState.joinedChannels.Contains(channel.id)) {
+                            state.channelState.joinedChannels.Add(channel.id);
+                        }
+                    }
+
+                    for (int i = 0; i < sessionReadyData.lastMessages.Count; i++) {
+                        var message = sessionReadyData.lastMessages[i];
+                        var channelId = message.channelId;
+                        if (state.channelState.channelDict.TryGetValue(channelId, out var channel)) {
+                            channel.lastMessageId = message.id;
+                            channel.lastMessage = ChannelMessageView.fromChannelMessageLite(message);
+                        }
+                    }
+
+                    for (int i = 0; i < sessionReadyData.readState.Count; i++) {
+                        var readState = sessionReadyData.readState[i];
+                        var channelId = readState.channelId;
+                        if (state.channelState.channelDict.TryGetValue(channelId, out var channel)) {
+                            channel.mentioned = readState.mentionCount;
+                            channel.unread = readState.lastMessageId != channel.lastMessageId ? 1 : 0;
+                            channel.atMe = channel.mentioned > 0;
+                        }
+                    }
+
                     Debug.Log("WebSocket Online!");
                     break;
                 }

@@ -85,7 +85,6 @@ namespace ConnectApp.Api {
                     {"groupId", groupId}
                 });
             }
-            Debug.Log(request.uri);
             HttpManager.resume(request).Then(responseText => {
                 var leaveChannelResponse = JsonConvert.DeserializeObject<LeaveChannelResponse>(responseText);
                 promise.Resolve(leaveChannelResponse);

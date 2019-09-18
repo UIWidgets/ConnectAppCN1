@@ -32,6 +32,7 @@ namespace ConnectApp.Models.ViewModel {
         public ChannelMessageView lastMessage;
         public List<string> messageIds;
         public int unread = 0;
+        public int mentioned = 0;
         public bool isTop = false;
         public bool joined = false;
         public bool atMe = false;
@@ -73,6 +74,35 @@ namespace ConnectApp.Models.ViewModel {
                 ? this.lastMessage
                 : ChannelMessageView.fromChannelMessage(channel.lastMessage);
             this.lastMessageId = channel?.lastMessage?.id ?? this.lastMessageId;
+        }
+        
+        public static ChannelView fromNormalChannelLite(NormalChannelLite channel) {
+            return new ChannelView {
+                atAll = false,
+                memberIds = new List<string>(),
+                id = channel?.id,
+                groupId = channel?.groupId,
+                thumbnail = channel?.thumbnail,
+                name = channel?.name,
+                topic = channel?.topic,
+                memberCount = channel?.memberCount ?? 0,
+                isMute = channel?.isMute ?? false,
+                live = channel?.live ?? false,
+                lastMessageId = channel?.lastMessageId,
+                messageIds = new List<string>()
+            };
+        }
+
+        public void updateFromNormalChannelLite(NormalChannelLite channel) {
+            this.id = channel?.id ?? this.id;
+            this.groupId = channel?.groupId ?? this.groupId;
+            this.thumbnail = channel?.thumbnail ?? this.thumbnail;
+            this.name = channel?.name ?? this.name;
+            this.topic = channel?.topic ?? this.topic;
+            this.memberCount = channel?.memberCount ?? this.memberCount;
+            this.isMute = channel?.isMute ?? this.isMute;
+            this.live = channel?.live ?? this.live;
+            this.lastMessageId = channel?.lastMessageId ?? this.lastMessageId;
         }
 
         public void handleUnreadMessage(ChannelMessageView message, string userId) {
@@ -167,6 +197,22 @@ namespace ConnectApp.Models.ViewModel {
                 embeds = message.embeds,
                 reactions = message.reactions
             };
+        }
+        
+        public static ChannelMessageView fromChannelMessageLite(ChannelMessageLite message) {
+            return fromChannelMessage(new ChannelMessage {
+                id = message.id,
+                nonce = message.nonce,
+                channelId = message.channelId,
+                author = new User {
+                    id = message.author.id
+                },
+                content = message.content,
+                attachments = message.attachments,
+                type = message.type,
+                mentionEveryone = message.mentionEveryone,
+                mentions = message.mentions.Select(user => new User{id = user.id}).ToList(),
+            });
         }
 
         public static ChannelMessageView fromChannelMessage(ChannelMessage message) {

@@ -126,6 +126,7 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
+            // this.widget.actionModel.fetchChannels();
         }
 
         public override Widget build(BuildContext context) {
@@ -337,6 +338,8 @@ namespace ConnectApp.screens {
 
         public static Widget buildChannelItem(ChannelView channel, Action onTap = null) {
             Widget title = new Text(channel.name, style: CTextStyle.PLargeMedium);
+            string text = channel.lastMessage == null || string.IsNullOrEmpty(channel.lastMessage.content)
+                ? "" : (channel.lastMessage.author?.fullName ?? "") + ": " + (channel.lastMessage.content ?? "");
             Widget message = new RichText(
                 text: new TextSpan(
                     channel.atMe
@@ -345,9 +348,7 @@ namespace ConnectApp.screens {
                             ? "[@所有人] "
                             : "",
                     children: new List<TextSpan> {
-                        new TextSpan(channel.lastMessage.content ?? "",
-                            style: CTextStyle.PRegularBody4
-                        )
+                        new TextSpan(text, style: CTextStyle.PRegularBody4)
                     },
                     style: CTextStyle.PRegularError
                 ),
@@ -373,7 +374,13 @@ namespace ConnectApp.screens {
                     ? (Widget) new Icon(
                         Icons.notifications_off,
                         size: 16, color: CColors.LighBlueGrey)
-                    : new NotificationDot(CStringUtils.NotificationText(channel.unread))
+                    : new NotificationDot(
+                        channel.mentioned > 0
+                            ? $"{channel.mentioned}"
+                            : channel.unread > 0
+                                ? ""
+                                : null
+                    )
             );
 
             icon = new Container(
@@ -381,7 +388,7 @@ namespace ConnectApp.screens {
                 child: new Container(
                     child: new Column(
                         children: new List<Widget> {
-                            new Text(channel.lastMessage.timeString ?? "", style: CTextStyle.PSmallBody4),
+                            new Text(channel.lastMessage?.timeString ?? "", style: CTextStyle.PSmallBody4),
                             new Expanded(
                                 child: channel.isMute || channel.unread > 0 ? icon : new Container()
                             )
