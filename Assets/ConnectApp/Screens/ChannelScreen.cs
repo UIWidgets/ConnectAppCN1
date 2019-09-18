@@ -272,6 +272,9 @@ namespace ConnectApp.screens {
             Widget messageContent = new Container();
             switch (message.type) {
                 case ChannelMessageType.text:
+                    if (string.IsNullOrEmpty(message.content)) {
+                        return new Container();
+                    }
                     messageContent = new Text(message.content, style: CTextStyle.PLargeBody);
                     break;
                 case ChannelMessageType.image:
