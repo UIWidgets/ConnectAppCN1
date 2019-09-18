@@ -96,7 +96,6 @@ namespace ConnectApp.screens {
 
     class _ChannelScreenState : TickerProviderStateMixin<ChannelScreen> {
         readonly TextEditingController _textController = new TextEditingController();
-        readonly FocusNode _focusNode = new FocusNode();
         readonly RefreshController _refreshController = new RefreshController();
         TabController _emojiTabController;
 
@@ -434,7 +433,6 @@ namespace ConnectApp.screens {
                                         child: new InputField(
                                             // key: _textFieldKey,
                                             controller: this._textController,
-                                            focusNode: this._focusNode,
                                             height: 32,
                                             style: CTextStyle.PRegularBody,
                                             hintText: "说点想法…",
