@@ -616,6 +616,7 @@ namespace ConnectApp.screens {
                                 ),
                                 new Expanded(child: new Container()),
                                 new GestureDetector(
+                                    onTap: () => this._handleSubmit(this._textController.text),
                                     child: new Container(
                                         width: 60, height: 16,
                                         decoration: new BoxDecoration(
@@ -634,18 +635,20 @@ namespace ConnectApp.screens {
         }
 
         void _handleSubmit(string text) {
+            if (text == "") {
+                return;
+            }
             this.widget.actionModel.startSendMessage();
             this.widget.actionModel.sendMessage(this.widget.viewModel.channelInfo.id, text, Snowflake.CreateNonce(), "")
                 .Catch(_ => { CustomDialogUtils.showToast("消息发送失败", Icons.error_outline); })
                 .Then(
                     () => {
-                        if (this.widget.viewModel.messages.isNotEmpty()) {
-                            this.widget.actionModel.fetchMessages(null, this.widget.viewModel.messages.last().id);
-                        }
-                        else {
-                            this.widget.actionModel.fetchMessages(null, null);
-                        }
-
+                        // if (this.widget.viewModel.messages.isNotEmpty()) {
+                        //     this.widget.actionModel.fetchMessages(null, this.widget.viewModel.messages.last().id);
+                        // }
+                        // else {
+                        //     this.widget.actionModel.fetchMessages(null, null);
+                        // }
                         this.setState(() => this._textController.clear());
                     });
         }
