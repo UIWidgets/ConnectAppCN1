@@ -63,6 +63,36 @@ namespace ConnectApp.redux.actions {
                     });
             });
         }
+        
+        public static object joinChannel(string channelId, string groupId = null) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.JoinChannel(channelId, groupId).Then(joinChannelResponse => {
+                        dispatcher.dispatch(new JoinChannelSuccessAction {
+                            channelId = channelId
+                        });
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new JoinChannelFailureAction());
+                        Debug.Log(error);
+                    });
+            });
+        }
+        
+        public static object leaveChannel(string channelId, string groupId = null) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.LeaveChannel(channelId, groupId).Then(leaveChannelResponse => {
+                        dispatcher.dispatch(new LeaveChannelSuccessAction {
+                            channelId = channelId
+                        });
+                        dispatcher.dispatch(new MainNavigatorPopAction());
+                        dispatcher.dispatch(new MainNavigatorPopAction());
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new LeaveChannelFailureAction());
+                        Debug.Log(error);
+                    });
+            });
+        }
     }
 
     public class ChannelsAction {
@@ -116,6 +146,20 @@ namespace ConnectApp.redux.actions {
     }
     
     public class FetchChannelMemberFailureAction : BaseAction {
+    }
+    
+    public class JoinChannelSuccessAction : BaseAction {
+        public string channelId;
+    }
+    
+    public class JoinChannelFailureAction : BaseAction {
+    }
+
+    public class LeaveChannelSuccessAction : BaseAction {
+        public string channelId;
+    }
+    
+    public class LeaveChannelFailureAction : BaseAction {
     }
 
     public class StartSendChannelMessageAction : RequestAction {

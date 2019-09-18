@@ -42,7 +42,9 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new MainNavigatorPushToChannelIntroductionAction {
                                 channelId = this.channelId
                             }),
-                        fetchMembers = () => dispatcher.dispatch<IPromise>(Actions.fetchChannelMembers(this.channelId))
+                        fetchMembers = () => dispatcher.dispatch<IPromise>(Actions.fetchChannelMembers(this.channelId)),
+                        leaveChannel = () => dispatcher.dispatch<IPromise>(
+                            Actions.leaveChannel(this.channelId, viewModel.channel.groupId))
                     };
                     return new ChannelDetailScreen(actionModel, viewModel);
                 }
@@ -210,11 +212,14 @@ namespace ConnectApp.screens {
                         this._switchRow("设为置顶", this.widget.viewModel.channel.isTop, value => { }),
                         this._switchRow("消息免打扰", this.widget.viewModel.channel.isMute, value => { }),
                         new Container(height: 16),
-                        new Container(
-                            color: CColors.White,
-                            height: 60,
-                            child: new Center(
-                                child: new Text("退出群聊", style: CTextStyle.PLargeError)
+                        new GestureDetector(
+                            onTap: () => { this.widget.actionModel.leaveChannel(); },
+                            child: new Container(
+                                color: CColors.White,
+                                height: 60,
+                                child: new Center(
+                                    child: new Text("退出群聊", style: CTextStyle.PLargeError)
+                                )
                             )
                         )
                     }

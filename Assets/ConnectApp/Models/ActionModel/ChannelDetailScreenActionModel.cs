@@ -5,5 +5,6 @@ namespace ConnectApp.Models.ActionModel {
         public Action pushToChannelMembers;
         public Action pushToChannelIntroduction;
         public Action fetchMembers;
+        public Action leaveChannel;
     }
 }

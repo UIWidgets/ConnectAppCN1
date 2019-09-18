@@ -248,6 +248,16 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
+    public class JoinChannelResponse {
+        
+    }
+    
+    [Serializable]
+    public class LeaveChannelResponse {
+        
+    }
+
+    [Serializable]
     public class UpdateAvatarResponse {
         public string avatar;
         public int profilePercent;

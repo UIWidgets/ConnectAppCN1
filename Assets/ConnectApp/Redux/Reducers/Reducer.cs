@@ -2301,6 +2301,13 @@ namespace ConnectApp.redux.reducers {
                     foreach (var entry in action.channelMap) {
                         state.channelState.updateChannel(entry.Value);
                     }
+
+                    foreach (var entry in state.channelState.channelDict) {
+                        entry.Value.joined = false;
+                    }
+                    for (int i = 0; i < state.channelState.joinedChannels.Count; i++) {
+                        state.channelState.channelDict[state.channelState.joinedChannels[i]].joined = true;
+                    }
                     break;
                 }
                 
@@ -2369,6 +2376,20 @@ namespace ConnectApp.redux.reducers {
                          state.channelState.membersDict[channelMember.id] = channelMember;
                          channel.memberIds.Add(channelMember.id);
                     }
+                    break;
+                }
+
+                case JoinChannelSuccessAction action: {
+                    var channel = state.channelState.channelDict[action.channelId];
+                    channel.joined = true;
+                    state.channelState.joinedChannels.Add(action.channelId);
+                    break;
+                }
+                
+                case LeaveChannelSuccessAction action: {
+                    var channel = state.channelState.channelDict[action.channelId];
+                    channel.joined = false;
+                    state.channelState.joinedChannels.Remove(action.channelId);
                     break;
                 }
 

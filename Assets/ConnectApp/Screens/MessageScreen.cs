@@ -13,6 +13,7 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.debugger;
 using Unity.UIWidgets.foundation;
+using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
@@ -77,6 +78,9 @@ namespace ConnectApp.screens {
                                 }
                             }
 
+                        },
+                        joinChannel = (channelId, groupId) => {
+                            dispatcher.dispatch<IPromise>(Actions.joinChannel(channelId, groupId));
                         }
                     };
                     return new MessageScreen(viewModel, actionModel);
@@ -206,8 +210,9 @@ namespace ConnectApp.screens {
                     ),
                     new Column(
                         children: this.widget.viewModel.publicChannels.Select(
-                            MessageBuildUtils.buildDiscoverChannelItem
-                        ).ToList()
+                            (channel) => MessageBuildUtils.buildDiscoverChannelItem(channel,
+                                    this.widget.actionModel.joinChannel)
+                            ).ToList()
                     ),
                     new Container(height: 40)
                 }
@@ -417,7 +422,7 @@ namespace ConnectApp.screens {
             return ret;
         }
 
-        public static Widget buildDiscoverChannelItem(ChannelView channel) {
+        public static Widget buildDiscoverChannelItem(ChannelView channel, Action<string, string> joinChannel) {
             Widget title = new Text(channel.name,
                 style: CTextStyle.PLargeMedium,
                 maxLines: 1, overflow: TextOverflow.ellipsis);
@@ -461,6 +466,9 @@ namespace ConnectApp.screens {
                         ),
                         new CustomButton(
                             padding: EdgeInsets.zero,
+                            onPressed: channel.joined
+                                ? null
+                                : (GestureTapCallback) (() => { joinChannel(channel.id, channel.groupId); }),
                             child: new Container(
                                 width: 60,
                                 height: 28,

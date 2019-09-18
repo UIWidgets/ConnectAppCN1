@@ -52,5 +52,45 @@ namespace ConnectApp.Api {
             }).Catch(exception => { promise.Reject(exception); });
             return promise;
         }
+        
+        public static Promise<List<JoinChannelResponse>> JoinChannel(string channelId, string groupId = null) {
+            var promise = new Promise<List<JoinChannelResponse>>();
+            var request = HttpManager.POST($"{Config.apiAddress}/api/channels/{channelId}/join",
+                parameter: new Dictionary<string, string> {
+                    {"channelId", channelId}
+            });
+            if (string.IsNullOrEmpty(groupId)) {
+                request = HttpManager.POST($"{Config.apiAddress}/api/group/{groupId}/requestJoin",
+                parameter: new Dictionary<string, string> {
+                    {"groupId", groupId}
+                });
+            }
+            Debug.Log(request.uri);
+            HttpManager.resume(request).Then(responseText => {
+                var joinChannelResponse = JsonConvert.DeserializeObject<List<JoinChannelResponse>>(responseText);
+                promise.Resolve(joinChannelResponse);
+            }).Catch(exception => { promise.Reject(exception); });
+            return promise;
+        }
+        
+        public static Promise<LeaveChannelResponse> LeaveChannel(string channelId, string groupId = null) {
+            var promise = new Promise<LeaveChannelResponse>();
+            var request = HttpManager.POST($"{Config.apiAddress}/api/channels/{channelId}/leave",
+                parameter: new Dictionary<string, string> {
+                    {"channelId", channelId}
+            });
+            if (string.IsNullOrEmpty(groupId)) {
+                request = HttpManager.POST($"{Config.apiAddress}/api/group/{groupId}/deleteMember",
+                parameter: new Dictionary<string, string> {
+                    {"groupId", groupId}
+                });
+            }
+            Debug.Log(request.uri);
+            HttpManager.resume(request).Then(responseText => {
+                var leaveChannelResponse = JsonConvert.DeserializeObject<LeaveChannelResponse>(responseText);
+                promise.Resolve(leaveChannelResponse);
+            }).Catch(exception => { promise.Reject(exception); });
+            return promise;
+        }
     }
 }
