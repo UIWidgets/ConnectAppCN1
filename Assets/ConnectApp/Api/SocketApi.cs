@@ -20,13 +20,21 @@ namespace ConnectApp.Api {
         }
         
         
-        public static void ConnectToWSS(Dictionary<string, string> header) {
+        public static void ConnectToWSS(Dictionary<string, string> header, bool forceConnect = true) {
             if (HttpManager.getCookie().isNotEmpty()) {
                 var sessionId = HttpManager.getCookie("LS");
                 if (sessionId == null) {
                     Debug.Log("Connect to Message Feed Failed: no sessionId available !");
                     return;
                 }
+            }
+            
+            D.assert(SocketGateway.instance != null);
+            if (SocketGateway.instance == null) {
+                return;
+            }
+            if (!forceConnect && !SocketGateway.instance.readyForConnect) {
+                return;
             }
             
             SocketGateway.instance.Connect(() => 
@@ -45,7 +53,8 @@ namespace ConnectApp.Api {
                             var sessionData = (SocketResponseSessionData) data;
                             var sessionId = sessionData.sessionId;
                             
-                            StoreProvider.store.dispatcher.dispatch(new PushReadyAction());
+                            StoreProvider.store.dispatcher.dispatch(new PushReadyAction {
+                                readyData = sessionData});
                             break;
                         case DispatchMsgType.RESUMED:
                             break;
@@ -59,15 +68,40 @@ namespace ConnectApp.Api {
                         case DispatchMsgType.MESSAGE_UPDATE:
                             var updateMessageData = (SocketResponseMessageData) data;
                             
-                            StoreProvider.store.dispatcher.dispatch(new PushNewMessageAction {
+                            StoreProvider.store.dispatcher.dispatch(new PushModifyMessageAction {
                                 messageData = updateMessageData
                             });
                             break;
                         case DispatchMsgType.MESSAGE_DELETE:
                             var deleteMessageData = (SocketResponseMessageData) data;
                             
-                            StoreProvider.store.dispatcher.dispatch(new PushNewMessageAction {
+                            StoreProvider.store.dispatcher.dispatch(new PushDeleteMessageAction {
                                 messageData = deleteMessageData
+                            });
+                            break;
+                        case DispatchMsgType.PING:
+                            //var pingData = (SocketResponsePingData) data;
+                            //do nothing
+                            break;
+                        case DispatchMsgType.PRESENCE_UPDATE:
+                            var presenceUpdateData = (SocketResponsePresentUpdateData) data;
+
+                            StoreProvider.store.dispatcher.dispatch(new PushPresentUpdateAction {
+                                presentUpdateData = presenceUpdateData
+                            });
+                            break;
+                        case DispatchMsgType.CHANNEL_MEMBER_ADD:
+                            var memberAddData = (SocketResponseChannelMemberChangeData) data;
+                            
+                            StoreProvider.store.dispatcher.dispatch(new PushChannelAddMemberAction {
+                                memberData = memberAddData
+                            });
+                            break;
+                        case DispatchMsgType.CHANNEL_MEMBER_REMOVE:
+                            var memberRemoveData = (SocketResponseChannelMemberChangeData) data;
+                            
+                            StoreProvider.store.dispatcher.dispatch(new PushChannelRemoveMemberAction {
+                                memberData = memberRemoveData
                             });
                             break;
                     }

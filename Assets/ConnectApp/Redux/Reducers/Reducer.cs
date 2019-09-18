@@ -66,6 +66,8 @@ namespace ConnectApp.redux.reducers {
                         HistoryManager.searchArticleHistoryList(userId: action.loginInfo.userId);
                     state.articleState.blockArticleList =
                         HistoryManager.blockArticleList(userId: action.loginInfo.userId);
+                    
+                    SocketApi.ConnectToWSS(action.loginInfo.external_Headers);
                     break;
                 }
 
@@ -85,6 +87,8 @@ namespace ConnectApp.redux.reducers {
                         HistoryManager.searchArticleHistoryList(userId: action.loginInfo.userId);
                     state.articleState.blockArticleList =
                         HistoryManager.blockArticleList(userId: action.loginInfo.userId);
+                    
+                    SocketApi.ConnectToWSS(action.loginInfo.external_Headers);
                     break;
                 }
 
@@ -2301,6 +2305,8 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
                 case PushReadyAction action: {
+                    var sessionReadyData = action.readyData;
+                    //TODO: read the session data to initiate channel dynamic info
                     Debug.Log("WebSocket Online!");
                     break;
                 }
@@ -2340,6 +2346,22 @@ namespace ConnectApp.redux.reducers {
                 }
                 case PushDeleteMessageAction action: {
                     //TODO
+                    Debug.Log($"delete message {action.messageData.id}");
+                    break;
+                }
+                case PushPresentUpdateAction action: {
+                    //TODO
+                    Debug.Log($"presence update {action.presentUpdateData.userId} as {action.presentUpdateData.status}");
+                    break;
+                }
+                case PushChannelAddMemberAction action: {
+                    //TODO
+                    Debug.Log($"member add {action.memberData.user} to {action.memberData.channelId}");
+                    break;
+                }
+                case PushChannelRemoveMemberAction action: {
+                    //TODO
+                    Debug.Log($"member remove {action.memberData.user} from {action.memberData.channelId}");
                     break;
                 }
             }

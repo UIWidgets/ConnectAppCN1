@@ -98,6 +98,7 @@ namespace ConnectApp.redux.actions {
     }
 
     public class PushReadyAction : BaseAction {
+        public SocketResponseSessionData readyData;
     }
 
     public class PushNewMessageAction : BaseAction {
@@ -110,5 +111,17 @@ namespace ConnectApp.redux.actions {
 
     public class PushDeleteMessageAction : BaseAction {
         public SocketResponseMessageData messageData;
+    }
+
+    public class PushPresentUpdateAction : BaseAction {
+        public SocketResponsePresentUpdateData presentUpdateData;
+    }
+
+    public class PushChannelAddMemberAction : BaseAction {
+        public SocketResponseChannelMemberChangeData memberData;
+    }
+
+    public class PushChannelRemoveMemberAction : BaseAction {
+        public SocketResponseChannelMemberChangeData memberData;
     }
 }
