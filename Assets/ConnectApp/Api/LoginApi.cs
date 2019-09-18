@@ -77,10 +77,6 @@ namespace ConnectApp.Api {
                 HttpManager.GET($"{Config.apiAddress}/api/connectapp/initData");
             HttpManager.resume(request).Then(responseText => {
                 var initDataResponse = JsonConvert.DeserializeObject<FetchInitDataResponse>(responseText);
-
-                if (UserInfoManager.isLogin()) {
-                    SocketApi.ConnectToWSS(false);
-                }
                 
                 promise.Resolve(initDataResponse);
             }).Catch(exception => { promise.Reject(exception); });

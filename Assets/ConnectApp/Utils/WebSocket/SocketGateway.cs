@@ -163,7 +163,7 @@ namespace ConnectApp.Utils {
                         });
                 }
                 else {
-                    var delay = this.OnFail();
+                    var delay = this.OnFail() / 1000f;
                     Debug.Log($"gateway discovery failed, retry in {delay} seconds");
                 }
             });
