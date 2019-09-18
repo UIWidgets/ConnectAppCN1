@@ -40,7 +40,8 @@ namespace ConnectApp.screens {
                         pushToReality = () => {
                             dispatcher.dispatch(new EnterRealityAction());
                             AnalyticsManager.AnalyticsClickEgg(1);
-                        }
+                        },
+                        fetchChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchChannels(1)),
                     };
                     return new ArticlesScreen(viewModel, actionModel);
                 }
@@ -93,6 +94,11 @@ namespace ConnectApp.screens {
             SplashManager.fetchSplash();
             AnalyticsManager.AnalyticsOpenApp();
             SchedulerBinding.instance.addPostFrameCallback(_ => { this.widget.actionModel.fetchReviewUrl(); });
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                if (UserInfoManager.isLogin()) {
+                    this.widget.actionModel.fetchChannels();
+                }
+            });
             this._loginSubId = EventBus.subscribe(sName: EventBusConstant.login_success, args => {
                 if (this._selectedIndex != 1) {
                     this._selectedIndex = 1;

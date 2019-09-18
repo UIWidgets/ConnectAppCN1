@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Utils;
+using Unity.UIWidgets.foundation;
 
 namespace ConnectApp.Models.ViewModel {
     public class MessageScreenViewModel {
@@ -12,9 +14,9 @@ namespace ConnectApp.Models.ViewModel {
         public List<Notification> notifications;
         public List<User> mentions;
         public Dictionary<string, User> userDict;
-        public List<ChannelView> channelInfo;
-        public List<ChannelView> popularChannelInfo;
-        public List<ChannelView> discoverChannelInfo;
+        public List<ChannelView> joinedChannels;
+        public List<ChannelView> popularChannels;
+        public List<ChannelView> publicChannels;
     }
 
     public class ChannelView {
@@ -30,15 +32,19 @@ namespace ConnectApp.Models.ViewModel {
         public ChannelMessageView lastMessage;
         public List<string> messageIds;
         public int unread = 0;
+        public int mentioned = 0;
         public bool isTop = false;
         public bool joined = false;
         public bool atMe = false;
         public bool atAll = false;
+        public bool hasMore = false;
+        public bool hasMoreNew = false;
+        public bool upToDate = true;
         public List<string> memberIds;
 
         public static ChannelView fromChannel(Channel channel) {
             return new ChannelView {
-                atAll = channel?.lastMessage?.content?.Contains("@all") ?? false,
+                atAll = channel?.lastMessage?.mentionEveryone ?? false,
                 memberIds = new List<string>(),
                 id = channel?.id,
                 groupId = channel?.groupId,
@@ -49,8 +55,68 @@ namespace ConnectApp.Models.ViewModel {
                 isMute = channel?.isMute ?? false,
                 live = channel?.live ?? false,
                 lastMessageId = channel?.lastMessage?.id,
+                lastMessage = ChannelMessageView.fromChannelMessage(channel?.lastMessage),
                 messageIds = new List<string>()
             };
+        }
+
+        public void updateFromChannel(Channel channel) {
+            this.atAll = this.atAll || (channel?.lastMessage?.mentionEveryone ?? false);
+            this.id = channel?.id ?? this.id;
+            this.groupId = channel?.groupId ?? this.groupId;
+            this.thumbnail = channel?.thumbnail ?? this.thumbnail;
+            this.name = channel?.name ?? this.name;
+            this.topic = channel?.topic ?? this.topic;
+            this.memberCount = channel?.memberCount ?? this.memberCount;
+            this.isMute = channel?.isMute ?? this.isMute;
+            this.live = channel?.live ?? this.live;
+            this.lastMessage = channel?.lastMessage == null
+                ? this.lastMessage
+                : ChannelMessageView.fromChannelMessage(channel.lastMessage);
+            this.lastMessageId = channel?.lastMessage?.id ?? this.lastMessageId;
+        }
+        
+        public static ChannelView fromNormalChannelLite(NormalChannelLite channel) {
+            return new ChannelView {
+                atAll = false,
+                memberIds = new List<string>(),
+                id = channel?.id,
+                groupId = channel?.groupId,
+                thumbnail = channel?.thumbnail,
+                name = channel?.name,
+                topic = channel?.topic,
+                memberCount = channel?.memberCount ?? 0,
+                isMute = channel?.isMute ?? false,
+                live = channel?.live ?? false,
+                lastMessageId = channel?.lastMessageId,
+                messageIds = new List<string>()
+            };
+        }
+
+        public void updateFromNormalChannelLite(NormalChannelLite channel) {
+            this.id = channel?.id ?? this.id;
+            this.groupId = channel?.groupId ?? this.groupId;
+            this.thumbnail = channel?.thumbnail ?? this.thumbnail;
+            this.name = channel?.name ?? this.name;
+            this.topic = channel?.topic ?? this.topic;
+            this.memberCount = channel?.memberCount ?? this.memberCount;
+            this.isMute = channel?.isMute ?? this.isMute;
+            this.live = channel?.live ?? this.live;
+            this.lastMessageId = channel?.lastMessageId ?? this.lastMessageId;
+        }
+
+        public void handleUnreadMessage(ChannelMessageView message, string userId) {
+            for (int k = 0; k < message.mentions.Count; k++) {
+                if (message.mentions[k].id == userId) {
+                    this.atMe = true;
+                }
+            }
+
+            if (message.mentionEveryone) {
+                this.atAll = true;
+            }
+
+            this.unread += 1;
         }
     }
 
@@ -63,7 +129,7 @@ namespace ConnectApp.Models.ViewModel {
 
     public class ChannelMessageView {
         public string id;
-        public string nonce;
+        public long nonce;
         public string channelId;
         public User author;
         public DateTime time;
@@ -110,12 +176,13 @@ namespace ConnectApp.Models.ViewModel {
 
             return new ChannelMessageView {
                 id = message.id,
-                nonce = message.nonce,
+                nonce = string.IsNullOrEmpty(message.nonce) ? 0 : Convert.ToInt64(message.nonce, 16),
                 channelId = message.channelId,
                 author = message.author,
                 content = content,
                 fileSize = type == ChannelMessageType.file ? message.attachments[0].size : 0,
                 time = DateConvert.DateTimeFromNonce(message.nonce),
+                timeString = DateConvert.DateTimeFromNonce(message.nonce, true).ToString("HH:mm"),
                 attachments = message.attachments,
                 type = type,
                 mentionEveryone = message.mentionEveryone,
@@ -130,6 +197,22 @@ namespace ConnectApp.Models.ViewModel {
                 embeds = message.embeds,
                 reactions = message.reactions
             };
+        }
+        
+        public static ChannelMessageView fromChannelMessageLite(ChannelMessageLite message) {
+            return fromChannelMessage(new ChannelMessage {
+                id = message.id,
+                nonce = message.nonce,
+                channelId = message.channelId,
+                author = new User {
+                    id = message.author.id
+                },
+                content = message.content,
+                attachments = message.attachments,
+                type = message.type,
+                mentionEveryone = message.mentionEveryone,
+                mentions = message.mentions.Select(user => new User{id = user.id}).ToList(),
+            });
         }
 
         public static ChannelMessageView fromChannelMessage(ChannelMessage message) {
@@ -157,12 +240,13 @@ namespace ConnectApp.Models.ViewModel {
 
             return new ChannelMessageView {
                 id = message.id,
-                nonce = message.nonce,
+                nonce = string.IsNullOrEmpty(message.nonce) ? 0 : Convert.ToInt64(message.nonce, 16),
                 channelId = message.channelId,
                 author = message.author,
                 content = content,
                 fileSize = type == ChannelMessageType.file ? message.attachments[0].size : 0,
                 time = DateConvert.DateTimeFromNonce(message.nonce),
+                timeString = DateConvert.DateTimeFromNonce(message.nonce, true).ToString("HH:mm"),
                 attachments = message.attachments,
                 type = type,
                 mentionEveryone = message.mentionEveryone,

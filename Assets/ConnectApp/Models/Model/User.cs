@@ -30,6 +30,7 @@ namespace ConnectApp.Models.Model {
         public Dictionary<string, JobRole> jobRoleMap;
         public List<string> jobRoleIds;
         public bool? followUserLoading;
+        public List<string> badges;
         public string errorCode;
 
         User copyWith(
@@ -58,6 +59,7 @@ namespace ConnectApp.Models.Model {
             Dictionary<string, JobRole> jobRoleMap = null,
             List<string> jobRoleIds = null,
             bool? followUserLoading = null,
+            List<string> badges = null,
             string errorCode = null
         ) {
             return new User {
@@ -86,6 +88,7 @@ namespace ConnectApp.Models.Model {
                 jobRoleMap = jobRoleMap ?? this.jobRoleMap,
                 jobRoleIds = jobRoleIds ?? this.jobRoleIds,
                 followUserLoading = followUserLoading ?? this.followUserLoading,
+                badges = badges ?? this.badges,
                 errorCode = errorCode ?? this.errorCode
             };
         }
@@ -121,8 +124,15 @@ namespace ConnectApp.Models.Model {
                 jobRoleMap: other.jobRoleMap,
                 jobRoleIds: other.jobRoleIds,
                 followUserLoading: other.followUserLoading,
+                badges: other.badges,
                 errorCode: other.errorCode
             );
         }
+    }
+
+    [Serializable]
+    public class UserLicense {
+        public string userId;
+        public string license;
     }
 }

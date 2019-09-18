@@ -100,7 +100,6 @@ namespace ConnectApp.redux.reducers {
                 case LogoutAction _: {
                     EventBus.publish(sName: EventBusConstant.logout_success, new List<object>());
                     HttpManager.clearCookie();
-                    SocketApi.DisConnectFromWSS();
                     state.loginState.loginInfo = new LoginInfo();
                     state.loginState.isLoggedIn = false;
                     UserInfoManager.clearUserInfo();
@@ -108,6 +107,7 @@ namespace ConnectApp.redux.reducers {
                     state.eventState.eventHistory = HistoryManager.eventHistoryList();
                     state.searchState.searchArticleHistoryList = HistoryManager.searchArticleHistoryList();
                     state.articleState.blockArticleList = HistoryManager.blockArticleList();
+                    SocketApi.DisConnectFromWSS();
                     break;
                 }
 
@@ -870,6 +870,24 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case UserLicenseMapAction action: {
+                    if (action.userLicenseMap != null && action.userLicenseMap.isNotEmpty()) {
+                        var userLicenseDict = state.userState.userLicenseDict;
+                        foreach (var keyValuePair in action.userLicenseMap) {
+                            if (userLicenseDict.ContainsKey(key: keyValuePair.Key)) {
+                                userLicenseDict[key: keyValuePair.Key] = keyValuePair.Value;
+                            }
+                            else {
+                                userLicenseDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
+                            }
+                        }
+
+                        state.userState.userLicenseDict = userLicenseDict;
+                    }
+
+                    break;
+                }
+
                 case TeamMapAction action: {
                     if (action.teamMap != null && action.teamMap.isNotEmpty()) {
                         var teamDict = state.teamState.teamDict;
@@ -1222,6 +1240,7 @@ namespace ConnectApp.redux.reducers {
                 }
                 
                 case MainNavigatorPushToChannelAction action: {
+                    state.channelState.messageLoading = true;
                     Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
                                 new ChannelScreenConnector(action.channelId),
@@ -2262,35 +2281,84 @@ namespace ConnectApp.redux.reducers {
                     state.eggState.scanEnabled = action.scanEnabled;
                     break;
                 }
+
                 case EnterRealityAction _: {
                     // Enter Reality
                     RealityManager.TriggerSwitch();
                     break;
                 }
 
-                case PublicChannelsAction action: {
-                    state.channelState.publicChannels = action.channels.Select(channel => channel.id).ToList();
-                    state.channelState.publicChannelCurrentPage = action.currentPage;
-                    state.channelState.publicChannelPages = action.pages;
-                    state.channelState.publicChannelTotal = action.total;
-                    for (var i = 0; i < action.channels.Count; i++) {
-                        state.channelState.channelDict[action.channels[i].id] =
-                            ChannelView.fromChannel(action.channels[i]);
-                        state.channelState.channelDict[action.channels[i].id].lastMessage =
-                            ChannelMessageView.fromChannelMessage(action.channels[i].lastMessage);
+                case ChannelsAction action: {
+                    state.channelState.publicChannels = action.discoverList;
+                    state.channelState.discoverPage = action.discoverPage;
+                    state.channelState.joinedChannels = action.joinedList;
+                    foreach (var entry in action.channelMap) {
+                        state.channelState.updateChannel(entry.Value);
+                    }
+
+                    foreach (var entry in state.channelState.channelDict) {
+                        entry.Value.joined = false;
+                    }
+                    for (int i = 0; i < state.channelState.joinedChannels.Count; i++) {
+                        state.channelState.channelDict[state.channelState.joinedChannels[i]].joined = true;
                     }
                     break;
                 }
                 
                 case ChannelMessagesAction action: {
                     var channel = state.channelState.channelDict[action.channelId];
-                    channel.messageIds = new List<string>();
-                    for (var i = action.messages.Count-1; i >= 0; i--) {
-                         var channelMessage =
-                            ChannelMessageView.fromChannelMessage(action.messages[i]);
-                         state.channelState.messageDict[channelMessage.id] = channelMessage;
-                         channel.messageIds.Add(channelMessage.id);
+                    if (channel.messageIds == null || (action.after == null && action.before == null)) {
+                        channel.messageIds = new List<string>();
                     }
+
+                    channel.hasMore = action.hasMore;
+                    channel.hasMoreNew = action.hasMoreNew;
+
+                    state.channelState.unreadDict.TryGetValue(action.channelId, out long unreadAfter);
+
+                    if (action.after != null || channel.messageIds.isEmpty()) {
+                        D.assert(channel.messageIds.isEmpty() || channel.messageIds.last() == action.after);
+                        for (var i = action.messages.Count - 1; i >= 0; i--) {
+                            var channelMessage =
+                                ChannelMessageView.fromChannelMessage(action.messages[i]);
+                            state.channelState.messageDict[channelMessage.id] = channelMessage;
+                            channel.messageIds.Add(channelMessage.id);
+                            // if (channelMessage.nonce > unreadAfter) {
+                            //     channel.handleUnreadMessage(channelMessage, state.loginState.loginInfo.userId);
+                            // }
+                        }
+                    } else if (action.before != null) {
+                        D.assert(channel.messageIds.first() == action.before);
+                        List<string> ret = new List<string>();
+                        for (var i = action.messages.Count-1; i >= 0; i--) {
+                             var channelMessage =
+                                ChannelMessageView.fromChannelMessage(action.messages[i]);
+                             state.channelState.messageDict[channelMessage.id] = channelMessage;
+                             ret.Add(channelMessage.id);
+                        }
+
+                        if (channel.messageIds[0] != action.before) {
+                            ret.Add(channel.messageIds[0]);
+                        }
+
+                        for (var i = 1; i < channel.messageIds.Count; i++) {
+                            ret.Add(channel.messageIds[i]);
+                        }
+
+                        channel.messageIds = ret;
+                    }
+                    state.channelState.messageLoading = false;
+                    state.channelState.totalUnread = 0;
+                    for (int i = 0; i < state.channelState.joinedChannels.Count; i++) {
+                        state.channelState.totalUnread += state.channelState.getJoinedChannel(i).unread;
+                    }
+                    channel.upToDate = state.channelState.upToDate(channel.id);
+
+                    break;
+                }
+                
+                case FetchChannelMessagesFailureAction _: {
+                    state.channelState.messageLoading = false;
                     break;
                 }
 
@@ -2304,9 +2372,68 @@ namespace ConnectApp.redux.reducers {
                     }
                     break;
                 }
+
+                case JoinChannelSuccessAction action: {
+                    var channel = state.channelState.channelDict[action.channelId];
+                    channel.joined = true;
+                    state.channelState.joinedChannels.Add(action.channelId);
+                    break;
+                }
+                
+                case LeaveChannelSuccessAction action: {
+                    var channel = state.channelState.channelDict[action.channelId];
+                    channel.joined = false;
+                    state.channelState.joinedChannels.Remove(action.channelId);
+                    break;
+                }
+
+                case MarkChannelMessageAsRead action: {
+                    state.channelState.unreadDict[action.channelId] = action.nonce;
+                    var channel = state.channelState.channelDict[action.channelId];
+                    channel.atAll = false;
+                    channel.atMe = false;
+                    channel.unread = 0;
+                    ChannelUnreadMessageManager.saveUnread(state.channelState.unreadDict);
+                    break;
+                }
+
                 case PushReadyAction action: {
                     var sessionReadyData = action.readyData;
-                    //TODO: read the session data to initiate channel dynamic info
+                    Debug.Log($"Ready Data {action.readyData}");
+                    for (int i = 0; i < sessionReadyData.lobbyChannels.Count; i++) {
+                        var channel = sessionReadyData.lobbyChannels[i];
+                        state.channelState.updateNormalChannelLite(channel);
+                        if (!state.channelState.joinedChannels.Contains(channel.id)) {
+                            state.channelState.joinedChannels.Add(channel.id);
+                        }
+                    }
+                    for (int i = 0; i < sessionReadyData.publicChannels.Count; i++) {
+                        var channel = sessionReadyData.publicChannels[i];
+                        state.channelState.updateNormalChannelLite(channel);
+                        if (!state.channelState.joinedChannels.Contains(channel.id)) {
+                            state.channelState.joinedChannels.Add(channel.id);
+                        }
+                    }
+
+                    for (int i = 0; i < sessionReadyData.lastMessages.Count; i++) {
+                        var message = sessionReadyData.lastMessages[i];
+                        var channelId = message.channelId;
+                        if (state.channelState.channelDict.TryGetValue(channelId, out var channel)) {
+                            channel.lastMessageId = message.id;
+                            channel.lastMessage = ChannelMessageView.fromChannelMessageLite(message);
+                        }
+                    }
+
+                    for (int i = 0; i < sessionReadyData.readState.Count; i++) {
+                        var readState = sessionReadyData.readState[i];
+                        var channelId = readState.channelId;
+                        if (state.channelState.channelDict.TryGetValue(channelId, out var channel)) {
+                            channel.mentioned = readState.mentionCount;
+                            channel.unread = readState.lastMessageId != channel.lastMessageId ? 1 : 0;
+                            channel.atMe = channel.mentioned > 0;
+                        }
+                    }
+
                     Debug.Log("WebSocket Online!");
                     break;
                 }
@@ -2323,6 +2450,7 @@ namespace ConnectApp.redux.reducers {
                         var channelMessage = ChannelMessageView.fromPushMessage(message);
                         state.channelState.messageDict[channelMessage.id] = channelMessage;
                         channel.messageIds.Add(channelMessage.id);
+                        channel.handleUnreadMessage(channelMessage, state.loginState.loginInfo.userId);
                     }
                     break;
                 }

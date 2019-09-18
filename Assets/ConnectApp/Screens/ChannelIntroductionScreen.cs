@@ -95,7 +95,7 @@ namespace ConnectApp.screens {
                                         child: new Container(
                                             width: 48,
                                             height: 48,
-                                            child: Image.network(this.viewModel.channel.thumbnail, fit: BoxFit.cover)
+                                            child: Image.network(this.viewModel.channel?.thumbnail ?? "", fit: BoxFit.cover)
                                         )
                                     ),
                                     new Expanded(

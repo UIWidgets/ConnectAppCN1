@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
+using ConnectApp.Main;
+using ConnectApp.redux;
 using ConnectApp.Utils;
 using Unity.UIWidgets.widgets;
 
@@ -11,7 +13,7 @@ namespace ConnectApp.screens {
                 color: CColors.White,
                 child: new CustomSafeArea(
                     bottom: false,
-                    child: new CustomTabBar(
+                    child: new CustomTabBarConnector(
                         new List<Widget> {
                             new ArticlesScreenConnector(),
                             new EventsScreen(),
@@ -29,34 +31,33 @@ namespace ConnectApp.screens {
                                 1,
                                 Icons.outline_event,
                                 Icons.eventIcon,
-                                "活动",
-                                notification: "99"
+                                "活动"
                             ),
                             new CustomTabBarItem(
                                 2,
                                 Icons.outline_question_answer,
                                 Icons.question_answer,
                                 "群聊",
-                                notification: "9"
+                                notification: CStringUtils.NotificationText(
+                                    StoreProvider.store.getState().channelState.totalUnread)
                             ),
                             new CustomTabBarItem(
                                 3,
                                 Icons.mood,
                                 Icons.mood,
-                                "我的",
-                                notification: ""
+                                "我的"
                             )
                         },
                         backgroundColor: CColors.TabBarBg,
                         (fromIndex, toIndex) => {
                             AnalyticsManager.ClickHomeTab(fromIndex: fromIndex, toIndex: toIndex);
 
-                            // if (toIndex != 2 || StoreProvider.store.getState().loginState.isLoggedIn) {
-                            return true;
-                            // }
+                            if (toIndex != 2 || StoreProvider.store.getState().loginState.isLoggedIn) {
+                                return true;
+                            }
 
-                            // Router.navigator.pushNamed(routeName: MainNavigatorRoutes.Login);
-                            // return false;
+                            Router.navigator.pushNamed(routeName: MainNavigatorRoutes.Login);
+                            return false;
                         }
                     )
                 )
