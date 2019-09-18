@@ -57,6 +57,7 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.loading = false;
                     state.loginState.loginInfo = action.loginInfo;
                     state.loginState.isLoggedIn = true;
+                    state.articleState.feedHasNew = true;
                     state.articleState.articleHistory =
                         HistoryManager.articleHistoryList(userId: action.loginInfo.userId);
                     state.eventState.eventHistory = HistoryManager.eventHistoryList(userId: action.loginInfo.userId);
@@ -76,6 +77,7 @@ namespace ConnectApp.redux.reducers {
                     state.loginState.loading = false;
                     state.loginState.loginInfo = action.loginInfo;
                     state.loginState.isLoggedIn = true;
+                    state.articleState.feedHasNew = true;
                     state.articleState.articleHistory =
                         HistoryManager.articleHistoryList(userId: action.loginInfo.userId);
                     state.eventState.eventHistory = HistoryManager.eventHistoryList(userId: action.loginInfo.userId);
@@ -93,6 +95,7 @@ namespace ConnectApp.redux.reducers {
 
                 case LogoutAction _: {
                     EventBus.publish(sName: EventBusConstant.logout_success, new List<object>());
+                    HistoryManager.deleteHomeAfterTime(state.loginState.loginInfo.userId);
                     HttpManager.clearCookie();
                     state.loginState.loginInfo = new LoginInfo();
                     state.loginState.isLoggedIn = false;
@@ -131,6 +134,7 @@ namespace ConnectApp.redux.reducers {
                         }
                     }
 
+                    state.articleState.feedHasNew = action.feedHasNew;
                     state.articleState.hottestHasMore = action.hottestHasMore;
                     state.articleState.articlesLoading = false;
                     break;
@@ -149,42 +153,44 @@ namespace ConnectApp.redux.reducers {
                 case FetchFollowArticleSuccessAction action: {
                     var currentUserId = state.loginState.loginInfo.userId ?? "";
                     if (currentUserId.isNotEmpty()) {
-                        var followArticleIds = new List<string>();
-                        foreach (var article in action.projects) {
-                            followArticleIds.Add(item: article.id);
-                            if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
-                                state.articleState.articleDict.Add(key: article.id, value: article);
+                        if (action.feeds != null && action.feeds.Count > 0) {
+                            var followArticleIds = new List<string>();
+                            action.feeds.ForEach(feed => {
+                                if (feed.itemIds != null && feed.itemIds.Count > 0) {
+                                    followArticleIds.Add(feed.itemIds[0]);
+                                }
+                            });
+                            if (state.articleState.followArticleIdDict.ContainsKey(key: currentUserId)) {
+                                if (action.pageNumber == 1) {
+                                    state.articleState.beforeTime = action.feeds.last().actionTime;
+                                    state.articleState.afterTime = action.feeds.first().actionTime;
+                                    if (state.loginState.isLoggedIn) {
+                                        HistoryManager.saveHomeAfterTime(afterTime: state.articleState.afterTime,
+                                            userId: state.loginState.loginInfo.userId);
+                                    }
+                                    state.articleState.followArticleIdDict[key: currentUserId] = followArticleIds;
+                                }
+                                else {
+                                    state.articleState.beforeTime = action.feeds.last().actionTime;
+                                    var projectIds = state.articleState.followArticleIdDict[key: currentUserId];
+                                    projectIds.AddRange(collection: followArticleIds);
+                                    state.articleState.followArticleIdDict[key: currentUserId] = projectIds;
+                                }
                             }
                             else {
-                                var oldArticle = state.articleState.articleDict[key: article.id];
-                                state.articleState.articleDict[key: article.id] = oldArticle.Merge(other: article);
+                                state.articleState.beforeTime = action.feeds.last().actionTime;
+                                state.articleState.afterTime = action.feeds.first().actionTime;
+                                if (state.loginState.isLoggedIn) {
+                                    HistoryManager.saveHomeAfterTime(afterTime: state.articleState.afterTime,
+                                        userId: state.loginState.loginInfo.userId);
+                                }
+                                state.articleState.followArticleIdDict.Add(key: currentUserId, value: followArticleIds);
                             }
-                        }
-
-                        if (state.articleState.followArticleIdDict.ContainsKey(key: currentUserId)) {
-                            if (action.pageNumber == 1) {
-                                state.articleState.followArticleIdDict[key: currentUserId] = followArticleIds;
-                            }
-                            else {
-                                var projectIds = state.articleState.followArticleIdDict[key: currentUserId];
-                                projectIds.AddRange(collection: followArticleIds);
-                                state.articleState.followArticleIdDict[key: currentUserId] = projectIds;
-                            }
-                        }
-                        else {
-                            state.articleState.followArticleIdDict.Add(key: currentUserId, value: followArticleIds);
                         }
 
                         var hotArticleIds = new List<string>();
-                        foreach (var article in action.hottests) {
-                            hotArticleIds.Add(item: article.id);
-                            if (!state.articleState.articleDict.ContainsKey(key: article.id)) {
-                                state.articleState.articleDict.Add(key: article.id, value: article);
-                            }
-                            else {
-                                var oldArticle = state.articleState.articleDict[key: article.id];
-                                state.articleState.articleDict[key: article.id] = oldArticle.Merge(other: article);
-                            }
+                        foreach (var hotItem in action.hotItems) {
+                            hotArticleIds.Add(item: hotItem.itemId);
                         }
 
                         if (state.articleState.hotArticleIdDict.ContainsKey(key: currentUserId)) {
@@ -201,9 +207,11 @@ namespace ConnectApp.redux.reducers {
                             state.articleState.hotArticleIdDict.Add(key: currentUserId, value: hotArticleIds);
                         }
 
-                        state.articleState.followArticleHasMore = action.projectHasMore;
-                        state.articleState.hotArticleHasMore = action.hottestHasMore;
-                        state.articleState.hotArticlePage = action.page;
+                        state.articleState.feedHasNew = action.feedHasNew;
+                        state.articleState.feedIsFirst = action.feedIsFirst;
+                        state.articleState.followArticleHasMore = action.feedHasMore;
+                        state.articleState.hotArticleHasMore = action.hotHasMore;
+                        state.articleState.hotArticlePage = action.hotPage;
                     }
 
                     state.articleState.followArticlesLoading = false;
@@ -841,6 +849,25 @@ namespace ConnectApp.redux.reducers {
 
                 case SendMessageFailureAction _: {
                     state.messageState.sendMessageLoading = false;
+                    break;
+                }
+
+                case ArticleMapAction action: {
+                    if (action.articleMap != null && action.articleMap.isNotEmpty()) {
+                        var articleDict = state.articleState.articleDict;
+                        foreach (var keyValuePair in action.articleMap) {
+                            if (articleDict.ContainsKey(key: keyValuePair.Key)) {
+                                var oldArticle = articleDict[key: keyValuePair.Key];
+                                articleDict[key: keyValuePair.Key] = oldArticle.Merge(other: keyValuePair.Value);
+                            }
+                            else {
+                                articleDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
+                            }
+                        }
+
+                        state.articleState.articleDict = articleDict;
+                    }
+
                     break;
                 }
 

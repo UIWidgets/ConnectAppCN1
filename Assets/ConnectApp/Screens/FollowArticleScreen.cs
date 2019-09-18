@@ -63,7 +63,9 @@ namespace ConnectApp.screens {
                         likeMap = likeMap,
                         followMap = followMap,
                         isLoggedIn = state.loginState.isLoggedIn,
-                        currentUserId = state.loginState.loginInfo.userId ?? ""
+                        currentUserId = state.loginState.loginInfo.userId ?? "",
+                        beforeTime = state.articleState.beforeTime,
+                        afterTime = state.articleState.afterTime
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -119,17 +121,17 @@ namespace ConnectApp.screens {
                                 Actions.sendComment(articleId, channelId, content, nonce, parentMessageId,
                                     upperMessageId));
                         },
-                        likeArticle = articleId => dispatcher.dispatch<IPromise>(Actions.likeArticle(articleId)),
+                        likeArticle = articleId => dispatcher.dispatch<IPromise>(Actions.likeArticle(articleId: articleId)),
                         startFetchFollowing = () => dispatcher.dispatch(new StartFetchFollowingAction()),
-                        fetchFollowing = offset =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchFollowing(viewModel.currentUserId, offset)),
+                        fetchFollowing = (userId, offset) =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowing(userId: userId, offset: offset)),
                         startFetchFollowArticles = () => dispatcher.dispatch(new StartFetchFollowArticlesAction()),
-                        fetchFollowArticles = pageNumber =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchFollowArticles(pageNumber)),
+                        fetchFollowArticles = (pageNumber, isFirst, isHot) =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowArticles(pageNumber, viewModel.beforeTime, viewModel.afterTime, isFirst, isHot)),
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
                             Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
                     };
-                    return new FollowArticleScreen(viewModel, actionModel);
+                    return new FollowArticleScreen(viewModel: viewModel, actionModel: actionModel);
                 }
             );
         }
@@ -161,6 +163,7 @@ namespace ConnectApp.screens {
         float cardWidth;
         float avatarSize;
         string _followUserSubId;
+        string _loginSubId;
 
         public override void initState() {
             base.initState();
@@ -169,19 +172,28 @@ namespace ConnectApp.screens {
             this.avatarSize = 0;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchFollowing();
-                this.widget.actionModel.fetchFollowing(0);
+                this.widget.actionModel.fetchFollowing(arg1: this.widget.viewModel.currentUserId, 0);
                 this.widget.actionModel.startFetchFollowArticles();
-                this.widget.actionModel.fetchFollowArticles(arg: firstPageNumber);
+                this.widget.actionModel.fetchFollowArticles(arg1: firstPageNumber, true, false);
             });
             this._followUserSubId = EventBus.subscribe(sName: EventBusConstant.follow_user, args => {
                 this._pageNumber = firstPageNumber;
-                this.widget.actionModel.fetchFollowing(0);
-                this.widget.actionModel.fetchFollowArticles(arg: firstPageNumber);
+                this.widget.actionModel.fetchFollowing(arg1: this.widget.viewModel.currentUserId, 0);
+                this.widget.actionModel.fetchFollowArticles(arg1: firstPageNumber, true, false);
+            });
+            this._loginSubId = EventBus.subscribe(sName: EventBusConstant.login_success, args => {
+                var currentUserId = args != null && args.Count > 0
+                    ? (string)args[0]
+                    : this.widget.viewModel.currentUserId;
+                this._pageNumber = firstPageNumber;
+                this.widget.actionModel.fetchFollowing(arg1: currentUserId, 0);
+                this.widget.actionModel.fetchFollowArticles(arg1: firstPageNumber, true, false);
             });
         }
 
         public override void dispose() {
             EventBus.unSubscribe(sName: EventBusConstant.follow_user, id: this._followUserSubId);
+            EventBus.unSubscribe(sName: EventBusConstant.login_success, id: this._loginSubId);
             base.dispose();
         }
 
@@ -192,7 +204,7 @@ namespace ConnectApp.screens {
         void _onRefresh(bool up, bool isHot) {
             if (up) {
                 this._pageNumber = firstPageNumber;
-                this.widget.actionModel.fetchFollowing(0);
+                this.widget.actionModel.fetchFollowing(arg1: this.widget.viewModel.currentUserId, 0);
             }
             else {
                 if (isHot) {
@@ -203,7 +215,7 @@ namespace ConnectApp.screens {
                 }
             }
 
-            this.widget.actionModel.fetchFollowArticles(arg: this._pageNumber)
+            this.widget.actionModel.fetchFollowArticles(arg1: this._pageNumber, arg2: up, arg3: isHot)
                 .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }
@@ -333,7 +345,7 @@ namespace ConnectApp.screens {
             if (followArticleLoading || followingLoading) {
                 content = new FollowArticleLoading();
             }
-            else if (followArticleIds.isEmpty()) {
+            else if (this.widget.viewModel.hotArticlePage > 0) {
                 var itemCount = followings.isEmpty()
                     ? hotArticleIds.Count
                     : hotArticleIds.Count + 1;
