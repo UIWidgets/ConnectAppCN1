@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using UnityEngine;
+
 #if UNITY_IOS
 using System.Runtime.InteropServices;
 
