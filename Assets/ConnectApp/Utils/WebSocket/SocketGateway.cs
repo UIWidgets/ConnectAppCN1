@@ -19,7 +19,9 @@ namespace ConnectApp.Utils {
         public const int OPCODE_IDENTIFY = 1;
         public const int OPCODE_RESUME = 2;
         public const int OPCODE_STATUS_UPDATE = 3;
-        public const int OPCODE_PING = 4;
+        public const int OPCODE_PING = 9;
+
+        public const int heartBeatInterval = 15000;
     }
     
     public class SocketGateway {
@@ -28,7 +30,7 @@ namespace ConnectApp.Utils {
         public static SocketGateway instance {
             get {
                 if (m_Instance == null) {
-                    Debug.Assert(false, "fatal error: socket gateway has not been initialized yet !");
+                    Debug.Log("fatal error: socket gateway has not been initialized yet !");
                     return null;
                 }
 
@@ -36,12 +38,13 @@ namespace ConnectApp.Utils {
             }
         }
         
-        
         List<string> m_CandidateURLs;
 
         List<string> m_PayloadQueue;
 
         GatewayState readyState;
+
+        WebSocketHost m_Host;
 
         WebSocket m_Socket;
 
@@ -54,10 +57,16 @@ namespace ConnectApp.Utils {
         string m_GatewayUrl;
         int seq;
 
-        bool _closeRequired = false;
+        bool _closeRequired;
+
+        int _heartBeater;
 
         bool connected {
             get { return this.readyState == GatewayState.OPEN; }
+        }
+
+        public bool readyForConnect {
+            get { return this.readyState == GatewayState.CLOSED; }
         }
 
         bool resumable {
@@ -71,12 +80,12 @@ namespace ConnectApp.Utils {
             }
 
             m_Instance = this;
+            this.m_Host = host;
             
             this.m_CandidateURLs = new List<string>();
             this.m_PayloadQueue = new List<string>();
             this.backoff = new BackOff(host, 1000, 60000);
-
-            this.m_Socket = new WebSocket(host);
+            this._heartBeater = -1;
             this._Close();
         }
 
@@ -184,13 +193,33 @@ namespace ConnectApp.Utils {
             HttpManager.resume(request).Then(responseText => {
                 var socketGatewayResponse = JsonConvert.DeserializeObject<SocketGatewayResponse>(responseText);
                 this.m_CandidateURLs = socketGatewayResponse.urls ?? new List<string> { socketGatewayResponse.url };
+                
+                //TEST INVALID URL:
+                //this.m_CandidateURLs.Insert(0, "wss://connect-badgateway.unity.com:443");
                 this._SelectGateway(callback, false);
             }).Catch(exception => {
                 callback(null);
-                Debug.Log(exception);
             });
         }
+
         
+        public static long DateTimeToUnixTimestamp(DateTime dateTime)
+        {
+            return (long)(TimeZoneInfo.ConvertTimeToUtc(dateTime) - 
+                    new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+        }
+        
+
+        public void Ping() {
+            var requestPayload = new SocketRequestPayload {
+                op = SocketGatewayUtils.OPCODE_PING,
+                d = new SocketPingRequest {
+                    ts = DateTimeToUnixTimestamp(DateTime.Now)
+                }
+            };
+            
+            this._Send(requestPayload);
+        }
         
 
         public void Identify(string sessionId, string commitId) {
@@ -242,15 +271,37 @@ namespace ConnectApp.Utils {
         
         
         void _OnClose(Func<bool> OnClose) {
+            if (this._heartBeater != -1) {
+                this.m_Host.CancelDelayCall(this._heartBeater);
+                this._heartBeater = -1;
+            }
+            
             if (!this._closeRequired && OnClose != null && OnClose()) {
-                Debug.Log("socket disconnected, try reconnect in short time");
+                Debug.Log("socket disconnected");
             }
         }
 
+        void _HeartBeat() {
+            Debug.Log("heart beat >>>>>>>>>>");
+            if (this._heartBeater != -1) {
+                return;
+            }
+            
+            this._heartBeater = this.m_Host.DelayCall(SocketGatewayUtils.heartBeatInterval / 1000f, () => {
+                this.Ping();
+                this._heartBeater = -1;
+                this._HeartBeat();     
+            });
+        }
+
         void _CreateWebSocket(string url, Action OnConnected, Action<string, SocketResponseDataBase> OnMessage, Func<bool> OnClose) {
+            var heartBeater = -1;
+            
+            this.m_Socket = this.m_Socket ?? new WebSocket(this.m_Host);
             this.m_Socket.Connect(url, 
                 OnConnected: () => {
                     OnConnected.Invoke();
+                    this._HeartBeat();
                 },
                 
                 OnMessage: bytes => {
@@ -258,7 +309,7 @@ namespace ConnectApp.Utils {
                         return;
                     }
                     var content = Encoding.UTF8.GetString (bytes);
-                    //Debug.Log(content);
+                    //Debug.Log("On Message ==>" + content);
                     var response = JsonConvert.DeserializeObject<IFrame>(content);
                     
                     if (response.sequence > 0) {
@@ -275,6 +326,8 @@ namespace ConnectApp.Utils {
                                     var sessionResponse = (SocketResponseSession) response;
                                     this.sessionId = sessionResponse.data.sessionId;
                                     data = sessionResponse.data;
+                                    
+                                    //Debug.Log(content);
                                     break;
                                 case DispatchMsgType.RESUMED:
                                     break;
@@ -294,11 +347,22 @@ namespace ConnectApp.Utils {
                                     var messageResponse = (SocketResponseMessage) response;
                                     data = messageResponse.data;
                                     break;
+                                case DispatchMsgType.PING:
+                                    var pingResponse = (SocketResponsePing) response;
+                                    data = pingResponse.data;
+                                    break;
+                                case DispatchMsgType.PRESENCE_UPDATE:
+                                    var presenceUpdateResponse = (SocketResponsePresentUpdate) response;
+                                    data = presenceUpdateResponse.data;
+                                    break;
+                                case DispatchMsgType.CHANNEL_MEMBER_ADD:
+                                case DispatchMsgType.CHANNEL_MEMBER_REMOVE:
+                                    var memberChangeResponse = (SocketResponseChannelMemberChange) response;
+                                    data = memberChangeResponse.data;
+                                    break;
                             }
                         }
                     }
-                    
-                    //Debug.Log("On Message =" + content);
                     
                     OnMessage?.Invoke(type, data);
                 },

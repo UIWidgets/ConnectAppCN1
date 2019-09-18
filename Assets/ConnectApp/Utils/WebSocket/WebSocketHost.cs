@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace ConnectApp.Utils {
@@ -104,7 +103,7 @@ namespace ConnectApp.Utils {
 
         SocketGateway _socketGateway;
 
-        void Awake() {
+        void Start() {
             if (_singletonChecker) {
                 Debug.Assert(false, "fatal error! Cannot initialize two WebSocketHost!");
                 return;

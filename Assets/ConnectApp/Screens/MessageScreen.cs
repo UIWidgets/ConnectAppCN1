@@ -351,7 +351,6 @@ namespace ConnectApp.screens {
 
         public static Widget buildChannelItem(ChannelView channel, Action onTap = null) {
             Widget title = new Text(channel.name, style: CTextStyle.PLargeMedium);
-            
             Widget message = new RichText(
                 text: new TextSpan(
                     channel.atMe
