@@ -118,7 +118,7 @@ namespace ConnectApp.screens {
             //     this.widget.actionModel.markAsRead(this.widget.viewModel.messages.last().nonce);
             // }
             this._emojiTabController = new TabController(
-                length: (this.emojiList.Count-1) / 24 + 1,
+                length: (this.emojiList.Count-1) / (24-1) + 1,
                 vsync: this);
         }
 
@@ -457,7 +457,8 @@ namespace ConnectApp.screens {
                                         width: 44,
                                         height: 49,
                                         child: new Center(
-                                            child: new Icon(Icons.mood, size: 28, color: CColors.Icon)
+                                            child: new Icon(this.showEmojiBoard ? Icons.outline_keyboard : Icons.mood,
+                                                size: 28, color: CColors.Icon)
                                         )
                                     )
                                 ),
@@ -513,7 +514,7 @@ namespace ConnectApp.screens {
 
         Widget _buildEmojiBoard() {
             List<Widget> emojiPages = new List<Widget>();
-            for (int i = 0; i < this.emojiList.Count; i += 24) {
+            for (int i = 0; i < this.emojiList.Count; i += 23) {
                 List<Widget> rows = new List<Widget>();
                 for (int j = 0; j < 3; j++) {
                     List<Widget> emojis = new List<Widget>();
@@ -533,30 +534,66 @@ namespace ConnectApp.screens {
                             text = "";
                         }
 
-                        emojis.Add(new GestureDetector(
-                            onTap: text != ""
-                                ? (GestureTapCallback) (() => {
-                                    var selection = this._textController.selection;
-                                    this._textController.text =
-                                        this._textController.text.Substring(0, selection.start) +
-                                        text +
-                                        this._textController.text.Substring(selection.end);
-                                    this._textController.selection =
-                                        TextSelection.collapsed(selection.start + text.Length);
-                                })
-                                : null,
-                            child: new Container(
-                                width: 40,
-                                height: 40,
-                                padding: k == 0 ? EdgeInsets.zero : EdgeInsets.only(left: 2),
-                                child: new Center(
-                                    child: new Text(
-                                        text,
-                                        style: new TextStyle(fontSize: 24, height: 1)
+                        if (j == 2 && k == 7) {
+                            emojis.Add(new GestureDetector(
+                                onTap: () => {
+                                        var selection = this._textController.selection;
+                                        if (selection.isCollapsed) {
+                                            if (selection.start > 0) {
+                                                this._textController.text =
+                                                    this._textController.text.Substring(0, selection.start-1) +
+                                                    this._textController.text.Substring(selection.end);
+                                                this._textController.selection = TextSelection.collapsed(selection.start-1);
+                                            }
+                                        }
+                                        else {
+                                            this._textController.text =
+                                                this._textController.text.Substring(0, selection.start) +
+                                                this._textController.text.Substring(selection.end);
+                                            this._textController.selection =
+                                                TextSelection.collapsed(selection.start);
+                                        }
+                                },
+                                child: new Container(
+                                    width: 40,
+                                    height: 40,
+                                    padding: k == 0 ? EdgeInsets.zero : EdgeInsets.only(left: 2),
+                                    child: new Center(
+                                        child: new Icon(
+                                            Icons.outline_delete_keyboard,
+                                            size: 24,
+                                            color: CColors.Icon
+                                        )
                                     )
                                 )
-                            )
-                        ));
+                            ));
+                        }
+                        else {
+                            emojis.Add(new GestureDetector(
+                                onTap: text != ""
+                                    ? (GestureTapCallback) (() => {
+                                        var selection = this._textController.selection;
+                                        this._textController.text =
+                                            this._textController.text.Substring(0, selection.start) +
+                                            text +
+                                            this._textController.text.Substring(selection.end);
+                                        this._textController.selection =
+                                            TextSelection.collapsed(selection.start + text.Length);
+                                    })
+                                    : null,
+                                child: new Container(
+                                    width: 40,
+                                    height: 40,
+                                    padding: k == 0 ? EdgeInsets.zero : EdgeInsets.only(left: 2),
+                                    child: new Center(
+                                        child: new Text(
+                                            text,
+                                            style: new TextStyle(fontSize: 24, height: 1)
+                                        )
+                                    )
+                                )
+                            ));
+                        }
                     }
                     emojis.Add(new Flexible(child: new Container()));
                     if (j > 0) {
