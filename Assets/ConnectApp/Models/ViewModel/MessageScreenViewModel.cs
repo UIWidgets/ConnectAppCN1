@@ -114,6 +114,7 @@ namespace ConnectApp.Models.ViewModel {
 
             if (message.mentionEveryone) {
                 this.atAll = true;
+                this.atMe = true;
             }
 
             this.unread += 1;

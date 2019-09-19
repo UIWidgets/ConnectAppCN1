@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
@@ -22,7 +21,6 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Avatar = ConnectApp.Components.Avatar;
-using Color = UnityEngine.Color;
 using Icons = ConnectApp.Constants.Icons;
 using Image = Unity.UIWidgets.widgets.Image;
 using Transform = Unity.UIWidgets.widgets.Transform;
@@ -69,11 +67,7 @@ namespace ConnectApp.screens {
                         },
                         sendMessage = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
                             Actions.sendMessage(channelId, content, nonce, parentMessageId)),
-                        startSendMessage = () => dispatcher.dispatch(new StartSendChannelMessageAction()),
-                        markAsRead = nonce => dispatcher.dispatch(new MarkChannelMessageAsRead {
-                            channelId = this.channelId,
-                            nonce = nonce
-                        })
+                        startSendMessage = () => dispatcher.dispatch(new StartSendChannelMessageAction())
                     };
                     return new ChannelScreen(viewModel, actionModel);
                 }
@@ -115,13 +109,6 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            // string id = this.widget.viewModel.messages.isNotEmpty()
-            //     ? this.widget.viewModel.messages.last().id
-            //     : null;
-            // this.widget.actionModel.fetchMessages(null, id);
-            // if (this.widget.viewModel.messages.isNotEmpty()) {
-            //     this.widget.actionModel.markAsRead(this.widget.viewModel.messages.last().nonce);
-            // }
             this._emojiTabController = new TabController(
                 length: (this.emojiList.Count-1) / (24-1) + 1,
                 vsync: this);
@@ -130,7 +117,6 @@ namespace ConnectApp.screens {
         public override void deactivate() {
             if (this.widget.viewModel.messages.isNotEmpty() &&
                 this.widget.viewModel.messages.last().nonce != this.lastSavedNonce) {
-                this.widget.actionModel.markAsRead(this.widget.viewModel.messages.last().nonce);
                 this.lastSavedNonce = this.widget.viewModel.messages.last().nonce;
             }
         }
@@ -716,7 +702,6 @@ namespace ConnectApp.screens {
                 this._refreshController.scrollController.position.minScrollExtent) {
                 if (this.widget.viewModel.messages.isNotEmpty() &&
                     this.widget.viewModel.messages.last().nonce != this.lastSavedNonce) {
-                    this.widget.actionModel.markAsRead(this.widget.viewModel.messages.last().nonce);
                     this.lastSavedNonce = this.widget.viewModel.messages.last().nonce;
                 }
             }

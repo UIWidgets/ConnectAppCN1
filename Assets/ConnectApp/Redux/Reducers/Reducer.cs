@@ -1240,7 +1240,8 @@ namespace ConnectApp.redux.reducers {
                 }
                 
                 case MainNavigatorPushToChannelAction action: {
-                    state.channelState.messageLoading = true;
+                    state.channelState.channelDict[action.channelId].unread = 0;
+                    state.channelState.channelDict[action.channelId].mentioned = 0;
                     Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
                                 new ChannelScreenConnector(action.channelId),
@@ -2445,6 +2446,7 @@ namespace ConnectApp.redux.reducers {
                 }
                 case PushNewMessageAction action: {
                     var message = action.messageData;
+                    Debug.Log($"New message: {message.content} from channel {state.channelState.channelDict[message.channelId].name}");
                     //workaround for test, remove when release !!!
                     if (!state.channelState.channelDict.ContainsKey(message.channelId)) {
                         break;
@@ -2456,6 +2458,8 @@ namespace ConnectApp.redux.reducers {
                         var channelMessage = ChannelMessageView.fromPushMessage(message);
                         state.channelState.messageDict[channelMessage.id] = channelMessage;
                         channel.messageIds.Add(channelMessage.id);
+                        channel.lastMessageId = channelMessage.id;
+                        channel.lastMessage = channelMessage;
                         channel.handleUnreadMessage(channelMessage, state.loginState.loginInfo.userId);
                     }
                     break;
