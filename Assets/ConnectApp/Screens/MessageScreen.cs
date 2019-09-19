@@ -375,15 +375,16 @@ namespace ConnectApp.screens {
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1);
 
-            Widget body = new Container(
+            Widget titleLine = new Container(
                 padding: EdgeInsets.only(left: 16),
-                child: new Column(
+                child: new Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        title,
                         new Expanded(
-                            child: message
-                        )
+                            child: title
+                        ),
+                        new Container(width: 16),
+                        new Text(channel.lastMessage?.timeString ?? "", style: CTextStyle.PSmallBody4)
                     }
                 )
             );
@@ -403,18 +404,16 @@ namespace ConnectApp.screens {
                     )
             );
 
-            icon = new Container(
-                width: 32,
-                child: new Container(
-                    child: new Column(
-                        children: new List<Widget> {
-                            new Text(channel.lastMessage?.timeString ?? "", style: CTextStyle.PSmallBody4),
-                            new Expanded(
-                                child: channel.isMute || channel.unread > 0 ? icon : new Container()
-                            )
-                        }
-                    )
-                )
+            var messageIcon = new Row(
+                children: new List<Widget> {
+                    new Expanded(
+                        child: new Container(
+                            padding: EdgeInsets.symmetric(0, 16),
+                            child:message
+                        )
+                    ),
+                    channel.isMute || channel.unread > 0 ? icon : new Container()
+                }
             );
 
             Widget avatar = new ClipRRect(
@@ -433,8 +432,16 @@ namespace ConnectApp.screens {
                 child: new Row(
                     children: new List<Widget> {
                         avatar,
-                        new Expanded(child: body),
-                        icon
+                        new Expanded(
+                            child: new Column(
+                                children: new List<Widget> {
+                                    titleLine,
+                                    new Expanded(
+                                        child: messageIcon
+                                    )
+                                }
+                            )
+                        )
                     }
                 )
             );
