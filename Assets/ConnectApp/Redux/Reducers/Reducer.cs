@@ -2415,6 +2415,10 @@ namespace ConnectApp.redux.reducers {
                         }
                     }
 
+                    for (int i = 0; i < sessionReadyData.users.Count; i++) {
+                        state.channelState.updateMessageUser(sessionReadyData.users[i]);
+                    }
+
                     for (int i = 0; i < sessionReadyData.lastMessages.Count; i++) {
                         var message = sessionReadyData.lastMessages[i];
                         var channelId = message.channelId;
@@ -2422,7 +2426,7 @@ namespace ConnectApp.redux.reducers {
                             channel.lastMessageId = message.id;
                             channel.lastMessage = ChannelMessageView.fromChannelMessageLite(message);
                             channel.lastMessage.author =
-                                state.channelState.membersDict[channel.lastMessage.author.id].user;
+                                state.channelState.getMember(channel.lastMessage.author.id)?.user;
                         }
                     }
 

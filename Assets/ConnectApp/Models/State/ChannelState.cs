@@ -37,6 +37,41 @@ namespace ConnectApp.Models.State {
             channelView.upToDate = this.upToDate(channel.id);
         }
 
+        public void updateMessageUser(MessageUser user) {
+            if (this.membersDict.TryGetValue(user.id, out var member)) {
+                member.user.id = user.id;
+                member.user.username = user.username;
+                member.user.fullName = user.fullname;
+                member.user.avatar = user.avatar;
+                member.user.title = user.title;
+                member.user.coverImage = user.coverImage;
+                member.user.followCount = user.followCount;
+                member.presenceStatus = user.presenceStatus;
+            }
+
+            this.membersDict[user.id] = new ChannelMember {
+                user = new User {
+                    id = user.id,
+                    username = user.username,
+                    fullName = user.fullname,
+                    avatar = user.avatar,
+                    title = user.title,
+                    coverImage = user.coverImage,
+                    followCount = user.followCount
+                },
+                id = user.id,
+                presenceStatus = user.presenceStatus
+            };
+        }
+
+        public ChannelMember getMember(string userId) {
+            if (this.membersDict.TryGetValue(userId, out var member)) {
+                return member;
+            }
+
+            return null;
+        }
+
         public bool upToDate(string channelId) {
             if (!this.channelDict.TryGetValue(channelId, out var channelView)) {
                 return false;

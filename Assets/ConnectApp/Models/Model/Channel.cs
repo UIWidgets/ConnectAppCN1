@@ -71,6 +71,7 @@ namespace ConnectApp.Models.Model {
         public string channelId;
         public User user;
         public string role;
+        public string presenceStatus = null;
         public bool isBanned;
         public bool kicked;
         public bool left;
