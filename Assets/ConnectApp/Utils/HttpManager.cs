@@ -173,6 +173,8 @@ namespace ConnectApp.Utils {
         public static void clearCookie() {
             PlayerPrefs.SetString(COOKIE, vsCookie);
             PlayerPrefs.Save();
+
+            SocketApi.OnCookieChanged();
         }
 
         public static string getCookie() {
@@ -198,7 +200,7 @@ namespace ConnectApp.Utils {
                 }
             }
 
-            return null;
+            return "";
         }
 
         static void updateCookie(string newCookie) {
@@ -233,6 +235,8 @@ namespace ConnectApp.Utils {
             if (updateCookie.isNotEmpty()) {
                 PlayerPrefs.SetString(COOKIE, updateCookie);
                 PlayerPrefs.Save();
+                
+                SocketApi.OnCookieChanged();
             }
         }
 

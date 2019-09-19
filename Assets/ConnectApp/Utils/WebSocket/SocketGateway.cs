@@ -9,6 +9,7 @@ using UnityEngine;
 namespace ConnectApp.Utils {
 
     enum GatewayState {
+        Init,
         CONNECTING,
         OPEN,
         CLOSED
@@ -39,17 +40,12 @@ namespace ConnectApp.Utils {
         }
         
         List<string> m_CandidateURLs;
-
         List<string> m_PayloadQueue;
-
         GatewayState readyState;
-
         WebSocketHost m_Host;
-
         WebSocket m_Socket;
-
         BackOff backoff;
-
+        
         Action<string> onConnect;
         Action<string, SocketResponseDataBase> onMessage;
 
@@ -67,7 +63,7 @@ namespace ConnectApp.Utils {
         }
 
         public bool readyForConnect {
-            get { return this.readyState == GatewayState.CLOSED; }
+            get { return this.readyState == GatewayState.Init; }
         }
 
         bool resumable {
@@ -76,7 +72,7 @@ namespace ConnectApp.Utils {
 
         public SocketGateway(WebSocketHost host) {
             if (m_Instance != null) {
-                Debug.Assert(false, "fatal error: duplicated socket gateways is not allowed !");
+                Debug.Assert(false, "fatal error: duplicated socket gateways is not allowed!");
                 return;
             }
 
@@ -86,9 +82,9 @@ namespace ConnectApp.Utils {
             
             this.m_CandidateURLs = new List<string>();
             this.m_PayloadQueue = new List<string>();
-            this.backoff = new BackOff(host, 1000, 60000);
+            this.backoff = new BackOff(host, 1000, 30000);
             this._heartBeater = -1;
-            this._Close();
+            this._Reset();
         }
 
 
@@ -104,7 +100,7 @@ namespace ConnectApp.Utils {
         bool _sslHandShakeError = false;
 
         public void Connect(Action<string> onConnected, Action<string, SocketResponseDataBase> onMessage, bool reconnect = false) {
-            if (this.readyState != GatewayState.CLOSED) {
+            if (this.readyState != GatewayState.CLOSED && this.readyState != GatewayState.Init) {
                 Debug.Log("fatal error: cannot Connect to WS when the current connection is still alive");
                 return;
             }
@@ -120,11 +116,6 @@ namespace ConnectApp.Utils {
             }
 
             this.readyState = GatewayState.CONNECTING;
-
-            if (this.backoff.pending && !this.resumable) {
-                //TODO: notify reconnecting
-            }
-            
             this.backoff.Cancel();
             
             this._SelectGateway(url => {
@@ -143,10 +134,8 @@ namespace ConnectApp.Utils {
                         },
                         OnClose: code => {
                             
-                            //https://github.com/sta/websocket-sharp/issues/219
-                            var sslProtocolHack = (System.Security.Authentication.SslProtocols)(WebSocket.SslProtocolsHack.Tls12 | WebSocket.SslProtocolsHack.Tls11 | WebSocket.SslProtocolsHack.Tls);
-                            //TlsHandshakeFailure
-                            if (code == 1015 && this.m_Socket.checkSslProtocolHackFlag(sslProtocolHack)) {
+                            //https://github.com/sta/websocket-sharp/issues/219  
+                            if (code == 1015 && this.m_Socket.checkSslProtocolHackFlag()) {
                                 this._sslHandShakeError = true;
                             }
                             
@@ -178,6 +167,7 @@ namespace ConnectApp.Utils {
             }
 
             this.m_Socket = null;
+            this._Reset();
         }
 
         void Reconnect() {
@@ -204,8 +194,6 @@ namespace ConnectApp.Utils {
             var requestUrl = $"{Config.apiAddress}/api/socketgw";
             var request = HttpManager.GET(requestUrl, null);
             
-            //Debug.Log("request url = " + requestUrl);
-            
             HttpManager.resumeAll(request).Then(responseContent => {
                 var responseText = responseContent.text;
                 var header = responseContent.headers;
@@ -213,10 +201,8 @@ namespace ConnectApp.Utils {
                 
                 var socketGatewayResponse = JsonConvert.DeserializeObject<SocketGatewayResponse>(responseText);
                 this.m_CandidateURLs = socketGatewayResponse.urls ?? new List<string> { socketGatewayResponse.url };
-                
-                //TEST INVALID URL:
-                //this.m_CandidateURLs.Insert(0, "wss://connect-test-gw.unity.com");
                 this._SelectGateway(callback, false);
+                
             }).Catch(exception => {
                 callback(null);
             });
@@ -280,6 +266,13 @@ namespace ConnectApp.Utils {
             return false;
         }
 
+        void _Reset() {
+            this.readyState = GatewayState.Init;
+            this.m_PayloadQueue.Clear();
+            this.sessionId = null;
+            this.seq = 0;
+        }
+
         void _Close(bool reset = true) {
             this.readyState = GatewayState.CLOSED;
             this.m_PayloadQueue.Clear();
@@ -295,10 +288,13 @@ namespace ConnectApp.Utils {
                 this.m_Host.CancelDelayCall(this._heartBeater);
                 this._heartBeater = -1;
             }
-            
-            if (!this._closeRequired && OnClose != null && OnClose(code)) {
-                Debug.Log("socket disconnected");
+
+            if (this._closeRequired) {
+                this.readyState = GatewayState.Init;
+                return;
             }
+
+            OnClose?.Invoke(code);
         }
 
         void _HeartBeat() {
