@@ -30,12 +30,7 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, MessageScreenViewModel>(
                 converter: state => {
                     return new MessageScreenViewModel {
-                        notificationLoading = state.notificationState.loading,
-                        page = state.notificationState.page,
-                        pageTotal = state.notificationState.pageTotal,
-                        notifications = state.notificationState.notifications,
-                        mentions = state.notificationState.mentions,
-                        userDict = state.userState.userDict,
+                        discoverPage = state.channelState.discoverPage,
                         joinedChannels = state.channelState.joinedChannels.Select(
                             channelId => state.channelState.channelDict[channelId]).ToList(),
                         popularChannels = state.channelState.publicChannels
@@ -65,7 +60,9 @@ namespace ConnectApp.screens {
                                 channelId = channelId
                             });
                         },
-                        fetchChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchChannels(1)),
+                        fetchChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchChannels(
+                            viewModel.discoverPage + 1
+                        )),
                         fetchMessages = () => {
                             for (int i = 0; i < viewModel.joinedChannels.Count; i++) {
                                 var channel = viewModel.joinedChannels[i];
@@ -126,6 +123,7 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
+            this._refreshController = new RefreshController();
             // this.widget.actionModel.fetchChannels();
         }
 
@@ -148,7 +146,7 @@ namespace ConnectApp.screens {
                     )
                 }
             );
-            Widget content = new ListView(
+            ListView content = new ListView(
                 children: new List<Widget> {
                     this.widget.viewModel.joinedChannels.isEmpty()
                         ? new Container(
@@ -226,7 +224,13 @@ namespace ConnectApp.screens {
                         new Container(color: CColors.Separator2, height: 1),
                         new Flexible(
                             child: new NotificationListener<ScrollNotification>(
-                                child: new CustomScrollbar(child: content)
+                                child: new SmartRefresher(
+                                    controller: this._refreshController,
+                                    enablePullUp: this.widget.viewModel.joinedChannels.isEmpty(),
+                                    enablePullDown: false,
+                                    onRefresh: this._onRefresh,
+                                    child: content
+                                )
                             )
                         )
                     }
@@ -262,6 +266,19 @@ namespace ConnectApp.screens {
         }
 
         public void didPushNext() {
+        }
+
+        void _onRefresh(bool up) {
+            if (!up) {
+                this.widget.actionModel.fetchChannels().Then(
+                    () => {
+                        this._refreshController.sendBack(false, RefreshStatus.idle);
+                        Debug.Log("Completed");
+                    }).Catch((e) => {
+                        this._refreshController.sendBack(false, RefreshStatus.idle);
+                        Debug.Log("Failed");
+                    });
+            }
         }
     }
 
