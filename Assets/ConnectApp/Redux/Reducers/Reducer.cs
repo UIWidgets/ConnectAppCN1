@@ -21,13 +21,6 @@ namespace ConnectApp.redux.reducers {
 
         public static AppState Reduce(AppState state, object bAction) {
             switch (bAction) {
-                case AddCountAction action: {
-                    state.Count += action.number;
-                    PlayerPrefs.SetInt("count", value: state.Count);
-                    PlayerPrefs.Save();
-                    break;
-                }
-
                 case LoginChangeEmailAction action: {
                     state.loginState.email = action.changeText;
                     break;
@@ -168,6 +161,7 @@ namespace ConnectApp.redux.reducers {
                                         HistoryManager.saveHomeAfterTime(afterTime: state.articleState.afterTime,
                                             userId: state.loginState.loginInfo.userId);
                                     }
+
                                     state.articleState.followArticleIdDict[key: currentUserId] = followArticleIds;
                                 }
                                 else {
@@ -184,6 +178,7 @@ namespace ConnectApp.redux.reducers {
                                     HistoryManager.saveHomeAfterTime(afterTime: state.articleState.afterTime,
                                         userId: state.loginState.loginInfo.userId);
                                 }
+
                                 state.articleState.followArticleIdDict.Add(key: currentUserId, value: followArticleIds);
                             }
                         }

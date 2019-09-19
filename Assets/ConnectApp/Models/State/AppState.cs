@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
 using ConnectApp.Utils;
-using UnityEngine;
 
 namespace ConnectApp.Models.State {
     [Serializable]
     public class AppState {
-        public int Count { get; set; }
         public LoginState loginState { get; set; }
         public EggState eggState { get; set; }
         public ArticleState articleState { get; set; }
@@ -32,7 +30,6 @@ namespace ConnectApp.Models.State {
             var isLogin = UserInfoManager.isLogin();
 
             return new AppState {
-                Count = PlayerPrefs.GetInt("count", 0),
                 loginState = new LoginState {
                     email = "",
                     password = "",
