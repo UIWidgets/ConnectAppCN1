@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Models.Api;
 using ConnectApp.redux;
@@ -18,9 +17,17 @@ namespace ConnectApp.Api {
         public static void DisConnectFromWSS() {
             SocketGateway.instance.Close();
         }
+
+        public static void ConnectToWSS(bool forceConnect = true) {
+            try {
+                DoConnectToWSS(forceConnect);
+            }
+            catch (Exception e) {
+                Debug.Log("Failed to connect to wss: error = " + e);
+            }
+        }
         
-        
-        public static void ConnectToWSS(Dictionary<string, string> header, bool forceConnect = true) {
+        public static void DoConnectToWSS(bool forceConnect) {
             if (HttpManager.getCookie().isNotEmpty()) {
                 var sessionId = HttpManager.getCookie("LS");
                 if (sessionId == null) {
@@ -37,11 +44,10 @@ namespace ConnectApp.Api {
                 return;
             }
             
-            SocketGateway.instance.Connect(() => 
+            SocketGateway.instance.Connect(commitId => 
             {
                 if (HttpManager.getCookie().isNotEmpty()) {
                     var sessionId = HttpManager.getCookie("LS");
-                    var commitId = header["X-Last-Commmit-Hash"];
                     SocketGateway.instance.Identify(sessionId, commitId);
                 }
             },
