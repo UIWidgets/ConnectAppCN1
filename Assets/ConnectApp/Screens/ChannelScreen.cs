@@ -527,24 +527,7 @@ namespace ConnectApp.screens {
 
                         if (j == 2 && k == 7) {
                             emojis.Add(new GestureDetector(
-                                onTap: () => {
-                                        var selection = this._textController.selection;
-                                        if (selection.isCollapsed) {
-                                            if (selection.start > 0) {
-                                                this._textController.text =
-                                                    this._textController.text.Substring(0, selection.start-1) +
-                                                    this._textController.text.Substring(selection.end);
-                                                this._textController.selection = TextSelection.collapsed(selection.start-1);
-                                            }
-                                        }
-                                        else {
-                                            this._textController.text =
-                                                this._textController.text.Substring(0, selection.start) +
-                                                this._textController.text.Substring(selection.end);
-                                            this._textController.selection =
-                                                TextSelection.collapsed(selection.start);
-                                        }
-                                },
+                                onTap: this._handleDelete,
                                 child: new Container(
                                     width: 40,
                                     height: 40,
@@ -663,6 +646,29 @@ namespace ConnectApp.screens {
                     )
                 }
             );
+        }
+
+        void _handleDelete() {
+            var selection = this._textController.selection;
+            if (selection.isCollapsed) {
+                if (selection.start > 0) {
+                    int deleteLength = 1;
+                    if (selection.start > 1 && char.IsSurrogate(this._textController.text[selection.start - 1])) {
+                        deleteLength = 2;
+                    }
+                    this._textController.text =
+                        this._textController.text.Substring(0, selection.start-deleteLength) +
+                        this._textController.text.Substring(selection.end);
+                    this._textController.selection = TextSelection.collapsed(selection.start-deleteLength);
+                }
+            }
+            else {
+                this._textController.text =
+                    this._textController.text.Substring(0, selection.start) +
+                    this._textController.text.Substring(selection.end);
+                this._textController.selection =
+                    TextSelection.collapsed(selection.start);
+            }
         }
 
         void _handleSubmit(string text) {
