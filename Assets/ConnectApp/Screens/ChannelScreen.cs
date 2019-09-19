@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
@@ -43,8 +44,12 @@ namespace ConnectApp.screens {
                     return new ChannelScreenViewModel {
                         channelInfo = state.channelState.channelDict[this.channelId],
                         messages = state.channelState.channelDict[this.channelId].messageIds.Select(
-                            messageId => state.channelState.messageDict[messageId]
-                        ).ToList(),
+                            messageId => {
+                                var message = state.channelState.messageDict[messageId];
+                                message.content = MessageUtils.AnalyzeMessage(
+                                        message.content, message.mentions, message.mentionEveryone);
+                                return message;
+                            }).ToList(),
                         me = state.loginState.loginInfo.userId,
                         messageLoading = state.channelState.messageLoading,
                         newMessageCount = 0
