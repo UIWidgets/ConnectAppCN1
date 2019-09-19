@@ -375,7 +375,9 @@ namespace ConnectApp.screens {
                             ? "[@所有人] "
                             : "",
                     children: new List<TextSpan> {
-                        new TextSpan(text, style: CTextStyle.PRegularBody4)
+                        new TextSpan(MessageUtils.AnalyzeMessage(
+                                text, channel.lastMessage?.mentions, channel.lastMessage?.mentionEveryone ?? false),
+                            style: CTextStyle.PRegularBody4)
                     },
                     style: CTextStyle.PRegularError
                 ),
@@ -403,11 +405,11 @@ namespace ConnectApp.screens {
                         Icons.notifications_off,
                         size: 16, color: CColors.LighBlueGrey)
                     : new NotificationDot(
-                        channel.mentioned > 0
-                            ? $"{channel.mentioned}"
-                            : channel.unread > 0
-                                ? ""
-                                : null
+                        channel.unread > 0
+                            ? channel.mentioned > 0
+                                ? $"{channel.mentioned}"
+                                : ""
+                            : null
                     )
             );
 

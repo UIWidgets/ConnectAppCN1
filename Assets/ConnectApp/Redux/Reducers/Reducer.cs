@@ -1242,6 +1242,8 @@ namespace ConnectApp.redux.reducers {
                 case MainNavigatorPushToChannelAction action: {
                     state.channelState.channelDict[action.channelId].unread = 0;
                     state.channelState.channelDict[action.channelId].mentioned = 0;
+                    state.channelState.channelDict[action.channelId].atAll = false;
+                    state.channelState.channelDict[action.channelId].atMe = false;
                     state.channelState.updateTotalMention();
                     Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
@@ -2426,6 +2428,9 @@ namespace ConnectApp.redux.reducers {
                             channel.lastMessage = ChannelMessageView.fromChannelMessageLite(message);
                             channel.lastMessage.author =
                                 state.channelState.getMember(channel.lastMessage.author.id)?.user;
+                            channel.lastMessage.mentions = channel.lastMessage.mentions?.Select(
+                                user => state.channelState.getMember(user.id).user)?.ToList();
+                                
                         }
                     }
 
@@ -2435,7 +2440,7 @@ namespace ConnectApp.redux.reducers {
                         if (state.channelState.channelDict.TryGetValue(channelId, out var channel)) {
                             channel.mentioned = readState.mentionCount;
                             channel.unread = readState.lastMessageId != channel.lastMessageId ? 1 : 0;
-                            channel.atMe = channel.mentioned > 0;
+                            channel.atMe = channel.mentioned > 0 && channel.unread > 0;
                         }
                     }
 

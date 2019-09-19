@@ -78,11 +78,11 @@ namespace ConnectApp.Models.State {
         }
 
         public string totalNotification() {
-            return this.totalMention > 0
-                ? $"{this.totalMention}"
-                : this.totalUnread > 0
-                    ? $""
-                    : null;
+            return this.totalUnread > 0
+                ? this.totalMention > 0
+                    ? $"{this.totalMention}"
+                    : ""
+                : null;
 
         }
 

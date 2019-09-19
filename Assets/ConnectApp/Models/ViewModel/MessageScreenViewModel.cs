@@ -101,16 +101,24 @@ namespace ConnectApp.Models.ViewModel {
         }
 
         public void handleUnreadMessage(ChannelMessageView message, string userId) {
+            bool atMe = false, atAll = false;
             for (int k = 0; k < message.mentions.Count; k++) {
                 if (message.mentions[k].id == userId) {
-                    this.atMe = true;
+                    atMe = true;
                 }
             }
 
             if (message.mentionEveryone) {
-                this.atAll = true;
-                this.atMe = true;
+                atAll = true;
+                atMe = true;
             }
+
+            if (atAll || atMe) {
+                this.mentioned += 1;
+            }
+
+            this.atAll = this.atAll || atAll;
+            this.atMe = this.atMe || atMe;
 
             this.unread += 1;
         }
