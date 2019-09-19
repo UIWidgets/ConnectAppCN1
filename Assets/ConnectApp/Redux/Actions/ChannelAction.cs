@@ -70,6 +70,8 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new JoinChannelSuccessAction {
                             channelId = channelId
                         });
+                        dispatcher.dispatch(fetchChannelMessages(channelId));
+                        dispatcher.dispatch(fetchChannelMembers(channelId));
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new JoinChannelFailureAction());
