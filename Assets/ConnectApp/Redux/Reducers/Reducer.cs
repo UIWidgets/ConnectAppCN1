@@ -1242,6 +1242,7 @@ namespace ConnectApp.redux.reducers {
                 case MainNavigatorPushToChannelAction action: {
                     state.channelState.channelDict[action.channelId].unread = 0;
                     state.channelState.channelDict[action.channelId].mentioned = 0;
+                    state.channelState.updateTotalMention();
                     Router.navigator.push(new PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
                                 new ChannelScreenConnector(action.channelId),
@@ -2349,10 +2350,7 @@ namespace ConnectApp.redux.reducers {
                         channel.messageIds = ret;
                     }
                     state.channelState.messageLoading = false;
-                    state.channelState.totalUnread = 0;
-                    for (int i = 0; i < state.channelState.joinedChannels.Count; i++) {
-                        state.channelState.totalUnread += state.channelState.getJoinedChannel(i).unread;
-                    }
+                    state.channelState.updateTotalMention();
                     channel.upToDate = state.channelState.upToDate(channel.id);
 
                     break;
@@ -2442,6 +2440,7 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     state.channelState.channelTop = ChannelTopManager.getChannelTop();
+                    state.channelState.updateTotalMention();
 
                     Debug.Log("WebSocket Online!");
                     break;
@@ -2470,6 +2469,8 @@ namespace ConnectApp.redux.reducers {
                         channel.lastMessage = channelMessage;
                         channel.handleUnreadMessage(channelMessage, state.loginState.loginInfo.userId);
                     }
+                    
+                    state.channelState.updateTotalMention();
                     break;
                 }
                 case PushModifyMessageAction action: {

@@ -36,13 +36,21 @@ namespace ConnectApp.Components {
         public readonly List<CustomTabBarItem> items;
 
         public override Widget build(BuildContext context) {
-            return new StoreConnector<AppState, object>(
-                converter: state => null,
-                builder: (context1, viewModel, dispatcher) => {
+            return new StoreConnector<AppState, List<string>>(
+                converter: state => {
+                    return new List<string> {
+                        null,
+                        null,
+                        state.channelState.totalNotification(),
+                        null
+                    };
+                },
+                builder: (context1, notifications, dispatcher) => {
                     return new CustomTabBar(
                         controllers: this.controllers,
                         items: this.items,
                         backgroundColor: this.backgroundColor,
+                        notifications: notifications,
                         tapCallBack: this.tapCallBack
                     );
                 }
@@ -54,6 +62,7 @@ namespace ConnectApp.Components {
         public CustomTabBar(
             List<Widget> controllers,
             List<CustomTabBarItem> items,
+            List<string> notifications,
             Color backgroundColor,
             SelectTabCallBack tapCallBack = null,
             Key key = null
@@ -65,12 +74,14 @@ namespace ConnectApp.Components {
             this.items = items;
             this.backgroundColor = backgroundColor;
             this.tapCallBack = tapCallBack;
+            this.notifications = notifications;
         }
 
         public readonly SelectTabCallBack tapCallBack;
         public readonly Color backgroundColor;
         public readonly List<Widget> controllers;
         public readonly List<CustomTabBarItem> items;
+        public readonly List<string> notifications;
 
         public override State createState() {
             return new CustomTabBarState();
@@ -207,7 +218,7 @@ namespace ConnectApp.Components {
                                     child: new Transform(
                                         transform: Matrix3.makeTrans(new Offset(12, -8)),
                                         child: new NotificationDot(
-                                            item.notification,
+                                            this.widget.notifications[item.index],
                                             borderSide: new BorderSide(
                                                 color: CColors.White, width: 2)
                                         )

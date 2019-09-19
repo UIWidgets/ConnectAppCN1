@@ -12,6 +12,7 @@ namespace ConnectApp.Models.State {
         public int discoverPage;
         public bool messageLoading;
         public int totalUnread;
+        public int totalMention;
         public Dictionary<string, ChannelView> channelDict;
         public Dictionary<string, ChannelMessageView> messageDict;
         public Dictionary<string, ChannelMember> membersDict;
@@ -63,6 +64,26 @@ namespace ConnectApp.Models.State {
                 id = user.id,
                 presenceStatus = user.presenceStatus
             };
+        }
+
+        public void updateTotalMention() {
+            this.totalUnread = 0;
+            for (int i = 0; i < this.joinedChannels.Count; i++) {
+                this.totalUnread += this.getJoinedChannel(i).unread;
+            }
+            this.totalMention = 0;
+            for (int i = 0; i < this.joinedChannels.Count; i++) {
+                this.totalMention += this.getJoinedChannel(i).mentioned;
+            }
+        }
+
+        public string totalNotification() {
+            return this.totalMention > 0
+                ? $"{this.totalMention}"
+                : this.totalUnread > 0
+                    ? $""
+                    : null;
+
         }
 
         public ChannelMember getMember(string userId) {

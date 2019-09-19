@@ -37,9 +37,7 @@ namespace ConnectApp.screens {
                                 2,
                                 Icons.outline_question_answer,
                                 Icons.question_answer,
-                                "群聊",
-                                notification: CStringUtils.NotificationText(
-                                    StoreProvider.store.getState().channelState.totalUnread)
+                                "群聊"
                             ),
                             new CustomTabBarItem(
                                 3,
