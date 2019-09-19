@@ -64,5 +64,5 @@ void ConfigPlayer(char* url,char* cookie){
     NSString* cookieStr = [NSString stringWithCString:cookie encoding:NSUTF8StringEncoding];
     NSString* videoUrl = [NSString stringWithCString:url encoding:NSUTF8StringEncoding];
     AVPlayerController * avp = [AVPlayerController shareInstance];
-    [avp configPlayerWithVideUrl:videoUrl cookie:cookieStr needUpdate:false limitSeconds:0];
+    [avp configPlayerWithVideUrl:videoUrl cookie:cookieStr];
 }

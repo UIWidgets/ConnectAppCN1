@@ -18,6 +18,7 @@ namespace ConnectApp.Components {
             Action<string> openUrl = null,
             Action<string, bool, int> playVideo = null,
             Action<string> pushToUserDetail = null,
+            Action loginAction = null,
             Widget topWidget = null,
             Key titleKey = null,
             Key key = null
@@ -27,6 +28,7 @@ namespace ConnectApp.Components {
             this.openUrl = openUrl;
             this.playVideo = playVideo;
             this.pushToUserDetail = pushToUserDetail;
+            this.loginAction = loginAction;
             this.isShowImage = isShowImage;
             this.topWidget = topWidget;
             this.titleKey = titleKey;
@@ -38,6 +40,8 @@ namespace ConnectApp.Components {
         readonly Action<string> openUrl;
         readonly Action<string, bool, int> playVideo;
         readonly Action<string> pushToUserDetail;
+        readonly Action loginAction;
+
         readonly Widget topWidget;
         readonly Key titleKey;
 
@@ -54,7 +58,7 @@ namespace ConnectApp.Components {
             }
 
             items.AddRange(ContentDescription.map(context, this.eventObj.content, this.eventObj.contentMap, null,
-                this.openUrl, this.playVideo, ""
+                this.openUrl, this.playVideo, this.loginAction, ""
             ));
             items.Add(this._buildContentLecturerList());
             return new CustomScrollbar(

@@ -72,6 +72,7 @@ namespace ConnectApp.Models.Model {
         public string origin;
         public string verifyType;
         public string verifyArg;
+        public string status;
         public int trialSlicesCount;
         public int limitSeconds;
     }

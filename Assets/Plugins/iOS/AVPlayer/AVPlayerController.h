@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)initPlayerWithVideoUrl:(NSString*)videoUrl cookie:(NSString*)cookie left:(CGFloat)left top:(CGFloat)top width:(CGFloat)width height:(CGFloat)height isPop:(BOOL)isPop needUpdate:(BOOL)needUpdate limitSeconds:(int)limitSeconds;
 
-- (void)configPlayerWithVideUrl:(NSString *)url cookie:(NSString *)cookie needUpdate:(BOOL)needUpdate limitSeconds:(int)limitSeconds;
+- (void)configPlayerWithVideUrl:(NSString *)url cookie:(NSString *)cookie;
 
 - (void)play;
 

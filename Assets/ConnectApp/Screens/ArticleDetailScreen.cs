@@ -360,6 +360,7 @@ namespace ConnectApp.screens {
                     this._article.videoSliceMap,
                     openUrl: this.widget.actionModel.openUrl,
                     playVideo: this.widget.actionModel.playVideo,
+                    this.widget.actionModel.pushToLogin,
                     UserInfoManager.isLogin()
                         ? CCommonUtils.GetUserLicense(UserInfoManager.initUserInfo().userId,
                             this.widget.viewModel.userLicenseDict)

@@ -18,7 +18,8 @@ namespace ConnectApp.Components {
 
         public static List<Widget> map(BuildContext context, string cont, Dictionary<string, ContentMap> contentMap,
             Dictionary<string, VideoSliceMap> videoSliceMap,
-            Action<string> openUrl, Action<string, bool, int> playVideo, string licence, Action browserImage = null) {
+            Action<string> openUrl, Action<string, bool, int> playVideo, Action loginAction, string licence,
+            Action browserImage = null) {
             if (cont == null || contentMap == null) {
                 return new List<Widget>();
             }
@@ -145,9 +146,11 @@ namespace ConnectApp.Components {
                                         : map.originalImage;
                                     var needUpdate = false;
                                     var limitSeconds = 0;
+                                    var videoStatus = "completed";
                                     if (videoSliceMap != null && videoSliceMap.isNotEmpty() &&
                                         videoSliceMap.ContainsKey(map.attachmentId)) {
                                         var videoSlice = videoSliceMap[map.attachmentId];
+                                        videoStatus = videoSlice.status;
                                         if (videoSlice.verifyType == "license" &&
                                             videoSlice.verifyArg == "premium_above" && licence.isEmpty()) {
                                             needUpdate = true;
@@ -156,9 +159,9 @@ namespace ConnectApp.Components {
                                     }
 
                                     widgets.Add(_Atomic(context, dataMap.type, contentType, data.title, data.url,
-                                        originalImage,
-                                        url, downloadUrl, attachmentId,
-                                        openUrl, playVideo, needUpdate, limitSeconds, browserImage));
+                                        originalImage, videoStatus,
+                                        url, downloadUrl, attachmentId
+                                        , openUrl, playVideo, loginAction, needUpdate, limitSeconds, browserImage));
                                 }
                             }
                         }
@@ -316,9 +319,9 @@ namespace ConnectApp.Components {
         }
 
         static Widget _Atomic(BuildContext context, string type, string contentType, string title, string dataUrl,
-            _OriginalImage originalImage,
+            _OriginalImage originalImage, string videoStatus,
             string url, string downloadUrl, string attachmentId, Action<string> openUrl,
-            Action<string, bool, int> playVideo, bool needUpdate, int limitSeconds,
+            Action<string, bool, int> playVideo, Action loginAction, bool needUpdate, int limitSeconds,
             Action browserImage = null) {
             if (type == "ATTACHMENT" && contentType != "video/mp4") {
                 return new Container();
@@ -330,39 +333,47 @@ namespace ConnectApp.Components {
             if (type == "VIDEO" || type == "ATTACHMENT") {
                 playButton = Positioned.fill(
                     new Center(
-                        child: new CustomButton(
-                            onPressed: () => {
-                                if (type == "ATTACHMENT") {
-                                    if (url.isEmpty()) {
-                                        playVideo(downloadUrl, false, 0);
+                        child: UserInfoManager.isLogin()
+                            ? videoStatus == "completed" ? new CustomButton(
+                                onPressed: () => {
+                                    if (type == "ATTACHMENT") {
+                                        if (url.isEmpty()) {
+                                            playVideo(downloadUrl, false, 0);
+                                        }
+                                        else {
+                                            playVideo($"{Config.apiAddress}/playlist/{attachmentId}", needUpdate,
+                                                limitSeconds);
+                                        }
                                     }
                                     else {
-                                        playVideo($"{Config.apiAddress}/playlist/{attachmentId}", needUpdate,
-                                            limitSeconds);
-                                    }
-                                }
-                                else {
-                                    if (url == null || url.Length <= 0) {
-                                        return;
-                                    }
+                                        if (url == null || url.Length <= 0) {
+                                            return;
+                                        }
 
-                                    openUrl(url);
-                                }
-                            },
-                            child: new Container(
-                                width: 60,
-                                height: 60,
-                                decoration: new BoxDecoration(
-                                    CColors.H5White,
-                                    borderRadius: BorderRadius.all(30)
-                                ),
-                                child: new Icon(
-                                    Icons.play_arrow,
-                                    size: 45,
-                                    color: CColors.Icon
+                                        openUrl(url);
+                                    }
+                                },
+                                child: new Container(
+                                    width: 60,
+                                    height: 60,
+                                    decoration: new BoxDecoration(
+                                        CColors.H5White,
+                                        borderRadius: BorderRadius.all(30)
+                                    ),
+                                    child: new Icon(
+                                        Icons.play_arrow,
+                                        size: 45,
+                                        color: CColors.Icon
+                                    )
                                 )
+                            ) : (Widget) new Container(
+                                child: new Text("Video is processing, try it later", style: CTextStyle.PXLargeWhite)
                             )
-                        )
+                            : new GestureDetector(
+                                onTap: () => { loginAction(); },
+                                child: new Text("Login to view this video",
+                                    style: CTextStyle.PXLargeWhite.merge(
+                                        new TextStyle(decoration: TextDecoration.underline))))
                     )
                 );
             }
