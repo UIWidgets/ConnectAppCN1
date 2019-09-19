@@ -29,10 +29,17 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, MessageScreenViewModel>(
                 converter: state => {
+                    var joinedChannels = state.channelState.joinedChannels.Select(
+                        channelId => {
+                            ChannelView channel = state.channelState.channelDict[channelId];
+                            channel.isTop = state.channelState.channelTop.TryGetValue(channelId, out var isTop) &&
+                                            isTop;
+                            return channel;
+                        }).ToList();
+                    joinedChannels.Sort((c1, c2) => { return c1.isTop == c2.isTop ? 0 : (c1.isTop ? -1 : 1); });
                     return new MessageScreenViewModel {
+                        joinedChannels = joinedChannels,
                         discoverPage = state.channelState.discoverPage,
-                        joinedChannels = state.channelState.joinedChannels.Select(
-                            channelId => state.channelState.channelDict[channelId]).ToList(),
                         popularChannels = state.channelState.publicChannels
                             .Select(channelId => state.channelState.channelDict[channelId])
                             .Take(state.channelState.publicChannels.Count > 0

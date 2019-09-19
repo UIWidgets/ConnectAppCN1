@@ -2302,6 +2302,7 @@ namespace ConnectApp.redux.reducers {
                         state.channelState.channelDict[entry.Key].joined =
                             action.joinedChannelMap.ContainsKey(entry.Key) && action.joinedChannelMap[entry.Key];
                     }
+                    state.channelState.channelTop = ChannelTopManager.getChannelTop();
                     break;
                 }
                 
@@ -2440,7 +2441,15 @@ namespace ConnectApp.redux.reducers {
                         }
                     }
 
+                    state.channelState.channelTop = ChannelTopManager.getChannelTop();
+
                     Debug.Log("WebSocket Online!");
+                    break;
+                }
+
+                case UpdateChannelTopAction action: {
+                    state.channelState.channelTop[action.channelId] = action.value;
+                    ChannelTopManager.saveChannelTop(state.channelState.channelTop);
                     break;
                 }
                 case PushNewMessageAction action: {

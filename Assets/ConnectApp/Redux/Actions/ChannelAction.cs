@@ -174,6 +174,11 @@ namespace ConnectApp.redux.actions {
         public long nonce;
     }
 
+    public class UpdateChannelTopAction : BaseAction {
+        public string channelId;
+        public bool value;
+    }
+
     public class PushReadyAction : BaseAction {
         public SocketResponseSessionData readyData;
     }
