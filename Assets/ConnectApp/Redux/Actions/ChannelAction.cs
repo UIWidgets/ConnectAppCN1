@@ -50,12 +50,15 @@ namespace ConnectApp.redux.actions {
             });
         }
         
-        public static object fetchChannelMembers(string channelId) {
+        public static object fetchChannelMembers(string channelId, int offset = 0) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ChannelApi.FetchChannelMembers(channelId).Then(channelMemberResponse => {
+                return ChannelApi.FetchChannelMembers(channelId, offset).Then(channelMemberResponse => {
                         dispatcher.dispatch(new ChannelMemberAction {
                             channelId = channelId,
-                            members = channelMemberResponse
+                            offset = channelMemberResponse.offset,
+                            total = channelMemberResponse.total,
+                            members = channelMemberResponse.list,
+                            followeeMap = channelMemberResponse.followeeMap
                         });
                     })
                     .Catch(error => {
@@ -126,6 +129,9 @@ namespace ConnectApp.redux.actions {
     public class ChannelMemberAction {
         public string channelId;
         public List<ChannelMember> members;
+        public int offset;
+        public int total;
+        public Dictionary<string, bool> followeeMap;
     }
     
     public class FetchPublicChannelsSuccessAction : BaseAction {

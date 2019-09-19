@@ -43,11 +43,14 @@ namespace ConnectApp.Api {
             return promise;
         }
         
-        public static Promise<List<ChannelMember>> FetchChannelMembers(string channelId) {
-            var promise = new Promise<List<ChannelMember>>();
-            var request = HttpManager.GET($"{Config.apiAddress}/api/channels/{channelId}/members");
+        public static Promise<FetchChannelMembersResponse> FetchChannelMembers(string channelId, int offset = 0) {
+            var promise = new Promise<FetchChannelMembersResponse>();
+            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/channels/{channelId}/members",
+                parameter: new Dictionary<string, object> {
+                    {"offset", offset}
+                });
             HttpManager.resume(request).Then(responseText => {
-                var channelMemberResponse = JsonConvert.DeserializeObject<List<ChannelMember>>(responseText);
+                var channelMemberResponse = JsonConvert.DeserializeObject<FetchChannelMembersResponse>(responseText);
                 promise.Resolve(channelMemberResponse);
             }).Catch(exception => { promise.Reject(exception); });
             return promise;

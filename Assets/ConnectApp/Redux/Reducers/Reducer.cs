@@ -2365,11 +2365,18 @@ namespace ConnectApp.redux.reducers {
 
                 case ChannelMemberAction action: {
                     var channel = state.channelState.channelDict[action.channelId];
-                    channel.memberIds = new List<string>();
+                    if (channel.messageIds == null) {
+                        channel.memberIds = new List<string>();
+                    }
                     for (var i = 0; i < action.members.Count; i++) {
                         var channelMember = action.members[i];
                          state.channelState.membersDict[channelMember.id] = channelMember;
-                         channel.memberIds.Add(channelMember.id);
+                         if (!channel.memberIds.Contains(channelMember.id)) {
+                             channel.memberIds.Add(channelMember.id);
+                         }
+                         channel.memberCount = action.total;
+                         channel.memberOffset = action.offset;
+                         channel.memberFolloweeMap = action.followeeMap;
                     }
                     break;
                 }

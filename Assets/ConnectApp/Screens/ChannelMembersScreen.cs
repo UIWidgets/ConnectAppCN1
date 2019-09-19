@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ConnectApp.Components;
+using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.Model;
@@ -31,8 +32,6 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ChannelMembersScreenViewModel>(
                 converter: state => {
-                    var hasFollowDict =
-                        state.followState.followDict.TryGetValue(state.loginState.loginInfo.userId, out var followDict);
                     var members = state.channelState.channelDict[this.channelId].memberIds.Select(
                         memberId => state.channelState.membersDict[memberId]
                     ).ToList();
@@ -55,7 +54,7 @@ namespace ConnectApp.screens {
                     }
                     return new ChannelMembersScreenViewModel {
                         channel = state.channelState.channelDict[this.channelId],
-                        followed = hasFollowDict ? followDict : new Dictionary<string, bool>(),
+                        followed = state.channelState.channelDict[this.channelId].memberFolloweeMap,
                         members = members,
                         nAdmin = nAdmin,
                         isLoggedIn = state.loginState.isLoggedIn
@@ -64,7 +63,8 @@ namespace ConnectApp.screens {
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ChannelMembersScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
-                        fetchMembers = () => dispatcher.dispatch<IPromise>(Actions.fetchChannelMembers(this.channelId)),
+                        fetchMembers = () => dispatcher.dispatch<IPromise>(
+                            Actions.fetchChannelMembers(this.channelId, viewModel.members.Count)),
                         startFollowUser = followUserId => dispatcher.dispatch(new StartFollowUserAction {
                             followUserId = followUserId
                         }),
@@ -103,11 +103,13 @@ namespace ConnectApp.screens {
 
     class _ChannelMembersScreenState : State<ChannelMembersScreen> {
         TextEditingController _controller;
+        RefreshController _refreshController;
         string _title;
 
         public override void initState() {
             base.initState();
             this._controller = new TextEditingController("");
+            this._refreshController = new RefreshController();
             // this.widget.actionModel.fetchMembers();
         }
 
@@ -148,55 +150,34 @@ namespace ConnectApp.screens {
         Widget _buildContent() {
             return new Container(
                 color: CColors.Background,
-                child: ListView.builder(itemCount: this.widget.viewModel.members.Count + 1,
-                    itemBuilder: (context, index) => {
-                        if (index == this.widget.viewModel.nAdmin + 1) {
-                            return new Container(height: 16);
-                        }
-                        ChannelMember member = null;
-                        if (index <= this.widget.viewModel.nAdmin) {
-                            member = this.widget.viewModel.members[index];
-                        }
-                        else {
-                            member = this.widget.viewModel.members[index-1];
-                        }
+                child: new SmartRefresher(
+                    enablePullUp: this.widget.viewModel.members.Count < this.widget.viewModel.channel.memberCount,
+                    enablePullDown: false,
+                    controller: this._refreshController,
+                    onRefresh: this._onRefresh,
+                    child: ListView.builder(itemCount: this.widget.viewModel.members.Count + 1,
+                        itemBuilder: (context, index) => {
+                            if (index == this.widget.viewModel.nAdmin + 1) {
+                                return new Container(height: 16);
+                            }
+                            ChannelMember member = null;
+                            if (index <= this.widget.viewModel.nAdmin) {
+                                member = this.widget.viewModel.members[index];
+                            }
+                            else {
+                                member = this.widget.viewModel.members[index-1];
+                            }
 
-                        return buildMemberItem(context, member,
-                            this.widget.viewModel.followed.TryGetValue(member.user.id, out bool followed) &&
-                                followed,
-                            this._onFollow);
-                    }
+                            return buildMemberItem(context, member,
+                                this.widget.viewModel.followed.TryGetValue(member.user.id, out bool followed) &&
+                                    followed,
+                                this._onFollow);
+                        }
+                    )
                 )
             );
         }
         
-        void _onFollow(bool followed, string userId) {
-            if (this.widget.viewModel.isLoggedIn) {
-                if (followed) {
-                    ActionSheetUtils.showModalActionSheet(
-                        new ActionSheet(
-                            title: "确定不再关注？",
-                            items: new List<ActionSheetItem> {
-                                new ActionSheetItem("确定", type: ActionType.normal,
-                                    () => {
-                                        this.widget.actionModel.startUnFollowUser(obj: userId);
-                                        this.widget.actionModel.unFollowUser(arg: userId);
-                                    }),
-                                new ActionSheetItem("取消", type: ActionType.cancel)
-                            }
-                        )
-                    );
-                }
-                else {
-                    this.widget.actionModel.startFollowUser(obj: userId);
-                    this.widget.actionModel.followUser(arg: userId);
-                }
-            }
-            else {
-                this.widget.actionModel.pushToLogin();
-            }
-        }
-
         Widget _buildSearchBar() {
             return new Container(
                 color: CColors.White,
@@ -302,6 +283,43 @@ namespace ConnectApp.screens {
                     }
                 )
             );
+        }
+        
+        void _onFollow(bool followed, string userId) {
+            if (this.widget.viewModel.isLoggedIn) {
+                if (followed) {
+                    ActionSheetUtils.showModalActionSheet(
+                        new ActionSheet(
+                            title: "确定不再关注？",
+                            items: new List<ActionSheetItem> {
+                                new ActionSheetItem("确定", type: ActionType.normal,
+                                    () => {
+                                        this.widget.actionModel.startUnFollowUser(obj: userId);
+                                        this.widget.actionModel.unFollowUser(arg: userId);
+                                    }),
+                                new ActionSheetItem("取消", type: ActionType.cancel)
+                            }
+                        )
+                    );
+                }
+                else {
+                    this.widget.actionModel.startFollowUser(obj: userId);
+                    this.widget.actionModel.followUser(arg: userId);
+                }
+            }
+            else {
+                this.widget.actionModel.pushToLogin();
+            }
+        }
+
+        void _onRefresh(bool up) {
+            if (!up) {
+                this.widget.actionModel.fetchMembers().Then(
+                    () => this._refreshController.sendBack(false, RefreshStatus.idle)
+                ).Catch(
+                    e => this._refreshController.sendBack(false, RefreshStatus.idle)
+                );
+            }
         }
     }
 }

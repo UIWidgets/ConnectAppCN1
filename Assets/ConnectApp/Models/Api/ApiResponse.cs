@@ -247,6 +247,14 @@ namespace ConnectApp.Models.Api {
         public bool hasMore;
         public bool hasMoreNew;
     }
+    
+    [Serializable]
+    public class FetchChannelMembersResponse {
+        public List<ChannelMember> list;
+        public int offset;
+        public int total;
+        public Dictionary<string, bool> followeeMap;
+    }
 
     [Serializable]
     public class JoinChannelResponse {

@@ -36,6 +36,8 @@ namespace ConnectApp.Models.ViewModel {
         public bool hasMoreNew = false;
         public bool upToDate = true;
         public List<string> memberIds;
+        public int memberOffset;
+        public Dictionary<string, bool> memberFolloweeMap;
 
         public static ChannelView fromChannel(Channel channel) {
             return new ChannelView {
