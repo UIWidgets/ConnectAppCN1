@@ -90,7 +90,7 @@ namespace ConnectApp.Api {
             }
 
             SocketGateway.instance.Connect(
-                onConnected: 
+                onIdentify: 
                 commitId => {
                     SocketGateway.instance.Identify(sessionId, commitId);
                 },
