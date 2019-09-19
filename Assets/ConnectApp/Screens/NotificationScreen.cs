@@ -185,20 +185,18 @@ namespace ConnectApp.screens {
             }
             else {
                 var enablePullUp = this.widget.viewModel.page < this.widget.viewModel.pageTotal;
-                var itemCount = enablePullUp ? notifications.Count : notifications.Count + 1;
                 content = new Container(
                     color: CColors.Background,
-                    child: new SmartRefresher(
+                    child: new CustomListView(
                         controller: this._refreshController,
                         enablePullDown: true,
                         enablePullUp: enablePullUp,
                         onRefresh: this._onRefresh,
                         hasBottomMargin: true,
-                        child: ListView.builder(
-                            physics: new AlwaysScrollableScrollPhysics(),
-                            itemCount: itemCount,
-                            itemBuilder: this._buildNotificationCard
-                        )
+                        itemCount: notifications.Count,
+                        itemBuilder: this._buildNotificationCard,
+                        footerWidget: enablePullUp ? null : new EndView(hasBottomMargin: true),
+                        hasScrollBar: false
                     )
                 );
             }
@@ -246,9 +244,6 @@ namespace ConnectApp.screens {
 
         Widget _buildNotificationCard(BuildContext context, int index) {
             var notifications = this.widget.viewModel.notifications;
-            if (index == notifications.Count) {
-                return new EndView(hasBottomMargin: true);
-            }
 
             var notification = notifications[index: index];
             if (notification.data.userId.isEmpty() && notification.data.role.Equals("user")) {

@@ -25,7 +25,7 @@ namespace ConnectApp.screens {
                         deleteEventHistory = id =>
                             dispatcher.dispatch(new DeleteEventHistoryAction {eventId = id})
                     };
-                    return new HistoryEventScreen(viewModel, actionModel);
+                    return new HistoryEventScreen(viewModel: viewModel, actionModel: actionModel);
                 }
             );
         }
@@ -53,12 +53,11 @@ namespace ConnectApp.screens {
 
             return new Container(
                 color: CColors.Background,
-                child: new CustomScrollbar(
-                    ListView.builder(
-                        physics: new AlwaysScrollableScrollPhysics(),
-                        itemCount: this.viewModel.eventHistory.Count,
-                        itemBuilder: this._buildEventCard
-                    )
+                child: new CustomListView(
+                    itemCount: this.viewModel.eventHistory.Count,
+                    itemBuilder: this._buildEventCard,
+                    headerWidget: CustomListViewConstant.defaultHeaderWidget,
+                    hasRefresh: false
                 )
             );
         }
@@ -72,7 +71,6 @@ namespace ConnectApp.screens {
                     model: model,
                     place: model.place,
                     () => this.actionModel.pushToEventDetail(model.id, eventType),
-                    index == 0,
                     new ObjectKey(value: model.id)
                 ),
                 new CustomDismissibleDrawerDelegate(),
