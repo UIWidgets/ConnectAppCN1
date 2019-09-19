@@ -5,6 +5,7 @@ using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
 using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
+using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
@@ -19,6 +20,12 @@ using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
     public class NotificationScreenConnector : StatelessWidget {
+        public NotificationScreenConnector(
+            Key key = null
+        ) : base(key: key) {
+            
+        }
+
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, NotificationScreenViewModel>(
                 converter: state => new NotificationScreenViewModel {
@@ -27,13 +34,14 @@ namespace ConnectApp.screens {
                     pageTotal = state.notificationState.pageTotal,
                     notifications = state.notificationState.notifications,
                     mentions = state.notificationState.mentions,
-                    userDict = state.userState.userDict
+                    userDict = state.userState.userDict,
+                    teamDict = state.teamState.teamDict
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new NotificationScreenActionModel {
                         startFetchNotifications = () => dispatcher.dispatch(new StartFetchNotificationsAction()),
                         fetchNotifications = pageNumber =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchNotifications(pageNumber)),
+                            dispatcher.dispatch<IPromise>(Actions.fetchNotifications(pageNumber: pageNumber)),
                         fetchMakeAllSeen = () => dispatcher.dispatch<IPromise>(Actions.fetchMakeAllSeen()),
                         pushToArticleDetail = id => dispatcher.dispatch(
                             new MainNavigatorPushToArticleDetailAction {
@@ -51,7 +59,7 @@ namespace ConnectApp.screens {
                             }
                         )
                     };
-                    return new NotificationScreen(viewModel, actionModel);
+                    return new NotificationScreen(viewModel: viewModel, actionModel: actionModel);
                 }
             );
         }
@@ -139,7 +147,7 @@ namespace ConnectApp.screens {
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
         }
 
         public override void dispose() {
@@ -243,10 +251,23 @@ namespace ConnectApp.screens {
             }
 
             var notification = notifications[index: index];
-            var user = this.widget.viewModel.userDict[key: notification.data.userId];
+            if (notification.data.userId.isEmpty() && notification.data.role.Equals("user")) {
+                return new Container();
+            }
+            User user;
+            Team team;
+            if (notification.type == "project_article_publish" && notification.data.role == "team") {
+                user = null;
+                team = this.widget.viewModel.teamDict[key: notification.data.teamId];
+            }
+            else {
+                user = this.widget.viewModel.userDict[key: notification.data.userId];
+                team = null;
+            }
             return new NotificationCard(
                 notification: notification,
                 user: user,
+                team: team,
                 mentions: this.widget.viewModel.mentions,
                 () => {
                     if (notification.type == "followed" || notification.type == "team_followed") {
@@ -262,7 +283,7 @@ namespace ConnectApp.screens {
                     }
                 },
                 pushToUserDetail: this.widget.actionModel.pushToUserDetail,
-                this.widget.actionModel.pushToTeamDetail,
+                pushToTeamDetail: this.widget.actionModel.pushToTeamDetail,
                 index == notifications.Count - 1,
                 new ObjectKey(value: notification.id)
             );
