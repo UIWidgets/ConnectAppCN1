@@ -6,7 +6,7 @@ namespace ConnectApp.Models.ViewModel {
         public ChannelView channel;
         public Dictionary<string, bool> followed;
         public List<ChannelMember> members;
-        public int nAdmin;
+        public List<ChannelMember> specialMembers;
         public bool isLoggedIn;
     }
 }

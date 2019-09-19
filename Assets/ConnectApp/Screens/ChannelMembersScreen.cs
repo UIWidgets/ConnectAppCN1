@@ -9,7 +9,6 @@ using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
-using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -17,7 +16,6 @@ using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 using Avatar = ConnectApp.Components.Avatar;
 using Color = Unity.UIWidgets.ui.Color;
 
@@ -35,28 +33,21 @@ namespace ConnectApp.screens {
                     var members = state.channelState.channelDict[this.channelId].memberIds.Select(
                         memberId => state.channelState.membersDict[memberId]
                     ).ToList();
-                    members.Sort((m1, m2) => {
+                    List<ChannelMember> specialMembers = members.Where(member => member.role != "member").ToList();
+                    members = members.Where(member => member.role == "member").ToList();
+                    specialMembers.Sort((m1, m2) => {
                         if (m1.role == m2.role) return 0;
-                        if (m1.role == "member") return 1;
-                        if (m2.role == "member") return -1;
                         if (m1.role == "admin") return 1;
                         if (m2.role == "admin") return -1;
                         if (m1.role == "moderator") return -1;
                         if (m2.role == "moderator") return 1;
                         return 0;
                     });
-                    int nAdmin = 0;
-                    for (int i = 0; i < members.Count; i++) {
-                        if (members[i].role == "member") {
-                            nAdmin = i - 1;
-                            break;
-                        }
-                    }
                     return new ChannelMembersScreenViewModel {
                         channel = state.channelState.channelDict[this.channelId],
                         followed = state.channelState.channelDict[this.channelId].memberFolloweeMap,
                         members = members,
-                        nAdmin = nAdmin,
+                        specialMembers = specialMembers,
                         isLoggedIn = state.loginState.isLoggedIn
                     };
                 },
@@ -157,15 +148,15 @@ namespace ConnectApp.screens {
                     onRefresh: this._onRefresh,
                     child: ListView.builder(itemCount: this.widget.viewModel.members.Count + 1,
                         itemBuilder: (context, index) => {
-                            if (index == this.widget.viewModel.nAdmin + 1) {
+                            if (index == this.widget.viewModel.specialMembers.Count) {
                                 return new Container(height: 16);
                             }
                             ChannelMember member = null;
-                            if (index <= this.widget.viewModel.nAdmin) {
-                                member = this.widget.viewModel.members[index];
+                            if (index < this.widget.viewModel.specialMembers.Count) {
+                                member = this.widget.viewModel.specialMembers[index];
                             }
                             else {
-                                member = this.widget.viewModel.members[index-1];
+                                member = this.widget.viewModel.members[index-this.widget.viewModel.specialMembers.Count-1];
                             }
 
                             return buildMemberItem(context, member,
