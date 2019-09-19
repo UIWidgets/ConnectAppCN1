@@ -52,11 +52,6 @@ namespace ConnectApp.Models.Api {
 
     [Serializable]
     public class FetchNotificationResponse {
-        public int unreadCount;
-        public int unseenCount;
-        public string current;
-        public string next;
-        public int total;
         public int page;
         public int pageTotal;
         public List<Notification> results;
