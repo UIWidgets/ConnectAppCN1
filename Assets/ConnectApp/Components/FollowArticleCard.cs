@@ -170,6 +170,19 @@ namespace ConnectApp.Components {
                     team: this.team,
                     38
                 );
+
+            var badge = this.type == OwnerType.user
+                ? CImageUtils.GenBadgeImage(
+                    badges: this.user.badges,
+                    license: this.license,
+                    EdgeInsets.only(4)
+                )
+                : CImageUtils.GenBadgeImage(
+                    badges: this.team.badges,
+                    null,
+                    EdgeInsets.only(4)
+                );
+
             Widget titleWidget = new Container();
             if (this.user.title != null && this.user.title.isNotEmpty() && this.type == OwnerType.user) {
                 titleWidget = new Text(
@@ -211,11 +224,7 @@ namespace ConnectApp.Components {
                                                             overflow: TextOverflow.ellipsis
                                                         )
                                                     ),
-                                                    CImageUtils.GenBadgeImage(
-                                                        badges: this.user.badges,
-                                                        license: this.license,
-                                                        EdgeInsets.only(4)
-                                                    )
+                                                    badge
                                                 }
                                             ),
                                             titleWidget
