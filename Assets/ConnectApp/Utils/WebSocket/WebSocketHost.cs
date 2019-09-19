@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using ConnectApp.Api;
+using Unity.UIWidgets.widgets;
 using UnityEngine;
 
 namespace ConnectApp.Utils {
@@ -16,26 +18,42 @@ namespace ConnectApp.Utils {
         readonly List<DelayCall> _delayCalls = new List<DelayCall>();
         int _delayCallId = 0;
 
+        NetworkReachability m_InternetReachability;
+
         public void Update() {
-            lock(this._executionQueue) {
-                while (this._executionQueue.Count > 0) {
-                    this._executionQueue.Dequeue().Invoke();
-                }
-            }
-
-            var delta = Time.deltaTime;
-            while (this._delayCalls.Count > 0) {
-                var call = this._delayCalls[0];
-                var delay = call.remainInterval;
-                if (delay > delta) {
-                    call.remainInterval -= delta;
-                    break;
+            using (WindowProvider.of(context: GlobalContext.context).getScope()) {
+                lock (this._executionQueue) {
+                    while (this._executionQueue.Count > 0) {
+                        this._executionQueue.Dequeue().Invoke();
+                    }
                 }
 
-                delta -= call.remainInterval;
-                var callback = call.callback;
-                this._delayCalls.RemoveAt(0);
-                callback?.Invoke();
+                var delta = Time.deltaTime;
+                while (this._delayCalls.Count > 0) {
+                    var call = this._delayCalls[0];
+                    var delay = call.remainInterval;
+                    if (delay > delta) {
+                        call.remainInterval -= delta;
+                        break;
+                    }
+
+                    delta -= call.remainInterval;
+                    var callback = call.callback;
+                    this._delayCalls.RemoveAt(0);
+                    callback?.Invoke();
+                }
+
+                if (Application.internetReachability != this.m_InternetReachability) {
+                    this.m_InternetReachability = Application.internetReachability;
+
+                    if (this.m_InternetReachability == NetworkReachability.ReachableViaCarrierDataNetwork ||
+                        this.m_InternetReachability == NetworkReachability.ReachableViaLocalAreaNetwork) {
+                        SocketApi.ConnectToWSS(false);
+                    }
+                    else {
+                        SocketApi.DisConnectFromWSS();
+                    }
+                }
             }
         }
 
@@ -111,6 +129,8 @@ namespace ConnectApp.Utils {
             _singletonChecker = true;
             
             this._socketGateway = new SocketGateway(this);
+
+            this.m_InternetReachability = NetworkReachability.NotReachable;
         }
     }
 }

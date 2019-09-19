@@ -140,6 +140,7 @@ namespace ConnectApp.Models.Api {
         public List<ChannelMessageLite> lastMessages;
         public List<NormalChannelLite> publicChannels;
         public List<NormalChannelLite> lobbyChannels;
+        public List<MessageUser> users;
     }
 
     [Serializable]
@@ -191,6 +192,20 @@ namespace ConnectApp.Models.Api {
 
     public class MessageUserLite {
         public string id;
+    }
+
+    public class MessageUser {
+        public string id;
+        public string username;
+        public string fullname;
+        public string avatar;
+        public string title;
+        public string coverImage;
+        public string presenceStatus;
+        public int likeCount;
+        public int followCount;
+        public bool isStaff;
+        public bool isBot;
     }
     
     public class SocketResponseSession : Frame<SocketResponseSessionData> {
