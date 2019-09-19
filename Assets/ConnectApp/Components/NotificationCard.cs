@@ -41,6 +41,16 @@ namespace ConnectApp.Components {
         readonly Action<string> pushToTeamDetail;
         readonly Action<string> pushToUserDetail;
         readonly bool isLast;
+        static readonly List<string> types = new List<string> {
+            "project_liked",
+            "project_message_commented",
+            "project_participate_comment",
+            "project_message_liked",
+            "project_message_participate_liked",
+            "project_article_publish",
+            "followed",
+            "team_followed"
+        };
 
         public override Widget build(BuildContext context) {
             if (this.notification == null) {
@@ -48,16 +58,6 @@ namespace ConnectApp.Components {
             }
 
             var type = this.notification.type;
-            var types = new List<string> {
-                "project_liked",
-                "project_message_commented",
-                "project_participate_comment",
-                "project_message_liked",
-                "project_message_participate_liked",
-                "project_article_publish",
-                "followed",
-                "team_followed"
-            };
             if (!types.Contains(item: type)) {
                 return new Container();
             }
