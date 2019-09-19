@@ -8,7 +8,7 @@ namespace ConnectApp.Models.State {
     [Serializable]
     public class AppState {
         public LoginState loginState { get; set; }
-        public EggState eggState { get; set; }
+        public ServiceConfigState serviceConfigState { get; set; }
         public ArticleState articleState { get; set; }
         public EventState eventState { get; set; }
         public PopularSearchState popularSearchState { get; set; }
@@ -37,8 +37,8 @@ namespace ConnectApp.Models.State {
                     isLoggedIn = isLogin,
                     loading = false
                 },
-                eggState = new EggState {
-                    showFirst = false,
+                serviceConfigState = new ServiceConfigState {
+                    showFirstEgg = false,
                     scanEnabled = false
                 },
                 articleState = new ArticleState {

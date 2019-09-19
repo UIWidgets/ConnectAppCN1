@@ -24,7 +24,7 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, ArticlesScreenViewModel>(
                 converter: state => new ArticlesScreenViewModel {
                     isLoggedIn = state.loginState.isLoggedIn,
-                    showFirstEgg = state.eggState.showFirst,
+                    showFirstEgg = state.serviceConfigState.showFirstEgg,
                     feedHasNew = state.articleState.feedHasNew
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -311,6 +311,7 @@ namespace ConnectApp.screens {
             else {
                 redDot = new Container();
             }
+
             return new CustomButton(
                 onPressed: () => {
                     if (this._selectedIndex != index) {
@@ -320,6 +321,7 @@ namespace ConnectApp.screens {
                                 return;
                             }
                         }
+
                         this.setState(() => this._selectedIndex = index);
                         this._pageController.animateToPage(
                             page: index,

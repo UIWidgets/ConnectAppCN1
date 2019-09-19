@@ -2203,12 +2203,12 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case InitEggsAction action: {
-                    state.eggState.showFirst = action.firstEgg;
+                    state.serviceConfigState.showFirstEgg = action.firstEgg;
                     break;
                 }
 
                 case ScanEnabledAction action: {
-                    state.eggState.scanEnabled = action.scanEnabled;
+                    state.serviceConfigState.scanEnabled = action.scanEnabled;
                     break;
                 }
 

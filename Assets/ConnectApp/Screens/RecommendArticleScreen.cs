@@ -35,7 +35,7 @@ namespace ConnectApp.screens {
                     isLoggedIn = state.loginState.isLoggedIn,
                     hosttestOffset = state.articleState.recommendArticleIds.Count,
                     currentUserId = state.loginState.loginInfo.userId ?? "",
-                    showFirstEgg = state.eggState.showFirst
+                    showFirstEgg = state.serviceConfigState.showFirstEgg
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ArticlesScreenActionModel {
@@ -99,14 +99,15 @@ namespace ConnectApp.screens {
             this._hasBeenLoadedData = false;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchArticles();
-                this.widget.actionModel.fetchArticles(arg1: this.widget.viewModel.currentUserId, arg2: initOffset).Then(() => {
-                    if (this._hasBeenLoadedData) {
-                        return;
-                    }
+                this.widget.actionModel.fetchArticles(arg1: this.widget.viewModel.currentUserId, arg2: initOffset).Then(
+                    () => {
+                        if (this._hasBeenLoadedData) {
+                            return;
+                        }
 
-                    this._hasBeenLoadedData = true;
-                    this.setState(() => { });
-                });
+                        this._hasBeenLoadedData = true;
+                        this.setState(() => { });
+                    });
             });
         }
 
@@ -142,7 +143,8 @@ namespace ConnectApp.screens {
                         true,
                         () => {
                             this.widget.actionModel.startFetchArticles();
-                            this.widget.actionModel.fetchArticles(arg1: this.widget.viewModel.currentUserId, arg2: initOffset);
+                            this.widget.actionModel.fetchArticles(arg1: this.widget.viewModel.currentUserId,
+                                arg2: initOffset);
                         }
                     )
                 );

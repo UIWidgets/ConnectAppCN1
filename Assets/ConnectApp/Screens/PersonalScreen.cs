@@ -24,7 +24,7 @@ namespace ConnectApp.screens {
                     user = state.loginState.loginInfo,
                     userDict = state.userState.userDict,
                     userLicenseDict = state.userState.userLicenseDict,
-                    scanEnabled = state.eggState.scanEnabled
+                    scanEnabled = state.serviceConfigState.scanEnabled
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     return new PersonalScreen(
