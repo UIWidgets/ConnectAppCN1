@@ -45,7 +45,11 @@ namespace ConnectApp.screens {
                     });
                     return new ChannelMembersScreenViewModel {
                         channel = state.channelState.channelDict[this.channelId],
-                        followed = state.channelState.channelDict[this.channelId].memberFolloweeMap,
+                        followed = state.loginState.isLoggedIn
+                            ? state.followState.followDict.TryGetValue(state.loginState.loginInfo.userId, out var followDict)
+                                ? followDict
+                                : new Dictionary<string, bool>()
+                            : new Dictionary<string, bool>(),
                         members = members,
                         specialMembers = specialMembers,
                         isLoggedIn = state.loginState.isLoggedIn
@@ -146,7 +150,8 @@ namespace ConnectApp.screens {
                     enablePullDown: false,
                     controller: this._refreshController,
                     onRefresh: this._onRefresh,
-                    child: ListView.builder(itemCount: this.widget.viewModel.members.Count + 1,
+                    child: ListView.builder(itemCount: this.widget.viewModel.specialMembers.Count +
+                                                       this.widget.viewModel.members.Count + 1,
                         itemBuilder: (context, index) => {
                             if (index == this.widget.viewModel.specialMembers.Count) {
                                 return new Container(height: 16);
