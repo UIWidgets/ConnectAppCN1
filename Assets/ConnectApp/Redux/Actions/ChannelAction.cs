@@ -17,7 +17,8 @@ namespace ConnectApp.redux.actions {
                             discoverList = channelResponse.discoverList,
                             joinedList = channelResponse.joinedList,
                             discoverPage = channelResponse.discoverPage,
-                            channelMap = channelResponse.channelMap
+                            channelMap = channelResponse.channelMap,
+                            joinedChannelMap = channelResponse.joinedChannelMap
                         });
                         for (int i = 0; i < channelResponse.joinedList.Count; i++) {
                             dispatcher.dispatch(fetchChannelMessages(channelResponse.joinedList[i]));
@@ -102,6 +103,7 @@ namespace ConnectApp.redux.actions {
         public List<string> joinedList;
         public int discoverPage;
         public Dictionary<string, Channel> channelMap;
+        public Dictionary<string, bool> joinedChannelMap;
 
     }
     

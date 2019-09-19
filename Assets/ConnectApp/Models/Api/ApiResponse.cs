@@ -230,6 +230,7 @@ namespace ConnectApp.Models.Api {
         public List<string> joinedList;
         public int discoverPage;
         public Dictionary<string, Channel> channelMap;
+        public Dictionary<string, bool> joinedChannelMap;
     }
     
     [Serializable]

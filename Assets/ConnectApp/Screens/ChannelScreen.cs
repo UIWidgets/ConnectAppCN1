@@ -690,9 +690,9 @@ namespace ConnectApp.screens {
                     ? this.widget.viewModel.messages.first().id
                     : null;
                 this.widget.actionModel.fetchMessages(id, null).Then(
-                    () => this._refreshController.sendBack(true, RefreshStatus.completed)
+                    () => this._refreshController.sendBack(false, RefreshStatus.idle)
                 ).Catch(
-                    (error) => this._refreshController.sendBack(true, RefreshStatus.failed)
+                    (error) => this._refreshController.sendBack(false, RefreshStatus.idle)
                 );
             }
         }
