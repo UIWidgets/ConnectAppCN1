@@ -187,8 +187,9 @@ namespace ConnectApp.Utils {
                     updateCookie(newCookie: vsCookie);
                 }
 
-                var firstEgg = false;
-                var scan = false;
+                var firstEgg = true;
+                var scan = true;
+
                 if (initDataResponse.config != null) {
                     if (initDataResponse.config.eggs != null && initDataResponse.config.eggs.ContainsKey("firstEgg")) {
                         firstEgg = initDataResponse.config.eggs["firstEgg"];
@@ -204,7 +205,10 @@ namespace ConnectApp.Utils {
                 StoreProvider.store.dispatcher.dispatch(new ScanEnabledAction {
                     scanEnabled = scan
                 });
-            }).Catch(exception => { });
+            }).Catch(exception => {
+                StoreProvider.store.dispatcher.dispatch(new InitEggsAction {firstEgg = true});
+                StoreProvider.store.dispatcher.dispatch(new ScanEnabledAction {scanEnabled = true});
+            });
         }
     }
 }
