@@ -9,7 +9,7 @@ namespace ConnectApp.Components {
         public static readonly Widget defaultFooterWidget = new EndView();
     }
 
-    public class CustomListView : StatefulWidget {
+    public class CustomListView : StatelessWidget {
         public CustomListView(
             RefreshController controller = null,
             bool enablePullUp = DefaultConstants.default_enablePullUp,
@@ -43,35 +43,28 @@ namespace ConnectApp.Components {
             this.hasRefresh = hasRefresh;
         }
 
-        public readonly RefreshController controller;
-        public readonly bool enablePullUp;
-        public readonly bool enablePullDown;
-        public readonly OnRefresh onRefresh;
-        public readonly bool hasBottomMargin;
-        public readonly int? itemCount;
-        public readonly IndexedWidgetBuilder itemBuilder;
-        public readonly Widget headerWidget;
-        public readonly Widget footerWidget;
-        public readonly bool hasScrollBar;
-        public readonly bool hasRefresh;
-
-        public override State createState() {
-            return new _CustomListViewState();
-        }
-    }
-
-    class _CustomListViewState : State<CustomListView> {
+        readonly RefreshController controller;
+        readonly bool enablePullUp;
+        readonly bool enablePullDown;
+        readonly OnRefresh onRefresh;
+        readonly bool hasBottomMargin;
+        readonly int? itemCount;
+        readonly IndexedWidgetBuilder itemBuilder;
+        readonly Widget headerWidget;
+        readonly Widget footerWidget;
+        readonly bool hasScrollBar;
+        readonly bool hasRefresh;
 
         bool _hasHeaderWidget() {
-            return this.widget.headerWidget != null;
+            return this.headerWidget != null;
         }
 
         bool _hasFooterWidget() {
-            return this.widget.footerWidget != null;
+            return this.footerWidget != null;
         }
 
         public override Widget build(BuildContext context) {
-            int itemCount = this.widget.itemCount ?? 0;
+            int itemCount = this.itemCount ?? 0;
             if (this._hasHeaderWidget()) {
                 itemCount += 1;
             }
@@ -84,15 +77,15 @@ namespace ConnectApp.Components {
                 itemCount: itemCount,
                 itemBuilder: (cxt, index) => {
                     if (this._hasHeaderWidget() && index == 0) {
-                        return this.widget.headerWidget;
+                        return this.headerWidget;
                     }
 
                     if (this._hasFooterWidget() && index == itemCount - 1) {
-                        return this.widget.footerWidget;
+                        return this.footerWidget;
                     }
 
                     var newIndex = this._hasHeaderWidget() ? index - 1 : index;
-                    return this.widget.itemBuilder(context: cxt, index: newIndex);
+                    return this.itemBuilder(context: cxt, index: newIndex);
                 }
             );
 
@@ -103,13 +96,13 @@ namespace ConnectApp.Components {
         }
 
         Widget _buildRefreshWidget(ScrollView listView) {
-            if (this.widget.hasRefresh) {
+            if (this.hasRefresh) {
                 return new SmartRefresher(
-                    controller: this.widget.controller,
-                    enablePullDown: this.widget.enablePullDown,
-                    enablePullUp: this.widget.enablePullUp,
-                    onRefresh: this.widget.onRefresh,
-                    hasBottomMargin: this.widget.hasBottomMargin,
+                    controller: this.controller,
+                    enablePullDown: this.enablePullDown,
+                    enablePullUp: this.enablePullUp,
+                    onRefresh: this.onRefresh,
+                    hasBottomMargin: this.hasBottomMargin,
                     child: listView
                 );
             }
@@ -117,7 +110,7 @@ namespace ConnectApp.Components {
         }
 
         Widget _buildScrollBarWidget(Widget widget) {
-            if (this.widget.hasScrollBar) {
+            if (this.hasScrollBar) {
                 return new CustomScrollbar(
                     child: widget
                 );
