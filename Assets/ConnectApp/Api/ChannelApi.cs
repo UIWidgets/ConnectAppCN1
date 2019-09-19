@@ -59,12 +59,12 @@ namespace ConnectApp.Api {
                 parameter: new Dictionary<string, string> {
                     {"channelId", channelId}
             });
-            if (string.IsNullOrEmpty(groupId)) {
-                request = HttpManager.POST($"{Config.apiAddress}/api/group/{groupId}/requestJoin",
-                parameter: new Dictionary<string, string> {
-                    {"groupId", groupId}
-                });
-            }
+//            if (!string.IsNullOrEmpty(groupId)) {
+//                request = HttpManager.POST($"{Config.apiAddress}/api/group/{groupId}/requestJoin",
+//                parameter: new Dictionary<string, string> {
+//                    {"groupId", groupId}
+//                });
+//            }
             Debug.Log(request.uri);
             HttpManager.resume(request).Then(responseText => {
                 var joinChannelResponse = JsonConvert.DeserializeObject<List<JoinChannelResponse>>(responseText);
@@ -79,12 +79,13 @@ namespace ConnectApp.Api {
                 parameter: new Dictionary<string, string> {
                     {"channelId", channelId}
             });
-            if (string.IsNullOrEmpty(groupId)) {
-                request = HttpManager.POST($"{Config.apiAddress}/api/group/{groupId}/deleteMember",
-                parameter: new Dictionary<string, string> {
-                    {"groupId", groupId}
-                });
-            }
+//            if (!string.IsNullOrEmpty(groupId)) {
+//                request = HttpManager.POST($"{Config.apiAddress}/api/group/{groupId}/deleteMember",
+//                parameter: new Dictionary<string, string> {
+//                    {"groupId", groupId}
+//                });
+//            }
+            Debug.Log(request.uri);
             HttpManager.resume(request).Then(responseText => {
                 var leaveChannelResponse = JsonConvert.DeserializeObject<LeaveChannelResponse>(responseText);
                 promise.Resolve(leaveChannelResponse);
