@@ -46,11 +46,6 @@ namespace ConnectApp.Api {
                 var successDictionary = JsonConvert.DeserializeObject<Dictionary<string, object>>(responseText);
                 var success = successDictionary.ContainsKey("success") ? successDictionary["success"] : false;
                 promise.Resolve((bool)success);
-
-                if ((bool)success) {
-                    SocketApi.ConnectToWSS();
-                }
-                
             }).Catch(exception => promise.Reject(exception));
             return promise;
         }

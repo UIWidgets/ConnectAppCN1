@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ConnectApp.Api;
 using ConnectApp.Components;
 using ConnectApp.Main;
 using ConnectApp.Models.Model;
@@ -66,8 +65,6 @@ namespace ConnectApp.redux.reducers {
                         HistoryManager.searchArticleHistoryList(userId: action.loginInfo.userId);
                     state.articleState.blockArticleList =
                         HistoryManager.blockArticleList(userId: action.loginInfo.userId);
-                    
-                    SocketApi.ConnectToWSS();
                     break;
                 }
 
@@ -87,8 +84,6 @@ namespace ConnectApp.redux.reducers {
                         HistoryManager.searchArticleHistoryList(userId: action.loginInfo.userId);
                     state.articleState.blockArticleList =
                         HistoryManager.blockArticleList(userId: action.loginInfo.userId);
-                    
-                    SocketApi.ConnectToWSS();
                     break;
                 }
 
@@ -107,7 +102,6 @@ namespace ConnectApp.redux.reducers {
                     state.eventState.eventHistory = HistoryManager.eventHistoryList();
                     state.searchState.searchArticleHistoryList = HistoryManager.searchArticleHistoryList();
                     state.articleState.blockArticleList = HistoryManager.blockArticleList();
-                    SocketApi.DisConnectFromWSS();
                     break;
                 }
 
