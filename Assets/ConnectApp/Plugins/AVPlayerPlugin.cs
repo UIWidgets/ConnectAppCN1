@@ -72,6 +72,7 @@ namespace ConnectApp.Plugins {
             VideoShow();
         }
 
+
         static void _handleMethodCall(string method, List<JSONNode> args) {
             if (GlobalContext.context != null) {
                 using (WindowProvider.of(GlobalContext.context).getScope()) {

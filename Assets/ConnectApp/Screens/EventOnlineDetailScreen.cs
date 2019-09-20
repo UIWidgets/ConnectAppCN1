@@ -71,17 +71,13 @@ namespace ConnectApp.screens {
                             routeName = MainNavigatorRoutes.Login
                         }),
                         pushToUserDetail = userId => {
-                            AVPlayerPlugin.hiddenPlayer();
                             dispatcher.dispatch(
                                 new MainNavigatorPushToUserDetailAction {
                                     userId = userId
                                 }
                             );
                         },
-                        openUrl = url => {
-                            AVPlayerPlugin.hiddenPlayer();
-                            OpenUrlUtil.OpenUrl(url, dispatcher);
-                        },
+                        openUrl = url => { OpenUrlUtil.OpenUrl(url, dispatcher); },
                         copyText = text => dispatcher.dispatch(new CopyTextAction {text = text}),
                         startFetchEventDetail = () => dispatcher.dispatch(new StartFetchEventDetailAction()),
                         fetchEventDetail = (id, eventType) =>
@@ -884,9 +880,6 @@ namespace ConnectApp.screens {
             );
         }
 
-        public void didPopNext() {
-            StatusBarManager.statusBarStyle(false);
-        }
 
         public void didPush() {
         }
@@ -896,6 +889,12 @@ namespace ConnectApp.screens {
         }
 
         public void didPushNext() {
+            AVPlayerPlugin.hiddenPlayer();
+        }
+
+        public void didPopNext() {
+            StatusBarManager.statusBarStyle(false);
+            AVPlayerPlugin.showPlayer();
         }
     }
 }

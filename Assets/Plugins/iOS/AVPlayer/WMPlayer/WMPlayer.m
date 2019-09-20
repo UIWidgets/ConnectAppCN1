@@ -142,10 +142,7 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
 
 -(void)initWMPlayer{
     [UIApplication sharedApplication].idleTimerDisabled=YES;
-    NSError *setCategoryErr = nil;
-    NSError *activationErr  = nil;
-    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error: &setCategoryErr];
-    [[AVAudioSession sharedInstance]setActive: YES error: &activationErr];
+   
     //wmplayer内部的一个view，用来管理子视图
     self.contentView = [UIView new];
     self.contentView.backgroundColor = [UIColor colorWithWhite:0 alpha:0.9];
@@ -453,21 +450,22 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
 #pragma mark
 #pragma mark 进入后台
 - (void)appDidEnterBackground:(NSNotification*)note{
-        if (self.state==WMPlayerStateFinished) {
-            return;
-        }else if (self.state==WMPlayerStateStopped) {//如果已经人为的暂停了
-            self.isPauseBySystem = NO;
-        }else if(self.state==WMPlayerStatePlaying){
-            if (self.enableBackgroundMode) {
-                self.playerLayer.player = nil;
-                [self.playerLayer removeFromSuperlayer];
-                self.rate = [self.rateBtn.currentTitle floatValue];
-            }else{
-                self.isPauseBySystem = YES;
-                [self pause];
-                self.state = WMPlayerStatePause;
-            }
+    [self unfocusSession];
+    if (self.state==WMPlayerStateFinished) {
+        return;
+    }else if (self.state==WMPlayerStateStopped) {//如果已经人为的暂停了
+        self.isPauseBySystem = NO;
+    }else if(self.state==WMPlayerStatePlaying){
+        if (self.enableBackgroundMode) {
+            self.playerLayer.player = nil;
+            [self.playerLayer removeFromSuperlayer];
+            self.rate = [self.rateBtn.currentTitle floatValue];
+        }else{
+            self.isPauseBySystem = YES;
+            [self pause];
+            self.state = WMPlayerStatePause;
         }
+    }
 }
 -(void)setTintColor:(UIColor *)tintColor{
     _tintColor = tintColor;
@@ -495,6 +493,7 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
             }
         }else if(self.state==WMPlayerStatePlaying){
             if (self.enableBackgroundMode) {
+                [self focusSession];
                 self.playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
                 self.playerLayer.frame = self.contentView.bounds;
                 self.playerLayer.videoGravity = AVLayerVideoGravityResizeAspect;
@@ -901,16 +900,32 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
     if (state == WMPlayerStateBuffering) {
         [self.loadingView startAnimating];
     }else if(state == WMPlayerStatePlaying){
+        [self focusSession];
         [self.loadingView stopAnimating];
+        
     }else if(state == WMPlayerStatePause){
+        [self focusSession];
         [self.loadingView stopAnimating];
     }else{
         [self.loadingView stopAnimating];
+        
     }
 }
+
+-(void)focusSession{
+    NSError *setCategoryErr = nil;
+    NSError *activationErr  = nil;
+    [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error: &setCategoryErr];
+    [[AVAudioSession sharedInstance]setActive: YES error: &activationErr];
+}
+-(void)unfocusSession{
+    [[AVAudioSession sharedInstance] setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:nil];
+}
+
 #pragma mark
 #pragma mark--播放完成
 - (void)moviePlayDidEnd:(NSNotification *)notification {
+    [self unfocusSession];
     if (self.playerModel.needUpdateLincense) {
         self.updateView.hidden = NO;
         self.enableVolumeGesture = NO;
@@ -998,7 +1013,6 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
 #pragma mark
 #pragma mark - 播放进度
 - (void)updateProgress:(UISlider *)slider{
-    self.isDragingSlider = NO;
     [self.player seekToTime:CMTimeMakeWithSeconds(slider.value, self.currentItem.currentTime.timescale)];
 }
 -(void)dismissControlView{
@@ -1020,14 +1034,17 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
                 }
                     break;
                 case AVPlayerItemStatusReadyToPlay:{
+                    self.isDragingSlider = NO;
                       /* Once the AVPlayerItem becomes ready to play, i.e.
                      [playerItem status] == AVPlayerItemStatusReadyToPlay,
                      its duration can be fetched from the item. */
                     if (self.state==WMPlayerStateStopped||self.state==WMPlayerStatePause) {
                       
                     }else{
+                       
                         //5s dismiss controlView
                         [self dismissControlView];
+
                         self.state=WMPlayerStatePlaying;
                     }
                     if (self.delegate&&[self.delegate respondsToSelector:@selector(wmplayerReadyToPlay:WMPlayerStatus:)]) {
@@ -1405,6 +1422,7 @@ NSString * calculateTimeWithTimeFormatter(long long timeSecond){
 }
 //重置播放器
 -(void )resetWMPlayer{
+    [self unfocusSession];
     self.currentItem = nil;
     self.isInitPlayer = NO;
     self.bottomProgress.progress = 0;
