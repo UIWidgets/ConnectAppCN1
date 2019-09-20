@@ -48,19 +48,19 @@ namespace ConnectApp.screens {
                             routeName = MainNavigatorRoutes.Login
                         }),
                         searchTeam = (keyword, pageNumber) => dispatcher.dispatch<IPromise>(
-                            Actions.searchTeams(keyword, pageNumber)),
+                            Actions.searchTeams(keyword: keyword, pageNumber: pageNumber)),
                         startFollowTeam = followTeamId => dispatcher.dispatch(new StartFetchFollowTeamAction {
                             followTeamId = followTeamId
                         }),
                         followTeam = followTeamId =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchFollowTeam(followTeamId)),
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowTeam(followTeamId: followTeamId)),
                         startUnFollowTeam = unFollowTeamId => dispatcher.dispatch(new StartFetchUnFollowTeamAction {
                             unFollowTeamId = unFollowTeamId
                         }),
                         unFollowTeam = unFollowTeamId =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchUnFollowTeam(unFollowTeamId))
+                            dispatcher.dispatch<IPromise>(Actions.fetchUnFollowTeam(unFollowTeamId: unFollowTeamId))
                     };
-                    return new SearchTeamScreen(viewModel, actionModel);
+                    return new SearchTeamScreen(viewModel: viewModel, actionModel: actionModel);
                 }
             );
         }
@@ -159,37 +159,26 @@ namespace ConnectApp.screens {
 
         Widget _buildContent() {
             var searchTeamIds = this.widget.viewModel.searchTeamIds;
-            var hasMore = this.widget.viewModel.searchTeamHasMore;
-            var itemCount = hasMore ? searchTeamIds.Count + 1 : searchTeamIds.Count + 2;
+            var enablePullUp = this.widget.viewModel.searchTeamHasMore;
             return new Container(
                 color: CColors.Background,
-                child: new CustomScrollbar(
-                    new SmartRefresher(
-                        controller: this._refreshController,
-                        enablePullDown: false,
-                        enablePullUp: hasMore,
-                        onRefresh: this._onRefresh,
-                        child: ListView.builder(
-                            physics: new AlwaysScrollableScrollPhysics(),
-                            itemCount: itemCount,
-                            itemBuilder: this._buildTeamCard
-                        )
-                    )
+                child: new CustomListView(
+                    controller: this._refreshController,
+                    enablePullDown: false,
+                    enablePullUp: enablePullUp,
+                    onRefresh: this._onRefresh,
+                    itemCount: searchTeamIds.Count,
+                    itemBuilder: this._buildTeamCard,
+                    headerWidget: CustomListViewConstant.defaultHeaderWidget,
+                    footerWidget: enablePullUp ? null : CustomListViewConstant.defaultFooterWidget
                 )
             );
         }
 
         Widget _buildTeamCard(BuildContext context, int index) {
-            if (index == 0) {
-                return new CustomDivider(color: CColors.White);
-            }
-
             var searchTeamIds = this.widget.viewModel.searchTeamIds;
-            if (index == searchTeamIds.Count + 1) {
-                return new EndView();
-            }
 
-            var searchTeamId = searchTeamIds[index - 1];
+            var searchTeamId = searchTeamIds[index: index];
             if (!this.widget.viewModel.teamDict.ContainsKey(key: searchTeamId)) {
                 return new Container();
             }

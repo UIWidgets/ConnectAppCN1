@@ -44,7 +44,7 @@ namespace ConnectApp.screens {
                         deleteArticleHistory = id =>
                             dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = id})
                     };
-                    return new HistoryArticleScreen(viewModel, actionModel);
+                    return new HistoryArticleScreen(viewModel: viewModel, actionModel: actionModel);
                 }
             );
         }
@@ -72,12 +72,11 @@ namespace ConnectApp.screens {
 
             return new Container(
                 color: CColors.Background,
-                child: new CustomScrollbar(
-                    ListView.builder(
-                        physics: new AlwaysScrollableScrollPhysics(),
-                        itemCount: this.viewModel.articleHistory.Count,
-                        itemBuilder: this._buildArticleCard
-                    )
+                child: new CustomListView(
+                    itemCount: this.viewModel.articleHistory.Count,
+                    itemBuilder: this._buildArticleCard,
+                    headerWidget: CustomListViewConstant.defaultHeaderWidget,
+                    hasRefresh: false
                 )
             );
         }
@@ -112,7 +111,6 @@ namespace ConnectApp.screens {
                         }
                     ),
                     fullName: article.fullName,
-                    index == 0,
                     new ObjectKey(value: article.id)
                 ),
                 new CustomDismissibleDrawerDelegate(),
