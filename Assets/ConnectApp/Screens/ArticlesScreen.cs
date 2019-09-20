@@ -183,10 +183,9 @@ namespace ConnectApp.screens {
                 var itemIndex = items.IndexOf(item: item);
                 var itemWidget = this._buildSelectItem(title: item, index: itemIndex);
                 widgets.Add(item: itemWidget);
-                widgets.Add(new SizedBox(width: 16));
             });
             return new Container(
-                padding: EdgeInsets.only(16),
+                padding: EdgeInsets.only(8),
                 height: this._navBarHeight,
                 decoration: new BoxDecoration(
                     color: CColors.White,
@@ -338,7 +337,8 @@ namespace ConnectApp.screens {
                             new Stack(
                                 children: new List<Widget> {
                                     new Container(
-                                        padding: EdgeInsets.only(0, 4, 8, 10),
+                                        padding: EdgeInsets.only(8, 4, 8, 10),
+                                        color: CColors.Transparent,
                                         child: new Text(
                                             data: title,
                                             style: new TextStyle(

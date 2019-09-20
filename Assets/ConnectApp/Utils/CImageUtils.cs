@@ -27,19 +27,16 @@ namespace ConnectApp.Utils {
                 networkImageWidth = ImageWidthMax;
             }
 
-            return imageUrl;
             var url = $"{imageUrl}.{networkImageWidth}x0x1.jpg";
             return url;
         }
 
         public static string SizeTo200ImageUrl(string imageUrl) {
-            return imageUrl;
             return $"{imageUrl}.200x0x1.jpg";
         }
 
         public static string SplashImageUrl(string imageUrl) {
             var imageWidth = Math.Ceiling(Window.instance.physicalSize.width);
-            return imageUrl;
             return $"{imageUrl}.{imageWidth}x0x1.jpg";
         }
 
@@ -50,8 +47,8 @@ namespace ConnectApp.Utils {
                         padding: padding,
                         child: Image.asset(
                             "image/official-badge",
-                            height: 16,
-                            width: 16
+                            height: 18,
+                            width: 18
                         )
                     );
                 }
@@ -63,8 +60,8 @@ namespace ConnectApp.Utils {
                         padding: padding,
                         child: Image.asset(
                             "image/pro-badge",
-                            height: 13,
-                            width: 24
+                            height: 15,
+                            width: 26
                         )
                     );
                 }
@@ -74,8 +71,8 @@ namespace ConnectApp.Utils {
                         padding: padding,
                         child: Image.asset(
                             "image/plus-badge",
-                            height: 13,
-                            width: 28
+                            height: 15,
+                            width: 30
                         )
                     );
                 }

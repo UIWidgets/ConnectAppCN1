@@ -15,8 +15,8 @@ using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -240,6 +240,7 @@ namespace ConnectApp.screens {
             else {
                 this._articlePageNumber++;
             }
+
             this.widget.actionModel.fetchTeamArticle(arg: this._articlePageNumber)
                 .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
@@ -487,11 +488,26 @@ namespace ConnectApp.screens {
                                         child: new Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: new List<Widget> {
-                                                new Text(
-                                                    data: team.name,
-                                                    style: CTextStyle.H4White,
-                                                    maxLines: 1,
-                                                    overflow: TextOverflow.ellipsis
+                                                new Row(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: new List<Widget> {
+                                                        new Flexible(
+                                                            child: new Text(
+                                                                data: team.name,
+                                                                style: CTextStyle.H4White.merge(
+                                                                    new TextStyle(height: 1)),
+                                                                maxLines: 1,
+                                                                overflow: TextOverflow.ellipsis
+                                                            )
+                                                        ),
+                                                        CImageUtils.GenBadgeImage(
+                                                            badges: team.badges,
+                                                            CCommonUtils.GetUserLicense(
+                                                                userId: team.id
+                                                            ),
+                                                            EdgeInsets.only(4, 6)
+                                                        )
+                                                    }
                                                 )
                                             }
                                         )
