@@ -2,6 +2,11 @@ package com.unity3d.unityconnect;
 
 import android.app.Application;
 
+import com.dueeeke.videoplayer.BuildConfig;
+import com.dueeeke.videoplayer.ijk.IjkPlayerFactory;
+import com.dueeeke.videoplayer.player.AndroidMediaPlayerFactory;
+import com.dueeeke.videoplayer.player.VideoViewConfig;
+import com.dueeeke.videoplayer.player.VideoViewManager;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
 import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 import com.unity3d.unityconnect.plugins.CommonPlugin;
@@ -33,5 +38,13 @@ public class CustomApplication extends Application {
         JAnalyticsInterface.init(this);
 
         UUIDUtils.buidleID(this).check();
+
+        VideoViewManager.setConfig(VideoViewConfig.newBuilder()
+                .setLogEnabled(BuildConfig.DEBUG)
+                .setPlayOnMobileNetwork(true)
+                .setPlayerFactory(IjkPlayerFactory.create(this))
+                .setAutoRotate(true)
+                .build());
+
     }
 }

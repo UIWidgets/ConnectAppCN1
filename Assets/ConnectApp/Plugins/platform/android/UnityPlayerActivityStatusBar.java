@@ -1,14 +1,20 @@
 package com.unity3d.unityconnect;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewManager;
 import android.view.WindowManager;
 
+import com.dueeeke.videoplayer.listener.OnVideoViewStateChangeListener;
 import com.dueeeke.videoplayer.player.VideoView;
+import com.dueeeke.videoplayer.player.VideoViewManager;
 import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
 import com.unity3d.unityconnect.plugins.AVPlayerPlugin;
 import com.unity3d.unityconnect.plugins.JPushPlugin;
@@ -29,20 +35,19 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity
         }
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-//         Clear low profile flags to apply non-fullscreen mode before splash screen
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(Color.WHITE);
         }
 
 
         showSystemUi();
-        addUiVisibilityChangeListener();
 
-        addDKPlayView();
+        addUiVisibilityChangeListener();
 
         applePermission();
 
         addDKPlayView();
+
     }
 
     void addDKPlayView(){
@@ -53,12 +58,13 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity
         videoView.setVideoController(controller); //设置控制器，如需定制可继承BaseVideoController
         videoView.setLock(false);
         videoView.setVisibility(View.GONE);
-        videoView.setAutoRotate(true);
+        videoView.setScreenScale(VideoView.SCREEN_SCALE_16_9);
 
         AVPlayerPlugin.getInstance().videoView = videoView;
         AVPlayerPlugin.getInstance().controller = controller;
 
     }
+
 
     public void applePermission(){
 

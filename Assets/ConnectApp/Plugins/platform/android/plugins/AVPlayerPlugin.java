@@ -6,8 +6,10 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import com.dueeeke.videoplayer.player.VideoView;
+import com.dueeeke.videoplayer.player.VideoViewManager;
 import com.unity3d.player.UnityPlayer;
 import com.unity3d.unityconnect.CustomVideoController;
+import com.unity3d.unityconnect.R;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +23,10 @@ public class AVPlayerPlugin {
 
     public CustomVideoController controller;
 
+    public int limitSeconds;
+
+    public boolean needUpdate;
+
 
     public static AVPlayerPlugin getInstance() {
         synchronized (AVPlayerPlugin.class) {
@@ -30,12 +36,15 @@ public class AVPlayerPlugin {
             return instance;
         }
     }
-    public void InitPlayer(String url, String cookie, float left, float top, float width, float height, boolean isPop){
+    public void InitPlayer(String url, String cookie, float left, float top, float width, float height, boolean isPop, boolean needUpdate, int limitSeconds){
+        this.limitSeconds = limitSeconds;
+        this.needUpdate = needUpdate;
         Map<String, String> header = new HashMap<>();
         header.put("Cookie", cookie);
         UnityPlayer.currentActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+
                 controller.showBack = isPop;
                 RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT, (int)height);
@@ -45,9 +54,24 @@ public class AVPlayerPlugin {
                     lp.addRule(RelativeLayout.CENTER_IN_PARENT);
                 }
                 videoView.setLayoutParams(lp);//动态改变布局
+                if (!url.isEmpty()){
+                    videoView.setVisibility(View.VISIBLE);
+                    videoView.setUrl(url,header);
+                }
+                if(!isPop) videoView.start();
+            }
+        });
+    }
+
+
+    public void ConfigPlayer(String url, String cookie){
+        Map<String, String> header = new HashMap<>();
+        header.put("Cookie", cookie);
+        UnityPlayer.currentActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
                 videoView.setVisibility(View.VISIBLE);
                 videoView.setUrl(url,header);
-                if(!isPop) videoView.start();
             }
         });
     }
@@ -67,14 +91,33 @@ public class AVPlayerPlugin {
         UnityPlayer.currentActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                videoView.start();
-                videoView.setVisibility(View.GONE);
+                videoView.resume();
             }
         });
 
     }
 
     public void VideoPause(){
+        UnityPlayer.currentActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                videoView.pause();
+            }
+        });
+
+    }
+
+    public void VideoShow(){
+        UnityPlayer.currentActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                videoView.setVisibility(View.VISIBLE);
+            }
+        });
+
+    }
+
+    public void VideoHidden(){
         UnityPlayer.currentActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
