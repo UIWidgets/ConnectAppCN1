@@ -7,8 +7,8 @@ using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -42,6 +42,11 @@ namespace ConnectApp.screens {
     }
 
     class _MyEventsScreenState : State<MyEventsScreen> {
+        public override void initState() {
+            base.initState();
+            StatusBarManager.statusBarStyle(false);
+        }
+
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,

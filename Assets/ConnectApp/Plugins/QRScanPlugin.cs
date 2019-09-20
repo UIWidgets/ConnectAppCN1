@@ -112,7 +112,8 @@ namespace ConnectApp.Plugins {
                             }
 
                             StatusBarManager.hideStatusBar(false);
-                            StatusBarManager.statusBarStyle(false);
+                            StatusBarManager.statusBarStyle(isLight: StoreProvider.store.getState().loginState
+                                .isLoggedIn);
                             removeListener();
                         }
                             break;
