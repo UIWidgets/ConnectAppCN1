@@ -28,5 +28,6 @@ namespace ConnectApp.Models.ViewModel {
         public bool feedHasNew;
         public string beforeTime;
         public string afterTime;
+        public int currentTabBarIndex;
     }
 }

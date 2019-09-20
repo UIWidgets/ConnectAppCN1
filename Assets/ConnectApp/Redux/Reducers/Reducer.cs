@@ -2217,6 +2217,11 @@ namespace ConnectApp.redux.reducers {
                     RealityManager.TriggerSwitch();
                     break;
                 }
+
+                case SwitchTabBarIndexAction action: {
+                    state.tabBarState.currentTabIndex = action.index;
+                    break;
+                }
             }
 
             return state;

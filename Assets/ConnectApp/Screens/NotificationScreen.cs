@@ -23,7 +23,6 @@ namespace ConnectApp.screens {
         public NotificationScreenConnector(
             Key key = null
         ) : base(key: key) {
-            
         }
 
         public override Widget build(BuildContext context) {
@@ -35,7 +34,8 @@ namespace ConnectApp.screens {
                     notifications = state.notificationState.notifications,
                     mentions = state.notificationState.mentions,
                     userDict = state.userState.userDict,
-                    teamDict = state.teamState.teamDict
+                    teamDict = state.teamState.teamDict,
+                    currentTabBarIndex = state.tabBarState.currentTabIndex
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new NotificationScreenActionModel {
@@ -204,6 +204,7 @@ namespace ConnectApp.screens {
             }
 
             return new Container(
+                padding: EdgeInsets.only(top: CCommonUtils.getSafeAreaTopPadding(context: context)),
                 color: CColors.White,
                 child: new Column(
                     children: new List<Widget> {
@@ -254,6 +255,7 @@ namespace ConnectApp.screens {
             if (notification.data.userId.isEmpty() && notification.data.role.Equals("user")) {
                 return new Container();
             }
+
             User user;
             Team team;
             if (notification.type == "project_article_publish" && notification.data.role == "team") {
@@ -264,6 +266,7 @@ namespace ConnectApp.screens {
                 user = this.widget.viewModel.userDict[key: notification.data.userId];
                 team = null;
             }
+
             return new NotificationCard(
                 notification: notification,
                 user: user,
@@ -324,7 +327,9 @@ namespace ConnectApp.screens {
         }
 
         public void didPopNext() {
-            StatusBarManager.statusBarStyle(false);
+            if (this.widget.viewModel.currentTabBarIndex == 2) {
+                StatusBarManager.statusBarStyle(false);
+            }
         }
 
         public void didPush() {

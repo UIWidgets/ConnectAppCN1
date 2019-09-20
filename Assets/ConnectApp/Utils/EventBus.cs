@@ -54,5 +54,7 @@ namespace ConnectApp.Utils {
         public const string changeOrientation = "CHANGE_ORIENTATION";
         public const string follow_user = "FOLLOW_USER";
         public const string pickAvatarSuccess = "PICK_AVATAR_SUCCESS";
+        public const string switchTabToMine = "SWITCH_TAB_TO_MINE";
+        public const string switchTabToOther = "SWITCH_TAB_TO_OTHER";
     }
 }

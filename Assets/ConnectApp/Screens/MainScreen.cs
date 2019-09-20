@@ -3,6 +3,7 @@ using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Main;
 using ConnectApp.redux;
+using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using Unity.UIWidgets.widgets;
 
@@ -12,6 +13,7 @@ namespace ConnectApp.screens {
             var child = new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
+                    top: false,
                     bottom: false,
                     child: new CustomTabBar(
                         new List<Widget> {
@@ -51,6 +53,8 @@ namespace ConnectApp.screens {
                             AnalyticsManager.ClickHomeTab(fromIndex: fromIndex, toIndex: toIndex);
 
                             if (toIndex != 2 || StoreProvider.store.getState().loginState.isLoggedIn) {
+                                StatusBarManager.statusBarStyle(toIndex == 3 && UserInfoManager.isLogin());
+                                StoreProvider.store.dispatcher.dispatch(new SwitchTabBarIndexAction {index = toIndex});
                                 return true;
                             }
 

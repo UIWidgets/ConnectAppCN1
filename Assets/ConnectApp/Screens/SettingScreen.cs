@@ -12,8 +12,8 @@ using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
@@ -65,6 +65,11 @@ namespace ConnectApp.screens {
     }
 
     public class _SettingScreenState : State<SettingScreen> {
+        public override void initState() {
+            base.initState();
+            StatusBarManager.statusBarStyle(false);
+        }
+
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
@@ -137,9 +142,7 @@ namespace ConnectApp.screens {
                                     () => this.widget.actionModel.mainRouterPushTo(MainNavigatorRoutes.BindUnity))
                                 : new Container(),
                             _buildCellView("意见反馈",
-                                () => {
-                                    this.widget.actionModel.mainRouterPushTo(MainNavigatorRoutes.Feedback);
-                                }),
+                                () => { this.widget.actionModel.mainRouterPushTo(MainNavigatorRoutes.Feedback); }),
                             _buildCellView("关于我们",
                                 () => {
                                     AnalyticsManager.ClickEnterAboutUs();

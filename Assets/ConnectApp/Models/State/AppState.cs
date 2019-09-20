@@ -24,6 +24,7 @@ namespace ConnectApp.Models.State {
         public SettingState settingState { get; set; }
         public ReportState reportState { get; set; }
         public FeedbackState feedbackState { get; set; }
+        public TabBarState tabBarState { get; set; }
 
         public static AppState initialState() {
             var loginInfo = UserInfoManager.initUserInfo();
@@ -157,6 +158,9 @@ namespace ConnectApp.Models.State {
                 feedbackState = new FeedbackState {
                     feedbackType = FeedbackType.Advice,
                     loading = false
+                },
+                tabBarState = new TabBarState {
+                    currentTabIndex = 0
                 }
             };
         }

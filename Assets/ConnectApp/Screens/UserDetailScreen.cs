@@ -472,7 +472,6 @@ namespace ConnectApp.screens {
                 titleWidget = new Text(
                     data: user.title,
                     style: new TextStyle(
-                        height: 1.46f,
                         fontSize: 14,
                         fontFamily: "Roboto-Regular",
                         color: CColors.BgGrey
