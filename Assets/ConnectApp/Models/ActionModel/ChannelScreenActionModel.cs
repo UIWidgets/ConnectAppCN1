@@ -8,5 +8,7 @@ namespace ConnectApp.Models.ActionModel {
         public Func<string, string, string, string, IPromise> sendMessage;
         public Action startSendMessage;
         public Func<string, string, string, IPromise> sendImage;
+        public Action clearUnread;
+        public Action<float, float> updateScrollOffset;
     }
 }

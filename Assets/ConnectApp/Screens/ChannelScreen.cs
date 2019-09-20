@@ -16,6 +16,7 @@ using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -50,7 +51,7 @@ namespace ConnectApp.screens {
                             }).ToList(),
                         me = state.loginState.loginInfo.userId,
                         messageLoading = state.channelState.messageLoading,
-                        newMessageCount = 0
+                        newMessageCount = state.channelState.channelDict[this.channelId].unread
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -69,7 +70,16 @@ namespace ConnectApp.screens {
                             Actions.sendMessage(channelId, content, nonce, parentMessageId)),
                         startSendMessage = () => dispatcher.dispatch(new StartSendChannelMessageAction()),
                         sendImage = (channelId, data, nonce) => dispatcher.dispatch<IPromise>(
-                            Actions.sendImage(channelId, nonce, data))
+                            Actions.sendImage(channelId, nonce, data)),
+                        clearUnread = () => dispatcher.dispatch(new ClearChannelUnreadAction {
+                            channelId = this.channelId
+                        }),
+                        updateScrollOffset = (bottom, top) => dispatcher.dispatch(new UpdateChannelScrollOffsetAction {
+                            channelId = this.channelId,
+                            bottom = bottom,
+                            top = top
+                        })
+                        
                     };
                     return new ChannelScreen(viewModel, actionModel);
                 }
@@ -125,41 +135,57 @@ namespace ConnectApp.screens {
                     Snowflake.CreateNonceLocal());
                 this.setState();
             });
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                this._refreshController.scrollController.addListener(this._handleScrollListener);
+            });
         }
 
         public override void dispose() {
             this._textController.dispose();
             this._emojiTabController.dispose();
             EventBus.unSubscribe(EventBusConstant.pickAvatarSuccess, this._pickImageSubId);
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                this.widget.actionModel.clearUnread();
+            });
             base.dispose();
         }
 
         public override Widget build(BuildContext context) {
+            if (this.widget.viewModel.newMessageCount > 0 && this._refreshController.offset < 20.0f) {
+                this.widget.viewModel.newMessageCount = 0;
+                SchedulerBinding.instance.addPostFrameCallback(_ => { this.widget.actionModel.clearUnread(); });
+            }
             this.messageBubbleWidth = MediaQuery.of(context).size.width * 0.7f;
             Widget newMessage = Positioned.fill(
                 child: new Align(
                     alignment: Alignment.bottomCenter,
-                    child: new Transform(
-                        transform: Matrix3.makeTrans(0, -(this.inputBarHeight + 16)),
-                        child: new Container(
-                            height: 40,
-                            decoration: new BoxDecoration(
-                                color: CColors.Error,
-                                borderRadius: BorderRadius.all(20),
-                                boxShadow: new List<BoxShadow> {
-                                    new BoxShadow(
-                                        color: CColors.Black.withOpacity(0.2f),
-                                        blurRadius: 8,
-                                        spreadRadius: 0,
-                                        offset: new Offset(0, 2))
-                                }
+                    child: new Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: new List<Widget> {
+                            new GestureDetector(
+                                onTap: () => this._refreshController.scrollTo(0),
+                                child: new Container(
+                                    height: 40,
+                                    decoration: new BoxDecoration(
+                                        color: CColors.Error,
+                                        borderRadius: BorderRadius.all(20),
+                                        boxShadow: new List<BoxShadow> {
+                                            new BoxShadow(
+                                                color: CColors.Black.withOpacity(0.2f),
+                                                blurRadius: 8,
+                                                spreadRadius: 0,
+                                                offset: new Offset(0, 2))
+                                        }
+                                    ),
+                                    padding: EdgeInsets.symmetric(9, 16),
+                                    child: new Text(
+                                        $"{CStringUtils.CountToString(this.widget.viewModel.newMessageCount)}条新消息未读",
+                                        style: CTextStyle.PRegularWhite.copyWith(height: 1.2f)
+                                    )
+                                )
                             ),
-                            padding: EdgeInsets.symmetric(9, 16),
-                            child: new Text(
-                                $"{CStringUtils.CountToString(this.widget.viewModel.newMessageCount)}条新消息未读",
-                                style: CTextStyle.PRegularWhite.copyWith(height: 1.2f)
-                            )
-                        )
+                            new Container(height: this.inputBarHeight + 16)
+                        }
                     )
                 )
             );
@@ -229,7 +255,7 @@ namespace ConnectApp.screens {
                     enablePullDown: false,
                     enablePullUp: true,
                     onRefresh: this._onRefresh,
-                    onOffsetChange: this._handleScrollListener,
+                    // onOffsetChange: this._handleScrollListener,
                     reverse: true,
                     headerBuilder: (context, mode) => new SmartRefreshHeader(mode),
                     child: ListView.builder(
@@ -449,6 +475,7 @@ namespace ConnectApp.screens {
                                 new CustomButton(
                                     padding: EdgeInsets.zero,
                                     onPressed: () => { this.setState(() => {
+                                        this._refreshController.scrollController.jumpTo(0);
                                         this.showEmojiBoard = !this.showEmojiBoard;
                                     }); },
                                     child: new Container(
@@ -689,14 +716,9 @@ namespace ConnectApp.screens {
                 .Catch(_ => { CustomDialogUtils.showToast("消息发送失败", Icons.error_outline); })
                 .Then(
                     () => {
-                        // if (this.widget.viewModel.messages.isNotEmpty()) {
-                        //     this.widget.actionModel.fetchMessages(null, this.widget.viewModel.messages.last().id);
-                        // }
-                        // else {
-                        //     this.widget.actionModel.fetchMessages(null, null);
-                        // }
                         this.setState(() => this._textController.clear());
                     });
+            this._refreshController.scrollTo(0);
         }
 
         void _onRefresh(bool up) {
@@ -712,12 +734,13 @@ namespace ConnectApp.screens {
             }
         }
 
-        void _handleScrollListener(bool up, float offset) {
+        void _handleScrollListener() {
+            this.setState(() => { this.showEmojiBoard = false; });
             if (this._refreshController.scrollController.offset <=
                 this._refreshController.scrollController.position.minScrollExtent) {
                 if (this.widget.viewModel.messages.isNotEmpty() &&
                     this.widget.viewModel.messages.last().nonce != this.lastSavedNonce) {
-                    this.lastSavedNonce = this.widget.viewModel.messages.last().nonce;
+                    this.widget.actionModel.clearUnread();
                 }
             }
         }

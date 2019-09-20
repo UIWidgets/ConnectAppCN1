@@ -192,6 +192,16 @@ namespace ConnectApp.redux.actions {
     public class StartSendChannelMessageAction : RequestAction {
     }
 
+    public class ClearChannelUnreadAction : BaseAction {
+        public string channelId;
+    }
+
+    public class UpdateChannelScrollOffsetAction : BaseAction {
+        public string channelId;
+        public float bottom;
+        public float top;
+    }
+
     public class MarkChannelMessageAsRead : RequestAction {
         public string channelId;
         public long nonce;

@@ -38,6 +38,8 @@ namespace ConnectApp.Models.ViewModel {
         public List<string> memberIds;
         public int memberOffset;
         public Dictionary<string, bool> memberFolloweeMap;
+        public float offsetToBottom;
+        public float offsetToTop;
 
         public static ChannelView fromChannel(Channel channel) {
             return new ChannelView {

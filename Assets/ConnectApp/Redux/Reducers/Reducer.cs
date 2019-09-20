@@ -2399,6 +2399,29 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case ClearChannelUnreadAction action : {
+                    var channel = state.channelState.channelDict[action.channelId];
+                    channel.atAll = false;
+                    channel.atMe = false;
+                    channel.unread = 0;
+                    channel.mentioned = 0;
+                    state.channelState.updateTotalMention();
+                    break;
+                }
+                
+                case UpdateChannelScrollOffsetAction action : {
+                    var channel = state.channelState.channelDict[action.channelId];
+                    channel.offsetToBottom = action.bottom;
+                    channel.offsetToTop = action.top;
+                    break;
+                }
+
+                case UpdateChannelTopAction action: {
+                    state.channelState.channelTop[action.channelId] = action.value;
+                    ChannelTopManager.saveChannelTop(state.channelState.channelTop);
+                    break;
+                }
+
                 case PushReadyAction action: {
                     var sessionReadyData = action.readyData;
                     for (int i = 0; i < sessionReadyData.lobbyChannels.Count; i++) {
@@ -2448,12 +2471,6 @@ namespace ConnectApp.redux.reducers {
                     state.channelState.updateTotalMention();
 
                     Debug.Log("WebSocket Online!");
-                    break;
-                }
-
-                case UpdateChannelTopAction action: {
-                    state.channelState.channelTop[action.channelId] = action.value;
-                    ChannelTopManager.saveChannelTop(state.channelState.channelTop);
                     break;
                 }
                 case PushNewMessageAction action: {
