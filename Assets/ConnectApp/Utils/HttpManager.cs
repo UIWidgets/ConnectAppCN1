@@ -81,11 +81,9 @@ namespace ConnectApp.Utils {
                             if (item[1] is byte[]) {
                                 var itemStr = $"--{boundary}\r\nContent-Disposition: form-data; name=\"{item[0]}\"; filename=\"{filename}\"\r\n" +
                                     $"Content-Type: {fileType}\r\n\r\n";
-                                Debug.Log(itemStr);
                                 results.Add(Encoding.UTF8.GetBytes(itemStr));
                                 size += results.last().Length;
                                 results.Add(item[1] as byte[]);
-                                Debug.Log($"Image Data: {Convert.ToBase64String(item[1] as byte[])}");
                                 size += results.last().Length;
                                 results.Add(Encoding.UTF8.GetBytes("\r\n"));
                                 size += results.last().Length;
@@ -93,7 +91,6 @@ namespace ConnectApp.Utils {
                             else {
                                 string s = $"{item[1]}";
                                 var itemStr = $"--{boundary}\r\nContent-Disposition: form-data; name=\"{item[0]}\"\r\n\r\n{s}\r\n";
-                                Debug.Log(itemStr);
                                 results.Add(Encoding.UTF8.GetBytes(itemStr));
                                 size += results.last().Length;
                             }
@@ -110,7 +107,6 @@ namespace ConnectApp.Utils {
                         Buffer.BlockCopy(bytes, 0, bodyRaw, offset, bytes.Length);
                         offset += bytes.Length;
                     }
-                    Debug.Log(Convert.ToBase64String(bodyRaw));
                     
                     request.uploadHandler = new UploadHandlerRaw(bodyRaw);
                     request.SetRequestHeader("Content-Type", $"multipart/form-data; boundary={boundary}");

@@ -2407,7 +2407,6 @@ namespace ConnectApp.redux.reducers {
 
                 case PushReadyAction action: {
                     var sessionReadyData = action.readyData;
-                    Debug.Log($"Ready Data {action.readyData}");
                     for (int i = 0; i < sessionReadyData.lobbyChannels.Count; i++) {
                         var channel = sessionReadyData.lobbyChannels[i];
                         state.channelState.updateNormalChannelLite(channel);
