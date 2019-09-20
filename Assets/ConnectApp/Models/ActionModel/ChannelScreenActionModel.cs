@@ -7,6 +7,6 @@ namespace ConnectApp.Models.ActionModel {
         public Func<string, string, IPromise> fetchMessages;
         public Func<string, string, string, string, IPromise> sendMessage;
         public Action startSendMessage;
-        public Action<long> markAsRead;
+        public Func<string, string, string, IPromise> sendImage;
     }
 }

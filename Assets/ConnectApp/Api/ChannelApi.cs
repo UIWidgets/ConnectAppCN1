@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Models.Api;
@@ -92,6 +93,31 @@ namespace ConnectApp.Api {
             HttpManager.resume(request).Then(responseText => {
                 var leaveChannelResponse = JsonConvert.DeserializeObject<LeaveChannelResponse>(responseText);
                 promise.Resolve(leaveChannelResponse);
+            }).Catch(exception => { promise.Reject(exception); });
+            return promise;
+        }
+        
+        public static Promise<FetchSendMessageResponse> SendImage(string channelId, string content, string nonce,
+            string imageData, string parentMessageId = "") {
+            var data = Convert.FromBase64String(imageData);
+            var promise = new Promise<FetchSendMessageResponse>();
+            var para = new List<List<object>> {
+                new List<object>{"channel", channelId},
+                new List<object>{"content", content},
+                new List<object>{"parentMessageId", parentMessageId},
+                new List<object>{"nonce", nonce},
+                new List<object>{"size", $"{data.Length}"},
+                new List<object>{"file", data}
+            };
+            var request = HttpManager.POST($"{Config.apiAddress}/api/channels/{channelId}/messages/attachments",
+                para, true, "image.png", "image/png");
+            HttpManager.resume(request).Then(responseText => {
+                var sendMessageResponse = new FetchSendMessageResponse {
+                    channelId = channelId,
+                    content = content,
+                    nonce = nonce
+                };
+                promise.Resolve(sendMessageResponse);
             }).Catch(exception => { promise.Reject(exception); });
             return promise;
         }

@@ -393,7 +393,7 @@ namespace ConnectApp.screens {
                             child: title
                         ),
                         new Container(width: 16),
-                        new Text(channel.lastMessage?.timeString ?? "", style: CTextStyle.PSmallBody4)
+                        new Text(channel.lastMessage?.time.DateTimeString() ?? "", style: CTextStyle.PSmallBody4)
                     }
                 )
             );

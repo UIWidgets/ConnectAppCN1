@@ -139,7 +139,6 @@ namespace ConnectApp.Models.ViewModel {
         public string channelId;
         public User author;
         public DateTime time;
-        public string timeString;
         public ChannelMessageType type = ChannelMessageType.text;
         public string content;
         public long fileSize = 0;
@@ -188,7 +187,6 @@ namespace ConnectApp.Models.ViewModel {
                 content = content,
                 fileSize = type == ChannelMessageType.file ? message.attachments[0].size : 0,
                 time = DateConvert.DateTimeFromNonce(message.nonce),
-                timeString = DateConvert.DateTimeFromNonce(message.nonce).DateTimeString(false),
                 attachments = message.attachments,
                 type = type,
                 mentionEveryone = message.mentionEveryone,
@@ -237,7 +235,6 @@ namespace ConnectApp.Models.ViewModel {
                 content = content,
                 fileSize = type == ChannelMessageType.file ? message.attachments[0].size : 0,
                 time = DateConvert.DateTimeFromNonce(message.nonce),
-                timeString = DateConvert.DateTimeFromNonce(message.nonce).DateTimeString(false),
                 attachments = message.attachments,
                 type = type,
                 mentionEveryone = message.mentionEveryone,
@@ -278,7 +275,6 @@ namespace ConnectApp.Models.ViewModel {
                 content = content,
                 fileSize = type == ChannelMessageType.file ? message.attachments[0].size : 0,
                 time = DateConvert.DateTimeFromNonce(message.nonce),
-                timeString = DateConvert.DateTimeFromNonce(message.nonce).DateTimeString(false),
                 attachments = message.attachments,
                 type = type,
                 mentionEveryone = message.mentionEveryone,

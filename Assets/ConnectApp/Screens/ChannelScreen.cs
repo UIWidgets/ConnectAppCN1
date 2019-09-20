@@ -67,7 +67,9 @@ namespace ConnectApp.screens {
                         },
                         sendMessage = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
                             Actions.sendMessage(channelId, content, nonce, parentMessageId)),
-                        startSendMessage = () => dispatcher.dispatch(new StartSendChannelMessageAction())
+                        startSendMessage = () => dispatcher.dispatch(new StartSendChannelMessageAction()),
+                        sendImage = (channelId, data, nonce) => dispatcher.dispatch<IPromise>(
+                            Actions.sendImage(channelId, nonce, data))
                     };
                     return new ChannelScreen(viewModel, actionModel);
                 }
@@ -102,6 +104,9 @@ namespace ConnectApp.screens {
         float messageBubbleWidth = 0;
         long lastSavedNonce;
         bool showEmojiBoard = false;
+        string _pickImageSubId;
+        string _pickedImage;
+
 
         float inputBarHeight {
             get { return this.showEmojiBoard ? 83 + 244 : 83; }
@@ -112,18 +117,20 @@ namespace ConnectApp.screens {
             this._emojiTabController = new TabController(
                 length: (this.emojiList.Count-1) / (24-1) + 1,
                 vsync: this);
-        }
-
-        public override void deactivate() {
-            if (this.widget.viewModel.messages.isNotEmpty() &&
-                this.widget.viewModel.messages.last().nonce != this.lastSavedNonce) {
-                this.lastSavedNonce = this.widget.viewModel.messages.last().nonce;
-            }
+            this._pickImageSubId = EventBus.subscribe(sName: EventBusConstant.pickAvatarSuccess, args => {
+                this._pickedImage = (string) args[0];
+                this.widget.actionModel.sendImage(
+                    this.widget.viewModel.channelInfo.id,
+                    this._pickedImage,
+                    Snowflake.CreateNonceLocal());
+                this.setState();
+            });
         }
 
         public override void dispose() {
             this._textController.dispose();
             this._emojiTabController.dispose();
+            EventBus.unSubscribe(EventBusConstant.pickAvatarSuccess, this._pickImageSubId);
             base.dispose();
         }
 
@@ -455,7 +462,9 @@ namespace ConnectApp.screens {
                                 ),
                                 new CustomButton(
                                     padding: EdgeInsets.zero,
-                                    onPressed: () => { },
+                                    onPressed: () => {
+                                        PickImageManager.showActionSheet();
+                                    },
                                     child: new Container(
                                         width: 44,
                                         height: 49,
@@ -676,7 +685,7 @@ namespace ConnectApp.screens {
                 return;
             }
             this.widget.actionModel.startSendMessage();
-            this.widget.actionModel.sendMessage(this.widget.viewModel.channelInfo.id, text, Snowflake.CreateNonce(), "")
+            this.widget.actionModel.sendMessage(this.widget.viewModel.channelInfo.id, text, Snowflake.CreateNonceLocal(), "")
                 .Catch(_ => { CustomDialogUtils.showToast("消息发送失败", Icons.error_outline); })
                 .Then(
                     () => {

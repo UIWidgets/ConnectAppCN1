@@ -2479,7 +2479,10 @@ namespace ConnectApp.redux.reducers {
                         channel.messageIds.Add(channelMessage.id);
                         channel.lastMessageId = channelMessage.id;
                         channel.lastMessage = channelMessage;
-                        channel.handleUnreadMessage(channelMessage, state.loginState.loginInfo.userId);
+                        if (!state.loginState.isLoggedIn ||
+                            channelMessage.author.id != state.loginState.loginInfo.userId) {
+                            channel.handleUnreadMessage(channelMessage, state.loginState.loginInfo.userId);
+                        }
                     }
                     
                     state.channelState.updateTotalMention();

@@ -99,6 +99,23 @@ namespace ConnectApp.redux.actions {
                     });
             });
         }
+        
+        public static object sendImage(string channelId, string nonce, string imageData) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.SendImage(channelId, "", nonce, imageData)
+                    .Then(responseText => {
+                        dispatcher.dispatch(new SendMessageSuccessAction {
+                            channelId = channelId,
+                            content = "",
+                            nonce = nonce
+                        });
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new SendMessageFailureAction());
+                        Debug.Log(error);
+                    });
+            });
+        }
     }
 
     public class ChannelsAction {

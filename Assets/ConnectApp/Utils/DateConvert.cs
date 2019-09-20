@@ -68,11 +68,9 @@ namespace ConnectApp.Utils {
             return DateStringFromNow(dt, true);
         }
         
-        public static DateTime DateTimeFromNonce(string nonce, bool isLocal = false) {
+        public static DateTime DateTimeFromNonce(string nonce) {
             var startTime = new DateTime(2016, 1, 1);
-            if (isLocal) {
-                startTime = TimeZoneInfo.ConvertTime(startTime, TimeZoneInfo.Utc, TimeZoneInfo.Local);
-            }
+            startTime = TimeZoneInfo.ConvertTime(startTime, TimeZoneInfo.Local);
             if (string.IsNullOrEmpty(nonce)) return startTime;
             var span = Convert.ToInt64(nonce, 16);
             var shifted = (span + 1) >> 22;
@@ -87,7 +85,7 @@ namespace ConnectApp.Utils {
                 return time.Date == DateTime.Today
                         ? time.ToString("HH:mm")
                         : time.Date == DateTime.Today - TimeSpan.FromDays(1)
-                            ? "昨天 HH:mm"
+                            ? $"昨天 {time:HH:mm}"
                             : time.Year == DateTime.Today.Year
                                 ? time.ToString("M月d日 HH:mm")
                                 : time.ToString("yyyy年M月d日 HH:mm");
