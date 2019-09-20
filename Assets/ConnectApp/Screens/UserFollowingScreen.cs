@@ -43,7 +43,7 @@ namespace ConnectApp.screens {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         clearSearchFollowingResult = () => dispatcher.dispatch(new ClearSearchFollowingResultAction())
                     };
-                    return new UserFollowingScreen(viewModel, actionModel);
+                    return new UserFollowingScreen(viewModel: viewModel, actionModel: actionModel);
                 }
             );
         }
@@ -89,7 +89,7 @@ namespace ConnectApp.screens {
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
         }
         
         public override void dispose() {

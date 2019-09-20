@@ -17,19 +17,16 @@ namespace ConnectApp.Components {
             IEvent model,
             string place = null,
             GestureTapCallback onTap = null,
-            bool topPadding = false,
             Key key = null
         ) :base(key: key) {
             this.model = model;
             this.place = place;
             this.onTap = onTap;
-            this.topPadding = topPadding;
         }
 
         readonly IEvent model;
         readonly string place;
         readonly GestureTapCallback onTap;
-        readonly bool topPadding;
 
         public override Widget build(BuildContext context) {
             if (this.model == null) {
@@ -40,16 +37,15 @@ namespace ConnectApp.Components {
             const float imageHeight = 76;
             const float borderRadius = 4;
 
-            var gap = this.topPadding ? 16 : 0;
-            var time = Convert.ToDateTime(this.model.begin.startTime);
+            var time = Convert.ToDateTime(value: this.model.begin.startTime);
             var hour = $"{time.Hour.ToString().PadLeft(2, '0')}";
             var minute = $"{time.Minute.ToString().PadLeft(2, '0')}";
             var hourMinute = $"{hour}:{minute}";
             var address = this.place ?? "";
             var imageUrl = this.model.avatar ?? this.model.background;
             var card = new Container(
-                height: 108 + gap,
-                padding: EdgeInsets.only(16, 16 + gap, 16, 16),
+                height: 108,
+                padding: EdgeInsets.all(16),
                 color: CColors.White,
                 child: new Row(
                     crossAxisAlignment: CrossAxisAlignment.start,

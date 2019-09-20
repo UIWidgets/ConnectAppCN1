@@ -727,13 +727,15 @@ namespace ConnectApp.screens {
                 var article = this.widget.viewModel.articleDict[key: articleId];
                 //对文章进行过滤
                 if (article.id != this._article.id) {
-                    var fullName = "";
+                    string fullName;
                     if (article.ownerType == OwnerType.user.ToString()) {
                         fullName = this._user.fullName ?? this._user.name;
                     }
-
-                    if (article.ownerType == OwnerType.team.ToString()) {
+                    else if (article.ownerType == OwnerType.team.ToString()) {
                         fullName = this._team.name;
+                    }
+                    else {
+                        fullName = "";
                     }
 
                     Widget card = new RelatedArticleCard(
@@ -747,7 +749,7 @@ namespace ConnectApp.screens {
                             );
                             this.widget.actionModel.pushToArticleDetail(obj: article.id);
                         },
-                        key: new ObjectKey(value: article.id)
+                        new ObjectKey(value: article.id)
                     );
                     widgets.Add(item: card);
                 }
