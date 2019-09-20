@@ -18,7 +18,7 @@ namespace ConnectApp.Utils {
         readonly List<DelayCall> _delayCalls = new List<DelayCall>();
         int _delayCallId = 0;
 
-        NetworkReachability m_InternetReachability;
+        NetworkReachability m_InternetState;
 
         public void Update() {
             using (WindowProvider.of(context: GlobalContext.context).getScope()) {
@@ -43,15 +43,16 @@ namespace ConnectApp.Utils {
                     callback?.Invoke();
                 }
 
-                if (Application.internetReachability != this.m_InternetReachability) {
-                    this.m_InternetReachability = Application.internetReachability;
+                if (Application.internetReachability != this.m_InternetState) {
+                    this.m_InternetState = Application.internetReachability;
 
-                    if (this.m_InternetReachability == NetworkReachability.ReachableViaCarrierDataNetwork ||
-                        this.m_InternetReachability == NetworkReachability.ReachableViaLocalAreaNetwork) {
-                        SocketApi.ConnectToWSS(false);
+                    //force reconnect if the connection state changes to online
+                    if (this.m_InternetState == NetworkReachability.ReachableViaCarrierDataNetwork ||
+                        this.m_InternetState == NetworkReachability.ReachableViaLocalAreaNetwork) {
+                        SocketApi.OnNetworkConnected();
                     }
                     else {
-                        SocketApi.DisConnectFromWSS();
+                        SocketApi.OnNetworkDisconnected();
                     }
                 }
             }
@@ -60,14 +61,15 @@ namespace ConnectApp.Utils {
         public void CancelDelayCall(int callId) {
             var callIndex = -1;
             for (var i = 0; i < this._delayCalls.Count; i++) {
-                if (this._delayCalls[i].id == callId) {
-                    if (i != this._delayCalls.Count - 1) {
-                        this._delayCalls[i + 1].remainInterval += this._delayCalls[i].remainInterval;
-                    }
-
-                    callIndex = i;
-                    break;
+                if (this._delayCalls[i].id != callId) {
+                    continue;
                 }
+
+                if (i != this._delayCalls.Count - 1) {
+                    this._delayCalls[i + 1].remainInterval += this._delayCalls[i].remainInterval;
+                }
+                callIndex = i;
+                break;
             }
 
             if (callIndex != -1) {
@@ -95,6 +97,7 @@ namespace ConnectApp.Utils {
                 callback = callback,
                 remainInterval = duration - preInterval
             });
+            
             return this._delayCallId - 1;
         }
         
@@ -130,7 +133,9 @@ namespace ConnectApp.Utils {
             
             this._socketGateway = new SocketGateway(this);
 
-            this.m_InternetReachability = NetworkReachability.NotReachable;
+            this.m_InternetState = NetworkReachability.NotReachable;
+
+            SocketApi.ResetState();
         }
     }
 }

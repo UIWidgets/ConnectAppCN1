@@ -6,25 +6,37 @@ using WebSocketSharp;
 
 namespace ConnectApp.Utils {
     
-    enum WebSocketState
+    public enum WebSocketState
     {
         NotConnected,
         Connecting,
         Connected,
-        Closed
+        Closed,
+        Error
+    }
+    
+    enum SslProtocolsHack {
+        Tls = 192,
+        Tls11 = 768,
+        Tls12 = 3072
     }
     
     public class WebSocket {
+        const bool EnableDebugLog = true;
+        const bool EnableWebSocketSharpLog = false;
         
-        WebSocketState m_State;
+        const SslProtocols sslProtocolHack = (SslProtocols)(SslProtocolsHack.Tls12 | SslProtocolsHack.Tls11 | SslProtocolsHack.Tls);
         
         readonly WebSocketHost m_Host;
-
-        WebSocketSharp.WebSocket m_Socket;
-
         readonly bool m_useSslHandShakeHack;
+        
+        WebSocketSharp.WebSocket m_Socket;
+        WebSocketState m_State;
 
-        const bool EnableWebSocketSharpLog = true;
+        
+        public WebSocketState currentState {
+            get { return this.m_State; }
+        }
 
         public WebSocket(WebSocketHost host, bool useSslHandShakeHack)
         {
@@ -32,37 +44,19 @@ namespace ConnectApp.Utils {
             this.m_Host = host;
             this.m_useSslHandShakeHack = useSslHandShakeHack;
         }
-
-        public void Send(string content) {
-            this.Send(Encoding.UTF8.GetBytes (content));
+      
+        public bool checkSslProtocolHackFlag() {
+            return this.m_Socket.SslConfiguration.EnabledSslProtocols != sslProtocolHack;
         }
 
-        public void Send(byte[] buffer) {
-            Debug.Assert(this.m_State == WebSocketState.Connected, "fatal error: Cannot send data before connect!");
-            Debug.Assert(this.m_Socket != null, "fatal error: Cannot send data because the websocket is null.");
-            this.m_Socket.Send(buffer);
-        }
-        
-        public enum SslProtocolsHack {
-            Tls = 192,
-            Tls11 = 768,
-            Tls12 = 3072
-        }
-
-        public bool checkSslProtocolHackFlag(SslProtocols flags) {
-            return this.m_Socket.SslConfiguration.EnabledSslProtocols != flags;
-        }
-
-        //add callbacks here as parameters
         public void Connect(string url, Action OnConnected, Action<byte[]> OnMessage,
             Action<string> OnError, Action<int> OnClose)
         {
-            Debug.Assert(this.m_State == WebSocketState.NotConnected, $"fatal error: Cannot Connect to {url} because the socket is already set up.");
+            DebugAssert(this.m_State == WebSocketState.NotConnected, $"fatal error: Cannot Connect to {url} because the socket is already set up.");
             this.m_State = WebSocketState.Connecting;
             
             this.m_Socket = new WebSocketSharp.WebSocket(url);
             if (this.m_useSslHandShakeHack) {
-                var sslProtocolHack = (SslProtocols)(SslProtocolsHack.Tls12 | SslProtocolsHack.Tls11 | SslProtocolsHack.Tls);
                 this.m_Socket.SslConfiguration.EnabledSslProtocols = sslProtocolHack;
             }
 
@@ -70,7 +64,6 @@ namespace ConnectApp.Utils {
                 this.m_Socket.Log.Level = LogLevel.Debug;
                 this.m_Socket.Log.File = @"log.txt";
             }
-
 
             this.m_Socket.OnOpen += (sender, e) => {
                 this.m_State = WebSocketState.Connected;
@@ -87,21 +80,28 @@ namespace ConnectApp.Utils {
 
             this.m_Socket.OnError += (sender, e) => {
                 this.m_Host.Enqueue(() => {
+                    this.m_State = WebSocketState.Error;
                     OnError(e.Message);
                 });
             };
 
             this.m_Socket.OnClose += (sender, e) => {
                 this.m_Host.Enqueue(() => {
-                    //Debug.Log("error code: " + e.Code + " : reason: " + e.Reason);
+                    this.m_State = WebSocketState.Closed;
                     OnClose?.Invoke(e.Code);
                 });
             };
-            
-            //try to open connection
+
             this.m_Socket.ConnectAsync();
         }
-
+        
+        public void Send(string content) {
+            DebugAssert(this.m_State == WebSocketState.Connected, "fatal error: Cannot send data before connect!");
+            DebugAssert(this.m_Socket != null, "fatal error: Cannot send data because the websocket is null.");
+            
+            var bytes = Encoding.UTF8.GetBytes (content);
+            this.m_Socket.Send(bytes);
+        }
 
         public void Close() {
             if (this.m_State == WebSocketState.Connected ||
@@ -110,6 +110,12 @@ namespace ConnectApp.Utils {
             }   
                             
             this.m_State = WebSocketState.Closed;
+        }
+
+        static void DebugAssert(bool condition, string logMsg) {
+            if (EnableDebugLog && !condition) {
+                Debug.Log(logMsg);
+            }
         }
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using Debug = System.Diagnostics.Debug;
 
 namespace ConnectApp.Utils {
     public class BackOff {
@@ -9,67 +8,66 @@ namespace ConnectApp.Utils {
         readonly int min;
         readonly int max;
 
-        int _current;
-        int _callbackId;
-        int _fails;
+        int m_Current;
+        int m_CallbackId;
+        int m_Fails;
 
 
         public BackOff(WebSocketHost host, int min = 500, int? max = null) {
             this.min = min;
-            this.max = max != null ? max.Value : min * 10;
+            this.max = max ?? min * 10;
             this.host = host;
-
-            this._current = min;
-            this._callbackId = -1;
-            this._fails = 0;
+            this.m_Current = min;
+            this.m_CallbackId = -1;
+            this.m_Fails = 0;
         }
 
         public int fail {
-            get { return this._fails; }
-        }
-
-        public int current {
-            get { return this._current; }
+            get { return this.m_Fails; }
         }
 
         public bool pending {
-            get { return this._callbackId != -1; }
+            get { return this.m_CallbackId != -1; }
         }
 
         public void OnSucceed() {
             this.Cancel();
-            this._fails = 0;
-            this._current = this.min;
+            this.m_Fails = 0;
+            this.m_Current = this.min;
         }
 
         public int OnFail(Action callback = null) {
-            this._fails += 1;
-            int delay = this._current;
-            this._current = Mathf.Min(this._current + delay, this.max);
-            if (callback != null) {
-                if (this._callbackId != -1) {
-                    Debug.Assert(false, "callback already pending !");
-                    return 0;
-                }
-
-                this._callbackId = this.host.DelayCall(this._current / 1000f, () => {
-                    try {
-                        callback.Invoke();
-                    }
-                    finally {
-                        this._callbackId = -1;
-                    }
-                });
+            this.m_Fails += 1;
+            int delay = this.m_Current;
+            this.m_Current = Mathf.Min(this.m_Current + delay, this.max);
+            
+            if (callback == null) {
+                return this.m_Current;
             }
 
-            return this._current;
+            if (this.m_CallbackId != -1) {
+                this.Cancel();
+            }
+                
+            this.m_CallbackId = this.host.DelayCall(this.m_Current / 1000f, () => {
+                try {
+                    callback.Invoke();
+                }
+                finally {
+                    this.m_CallbackId = -1;
+                }
+            });
+
+            return this.m_Current;
         }
 
         public void Cancel() {
-            if (this._callbackId != -1) {
-                this.host.CancelDelayCall(this._callbackId);
-                this._callbackId = -1;
+            if (this.m_CallbackId == -1) {
+                return;
             }
+
+            this.host.CancelDelayCall(this.m_CallbackId);
+            this.m_CallbackId = -1;
         }
     }
 }

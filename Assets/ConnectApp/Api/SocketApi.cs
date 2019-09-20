@@ -1,86 +1,130 @@
 using System;
-using System.Collections;
-using ConnectApp.Constants;
 using ConnectApp.Models.Api;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
-using Newtonsoft.Json;
-using RSG;
-using Unity.UIWidgets.async;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.ui;
 using UnityEngine;
 
 namespace ConnectApp.Api {
     public static class SocketApi {
-        public static void DisConnectFromWSS() {
-            SocketGateway.instance.Close();
+
+        const bool DebugSocketApi = true;
+
+        static string m_lastSessionId;
+
+        public static void ResetState() {
+            m_lastSessionId = null;
         }
 
-        public static void ConnectToWSS(bool forceConnect = true) {
-            try {
-                DoConnectToWSS(forceConnect);
-            }
-            catch (Exception e) {
-                Debug.Log("Failed to connect to wss: error = " + e);
+        static string sessionId {
+            get {
+                return HttpManager.getCookie().isNotEmpty() ? HttpManager.getCookie("LS") : "";
             }
         }
         
-        public static void DoConnectToWSS(bool forceConnect) {
-            if (HttpManager.getCookie().isNotEmpty()) {
-                var sessionId = HttpManager.getCookie("LS");
-                if (sessionId == null) {
-                    Debug.Log("Connect to Message Feed Failed: no sessionId available !");
-                    return;
+        public static void OnCookieChanged() {
+            var newSessionId = sessionId;
+            if (m_lastSessionId == newSessionId) {
+                return;
+            }
+
+            m_lastSessionId = newSessionId;
+            
+            //Logout
+            if (m_lastSessionId == "") {
+                DisConnectFromWSS();
+            }
+            //Login
+            else {
+                ReConnectToWSS(m_lastSessionId);
+            }
+        }
+
+        public static void OnNetworkConnected() {
+            //init session id by default
+            if (m_lastSessionId == null) {
+                m_lastSessionId = sessionId;
+            }
+            
+            //Logout
+            if (m_lastSessionId == "") {
+                DisConnectFromWSS();
+            }
+            //Login
+            else {
+                ReConnectToWSS(m_lastSessionId);
+            }
+        }
+
+        public static void OnNetworkDisconnected() {
+            DisConnectFromWSS();
+        }
+
+
+        static void DisConnectFromWSS() {
+            SocketGateway.instance.Close();
+        }
+
+        static void ReConnectToWSS(string sessionId) {
+            DisConnectFromWSS();
+            
+            try {
+                DoConnectToWSS(sessionId);
+            }
+            catch (Exception e) {
+                if (DebugSocketApi) {
+                    Debug.Log("Failed to connect to wss: error = " + e);
                 }
             }
-            
-            D.assert(SocketGateway.instance != null);
-            if (SocketGateway.instance == null) {
+        }
+
+        static void DoConnectToWSS(string sessionId) {
+            //Ready-state check
+            if (DebugSocketApi) {
+                Debug.Assert(SocketGateway.instance != null, "fatal error: socket gateway is null, cannot connect !");
+                Debug.Assert(SocketGateway.instance.readyForConnect, "fatal error: socket gateway is not ready for connection !");
+            }
+            if (SocketGateway.instance == null || !SocketGateway.instance.readyForConnect) {
                 return;
             }
-            if (!forceConnect && !SocketGateway.instance.readyForConnect) {
-                return;
-            }
-            
-            SocketGateway.instance.Connect(commitId => 
-            {
-                if (HttpManager.getCookie().isNotEmpty()) {
-                    var sessionId = HttpManager.getCookie("LS");
+
+            SocketGateway.instance.Connect(
+                onIdentify: 
+                commitId => {
                     SocketGateway.instance.Identify(sessionId, commitId);
-                }
-            },
+                },
+                onMessage: 
                 (type, data) => {
                     switch (type) {
                         case DispatchMsgType.INVALID_LS:
                             break;
                         case DispatchMsgType.READY:
                             var sessionData = (SocketResponseSessionData) data;
-                            var sessionId = sessionData.sessionId;
-                            
+
                             StoreProvider.store.dispatcher.dispatch(new PushReadyAction {
-                                readyData = sessionData});
+                                readyData = sessionData
+                            });
                             break;
                         case DispatchMsgType.RESUMED:
                             break;
                         case DispatchMsgType.MESSAGE_CREATE:
                             var messageData = (SocketResponseMessageData) data;
-                            
+
                             StoreProvider.store.dispatcher.dispatch(new PushNewMessageAction {
                                 messageData = messageData
                             });
                             break;
                         case DispatchMsgType.MESSAGE_UPDATE:
                             var updateMessageData = (SocketResponseMessageData) data;
-                            
+
                             StoreProvider.store.dispatcher.dispatch(new PushModifyMessageAction {
                                 messageData = updateMessageData
                             });
                             break;
                         case DispatchMsgType.MESSAGE_DELETE:
                             var deleteMessageData = (SocketResponseMessageData) data;
-                            
+
                             StoreProvider.store.dispatcher.dispatch(new PushDeleteMessageAction {
                                 messageData = deleteMessageData
                             });
@@ -98,54 +142,20 @@ namespace ConnectApp.Api {
                             break;
                         case DispatchMsgType.CHANNEL_MEMBER_ADD:
                             var memberAddData = (SocketResponseChannelMemberChangeData) data;
-                            
+
                             StoreProvider.store.dispatcher.dispatch(new PushChannelAddMemberAction {
                                 memberData = memberAddData
                             });
                             break;
                         case DispatchMsgType.CHANNEL_MEMBER_REMOVE:
                             var memberRemoveData = (SocketResponseChannelMemberChangeData) data;
-                            
+
                             StoreProvider.store.dispatcher.dispatch(new PushChannelRemoveMemberAction {
                                 memberData = memberRemoveData
                             });
                             break;
                     }
                 });
-        }
-        
-        
-        public static Promise<string> FetchSocketUrl() {
-            // We return a promise instantly and start the coroutine to do the real work
-            var promise = new Promise<string>();
-            Window.instance.startCoroutine(_FetchSocketUrl(promise));
-            return promise;
-        }
-
-        static IEnumerator
-            _FetchSocketUrl(Promise<string> promise) {
-            var request = HttpManager.GET(Config.apiAddress + "/api/socketgw");
-            yield return request.SendWebRequest();
-
-            if (request.isNetworkError) {
-                // something went wrong
-                promise.Reject(new Exception(request.error));
-            }
-            else if (request.responseCode != 200) {
-                // or the response is not OK
-                promise.Reject(new Exception(request.downloadHandler.text));
-            }
-            else {
-                // Format output and resolve promise
-                var responseText = request.downloadHandler.text;
-                var response = JsonConvert.DeserializeObject<FetchSocketUrlResponse>(responseText);
-                if (!string.IsNullOrEmpty(response.url)) {
-                    promise.Resolve(response.url);
-                }
-                else {
-                    promise.Reject(new Exception("No user under this username found!"));
-                }
-            }
         }
     }
 }
