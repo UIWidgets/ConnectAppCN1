@@ -109,11 +109,13 @@ namespace ConnectApp.screens {
         readonly TextEditingController _textController = new TextEditingController();
         readonly RefreshController _refreshController = new RefreshController();
         TabController _emojiTabController;
+        FocusNode _focusNode;
 
         Dictionary<string, string> _jobRole;
         float messageBubbleWidth = 0;
         long lastSavedNonce;
         bool showEmojiBoard = false;
+        bool showKeyboard = false;
         string _pickImageSubId;
         string _pickedImage;
 
@@ -138,6 +140,7 @@ namespace ConnectApp.screens {
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this._refreshController.scrollController.addListener(this._handleScrollListener);
             });
+            this._focusNode = new FocusNode();
         }
 
         public override void dispose() {
@@ -147,6 +150,7 @@ namespace ConnectApp.screens {
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.clearUnread();
             });
+            this._focusNode.dispose();
             base.dispose();
         }
 
@@ -460,6 +464,7 @@ namespace ConnectApp.screens {
                                         child: new InputField(
                                             // key: _textFieldKey,
                                             controller: this._textController,
+                                            focusNode: this._focusNode,
                                             height: 32,
                                             style: CTextStyle.PRegularBody,
                                             hintText: "说点想法…",

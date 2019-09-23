@@ -361,7 +361,7 @@ namespace ConnectApp.screens {
         }
 
         public static Widget buildChannelItem(ChannelView channel, Action onTap = null) {
-            Widget title = new Text(channel.name, style: CTextStyle.PLargeMedium);
+            Widget title = new Text(channel.name, style: CTextStyle.PLargeMedium, overflow: TextOverflow.ellipsis);
             string text = channel.lastMessage == null || string.IsNullOrEmpty(channel.lastMessage.content)
                 ? ""
                 : (channel.lastMessage.author?.fullName == null
