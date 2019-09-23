@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ConnectApp.Models.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using UnityEngine.Scripting;
 
 namespace ConnectApp.Models.Api {
     
@@ -20,6 +21,11 @@ namespace ConnectApp.Models.Api {
     }
 
     public class FrameConverter : JsonConverter {
+        [Preserve]
+        public FrameConverter() {
+            
+        }
+        
         public override bool CanConvert(Type objectType) {
             return objectType.IsSubclassOf(typeof(Frame<>));
         }
@@ -117,22 +123,25 @@ namespace ConnectApp.Models.Api {
         public string type { get; set; }
     }
 
-
+    [Serializable]
     public class SocketGatewayResponse {
         public string url;
         public List<string> urls;
     }
     
+    [Serializable]
     public class SocketResponseDataBase {
     }
 
+    [Serializable]
     public class SocketResponseNullData : SocketResponseDataBase {
     }
     
+    [Serializable]
     public class SocketResponseNull : Frame<SocketResponseNullData> {
     }
 
-    
+    [Serializable]
     public class SocketResponseSessionData : SocketResponseDataBase {
         public string sessionId;
         public string userId;
@@ -151,6 +160,7 @@ namespace ConnectApp.Models.Api {
         public int mentionCount;
     }
 
+    [Serializable]
     public class NormalChannelLite {
         public string id;
         public string workspaceId;
@@ -172,12 +182,14 @@ namespace ConnectApp.Models.Api {
         public string lastMessageId;
     }
 
+    [Serializable]
     public class ChannelTag {
         public string id;
         public string type;
         public string name;
     }
 
+    [Serializable]
     public class ChannelMessageLite {
         public string id;
         public string type;
@@ -190,10 +202,12 @@ namespace ConnectApp.Models.Api {
         public List<Attachment> attachments;
     }
 
+    [Serializable]
     public class MessageUserLite {
         public string id;
     }
 
+    [Serializable]
     public class MessageUser {
         public string id;
         public string username;
@@ -208,10 +222,12 @@ namespace ConnectApp.Models.Api {
         public bool isBot;
     }
     
+    [Serializable]
     public class SocketResponseSession : Frame<SocketResponseSessionData> {
     }
 
     //Copy from and should be consistent with Models/Model/ChannelMessage
+    [Serializable]
     public class SocketResponseMessageData : SocketResponseDataBase {
         public string id;
         public string type;
@@ -233,26 +249,32 @@ namespace ConnectApp.Models.Api {
         public string deletedTime;
     }
 
+    [Serializable]
     public class SocketResponseMessage : Frame<SocketResponseMessageData> {
     }
 
+    [Serializable]
     public class SocketResponsePresentUpdateData : SocketResponseDataBase {
         public string userId;
         public string channelId;
         public string status;
     }
 
+    [Serializable]
     public class SocketResponsePresentUpdate : Frame<SocketResponsePresentUpdateData> {
     }
 
+    [Serializable]
     public class SocketResponsePingData : SocketResponseDataBase {
         public long ts;
     }
 
+    [Serializable]
     public class SocketResponsePing : Frame<SocketResponsePingData> {
         
     }
 
+    [Serializable]
     public class SocketResponseChannelMemberChangeData : SocketResponseDataBase {
         public string id;
         public string channelId;
@@ -267,6 +289,7 @@ namespace ConnectApp.Models.Api {
         public int memberCount;
     }
 
+    [Serializable]
     public class SocketResponseChannelMemberChange : Frame<SocketResponseChannelMemberChangeData> {
         
     }
