@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using ConnectApp.Components;
 using ConnectApp.Utils;
 using Unity.UIWidgets.engine;
 using Unity.UIWidgets.external.simplejson;
@@ -6,8 +8,25 @@ using Unity.UIWidgets.widgets;
 using UnityEngine;
 
 namespace ConnectApp.Plugins {
-    public class PickImagePlugin {
-        public static void addListener() {
+    public enum ImageSource {
+        camera,
+        gallery
+    }
+
+    public static class PickImagePlugin {
+        public static void showActionSheet() {
+            var items = new List<ActionSheetItem> {
+                new ActionSheetItem("拍照", type: ActionType.normal, () => PickImage(source: ImageSource.camera)),
+                new ActionSheetItem("从相册选择", type: ActionType.normal, () => PickImage(source: ImageSource.gallery)),
+                new ActionSheetItem("取消", type: ActionType.cancel)
+            };
+
+            ActionSheetUtils.showModalActionSheet(new ActionSheet(
+                items: items
+            ));
+        }
+
+        static void addListener() {
             if (Application.isEditor) {
                 return;
             }
@@ -15,7 +34,7 @@ namespace ConnectApp.Plugins {
             UIWidgetsMessageManager.instance.AddChannelMessageDelegate("pickImage", del: _handleMethodCall);
         }
 
-        public static void removeListener() {
+        static void removeListener() {
             if (Application.isEditor) {
                 return;
             }
@@ -46,5 +65,58 @@ namespace ConnectApp.Plugins {
                 }
             }
         }
+
+        public static void PickImage(
+            ImageSource source,
+            bool cropped = true,
+            int? maxSize = null
+        ) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            addListener();
+            var sourceInt = (int) source;
+            pickImage(sourceInt.ToString(), cropped: cropped, maxSize ?? 0);
+        }
+
+        public static void PickVideo(ImageSource source) {
+            if (Application.isEditor) {
+                return;
+            }
+
+            addListener();
+            var sourceInt = (int) source;
+            pickVideo(sourceInt.ToString());
+        }
+
+#if UNITY_IOS
+        [DllImport("__Internal")]
+        static extern void pickImage(string source, bool cropped = true, int maxSize = 0);
+
+        [DllImport("__Internal")]
+        static extern void pickVideo(string source);
+#elif UNITY_ANDROID
+        static AndroidJavaClass _plugin;
+
+        static AndroidJavaClass Plugin() {
+            if (_plugin == null) {
+                _plugin = new AndroidJavaClass("com.unity3d.unityconnect.plugins.CommonPlugin");
+            }
+
+            return _plugin;
+        }
+
+        static void pickImage(string source, bool cropped = true, int maxSize = 0) {
+            Plugin().CallStatic("pickImage", source, cropped, maxSize);
+        }
+
+        static void pickVideo(string source) {
+            Plugin().CallStatic("pickVideo", source);
+        }
+#else
+        static void pickImage(string source, bool cropped = true, int maxSize = 0) { }
+        static void pickVideo(string source) { }
+#endif
     }
 }

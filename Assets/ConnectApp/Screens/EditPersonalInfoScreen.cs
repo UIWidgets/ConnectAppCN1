@@ -7,6 +7,7 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
+using ConnectApp.Plugins;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using Newtonsoft.Json;
@@ -260,8 +261,8 @@ namespace ConnectApp.screens {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: new List<Widget> {
                         new GestureDetector(
-                            child: this._buildAvatar(user),
-                            onTap: PickImageManager.showActionSheet
+                            child: this._buildAvatar(user: user),
+                            onTap: PickImagePlugin.showActionSheet
                         )
                     }
                 )

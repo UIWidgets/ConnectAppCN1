@@ -35,7 +35,7 @@ namespace ConnectApp.screens {
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     return new PersonalJobRoleScreen(
-                        viewModel,
+                        viewModel: viewModel,
                         () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         jobRole => {
                             dispatcher.dispatch(new ChangePersonalRoleAction {jobRole = jobRole});
@@ -122,13 +122,16 @@ namespace ConnectApp.screens {
                 ? _jobRole[key: jobRole.name]
                 : jobRole.name;
             var isCheck = this.viewModel.jobRole.id == jobRole.id;
-            Widget checkWidget = new Container();
+            Widget checkWidget;
             if (isCheck) {
                 checkWidget = new Icon(
                     icon: Icons.check,
                     size: 24,
                     color: CColors.PrimaryBlue
                 );
+            }
+            else {
+                checkWidget = new Container();
             }
 
             return new GestureDetector(

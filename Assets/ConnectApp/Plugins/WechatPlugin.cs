@@ -177,11 +177,11 @@ namespace ConnectApp.Plugins {
         static extern void toTimeline(string title, string description, string url, string imageBytes);
 
         [DllImport("__Internal")]
-        internal static extern void toMiNiProgram(string title, string description, string url, string imageBytes,
+        static extern void toMiNiProgram(string title, string description, string url, string imageBytes,
             string ysId, string path, int miniProgramType);
 
         [DllImport("__Internal")]
-        internal static extern void openMiNi(string ysId, string path, int miniProgramType);
+        static extern void openMiNi(string ysId, string path, int miniProgramType);
 
 #elif UNITY_ANDROID
         static AndroidJavaObject _plugin;

@@ -74,11 +74,11 @@
     [self.navigationController setNavigationBarHidden:YES animated:true];
 
 }
+
 - (void)viewDidDisappear:(BOOL)animated{
     [super viewDidDisappear:animated];
     [self.navigationController setNavigationBarHidden:NO animated:true];
 }
-
 
 - (IBAction)cancel:(UIButton *)sender {
     if (self.cancelBlock) {
@@ -89,6 +89,7 @@
 - (IBAction)recovery:(UIButton *)sender {
     [self.imageresizerView recovery];
 }
+
 - (IBAction)done:(UIButton *)sender {
     self.recoveryButton.enabled = NO;
     
@@ -100,15 +101,15 @@
         if (!sSelf) return;
         
         if (!resizeImage) {
-            NSLog(@"没有裁剪图片");
             return;
         }
         sSelf.recoveryButton.enabled = YES;
-        if (self.block) {
-            self.block(resizeImage);
+        if (sSelf.cropBlock) {
+            sSelf.cropBlock(resizeImage);
         }
     }];
 }
+
 - (IBAction)rotate:(id)sender {
     [self.imageresizerView rotation];
 }

@@ -11,9 +11,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface PickImageController : NSObject <UIImagePickerControllerDelegate,UINavigationControllerDelegate>
 
-@property (nonatomic,strong) UIImagePickerController *picker;
+@property (nonatomic, strong) UIImagePickerController *picker;
 
-- (void)showPicker:(UIImagePickerControllerSourceType)type;
+- (void)pickImageWithSource:(NSString *)source cropped:(BOOL)cropped maxSize:(NSInteger)maxSize;
+- (void)pickVideoWithSource:(NSString *)source;
 + (instancetype)sharedInstance;
 - (bool)isPhotoLibraryAuthorization;
 - (bool)isCameraAuthorization;

@@ -8,14 +8,14 @@
 #import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
-typedef void (^PickImageBlock)(UIImage *image);
+typedef void (^CropBlock)(UIImage *image);
 typedef void (^CancelBlock)();
 
 @interface ImageCropController : UIViewController
 
 @property (nonatomic, strong) UIImage *image;
-@property (nonatomic,copy) PickImageBlock block;
-@property (nonatomic,copy) CancelBlock cancelBlock;
+@property (nonatomic, copy) CropBlock cropBlock;
+@property (nonatomic, copy) CancelBlock cancelBlock;
 
 @end
 
