@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
+using ConnectApp.Models.Model;
 using ConnectApp.Models.ViewModel;
-using UnityEngine;
 
 
 namespace ConnectApp.Utils {
@@ -14,11 +14,31 @@ namespace ConnectApp.Utils {
             get { return m_SqlManager ?? (m_SqlManager = new SQLiteDBManager(DBName)); }
         }
 
-        public static List<DBMessageLite> LoadMessages(string channelId, int messageIdFrom = -1) {
-            return null;
+        public static List<ChannelMessageView> SyncLoadMessages(string channelId, long messageNonceFrom = -1, int messageCount = 10) {
+            var msgLites = SqlManager.QueryMessages(channelId, messageNonceFrom, messageCount);
+
+            var msgs = new List<ChannelMessageView>();
+            foreach (var msgLite in msgLites) {
+                msgs.Add(new ChannelMessageView {
+                    id = msgLite.messageId,
+                    content = msgLite.content,
+                    author = new User {
+                        fullName = msgLite.authorName,
+                        avatar = msgLite.authorThumb
+                    },
+                    channelId = msgLite.channelId,
+                    nonce = msgLite.nonce
+                });
+            }
+
+            return msgs;
         }
 
-        public static void SaveMessages(List<ChannelMessageView> messages) {
+        public static void SyncSaveMessage(ChannelMessageView messages) {
+            SyncSaveMessages(new List<ChannelMessageView> {messages});
+        }
+
+        public static void SyncSaveMessages(List<ChannelMessageView> messages) {
             var msgLites = new List<DBMessageLite>();
 
             foreach (var message in messages) {
@@ -35,39 +55,21 @@ namespace ConnectApp.Utils {
             SqlManager.SaveMessages(msgLites);
         }
 
-        public static void TestQuery() {
-//            var begin = Time.time;
-//
-//            var results = SqlManager.QueryMessages("Channel0", 5, 10);
-//
-//            foreach (var result in results) {
-//                Debug.Log("query result: " + result.content + " " + result.nonce + " " + result.channelId);
-//            }
-//            
-//            var end = Time.time;
-//            
-//            Debug.Log($"Test Save Cost Time = {end - begin}");
-        }
+        public static void SyncSaveMessages(List<ChannelMessage> messages) {
+            var msgLites = new List<DBMessageLite>();
 
-        public static void TestSave() {
-            var begin = Time.time;
-            List<DBMessageLite> testMsgs = new List<DBMessageLite>();
-            for (int i = 0; i < 100; i++) {
-                testMsgs.Add(new DBMessageLite {
-                    nonce = i,
-                    messageId = $"Id{i}",
-                    content = $"Test Msg{i}",
-                    authorName = $"Test User{i}",
-                    authorThumb = "",
-                    channelId = $"Channel{i%3}"
+            foreach (var message in messages) {
+                msgLites.Add(new DBMessageLite {
+                    messageId = message.id,
+                    content = message.content,
+                    authorName = message.author.fullName,
+                    authorThumb = message.author.avatar,
+                    channelId = message.channelId,
+                    nonce = string.IsNullOrEmpty(message.nonce) ? 0 : Convert.ToInt64(message.nonce, 16)
                 });
             }
             
-            SqlManager.SaveMessages(testMsgs);
-
-            var end = Time.time;
-
-            Debug.Log($"Test Save Cost Time = {end - begin}");
+            SqlManager.SaveMessages(msgLites);
         }
     }
 }
