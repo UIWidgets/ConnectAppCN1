@@ -62,6 +62,8 @@ namespace ConnectApp.screens {
                             return dispatcher.dispatch<IPromise>(
                                 Actions.fetchChannelMessages(this.channelId, before, after));
                         },
+                        fetchMembers = () => dispatcher.dispatch<IPromise>(
+                            Actions.fetchChannelMembers(this.channelId, 0)),
                         pushToChannelDetail = () => {
                             dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction {
                                 channelId = this.channelId
@@ -149,6 +151,8 @@ namespace ConnectApp.screens {
                 this.setState();
             });
             SchedulerBinding.instance.addPostFrameCallback(_ => {
+                this.widget.actionModel.fetchMessages(null, null);
+                this.widget.actionModel.fetchMembers();
                 this._refreshController.scrollController.addListener(this._handleScrollListener);
             });
             this._focusNode = new FocusNode();

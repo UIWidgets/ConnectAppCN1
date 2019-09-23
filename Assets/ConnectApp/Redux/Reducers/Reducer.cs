@@ -2302,6 +2302,11 @@ namespace ConnectApp.redux.reducers {
                     state.channelState.channelTop = ChannelTopManager.getChannelTop();
                     break;
                 }
+
+                case StartFetchChannelMessageAction _: {
+                    state.channelState.messageLoading = true;
+                    break;
+                }
                 
                 case ChannelMessagesAction action: {
                     var channel = state.channelState.channelDict[action.channelId];
