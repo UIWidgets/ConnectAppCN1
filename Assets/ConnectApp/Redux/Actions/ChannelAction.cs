@@ -201,6 +201,14 @@ namespace ConnectApp.redux.actions {
         public string channelId;
     }
 
+    public class ChannelScreenHitBottom : BaseAction {
+        public string channelId;
+    }
+
+    public class ChannelScreenLeaveBottom : BaseAction {
+        public string channelId;
+    }
+
     public class UpdateChannelScrollOffsetAction : BaseAction {
         public string channelId;
         public float bottom;

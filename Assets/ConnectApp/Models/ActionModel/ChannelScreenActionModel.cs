@@ -11,5 +11,7 @@ namespace ConnectApp.Models.ActionModel {
         public Func<string, string, string, IPromise> sendImage;
         public Action clearUnread;
         public Action<float, float> updateScrollOffset;
+        public Action reportLeaveBottom;
+        public Action reportHitBottom;
     }
 }
