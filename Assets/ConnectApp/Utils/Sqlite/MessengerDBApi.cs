@@ -5,8 +5,8 @@ using ConnectApp.Models.ViewModel;
 
 
 namespace ConnectApp.Utils {
-    public static class SqliteApi {
-        const string DBName = "message";
+    public static class MessengerDBApi {
+        const string DBName = "messenger";
         
         static SQLiteDBManager m_SqlManager;
 
@@ -37,6 +37,7 @@ namespace ConnectApp.Utils {
         public static void SyncSaveMessage(ChannelMessageView messages) {
             SyncSaveMessages(new List<ChannelMessageView> {messages});
         }
+        
 
         public static void SyncSaveMessages(List<ChannelMessageView> messages) {
             var msgLites = new List<DBMessageLite>();
