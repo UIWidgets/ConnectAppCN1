@@ -309,9 +309,6 @@ namespace ConnectApp.screens {
                 padding: EdgeInsets.symmetric(0, 10),
                 child: Avatar.User(message.author, size: 40)
             );
-            if (message.type == ChannelMessageType.image) {
-                Debug.Log($"Image: {message.content}");
-            }
 
             Widget messageContent = new Container();
             switch (message.type) {
