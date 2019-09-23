@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.Models.ViewModel;
 using UnityEngine;
@@ -18,21 +19,34 @@ namespace ConnectApp.Utils {
         }
 
         public static void SaveMessages(List<ChannelMessageView> messages) {
+            var msgLites = new List<DBMessageLite>();
+
+            foreach (var message in messages) {
+                msgLites.Add(new DBMessageLite {
+                    messageId = message.id,
+                    content = message.content,
+                    authorName = message.author.fullName,
+                    authorThumb = message.author.avatar,
+                    channelId = message.channelId,
+                    nonce = message.nonce
+                });
+            }
             
+            SqlManager.SaveMessages(msgLites);
         }
 
         public static void TestQuery() {
-            var begin = Time.time;
-
-            var results = SqlManager.QueryMessages("Channel0", 5, 10);
-
-            foreach (var result in results) {
-                Debug.Log("query result: " + result.content + " " + result.nonce + " " + result.channelId);
-            }
-            
-            var end = Time.time;
-            
-            Debug.Log($"Test Save Cost Time = {end - begin}");
+//            var begin = Time.time;
+//
+//            var results = SqlManager.QueryMessages("Channel0", 5, 10);
+//
+//            foreach (var result in results) {
+//                Debug.Log("query result: " + result.content + " " + result.nonce + " " + result.channelId);
+//            }
+//            
+//            var end = Time.time;
+//            
+//            Debug.Log($"Test Save Cost Time = {end - begin}");
         }
 
         public static void TestSave() {

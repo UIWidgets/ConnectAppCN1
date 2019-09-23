@@ -239,9 +239,8 @@ namespace ConnectApp.Utils {
                     if (carr.Length != 2) {
                         continue;
                     }
-
-                    var name = carr[0];
-                    var value = carr[1];
+                    var name = carr[0].Trim();
+                    var value = carr[1].Trim();
                     if (name == key) {
                         return value;
                     }
