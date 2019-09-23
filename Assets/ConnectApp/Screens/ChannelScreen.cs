@@ -22,6 +22,7 @@ using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Avatar = ConnectApp.Components.Avatar;
+using Config = ConnectApp.Constants.Config;
 using Icons = ConnectApp.Constants.Icons;
 using Image = Unity.UIWidgets.widgets.Image;
 using Transform = Unity.UIWidgets.widgets.Transform;
@@ -118,10 +119,20 @@ namespace ConnectApp.screens {
         bool showKeyboard = false;
         string _pickImageSubId;
         string _pickedImage;
+        Dictionary<string, string> headers;
 
 
         float inputBarHeight {
             get { return this.showEmojiBoard ? 83 + 244 : 83; }
+        }
+        
+        const string COOKIE = "Cookie";
+        static string _cookieHeader() {
+            if (PlayerPrefs.GetString(COOKIE).isNotEmpty()) {
+                return PlayerPrefs.GetString(COOKIE);
+            }
+
+            return "";
         }
 
         public override void initState() {
@@ -141,6 +152,11 @@ namespace ConnectApp.screens {
                 this._refreshController.scrollController.addListener(this._handleScrollListener);
             });
             this._focusNode = new FocusNode();
+            this.headers = new Dictionary<string, string> {
+                {COOKIE, _cookieHeader()},
+                {"AppVersion", Config.versionNumber},
+                {"X-Requested-With", "XmlHttpRequest"}
+            };
         }
 
         public override void dispose() {
@@ -309,7 +325,8 @@ namespace ConnectApp.screens {
                     messageContent = new _ImageMessage(
                         url: message.content,
                         size: 140,
-                        ratio: 16.0f / 9.0f
+                        ratio: 16.0f / 9.0f,
+                        headers: this.headers
                     );
                     break;
                 case ChannelMessageType.file:
@@ -756,12 +773,19 @@ namespace ConnectApp.screens {
         public readonly float size;
         public readonly float ratio;
         public readonly float radius;
+        public readonly Dictionary<string, string> headers;
 
-        public _ImageMessage(string url, float size, float ratio, float radius = 10) {
+        public _ImageMessage(
+            string url,
+            float size,
+            float ratio,
+            Dictionary<string, string> headers = null,
+            float radius = 10) {
             this.url = url;
             this.size = size;
             this.ratio = ratio;
             this.radius = radius;
+            this.headers = headers;
         }
 
         public override State createState() {
@@ -795,7 +819,7 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            this.image = Image.network(this.widget.url);
+            this.image = Image.network(this.widget.url, headers: this.widget.headers);
             this.stream = this.image.image
                 .resolve(new ImageConfiguration());
             this.stream.addListener(this._updateSize);
