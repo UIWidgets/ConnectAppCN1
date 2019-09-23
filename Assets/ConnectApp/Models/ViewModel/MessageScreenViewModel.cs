@@ -8,12 +8,7 @@ using Unity.UIWidgets.foundation;
 
 namespace ConnectApp.Models.ViewModel {
     public class MessageScreenViewModel {
-        public bool notificationLoading;
-        public int page;
-        public int pageTotal;
-        public List<Notification> notifications;
-        public List<User> mentions;
-        public Dictionary<string, User> userDict;
+        public int discoverPage;
         public List<ChannelView> joinedChannels;
         public List<ChannelView> popularChannels;
         public List<ChannelView> publicChannels;
@@ -41,6 +36,10 @@ namespace ConnectApp.Models.ViewModel {
         public bool hasMoreNew = false;
         public bool upToDate = true;
         public List<string> memberIds;
+        public int memberOffset;
+        public Dictionary<string, bool> memberFolloweeMap;
+        public float offsetToBottom;
+        public float offsetToTop;
 
         public static ChannelView fromChannel(Channel channel) {
             return new ChannelView {
@@ -106,15 +105,24 @@ namespace ConnectApp.Models.ViewModel {
         }
 
         public void handleUnreadMessage(ChannelMessageView message, string userId) {
+            bool atMe = false, atAll = false;
             for (int k = 0; k < message.mentions.Count; k++) {
                 if (message.mentions[k].id == userId) {
-                    this.atMe = true;
+                    atMe = true;
                 }
             }
 
             if (message.mentionEveryone) {
-                this.atAll = true;
+                atAll = true;
+                atMe = true;
             }
+
+            if (atAll || atMe) {
+                this.mentioned += 1;
+            }
+
+            this.atAll = this.atAll || atAll;
+            this.atMe = this.atMe || atMe;
 
             this.unread += 1;
         }
@@ -133,20 +141,19 @@ namespace ConnectApp.Models.ViewModel {
         public string channelId;
         public User author;
         public DateTime time;
-        public string timeString;
         public ChannelMessageType type = ChannelMessageType.text;
         public string content;
-        public long fileSize;
+        public long fileSize = 0;
         public List<Attachment> attachments;
-        public bool mentionEveryone;
+        public bool mentionEveryone = false;
         public List<User> mentions;
-        public bool starred;
+        public bool starred = false;
         public List<string> replyMessageIds;
         public List<string> lowerMessageIds;
         public List<User> replyUsers;
         public List<User> lowerUsers;
-        public bool pending;
-        public bool deleted;
+        public bool pending = false;
+        public bool deleted = false;
         public List<Reaction> reactions;
         public List<Embed> embeds;
 
@@ -182,7 +189,6 @@ namespace ConnectApp.Models.ViewModel {
                 content = content,
                 fileSize = type == ChannelMessageType.file ? message.attachments[0].size : 0,
                 time = DateConvert.DateTimeFromNonce(message.nonce),
-                timeString = DateConvert.DateTimeFromNonce(message.nonce, true).ToString("HH:mm"),
                 attachments = message.attachments,
                 type = type,
                 mentionEveryone = message.mentionEveryone,
@@ -200,19 +206,42 @@ namespace ConnectApp.Models.ViewModel {
         }
         
         public static ChannelMessageView fromChannelMessageLite(ChannelMessageLite message) {
-            return fromChannelMessage(new ChannelMessage {
+            if (message == null) {
+                return new ChannelMessageView();
+            }
+            ChannelMessageType type = message.content != null || message.attachments.Count == 0
+                ? ChannelMessageType.text
+                : message.attachments[0].contentType.StartsWith("image")
+                    ? ChannelMessageType.image
+                    : ChannelMessageType.file;
+            string content = message.content;
+            switch (type) {
+                case ChannelMessageType.text:
+                    break;
+                case ChannelMessageType.image:
+                    content = message.attachments[0].url;
+                    break;
+                case ChannelMessageType.file:
+                    content = message.attachments[0].filename;
+                    break;
+            }
+            long nonce = string.IsNullOrEmpty(message.nonce) ? 0 : Convert.ToInt64(message.nonce, 16);
+
+            return new ChannelMessageView {
                 id = message.id,
-                nonce = message.nonce,
+                nonce = nonce,
                 channelId = message.channelId,
                 author = new User {
                     id = message.author.id
                 },
-                content = message.content,
+                content = content,
+                fileSize = type == ChannelMessageType.file ? message.attachments[0].size : 0,
+                time = DateConvert.DateTimeFromNonce(message.nonce),
                 attachments = message.attachments,
-                type = message.type,
+                type = type,
                 mentionEveryone = message.mentionEveryone,
-                mentions = message.mentions.Select(user => new User{id = user.id}).ToList(),
-            });
+                mentions = message.mentions?.Select(user => new User{id = user.id}).ToList()
+            };
         }
 
         public static ChannelMessageView fromChannelMessage(ChannelMessage message) {
@@ -227,26 +256,27 @@ namespace ConnectApp.Models.ViewModel {
             string content = message.content;
             switch (type) {
                 case ChannelMessageType.text:
+                    break;
                 case ChannelMessageType.embed:
                     content = content ?? "";
                     break;
                 case ChannelMessageType.image:
-                    content = CImageUtils.SizeTo200ImageUrl(message.attachments[0].url);
+                    content = message.attachments[0].url;
                     break;
                 case ChannelMessageType.file:
                     content = message.attachments[0].filename;
                     break;
             }
+            long nonce = string.IsNullOrEmpty(message.nonce) ? 0 : Convert.ToInt64(message.nonce, 16);
 
             return new ChannelMessageView {
                 id = message.id,
-                nonce = string.IsNullOrEmpty(message.nonce) ? 0 : Convert.ToInt64(message.nonce, 16),
+                nonce = nonce,
                 channelId = message.channelId,
                 author = message.author,
                 content = content,
                 fileSize = type == ChannelMessageType.file ? message.attachments[0].size : 0,
                 time = DateConvert.DateTimeFromNonce(message.nonce),
-                timeString = DateConvert.DateTimeFromNonce(message.nonce, true).ToString("HH:mm"),
                 attachments = message.attachments,
                 type = type,
                 mentionEveryone = message.mentionEveryone,

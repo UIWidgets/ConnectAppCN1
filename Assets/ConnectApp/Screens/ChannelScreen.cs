@@ -16,12 +16,12 @@ using Unity.UIWidgets.material;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Avatar = ConnectApp.Components.Avatar;
-using Color = UnityEngine.Color;
 using Icons = ConnectApp.Constants.Icons;
 using Image = Unity.UIWidgets.widgets.Image;
 using Transform = Unity.UIWidgets.widgets.Transform;
@@ -43,11 +43,15 @@ namespace ConnectApp.screens {
                     return new ChannelScreenViewModel {
                         channelInfo = state.channelState.channelDict[this.channelId],
                         messages = state.channelState.channelDict[this.channelId].messageIds.Select(
-                            messageId => state.channelState.messageDict[messageId]
-                        ).ToList(),
+                            messageId => {
+                                var message = state.channelState.messageDict[messageId];
+                                message.content = MessageUtils.AnalyzeMessage(
+                                        message.content, message.mentions, message.mentionEveryone);
+                                return message;
+                            }).ToList(),
                         me = state.loginState.loginInfo.userId,
                         messageLoading = state.channelState.messageLoading,
-                        newMessageCount = 0
+                        newMessageCount = state.channelState.channelDict[this.channelId].unread
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -65,10 +69,17 @@ namespace ConnectApp.screens {
                         sendMessage = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
                             Actions.sendMessage(channelId, content, nonce, parentMessageId)),
                         startSendMessage = () => dispatcher.dispatch(new StartSendChannelMessageAction()),
-                        markAsRead = nonce => dispatcher.dispatch(new MarkChannelMessageAsRead {
+                        sendImage = (channelId, data, nonce) => dispatcher.dispatch<IPromise>(
+                            Actions.sendImage(channelId, nonce, data)),
+                        clearUnread = () => dispatcher.dispatch(new ClearChannelUnreadAction {
+                            channelId = this.channelId
+                        }),
+                        updateScrollOffset = (bottom, top) => dispatcher.dispatch(new UpdateChannelScrollOffsetAction {
                             channelId = this.channelId,
-                            nonce = nonce
+                            bottom = bottom,
+                            top = top
                         })
+                        
                     };
                     return new ChannelScreen(viewModel, actionModel);
                 }
@@ -98,11 +109,16 @@ namespace ConnectApp.screens {
         readonly TextEditingController _textController = new TextEditingController();
         readonly RefreshController _refreshController = new RefreshController();
         TabController _emojiTabController;
+        FocusNode _focusNode;
 
         Dictionary<string, string> _jobRole;
         float messageBubbleWidth = 0;
         long lastSavedNonce;
         bool showEmojiBoard = false;
+        bool showKeyboard = false;
+        string _pickImageSubId;
+        string _pickedImage;
+
 
         float inputBarHeight {
             get { return this.showEmojiBoard ? 83 + 244 : 83; }
@@ -110,58 +126,70 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            // string id = this.widget.viewModel.messages.isNotEmpty()
-            //     ? this.widget.viewModel.messages.last().id
-            //     : null;
-            // this.widget.actionModel.fetchMessages(null, id);
-            // if (this.widget.viewModel.messages.isNotEmpty()) {
-            //     this.widget.actionModel.markAsRead(this.widget.viewModel.messages.last().nonce);
-            // }
             this._emojiTabController = new TabController(
-                length: (this.emojiList.Count-1) / 24 + 1,
+                length: (this.emojiList.Count-1) / (24-1) + 1,
                 vsync: this);
-        }
-
-        public override void deactivate() {
-            if (this.widget.viewModel.messages.isNotEmpty() &&
-                this.widget.viewModel.messages.last().nonce != this.lastSavedNonce) {
-                this.widget.actionModel.markAsRead(this.widget.viewModel.messages.last().nonce);
-                this.lastSavedNonce = this.widget.viewModel.messages.last().nonce;
-            }
+            this._pickImageSubId = EventBus.subscribe(sName: EventBusConstant.pickAvatarSuccess, args => {
+                this._pickedImage = (string) args[0];
+                this.widget.actionModel.sendImage(
+                    this.widget.viewModel.channelInfo.id,
+                    this._pickedImage,
+                    Snowflake.CreateNonceLocal());
+                this.setState();
+            });
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                this._refreshController.scrollController.addListener(this._handleScrollListener);
+            });
+            this._focusNode = new FocusNode();
         }
 
         public override void dispose() {
             this._textController.dispose();
             this._emojiTabController.dispose();
+            EventBus.unSubscribe(EventBusConstant.pickAvatarSuccess, this._pickImageSubId);
+            SchedulerBinding.instance.addPostFrameCallback(_ => {
+                this.widget.actionModel.clearUnread();
+            });
+            this._focusNode.dispose();
             base.dispose();
         }
 
         public override Widget build(BuildContext context) {
+            if (this.widget.viewModel.newMessageCount > 0 && this._refreshController.offset < 20.0f) {
+                this.widget.viewModel.newMessageCount = 0;
+                SchedulerBinding.instance.addPostFrameCallback(_ => { this.widget.actionModel.clearUnread(); });
+            }
             this.messageBubbleWidth = MediaQuery.of(context).size.width * 0.7f;
             Widget newMessage = Positioned.fill(
                 child: new Align(
                     alignment: Alignment.bottomCenter,
-                    child: new Transform(
-                        transform: Matrix3.makeTrans(0, -(this.inputBarHeight + 16)),
-                        child: new Container(
-                            height: 40,
-                            decoration: new BoxDecoration(
-                                color: CColors.Error,
-                                borderRadius: BorderRadius.all(20),
-                                boxShadow: new List<BoxShadow> {
-                                    new BoxShadow(
-                                        color: CColors.Black.withOpacity(0.2f),
-                                        blurRadius: 8,
-                                        spreadRadius: 0,
-                                        offset: new Offset(0, 2))
-                                }
+                    child: new Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: new List<Widget> {
+                            new GestureDetector(
+                                onTap: () => this._refreshController.scrollTo(0),
+                                child: new Container(
+                                    height: 40,
+                                    decoration: new BoxDecoration(
+                                        color: CColors.Error,
+                                        borderRadius: BorderRadius.all(20),
+                                        boxShadow: new List<BoxShadow> {
+                                            new BoxShadow(
+                                                color: CColors.Black.withOpacity(0.2f),
+                                                blurRadius: 8,
+                                                spreadRadius: 0,
+                                                offset: new Offset(0, 2))
+                                        }
+                                    ),
+                                    padding: EdgeInsets.symmetric(9, 16),
+                                    child: new Text(
+                                        $"{CStringUtils.CountToString(this.widget.viewModel.newMessageCount)}条新消息未读",
+                                        style: CTextStyle.PRegularWhite.copyWith(height: 1.2f)
+                                    )
+                                )
                             ),
-                            padding: EdgeInsets.symmetric(9, 16),
-                            child: new Text(
-                                $"{CStringUtils.CountToString(this.widget.viewModel.newMessageCount)}条新消息未读",
-                                style: CTextStyle.PRegularWhite.copyWith(height: 1.2f)
-                            )
-                        )
+                            new Container(height: this.inputBarHeight + 16)
+                        }
                     )
                 )
             );
@@ -231,7 +259,7 @@ namespace ConnectApp.screens {
                     enablePullDown: false,
                     enablePullUp: true,
                     onRefresh: this._onRefresh,
-                    onOffsetChange: this._handleScrollListener,
+                    // onOffsetChange: this._handleScrollListener,
                     reverse: true,
                     headerBuilder: (context, mode) => new SmartRefreshHeader(mode),
                     child: ListView.builder(
@@ -436,6 +464,7 @@ namespace ConnectApp.screens {
                                         child: new InputField(
                                             // key: _textFieldKey,
                                             controller: this._textController,
+                                            focusNode: this._focusNode,
                                             height: 32,
                                             style: CTextStyle.PRegularBody,
                                             hintText: "说点想法…",
@@ -451,19 +480,23 @@ namespace ConnectApp.screens {
                                 new CustomButton(
                                     padding: EdgeInsets.zero,
                                     onPressed: () => { this.setState(() => {
+                                        this._refreshController.scrollController.jumpTo(0);
                                         this.showEmojiBoard = !this.showEmojiBoard;
                                     }); },
                                     child: new Container(
                                         width: 44,
                                         height: 49,
                                         child: new Center(
-                                            child: new Icon(Icons.mood, size: 28, color: CColors.Icon)
+                                            child: new Icon(this.showEmojiBoard ? Icons.outline_keyboard : Icons.mood,
+                                                size: 28, color: CColors.Icon)
                                         )
                                     )
                                 ),
                                 new CustomButton(
                                     padding: EdgeInsets.zero,
-                                    onPressed: () => { },
+                                    onPressed: () => {
+                                        PickImageManager.showActionSheet();
+                                    },
                                     child: new Container(
                                         width: 44,
                                         height: 49,
@@ -513,7 +546,7 @@ namespace ConnectApp.screens {
 
         Widget _buildEmojiBoard() {
             List<Widget> emojiPages = new List<Widget>();
-            for (int i = 0; i < this.emojiList.Count; i += 24) {
+            for (int i = 0; i < this.emojiList.Count; i += 23) {
                 List<Widget> rows = new List<Widget>();
                 for (int j = 0; j < 3; j++) {
                     List<Widget> emojis = new List<Widget>();
@@ -533,30 +566,49 @@ namespace ConnectApp.screens {
                             text = "";
                         }
 
-                        emojis.Add(new GestureDetector(
-                            onTap: text != ""
-                                ? (GestureTapCallback) (() => {
-                                    var selection = this._textController.selection;
-                                    this._textController.text =
-                                        this._textController.text.Substring(0, selection.start) +
-                                        text +
-                                        this._textController.text.Substring(selection.end);
-                                    this._textController.selection =
-                                        TextSelection.collapsed(selection.start + text.Length);
-                                })
-                                : null,
-                            child: new Container(
-                                width: 40,
-                                height: 40,
-                                padding: k == 0 ? EdgeInsets.zero : EdgeInsets.only(left: 2),
-                                child: new Center(
-                                    child: new Text(
-                                        text,
-                                        style: new TextStyle(fontSize: 24, height: 1)
+                        if (j == 2 && k == 7) {
+                            emojis.Add(new GestureDetector(
+                                onTap: this._handleDelete,
+                                child: new Container(
+                                    width: 40,
+                                    height: 40,
+                                    padding: k == 0 ? EdgeInsets.zero : EdgeInsets.only(left: 2),
+                                    child: new Center(
+                                        child: new Icon(
+                                            Icons.outline_delete_keyboard,
+                                            size: 24,
+                                            color: CColors.Icon
+                                        )
                                     )
                                 )
-                            )
-                        ));
+                            ));
+                        }
+                        else {
+                            emojis.Add(new GestureDetector(
+                                onTap: text != ""
+                                    ? (GestureTapCallback) (() => {
+                                        var selection = this._textController.selection;
+                                        this._textController.text =
+                                            this._textController.text.Substring(0, selection.start) +
+                                            text +
+                                            this._textController.text.Substring(selection.end);
+                                        this._textController.selection =
+                                            TextSelection.collapsed(selection.start + text.Length);
+                                    })
+                                    : null,
+                                child: new Container(
+                                    width: 40,
+                                    height: 40,
+                                    padding: k == 0 ? EdgeInsets.zero : EdgeInsets.only(left: 2),
+                                    child: new Center(
+                                        child: new Text(
+                                            text,
+                                            style: new TextStyle(fontSize: 24, height: 1)
+                                        )
+                                    )
+                                )
+                            ));
+                        }
                     }
                     emojis.Add(new Flexible(child: new Container()));
                     if (j > 0) {
@@ -637,23 +689,41 @@ namespace ConnectApp.screens {
             );
         }
 
+        void _handleDelete() {
+            var selection = this._textController.selection;
+            if (selection.isCollapsed) {
+                if (selection.start > 0) {
+                    int deleteLength = 1;
+                    if (selection.start > 1 && char.IsSurrogate(this._textController.text[selection.start - 1])) {
+                        deleteLength = 2;
+                    }
+                    this._textController.text =
+                        this._textController.text.Substring(0, selection.start-deleteLength) +
+                        this._textController.text.Substring(selection.end);
+                    this._textController.selection = TextSelection.collapsed(selection.start-deleteLength);
+                }
+            }
+            else {
+                this._textController.text =
+                    this._textController.text.Substring(0, selection.start) +
+                    this._textController.text.Substring(selection.end);
+                this._textController.selection =
+                    TextSelection.collapsed(selection.start);
+            }
+        }
+
         void _handleSubmit(string text) {
             if (text == "") {
                 return;
             }
             this.widget.actionModel.startSendMessage();
-            this.widget.actionModel.sendMessage(this.widget.viewModel.channelInfo.id, text, Snowflake.CreateNonce(), "")
+            this.widget.actionModel.sendMessage(this.widget.viewModel.channelInfo.id, text, Snowflake.CreateNonceLocal(), "")
                 .Catch(_ => { CustomDialogUtils.showToast("消息发送失败", Icons.error_outline); })
                 .Then(
                     () => {
-                        // if (this.widget.viewModel.messages.isNotEmpty()) {
-                        //     this.widget.actionModel.fetchMessages(null, this.widget.viewModel.messages.last().id);
-                        // }
-                        // else {
-                        //     this.widget.actionModel.fetchMessages(null, null);
-                        // }
                         this.setState(() => this._textController.clear());
                     });
+            this._refreshController.scrollTo(0);
         }
 
         void _onRefresh(bool up) {
@@ -662,20 +732,20 @@ namespace ConnectApp.screens {
                     ? this.widget.viewModel.messages.first().id
                     : null;
                 this.widget.actionModel.fetchMessages(id, null).Then(
-                    () => this._refreshController.sendBack(true, RefreshStatus.completed)
+                    () => this._refreshController.sendBack(false, RefreshStatus.idle)
                 ).Catch(
-                    (error) => this._refreshController.sendBack(true, RefreshStatus.failed)
+                    (error) => this._refreshController.sendBack(false, RefreshStatus.idle)
                 );
             }
         }
 
-        void _handleScrollListener(bool up, float offset) {
+        void _handleScrollListener() {
+            this.setState(() => { this.showEmojiBoard = false; });
             if (this._refreshController.scrollController.offset <=
                 this._refreshController.scrollController.position.minScrollExtent) {
                 if (this.widget.viewModel.messages.isNotEmpty() &&
                     this.widget.viewModel.messages.last().nonce != this.lastSavedNonce) {
-                    this.widget.actionModel.markAsRead(this.widget.viewModel.messages.last().nonce);
-                    this.lastSavedNonce = this.widget.viewModel.messages.last().nonce;
+                    this.widget.actionModel.clearUnread();
                 }
             }
         }

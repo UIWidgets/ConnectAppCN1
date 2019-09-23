@@ -164,7 +164,10 @@ namespace ConnectApp.Components {
         public override void dispose() {
             this._textEditingController.removeListener(this._controllerListener);
             this._focusNode.removeListener(this._focusNodeListener);
-            this._focusNode.dispose();
+            if (this.widget.focusNode == null) {
+                this._focusNode.dispose();
+            }
+
             base.dispose();
         }
         

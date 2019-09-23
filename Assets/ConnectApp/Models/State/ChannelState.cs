@@ -12,10 +12,12 @@ namespace ConnectApp.Models.State {
         public int discoverPage;
         public bool messageLoading;
         public int totalUnread;
+        public int totalMention;
         public Dictionary<string, ChannelView> channelDict;
         public Dictionary<string, ChannelMessageView> messageDict;
         public Dictionary<string, ChannelMember> membersDict;
         public Dictionary<string, long> unreadDict;
+        public Dictionary<string, bool> channelTop;
 
         public void updateChannel(Channel channel) {
             if (!this.channelDict.TryGetValue(channel.id, out var channelView)) {
@@ -35,6 +37,61 @@ namespace ConnectApp.Models.State {
             }
             channelView.updateFromNormalChannelLite(channel);
             channelView.upToDate = this.upToDate(channel.id);
+        }
+
+        public void updateMessageUser(MessageUser user) {
+            if (this.membersDict.TryGetValue(user.id, out var member)) {
+                member.user.id = user.id;
+                member.user.username = user.username;
+                member.user.fullName = user.fullname;
+                member.user.avatar = user.avatar;
+                member.user.title = user.title;
+                member.user.coverImage = user.coverImage;
+                member.user.followCount = user.followCount;
+                member.presenceStatus = user.presenceStatus;
+            }
+
+            this.membersDict[user.id] = new ChannelMember {
+                user = new User {
+                    id = user.id,
+                    username = user.username,
+                    fullName = user.fullname,
+                    avatar = user.avatar,
+                    title = user.title,
+                    coverImage = user.coverImage,
+                    followCount = user.followCount
+                },
+                id = user.id,
+                presenceStatus = user.presenceStatus
+            };
+        }
+
+        public void updateTotalMention() {
+            this.totalUnread = 0;
+            for (int i = 0; i < this.joinedChannels.Count; i++) {
+                this.totalUnread += this.getJoinedChannel(i).unread;
+            }
+            this.totalMention = 0;
+            for (int i = 0; i < this.joinedChannels.Count; i++) {
+                this.totalMention += this.getJoinedChannel(i).mentioned;
+            }
+        }
+
+        public string totalNotification() {
+            return this.totalUnread > 0
+                ? this.totalMention > 0
+                    ? $"{this.totalMention}"
+                    : ""
+                : null;
+
+        }
+
+        public ChannelMember getMember(string userId) {
+            if (this.membersDict.TryGetValue(userId, out var member)) {
+                return member;
+            }
+
+            return null;
         }
 
         public bool upToDate(string channelId) {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using ConnectApp.Api;
 using ConnectApp.Constants;
@@ -62,13 +63,60 @@ namespace ConnectApp.Utils {
             return initRequest(url: newUri, method: Method.GET);
         }
 
-        public static UnityWebRequest POST(string uri, object parameter = null) {
+        public static UnityWebRequest POST(string uri, object parameter = null, bool multipart = false,
+            string filename = "", string fileType = "") {
             var request = initRequest(url: uri, method: Method.POST);
+            var boundary = $"----WebKitFormBoundary{Snowflake.CreateNonce()}";
             if (parameter != null) {
-                var body = JsonConvert.SerializeObject(value: parameter);
-                var bodyRaw = Encoding.UTF8.GetBytes(s: body);
-                request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-                request.SetRequestHeader("Content-Type", "application/json");
+                if (multipart) {
+                    List<byte[]> results = new List<byte[]>();
+                    int size = 0;
+                    if (parameter is List<List<object>> list) {
+                        foreach (List<object> item in list) {
+                            D.assert(item.Count == 2);
+                            D.assert(item[0] is string);
+                            if (item[1] == null) {
+                                continue;
+                            }
+                            if (item[1] is byte[]) {
+                                var itemStr = $"--{boundary}\r\nContent-Disposition: form-data; name=\"{item[0]}\"; filename=\"{filename}\"\r\n" +
+                                    $"Content-Type: {fileType}\r\n\r\n";
+                                results.Add(Encoding.UTF8.GetBytes(itemStr));
+                                size += results.last().Length;
+                                results.Add(item[1] as byte[]);
+                                size += results.last().Length;
+                                results.Add(Encoding.UTF8.GetBytes("\r\n"));
+                                size += results.last().Length;
+                            }
+                            else {
+                                string s = $"{item[1]}";
+                                var itemStr = $"--{boundary}\r\nContent-Disposition: form-data; name=\"{item[0]}\"\r\n\r\n{s}\r\n";
+                                results.Add(Encoding.UTF8.GetBytes(itemStr));
+                                size += results.last().Length;
+                            }
+                        }
+                    }
+                    else {
+                        D.assert(false, () => "Parameter must be list of lists");
+                    }
+                    results.Add(Encoding.UTF8.GetBytes($"--{boundary}--"));
+                    size += results.last().Length;
+                    byte[] bodyRaw = new byte[size];
+                    int offset = 0;
+                    foreach (byte[] bytes in results) {
+                        Buffer.BlockCopy(bytes, 0, bodyRaw, offset, bytes.Length);
+                        offset += bytes.Length;
+                    }
+                    
+                    request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+                    request.SetRequestHeader("Content-Type", $"multipart/form-data; boundary={boundary}");
+                }
+                else {
+                    var body = JsonConvert.SerializeObject(value: parameter);
+                    var bodyRaw = Encoding.UTF8.GetBytes(s: body);
+                    request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+                    request.SetRequestHeader("Content-Type", "application/json");
+                }
             }
 
             return request;

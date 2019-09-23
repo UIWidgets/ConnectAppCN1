@@ -16,6 +16,8 @@ namespace ConnectApp.Constants {
 
         public static readonly IconData description = new IconData(0xe873, "Material Icons");
         public static readonly IconData question_answer = new IconData(0xe8af, "Material Icons");
+        public static readonly IconData outline_delete_keyboard = new IconData(0xe626, "iconfont");
+        public static readonly IconData outline_keyboard = new IconData(0xeaf9, "Outline Material Icons");
         public static readonly IconData outline_question_answer = new IconData(0xeaa4, "Outline Material Icons");
         public static readonly IconData outline_time = new IconData(0xebed, "Outline Material Icons");
         public static readonly IconData whatshot = new IconData(0xe80e, "Material Icons");
