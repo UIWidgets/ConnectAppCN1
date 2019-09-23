@@ -210,7 +210,9 @@ namespace ConnectApp.screens {
                                 this.widget.viewModel.showFirstEgg
                                     ? new CustomButton(
                                         padding: EdgeInsets.only(16, 10, 8, 10),
-                                        onPressed: () => this.widget.actionModel.pushToReality(),
+                                        onPressed: () => { 
+                                            SqliteApi.TestQuery();
+                                        },
                                         child: new Container(
                                             color: CColors.Transparent,
                                             child: new EggButton()
