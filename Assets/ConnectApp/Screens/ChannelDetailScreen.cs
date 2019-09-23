@@ -26,11 +26,15 @@ namespace ConnectApp.screens {
         public readonly string channelId;
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ChannelDetailScreenViewModel>(
-                converter: state => new ChannelDetailScreenViewModel {
-                    channel = state.channelState.channelDict[this.channelId],
-                    members = state.channelState.channelDict[this.channelId].memberIds.Select(
-                        memberId => state.channelState.membersDict[memberId]
-                    ).ToList()
+                converter: state => {
+                    ChannelView channel = state.channelState.channelDict[this.channelId];
+                    channel.isTop = state.channelState.channelTop.TryGetValue(this.channelId, out var isTop) && isTop;
+                    return new ChannelDetailScreenViewModel {
+                        channel = channel,
+                        members = state.channelState.channelDict[this.channelId].memberIds.Select(
+                            memberId => state.channelState.membersDict[memberId]
+                        ).ToList()
+                    };
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ChannelDetailScreenActionModel {
@@ -44,7 +48,13 @@ namespace ConnectApp.screens {
                             }),
                         fetchMembers = () => dispatcher.dispatch<IPromise>(Actions.fetchChannelMembers(this.channelId)),
                         leaveChannel = () => dispatcher.dispatch<IPromise>(
-                            Actions.leaveChannel(this.channelId, viewModel.channel.groupId))
+                            Actions.leaveChannel(this.channelId, viewModel.channel.groupId)),
+                        updateTop = isTop => {
+                            dispatcher.dispatch(new UpdateChannelTopAction {
+                                channelId = this.channelId,
+                                value = isTop
+                            });
+                        }
                     };
                     return new ChannelDetailScreen(actionModel, viewModel);
                 }
@@ -209,7 +219,9 @@ namespace ConnectApp.screens {
 //                        new GestureDetector(
 //                            child: this._tapRow("查找聊天内容", 1, 18, 18)
 //                        ),
-                        this._switchRow("设为置顶", this.widget.viewModel.channel.isTop, value => { }),
+                        this._switchRow("设为置顶", this.widget.viewModel.channel.isTop, value => {
+                            this.widget.actionModel.updateTop(value);
+                        }),
                         this._switchRow("消息免打扰", this.widget.viewModel.channel.isMute, value => { }),
                         new Container(height: 16),
                         new GestureDetector(

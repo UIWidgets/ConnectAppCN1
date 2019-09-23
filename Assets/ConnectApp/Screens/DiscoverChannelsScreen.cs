@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using ConnectApp.Components;
+using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
-using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
@@ -12,6 +12,7 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 
 namespace ConnectApp.screens {
     public class DiscoverChannelsScreenConnector : StatelessWidget {
@@ -29,6 +30,7 @@ namespace ConnectApp.screens {
                         ).ToList(),
                         joinedChannels = state.channelState.joinedChannels.Select(
                             channelId => state.channelState.channelDict[channelId]).ToList(),
+                        page = state.channelState.discoverPage
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -36,7 +38,8 @@ namespace ConnectApp.screens {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         joinChannel = (channelId, groupId) => {
                             dispatcher.dispatch<IPromise>(Actions.joinChannel(channelId, groupId));
-                        }
+                        },
+                        fetchChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchChannels(viewModel.page+1))
                     };
                     return new DiscoverChannelsScreen(viewModel, actionModel);
                 }
@@ -65,13 +68,13 @@ namespace ConnectApp.screens {
     class _DiscoverChannelsScreenState : State<DiscoverChannelsScreen> {
         TextEditingController _fullNameController;
         TextEditingController _titleController;
+        RefreshController _refreshController;
 
-        readonly FocusNode _fullNameFocusNode = new FocusNode();
-        readonly FocusNode _titleFocusNode = new FocusNode();
         Dictionary<string, string> _jobRole;
 
         public override void initState() {
             base.initState();
+            this._refreshController = new RefreshController();
         }
 
         public override Widget build(BuildContext context) {
@@ -107,14 +110,33 @@ namespace ConnectApp.screens {
         Widget _buildContent() {
             return new Container(
                 color: CColors.White,
-                child: new ListView(
-                    padding: EdgeInsets.symmetric(16, 0),
-                    children: this.widget.viewModel.publicChannels
-                        .Select((channel) => MessageBuildUtils.buildDiscoverChannelItem(
-                                channel, this.widget.actionModel.joinChannel)
-                        ).ToList()
+                child: new SmartRefresher(
+                    controller: this._refreshController,
+                    enablePullUp: true,
+                    enablePullDown: false,
+                    onRefresh: this._onRefresh,
+                    child: new ListView(
+                        padding: EdgeInsets.symmetric(16, 0),
+                        children: this.widget.viewModel.publicChannels
+                            .Select((channel) => MessageBuildUtils.buildDiscoverChannelItem(
+                                    channel, this.widget.actionModel.joinChannel)
+                            ).ToList()
+                    )
                 )
             );
+        }
+
+        void _onRefresh(bool up) {
+            if (!up) {
+                this.widget.actionModel.fetchChannels().Then(
+                    () => {
+                        this._refreshController.sendBack(false, RefreshStatus.idle);
+                        Debug.Log("Completed");
+                    }).Catch((e) => {
+                        this._refreshController.sendBack(false, RefreshStatus.idle);
+                        Debug.Log("Failed");
+                    });
+            }
         }
     }
 }

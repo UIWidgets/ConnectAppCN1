@@ -230,6 +230,7 @@ namespace ConnectApp.Models.Api {
         public List<string> joinedList;
         public int discoverPage;
         public Dictionary<string, Channel> channelMap;
+        public Dictionary<string, bool> joinedChannelMap;
     }
     
     [Serializable]
@@ -245,6 +246,14 @@ namespace ConnectApp.Models.Api {
         public List<ChannelMessage> items;
         public bool hasMore;
         public bool hasMoreNew;
+    }
+    
+    [Serializable]
+    public class FetchChannelMembersResponse {
+        public List<ChannelMember> list;
+        public int offset;
+        public int total;
+        public Dictionary<string, bool> followeeMap;
     }
 
     [Serializable]

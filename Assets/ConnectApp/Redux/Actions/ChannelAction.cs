@@ -17,7 +17,8 @@ namespace ConnectApp.redux.actions {
                             discoverList = channelResponse.discoverList,
                             joinedList = channelResponse.joinedList,
                             discoverPage = channelResponse.discoverPage,
-                            channelMap = channelResponse.channelMap
+                            channelMap = channelResponse.channelMap,
+                            joinedChannelMap = channelResponse.joinedChannelMap
                         });
                         for (int i = 0; i < channelResponse.joinedList.Count; i++) {
                             dispatcher.dispatch(fetchChannelMessages(channelResponse.joinedList[i]));
@@ -49,12 +50,15 @@ namespace ConnectApp.redux.actions {
             });
         }
         
-        public static object fetchChannelMembers(string channelId) {
+        public static object fetchChannelMembers(string channelId, int offset = 0) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ChannelApi.FetchChannelMembers(channelId).Then(channelMemberResponse => {
+                return ChannelApi.FetchChannelMembers(channelId, offset).Then(channelMemberResponse => {
                         dispatcher.dispatch(new ChannelMemberAction {
                             channelId = channelId,
-                            members = channelMemberResponse
+                            offset = channelMemberResponse.offset,
+                            total = channelMemberResponse.total,
+                            members = channelMemberResponse.list,
+                            followeeMap = channelMemberResponse.followeeMap
                         });
                     })
                     .Catch(error => {
@@ -70,6 +74,8 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new JoinChannelSuccessAction {
                             channelId = channelId
                         });
+                        dispatcher.dispatch(fetchChannelMessages(channelId));
+                        dispatcher.dispatch(fetchChannelMembers(channelId));
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new JoinChannelFailureAction());
@@ -93,6 +99,23 @@ namespace ConnectApp.redux.actions {
                     });
             });
         }
+        
+        public static object sendImage(string channelId, string nonce, string imageData) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.SendImage(channelId, "", nonce, imageData)
+                    .Then(responseText => {
+                        dispatcher.dispatch(new SendMessageSuccessAction {
+                            channelId = channelId,
+                            content = "",
+                            nonce = nonce
+                        });
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new SendMessageFailureAction());
+                        Debug.Log(error);
+                    });
+            });
+        }
     }
 
     public class ChannelsAction {
@@ -100,6 +123,7 @@ namespace ConnectApp.redux.actions {
         public List<string> joinedList;
         public int discoverPage;
         public Dictionary<string, Channel> channelMap;
+        public Dictionary<string, bool> joinedChannelMap;
 
     }
     
@@ -122,6 +146,9 @@ namespace ConnectApp.redux.actions {
     public class ChannelMemberAction {
         public string channelId;
         public List<ChannelMember> members;
+        public int offset;
+        public int total;
+        public Dictionary<string, bool> followeeMap;
     }
     
     public class FetchPublicChannelsSuccessAction : BaseAction {
@@ -165,9 +192,24 @@ namespace ConnectApp.redux.actions {
     public class StartSendChannelMessageAction : RequestAction {
     }
 
+    public class ClearChannelUnreadAction : BaseAction {
+        public string channelId;
+    }
+
+    public class UpdateChannelScrollOffsetAction : BaseAction {
+        public string channelId;
+        public float bottom;
+        public float top;
+    }
+
     public class MarkChannelMessageAsRead : RequestAction {
         public string channelId;
         public long nonce;
+    }
+
+    public class UpdateChannelTopAction : BaseAction {
+        public string channelId;
+        public bool value;
     }
 
     public class PushReadyAction : BaseAction {

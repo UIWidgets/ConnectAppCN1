@@ -29,15 +29,17 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, MessageScreenViewModel>(
                 converter: state => {
+                    var joinedChannels = state.channelState.joinedChannels.Select(
+                        channelId => {
+                            ChannelView channel = state.channelState.channelDict[channelId];
+                            channel.isTop = state.channelState.channelTop.TryGetValue(channelId, out var isTop) &&
+                                            isTop;
+                            return channel;
+                        }).ToList();
+                    joinedChannels.Sort((c1, c2) => { return c1.isTop == c2.isTop ? 0 : (c1.isTop ? -1 : 1); });
                     return new MessageScreenViewModel {
-                        notificationLoading = state.notificationState.loading,
-                        page = state.notificationState.page,
-                        pageTotal = state.notificationState.pageTotal,
-                        notifications = state.notificationState.notifications,
-                        mentions = state.notificationState.mentions,
-                        userDict = state.userState.userDict,
-                        joinedChannels = state.channelState.joinedChannels.Select(
-                            channelId => state.channelState.channelDict[channelId]).ToList(),
+                        joinedChannels = joinedChannels,
+                        discoverPage = state.channelState.discoverPage,
                         popularChannels = state.channelState.publicChannels
                             .Select(channelId => state.channelState.channelDict[channelId])
                             .Take(state.channelState.publicChannels.Count > 0
@@ -65,7 +67,9 @@ namespace ConnectApp.screens {
                                 channelId = channelId
                             });
                         },
-                        fetchChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchChannels(1)),
+                        fetchChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchChannels(
+                            viewModel.discoverPage + 1
+                        )),
                         fetchMessages = () => {
                             for (int i = 0; i < viewModel.joinedChannels.Count; i++) {
                                 var channel = viewModel.joinedChannels[i];
@@ -126,6 +130,7 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
+            this._refreshController = new RefreshController();
             // this.widget.actionModel.fetchChannels();
         }
 
@@ -148,7 +153,7 @@ namespace ConnectApp.screens {
                     )
                 }
             );
-            Widget content = new ListView(
+            ListView content = new ListView(
                 children: new List<Widget> {
                     this.widget.viewModel.joinedChannels.isEmpty()
                         ? new Container(
@@ -226,7 +231,13 @@ namespace ConnectApp.screens {
                         new Container(color: CColors.Separator2, height: 1),
                         new Flexible(
                             child: new NotificationListener<ScrollNotification>(
-                                child: new CustomScrollbar(child: content)
+                                child: new SmartRefresher(
+                                    controller: this._refreshController,
+                                    enablePullUp: this.widget.viewModel.joinedChannels.isEmpty(),
+                                    enablePullDown: false,
+                                    onRefresh: this._onRefresh,
+                                    child: content
+                                )
                             )
                         )
                     }
@@ -262,6 +273,19 @@ namespace ConnectApp.screens {
         }
 
         public void didPushNext() {
+        }
+
+        void _onRefresh(bool up) {
+            if (!up) {
+                this.widget.actionModel.fetchChannels().Then(
+                    () => {
+                        this._refreshController.sendBack(false, RefreshStatus.idle);
+                        Debug.Log("Completed");
+                    }).Catch((e) => {
+                        this._refreshController.sendBack(false, RefreshStatus.idle);
+                        Debug.Log("Failed");
+                    });
+            }
         }
     }
 
@@ -337,9 +361,12 @@ namespace ConnectApp.screens {
         }
 
         public static Widget buildChannelItem(ChannelView channel, Action onTap = null) {
-            Widget title = new Text(channel.name, style: CTextStyle.PLargeMedium);
+            Widget title = new Text(channel.name, style: CTextStyle.PLargeMedium, overflow: TextOverflow.ellipsis);
             string text = channel.lastMessage == null || string.IsNullOrEmpty(channel.lastMessage.content)
-                ? "" : (channel.lastMessage.author?.fullName ?? "") + ": " + (channel.lastMessage.content ?? "");
+                ? ""
+                : (channel.lastMessage.author?.fullName == null
+                       ? "" : channel.lastMessage.author?.fullName + ": ") +
+                   (channel.lastMessage.content ?? "");
             Widget message = new RichText(
                 text: new TextSpan(
                     channel.atMe
@@ -348,22 +375,25 @@ namespace ConnectApp.screens {
                             ? "[@所有人] "
                             : "",
                     children: new List<TextSpan> {
-                        new TextSpan(text, style: CTextStyle.PRegularBody4)
+                        new TextSpan(MessageUtils.AnalyzeMessage(
+                                text, channel.lastMessage?.mentions, channel.lastMessage?.mentionEveryone ?? false),
+                            style: CTextStyle.PRegularBody4)
                     },
                     style: CTextStyle.PRegularError
                 ),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1);
 
-            Widget body = new Container(
+            Widget titleLine = new Container(
                 padding: EdgeInsets.only(left: 16),
-                child: new Column(
+                child: new Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
-                        title,
                         new Expanded(
-                            child: message
-                        )
+                            child: title
+                        ),
+                        new Container(width: 16),
+                        new Text(channel.lastMessage?.time.DateTimeString() ?? "", style: CTextStyle.PSmallBody4)
                     }
                 )
             );
@@ -375,26 +405,24 @@ namespace ConnectApp.screens {
                         Icons.notifications_off,
                         size: 16, color: CColors.LighBlueGrey)
                     : new NotificationDot(
-                        channel.mentioned > 0
-                            ? $"{channel.mentioned}"
-                            : channel.unread > 0
-                                ? ""
-                                : null
+                        channel.unread > 0
+                            ? channel.mentioned > 0
+                                ? $"{channel.mentioned}"
+                                : ""
+                            : null
                     )
             );
 
-            icon = new Container(
-                width: 32,
-                child: new Container(
-                    child: new Column(
-                        children: new List<Widget> {
-                            new Text(channel.lastMessage?.timeString ?? "", style: CTextStyle.PSmallBody4),
-                            new Expanded(
-                                child: channel.isMute || channel.unread > 0 ? icon : new Container()
-                            )
-                        }
-                    )
-                )
+            var messageIcon = new Row(
+                children: new List<Widget> {
+                    new Expanded(
+                        child: new Container(
+                            padding: EdgeInsets.symmetric(0, 16),
+                            child:message
+                        )
+                    ),
+                    channel.isMute || channel.unread > 0 ? icon : new Container()
+                }
             );
 
             Widget avatar = new ClipRRect(
@@ -413,8 +441,16 @@ namespace ConnectApp.screens {
                 child: new Row(
                     children: new List<Widget> {
                         avatar,
-                        new Expanded(child: body),
-                        icon
+                        new Expanded(
+                            child: new Column(
+                                children: new List<Widget> {
+                                    titleLine,
+                                    new Expanded(
+                                        child: messageIcon
+                                    )
+                                }
+                            )
+                        )
                     }
                 )
             );
