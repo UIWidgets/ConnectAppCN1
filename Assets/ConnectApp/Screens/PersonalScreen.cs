@@ -12,7 +12,6 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -24,7 +23,8 @@ namespace ConnectApp.screens {
                     user = state.loginState.loginInfo,
                     userDict = state.userState.userDict,
                     userLicenseDict = state.userState.userLicenseDict,
-                    scanEnabled = state.eggState.scanEnabled
+                    scanEnabled = state.serviceConfigState.scanEnabled,
+                    currentTabBarIndex = state.tabBarState.currentTabIndex
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     return new PersonalScreen(
@@ -61,23 +61,32 @@ namespace ConnectApp.screens {
         }
     }
 
-    public class _PersonalScreenState : AutomaticKeepAliveClientMixin<PersonalScreen>, RouteAware {
-        protected override bool wantKeepAlive {
-            get { return true; }
+    public class _PersonalScreenState : State<PersonalScreen>, RouteAware {
+        string _loginSubId;
+        string _logoutSubId;
+
+        public override void initState() {
+            base.initState();
+            StatusBarManager.statusBarStyle(UserInfoManager.isLogin());
+            this._loginSubId = EventBus.subscribe(sName: EventBusConstant.login_success,
+                _ => { StatusBarManager.statusBarStyle(true); });
+            this._logoutSubId = EventBus.subscribe(sName: EventBusConstant.logout_success,
+                _ => { StatusBarManager.statusBarStyle(false); });
         }
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
         }
 
         public override void dispose() {
             Router.routeObserve.unsubscribe(this);
+            EventBus.unSubscribe(sName: EventBusConstant.login_success, id: this._loginSubId);
+            EventBus.unSubscribe(sName: EventBusConstant.logout_success, id: this._logoutSubId);
             base.dispose();
         }
 
         public override Widget build(BuildContext context) {
-            base.build(context: context);
             return new Container(
                 color: CColors.White,
                 child: new Column(
@@ -105,7 +114,7 @@ namespace ConnectApp.screens {
         Widget _buildNotLoginInNavigationBar() {
             return new Container(
                 color: CColors.White,
-                padding: EdgeInsets.only(16, bottom: 16),
+                padding: EdgeInsets.only(16, CCommonUtils.getSafeAreaTopPadding(context: this.context), bottom: 16),
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -143,7 +152,11 @@ namespace ConnectApp.screens {
             if (user.title != null && user.title.isNotEmpty()) {
                 titleWidget = new Text(
                     data: user.title,
-                    style: CTextStyle.PRegularBody4,
+                    style: new TextStyle(
+                        fontSize: 14,
+                        fontFamily: "Roboto-Regular",
+                        color: CColors.BgGrey
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis
                 );
@@ -155,10 +168,16 @@ namespace ConnectApp.screens {
             return new GestureDetector(
                 onTap: () => this.widget.actionModel.pushToUserDetail(obj: user.id),
                 child: new Container(
-                    padding: EdgeInsets.only(16, bottom: 16),
-                    color: CColors.White,
+                    height: 184 + CCommonUtils.getSafeAreaTopPadding(context: this.context),
+                    padding: EdgeInsets.only(16, CCommonUtils.getSafeAreaTopPadding(context: this.context), bottom: 16),
+                    decoration: new BoxDecoration(
+                        image: new DecorationImage(
+                            new AssetImage("image/mine-cover"),
+                            fit: BoxFit.cover
+                        )
+                    ),
                     child: new Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: new List<Widget> {
                             this._buildQrScanWidget(),
                             new Row(
@@ -167,7 +186,8 @@ namespace ConnectApp.screens {
                                         margin: EdgeInsets.only(right: 12),
                                         child: Avatar.User(
                                             user: user,
-                                            64
+                                            64,
+                                            true
                                         )
                                     ),
                                     new Expanded(
@@ -180,7 +200,7 @@ namespace ConnectApp.screens {
                                                         new Flexible(
                                                             child: new Text(
                                                                 user.fullName ?? user.name,
-                                                                style: CTextStyle.H4,
+                                                                style: CTextStyle.H4White,
                                                                 maxLines: 1,
                                                                 overflow: TextOverflow.ellipsis
                                                             )
@@ -204,7 +224,7 @@ namespace ConnectApp.screens {
                                         child: new Icon(
                                             icon: Icons.chevron_right,
                                             size: 24,
-                                            color: Color.fromRGBO(199, 203, 207, 1)
+                                            color: CColors.LightBlueGrey
                                         )
                                     )
                                 }
@@ -229,7 +249,7 @@ namespace ConnectApp.screens {
                         child: new Icon(
                             icon: Icons.qr_scan,
                             size: 28,
-                            color: CColors.Icon
+                            color: CColors.LightBlueGrey
                         )
                     )
                 }
@@ -265,7 +285,9 @@ namespace ConnectApp.screens {
         }
 
         public void didPopNext() {
-            StatusBarManager.statusBarStyle(false);
+            if (this.widget.viewModel.currentTabBarIndex == 3) {
+                StatusBarManager.statusBarStyle(isLight: UserInfoManager.isLogin());
+            }
         }
 
         public void didPush() {

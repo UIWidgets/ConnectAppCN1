@@ -6,6 +6,15 @@ using UnityEngine;
 
 namespace ConnectApp.Utils {
     public static class CCommonUtils {
+        public static float getSafeAreaTopPadding(BuildContext context) {
+            float topPadding = 0;
+            if (Application.platform == RuntimePlatform.IPhonePlayer) {
+                topPadding = MediaQuery.of(context).padding.top;
+            }
+
+            return topPadding;
+        }
+
         public static float getSafeAreaBottomPadding(BuildContext context) {
             float bottomPadding = 0;
             if (Application.platform == RuntimePlatform.IPhonePlayer) {

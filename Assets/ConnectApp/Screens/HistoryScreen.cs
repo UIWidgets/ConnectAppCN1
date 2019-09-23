@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
@@ -6,7 +5,7 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
-using Unity.UIWidgets.animation;
+using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
@@ -56,6 +55,7 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
+            StatusBarManager.statusBarStyle(false);
             this._selectedIndex = 0;
         }
 
