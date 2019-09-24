@@ -5,17 +5,9 @@ using ConnectApp.Models.ViewModel;
 
 
 namespace ConnectApp.Utils {
-    public static class MessengerDBApi {
-        const string DBName = "messenger";
-        
-        static SQLiteDBManager m_SqlManager;
-
-        static SQLiteDBManager SqlManager {
-            get { return m_SqlManager ?? (m_SqlManager = new SQLiteDBManager(DBName)); }
-        }
-
+    public static class MessengerDBApi {   
         public static List<ChannelMessageView> SyncLoadMessages(string channelId, long messageNonceFrom = -1, int messageCount = 10) {
-            var msgLites = SqlManager.QueryMessages(channelId, messageNonceFrom, messageCount);
+            var msgLites = SQLiteDBManager.instance.QueryMessages(channelId, messageNonceFrom, messageCount);
 
             var msgs = new List<ChannelMessageView>();
             foreach (var msgLite in msgLites) {
@@ -53,7 +45,7 @@ namespace ConnectApp.Utils {
                 });
             }
             
-            SqlManager.SaveMessages(msgLites);
+            SQLiteDBManager.instance.SaveMessages(msgLites);
         }
 
         public static void SyncSaveMessages(List<ChannelMessage> messages) {
@@ -70,7 +62,7 @@ namespace ConnectApp.Utils {
                 });
             }
             
-            SqlManager.SaveMessages(msgLites);
+            SQLiteDBManager.instance.SaveMessages(msgLites);
         }
     }
 }
