@@ -21,6 +21,21 @@ namespace System {
             return $"{cacheFolder}/{fileName}.{suffix}";
         }
 
+
+        public static void ClearCacheFiles() {
+#if UNITY_EDITOR
+            var cacheFolder = $"{Application.dataPath}/imgCache";
+#else
+            var cacheFolder = $"{Application.persistentDataPath}/imgCache";
+#endif
+            var folder = new DirectoryInfo(cacheFolder);
+
+            foreach (FileInfo file in folder.GetFiles())
+            {
+                file.Delete(); 
+            }
+        }
+
         public static void SyncSaveCacheFile(string url, byte[] data, string suffix) {
             var filePath = GetCacheFilePath(url, suffix);
             File.WriteAllBytes(filePath, data);

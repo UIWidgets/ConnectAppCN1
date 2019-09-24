@@ -27,7 +27,11 @@ namespace ConnectApp.Utils {
             this.Reset();
         }
 
-        void Reset() {
+        void Reset(bool force = false) {
+            if (!force && this.m_Connection != null) {
+                return;
+            }
+            
             this.m_Connection?.Close();
 
 #if UNITY_EDITOR
@@ -38,21 +42,25 @@ namespace ConnectApp.Utils {
             try {
                 bool dbExists = File.Exists(dbPath);
                 this.m_Connection = new SQLiteConnection(dbPath, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create);
-
+                
                 if (!dbExists) {
                     this.InitDB();
                 }
             }
             catch (Exception e) {
-                Debug.Log($"fatal error: fail to connect to database: {DBName}");
+                Debug.Log($"fatal error: fail to connect to database: {DBName}, error msg = {e.Message}");
             }
+        }
+
+
+        public void ClearAll() {
+            this.Reset();
+            this.InitDB();
         }
 
         void InitDB() {
             this.m_Connection.DropTable<DBMessageLite>();
             this.m_Connection.CreateTable<DBMessageLite>();
-            
-            
             this.m_Connection.DropTable<FileRecordLite>();
             this.m_Connection.CreateTable<FileRecordLite>();
         }
