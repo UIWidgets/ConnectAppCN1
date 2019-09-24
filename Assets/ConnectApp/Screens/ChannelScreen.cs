@@ -121,7 +121,7 @@ namespace ConnectApp.screens {
         Dictionary<string, string> _jobRole;
         float messageBubbleWidth = 0;
         long lastSavedNonce;
-        bool showEmojiBoard = false;
+        bool _showEmojiBoard = false;
         string _pickImageSubId;
         string _pickedImage;
         Dictionary<string, string> headers;
@@ -134,7 +134,20 @@ namespace ConnectApp.screens {
         bool showKeyboard {
             get { return MediaQuery.of(this.context).viewInsets.bottom > 10; }
         }
-        
+
+        bool showEmojiBoard {
+            get {
+                if (this.showKeyboard && this._showEmojiBoard) {
+                    Promise.Delayed(TimeSpan.FromMilliseconds(300)).Then(() => {
+                        if (this.showKeyboard && this._showEmojiBoard) {
+                            this._showEmojiBoard = false;
+                        }
+                    });
+                }
+                return this._showEmojiBoard && !this.showKeyboard;
+            }
+        }
+
         const string COOKIE = "Cookie";
         static string _cookieHeader() {
             if (PlayerPrefs.GetString(COOKIE).isNotEmpty()) {
@@ -491,7 +504,7 @@ namespace ConnectApp.screens {
                                 ),
                                 alignment: Alignment.centerLeft,
                                 child: new InputField(
-                                    // key: _textFieldKey,
+                                    key: this._focusNodeKey,
                                     controller: this._textController,
                                     focusNode: this._focusNode,
                                     height: 32,
@@ -510,15 +523,27 @@ namespace ConnectApp.screens {
                             padding: EdgeInsets.zero,
                             onPressed: () => { this.setState(() => {
                                 this._refreshController.scrollController.jumpTo(0);
+                                FocusScope.of(this.context).requestFocus(this._focusNode);
                                 if (this.showEmojiBoard) {
-                                    this.showEmojiBoard = false;
-                                    FocusScope.of(this.context).requestFocus(this._focusNode);
+#if UNITY_ANDROID || UNITY_IOS
+                                    UIWidgetsTextInputShow();
+#endif
+                                    Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
+                                        () => {
+                                            this.setState(() => { this._showEmojiBoard = false; });
+                                        });
                                 }
                                 else {
-                                    this.showEmojiBoard = true;
-                                    if (this.showKeyboard) {
-                                        this._focusNode.unfocus();
-                                    }
+                                    this.setState(() => {
+                                        this._showEmojiBoard = true;
+                                    });
+                                    Promise.Delayed(TimeSpan.FromMilliseconds(100)).Then(
+                                        () => {
+#if UNITY_ANDROID || UNITY_IOS
+                                            UIWidgetsTextInputHide();
+#endif
+                                        }
+                                    );
                                 }
                             }); },
                             child: new Container(
@@ -764,11 +789,6 @@ namespace ConnectApp.screens {
         }
 
         void _handleFocusNodeFocused() {
-            if (this._focusNode.hasFocus) {
-                this.setState(() => {
-                    this.showEmojiBoard = false;
-                });
-            }
         }
 
         void _onRefresh(bool up) {
@@ -797,12 +817,49 @@ namespace ConnectApp.screens {
                 }
             }
 
+            if (this._lastScrollPosition != null && this._lastScrollPosition < this._refreshController.offset) {
+                this.setState(() => {
+                    this._showEmojiBoard = false;
+#if UNITY_ANDROID || UNITY_IOS
+                    UIWidgetsTextInputHide();
+#endif
+                });
+            }
             this._lastScrollPosition = this._refreshController.offset;
-            this.setState(() => {
-                this.showEmojiBoard = false;
-                this._focusNode.unfocus();
-            });
         }
+        
+#if UNITY_IOS
+        [DllImport ("__Internal")]
+        internal static extern void UIWidgetsTextInputShow();
+        
+        [DllImport ("__Internal")]
+        internal static extern void UIWidgetsTextInputHide();
+        
+        [DllImport ("__Internal")]
+        internal static extern void UIWidgetsTextInputSetClient(int client, string configuration);
+        
+        [DllImport ("__Internal")]
+        internal static extern void UIWidgetsTextInputSetTextInputEditingState(string jsonText);
+        
+        [DllImport ("__Internal")]
+        internal static extern void UIWidgetsTextInputClearTextInputClient();
+#elif UNITY_ANDROID
+        internal static void UIWidgetsTextInputShow() {
+            using (
+                AndroidJavaClass pluginClass = new AndroidJavaClass("com.unity.uiwidgets.plugin.editing.TextInputPlugin")
+            ) {
+                pluginClass.CallStatic("show");
+            }
+        }
+        
+        internal static void UIWidgetsTextInputHide() {
+            using (
+                AndroidJavaClass pluginClass = new AndroidJavaClass("com.unity.uiwidgets.plugin.editing.TextInputPlugin")
+            ) {
+                pluginClass.CallStatic("hide");
+            }
+        }
+#endif
     }
 
     class _ImageMessage : StatefulWidget {

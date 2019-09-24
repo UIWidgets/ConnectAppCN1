@@ -2383,7 +2383,9 @@ namespace ConnectApp.redux.reducers {
                 case JoinChannelSuccessAction action: {
                     var channel = state.channelState.channelDict[action.channelId];
                     channel.joined = true;
-                    state.channelState.joinedChannels.Add(action.channelId);
+                    if (!state.channelState.joinedChannels.Contains(action.channelId)) {
+                        state.channelState.joinedChannels.Add(action.channelId);
+                    }
                     break;
                 }
                 
