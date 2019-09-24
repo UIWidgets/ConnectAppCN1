@@ -634,7 +634,7 @@ namespace ConnectApp.Components {
         public readonly SlideToDismissDelegate slideToDismissDelegate;
         public readonly CustomDismissibleController controller;
 
-        static CustomDismissibleState of(BuildContext context) {
+        public static CustomDismissibleState of(BuildContext context) {
             return (CustomDismissibleState) context.ancestorStateOfType(new TypeMatcher<CustomDismissibleState>());
         }
 

@@ -58,4 +58,47 @@ namespace ConnectApp.Components {
             );
         }
     }
+
+    public class FavoriteTagCoverImage : StatelessWidget {
+        public FavoriteTagCoverImage(
+            string coverImage,
+            Color coverColor,
+            float size = 48,
+            float borderRadius = 4,
+            EdgeInsets margin = null,
+            Key key = null
+        ) : base(key: key) {
+            this.coverImage = coverImage;
+            this.coverColor = coverColor;
+            this.size = size;
+            this.borderRadius = borderRadius;
+            this.margin = margin;
+        }
+
+        readonly string coverImage;
+        readonly Color coverColor;
+        readonly float size;
+        readonly float borderRadius;
+        readonly EdgeInsets margin;
+
+        public override Widget build(BuildContext context) {
+            return new ClipRRect(
+                borderRadius: BorderRadius.all(radius: this.borderRadius),
+                child: new Container(
+                    width: this.size,
+                    height: this.size,
+                    margin: this.margin,
+                    decoration: new BoxDecoration(
+                        color: this.coverColor,
+                        borderRadius: BorderRadius.all(radius: this.borderRadius)
+                    ),
+                    child: Image.asset(
+                        name: this.coverImage,
+                        width: this.size - 12,
+                        height: this.size - 12
+                    )
+                )
+            );
+        }
+    }
 }

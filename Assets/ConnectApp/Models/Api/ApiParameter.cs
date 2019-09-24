@@ -20,9 +20,10 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
-    public class LikeArticleParameter {
+    public class HandleArticleParameter {
         public string type;
         public string itemId;
+        public string tagId;
     }
 
     [Serializable]
