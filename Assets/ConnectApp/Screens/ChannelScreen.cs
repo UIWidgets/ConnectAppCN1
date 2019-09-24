@@ -122,7 +122,6 @@ namespace ConnectApp.screens {
         float messageBubbleWidth = 0;
         long lastSavedNonce;
         bool showEmojiBoard = false;
-        bool showKeyboard = false;
         string _pickImageSubId;
         string _pickedImage;
         Dictionary<string, string> headers;
@@ -130,6 +129,10 @@ namespace ConnectApp.screens {
 
         float inputBarHeight {
             get { return this.showKeyboard || this.showEmojiBoard ? 48 : 48 + 34; }
+        }
+
+        bool showKeyboard {
+            get { return MediaQuery.of(this.context).viewInsets.bottom > 10; }
         }
         
         const string COOKIE = "Cookie";
@@ -220,7 +223,7 @@ namespace ConnectApp.screens {
                 children: new List<Widget> {
                     this._buildContent(),
                     this._buildInputBar(),
-                    this.widget.viewModel.newMessageCount == 0
+                    this.widget.viewModel.newMessageCount == 0 || this.widget.viewModel.messageLoading
                         ? new Container()
                         : newMessage
                 }
@@ -238,7 +241,9 @@ namespace ConnectApp.screens {
                                 new Flexible(child: mainPart),
                                 this.showEmojiBoard
                                     ? this._buildEmojiBoard()
-                                    : new Container()
+                                    : new Container(height: this.showKeyboard
+                                        ? MediaQuery.of(this.context).viewInsets.bottom
+                                        : 0)
                             }
                         )
                     )
@@ -506,10 +511,15 @@ namespace ConnectApp.screens {
                             onPressed: () => { this.setState(() => {
                                 this._refreshController.scrollController.jumpTo(0);
                                 if (this.showEmojiBoard) {
-                                    this.showKeyboard = true;
+                                    this.showEmojiBoard = false;
+                                    FocusScope.of(this.context).requestFocus(this._focusNode);
                                 }
-                                this.showEmojiBoard = !this.showEmojiBoard;
-                                FocusScope.of(this.context).requestFocus(this._focusNode);
+                                else {
+                                    this.showEmojiBoard = true;
+                                    if (this.showKeyboard) {
+                                        this._focusNode.unfocus();
+                                    }
+                                }
                             }); },
                             child: new Container(
                                 width: 44,
@@ -541,7 +551,7 @@ namespace ConnectApp.screens {
                 )
             );
 
-            if (!this.showEmojiBoard) {
+            if (!this.showEmojiBoard && !this.showKeyboard) {
                 ret = new BackdropFilter(
                     filter: ImageFilter.blur(10, 10),
                     child: ret
@@ -752,33 +762,12 @@ namespace ConnectApp.screens {
                     });
             this._refreshController.scrollTo(0);
         }
-        
-        float _getPosition(GlobalKey key) {
-            var renderBox = (RenderBox) key.currentContext.findRenderObject();
-            var position = renderBox.localToGlobal(Offset.zero);
-            return position.dy;
-        }
 
         void _handleFocusNodeFocused() {
             if (this._focusNode.hasFocus) {
-                
-                Promise.Delayed(TimeSpan.FromMilliseconds(300)).Then(() => {
-                    this._scrollListView(this._getPosition(this._focusNodeKey));
+                this.setState(() => {
+                    this.showEmojiBoard = false;
                 });
-            }
-        }
-        
-        void _scrollListView(float offset) {
-            this.setState(() => {
-                this.showKeyboard = true;
-                this.showEmojiBoard = false;
-            });
-            var bottomHeight = MediaQuery.of(this.context).size.height -
-                               offset - MediaQuery.of(this.context).padding.top - 44;
-            var paddingBottom = MediaQuery.of(this.context).viewInsets.bottom;
-            if (bottomHeight < paddingBottom) {
-                var jumpOffset = paddingBottom - bottomHeight;
-                this._refreshController.animateTo(jumpOffset, TimeSpan.FromMilliseconds(10), Curves.easeIn);
             }
         }
 
@@ -811,7 +800,6 @@ namespace ConnectApp.screens {
             this._lastScrollPosition = this._refreshController.offset;
             this.setState(() => {
                 this.showEmojiBoard = false;
-                this.showKeyboard = false;
                 this._focusNode.unfocus();
             });
         }

@@ -2497,7 +2497,6 @@ namespace ConnectApp.redux.reducers {
                 }
                 case PushNewMessageAction action: {
                     var message = action.messageData;
-                    //workaround for test, remove when release !!!
                     if (!state.channelState.channelDict.ContainsKey(message.channelId)) {
                         break;
                     }
@@ -2522,7 +2521,6 @@ namespace ConnectApp.redux.reducers {
                 }
                 case PushModifyMessageAction action: {
                     var message = action.messageData;
-                    //workaround for test, remove when release !!!
                     if (!state.channelState.channelDict.ContainsKey(message.channelId)) {
                         break;
                     }
