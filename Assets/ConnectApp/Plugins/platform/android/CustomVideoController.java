@@ -4,9 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
-import android.hardware.SensorManager;
 import android.support.annotation.NonNull;
-import android.view.OrientationEventListener;
 import android.view.View;
 import com.dueeeke.videocontroller.StandardVideoController;
 import com.dueeeke.videoplayer.player.VideoView;
@@ -16,7 +14,7 @@ import com.unity3d.unityconnect.plugins.AVPlayerPlugin;
 
 public class CustomVideoController extends StandardVideoController {
 
-    OrientationEventListener mOrientationListener;
+
 
     public CustomVideoController(@NonNull Context context) {
         super(context);
@@ -32,15 +30,6 @@ public class CustomVideoController extends StandardVideoController {
     @Override
     protected void initView() {
         super.initView();
-
-        mOrientationListener = new OrientationEventListener(this.getContext(),SensorManager.SENSOR_DELAY_NORMAL) {
-
-            @Override
-            public void onOrientationChanged(int orientation) {
-
-            }
-        };
-
     }
 
 
@@ -56,7 +45,9 @@ public class CustomVideoController extends StandardVideoController {
         } else if (i == com.dueeeke.videocontroller.R.id.iv_replay || i == com.dueeeke.videocontroller.R.id.iv_refresh) {
             mMediaPlayer.replay(true);
         }else if(i == com.dueeeke.videocontroller.R.id.back){
-            UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("player", "PopPage", null);
+            if (!mMediaPlayer.isFullScreen()){
+                UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("player", "PopPage", null);
+            }
         }else if(i == com.dueeeke.videocontroller.R.id.share){
             UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("player", "Share", null);
         }else if(i == com.dueeeke.videocontroller.R.id.upgrade){
@@ -77,6 +68,7 @@ public class CustomVideoController extends StandardVideoController {
      */
     protected void startStopFullScreen() {
         Activity activity = PlayerUtils.scanForActivity(getContext());
+        int orientation = activity.getRequestedOrientation();
         if (activity == null) return;
         int currentOrientation = getResources().getConfiguration().orientation;
         //判断并设置用户点击全屏/半屏按钮的显示逻辑
@@ -127,6 +119,10 @@ public class CustomVideoController extends StandardVideoController {
         mLockButton.setVisibility(GONE);
         mBackButton.setVisibility(GONE);
         mShareButton.setVisibility(GONE);
+    }
+
+    public void hiddenUpdateView(){
+        mUpdateContainer.setVisibility(GONE);
     }
 
     @Override

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using ConnectApp.Constants;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
@@ -26,7 +25,10 @@ namespace ConnectApp.Plugins {
             }
 
             isExistPlayer = true;
-            Screen.orientation = ScreenOrientation.AutoRotation;
+            if (Application.platform == RuntimePlatform.IPhonePlayer) {
+                Screen.orientation = ScreenOrientation.AutoRotation;
+            }
+
             var ratio = Application.platform == RuntimePlatform.Android ? Window.instance.devicePixelRatio : 1.0f;
             InitPlayer(url, cookie, left, top * ratio, width * ratio, height * ratio, isPop, needUpdate, limitSeconds);
             UIWidgetsMessageManager.instance.AddChannelMessageDelegate("player", _handleMethodCall);

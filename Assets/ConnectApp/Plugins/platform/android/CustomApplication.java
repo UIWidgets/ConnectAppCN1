@@ -40,10 +40,9 @@ public class CustomApplication extends Application {
         UUIDUtils.buidleID(this).check();
 
         VideoViewManager.setConfig(VideoViewConfig.newBuilder()
-                .setLogEnabled(BuildConfig.DEBUG)
                 .setPlayOnMobileNetwork(true)
                 .setPlayerFactory(IjkPlayerFactory.create(this))
-                .setAutoRotate(true)
+                .setAutoRotate(false)
                 .build());
 
     }
