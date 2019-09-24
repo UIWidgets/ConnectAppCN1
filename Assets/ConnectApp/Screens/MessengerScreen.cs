@@ -388,7 +388,8 @@ namespace ConnectApp.screens {
             );
 
             // Don't show the time if nonce is 0, i.e. the time is not loaded yet.
-            string timeString = channel.lastMessage?.nonce != 0 
+            // Otherwise, the time would be like 0001/01/01 8:00
+            string timeString = channel.lastMessage?.nonce != 0
                 ? channel.lastMessage?.time.DateTimeString() ?? ""
                 : "";
 
@@ -478,71 +479,76 @@ namespace ConnectApp.screens {
             Widget title = new Text(channel.name,
                 style: CTextStyle.PLargeMedium,
                 maxLines: 1, overflow: TextOverflow.ellipsis);
+
+            Widget avatar = new ClipRRect(
+                borderRadius: BorderRadius.all(4),
+                child: new Container(
+                    width: 48,
+                    height: 48,
+                    child: Image.network(channel?.thumbnail ?? "", fit: BoxFit.cover)
+                )
+            );
+
+            Widget body = new Container(
+                padding: EdgeInsets.symmetric(0, 16),
+                child: new Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: new List<Widget> {
+                        channel.live
+                            ? new Row(
+                                children: new List<Widget> {
+                                    new Icon(Icons.whatshot, color: CColors.Error, size: 18),
+                                    new Container(width: 7),
+                                    new Expanded(child: title)
+                                }
+                            )
+                            : title,
+                        new Expanded(
+                            child: new Text($"{channel.memberCount}成员",
+                                style: CTextStyle.PRegularBody4,
+                                maxLines: 1)
+                        )
+                    }
+                )
+            );
+
+            Widget joinButton = new CustomButton(
+                padding: EdgeInsets.zero,
+                onPressed: channel.joined
+                    ? null
+                    : (GestureTapCallback) (() => { joinChannel(channel.id, channel.groupId); }),
+                child: new Container(
+                    width: 60,
+                    height: 28,
+                    decoration: new BoxDecoration(
+                        border: Border.all(color: channel.joined
+                            ? CColors.Disable2
+                            : CColors.PrimaryBlue),
+                        borderRadius: BorderRadius.all(14)
+                    ),
+                    child: new Center(
+                        child: channel.joined
+                            ? new Text(
+                                "已加入",
+                                style: CTextStyle.PRegularBody5.copyWith(height: 1)
+                            )
+                            : new Text(
+                                "加入",
+                                style: CTextStyle.PRegularBlue.copyWith(height: 1)
+                            )
+                    )
+                )
+            );
+
             return new Container(
                 color: CColors.White,
                 height: 72,
                 padding: EdgeInsets.symmetric(12, 16),
                 child: new Row(
                     children: new List<Widget> {
-                        new ClipRRect(
-                            borderRadius: BorderRadius.all(4),
-                            child: new Container(
-                                width: 48,
-                                height: 48,
-                                child: Image.network(channel?.thumbnail ?? "", fit: BoxFit.cover)
-                            )
-                        ),
-                        new Expanded(
-                            child: new Container(
-                                padding: EdgeInsets.symmetric(0, 16),
-                                child: new Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: new List<Widget> {
-                                        channel.live
-                                            ? new Row(
-                                                children: new List<Widget> {
-                                                    new Icon(Icons.whatshot, color: CColors.Error, size: 18),
-                                                    new Container(width: 7),
-                                                    new Expanded(child: title)
-                                                }
-                                            )
-                                            : title,
-                                        new Expanded(
-                                            child: new Text($"{channel.memberCount}成员",
-                                                style: CTextStyle.PRegularBody4,
-                                                maxLines: 1)
-                                        )
-                                    }
-                                )
-                            )
-                        ),
-                        new CustomButton(
-                            padding: EdgeInsets.zero,
-                            onPressed: channel.joined
-                                ? null
-                                : (GestureTapCallback) (() => { joinChannel(channel.id, channel.groupId); }),
-                            child: new Container(
-                                width: 60,
-                                height: 28,
-                                decoration: new BoxDecoration(
-                                    border: Border.all(color: channel.joined
-                                        ? CColors.Disable2
-                                        : CColors.PrimaryBlue),
-                                    borderRadius: BorderRadius.all(14)
-                                ),
-                                child: new Center(
-                                    child: channel.joined
-                                        ? new Text(
-                                            "已加入",
-                                            style: CTextStyle.PRegularBody5.copyWith(height: 1)
-                                        )
-                                        : new Text(
-                                            "加入",
-                                            style: CTextStyle.PRegularBlue.copyWith(height: 1)
-                                        )
-                                )
-                            )
-                        )
+                        avatar,
+                        new Expanded(child: body),
+                        joinButton
                     }
                 )
             );
