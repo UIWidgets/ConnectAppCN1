@@ -259,6 +259,16 @@ namespace ConnectApp.screens {
         List<Widget> _buildItems() {
             var personalCardItems = new List<PersonalCardItem> {
                 new PersonalCardItem(
+                    icon: Icons.book,
+                    "我的收藏",
+                    () => {
+                        var routeName = this.widget.viewModel.isLoggedIn
+                            ? MainNavigatorRoutes.MyFavorite
+                            : MainNavigatorRoutes.Login;
+                        this.widget.actionModel.mainRouterPushTo(obj: routeName);
+                    }
+                ),
+                new PersonalCardItem(
                     icon: Icons.outline_event,
                     "我的活动",
                     () => {
