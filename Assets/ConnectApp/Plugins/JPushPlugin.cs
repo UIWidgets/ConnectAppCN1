@@ -209,6 +209,10 @@ namespace ConnectApp.Plugins {
         }
 
         public static void setJPushAlias(string alias) {
+            if (Application.isEditor) {
+                return;
+            }
+
             if (alias.isEmpty()) {
                 return;
             }

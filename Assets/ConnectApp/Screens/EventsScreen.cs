@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Utils;
+using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -19,6 +20,7 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             base.build(context: context);
             return new Container(
+                padding: EdgeInsets.only(top: CCommonUtils.getSafeAreaTopPadding(context: context)),
                 color: CColors.White,
                 child: new Column(
                     children: new List<Widget> {
@@ -35,7 +37,8 @@ namespace ConnectApp.screens {
                                     new EventOngoingScreenConnector(),
                                     new EventCompletedScreenConnector()
                                 },
-                                newValue => AnalyticsManager.ClickEventSegment("Event", 0 == newValue ? "ongoing" : "completed"),
+                                newValue => AnalyticsManager.ClickEventSegment("Event",
+                                    0 == newValue ? "ongoing" : "completed"),
                                 1
                             )
                         )

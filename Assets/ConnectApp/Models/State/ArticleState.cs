@@ -15,6 +15,10 @@ namespace ConnectApp.Models.State {
         public bool followArticleHasMore { get; set; }
         public bool hotArticleHasMore { get; set; }
         public int hotArticlePage { get; set; }
+        public bool feedHasNew { get; set; }
+        public bool feedIsFirst { get; set; }
+        public string beforeTime { get; set; }
+        public string afterTime { get; set; }
         public Dictionary<string, Article> articleDict { get; set; }
         public List<Article> articleHistory { get; set; }
         public List<string> blockArticleList { get; set; }

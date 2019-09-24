@@ -13,6 +13,12 @@ using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
     public class MyPastEventsScreenConnector : StatelessWidget {
+        public MyPastEventsScreenConnector(
+            Key key = null
+        ) : base(key: key) {
+            
+        }
+
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, MyEventsScreenViewModel>(
                 converter: state => new MyEventsScreenViewModel {
@@ -29,9 +35,9 @@ namespace ConnectApp.screens {
                                 {eventId = id, eventType = type}),
                         startFetchMyPastEvents = () => dispatcher.dispatch(new StartFetchMyPastEventsAction()),
                         fetchMyPastEvents = pageNumber =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchMyPastEvents(pageNumber))
+                            dispatcher.dispatch<IPromise>(Actions.fetchMyPastEvents(pageNumber: pageNumber))
                     };
-                    return new MyPastEventsScreen(viewModel, actionModel);
+                    return new MyPastEventsScreen(viewModel: viewModel, actionModel: actionModel);
                 }
             );
         }
@@ -70,7 +76,7 @@ namespace ConnectApp.screens {
             this._refreshController = new RefreshController();
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchMyPastEvents();
-                this.widget.actionModel.fetchMyPastEvents(firstPageNumber);
+                this.widget.actionModel.fetchMyPastEvents(arg: firstPageNumber);
             });
         }
 
@@ -88,38 +94,31 @@ namespace ConnectApp.screens {
                     true,
                     () => {
                         this.widget.actionModel.startFetchMyPastEvents();
-                        this.widget.actionModel.fetchMyPastEvents(firstPageNumber);
+                        this.widget.actionModel.fetchMyPastEvents(arg: firstPageNumber);
                     }
                 );
             }
 
             var pastEventTotal = this.widget.viewModel.pastEventTotal;
-            var hasMore = pastEventTotal > pastEventsList.Count;
-            var itemCount = hasMore ? pastEventsList.Count : pastEventsList.Count + 1;
+            var enablePullUp = pastEventTotal > pastEventsList.Count;
 
             return new Container(
                 color: CColors.Background,
-                child: new CustomScrollbar(
-                    new SmartRefresher(
-                        controller: this._refreshController,
-                        enablePullDown: true,
-                        enablePullUp: hasMore,
-                        onRefresh: this._onRefresh,
-                        child: ListView.builder(
-                            physics: new AlwaysScrollableScrollPhysics(),
-                            itemCount: itemCount,
-                            itemBuilder: this._buildEventCard
-                        )
-                    )
+                child: new CustomListView(
+                    controller: this._refreshController,
+                    enablePullDown: true,
+                    enablePullUp: enablePullUp,
+                    onRefresh: this._onRefresh,
+                    itemCount: pastEventsList.Count,
+                    itemBuilder: this._buildEventCard,
+                    headerWidget: CustomListViewConstant.defaultHeaderWidget,
+                    footerWidget: enablePullUp ? null : CustomListViewConstant.defaultFooterWidget
                 )
             );
         }
 
         Widget _buildEventCard(BuildContext context, int index) {
             var pastEventsList = this.widget.viewModel.pastEventsList;
-            if (index == pastEventsList.Count) {
-                return new EndView();
-            }
 
             var model = pastEventsList[index: index];
             var eventType = model.mode == "online" ? EventType.online : EventType.offline;
@@ -130,7 +129,6 @@ namespace ConnectApp.screens {
                 model: model,
                 place: placeName,
                 () => this.widget.actionModel.pushToEventDetail(arg1: model.id, arg2: eventType),
-                index == 0,
                 new ObjectKey(value: model.id)
             );
         }
@@ -143,9 +141,9 @@ namespace ConnectApp.screens {
                 this._pageNumber++;
             }
 
-            this.widget.actionModel.fetchMyPastEvents(this._pageNumber)
-                .Then(() => this._refreshController.sendBack(up, up ? RefreshStatus.completed : RefreshStatus.idle))
-                .Catch(_ => this._refreshController.sendBack(up, RefreshStatus.failed));
+            this.widget.actionModel.fetchMyPastEvents(arg: this._pageNumber)
+                .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }
     }
 }
