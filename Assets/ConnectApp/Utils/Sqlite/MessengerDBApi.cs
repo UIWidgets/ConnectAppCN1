@@ -7,6 +7,19 @@ using Newtonsoft.Json;
 
 namespace ConnectApp.Utils {
     public static class MessengerDBApi {   
+        
+        /**
+         *
+         * load messages from DB and convert them into List<ChannelMessageView>. The results are ordered by nonce from new to old
+         *
+         * channelId: the required channelId
+         * 
+         * messageNonceFrom: if value = -1, the Api will load the newest $messageCount$ messages; otherwise it will load the newest $messageCount$ messages
+         * that are older than $messageNonceFrom$
+         * 
+         * messageCount: the amount of required messages
+         * 
+         */
         public static List<ChannelMessageView> SyncLoadMessages(string channelId, long messageNonceFrom = -1, int messageCount = 10) {
             var msgLites = SQLiteDBManager.instance.QueryMessages(channelId, messageNonceFrom, messageCount);
 
@@ -36,8 +49,13 @@ namespace ConnectApp.Utils {
             return msgs;
         }
 
-        public static void SyncSaveMessage(ChannelMessageView messages) {
-            SyncSaveMessages(new List<ChannelMessageView> {messages});
+        /**
+         *
+         * save the given message to DB (update its value if it already exists in DB)
+         * 
+         */
+        public static void SyncSaveMessage(ChannelMessageView message) {
+            SyncSaveMessages(new List<ChannelMessageView> {message});
         }
 
 
@@ -79,6 +97,11 @@ namespace ConnectApp.Utils {
             };
         }
 
+        /**
+         *
+         * save the given messages to DB (update its value if it already exists in DB)
+         * 
+         */
         public static void SyncSaveMessages(List<ChannelMessageView> messages) {
             var msgLites = new List<DBMessageLite>();
 
@@ -89,6 +112,11 @@ namespace ConnectApp.Utils {
             SQLiteDBManager.instance.SaveMessages(msgLites);
         }
 
+        /**
+         *
+         * save the given messages to DB (update its value if it already exists in DB)
+         * 
+         */
         public static void SyncSaveMessages(List<ChannelMessage> messages) {
             var msgLites = new List<DBMessageLite>();
             
