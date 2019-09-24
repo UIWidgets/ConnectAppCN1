@@ -7,7 +7,7 @@ using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 
 namespace ConnectApp.Models.ViewModel {
-    public class MessageScreenViewModel {
+    public class MessengerScreenViewModel {
         public int discoverPage;
         public int currentTabBarIndex;
         public List<ChannelView> joinedChannels;

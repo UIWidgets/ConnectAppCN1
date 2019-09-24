@@ -20,7 +20,7 @@ namespace ConnectApp.screens {
                         new List<Widget> {
                             new ArticlesScreenConnector(),
                             new EventsScreen(),
-                            new MessageScreenConnector(),
+                            new MessengerScreenConnector(),
                             new PersonalScreenConnector()
                         },
                         new List<CustomTabBarItem> {

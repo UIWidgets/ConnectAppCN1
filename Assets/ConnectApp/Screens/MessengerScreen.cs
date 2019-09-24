@@ -25,9 +25,9 @@ using Color = Unity.UIWidgets.ui.Color;
 using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.screens {
-    public class MessageScreenConnector : StatelessWidget {
+    public class MessengerScreenConnector : StatelessWidget {
         public override Widget build(BuildContext context) {
-            return new StoreConnector<AppState, MessageScreenViewModel>(
+            return new StoreConnector<AppState, MessengerScreenViewModel>(
                 converter: state => {
                     var joinedChannels = state.channelState.joinedChannels.Select(
                         channelId => {
@@ -37,7 +37,7 @@ namespace ConnectApp.screens {
                             return channel;
                         }).ToList();
                     joinedChannels.Sort((c1, c2) => { return c1.isTop == c2.isTop ? 0 : (c1.isTop ? -1 : 1); });
-                    return new MessageScreenViewModel {
+                    return new MessengerScreenViewModel {
                         joinedChannels = joinedChannels,
                         discoverPage = state.channelState.discoverPage,
                         popularChannels = state.channelState.publicChannels
@@ -56,7 +56,7 @@ namespace ConnectApp.screens {
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
-                    var actionModel = new MessageScreenActionModel {
+                    var actionModel = new MessengerScreenActionModel {
                         pushToNotificatioins = () => {
                             dispatcher.dispatch(new MainNavigatorPushToNotificationAction());
                         },
@@ -88,32 +88,32 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch<IPromise>(Actions.joinChannel(channelId, groupId));
                         }
                     };
-                    return new MessageScreen(viewModel, actionModel);
+                    return new MessengerScreen(viewModel, actionModel);
                 }
             );
         }
     }
 
 
-    public class MessageScreen : StatefulWidget {
-        public MessageScreen(
-            MessageScreenViewModel viewModel = null,
-            MessageScreenActionModel actionModel = null,
+    public class MessengerScreen : StatefulWidget {
+        public MessengerScreen(
+            MessengerScreenViewModel viewModel = null,
+            MessengerScreenActionModel actionModel = null,
             Key key = null
         ) : base(key: key) {
             this.viewModel = viewModel;
             this.actionModel = actionModel;
         }
 
-        public readonly MessageScreenViewModel viewModel;
-        public readonly MessageScreenActionModel actionModel;
+        public readonly MessengerScreenViewModel viewModel;
+        public readonly MessengerScreenActionModel actionModel;
 
         public override State createState() {
             return new _MessageScreenState();
         }
     }
 
-    public class _MessageScreenState : AutomaticKeepAliveClientMixin<MessageScreen>, RouteAware {
+    public class _MessageScreenState : AutomaticKeepAliveClientMixin<MessengerScreen>, RouteAware {
         const int firstPageNumber = 1;
         int _pageNumber = firstPageNumber;
         RefreshController _refreshController;
@@ -173,7 +173,7 @@ namespace ConnectApp.screens {
                                     padding: EdgeInsets.only(left: 16),
                                     child: new Row(
                                         children: this.widget.viewModel.popularChannels.Select(
-                                            MessageBuildUtils.buildPopularChannelImage
+                                            MessengerBuildUtils.buildPopularChannelImage
                                         ).ToList()
                                     )
                                 )
@@ -184,7 +184,7 @@ namespace ConnectApp.screens {
                         ? (Widget) new Container()
                         : new Column(
                             children: this.widget.viewModel.joinedChannels.Select((channelInfo) => {
-                                return MessageBuildUtils.buildChannelItem(
+                                return MessengerBuildUtils.buildChannelItem(
                                     channelInfo,
                                     () => this.widget.actionModel.pushToChannel(channelInfo.id));
                             }).ToList()
@@ -217,7 +217,7 @@ namespace ConnectApp.screens {
                     ),
                     new Column(
                         children: this.widget.viewModel.publicChannels.Select(
-                            (channel) => MessageBuildUtils.buildDiscoverChannelItem(channel,
+                            (channel) => MessengerBuildUtils.buildDiscoverChannelItem(channel,
                                     this.widget.actionModel.joinChannel)
                             ).ToList()
                     ),
@@ -293,7 +293,7 @@ namespace ConnectApp.screens {
         }
     }
 
-    public static class MessageBuildUtils {
+    public static class MessengerBuildUtils {
         public static Widget buildPopularChannelImage(ChannelView channel) {
             return new Container(
                 width: 120,

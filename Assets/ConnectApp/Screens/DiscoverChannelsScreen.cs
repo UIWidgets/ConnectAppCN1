@@ -118,7 +118,7 @@ namespace ConnectApp.screens {
                     child: new ListView(
                         padding: EdgeInsets.symmetric(16, 0),
                         children: this.widget.viewModel.publicChannels
-                            .Select((channel) => MessageBuildUtils.buildDiscoverChannelItem(
+                            .Select((channel) => MessengerBuildUtils.buildDiscoverChannelItem(
                                     channel, this.widget.actionModel.joinChannel)
                             ).ToList()
                     )
