@@ -1,11 +1,9 @@
 package com.unity3d.unityconnect.plugins;
 import android.content.Context;
 import android.content.Intent;
-import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.provider.Settings;
 import android.support.v4.app.NotificationManagerCompat;
-
 
 import com.unity3d.unityconnect.PickImageActivity;
 
@@ -38,7 +36,6 @@ public class CommonPlugin {
         };
         AudioManager manager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         manager.requestAudioFocus(afChangeListener,AudioManager.STREAM_MUSIC,AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
-
     }
 
     /**
@@ -54,15 +51,20 @@ public class CommonPlugin {
         return isOpen;
     }
 
-
-    public static void pickImage(){
-        TakePhoto("pickImage",mContext);
+    public static void pickImage(String source, boolean cropped, int maxSize){
+        Intent intent = new Intent(mContext, PickImageActivity.class);
+        intent.putExtra("source", source);
+        intent.putExtra("cropped", cropped);
+        intent.putExtra("maxSize", maxSize);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        mContext.startActivity(intent);
     }
 
-    public static void takeCamera(){
-        TakePhoto("takePhoto",mContext);
+    public static void pickVideo(String source){
+        Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        mContext.startActivity(intent);
     }
-
 
     private static int getSensorState(Context context){
         int sensorState = 0;
@@ -78,14 +80,6 @@ public class CommonPlugin {
     public static String getDeviceID() {
         String uuid = UUIDUtils.getUUID();
         return uuid;
-    }
-
-
-    private static void TakePhoto(String type,Context context){
-        Intent intent = new Intent(mContext,PickImageActivity.class);
-        intent.putExtra("type", type);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intent);
     }
     
     public static boolean isEnableNotification(){

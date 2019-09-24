@@ -34,35 +34,27 @@ public class PickImageActivity extends TakePhotoActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String type = this.getIntent().getStringExtra("type");
+        String source = this.getIntent().getStringExtra("source");
 
-        if(type.equals("takePhoto"))
-        {
+        if (source.equals("0")) {
             int cameraPermission = ActivityCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA);
             if (cameraPermission != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 1);
-                return;
-            }else {
+            } else {
                 startPick();
             }
-
-        }else{
-            final int REQUEST_EXTERNAL_STORAGE = 1;
+        } else if (source.equals("1")) {
             String[] PERMISSIONS_STORAGE = {
-                    "android.permission.READ_EXTERNAL_STORAGE",
-                    "android.permission.WRITE_EXTERNAL_STORAGE" };
-            int permission = ActivityCompat.checkSelfPermission(getApplicationContext(),"android.permission.WRITE_EXTERNAL_STORAGE");
+                    android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE };
+            int permission = ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
             if (permission != PackageManager.PERMISSION_GRANTED) {
-                // 没有写的权限，去申请写的权限，会弹出对话框
-                ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE,REQUEST_EXTERNAL_STORAGE);
-            }else {
+                ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, 2);
+            } else {
                 startPick();
             }
         }
-
     }
-
-
 
     @Override
     public void takeSuccess(TResult result) {
@@ -80,7 +72,6 @@ public class PickImageActivity extends TakePhotoActivity {
     public void takeCancel() {
         super.takeCancel();
         UIWidgetsMessageManager.getInstance().UIWidgetsMethodMessage("pickImage","cancel",null);
-
         finish();
     }
 
@@ -94,7 +85,6 @@ public class PickImageActivity extends TakePhotoActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
     }
 
     @Override
@@ -105,14 +95,23 @@ public class PickImageActivity extends TakePhotoActivity {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     startPick();
                 } else {
-                    buildAlertDialog();
+                    buildAlertDialog("照相机");
+                }
+                break;
+            case 2:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startPick();
+                } else {
+                    buildAlertDialog("存储");
                 }
                 break;
         }
     }
 
     private void startPick(){
-        String type = this.getIntent().getStringExtra("type");
+        String source = this.getIntent().getStringExtra("source");
+        boolean cropped = this.getIntent().getBooleanExtra("cropped", false);
+        
         TakePhoto takePhoto = getTakePhoto();
         File file = new File(Environment.getExternalStorageDirectory(),
                 "/temp/" + System.currentTimeMillis() + ".jpg");
@@ -123,33 +122,52 @@ public class PickImageActivity extends TakePhotoActivity {
         }
         Uri imageUri = Uri.fromFile(file);
 
-        CropOptions.Builder builder = new CropOptions.Builder();
-        builder.setAspectX(800).setAspectY(800);
-        builder.setWithOwnCrop(true);
-
-        CompressConfig config = new CompressConfig.Builder()
-                .setMaxSize(102400)
-                .setMaxPixel(400)
-                .enableReserveRaw(true)
-                .create();
-        takePhoto.onEnableCompress(config, true);
+        // 压缩图片
+        takePhoto.onEnableCompress(compressConfig(), true);
 
         TakePhotoOptions takePhotoOptions = new TakePhotoOptions.Builder().create();
         takePhotoOptions.setCorrectImage(true);
         takePhotoOptions.setWithOwnGallery(false);
         takePhoto.setTakePhotoOptions(takePhotoOptions);
-        //在这里判断是打开本地相册还是直接照相
-        if(type.equals("takePhoto"))
-        {
-            takePhoto.onPickFromCaptureWithCrop(imageUri,builder.create());
-        }else{
-            takePhoto.onPickFromGalleryWithCrop(imageUri,builder.create());
+
+        if (source.equals("0")) {
+            if (cropped) {
+                takePhoto.onPickFromCaptureWithCrop(imageUri, cropOptions());
+            } else {
+                takePhoto.onPickFromCapture(imageUri);
+            }
+            
+        } else {
+            if (cropped) {
+                takePhoto.onPickFromGalleryWithCrop(imageUri, cropOptions());
+            } else {
+                takePhoto.onPickFromGallery();
+            }
         }
     }
 
-    private void buildAlertDialog() {
+    private CropOptions cropOptions() {
+        CropOptions.Builder builder = new CropOptions.Builder();
+        builder.setAspectX(800);
+        builder.setAspectY(800);
+        builder.setWithOwnCrop(true);
+        return builder.create();
+    }
+
+    private CompressConfig compressConfig() {
+        int maxSize = this.getIntent().getIntExtra("maxSize", 0);
+        int imageMaxSize = maxSize == 0 ? 100 * 1024 : maxSize;
+        CompressConfig config = new CompressConfig.Builder()
+                .setMaxSize(imageMaxSize)
+                .setMaxPixel(400)
+                .enableReserveRaw(true)
+                .create();
+        return config;
+    }
+
+    private void buildAlertDialog(String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(this.getString(R.string.app_name) + "没有获得照相机的使用权限，请在设置中开启");
+        builder.setMessage(this.getString(R.string.app_name) + "没有获得" + message + "的使用权限，请在设置中开启");
         builder.setPositiveButton("取消", new FinishListener(this));
         builder.setNeutralButton("开启", new DialogInterface.OnClickListener() {
             @Override
@@ -164,6 +182,7 @@ public class PickImageActivity extends TakePhotoActivity {
         });
         builder.show();
     }
+
     public String bitmapToBase64(Bitmap bitmap) {
 
         String result = null;

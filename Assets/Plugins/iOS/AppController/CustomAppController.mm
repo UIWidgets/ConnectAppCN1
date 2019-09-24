@@ -28,11 +28,8 @@ IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
 
 @implementation CustomAppController
 
-
-
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions
 {
-    
     [super application:application didFinishLaunchingWithOptions:launchOptions];
     
     [application setApplicationIconBadgeNumber:0];
@@ -67,8 +64,7 @@ IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
     return YES;
 }
 
-#pragma mark- JPUSHRegisterDelegate
-
+#pragma mark - JPUSHRegisterDelegate
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
     // Required.
     [JPUSHService registerDeviceToken:deviceToken];
@@ -120,9 +116,8 @@ NSData *APNativeJSONData(id obj) {
     }
     return data;
 }
-#pragma mark wechat
 
-
+#pragma mark - wechat
 - (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler{
     
     if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb]) {
@@ -170,20 +165,22 @@ extern "C"  {
         [session setCategory:AVAudioSessionCategoryPlayback error:nil];
         [session setActive:YES error:nil];
     }
+    
     void setStatusBarStyle(bool isLight){
         AppController_SendNotificationWithArg(@"UpdateStatusBarStyle",
                                               @{@"key":@"style",@"value":@(isLight)});
     }
+    
     void hiddenStatusBar(bool hidden){
         AppController_SendNotificationWithArg(@"UpdateStatusBarStyle",
                                               @{@"key":@"hidden",@"value":@(hidden)});
     }
+    
     bool isOpenSensor() {
         return true;
     }
     
-    const char *getDeviceID()
-    {
+    const char *getDeviceID(){
         NSString *result = [UUIDUtils getUUID];
         if (!result) {
             return NULL;
@@ -193,23 +190,25 @@ extern "C"  {
         strcpy(r, s);
         return r;
     }
-    void pickImage()//相册
-    {
-        [[PickImageController sharedInstance] showPicker:UIImagePickerControllerSourceTypeSavedPhotosAlbum];
-        
+    
+    void pickImage(const char *source, bool cropped, int maxSize) {
+        NSString *sourceString = [NSString stringWithUTF8String:source];
+        [[PickImageController sharedInstance] pickImageWithSource:sourceString cropped:cropped maxSize:maxSize];
     }
-    void takeCamera()
-    {
-        [[PickImageController sharedInstance] showPicker:UIImagePickerControllerSourceTypeCamera];
-        
+
+    void pickVideo(const char *source) {
+        NSString *sourceString = [NSString stringWithUTF8String:source];
+        [[PickImageController sharedInstance] pickVideoWithSource:sourceString];
     }
-    bool isPhotoLibraryAuthorization (){
+
+    bool isPhotoLibraryAuthorization(){
         return [[PickImageController sharedInstance] isPhotoLibraryAuthorization];
     }
-    bool isCameraAuthorization (){
+    
+    bool isCameraAuthorization(){
         return [[PickImageController sharedInstance] isCameraAuthorization];
-        
     }
+    
     bool isEnableNotification(){
         BOOL isEnable = NO;
         if ([[UIDevice currentDevice].systemVersion floatValue] >= 8.0f) { // iOS版本 >=8.0 处理逻辑
@@ -221,7 +220,6 @@ extern "C"  {
         }
         return isEnable;
     }
-    
 }
 
 @end
