@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using ConnectApp.Components;
@@ -14,17 +15,7 @@ namespace ConnectApp.Plugins {
     }
 
     public static class PickImagePlugin {
-        public static void showActionSheet() {
-            var items = new List<ActionSheetItem> {
-                new ActionSheetItem("拍照", type: ActionType.normal, () => PickImage(source: ImageSource.camera)),
-                new ActionSheetItem("从相册选择", type: ActionType.normal, () => PickImage(source: ImageSource.gallery)),
-                new ActionSheetItem("取消", type: ActionType.cancel)
-            };
-
-            ActionSheetUtils.showModalActionSheet(new ActionSheet(
-                items: items
-            ));
-        }
+        static Action<string> _imageCallBack;
 
         static void addListener() {
             if (Application.isEditor) {
@@ -51,10 +42,10 @@ namespace ConnectApp.Plugins {
                             var dict = JSON.Parse(aJSON: node);
                             var image = (string) dict["image"];
                             if (image != null) {
-                                removeListener();
-                                EventBus.publish(sName: EventBusConstant.pickAvatarSuccess, new List<object> {image});
+                                _imageCallBack?.Invoke(obj: image);
                             }
 
+                            removeListener();
                             break;
                         }
                         case "cancel": {
@@ -68,6 +59,7 @@ namespace ConnectApp.Plugins {
 
         public static void PickImage(
             ImageSource source,
+            Action<string> imageCallBack = null,
             bool cropped = true,
             int? maxSize = null
         ) {
@@ -76,6 +68,7 @@ namespace ConnectApp.Plugins {
             }
 
             addListener();
+            _imageCallBack = imageCallBack;
             var sourceInt = (int) source;
             pickImage(sourceInt.ToString(), cropped: cropped, maxSize ?? 0);
         }

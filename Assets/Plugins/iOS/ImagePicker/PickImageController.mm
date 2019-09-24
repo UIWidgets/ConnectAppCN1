@@ -102,7 +102,8 @@ static PickImageController *controller = nil;
             __weak __typeof(self) wSelf = self;
             crop.cropBlock = ^(UIImage * resizeImage) {
                 __strong __typeof(wSelf) sSelf = wSelf;
-                NSString *jsonString = [sSelf compressImage:resizeImage];
+                NSData *data = [sSelf compressWithImage:resizeImage];
+                NSString *jsonString = [sSelf dataToString:data];
                 UIWidgetsMethodMessage(@"pickImage", @"success", @[jsonString]);
                 [sSelf pickImageDissmiss];
             };
@@ -113,7 +114,8 @@ static PickImageController *controller = nil;
             };
             [picker pushViewController:crop animated:YES];
         } else {
-            NSString *jsonString = [self compressImage:image];
+            NSData *data = [self compressWithImage:image];
+            NSString *jsonString = [self dataToString:data];
             UIWidgetsMethodMessage(@"pickImage", @"success", @[jsonString]);
             [self pickImageDissmiss];
         }
@@ -137,22 +139,51 @@ static PickImageController *controller = nil;
 }
 
 - (void)pickImageDissmiss{
-    [_picker dismissViewControllerAnimated:YES completion:^{
-        
-    }];
+    [_picker dismissViewControllerAnimated:YES completion:nil];
 }
 
-- (NSString *)compressImage:(UIImage *)image {
-    NSData *data;
+- (NSData *)compressWithImage:(UIImage *)image {
     if (_maxSize <= 0.0) {
-        data = UIImageJPEGRepresentation(image, 0.5f);
-    } else {
-        data = UIImageJPEGRepresentation(image, 1.0f);
-        CGFloat compressionQuality = 1;
-        while (data.length > _maxSize) {
-            data = UIImageJPEGRepresentation(image, compressionQuality -= .1);
+        return UIImageJPEGRepresentation(image, 0.5f);
+    }
+    
+    CGFloat compression = 1;
+    NSData *data = UIImageJPEGRepresentation(image, compression);
+    if (data.length < _maxSize) return data;
+    
+    CGFloat max = 1;
+    CGFloat min = 0;
+    for (int i = 0; i < 6; ++i) {
+        compression = (max + min) / 2;
+        data = UIImageJPEGRepresentation(image, compression);
+        if (data.length < _maxSize * 0.9) {
+            min = compression;
+        } else if (data.length > _maxSize) {
+            max = compression;
+        } else {
+            break;
         }
     }
+
+    if (data.length < _maxSize) return data;
+    UIImage *resultImage = [UIImage imageWithData:data];
+
+    NSUInteger lastDataLength = 0;
+    while (data.length > _maxSize && data.length != lastDataLength) {
+        lastDataLength = data.length;
+        CGFloat ratio = (CGFloat)_maxSize / data.length;
+        CGSize size = CGSizeMake((NSUInteger)(resultImage.size.width * sqrtf(ratio)),
+                                 (NSUInteger)(resultImage.size.height * sqrtf(ratio))); // Use NSUInteger to prevent white blank
+        UIGraphicsBeginImageContext(size);
+        [resultImage drawInRect:CGRectMake(0, 0, size.width, size.height)];
+        resultImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+        data = UIImageJPEGRepresentation(resultImage, compression);
+    }
+    return data;
+}
+
+- (NSString *)dataToString:(NSData *)data {
     NSString *encodedImageStr = [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
     NSData *json = [NSJSONSerialization dataWithJSONObject:@{@"image":encodedImageStr} options:NSJSONWritingPrettyPrinted error: nil];
     NSString *jsonString = [[NSString alloc] initWithData:json encoding:NSUTF8StringEncoding];
