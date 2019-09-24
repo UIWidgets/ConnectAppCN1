@@ -327,7 +327,7 @@ namespace ConnectApp.screens {
                             this._buildNavigationBar(),
                             new Positioned(
                                 left: 0,
-                                top: 44,
+                                top: 44 + this._topPadding,
                                 right: 0,
                                 child: new Offstage(
                                     offstage: !this._isShowTop,

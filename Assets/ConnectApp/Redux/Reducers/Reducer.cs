@@ -2394,7 +2394,7 @@ namespace ConnectApp.redux.reducers {
 
                 case CreateFavoriteTagSuccessAction action: {
                     if (!state.favoriteState.favoriteTagIds.Contains(item: action.favoriteTag.id)) {
-                        if (state.favoriteState.favoriteTagIds.Count == 1) {
+                        if (state.favoriteState.favoriteTagIds.Count <= 1) {
                             state.favoriteState.favoriteTagIds.Add(item: action.favoriteTag.id);
                         }
                         else {

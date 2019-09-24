@@ -70,13 +70,14 @@ namespace ConnectApp.Components {
         }
 
         Widget _buildFavoriteInfo() {
+            string title = this.favoriteTag.type == "default" ? "默认" : this.favoriteTag.name ?? "";
             return new Expanded(
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
                         new Text(
-                            this.favoriteTag.name ?? "",
+                            data: title,
                             style: CTextStyle.PLargeBody,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis

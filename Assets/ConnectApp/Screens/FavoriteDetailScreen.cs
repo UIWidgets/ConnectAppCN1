@@ -242,11 +242,12 @@ namespace ConnectApp.screens {
                 rightWidget = new Container(width: 56);
             }
             else {
-                title = favoriteTag.name;
                 if (favoriteTag.type == "default") {
+                    title = "默认";
                     rightWidget = new Container(width: 56);
                 }
                 else {
+                    title = favoriteTag.name;
                     rightWidget = new CustomButton(
                         padding: EdgeInsets.only(16, 0, 16),
                         onPressed: () => this.widget.actionModel.pushToEditFavorite(obj: tagId),
@@ -347,13 +348,16 @@ namespace ConnectApp.screens {
                 return new Container();
             }
 
+            string title;
             string imageName;
             Color color;
             if (favoriteTag.type == "default") {
+                title = "默认";
                 imageName = $"{CImageUtils.FavoriteCoverImagePath}/{CImageUtils.FavoriteCoverImages[0]}";
                 color = CColorUtils.FavoriteCoverColors[0];
             }
             else {
+                title = favoriteTag.name;
                 imageName = $"{CImageUtils.FavoriteCoverImagePath}/{favoriteTag.iconStyle.name}";
                 color = new Color(long.Parse(s: favoriteTag.iconStyle.bgColor));
             }
@@ -380,7 +384,7 @@ namespace ConnectApp.screens {
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: new List<Widget> {
                                                     new Text(
-                                                        data: favoriteTag.name,
+                                                        data: title,
                                                         style: CTextStyle.H5,
                                                         maxLines: 1,
                                                         overflow: TextOverflow.ellipsis
@@ -408,7 +412,7 @@ namespace ConnectApp.screens {
                         )
                     ),
                     new CustomDivider(
-                        color: CColors.Separator2
+                        color: CColors.Background
                     )
                 }
             );
