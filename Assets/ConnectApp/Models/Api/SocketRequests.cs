@@ -19,6 +19,7 @@ namespace ConnectApp.Models.Api {
     public class SocketIdentifyRequest : SocketRequestData {
         public string ls;
         public string commitId;
+        public string clientType;
         public Dictionary<string, string> properties;
     }
 

@@ -372,6 +372,7 @@ namespace ConnectApp.Utils {
                 d = new SocketIdentifyRequest {
                     ls = this.m_SessionId,
                     commitId = commitId,
+                    clientType = "connect_app",
                     properties = new Dictionary<string, string>()
                 }
             };
