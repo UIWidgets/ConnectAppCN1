@@ -8,6 +8,7 @@ using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
+using ConnectApp.Plugins;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using RSG;
@@ -163,14 +164,6 @@ namespace ConnectApp.screens {
             this._emojiTabController = new TabController(
                 length: (this.emojiList.Count-1) / (24-1) + 1,
                 vsync: this);
-            this._pickImageSubId = EventBus.subscribe(sName: EventBusConstant.pickAvatarSuccess, args => {
-                this._pickedImage = (string) args[0];
-                this.widget.actionModel.sendImage(
-                    this.widget.viewModel.channelInfo.id,
-                    this._pickedImage,
-                    Snowflake.CreateNonceLocal());
-                this.setState();
-            });
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this._refreshController.scrollController.addListener(this._handleScrollListener);
                 this.widget.actionModel.fetchMessages(null, null);
@@ -189,7 +182,6 @@ namespace ConnectApp.screens {
         public override void dispose() {
             this._textController.dispose();
             this._emojiTabController.dispose();
-            EventBus.unSubscribe(EventBusConstant.pickAvatarSuccess, this._pickImageSubId);
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.clearUnread();
             });
@@ -560,9 +552,7 @@ namespace ConnectApp.screens {
                         ),
                         new CustomButton(
                             padding: EdgeInsets.zero,
-                            onPressed: () => {
-                                PickImageManager.showActionSheet();
-                            },
+                            onPressed: this._pickImage,
                             child: new Container(
                                 width: 44,
                                 height: 49,
@@ -861,6 +851,41 @@ namespace ConnectApp.screens {
             }
         }
 #endif
+        
+        void _pickImage() {
+            var items = new List<ActionSheetItem> {
+                new ActionSheetItem(
+                    "拍照",
+                    onTap: () => PickImagePlugin.PickImage(
+                        source: ImageSource.camera,
+                        this._pickImageCallback
+                    )
+                ),
+                new ActionSheetItem(
+                    "从相册选择",
+                    onTap: () => PickImagePlugin.PickImage(
+                        source: ImageSource.gallery,
+                        this._pickImageCallback
+                    )
+                ),
+                new ActionSheetItem("取消", type: ActionType.cancel)
+            };
+
+            ActionSheetUtils.showModalActionSheet(new ActionSheet(
+                title: "发送图片",
+                items: items
+            ));
+        }
+
+        void _pickImageCallback(string pickImage) {
+            this._pickedImage = pickImage;
+            this.widget.actionModel.sendImage(
+                this.widget.viewModel.channelInfo.id,
+                this._pickedImage,
+                Snowflake.CreateNonceLocal());
+            this.setState(() => { });
+        }
+
     }
 
     class _ImageMessage : StatefulWidget {
