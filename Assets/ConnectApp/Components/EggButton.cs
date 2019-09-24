@@ -1,14 +1,22 @@
 using System;
 using System.Collections.Generic;
-using ConnectApp.Constants;
 using Unity.UIWidgets.animation;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.Components {
     public class EggButton : StatefulWidget {
+        public EggButton(
+            bool isNationalDay = false,
+            Key key = null
+        ) : base(key: key) {
+            this.isNationalDay = isNationalDay;
+        }
+
+        public readonly bool isNationalDay;
+
         public override State createState() {
             return new _EggButtonState();
         }
@@ -59,30 +67,45 @@ namespace ConnectApp.Components {
         }
 
         public override Widget build(BuildContext context) {
+            var egg = Image.asset(
+                "image/egg",
+                width: 21,
+                height: 21
+            );
+
+            if (this.widget.isNationalDay) {
+                egg = Image.asset(
+                    "image/flag-egg",
+                    width: 18,
+                    height: 21
+                );
+            }
+
             return new AnimatedBuilder(
                 animation: this._controller,
-                builder: (cxt, widget) => new Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: new List<Widget> {
-                        Transform.rotate(
-                            degree: this._animation.value,
-                            alignment: Alignment.bottomCenter,
-                            child: Image.asset(
-                                "image/egg",
-                                width: 21,
-                                height: 21
+                builder: (cxt, widget) => new SizedBox(
+                    width: 28,
+                    height: 23,
+                    child: new Stack(
+                        children: new List<Widget> {
+                            new Align(
+                                alignment: Alignment.bottomCenter,
+                                child: Image.asset(
+                                    "image/egg-shadow",
+                                    width: 18,
+                                    height: 5
+                                )
+                            ),
+                            new Align(
+                                alignment: Alignment.topCenter,
+                                child: Transform.rotate(
+                                    degree: this._animation.value,
+                                    alignment: Alignment.bottomCenter,
+                                    child: egg
+                                )
                             )
-                        ),
-                        new Container(
-                            width: 20,
-                            height: 2,
-                            decoration: new BoxDecoration(
-                                color: CColors.Icon,
-                                borderRadius: BorderRadius.all(1)
-                            )
-                        )
-                    }
+                        }
+                    )
                 )
             );
         }

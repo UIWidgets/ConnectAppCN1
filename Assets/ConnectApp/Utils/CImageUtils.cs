@@ -40,45 +40,64 @@ namespace ConnectApp.Utils {
             return $"{imageUrl}.{imageWidth}x0x1.jpg";
         }
 
+        public static bool isNationalDay = false;
+
         public static Widget GenBadgeImage(List<string> badges, string license, EdgeInsets padding) {
-            if (badges != null && badges.isNotEmpty()) {
-                if (badges.Any(badge => badge.isNotEmpty() && badge.Equals("official"))) {
-                    return new Container(
-                        padding: padding,
-                        child: Image.asset(
-                            "image/official-badge",
-                            height: 18,
-                            width: 18
-                        )
-                    );
-                }
-            }
+            Widget w1 = new Container();
+            var hasFirst = false;
 
             if (license.isNotEmpty()) {
                 if (license == "UnityPro") {
-                    return new Container(
-                        padding: padding,
-                        child: Image.asset(
-                            "image/pro-badge",
-                            height: 15,
-                            width: 26
-                        )
+                    w1 = Image.asset(
+                        "image/pro-badge",
+                        height: 15,
+                        width: 26
                     );
+                    hasFirst = true;
                 }
 
                 if (license == "UnityPersonalPlus") {
-                    return new Container(
-                        padding: padding,
-                        child: Image.asset(
-                            "image/plus-badge",
-                            height: 15,
-                            width: 30
-                        )
+                    w1 = Image.asset(
+                        "image/plus-badge",
+                        height: 15,
+                        width: 30
                     );
+                    hasFirst = true;
                 }
             }
 
-            return new Container();
+            if (badges != null && badges.isNotEmpty()) {
+                if (badges.Any(badge => badge.isNotEmpty() && badge.Equals("official"))) {
+                    w1 = Image.asset(
+                        "image/official-badge",
+                        height: 18,
+                        width: 18
+                    );
+                    hasFirst = true;
+                }
+            }
+
+            Widget w2 = new Container();
+            if (isNationalDay) {
+                w2 = new Container(
+                    padding: EdgeInsets.only(hasFirst ? 4 : 0),
+                    child: Image.asset(
+                        "image/china-flag-badge",
+                        height: 14,
+                        width: 16
+                    )
+                );
+            }
+
+            return new Container(
+                padding: padding,
+                child: new Row(
+                    children: new List<Widget> {
+                        w1,
+                        w2
+                    }
+                )
+            );
         }
     }
 }

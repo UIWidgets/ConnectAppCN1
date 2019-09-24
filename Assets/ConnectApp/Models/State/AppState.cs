@@ -40,7 +40,8 @@ namespace ConnectApp.Models.State {
                 },
                 serviceConfigState = new ServiceConfigState {
                     showFirstEgg = false,
-                    scanEnabled = false
+                    scanEnabled = false,
+                    nationalDayEnabled = false,
                 },
                 articleState = new ArticleState {
                     recommendArticleIds = new List<string>(),
