@@ -13,7 +13,7 @@ TrueTypeFontImporter:
   - Roboto-Medium
   - PingFangSC-Medium
   fallbackFontReferences:
-  - {fileID: 12800000, guid: a9a496698af674103a546c4920cfdf92, type: 3}
+  - {fileID: 12800000, guid: b7b78ed5ae40c488c90ff6d986be2fff, type: 3}
   customCharacters: 
   fontRenderingMode: 0
   ascentCalculationMode: 1
