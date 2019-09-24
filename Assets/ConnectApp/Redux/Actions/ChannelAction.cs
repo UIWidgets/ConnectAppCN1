@@ -14,11 +14,11 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.FetchChannels(page).Then(channelResponse => {
                         dispatcher.dispatch(new ChannelsAction {
-                            discoverList = channelResponse.discoverList,
-                            joinedList = channelResponse.joinedList,
+                            discoverList = channelResponse.discoverList ?? new List<string>(),
+                            joinedList = channelResponse.joinedList ?? new List<string>(),
                             discoverPage = channelResponse.discoverPage,
-                            channelMap = channelResponse.channelMap,
-                            joinedChannelMap = channelResponse.joinedChannelMap
+                            channelMap = channelResponse.channelMap ?? new Dictionary<string, Channel>(),
+                            joinedChannelMap = channelResponse.joinedChannelMap ?? new Dictionary<string, bool>()
                         });
                         // for (int i = 0; i < channelResponse.joinedList.Count; i++) {
                         //     dispatcher.dispatch(fetchChannelMessages(channelResponse.joinedList[i]));
