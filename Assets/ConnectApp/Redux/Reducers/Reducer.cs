@@ -2302,6 +2302,11 @@ namespace ConnectApp.redux.reducers {
                     state.channelState.channelTop = ChannelTopManager.getChannelTop();
                     break;
                 }
+
+                case StartFetchChannelMessageAction _: {
+                    state.channelState.messageLoading = true;
+                    break;
+                }
                 
                 case ChannelMessagesAction action: {
                     var channel = state.channelState.channelDict[action.channelId];
@@ -2416,6 +2421,23 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case ChannelScreenHitBottom action: {
+                    var channel = state.channelState.channelDict[action.channelId];
+                    channel.unread = 0;
+                    channel.mentioned = 0;
+                    channel.atAll = false;
+                    channel.atMe = false;
+                    channel.atBottom = true;
+                    state.channelState.updateTotalMention();
+                    break;
+                }
+
+                case ChannelScreenLeaveBottom action: {
+                    var channel = state.channelState.channelDict[action.channelId];
+                    channel.atBottom = false;
+                    break;
+                }
+
                 case UpdateChannelTopAction action: {
                     state.channelState.channelTop[action.channelId] = action.value;
                     ChannelTopManager.saveChannelTop(state.channelState.channelTop);
@@ -2487,8 +2509,9 @@ namespace ConnectApp.redux.reducers {
                         channel.messageIds.Add(channelMessage.id);
                         channel.lastMessageId = channelMessage.id;
                         channel.lastMessage = channelMessage;
-                        if (!state.loginState.isLoggedIn ||
-                            channelMessage.author.id != state.loginState.loginInfo.userId) {
+                        if ((!state.loginState.isLoggedIn ||
+                            channelMessage.author.id != state.loginState.loginInfo.userId) &&
+                            !channel.atBottom) {
                             channel.handleUnreadMessage(channelMessage, state.loginState.loginInfo.userId);
                         }
                     }

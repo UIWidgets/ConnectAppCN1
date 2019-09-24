@@ -14,16 +14,16 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.FetchChannels(page).Then(channelResponse => {
                         dispatcher.dispatch(new ChannelsAction {
-                            discoverList = channelResponse.discoverList,
-                            joinedList = channelResponse.joinedList,
+                            discoverList = channelResponse.discoverList ?? new List<string>(),
+                            joinedList = channelResponse.joinedList ?? new List<string>(),
                             discoverPage = channelResponse.discoverPage,
-                            channelMap = channelResponse.channelMap,
-                            joinedChannelMap = channelResponse.joinedChannelMap
+                            channelMap = channelResponse.channelMap ?? new Dictionary<string, Channel>(),
+                            joinedChannelMap = channelResponse.joinedChannelMap ?? new Dictionary<string, bool>()
                         });
-                        for (int i = 0; i < channelResponse.joinedList.Count; i++) {
-                            dispatcher.dispatch(fetchChannelMessages(channelResponse.joinedList[i]));
-                            dispatcher.dispatch(fetchChannelMembers(channelResponse.joinedList[i]));
-                        }
+                        // for (int i = 0; i < channelResponse.joinedList.Count; i++) {
+                        //     dispatcher.dispatch(fetchChannelMessages(channelResponse.joinedList[i]));
+                        //     dispatcher.dispatch(fetchChannelMembers(channelResponse.joinedList[i]));
+                        // }
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchPublicChannelsFailureAction());
@@ -34,6 +34,7 @@ namespace ConnectApp.redux.actions {
         
         public static object fetchChannelMessages(string channelId, string before = null, string after = null) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
+                dispatcher.dispatch(new StartFetchChannelMessageAction {channelId = channelId});
                 return ChannelApi.FetchChannelMessages(channelId, before, after)
                     .Then(channelMessagesResponse => {
                         dispatcher.dispatch(new ChannelMessagesAction {
@@ -162,6 +163,10 @@ namespace ConnectApp.redux.actions {
     
     public class FetchJoinedChannelsFailureAction : BaseAction {
     }
+
+    public class StartFetchChannelMessageAction : BaseAction {
+        public string channelId;
+    }
     
     public class FetchChannelMessagesSuccessAction : BaseAction {
     }
@@ -193,6 +198,14 @@ namespace ConnectApp.redux.actions {
     }
 
     public class ClearChannelUnreadAction : BaseAction {
+        public string channelId;
+    }
+
+    public class ChannelScreenHitBottom : BaseAction {
+        public string channelId;
+    }
+
+    public class ChannelScreenLeaveBottom : BaseAction {
         public string channelId;
     }
 
