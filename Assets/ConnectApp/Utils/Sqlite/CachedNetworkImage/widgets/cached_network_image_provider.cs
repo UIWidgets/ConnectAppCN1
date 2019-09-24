@@ -9,6 +9,12 @@ using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace ConnectApp.Utils {
     public static class CachedNetworkImageProvider {
+        
+        /*
+         * use CachedNetworkImageProvider.cachedNetworkImage to replace Image.network so that:
+         * (1) the image file will be stored locally after fetching from the internet when first load
+         * (2) the image will be loaded from the cached file in (1) instead of internet when the cache is available
+         */
         public static Image cachedNetworkImage(
             string src,
             Key key = null,
