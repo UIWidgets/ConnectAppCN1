@@ -289,7 +289,7 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
     self.titleLabel = [UILabel new];
     self.titleLabel.textColor = [UIColor whiteColor];
     self.titleLabel.font = [UIFont systemFontOfSize:15.0];
-    [self.topView addSubview:self.titleLabel];
+//    [self.topView addSubview:self.titleLabel];
     
     //加载失败的提示label
     self.loadFailedLabel = [UILabel new];
@@ -355,6 +355,7 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
 //    }];
     [self.playOrPauseBtn mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerY.equalTo(self.bottomView);
+        make.size.mas_equalTo(CGSizeMake(24, 24));
         make.leading.equalTo(self.bottomView).offset(10);
     }];
     [self.leftTimeLabel mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -362,7 +363,7 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
         make.centerY.equalTo(self.bottomView);
     }];
     [self.rightTimeLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.trailing.equalTo(self.bottomView).offset(-50);
+        make.trailing.equalTo(self.fullScreenBtn.mas_leading).offset(-4);
         make.centerY.equalTo(self.bottomView);
     }];
     [self.loadingProgress mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -382,6 +383,7 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
     }];
     [self.fullScreenBtn mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerY.equalTo(self.bottomView);
+        make.size.mas_equalTo(CGSizeMake(24, 24));
         make.trailing.equalTo(self.bottomView).offset(-10);
     }];
 //    [self.rateBtn mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -390,21 +392,21 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
 //        make.size.mas_equalTo(CGSizeMake(60, 30));
 //    }];
     [self.backBtn mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.leading.equalTo(self.topView).offset(8);
-        make.size.mas_equalTo(CGSizeMake(60, 60));
-        make.centerY.equalTo(self.titleLabel);
+        make.leading.equalTo(self.topView).offset(10);
+        make.size.mas_equalTo(CGSizeMake(40, 40));
+        make.centerY.equalTo(self.topView);
     }];
     [self.shareBtn mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.right.equalTo(self.topView).offset(-8);
-        make.size.mas_equalTo(CGSizeMake(60, 60));
-        make.centerY.equalTo(self.titleLabel);
+        make.right.equalTo(self.topView).offset(-10);
+        make.size.mas_equalTo(CGSizeMake(40, 40));
+        make.centerY.equalTo(self.topView);
     }];
-    [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.leading.mas_equalTo(self.backBtn.mas_trailing).offset(50);
-        make.trailing.equalTo(self.topView).offset(-50);
-        make.center.equalTo(self.topView);
-        make.top.equalTo(self.topView);
-    }];
+//    [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.leading.mas_equalTo(self.backBtn.mas_trailing).offset(50);
+//        make.trailing.equalTo(self.topView).offset(-50);
+//        make.center.equalTo(self.topView);
+//        make.top.equalTo(self.topView);
+//    }];
     [self.loadFailedLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.center.equalTo(self.contentView);
     }];
@@ -546,13 +548,11 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
 #pragma mark
 #pragma mark - 点击update lincese
 -(void)updateLincese:(UIButton *)sender{
-    NSLog(@"updateLincese");
     if (self.delegate&&[self.delegate respondsToSelector:@selector(wmplayer:clickedUpdateLinceseButton:)]) {
         [self.delegate wmplayer:self clickedUpdateLinceseButton:sender];
     }
 }
 -(void)buyLincese:(UIButton *)sender{
-    NSLog(@"buyLincese");
     if (self.delegate&&[self.delegate respondsToSelector:@selector(wmplayer:clickedBuyLinceseButton:)]) {
         [self.delegate wmplayer:self clickedBuyLinceseButton:sender];
     }
@@ -628,7 +628,7 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
 #pragma mark
 #pragma mark - 单击手势方法
 - (void)handleSingleTap:(UITapGestureRecognizer *)sender{
-    if (self.playerModel.needUpdateLincense&&!self.updateView.hidden) {
+    if (self.updateView.hidden==NO) {
         return;
     }
     if (self.isLockScreen) {
@@ -928,12 +928,14 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
     [self unfocusSession];
     if (self.playerModel.needUpdateLincense) {
         self.updateView.hidden = NO;
+        [self resetWMPlayer];
         self.enableVolumeGesture = NO;
         self.enableFastForwardGesture = NO;
     }
     if (self.delegate&&[self.delegate respondsToSelector:@selector(wmplayerFinishedPlay:)]) {
         [self.delegate wmplayerFinishedPlay:self];
     }
+    
     [self.player seekToTime:kCMTimeZero toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero completionHandler:^(BOOL finished) {
         if (finished) {
             if (self.isLockScreen) {
@@ -947,10 +949,10 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
                 }
             }
             if(!self.loopPlay){
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                    self.state = WMPlayerStateFinished;
-                    self.bottomProgress.progress = 0;
-                    self.playOrPauseBtn.selected = YES;
+                self.state = WMPlayerStateFinished;
+                self.bottomProgress.progress = 0;
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    [self pause];
                 });
             }
         }
@@ -1013,6 +1015,10 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
 #pragma mark
 #pragma mark - 播放进度
 - (void)updateProgress:(UISlider *)slider{
+    if (slider.value>0&&self.playerModel.needUpdateLincense&&slider.value*[self duration]>self.playerModel.limitSeconds) {
+        [self showUpgradeView];
+        return;
+    }
     [self.player seekToTime:CMTimeMakeWithSeconds(slider.value, self.currentItem.currentTime.timescale)];
 }
 -(void)dismissControlView{
@@ -1041,10 +1047,8 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
                     if (self.state==WMPlayerStateStopped||self.state==WMPlayerStatePause) {
                       
                     }else{
-                       
                         //5s dismiss controlView
                         [self dismissControlView];
-
                         self.state=WMPlayerStatePlaying;
                     }
                     if (self.delegate&&[self.delegate respondsToSelector:@selector(wmplayerReadyToPlay:WMPlayerStatus:)]) {
@@ -1139,7 +1143,7 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
         self.state = WMPlayerStateBuffering;
     }
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        if (self.state==WMPlayerStatePlaying||self.state==WMPlayerStateFinished) {
+        if (self.state==WMPlayerStatePlaying||self.state==WMPlayerStateFinished||self.state==WMPlayerStateStopped) {
             
         }else{
             [self play];
@@ -1171,8 +1175,8 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
     
     if (self.playerModel.needUpdateLincense&&self.playerModel.limitSeconds>0) {
         if (nowTime>=self.playerModel.limitSeconds) {
-            [self.player pause];
             self.updateView.hidden = NO;
+            [self resetWMPlayer];
             self.enableVolumeGesture = NO;
             self.enableFastForwardGesture = NO;
             [self hiddenControlView];
@@ -1389,6 +1393,9 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
 -(float)moveProgressControllWithTempPoint:(CGPoint)tempPoint{
     //90代表整个屏幕代表的时间
     float tempValue = self.touchBeginValue + TotalScreenTime * ((tempPoint.x - self.touchBeginPoint.x)/([UIScreen mainScreen].bounds.size.width));
+    if (self.playerModel.needUpdateLincense&&tempValue>self.playerModel.limitSeconds) {
+        [self showUpgradeView];
+    }
     if (tempValue > [self duration]) {
         tempValue = [self duration];
     }else if (tempValue < 0){
@@ -1419,6 +1426,12 @@ NSString * calculateTimeWithTimeFormatter(long long timeSecond){
         theLastTime = [NSString stringWithFormat:@"%.2lld:%.2lld:%.2lld", timeSecond/3600, timeSecond%3600/60, timeSecond%60];
     }
     return theLastTime;
+}
+
+-(void)showUpgradeView{
+    self.updateView.hidden  = NO;
+    [self resetWMPlayer];
+    [self hiddenControlView];
 }
 //重置播放器
 -(void )resetWMPlayer{
