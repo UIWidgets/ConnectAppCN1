@@ -1,10 +1,14 @@
+using System;
 using System.Collections.Generic;
+using ConnectApp.Components;
 using ConnectApp.Components.LikeButton;
 using ConnectApp.Constants;
 using ConnectApp.redux;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
@@ -18,8 +22,49 @@ namespace ConnectApp.screens {
                         CColors.Background,
                         border: Border.all(CColors.Red)
                     ),
-                    child: renderLikeButton()
+                    child: renderLoading()
                 )
+            );
+        }
+
+        static Widget renderLoading() {
+            List<string> images = new List<string>();
+            for (int index = 1; index < 2; index++) {
+                images.Add($"image/refresh-loading/refresh-loading{index}");
+            }
+
+            Widget child = new AnimatedCrossFade(
+                firstChild: new Container(),
+                secondChild: new FrameAnimationImage(
+                    images: images
+                ),
+                duration: TimeSpan.FromMilliseconds(300),
+                crossFadeState: CrossFadeState.showSecond,
+                alignment: Alignment.center,
+                layoutBuilder: _layoutBuilder
+            );
+            return new Container(
+//                height: 56.0f,
+                alignment: Alignment.center,
+                child: child
+            );
+        }
+
+        static Widget _layoutBuilder(Widget topChild, Key topChildKey, Widget bottomChild, Key bottomChildKey) {
+            return new Stack(
+                overflow: Overflow.visible,
+                children: new List<Widget> {
+                    new Positioned(
+                        key: bottomChildKey,
+                        left: 0.0f,
+                        top: 0.0f,
+                        right: 0.0f,
+                        bottom: 0.0f,
+                        child: bottomChild),
+                    new Positioned(
+                        key: topChildKey,
+                        child: topChild)
+                }
             );
         }
 

@@ -13,7 +13,7 @@ TrueTypeFontImporter:
   - Roboto-Bold
   - PingFangSC-Semibold
   fallbackFontReferences:
-  - {fileID: 12800000, guid: 370017d476abd48e48d578bd14bee80e, type: 3}
+  - {fileID: 12800000, guid: 2d22be6f39eb64f248273140c32c4a96, type: 3}
   customCharacters: 
   fontRenderingMode: 0
   ascentCalculationMode: 1
