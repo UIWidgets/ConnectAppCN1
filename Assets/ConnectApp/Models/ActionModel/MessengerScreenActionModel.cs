@@ -7,7 +7,6 @@ namespace ConnectApp.Models.ActionModel {
         public Action pushToDiscoverChannels;
         public Action<string> pushToChannel;
         public Func<IPromise> fetchChannels;
-        public Action fetchMessages;
         public Action<string, string> joinChannel;
     }
 }

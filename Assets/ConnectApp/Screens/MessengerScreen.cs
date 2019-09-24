@@ -5,24 +5,19 @@ using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
-using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using RSG;
-using Unity.UIWidgets.debugger;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.scheduler;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
 using Color = Unity.UIWidgets.ui.Color;
-using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.screens {
     public class MessengerScreenConnector : StatelessWidget {
@@ -71,19 +66,6 @@ namespace ConnectApp.screens {
                         fetchChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchChannels(
                             viewModel.discoverPage + 1
                         )),
-                        fetchMessages = () => {
-                            for (int i = 0; i < viewModel.joinedChannels.Count; i++) {
-                                var channel = viewModel.joinedChannels[i];
-                                if (!channel.upToDate) {
-                                    dispatcher.dispatch<IPromise>(
-                                        Actions.fetchChannelMessages(channel.id, null,
-                                            channel.messageIds.isNotEmpty()
-                                            ? channel.messageIds.last()
-                                            : null));
-                                }
-                            }
-
-                        },
                         joinChannel = (channelId, groupId) => {
                             dispatcher.dispatch<IPromise>(Actions.joinChannel(channelId, groupId));
                         }
@@ -118,8 +100,6 @@ namespace ConnectApp.screens {
         int _pageNumber = firstPageNumber;
         RefreshController _refreshController;
         TextStyle titleStyle;
-        const float maxNavBarHeight = 96;
-        const float minNavBarHeight = 44;
         float navBarHeight;
         string _loginSubId;
         string _refreshSubId;
@@ -132,7 +112,6 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             this._refreshController = new RefreshController();
-            // this.widget.actionModel.fetchChannels();
         }
 
         public override Widget build(BuildContext context) {
@@ -173,7 +152,7 @@ namespace ConnectApp.screens {
                                     padding: EdgeInsets.only(left: 16),
                                     child: new Row(
                                         children: this.widget.viewModel.popularChannels.Select(
-                                            MessengerBuildUtils.buildPopularChannelImage
+                                            MessengerBuildUtils.buildPopularChannelItem
                                         ).ToList()
                                     )
                                 )
@@ -218,8 +197,8 @@ namespace ConnectApp.screens {
                     new Column(
                         children: this.widget.viewModel.publicChannels.Select(
                             (channel) => MessengerBuildUtils.buildDiscoverChannelItem(channel,
-                                    this.widget.actionModel.joinChannel)
-                            ).ToList()
+                                this.widget.actionModel.joinChannel)
+                        ).ToList()
                     ),
                     new Container(height: 40)
                 }
@@ -286,15 +265,73 @@ namespace ConnectApp.screens {
                         this._refreshController.sendBack(false, RefreshStatus.idle);
                         Debug.Log("Completed");
                     }).Catch((e) => {
-                        this._refreshController.sendBack(false, RefreshStatus.idle);
-                        Debug.Log("Failed");
-                    });
+                    this._refreshController.sendBack(false, RefreshStatus.idle);
+                    Debug.Log("Failed");
+                });
             }
         }
     }
 
     public static class MessengerBuildUtils {
-        public static Widget buildPopularChannelImage(ChannelView channel) {
+        public static Widget buildPopularChannelItem(ChannelView channel) {
+            Widget image = Positioned.fill(
+                child: Image.network(
+                    channel?.thumbnail ?? "",
+                    fit: BoxFit.cover
+                )
+            );
+            Widget gradient = Positioned.fill(
+                child: new Container(
+                    decoration: new BoxDecoration(
+                        gradient: new LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: new List<Color> {
+                                Color.fromARGB(20, 0, 0, 0),
+                                Color.fromARGB(80, 0, 0, 0),
+                            }
+                        )
+                    )
+                )
+            );
+
+            Widget title = new Container(
+                height: 72,
+                padding: EdgeInsets.symmetric(0, 8),
+                child: new Align(
+                    alignment: Alignment.bottomLeft,
+                    child: new Text(channel.name,
+                        style: CTextStyle.PLargeMediumWhite)
+                )
+            );
+
+            Widget count = new Container(
+                padding: EdgeInsets.only(top: 4, left: 8),
+                child: new Row(
+                    children: new List<Widget> {
+                        new Container(
+                            width: 8,
+                            height: 8,
+                            decoration: new BoxDecoration(
+                                color: CColors.AquaMarine,
+                                borderRadius: BorderRadius.all(4)
+                            )
+                        ),
+                        new Container(width: 4),
+                        new Text($"{channel.memberCount}人",
+                            style: CTextStyle.PSmallWhite)
+                    }
+                )
+            );
+
+            Widget content = Positioned.fill(
+                child: new Column(
+                    children: new List<Widget> {
+                        title, count
+                    }
+                )
+            );
+
             return new Container(
                 width: 120,
                 height: 120,
@@ -304,59 +341,7 @@ namespace ConnectApp.screens {
                     child: new Container(
                         child: new Stack(
                             children: new List<Widget> {
-                                Positioned.fill(
-                                    child: Image.network(
-                                        channel?.thumbnail ?? "",
-                                        fit: BoxFit.cover
-                                    )
-                                ),
-                                Positioned.fill(
-                                    child: new Container(
-                                        decoration: new BoxDecoration(
-                                            gradient: new LinearGradient(
-                                                begin: Alignment.topCenter,
-                                                end: Alignment.bottomCenter,
-                                                colors: new List<Color> {
-                                                    Color.fromARGB(20, 0, 0, 0),
-                                                    Color.fromARGB(80, 0, 0, 0),
-                                                }
-                                            )
-                                        )
-                                    )
-                                ),
-                                Positioned.fill(
-                                    child: new Column(
-                                        children: new List<Widget> {
-                                            new Container(
-                                                height: 72,
-                                                padding: EdgeInsets.symmetric(0, 8),
-                                                child: new Align(
-                                                    alignment: Alignment.bottomLeft,
-                                                    child: new Text(channel.name,
-                                                        style: CTextStyle.PLargeMediumWhite)
-                                                )
-                                            ),
-                                            new Container(
-                                                padding: EdgeInsets.only(top: 4, left: 8),
-                                                child: new Row(
-                                                    children: new List<Widget> {
-                                                        new Container(
-                                                            width: 8,
-                                                            height: 8,
-                                                            decoration: new BoxDecoration(
-                                                                color: CColors.AquaMarine,
-                                                                borderRadius: BorderRadius.all(4)
-                                                            )
-                                                        ),
-                                                        new Container(width: 4),
-                                                        new Text($"{channel.memberCount}人",
-                                                            style: CTextStyle.PSmallWhite)
-                                                    }
-                                                )
-                                            )
-                                        }
-                                    )
-                                )
+                                image, gradient, content
                             }
                         )
                     )
@@ -366,11 +351,23 @@ namespace ConnectApp.screens {
 
         public static Widget buildChannelItem(ChannelView channel, Action onTap = null) {
             Widget title = new Text(channel.name, style: CTextStyle.PLargeMedium, overflow: TextOverflow.ellipsis);
-            string text = channel.lastMessage == null || string.IsNullOrEmpty(channel.lastMessage.content)
-                ? ""
-                : (channel.lastMessage.author?.fullName == null
-                       ? "" : channel.lastMessage.author?.fullName + ": ") +
-                   (channel.lastMessage.content ?? "");
+
+            string text = "";
+            if (channel.lastMessage != null) {
+                text = channel.lastMessage.content;
+                if (channel.lastMessage.type == ChannelMessageType.image) {
+                    text = "[图片]";
+                }
+                else if (channel.lastMessage.type == ChannelMessageType.file) {
+                    text = "[文件]";
+                }
+
+                text = text ?? "";
+                if (!string.IsNullOrEmpty(channel.lastMessage.author?.fullName) && !string.IsNullOrEmpty(text)) {
+                    text = $"{channel.lastMessage.author?.fullName}: {text}";
+                }
+            }
+
             Widget message = new RichText(
                 text: new TextSpan(
                     channel.atMe
@@ -378,15 +375,22 @@ namespace ConnectApp.screens {
                         : channel.atAll
                             ? "[@所有人] "
                             : "",
+                    style: CTextStyle.PRegularError,
                     children: new List<TextSpan> {
                         new TextSpan(MessageUtils.AnalyzeMessage(
-                                text, channel.lastMessage?.mentions, channel.lastMessage?.mentionEveryone ?? false),
+                                text, channel.lastMessage?.mentions,
+                                channel.lastMessage?.mentionEveryone ?? false),
                             style: CTextStyle.PRegularBody4)
-                    },
-                    style: CTextStyle.PRegularError
+                    }
                 ),
                 overflow: TextOverflow.ellipsis,
-                maxLines: 1);
+                maxLines: 1
+            );
+
+            // Don't show the time if nonce is 0, i.e. the time is not loaded yet.
+            string timeString = channel.lastMessage?.nonce != 0 
+                ? channel.lastMessage?.time.DateTimeString() ?? ""
+                : "";
 
             Widget titleLine = new Container(
                 padding: EdgeInsets.only(left: 16),
@@ -397,11 +401,12 @@ namespace ConnectApp.screens {
                             child: title
                         ),
                         new Container(width: 16),
-                        new Text(channel.lastMessage?.time.DateTimeString() ?? "", style: CTextStyle.PSmallBody4)
+                        new Text(timeString,
+                            style: CTextStyle.PSmallBody4)
                     }
                 )
             );
-            
+
             Widget icon = new Align(
                 alignment: Alignment.centerRight,
                 child: channel.isMute
@@ -422,7 +427,7 @@ namespace ConnectApp.screens {
                     new Expanded(
                         child: new Container(
                             padding: EdgeInsets.symmetric(0, 16),
-                            child:message
+                            child: message
                         )
                     ),
                     channel.isMute || channel.unread > 0 ? icon : new Container()
@@ -437,7 +442,7 @@ namespace ConnectApp.screens {
                     child: Image.network(channel?.thumbnail ?? "", fit: BoxFit.cover)
                 )
             );
-            
+
             Widget ret = new Container(
                 color: channel.isTop ? CColors.PrimaryBlue.withOpacity(0.04f) : CColors.White,
                 height: 72,
