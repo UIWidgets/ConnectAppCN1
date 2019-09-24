@@ -4,15 +4,12 @@ using ConnectApp.Constants;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.Utils;
-using UnityEngine;
 
 namespace ConnectApp.Models.State {
     [Serializable]
     public class AppState {
-        public int Count { get; set; }
         public LoginState loginState { get; set; }
-
-        public EggState eggState { get; set; }
+        public ServiceConfigState serviceConfigState { get; set; }
         public ArticleState articleState { get; set; }
         public EventState eventState { get; set; }
         public PopularSearchState popularSearchState { get; set; }
@@ -29,13 +26,13 @@ namespace ConnectApp.Models.State {
         public ReportState reportState { get; set; }
         public FeedbackState feedbackState { get; set; }
         public ChannelState channelState { get; set; }
+        public TabBarState tabBarState { get; set; }
 
         public static AppState initialState() {
             var loginInfo = UserInfoManager.initUserInfo();
             var isLogin = UserInfoManager.isLogin();
 
             return new AppState {
-                Count = PlayerPrefs.GetInt("count", 0),
                 loginState = new LoginState {
                     email = "",
                     password = "",
@@ -43,8 +40,8 @@ namespace ConnectApp.Models.State {
                     isLoggedIn = isLogin,
                     loading = false
                 },
-                eggState = new EggState {
-                    showFirst = false,
+                serviceConfigState = new ServiceConfigState {
+                    showFirstEgg = false,
                     scanEnabled = false
                 },
                 articleState = new ArticleState {
@@ -56,8 +53,13 @@ namespace ConnectApp.Models.State {
                     followArticlesLoading = false,
                     articleDetailLoading = false,
                     hottestHasMore = true,
+                    feedHasNew = false,
+                    feedIsFirst = false,
                     followArticleHasMore = false,
                     hotArticleHasMore = false,
+                    hotArticlePage = 0,
+                    beforeTime = "",
+                    afterTime = "",
                     articleHistory = HistoryManager.articleHistoryList(isLogin ? loginInfo.userId : null),
                     blockArticleList = HistoryManager.blockArticleList(isLogin ? loginInfo.userId : null)
                 },
@@ -168,6 +170,9 @@ namespace ConnectApp.Models.State {
                     membersDict = new Dictionary<string, ChannelMember>(),
                     unreadDict = ChannelUnreadMessageManager.getUnread() ?? new Dictionary<string, long>(),
                     channelTop = new Dictionary<string, bool>()
+                },
+                tabBarState = new TabBarState {
+                    currentTabIndex = 0
                 }
             };
         }

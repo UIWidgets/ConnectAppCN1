@@ -16,21 +16,18 @@ namespace ConnectApp.Components {
             GestureTapCallback onTap = null,
             GestureTapCallback moreCallBack = null,
             string fullName = null,
-            bool topPadding = false,
             Key key = null
         ) : base(key: key) {
             this.article = article;
             this.fullName = fullName;
             this.onTap = onTap;
             this.moreCallBack = moreCallBack;
-            this.topPadding = topPadding;
         }
 
         readonly Article article;
         readonly string fullName;
         readonly GestureTapCallback onTap;
         readonly GestureTapCallback moreCallBack;
-        readonly bool topPadding;
 
         public override Widget build(BuildContext context) {
             if (this.article == null) {
@@ -41,21 +38,22 @@ namespace ConnectApp.Components {
             const float imageHeight = 66;
             const float borderRadius = 4;
 
-            var gap = this.topPadding ? 16 : 0;
             var time = this.article.publishedTime;
-            var imageUrl = this.article.thumbnail.url.EndsWith(".gif")
-                ? this.article.thumbnail.url
-                : CImageUtils.SuitableSizeImageUrl(imageWidth, this.article.thumbnail.url);
+            var thumbnailUrl = this.article.thumbnail?.url ?? "";
+            var imageUrl = thumbnailUrl.EndsWith(".gif")
+                ? thumbnailUrl
+                : CImageUtils.SuitableSizeImageUrl(imageWidth: imageWidth, imageUrl: thumbnailUrl);
             var card = new Container(
                 color: CColors.White,
-                padding: EdgeInsets.only(top: 16 + gap),
+                padding: EdgeInsets.only(top: 16),
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
                         new Container(
                             padding: EdgeInsets.symmetric(horizontal: 16),
-                            child: new Text(this.article.title,
+                            child: new Text(
+                                data: this.article.title,
                                 style: CTextStyle.H5,
                                 maxLines: 2,
                                 textAlign: TextAlign.left,
@@ -86,11 +84,11 @@ namespace ConnectApp.Components {
                                     new Container(
                                         margin: EdgeInsets.only(8.0f),
                                         child: new PlaceholderImage(
-                                            imageUrl,
-                                            imageWidth,
-                                            imageHeight,
-                                            borderRadius,
-                                            BoxFit.cover
+                                            imageUrl: imageUrl,
+                                            width: imageWidth,
+                                            height: imageHeight,
+                                            borderRadius: borderRadius,
+                                            fit: BoxFit.cover
                                         )
                                     )
                                 }

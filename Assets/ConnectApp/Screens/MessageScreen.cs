@@ -51,7 +51,8 @@ namespace ConnectApp.screens {
                             .Take(state.channelState.publicChannels.Count > 0
                                 ? 8
                                 : state.channelState.publicChannels.Count)
-                            .ToList()
+                            .ToList(),
+                        currentTabBarIndex = state.tabBarState.currentTabIndex
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
@@ -264,6 +265,9 @@ namespace ConnectApp.screens {
         }
 
         public void didPopNext() {
+            if (this.widget.viewModel.currentTabBarIndex == 0) {
+                StatusBarManager.statusBarStyle(false);
+            }
         }
 
         public void didPush() {

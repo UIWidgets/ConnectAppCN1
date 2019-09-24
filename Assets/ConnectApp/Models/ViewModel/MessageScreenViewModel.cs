@@ -9,6 +9,7 @@ using Unity.UIWidgets.foundation;
 namespace ConnectApp.Models.ViewModel {
     public class MessageScreenViewModel {
         public int discoverPage;
+        public int currentTabBarIndex;
         public List<ChannelView> joinedChannels;
         public List<ChannelView> popularChannels;
         public List<ChannelView> publicChannels;

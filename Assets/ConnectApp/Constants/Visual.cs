@@ -457,6 +457,7 @@ namespace ConnectApp.Constants {
         public static readonly Color WechatGreen = new Color(0xFF48B34F);
         public static readonly Color ButtonActive = new Color(0xFF227ABF);
         public static readonly Color AvatarLoading = new Color(0xFFD8D8D8);
+        public static readonly Color LightBlueGrey = new Color(0xFFC7CBCF);
 
         public static readonly Color H5White = Color.fromRGBO(255, 255, 255, 0.8f);
         public static readonly Color TabBarBg = Color.fromRGBO(255, 255, 255, 0.8f);

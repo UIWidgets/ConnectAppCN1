@@ -25,5 +25,9 @@ namespace ConnectApp.Models.ViewModel {
         public bool isLoggedIn;
         public string currentUserId;
         public bool showFirstEgg;
+        public bool feedHasNew;
+        public string beforeTime;
+        public string afterTime;
+        public int currentTabBarIndex;
     }
 }

@@ -34,7 +34,8 @@ namespace ConnectApp.screens {
                     teamDict = state.teamState.teamDict,
                     isLoggedIn = state.loginState.isLoggedIn,
                     hosttestOffset = state.articleState.recommendArticleIds.Count,
-                    showFirstEgg = state.eggState.showFirst
+                    currentUserId = state.loginState.loginInfo.userId ?? "",
+                    showFirstEgg = state.serviceConfigState.showFirstEgg
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ArticlesScreenActionModel {
@@ -57,7 +58,8 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = articleId});
                         },
                         startFetchArticles = () => dispatcher.dispatch(new StartFetchArticlesAction()),
-                        fetchArticles = offset => dispatcher.dispatch<IPromise>(Actions.fetchArticles(offset: offset)),
+                        fetchArticles = (userId, offset) =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchArticles(userId: userId, offset: offset)),
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
                             Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
                     };
@@ -97,14 +99,15 @@ namespace ConnectApp.screens {
             this._hasBeenLoadedData = false;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchArticles();
-                this.widget.actionModel.fetchArticles(arg: initOffset).Then(() => {
-                    if (this._hasBeenLoadedData) {
-                        return;
-                    }
+                this.widget.actionModel.fetchArticles(arg1: this.widget.viewModel.currentUserId, arg2: initOffset).Then(
+                    () => {
+                        if (this._hasBeenLoadedData) {
+                            return;
+                        }
 
-                    this._hasBeenLoadedData = true;
-                    this.setState(() => { });
-                });
+                        this._hasBeenLoadedData = true;
+                        this.setState(() => { });
+                    });
             });
         }
 
@@ -140,98 +143,98 @@ namespace ConnectApp.screens {
                         true,
                         () => {
                             this.widget.actionModel.startFetchArticles();
-                            this.widget.actionModel.fetchArticles(arg: initOffset);
+                            this.widget.actionModel.fetchArticles(arg1: this.widget.viewModel.currentUserId,
+                                arg2: initOffset);
                         }
                     )
                 );
             }
             else {
-                content = new SmartRefresher(
+                var enablePullUp = this.widget.viewModel.hottestHasMore;
+                content = new CustomListView(
                     controller: this._refreshController,
                     enablePullDown: true,
-                    enablePullUp: this.widget.viewModel.hottestHasMore,
+                    enablePullUp: enablePullUp,
                     onRefresh: this._onRefresh,
                     hasBottomMargin: true,
-                    child: ListView.builder(
-                        physics: new AlwaysScrollableScrollPhysics(),
-                        itemCount: recommendArticleIds.Count,
-                        itemBuilder: (cxt, index) => {
-                            var articleId = recommendArticleIds[index: index];
-                            if (this.widget.viewModel.blockArticleList.Contains(item: articleId)) {
-                                return new Container();
-                            }
-
-                            if (!this.widget.viewModel.articleDict.ContainsKey(key: articleId)) {
-                                return new Container();
-                            }
-
-                            if (!this.widget.viewModel.hottestHasMore && recommendArticleIds.Count > 0 &&
-                                index + 1 == recommendArticleIds.Count) {
-                                return new EndView(hasBottomMargin: true);
-                            }
-
-                            var article = this.widget.viewModel.articleDict[key: articleId];
-                            var fullName = "";
-                            var userId = "";
-                            if (article.ownerType == OwnerType.user.ToString()) {
-                                userId = article.userId;
-                                if (this.widget.viewModel.userDict.ContainsKey(key: article.userId)) {
-                                    fullName = this.widget.viewModel.userDict[key: article.userId].fullName
-                                               ?? this.widget.viewModel.userDict[key: article.userId].name;
-                                }
-                            }
-
-                            if (article.ownerType == OwnerType.team.ToString()) {
-                                userId = article.teamId;
-                                if (this.widget.viewModel.teamDict.ContainsKey(key: article.teamId)) {
-                                    fullName = this.widget.viewModel.teamDict[key: article.teamId].name;
-                                }
-                            }
-
-                            var linkUrl = CStringUtils.JointProjectShareLink(projectId: article.id);
-                            return new ArticleCard(
-                                article: article,
-                                () => {
-                                    this.widget.actionModel.pushToArticleDetail(obj: articleId);
-                                    AnalyticsManager.ClickEnterArticleDetail("Home_Article", articleId: article.id,
-                                        articleTitle: article.title);
-                                },
-                                () => ShareManager.showArticleShareView(
-                                    this.widget.viewModel.currentUserId != userId,
-                                    isLoggedIn: this.widget.viewModel.isLoggedIn,
-                                    () => {
-                                        Clipboard.setData(new ClipboardData(text: linkUrl));
-                                        CustomDialogUtils.showToast("复制链接成功", iconData: Icons.check_circle_outline);
-                                    },
-                                    () => this.widget.actionModel.pushToLogin(),
-                                    () => this.widget.actionModel.pushToBlock(obj: article.id),
-                                    () => this.widget.actionModel.pushToReport(arg1: article.id,
-                                        arg2: ReportType.article),
-                                    type => {
-                                        CustomDialogUtils.showCustomDialog(
-                                            child: new CustomLoadingDialog()
-                                        );
-                                        string imageUrl = CImageUtils.SizeTo200ImageUrl(article.thumbnail.url);
-                                        this.widget.actionModel.shareToWechat(arg1: type, arg2: article.title,
-                                                arg3: article.subTitle, arg4: linkUrl, arg5: imageUrl)
-                                            .Then(onResolved: CustomDialogUtils.hiddenCustomDialog)
-                                            .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
-                                    }
-                                ),
-                                fullName: fullName,
-                                key: new ObjectKey(value: article.id)
-                            );
-                        }
-                    )
+                    itemCount: recommendArticleIds.Count,
+                    itemBuilder: this._buildArticleCard,
+                    footerWidget: enablePullUp ? null : new EndView(hasBottomMargin: true),
+                    hasScrollBar: false
                 );
             }
 
             return new CustomScrollbar(child: content);
         }
 
+        Widget _buildArticleCard(BuildContext context, int index) {
+            var recommendArticleIds = this.widget.viewModel.recommendArticleIds;
+
+            var articleId = recommendArticleIds[index: index];
+            if (this.widget.viewModel.blockArticleList.Contains(item: articleId)) {
+                return new Container();
+            }
+
+            if (!this.widget.viewModel.articleDict.ContainsKey(key: articleId)) {
+                return new Container();
+            }
+
+            var article = this.widget.viewModel.articleDict[key: articleId];
+            var fullName = "";
+            var userId = "";
+            if (article.ownerType == OwnerType.user.ToString()) {
+                userId = article.userId;
+                if (this.widget.viewModel.userDict.ContainsKey(key: article.userId)) {
+                    fullName = this.widget.viewModel.userDict[key: article.userId].fullName
+                               ?? this.widget.viewModel.userDict[key: article.userId].name;
+                }
+            }
+
+            if (article.ownerType == OwnerType.team.ToString()) {
+                userId = article.teamId;
+                if (this.widget.viewModel.teamDict.ContainsKey(key: article.teamId)) {
+                    fullName = this.widget.viewModel.teamDict[key: article.teamId].name;
+                }
+            }
+
+            var linkUrl = CStringUtils.JointProjectShareLink(projectId: article.id);
+            return new ArticleCard(
+                article: article,
+                () => {
+                    this.widget.actionModel.pushToArticleDetail(obj: articleId);
+                    AnalyticsManager.ClickEnterArticleDetail("Home_Article", articleId: article.id,
+                        articleTitle: article.title);
+                },
+                () => ShareManager.showArticleShareView(
+                    this.widget.viewModel.currentUserId != userId,
+                    isLoggedIn: this.widget.viewModel.isLoggedIn,
+                    () => {
+                        Clipboard.setData(new ClipboardData(text: linkUrl));
+                        CustomDialogUtils.showToast("复制链接成功", iconData: Icons.check_circle_outline);
+                    },
+                    () => this.widget.actionModel.pushToLogin(),
+                    () => this.widget.actionModel.pushToBlock(obj: article.id),
+                    () => this.widget.actionModel.pushToReport(arg1: article.id,
+                        arg2: ReportType.article),
+                    type => {
+                        CustomDialogUtils.showCustomDialog(
+                            child: new CustomLoadingDialog()
+                        );
+                        string imageUrl = CImageUtils.SizeTo200ImageUrl(imageUrl: article.thumbnail.url);
+                        this.widget.actionModel.shareToWechat(arg1: type, arg2: article.title,
+                                arg3: article.subTitle, arg4: linkUrl, arg5: imageUrl)
+                            .Then(onResolved: CustomDialogUtils.hiddenCustomDialog)
+                            .Catch(_ => CustomDialogUtils.hiddenCustomDialog());
+                    }
+                ),
+                fullName: fullName,
+                new ObjectKey(value: article.id)
+            );
+        }
+
         void _onRefresh(bool up) {
             this.offset = up ? initOffset : this.widget.viewModel.hosttestOffset;
-            this.widget.actionModel.fetchArticles(arg: this.offset)
+            this.widget.actionModel.fetchArticles(arg1: this.widget.viewModel.currentUserId, arg2: this.offset)
                 .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }

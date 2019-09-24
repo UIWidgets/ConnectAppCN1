@@ -15,6 +15,7 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -23,7 +24,9 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, ArticlesScreenViewModel>(
                 converter: state => new ArticlesScreenViewModel {
                     isLoggedIn = state.loginState.isLoggedIn,
-                    showFirstEgg = state.eggState.showFirst
+                    showFirstEgg = state.serviceConfigState.showFirstEgg,
+                    feedHasNew = state.articleState.feedHasNew,
+                    currentTabBarIndex = state.tabBarState.currentTabIndex
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ArticlesScreenActionModel {
@@ -43,7 +46,7 @@ namespace ConnectApp.screens {
                         },
                         fetchChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchChannels(1)),
                     };
-                    return new ArticlesScreen(viewModel, actionModel);
+                    return new ArticlesScreen(viewModel: viewModel, actionModel: actionModel);
                 }
             );
         }
@@ -170,6 +173,7 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             base.build(context: context);
             return new Container(
+                padding: EdgeInsets.only(top: CCommonUtils.getSafeAreaTopPadding(context: context)),
                 color: CColors.White,
                 child: new Column(
                     children: new List<Widget> {
@@ -187,10 +191,9 @@ namespace ConnectApp.screens {
                 var itemIndex = items.IndexOf(item: item);
                 var itemWidget = this._buildSelectItem(title: item, index: itemIndex);
                 widgets.Add(item: itemWidget);
-                widgets.Add(new SizedBox(width: 16));
             });
             return new Container(
-                padding: EdgeInsets.only(16),
+                padding: EdgeInsets.only(8),
                 height: this._navBarHeight,
                 decoration: new BoxDecoration(
                     color: CColors.White,
@@ -263,21 +266,15 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildSelectItem(string title, int index) {
-            var textColor = CColors.TextTitle;
-            float titleFontSize = _minTitleFontSize;
+            Color textColor;
+            float titleFontSize;
             float lineHeight = this._navBarHeight <= _minNavBarHeight ? 2 : 4;
             float radius = this._navBarHeight <= _minNavBarHeight ? 0 : 2;
-            Widget lineView = new Align(
-                alignment: Alignment.bottomCenter,
-                child: new Container(
-                    width: 40,
-                    height: lineHeight
-                )
-            );
+            Widget lineView;
             if (index == this._selectedIndex) {
-                if (this._navBarHeight <= _minNavBarHeight) {
-                    textColor = CColors.PrimaryBlue;
-                }
+                textColor = this._navBarHeight <= _minNavBarHeight
+                    ? CColors.PrimaryBlue
+                    : CColors.TextTitle;
 
                 titleFontSize = this._titleFontSize;
                 lineView = new Align(
@@ -292,6 +289,36 @@ namespace ConnectApp.screens {
                     )
                 );
             }
+            else {
+                textColor = CColors.TextTitle;
+                titleFontSize = _minTitleFontSize;
+                lineView = new Align(
+                    alignment: Alignment.bottomCenter,
+                    child: new Container(
+                        width: 40,
+                        height: lineHeight
+                    )
+                );
+            }
+
+            Widget redDot;
+            if (index == 0 && this.widget.viewModel.isLoggedIn && this.widget.viewModel.feedHasNew) {
+                redDot = new Positioned(
+                    top: 0,
+                    right: 0,
+                    child: new Container(
+                        width: 8,
+                        height: 8,
+                        decoration: new BoxDecoration(
+                            color: CColors.Error,
+                            borderRadius: BorderRadius.circular(4)
+                        )
+                    )
+                );
+            }
+            else {
+                redDot = new Container();
+            }
 
             return new CustomButton(
                 onPressed: () => {
@@ -302,6 +329,7 @@ namespace ConnectApp.screens {
                                 return;
                             }
                         }
+
                         this.setState(() => this._selectedIndex = index);
                         this._pageController.animateToPage(
                             page: index,
@@ -316,16 +344,22 @@ namespace ConnectApp.screens {
                     child: new Stack(
                         alignment: Alignment.bottomCenter,
                         children: new List<Widget> {
-                            new Container(
-                                padding: EdgeInsets.symmetric(10),
-                                child: new Text(
-                                    data: title,
-                                    style: new TextStyle(
-                                        fontSize: titleFontSize,
-                                        fontFamily: "Roboto-Bold",
-                                        color: textColor
-                                    )
-                                )
+                            new Stack(
+                                children: new List<Widget> {
+                                    new Container(
+                                        padding: EdgeInsets.only(8, 4, 8, 10),
+                                        color: CColors.Transparent,
+                                        child: new Text(
+                                            data: title,
+                                            style: new TextStyle(
+                                                fontSize: titleFontSize,
+                                                fontFamily: "Roboto-Bold",
+                                                color: textColor
+                                            )
+                                        )
+                                    ),
+                                    redDot
+                                }
                             ),
                             lineView
                         }
@@ -335,7 +369,9 @@ namespace ConnectApp.screens {
         }
 
         public void didPopNext() {
-            StatusBarManager.statusBarStyle(false);
+            if (this.widget.viewModel.currentTabBarIndex == 0) {
+                StatusBarManager.statusBarStyle(false);
+            }
         }
 
         public void didPush() {

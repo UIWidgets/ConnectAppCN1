@@ -14,8 +14,9 @@ namespace ConnectApp.Components {
     public class NotificationCard : StatelessWidget {
         public NotificationCard(
             Notification notification,
-            User user,
-            List<User> mentions,
+            User user = null,
+            Team team = null,
+            List<User> mentions = null,
             Action onTap = null,
             Action<string> pushToUserDetail = null,
             Action<string> pushToTeamDetail = null,
@@ -24,6 +25,7 @@ namespace ConnectApp.Components {
         ) : base(key: key) {
             this.notification = notification;
             this.user = user;
+            this.team = team;
             this.mentions = mentions;
             this.onTap = onTap;
             this.pushToUserDetail = pushToUserDetail;
@@ -33,11 +35,22 @@ namespace ConnectApp.Components {
 
         readonly Notification notification;
         readonly User user;
+        readonly Team team;
         readonly List<User> mentions;
         readonly Action onTap;
         readonly Action<string> pushToTeamDetail;
         readonly Action<string> pushToUserDetail;
         readonly bool isLast;
+        static readonly List<string> types = new List<string> {
+            "project_liked",
+            "project_message_commented",
+            "project_participate_comment",
+            "project_message_liked",
+            "project_message_participate_liked",
+            "project_article_publish",
+            "followed",
+            "team_followed"
+        };
 
         public override Widget build(BuildContext context) {
             if (this.notification == null) {
@@ -45,15 +58,6 @@ namespace ConnectApp.Components {
             }
 
             var type = this.notification.type;
-            var types = new List<string> {
-                "project_liked",
-                "project_message_commented",
-                "project_participate_comment",
-                "project_message_liked",
-                "project_message_participate_liked",
-                "followed",
-                "team_followed"
-            };
             if (!types.Contains(item: type)) {
                 return new Container();
             }
@@ -65,20 +69,14 @@ namespace ConnectApp.Components {
                     child: new Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: new List<Widget> {
-                            new Container(
-                                padding: EdgeInsets.only(16, 16, 16),
-                                child: new GestureDetector(
-                                    onTap: () => this.pushToUserDetail(obj: this.user.id),
-                                    child: Avatar.User(user: this.user, 48)
-                                )
-                            ),
+                            this._buildNotificationAvatar(),
                             new Expanded(
                                 child: new Container(
                                     padding: EdgeInsets.only(0, 16, 16, 16),
                                     decoration: new BoxDecoration(
                                         border: this.isLast
                                             ? null
-                                            : new Border(bottom: new BorderSide(CColors.Separator2))
+                                            : new Border(bottom: new BorderSide(color: CColors.Separator2))
                                     ),
                                     child: new Column(
                                         mainAxisAlignment: MainAxisAlignment.start,
@@ -95,11 +93,31 @@ namespace ConnectApp.Components {
             );
         }
 
+        Widget _buildNotificationAvatar() {
+            Widget avatar;
+            GestureTapCallback onTap;
+            if (this.user == null) {
+                avatar = Avatar.Team(team: this.team, 48);
+                onTap = () => this.pushToTeamDetail(obj: this.team.id);
+            }
+            else {
+                avatar = Avatar.User(user: this.user, 48);
+                onTap = () => this.pushToUserDetail(obj: this.user.id);
+            }
+
+            return new Container(
+                padding: EdgeInsets.only(16, 16, 16),
+                child: new GestureDetector(
+                    onTap: onTap,
+                    child: avatar
+                )
+            );
+        }
+
         Widget _buildNotificationTitle() {
             var type = this.notification.type;
             var data = this.notification.data;
             var subTitle = new TextSpan();
-            Widget projectTitle = new Container();
             var content = "";
             if (type == "project_liked") {
                 subTitle = new TextSpan(
@@ -176,6 +194,29 @@ namespace ConnectApp.Components {
                 );
             }
 
+            if (type == "project_article_publish") {
+                string name;
+                GestureTapCallback onTap;
+                if (this.notification.data.role == "team") {
+                    name = data.teamName;
+                    onTap = () => this.pushToTeamDetail(obj: data.teamId);
+                }
+                else {
+                    name = data.fullname;
+                    onTap = () => this.pushToUserDetail(obj: data.userId);
+                }
+                subTitle = new TextSpan(
+                    children: new List<TextSpan> {
+                        new TextSpan(text: name, recognizer: new TapGestureRecognizer {
+                            onTap = onTap
+                        }, style: CTextStyle.PLargeBlue),
+                        new TextSpan(" 发布了新文章")
+                    },
+                    style: CTextStyle.PLargeBody2
+                );
+            }
+
+            Widget projectTitle;
             if (data.projectTitle.isNotEmpty()) {
                 projectTitle = new Text(
                     data: data.projectTitle,
@@ -184,6 +225,21 @@ namespace ConnectApp.Components {
                     overflow: TextOverflow.ellipsis
                 );
             }
+            else {
+                projectTitle = new Container();
+            }
+
+            List<TextSpan> textSpans = new List<TextSpan>();
+            if (type != "project_article_publish") {
+                textSpans.Add(new TextSpan(
+                    text: data.fullname,
+                    style: CTextStyle.PLargeMedium,
+                    recognizer: new TapGestureRecognizer {
+                        onTap = () => this.pushToUserDetail(obj: data.userId)
+                    }
+                ));
+            }
+            textSpans.Add(item: subTitle);
 
             return new Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,16 +247,7 @@ namespace ConnectApp.Components {
                     new RichText(
                         maxLines: 2,
                         text: new TextSpan(
-                            children: new List<TextSpan> {
-                                new TextSpan(
-                                    text: data.fullname,
-                                    style: CTextStyle.PLargeMedium,
-                                    recognizer: new TapGestureRecognizer {
-                                        onTap = () => this.pushToUserDetail(obj: data.userId)
-                                    }
-                                ),
-                                subTitle
-                            }
+                            children: textSpans
                         ),
                         overflow: TextOverflow.ellipsis
                     ),

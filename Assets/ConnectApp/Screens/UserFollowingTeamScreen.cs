@@ -52,17 +52,17 @@ namespace ConnectApp.screens {
                     var actionModel = new UserFollowingScreenActionModel {
                         startFetchFollowingTeam = () => dispatcher.dispatch(new StartFetchFollowingTeamAction()),
                         fetchFollowingTeam = offset =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchFollowingTeam(this.userId, offset)),
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowingTeam(userId: this.userId, offset: offset)),
                         startFollowTeam = followTeamId => dispatcher.dispatch(new StartFetchFollowTeamAction {
                             followTeamId = followTeamId
                         }),
                         followTeam = followTeamId =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchFollowTeam(followTeamId)),
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowTeam(followTeamId: followTeamId)),
                         startUnFollowTeam = unFollowTeamId => dispatcher.dispatch(new StartFetchUnFollowTeamAction {
                             unFollowTeamId = unFollowTeamId
                         }),
                         unFollowTeam = unFollowTeamId =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchUnFollowTeam(unFollowTeamId)),
+                            dispatcher.dispatch<IPromise>(Actions.fetchUnFollowTeam(unFollowTeamId: unFollowTeamId)),
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
@@ -72,7 +72,7 @@ namespace ConnectApp.screens {
                             }
                         )
                     };
-                    return new UserFollowingTeamScreen(viewModel, actionModel);
+                    return new UserFollowingTeamScreen(viewModel: viewModel, actionModel: actionModel);
                 }
             );
         }
@@ -159,19 +159,15 @@ namespace ConnectApp.screens {
             }
             else {
                 var enablePullUp = this.widget.viewModel.followingTeamsHasMore;
-                var itemCount = enablePullUp ? followingTeams.Count + 1 : followingTeams.Count + 2;
-                content = new CustomScrollbar(
-                    new SmartRefresher(
-                        controller: this._refreshController,
-                        enablePullDown: true,
-                        enablePullUp: enablePullUp,
-                        onRefresh: this._onRefresh,
-                        child: ListView.builder(
-                            physics: new AlwaysScrollableScrollPhysics(),
-                            itemCount: itemCount,
-                            itemBuilder: this._buildTeamCard
-                        )
-                    )
+                content = new CustomListView(
+                    controller: this._refreshController,
+                    enablePullDown: true,
+                    enablePullUp: enablePullUp,
+                    onRefresh: this._onRefresh,
+                    itemCount: followingTeams.Count,
+                    itemBuilder: this._buildTeamCard,
+                    headerWidget: CustomListViewConstant.defaultHeaderWidget,
+                    footerWidget: enablePullUp ? null : CustomListViewConstant.defaultFooterWidget
                 );
             }
 
@@ -182,25 +178,21 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildTeamCard(BuildContext context, int index) {
-            if (index == 0) {
-                return new CustomDivider(color: CColors.White);
-            }
-
             var followingTeams = this.widget.viewModel.followingTeams;
-            if (index == followingTeams.Count + 1) {
-                return new EndView();
-            }
 
-            var followingTeam = followingTeams[index - 1];
+            var followingTeam = followingTeams[index: index];
             UserType userType = UserType.unFollow;
             if (!this.widget.viewModel.isLoggedIn) {
                 userType = UserType.unFollow;
             }
             else {
-                var followTeamLoading = false;
+                bool followTeamLoading;
                 if (this.widget.viewModel.teamDict.ContainsKey(key: followingTeam.id)) {
                     var team = this.widget.viewModel.teamDict[key: followingTeam.id];
                     followTeamLoading = team.followTeamLoading ?? false;
+                }
+                else {
+                    followTeamLoading = false;
                 }
 
                 if (this.widget.viewModel.currentUserId == followingTeam.id) {

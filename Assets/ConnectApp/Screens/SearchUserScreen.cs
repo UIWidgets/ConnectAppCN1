@@ -51,19 +51,19 @@ namespace ConnectApp.screens {
                         }),
                         startSearchUser = () => dispatcher.dispatch(new StartSearchUserAction()),
                         searchUser = (keyword, pageNumber) => dispatcher.dispatch<IPromise>(
-                            Actions.searchUsers(keyword, pageNumber)),
+                            Actions.searchUsers(keyword: keyword, pageNumber: pageNumber)),
                         startFollowUser = followUserId => dispatcher.dispatch(new StartFollowUserAction {
                             followUserId = followUserId
                         }),
                         followUser = followUserId =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(followUserId)),
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(followUserId: followUserId)),
                         startUnFollowUser = unFollowUserId => dispatcher.dispatch(new StartUnFollowUserAction {
                             unFollowUserId = unFollowUserId
                         }),
                         unFollowUser = unFollowUserId =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(unFollowUserId))
+                            dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(unFollowUserId: unFollowUserId))
                     };
-                    return new SearchUserScreen(viewModel, actionModel);
+                    return new SearchUserScreen(viewModel: viewModel, actionModel: actionModel);
                 }
             );
         }
@@ -163,38 +163,25 @@ namespace ConnectApp.screens {
         Widget _buildContent() {
             var searchUserIds = this.widget.viewModel.searchUserIds;
             var enablePullUp = this.widget.viewModel.searchUserHasMore;
-            var itemCount = enablePullUp ? searchUserIds.Count + 1 : searchUserIds.Count + 2;
             return new Container(
                 color: CColors.Background,
-                child: new CustomScrollbar(
-                    new SmartRefresher(
-                        controller: this._refreshController,
-                        enablePullDown: false,
-                        enablePullUp: enablePullUp,
-                        onRefresh: this._onRefresh,
-                        child: ListView.builder(
-                            physics: new AlwaysScrollableScrollPhysics(),
-                            itemCount: itemCount,
-                            itemBuilder: this._buildUserCard
-                        )
-                    )
+                child: new CustomListView(
+                    controller: this._refreshController,
+                    enablePullDown: false,
+                    enablePullUp: enablePullUp,
+                    onRefresh: this._onRefresh,
+                    itemCount: searchUserIds.Count,
+                    itemBuilder: this._buildUserCard,
+                    headerWidget: CustomListViewConstant.defaultHeaderWidget,
+                    footerWidget: enablePullUp ? null : CustomListViewConstant.defaultFooterWidget
                 )
             );
         }
 
         Widget _buildUserCard(BuildContext context, int index) {
-            if (index == 0) {
-                return new CustomDivider(
-                    color: CColors.White
-                );
-            }
-
             var searchUserIds = this.widget.viewModel.searchUserIds;
-            if (index == searchUserIds.Count + 1) {
-                return new EndView();
-            }
 
-            var searchUserId = searchUserIds[index - 1];
+            var searchUserId = searchUserIds[index: index];
             if (!this.widget.viewModel.userDict.ContainsKey(key: searchUserId)) {
                 return new Container();
             }
