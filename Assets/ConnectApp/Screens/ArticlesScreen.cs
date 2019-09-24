@@ -24,8 +24,9 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, ArticlesScreenViewModel>(
                 converter: state => new ArticlesScreenViewModel {
                     isLoggedIn = state.loginState.isLoggedIn,
-                    showFirstEgg = state.eggState.showFirst,
-                    feedHasNew = state.articleState.feedHasNew
+                    showFirstEgg = state.serviceConfigState.showFirstEgg,
+                    feedHasNew = state.articleState.feedHasNew,
+                    currentTabBarIndex = state.tabBarState.currentTabIndex
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ArticlesScreenActionModel {
@@ -166,6 +167,7 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             base.build(context: context);
             return new Container(
+                padding: EdgeInsets.only(top: CCommonUtils.getSafeAreaTopPadding(context: context)),
                 color: CColors.White,
                 child: new Column(
                     children: new List<Widget> {
@@ -311,6 +313,7 @@ namespace ConnectApp.screens {
             else {
                 redDot = new Container();
             }
+
             return new CustomButton(
                 onPressed: () => {
                     if (this._selectedIndex != index) {
@@ -320,6 +323,7 @@ namespace ConnectApp.screens {
                                 return;
                             }
                         }
+
                         this.setState(() => this._selectedIndex = index);
                         this._pageController.animateToPage(
                             page: index,
@@ -359,7 +363,9 @@ namespace ConnectApp.screens {
         }
 
         public void didPopNext() {
-            StatusBarManager.statusBarStyle(false);
+            if (this.widget.viewModel.currentTabBarIndex == 0) {
+                StatusBarManager.statusBarStyle(false);
+            }
         }
 
         public void didPush() {

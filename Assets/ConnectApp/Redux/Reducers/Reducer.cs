@@ -21,13 +21,6 @@ namespace ConnectApp.redux.reducers {
 
         public static AppState Reduce(AppState state, object bAction) {
             switch (bAction) {
-                case AddCountAction action: {
-                    state.Count += action.number;
-                    PlayerPrefs.SetInt("count", value: state.Count);
-                    PlayerPrefs.Save();
-                    break;
-                }
-
                 case LoginChangeEmailAction action: {
                     state.loginState.email = action.changeText;
                     break;
@@ -2212,18 +2205,23 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case InitEggsAction action: {
-                    state.eggState.showFirst = action.firstEgg;
+                    state.serviceConfigState.showFirstEgg = action.firstEgg;
                     break;
                 }
 
                 case ScanEnabledAction action: {
-                    state.eggState.scanEnabled = action.scanEnabled;
+                    state.serviceConfigState.scanEnabled = action.scanEnabled;
                     break;
                 }
 
                 case EnterRealityAction _: {
                     // Enter Reality
                     RealityManager.TriggerSwitch();
+                    break;
+                }
+
+                case SwitchTabBarIndexAction action: {
+                    state.tabBarState.currentTabIndex = action.index;
                     break;
                 }
             }

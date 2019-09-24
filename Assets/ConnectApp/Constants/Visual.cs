@@ -442,6 +442,7 @@ namespace ConnectApp.Constants {
         public static readonly Color WechatGreen = new Color(0xFF48B34F);
         public static readonly Color ButtonActive = new Color(0xFF227ABF);
         public static readonly Color AvatarLoading = new Color(0xFFD8D8D8);
+        public static readonly Color LightBlueGrey = new Color(0xFFC7CBCF);
 
         public static readonly Color H5White = Color.fromRGBO(255, 255, 255, 0.8f);
         public static readonly Color TabBarBg = Color.fromRGBO(255, 255, 255, 0.8f);
@@ -454,7 +455,7 @@ namespace ConnectApp.Constants {
         public static readonly Color Blue = new Color(0xFF0000FF);
         public static readonly Color Grey = new Color(0xFF9E9E9E);
 
-        public static readonly Color Background = new Color(0xFFF5F5F5);
+        public static readonly Color Background = new Color(0xFFFAFAFA);
         public static readonly Color Icon = new Color(0xFF979A9E);
 
         public static readonly Color Gerakdine = new Color(0xFFFF8686);

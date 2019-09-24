@@ -120,31 +120,24 @@ namespace ConnectApp.screens {
             }
 
             var enablePullUp = ongoingEvents.Count < this.widget.viewModel.ongoingEventTotal;
-            var itemCount = enablePullUp ? ongoingEvents.Count : ongoingEvents.Count + 1;
             return new Container(
                 color: CColors.Background,
-                child: new CustomScrollbar(
-                    new SmartRefresher(
-                        controller: this._ongoingRefreshController,
-                        enablePullDown: true,
-                        enablePullUp: enablePullUp,
-                        onRefresh: this._ongoingRefresh,
-                        hasBottomMargin: true,
-                        child: ListView.builder(
-                            physics: new AlwaysScrollableScrollPhysics(),
-                            itemCount: itemCount,
-                            itemBuilder: this._buildEventCard
-                        )
-                    )
+                child: new CustomListView(
+                    controller: this._ongoingRefreshController,
+                    enablePullDown: true,
+                    enablePullUp: enablePullUp,
+                    onRefresh: this._ongoingRefresh,
+                    hasBottomMargin: true,
+                    itemCount: ongoingEvents.Count,
+                    itemBuilder: this._buildEventCard,
+                    headerWidget: CustomListViewConstant.defaultHeaderWidget,
+                    footerWidget: enablePullUp ? null : new EndView(hasBottomMargin: true)
                 )
             );
         }
 
         Widget _buildEventCard(BuildContext context, int index) {
             var ongoingEvents = this.widget.viewModel.ongoingEvents;
-            if (index == ongoingEvents.Count) {
-                return new EndView(hasBottomMargin: true);
-            }
 
             var eventId = ongoingEvents[index: index];
             var model = this.widget.viewModel.eventsDict[key: eventId];
@@ -158,7 +151,6 @@ namespace ConnectApp.screens {
                     arg1: model.id,
                     model.mode == "online" ? EventType.online : EventType.offline
                 ),
-                index == 0,
                 new ObjectKey(value: model.id)
             );
         }

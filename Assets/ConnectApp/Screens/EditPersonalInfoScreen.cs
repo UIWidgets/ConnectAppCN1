@@ -7,6 +7,7 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
+using ConnectApp.Plugins;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using Newtonsoft.Json;
@@ -22,14 +23,14 @@ using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.screens {
     public class EditPersonalInfoScreenConnector : StatelessWidget {
-        readonly string personalId;
-
         public EditPersonalInfoScreenConnector(
             string personalId,
             Key key = null
         ) : base(key: key) {
             this.personalId = personalId;
         }
+
+        readonly string personalId;
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, EditPersonalInfoScreenViewModel>(
@@ -51,8 +52,7 @@ namespace ConnectApp.screens {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         editPersonalInfo = (fullName, title, jobRoleId, placeId) =>
                             dispatcher.dispatch<IPromise>(Actions.editPersonalInfo(fullName: fullName, title: title,
-                                jobRoleId: jobRoleId,
-                                placeId: placeId)),
+                                jobRoleId: jobRoleId, placeId: placeId)),
                         updateAvatar = image => dispatcher.dispatch<IPromise>(Actions.updateAvatar(image: image)),
                         changeFullName = fullName =>
                             dispatcher.dispatch(new ChangePersonalFullNameAction {fullName = fullName}),
@@ -72,10 +72,6 @@ namespace ConnectApp.screens {
     }
 
     public class EditPersonalInfoScreen : StatefulWidget {
-        public readonly EditPersonalInfoScreenActionModel actionModel;
-
-        public readonly EditPersonalInfoScreenViewModel viewModel;
-
         public EditPersonalInfoScreen(
             EditPersonalInfoScreenViewModel viewModel = null,
             EditPersonalInfoScreenActionModel actionModel = null,
@@ -85,21 +81,22 @@ namespace ConnectApp.screens {
             this.actionModel = actionModel;
         }
 
+        public readonly EditPersonalInfoScreenViewModel viewModel;
+        public readonly EditPersonalInfoScreenActionModel actionModel;
+
         public override State createState() {
             return new _EditPersonalInfoScreenState();
         }
     }
 
     class _EditPersonalInfoScreenState : State<EditPersonalInfoScreen> {
+        TextEditingController _fullNameController;
+        TextEditingController _titleController;
+
         readonly FocusNode _fullNameFocusNode = new FocusNode();
         readonly FocusNode _titleFocusNode = new FocusNode();
-        bool _enableSubmit;
-        TextEditingController _fullNameController;
         Dictionary<string, string> _jobRole;
         string _pickedImage;
-
-        string _pickImageSubId;
-        TextEditingController _titleController;
 
         public override void initState() {
             base.initState();
@@ -129,17 +126,37 @@ namespace ConnectApp.screens {
                     }
                 });
             });
-
-            this._pickImageSubId = EventBus.subscribe(sName: EventBusConstant.pickAvatarSuccess, args => {
-                this._pickedImage = (string) args[0];
-                this.judgeEnableSubmit();
-                this.setState();
-            });
         }
 
-        public override void dispose() {
-            EventBus.unSubscribe(sName: EventBusConstant.pickAvatarSuccess, id: this._pickImageSubId);
-            base.dispose();
+        void _pickImage() {
+            var items = new List<ActionSheetItem> {
+                new ActionSheetItem(
+                    "拍照",
+                    onTap: () => PickImagePlugin.PickImage(
+                        source: ImageSource.camera,
+                        pickImage => {
+                            this._pickedImage = pickImage;
+                            this.setState(() => { });
+                        }
+                    )
+                ),
+                new ActionSheetItem(
+                    "从相册选择",
+                    onTap: () => PickImagePlugin.PickImage(
+                        source: ImageSource.gallery,
+                        pickImage => {
+                            this._pickedImage = pickImage;
+                            this.setState(() => { });
+                        }
+                    )
+                ),
+                new ActionSheetItem("取消", type: ActionType.cancel)
+            };
+
+            ActionSheetUtils.showModalActionSheet(new ActionSheet(
+                title: "修改头像",
+                items: items
+            ));
         }
 
         void _editPersonalInfo() {
@@ -149,15 +166,11 @@ namespace ConnectApp.screens {
                 )
             );
             this.widget.actionModel.editPersonalInfo(
-                arg1: this._fullNameController.text,
-                arg2: this._titleController.text,
+                arg1: this.widget.viewModel.fullName,
+                arg2: this.widget.viewModel.title,
                 arg3: this.widget.viewModel.jobRole.id,
                 arg4: this.widget.viewModel.place
-            ).Then(() => {
-                this.widget.actionModel.changeTitle(obj: this._titleController.text);
-                this.widget.actionModel.changeFullName(obj: this._fullNameController.text);
-                this.updateAvatar(true);
-            }).Catch(error => { this.updateAvatar(false); });
+            ).Then(() => this.updateAvatar(true)).Catch(error => this.updateAvatar(false));
         }
 
         void updateAvatar(bool editSuccess) {
@@ -203,6 +216,8 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildNavigationBar() {
+            var disEnabled = this.widget.viewModel.fullName.isEmpty()
+                             || this.widget.viewModel.jobRole.name.isEmpty();
             return new CustomAppBar(
                 () => this.widget.actionModel.mainRouterPop(),
                 new Text(
@@ -212,15 +227,15 @@ namespace ConnectApp.screens {
                 new CustomButton(
                     padding: EdgeInsets.only(16, 0, 16),
                     onPressed: () => {
-                        if (this._enableSubmit) {
+                        if (!disEnabled) {
                             this._editPersonalInfo();
                         }
                     },
                     child: new Text(
                         "提交",
-                        style: this._enableSubmit
-                            ? CTextStyle.PLargeMediumBlue
-                            : CTextStyle.PLargeMediumBlue.copyWith(color: new Color(0xFF9D9D9D))
+                        style: disEnabled
+                            ? CTextStyle.PLargeMediumBlue.copyWith(color: new Color(0xFF9D9D9D))
+                            : CTextStyle.PLargeMediumBlue
                     )
                 )
             );
@@ -231,20 +246,20 @@ namespace ConnectApp.screens {
                 child: new ListView(
                     children: new List<Widget> {
                         this._buildHeader(),
-                        this._buildInputItem(
+                        _buildInputItem(
                             "昵称",
                             "请输入你的昵称",
                             controller: this._fullNameController,
                             focusNode: this._fullNameFocusNode,
-                            fullName => { this.judgeEnableSubmit(); },
+                            fullName => this.widget.actionModel.changeFullName(obj: fullName),
                             70
                         ),
-                        this._buildInputItem(
+                        _buildInputItem(
                             "头衔",
                             "请输入你的头衔",
                             controller: this._titleController,
                             focusNode: this._titleFocusNode,
-                            title => { this.judgeEnableSubmit(); },
+                            title => this.widget.actionModel.changeTitle(obj: title),
                             45
                         ),
                         new CustomDivider(
@@ -254,17 +269,6 @@ namespace ConnectApp.screens {
                     }
                 )
             );
-        }
-
-        void judgeEnableSubmit() {
-            this._enableSubmit = false;
-            if (this._titleController.text.isNotEmpty() && this._fullNameController.text.isNotEmpty() &&
-                (this._titleController.text != this.widget.viewModel.title ||
-                 this._fullNameController.text != this.widget.viewModel.fullName || this._pickedImage.isNotEmpty())) {
-                this._enableSubmit = true;
-            }
-
-            this.setState();
         }
 
         Widget _buildHeader() {
@@ -277,7 +281,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         new GestureDetector(
                             child: this._buildAvatar(user: user),
-                            onTap: PickImageManager.showActionSheet
+                            onTap: this._pickImage
                         )
                     }
                 )
@@ -285,12 +289,6 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildAvatar(User user) {
-            var avatarSize = 120;
-            var border = Border.all(
-                color: CColors.White,
-                2
-            );
-
             var httpsUrl = user.avatar;
             // fix Android 9 http request error 
             if (httpsUrl.Contains("http://")) {
@@ -305,12 +303,12 @@ namespace ConnectApp.screens {
                     child: new _Placeholder(
                         user.id ?? "",
                         user.fullName ?? "",
-                        size: avatarSize
+                        120
                     )
                 )
                 : new Container(
-                    width: avatarSize,
-                    height: avatarSize,
+                    width: 120,
+                    height: 120,
                     color: CColors.AvatarLoading,
                     child: image
                 );
@@ -319,10 +317,13 @@ namespace ConnectApp.screens {
                 height: 120,
                 decoration: new BoxDecoration(
                     borderRadius: BorderRadius.circular(60),
-                    border: border
+                    border: Border.all(
+                        color: CColors.White,
+                        2
+                    )
                 ),
                 child: new ClipRRect(
-                    borderRadius: BorderRadius.circular(radius: avatarSize),
+                    borderRadius: BorderRadius.circular(60),
                     child: new Stack(
                         children: new List<Widget> {
                             child,
@@ -343,7 +344,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildInputItem(
+        static Widget _buildInputItem(
             string tipText,
             string placeHold,
             TextEditingController controller,
@@ -374,7 +375,6 @@ namespace ConnectApp.screens {
                                 cursorColor: CColors.PrimaryBlue,
                                 clearButtonMode: InputFieldClearButtonMode.whileEditing,
                                 onChanged: onChanged
-                                // onSubmitted: this._searchFollowing
                             )
                         )
                     }

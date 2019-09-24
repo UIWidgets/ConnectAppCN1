@@ -55,17 +55,17 @@ namespace ConnectApp.screens {
                     var actionModel = new TeamMemberScreenActionModel {
                         startFetchMember = () => dispatcher.dispatch(new StartFetchTeamMemberAction()),
                         fetchMember = pageNumber =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchTeamMember(this.teamId, pageNumber)),
+                            dispatcher.dispatch<IPromise>(Actions.fetchTeamMember(teamId: this.teamId, pageNumber: pageNumber)),
                         startFollowUser = followUserId => dispatcher.dispatch(new StartFollowUserAction {
                             followUserId = followUserId
                         }),
                         followUser = followUserId =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(followUserId)),
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(followUserId: followUserId)),
                         startUnFollowUser = unFollowUserId => dispatcher.dispatch(new StartUnFollowUserAction {
                             unFollowUserId = unFollowUserId
                         }),
                         unFollowUser = unFollowUserId =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(unFollowUserId)),
+                            dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(unFollowUserId: unFollowUserId)),
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
@@ -76,7 +76,7 @@ namespace ConnectApp.screens {
                             }
                         )
                     };
-                    return new TeamMemberScreen(viewModel, actionModel);
+                    return new TeamMemberScreen(viewModel: viewModel, actionModel: actionModel);
                 }
             );
         }
@@ -117,7 +117,7 @@ namespace ConnectApp.screens {
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
         }
 
         public override void dispose() {
@@ -179,18 +179,15 @@ namespace ConnectApp.screens {
                 );
             }
             else {
-                content = new CustomScrollbar(
-                    new SmartRefresher(
-                        controller: this._refreshController,
-                        enablePullDown: true,
-                        enablePullUp: this.widget.viewModel.membersHasMore,
-                        onRefresh: this._onRefresh,
-                        child: ListView.builder(
-                            physics: new AlwaysScrollableScrollPhysics(),
-                            itemCount: members.Count,
-                            itemBuilder: this._buildMemberCard
-                        )
-                    )
+                var enablePullUp = this.widget.viewModel.membersHasMore;
+                content = new CustomListView(
+                    controller: this._refreshController,
+                    enablePullDown: true,
+                    enablePullUp: enablePullUp,
+                    onRefresh: this._onRefresh,
+                    itemCount: members.Count,
+                    itemBuilder: this._buildMemberCard,
+                    footerWidget: enablePullUp ? null : CustomListViewConstant.defaultFooterWidget
                 );
             }
 

@@ -345,46 +345,23 @@ namespace ConnectApp.screens {
             if (followArticleLoading || followingLoading) {
                 content = new FollowArticleLoading();
             }
-            else if (this.widget.viewModel.hotArticlePage > 0) {
-                var itemCount = followings.isEmpty()
-                    ? hotArticleIds.Count
-                    : hotArticleIds.Count + 1;
-                if (!this.widget.viewModel.hotArticleHasMore) {
-                    itemCount = itemCount + 1;
-                }
-
-                content = new SmartRefresher(
-                    controller: this._refreshController,
-                    enablePullDown: true,
-                    enablePullUp: this.widget.viewModel.hotArticleHasMore,
-                    onRefresh: up => this._onRefresh(up: up, true),
-                    hasBottomMargin: true,
-                    child: ListView.builder(
-                        physics: new AlwaysScrollableScrollPhysics(),
-                        itemCount: itemCount,
-                        itemBuilder: (cxt, index) => this._buildFollowArticleCard(context: cxt, index: index, false)
-                    )
-                );
-            }
             else {
-                var itemCount = followings.isEmpty()
-                    ? followArticleIds.Count
-                    : followArticleIds.Count + 1;
-                if (!this.widget.viewModel.followArticleHasMore) {
-                    itemCount = itemCount + 1;
-                }
-
-                content = new SmartRefresher(
+                var isHot = this.widget.viewModel.hotArticlePage > 0;
+                var itemCount = isHot ? hotArticleIds.Count : followArticleIds.Count;
+                var enablePullUp = isHot
+                    ? this.widget.viewModel.hotArticleHasMore
+                    : this.widget.viewModel.followArticleHasMore;
+                content = new CustomListView(
                     controller: this._refreshController,
                     enablePullDown: true,
-                    enablePullUp: this.widget.viewModel.followArticleHasMore,
-                    onRefresh: up => this._onRefresh(up: up, false),
+                    enablePullUp: enablePullUp,
+                    onRefresh: up => this._onRefresh(up: up, isHot: isHot),
                     hasBottomMargin: true,
-                    child: ListView.builder(
-                        physics: new AlwaysScrollableScrollPhysics(),
-                        itemCount: itemCount,
-                        itemBuilder: (cxt, index) => this._buildFollowArticleCard(context: cxt, index: index)
-                    )
+                    itemCount: itemCount,
+                    itemBuilder: (cxt, index) => this._buildFollowArticleCard(context: cxt, index: index, isFollow: !isHot),
+                    headerWidget: followings.isEmpty() ? null : this._buildFollowingList(),
+                    footerWidget: enablePullUp ? null : new EndView(hasBottomMargin: true),
+                    hasScrollBar: false
                 );
             }
 
@@ -541,22 +518,11 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildFollowArticleCard(BuildContext context, int index, bool isFollow = true) {
-            if (this.widget.viewModel.followings.isNotEmpty() && index == 0) {
-                return this._buildFollowingList();
-            }
-
             var articleIds = isFollow
                 ? this.widget.viewModel.followArticleIds
                 : this.widget.viewModel.hotArticleIds;
-            var newIndex = this.widget.viewModel.followings.isNotEmpty()
-                ? index - 1
-                : index;
 
-            if (newIndex == articleIds.Count) {
-                return new EndView(hasBottomMargin: true);
-            }
-
-            var articleId = articleIds[index: newIndex];
+            var articleId = articleIds[index: index];
             if (!this.widget.viewModel.articleDict.ContainsKey(key: articleId)) {
                 return new Container();
             }

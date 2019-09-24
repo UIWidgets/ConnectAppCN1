@@ -23,7 +23,6 @@ namespace ConnectApp.screens {
         public NotificationScreenConnector(
             Key key = null
         ) : base(key: key) {
-            
         }
 
         public override Widget build(BuildContext context) {
@@ -35,7 +34,8 @@ namespace ConnectApp.screens {
                     notifications = state.notificationState.notifications,
                     mentions = state.notificationState.mentions,
                     userDict = state.userState.userDict,
-                    teamDict = state.teamState.teamDict
+                    teamDict = state.teamState.teamDict,
+                    currentTabBarIndex = state.tabBarState.currentTabIndex
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new NotificationScreenActionModel {
@@ -185,25 +185,24 @@ namespace ConnectApp.screens {
             }
             else {
                 var enablePullUp = this.widget.viewModel.page < this.widget.viewModel.pageTotal;
-                var itemCount = enablePullUp ? notifications.Count : notifications.Count + 1;
                 content = new Container(
                     color: CColors.Background,
-                    child: new SmartRefresher(
+                    child: new CustomListView(
                         controller: this._refreshController,
                         enablePullDown: true,
                         enablePullUp: enablePullUp,
                         onRefresh: this._onRefresh,
                         hasBottomMargin: true,
-                        child: ListView.builder(
-                            physics: new AlwaysScrollableScrollPhysics(),
-                            itemCount: itemCount,
-                            itemBuilder: this._buildNotificationCard
-                        )
+                        itemCount: notifications.Count,
+                        itemBuilder: this._buildNotificationCard,
+                        footerWidget: enablePullUp ? null : new EndView(hasBottomMargin: true),
+                        hasScrollBar: false
                     )
                 );
             }
 
             return new Container(
+                padding: EdgeInsets.only(top: CCommonUtils.getSafeAreaTopPadding(context: context)),
                 color: CColors.White,
                 child: new Column(
                     children: new List<Widget> {
@@ -246,14 +245,12 @@ namespace ConnectApp.screens {
 
         Widget _buildNotificationCard(BuildContext context, int index) {
             var notifications = this.widget.viewModel.notifications;
-            if (index == notifications.Count) {
-                return new EndView(hasBottomMargin: true);
-            }
 
             var notification = notifications[index: index];
             if (notification.data.userId.isEmpty() && notification.data.role.Equals("user")) {
                 return new Container();
             }
+
             User user;
             Team team;
             if (notification.type == "project_article_publish" && notification.data.role == "team") {
@@ -264,6 +261,7 @@ namespace ConnectApp.screens {
                 user = this.widget.viewModel.userDict[key: notification.data.userId];
                 team = null;
             }
+
             return new NotificationCard(
                 notification: notification,
                 user: user,
@@ -324,7 +322,9 @@ namespace ConnectApp.screens {
         }
 
         public void didPopNext() {
-            StatusBarManager.statusBarStyle(false);
+            if (this.widget.viewModel.currentTabBarIndex == 2) {
+                StatusBarManager.statusBarStyle(false);
+            }
         }
 
         public void didPush() {
