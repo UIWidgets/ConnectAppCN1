@@ -77,6 +77,14 @@ namespace ConnectApp.Utils {
             var timespan = (shifted - 1);
             return startTime.AddMilliseconds(timespan);
         }
+        
+        public static DateTime DateTimeFromNonce(long span) {
+            var startTime = new DateTime(2016, 1, 1);
+            startTime = TimeZoneInfo.ConvertTime(startTime, TimeZoneInfo.Local);
+            var shifted = (span + 1) >> 22;
+            var timespan = (shifted - 1);
+            return startTime.AddMilliseconds(timespan);
+        }
 
         public static string DateTimeString(this DateTime time, bool showTimeNotToday = true) {
             time = TimeZoneInfo.ConvertTime(time, TimeZoneInfo.Utc, TimeZoneInfo.Local);
