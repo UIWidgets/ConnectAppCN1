@@ -165,6 +165,7 @@ namespace Plugins.Editor {
             
             rootDict.SetString("NSCameraUsageDescription", "App需要您的同意,才能访问相机");
             rootDict.SetString("NSPhotoLibraryUsageDescription", "App需要您的同意,才能访问相册");
+            rootDict.SetString("NSMicrophoneUsageDescription", "App需要您的同意,才能访问麦克风");
             // remove exit on suspend if it exists.
             string exitsOnSuspendKey = "UIApplicationExitsOnSuspend";
             if (rootDict.values.ContainsKey(exitsOnSuspendKey)) {
