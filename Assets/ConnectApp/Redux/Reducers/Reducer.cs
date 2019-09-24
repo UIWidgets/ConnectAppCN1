@@ -168,6 +168,7 @@ namespace ConnectApp.redux.reducers {
                                         HistoryManager.saveHomeAfterTime(afterTime: state.articleState.afterTime,
                                             userId: state.loginState.loginInfo.userId);
                                     }
+
                                     state.articleState.followArticleIdDict[key: currentUserId] = followArticleIds;
                                 }
                                 else {
@@ -184,6 +185,7 @@ namespace ConnectApp.redux.reducers {
                                     HistoryManager.saveHomeAfterTime(afterTime: state.articleState.afterTime,
                                         userId: state.loginState.loginInfo.userId);
                                 }
+
                                 state.articleState.followArticleIdDict.Add(key: currentUserId, value: followArticleIds);
                             }
                         }
@@ -251,6 +253,7 @@ namespace ConnectApp.redux.reducers {
                     article.isNotFirst = true;
                     article.currOldestMessageId = action.articleDetail.comments.currOldestMessageId;
                     article.videoSliceMap = action.articleDetail.videoSliceMap;
+                    article.videoPosterMap = action.articleDetail.videoPosterMap;
                     var dict = state.articleState.articleDict;
                     if (dict.ContainsKey(key: article.id)) {
                         state.articleState.articleDict[key: article.id] = article;

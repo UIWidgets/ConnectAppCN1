@@ -27,6 +27,7 @@ namespace ConnectApp.Models.Model {
         public string channelId;
         public Dictionary<string, ContentMap> contentMap;
         public Dictionary<string, VideoSliceMap> videoSliceMap;
+        public Dictionary<string, string> videoPosterMap;
         public string currOldestMessageId;
         public bool hasMore;
         public bool isNotFirst;

@@ -27,7 +27,7 @@
     [self addSubview: self.buyButton];
     
     [self.titleLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.mas_equalTo(self.mas_top);
+        make.top.mas_equalTo(self.mas_centerY).offset(-100);
         make.leading.mas_equalTo(16);
         make.trailing.mas_equalTo(-16);
         make.height.mas_equalTo(30);

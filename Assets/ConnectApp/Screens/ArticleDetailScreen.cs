@@ -358,6 +358,7 @@ namespace ConnectApp.screens {
                     cont: this._article.body,
                     contentMap: this._article.contentMap,
                     this._article.videoSliceMap,
+                    this._article.videoPosterMap,
                     openUrl: this.widget.actionModel.openUrl,
                     playVideo: this.widget.actionModel.playVideo,
                     this.widget.actionModel.pushToLogin,

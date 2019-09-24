@@ -10,6 +10,7 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.Components {
     public static class ContentDescription {
@@ -17,7 +18,7 @@ namespace ConnectApp.Components {
         static readonly Color codeBlockBackgroundColor = Color.fromRGBO(110, 198, 255, 0.12f);
 
         public static List<Widget> map(BuildContext context, string cont, Dictionary<string, ContentMap> contentMap,
-            Dictionary<string, VideoSliceMap> videoSliceMap,
+            Dictionary<string, VideoSliceMap> videoSliceMap, Dictionary<string, string> videoPosterMap,
             Action<string> openUrl, Action<string, bool, int> playVideo, Action loginAction, string licence,
             Action browserImage = null) {
             if (cont == null || contentMap == null) {
@@ -158,8 +159,15 @@ namespace ConnectApp.Components {
                                         }
                                     }
 
+                                    var videoPoster = "";
+                                    if (videoPosterMap != null && videoPosterMap.isNotEmpty() &&
+                                        videoPosterMap.ContainsKey(map.attachmentId)) {
+                                        videoPoster = videoPosterMap[map.attachmentId];
+                                    }
+
+
                                     widgets.Add(_Atomic(context, dataMap.type, contentType, data.title, data.url,
-                                        originalImage, videoStatus,
+                                        originalImage, videoStatus, videoPoster,
                                         url, downloadUrl, attachmentId
                                         , openUrl, playVideo, loginAction, needUpdate, limitSeconds, browserImage));
                                 }
@@ -319,7 +327,7 @@ namespace ConnectApp.Components {
         }
 
         static Widget _Atomic(BuildContext context, string type, string contentType, string title, string dataUrl,
-            _OriginalImage originalImage, string videoStatus,
+            _OriginalImage originalImage, string videoStatus, string videoPoster,
             string url, string downloadUrl, string attachmentId, Action<string> openUrl,
             Action<string, bool, int> playVideo, Action loginAction, bool needUpdate, int limitSeconds,
             Action browserImage = null) {
@@ -330,50 +338,59 @@ namespace ConnectApp.Components {
             var playButton = Positioned.fill(
                 new Container()
             );
+
             if (type == "VIDEO" || type == "ATTACHMENT") {
                 playButton = Positioned.fill(
                     new Center(
-                        child: UserInfoManager.isLogin()
-                            ? videoStatus == "completed" ? new CustomButton(
-                                onPressed: () => {
-                                    if (type == "ATTACHMENT") {
-                                        if (url.isEmpty()) {
-                                            playVideo(downloadUrl, false, 0);
+                        child: videoStatus == "completed"
+                            ? UserInfoManager.isLogin()
+                                ? new CustomButton(
+                                    onPressed: () => {
+                                        if (type == "ATTACHMENT") {
+                                            if (url.isEmpty()) {
+                                                playVideo(downloadUrl, false, 0);
+                                            }
+                                            else {
+                                                playVideo($"{Config.apiAddress}/playlist/{attachmentId}", needUpdate,
+                                                    limitSeconds);
+                                            }
                                         }
                                         else {
-                                            playVideo($"{Config.apiAddress}/playlist/{attachmentId}", needUpdate,
-                                                limitSeconds);
-                                        }
-                                    }
-                                    else {
-                                        if (url == null || url.Length <= 0) {
-                                            return;
-                                        }
+                                            if (url == null || url.Length <= 0) {
+                                                return;
+                                            }
 
-                                        openUrl(url);
-                                    }
-                                },
-                                child: new Container(
-                                    width: 60,
-                                    height: 60,
-                                    decoration: new BoxDecoration(
-                                        CColors.H5White,
-                                        borderRadius: BorderRadius.all(30)
-                                    ),
-                                    child: new Icon(
-                                        Icons.play_arrow,
-                                        size: 45,
-                                        color: CColors.Icon
+                                            openUrl(url);
+                                        }
+                                    },
+                                    child: new Container(
+                                        width: 60,
+                                        height: 60,
+                                        decoration: new BoxDecoration(
+                                            CColors.H5White,
+                                            borderRadius: BorderRadius.all(30)
+                                        ),
+                                        child: new Icon(
+                                            Icons.play_arrow,
+                                            size: 45,
+                                            color: CColors.Icon
+                                        )
                                     )
                                 )
-                            ) : (Widget) new Container(
+                                : (Widget) new GestureDetector(
+                                    onTap: () => { loginAction(); },
+                                    child: new Container(
+                                        color: CColors.Black.withOpacity(0.5f),
+                                        alignment: Alignment.center,
+                                        child: new Text("Login to view this video",
+                                            style: CTextStyle.PXLargeWhite.merge(
+                                                new TextStyle(decoration: TextDecoration.underline)))
+                                    ))
+                            : new Container(
+                                color: CColors.Black.withOpacity(0.5f),
+                                alignment: Alignment.center,
                                 child: new Text("Video is processing, try it later", style: CTextStyle.PXLargeWhite)
                             )
-                            : new GestureDetector(
-                                onTap: () => { loginAction(); },
-                                child: new Text("Login to view this video",
-                                    style: CTextStyle.PXLargeWhite.merge(
-                                        new TextStyle(decoration: TextDecoration.underline))))
                     )
                 );
             }
@@ -394,7 +411,11 @@ namespace ConnectApp.Components {
                                         new Container(
                                             width: attachWidth,
                                             height: attachHeight,
-                                            color: CColors.Black
+                                            color: CColors.Black,
+                                            child: Image.network(
+                                                videoPoster,
+                                                fit: BoxFit.cover
+                                            )
                                         ),
                                         playButton
                                     }

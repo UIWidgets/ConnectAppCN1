@@ -57,7 +57,7 @@ namespace ConnectApp.Components {
                 items.Insert(0, this.topWidget);
             }
 
-            items.AddRange(ContentDescription.map(context, this.eventObj.content, this.eventObj.contentMap, null,
+            items.AddRange(ContentDescription.map(context, this.eventObj.content, this.eventObj.contentMap, null, null,
                 this.openUrl, this.playVideo, this.loginAction, ""
             ));
             items.Add(this._buildContentLecturerList());
