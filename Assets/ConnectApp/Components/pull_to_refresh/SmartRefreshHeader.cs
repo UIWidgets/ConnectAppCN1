@@ -105,7 +105,7 @@ namespace ConnectApp.Components.pull_to_refresh {
             }
 
             List<string> images = new List<string>();
-            for (int index = 1; index < 237; index++) {
+            for (int index = 0; index < 237; index++) {
                 images.Add($"image/refresh-loading/refresh-loading{index}");
             }
 

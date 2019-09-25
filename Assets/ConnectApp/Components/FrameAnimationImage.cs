@@ -30,7 +30,6 @@ namespace ConnectApp.Components {
     }
 
     class _FrameAnimationImageState : State<FrameAnimationImage>, TickerProvider {
-
         AnimationController _controller;
         Animation<int> _animation;
 
@@ -68,7 +67,7 @@ namespace ConnectApp.Components {
                 case AnimatingType.repeat: {
                     this._controller.setValue(0);
                     this._controller.repeat();
-                    break; 
+                    break;
                 }
                 case AnimatingType.stop:
                     this._controller.stop();
@@ -86,8 +85,8 @@ namespace ConnectApp.Components {
                     var value = this._animation.value;
                     return Image.asset(
                         this.widget.images[index: value],
-                        width: 60,
-                        height: 36,
+                        width: 56,
+                        height: 56,
                         fit: BoxFit.fill,
                         gaplessPlayback: true
                     );

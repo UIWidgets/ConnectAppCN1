@@ -264,4 +264,20 @@ namespace ConnectApp.Models.Api {
         public int profilePercent;
         public string nextStep;
     }
+
+    [Serializable]
+    public class FetchFavoriteTagsResponse {
+        public List<FavoriteTag> favoriteTags;
+        public bool hasMore;
+    }
+
+    [Serializable]
+    public class FetchFavoriteDetailResponse {
+        public Dictionary<string, User> userMap;
+        public Dictionary<string, Team> teamMap;
+        public Dictionary<string, FavoriteTag> tagMap;
+        public Dictionary<string, Article> projectSimpleMap;
+        public List<Favorite> favorites;
+        public bool hasMore;
+    }
 }

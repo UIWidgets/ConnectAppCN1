@@ -86,6 +86,16 @@ namespace ConnectApp.redux.actions {
         public string articleId;
     }
 
+    public class FavoriteArticleSuccessAction : BaseAction {
+        public Favorite favorite;
+        public string articleId;
+    }
+
+    public class UnFavoriteArticleSuccessAction : BaseAction {
+        public Favorite favorite;
+        public string articleId;
+    }
+
     public class BlockArticleAction : RequestAction {
         public string articleId;
     }
@@ -233,7 +243,7 @@ namespace ConnectApp.redux.actions {
 
         public static object FetchArticleDetail(string articleId, bool isPush = false) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ArticleApi.FetchArticleDetail(articleId, isPush)
+                return ArticleApi.FetchArticleDetail(articleId: articleId, isPush: isPush)
                     .Then(articleDetailResponse => {
                         var itemIds = new List<string>();
                         var messageItems = new Dictionary<string, Message>();
@@ -304,27 +314,83 @@ namespace ConnectApp.redux.actions {
 
         public static object likeArticle(string articleId) {
             if (HttpManager.isNetWorkError()) {
-                CustomDialogUtils.showToast("请检查网络", Icons.sentiment_dissatisfied);
+                CustomDialogUtils.showToast("请检查网络", iconData: Icons.sentiment_dissatisfied);
                 return null;
             }
 
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                CustomDialogUtils.showToast("点赞成功", Icons.sentiment_satisfied);
+                CustomDialogUtils.showToast("点赞成功", iconData: Icons.sentiment_satisfied);
                 dispatcher.dispatch(new LikeArticleSuccessAction {articleId = articleId});
-                return ArticleApi.LikeArticle(articleId)
+                return ArticleApi.LikeArticle(articleId: articleId)
                     .Then(() => { })
                     .Catch(_ => { });
             });
         }
 
+        public static object favoriteArticle(string articleId, string tagId) {
+            if (HttpManager.isNetWorkError()) {
+                CustomDialogUtils.showToast("请检查网络", iconData: Icons.sentiment_dissatisfied);
+                return null;
+            }
+
+            CustomDialogUtils.showCustomDialog(
+                child: new CustomLoadingDialog(
+                    message: "收藏中"
+                )
+            );
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ArticleApi.FavoriteArticle(articleId: articleId, tagId: tagId)
+                    .Then(favoriteArticleResponse => {
+                        CustomDialogUtils.hiddenCustomDialog();
+                        CustomDialogUtils.showToast("收藏成功", iconData: Icons.sentiment_satisfied);
+                        dispatcher.dispatch(new FavoriteArticleSuccessAction {
+                            favorite = favoriteArticleResponse,
+                            articleId = articleId
+                        });
+                    })
+                    .Catch(error => {
+                        CustomDialogUtils.hiddenCustomDialog();
+                        Debug.Log(error);
+                    });
+            });
+        }
+
+        public static object unFavoriteArticle(string articleId, string favoriteId) {
+            if (HttpManager.isNetWorkError()) {
+                CustomDialogUtils.showToast("请检查网络", iconData: Icons.sentiment_dissatisfied);
+                return null;
+            }
+
+            CustomDialogUtils.showCustomDialog(
+                child: new CustomLoadingDialog(
+                    message: "取消收藏中"
+                )
+            );
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ArticleApi.UnFavoriteArticle(favoriteId: favoriteId)
+                    .Then(unFavoriteArticleResponse => {
+                        CustomDialogUtils.hiddenCustomDialog();
+                        CustomDialogUtils.showToast("取消收藏成功", iconData: Icons.sentiment_satisfied);
+                        dispatcher.dispatch(new UnFavoriteArticleSuccessAction {
+                            favorite = unFavoriteArticleResponse,
+                            articleId = articleId
+                        });
+                    })
+                    .Catch(error => {
+                        CustomDialogUtils.hiddenCustomDialog();
+                        Debug.Log(error);
+                    });
+            });
+        }
+
         public static object likeComment(Message message) {
             if (HttpManager.isNetWorkError()) {
-                CustomDialogUtils.showToast("请检查网络", Icons.sentiment_dissatisfied);
+                CustomDialogUtils.showToast("请检查网络", iconData: Icons.sentiment_dissatisfied);
                 return null;
             }
 
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                CustomDialogUtils.showToast("点赞成功", Icons.sentiment_satisfied);
+                CustomDialogUtils.showToast("点赞成功", iconData: Icons.sentiment_satisfied);
                 dispatcher.dispatch(new LikeCommentSuccessAction {message = message});
 
                 return ArticleApi.LikeComment(message.id)
@@ -335,12 +401,12 @@ namespace ConnectApp.redux.actions {
 
         public static object removeLikeComment(Message message) {
             if (HttpManager.isNetWorkError()) {
-                CustomDialogUtils.showToast("请检查网络", Icons.sentiment_dissatisfied);
+                CustomDialogUtils.showToast("请检查网络", iconData: Icons.sentiment_dissatisfied);
                 return null;
             }
 
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                CustomDialogUtils.showToast("已取消点赞", Icons.sentiment_satisfied);
+                CustomDialogUtils.showToast("已取消点赞", iconData: Icons.sentiment_satisfied);
                 dispatcher.dispatch(new RemoveLikeCommentSuccessAction {message = message});
                 return ArticleApi.RemoveLikeComment(message.id)
                     .Then(mess => { })

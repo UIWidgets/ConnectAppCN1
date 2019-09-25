@@ -80,5 +80,46 @@ namespace ConnectApp.Utils {
 
             return new Container();
         }
+
+        public const string FavoriteCoverImagePath = "image/favorites";
+
+        public static readonly List<string> FavoriteCoverImages = new List<string> {
+            "favor-gamepad",
+            "favor-programming",
+            "favor-trophy",
+            "favor-document",
+            "favor-gamer",
+            "favor-360_rotate",
+            "favor-musical_note",
+            "favor-book",
+            "favor-smartphone",
+            "favor-headphones",
+            "favor-keyboard",
+            "favor-game_console",
+            "favor-hamburger",
+            "favor-pokemon_go",
+            "favor-security",
+            "favor-beer",
+            "favor-magazine",
+            "favor-vr",
+            "favor-french_fries",
+            "favor-balloons",
+            "favor-smartwatch",
+            "favor-analytics",
+            "favor-coffee_cup",
+            "favor-computer",
+            "favor-pencil",
+            "favor-gamepad2",
+            "favor-smartphone2",
+            "favor-blog",
+            "favor-muffin",
+            "favor-camera",
+            "favor-layers",
+            "favor-cmyk",
+            "favor-hot_air_balloon",
+            "favor-video_camera",
+            "favor-idea",
+            "favor-map"
+        };
     }
 }
