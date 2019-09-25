@@ -447,7 +447,7 @@ namespace ConnectApp.screens {
                                                     color: color,
                                                     borderRadius: BorderRadius.circular(12),
                                                     border: Border.all(
-                                                        color: isSelected ? CColors.TextBody : color,
+                                                        color: isSelected ? CColors.TextBody : CColors.Transparent,
                                                         width: 1.5f
                                                     )
                                                 )

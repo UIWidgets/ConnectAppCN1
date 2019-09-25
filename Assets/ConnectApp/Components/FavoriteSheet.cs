@@ -159,7 +159,7 @@ namespace ConnectApp.Components {
                 onTap: () => this.widget.actionModel.pushToCreateFavorite(""),
                 child: new Container(
                     height: 54,
-                    padding: EdgeInsets.only(16, 20, bottom: 10),
+                    padding: EdgeInsets.only(16, 19, bottom: 10),
                     decoration: new BoxDecoration(
                         color: CColors.White,
                         border: new Border(
@@ -168,7 +168,11 @@ namespace ConnectApp.Components {
                     ),
                     child: new Row(
                         children: new List<Widget> {
-                            new Icon(icon: Icons.add, color: CColors.PrimaryBlue, size: 24),
+                            new Icon(
+                                icon: Icons.add,
+                                color: CColors.PrimaryBlue, 
+                                size: 24
+                            ),
                             new Container(
                                 margin: EdgeInsets.only(8),
                                 child: new Text("新建收藏夹",
