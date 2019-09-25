@@ -39,7 +39,9 @@ namespace ConnectApp.screens {
                         joinChannel = (channelId, groupId) => {
                             dispatcher.dispatch<IPromise>(Actions.joinChannel(channelId, groupId));
                         },
-                        fetchChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchChannels(viewModel.page+1))
+                        fetchChannels = () => {
+                            return dispatcher.dispatch<IPromise>(Actions.fetchChannels(viewModel.page + 1));
+                        }
                     };
                     return new DiscoverChannelsScreen(viewModel, actionModel);
                 }
@@ -119,7 +121,7 @@ namespace ConnectApp.screens {
                         padding: EdgeInsets.symmetric(16, 0),
                         children: this.widget.viewModel.publicChannels
                             .Select((channel) => MessengerBuildUtils.buildDiscoverChannelItem(
-                                    channel, this.widget.actionModel.joinChannel)
+                                channel, this.widget.actionModel.joinChannel)
                             ).ToList()
                     )
                 )
@@ -133,9 +135,9 @@ namespace ConnectApp.screens {
                         this._refreshController.sendBack(false, RefreshStatus.idle);
                         Debug.Log("Completed");
                     }).Catch((e) => {
-                        this._refreshController.sendBack(false, RefreshStatus.idle);
-                        Debug.Log("Failed");
-                    });
+                    this._refreshController.sendBack(false, RefreshStatus.idle);
+                    Debug.Log("Failed");
+                });
             }
         }
     }

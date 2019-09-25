@@ -4,7 +4,6 @@ using System.Linq;
 using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Utils;
-using Unity.UIWidgets.foundation;
 
 namespace ConnectApp.Models.ViewModel {
     public class MessengerScreenViewModel {
@@ -43,7 +42,7 @@ namespace ConnectApp.Models.ViewModel {
         public Dictionary<string, bool> memberFolloweeMap;
         public float offsetToBottom;
         public float offsetToTop;
-        public bool atBottom;
+        public bool atBottom = true;
 
         public static ChannelView fromChannel(Channel channel) {
             return new ChannelView {
@@ -80,7 +79,7 @@ namespace ConnectApp.Models.ViewModel {
                 : ChannelMessageView.fromChannelMessage(channel.lastMessage);
             this.lastMessageId = channel?.lastMessage?.id ?? this.lastMessageId;
         }
-        
+
         public static ChannelView fromNormalChannelLite(NormalChannelLite channel) {
             return new ChannelView {
                 atAll = false,
@@ -134,6 +133,13 @@ namespace ConnectApp.Models.ViewModel {
 
             this.unread += 1;
         }
+
+        public void clearUnread() {
+            this.unread = 0;
+            this.mentioned = 0;
+            this.atAll = false;
+            this.atMe = false;
+        }
     }
 
     public enum ChannelMessageType {
@@ -169,7 +175,7 @@ namespace ConnectApp.Models.ViewModel {
             if (message == null) {
                 return new ChannelMessageView();
             }
-            
+
             ChannelMessageType type = message.content != null || message.attachments.Count == 0
                 ? message.embeds.Count == 0 ? ChannelMessageType.text : ChannelMessageType.embed
                 : message.attachments[0].contentType.StartsWith("image")
@@ -212,11 +218,12 @@ namespace ConnectApp.Models.ViewModel {
                 reactions = message.reactions
             };
         }
-        
+
         public static ChannelMessageView fromChannelMessageLite(ChannelMessageLite message) {
             if (message == null) {
                 return new ChannelMessageView();
             }
+
             ChannelMessageType type = message.content != null || message.attachments.Count == 0
                 ? ChannelMessageType.text
                 : message.attachments[0].contentType.StartsWith("image")
@@ -233,6 +240,7 @@ namespace ConnectApp.Models.ViewModel {
                     content = message.attachments[0].filename;
                     break;
             }
+
             long nonce = string.IsNullOrEmpty(message.nonce) ? 0 : Convert.ToInt64(message.nonce, 16);
 
             return new ChannelMessageView {
@@ -248,7 +256,7 @@ namespace ConnectApp.Models.ViewModel {
                 attachments = message.attachments,
                 type = type,
                 mentionEveryone = message.mentionEveryone,
-                mentions = message.mentions?.Select(user => new User{id = user.id}).ToList()
+                mentions = message.mentions?.Select(user => new User {id = user.id}).ToList()
             };
         }
 
@@ -256,6 +264,7 @@ namespace ConnectApp.Models.ViewModel {
             if (message == null) {
                 return new ChannelMessageView();
             }
+
             ChannelMessageType type = message.content != null || message.attachments.Count == 0
                 ? message.embeds.Count == 0 ? ChannelMessageType.text : ChannelMessageType.embed
                 : message.attachments[0].contentType.StartsWith("image")
@@ -275,6 +284,7 @@ namespace ConnectApp.Models.ViewModel {
                     content = message.attachments[0].filename;
                     break;
             }
+
             long nonce = string.IsNullOrEmpty(message.nonce) ? 0 : Convert.ToInt64(message.nonce, 16);
 
             return new ChannelMessageView {
