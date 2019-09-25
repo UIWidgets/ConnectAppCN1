@@ -13,8 +13,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -162,7 +162,8 @@ namespace ConnectApp.screens {
 
         void _onRefresh(bool up) {
             this._favoriteArticleOffset = up ? 0 : this.widget.viewModel.favoriteArticleOffset;
-            this.widget.actionModel.fetchFavoriteDetail(arg1: this.widget.viewModel.tagId, arg2: this._favoriteArticleOffset)
+            this.widget.actionModel
+                .fetchFavoriteDetail(arg1: this.widget.viewModel.tagId, arg2: this._favoriteArticleOffset)
                 .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
                 .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
         }
@@ -249,11 +250,11 @@ namespace ConnectApp.screens {
                 else {
                     title = favoriteTag.name;
                     rightWidget = new CustomButton(
-                        padding: EdgeInsets.only(16, 0, 16),
+                        padding: EdgeInsets.symmetric(8, 16),
                         onPressed: () => this.widget.actionModel.pushToEditFavorite(obj: tagId),
                         child: new Text(
                             "编辑",
-                            style: CTextStyle.PLargeMediumBlue
+                            style: CTextStyle.PLargeMediumBlue.merge(new TextStyle(height: 1))
                         )
                     );
                 }
@@ -404,7 +405,7 @@ namespace ConnectApp.screens {
                                         margin: EdgeInsets.only(top: 16),
                                         child: new Text(
                                             data: favoriteTag.description,
-                                            style: CTextStyle.PRegularBody3
+                                            style: CTextStyle.PRegularBody3.merge(new TextStyle(height: 1))
                                         )
                                     )
                                     : new Container()
@@ -483,7 +484,8 @@ namespace ConnectApp.screens {
                                             "确定",
                                             type: ActionType.normal,
                                             () => {
-                                                this.widget.actionModel.unFavoriteArticle(arg1: article.id, arg2: article.favorite.id);
+                                                this.widget.actionModel.unFavoriteArticle(arg1: article.id,
+                                                    arg2: article.favorite.id);
                                             }
                                         ),
                                         new ActionSheetItem("取消", type: ActionType.cancel)
