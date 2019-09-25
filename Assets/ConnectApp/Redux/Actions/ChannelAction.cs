@@ -59,7 +59,7 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new FetchChannelMessagesFailureAction());
                         Debug.Log(error);
                         dispatcher.dispatch(loadMessagesFromDB(channelId,
-                            before == null ? -1 : Convert.ToInt64(before)));
+                            before == null ? -1 : Convert.ToInt64(before, fromBase: 16)));
                     });
             });
         }
@@ -143,7 +143,9 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 var messages = MessengerDBApi.SyncLoadMessages(channelId, before, 10);
                 dispatcher.dispatch(new LoadMessagesFromDBSuccessAction {
-                    messages = messages
+                    messages = messages,
+                    before = before,
+                    channelId = channelId
                 });
                 return Promise.Resolved();
             });
@@ -313,6 +315,8 @@ namespace ConnectApp.redux.actions {
 
     public class LoadMessagesFromDBSuccessAction : BaseAction {
         public List<ChannelMessageView> messages;
+        public long before;
+        public string channelId;
     }
 
     public class SaveReadyStateToDBSuccessAction : BaseAction {

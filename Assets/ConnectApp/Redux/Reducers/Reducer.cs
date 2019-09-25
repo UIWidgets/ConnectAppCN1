@@ -2671,17 +2671,32 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case LoadMessagesFromDBSuccessAction action: {
-                    for (int i = 0; i < action.messages.Count; i++) {
-                        var message = action.messages[i];
-                        if (!state.channelState.channelDict.TryGetValue(message.channelId, out var channel)) {
-                            continue;
+                    if (!state.channelState.channelDict.TryGetValue(action.channelId, out var channel)) {
+                        break;
+                    }
+                    if (action.before == -1) {
+                        for (int i = action.messages.Count - 1; i >= 0; i--) {
+                            var message = action.messages[i];
+                            if (!channel.messageIds.Contains(message.id)) {
+                                channel.messageIds.Add(message.id);
+                            }
+                            state.channelState.messageDict[message.id] = message;
                         }
-
-                        if (!channel.messageIds.Contains(message.id)) {
-                            channel.messageIds.Add(message.id);
+                    }
+                    else {
+                        var messageIds = new List<string>();
+                        if (action.messages[0].id != channel.messageIds[0]) {
+                            break;
                         }
-
-                        state.channelState.messageDict[message.id] = message;
+                        for (int i = action.messages.Count - 1; i >= 1; i--) {
+                            var message = action.messages[i];
+                            if (!channel.messageIds.Contains(message.id)) {
+                                messageIds.Add(message.id);
+                            }
+                            state.channelState.messageDict[message.id] = message;
+                        }
+                        messageIds.AddRange(channel.messageIds);
+                        channel.messageIds = messageIds;
                     }
 
                     state.channelState.channelTop = ChannelTopManager.getChannelTop();
