@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
@@ -10,8 +11,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using Image = Unity.UIWidgets.widgets.Image;
@@ -145,14 +146,18 @@ namespace ConnectApp.screens {
             );
         }
 
-        void _onPressSubmit() {
+        void PackUpKeyboard() {
             if (this._nameFocusNode.hasFocus) {
                 this._nameFocusNode.unfocus();
             }
+
             if (this._descriptionFocusNode.hasFocus) {
                 this._descriptionFocusNode.unfocus();
             }
+        }
 
+        void _onPressSubmit() {
+            this.PackUpKeyboard();
             if (this.widget.viewModel.tagId.isNotEmpty()) {
                 this.widget.actionModel.editFavoriteTag(
                     arg1: this.widget.viewModel.tagId,
@@ -202,7 +207,7 @@ namespace ConnectApp.screens {
                                             new CustomDivider(
                                                 color: CColors.Background
                                             ),
-                                            this._buildCoverImages(context: context),
+                                            this._buildCoverButtons(context: context),
                                             this._buildCoverColors()
                                         }
                                     )
@@ -231,19 +236,19 @@ namespace ConnectApp.screens {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: new List<Widget> {
                         new CustomButton(
-                            padding: EdgeInsets.only(16, 0, 16),
+                            padding: EdgeInsets.symmetric(8, 16),
                             onPressed: this._onPressBack,
                             child: new Text(
                                 "取消",
-                                style: CTextStyle.PLargeBody5
+                                style: CTextStyle.PLargeBody5.merge(new TextStyle(height: 1))
                             )
                         ),
                         new Text(
                             this.widget.viewModel.tagId.isNotEmpty() ? "编辑收藏夹" : "新建收藏夹",
-                            style: CTextStyle.PXLargeMedium
+                            style: CTextStyle.PXLargeMedium.merge(new TextStyle(height: 1))
                         ),
                         new CustomButton(
-                            padding: EdgeInsets.only(16, 0, 16),
+                            padding: EdgeInsets.symmetric(8, 16),
                             onPressed: () => {
                                 if (!disEnabled) {
                                     this._onPressSubmit();
@@ -253,12 +258,11 @@ namespace ConnectApp.screens {
                                 "完成",
                                 style: disEnabled
                                     ? new TextStyle(
-                                        height: 1.33f,
                                         fontSize: 16,
                                         fontFamily: "Roboto-Medium",
                                         color: Color.fromRGBO(33, 150, 243, 0.5f)
                                     )
-                                    : CTextStyle.PLargeMediumBlue
+                                    : CTextStyle.PLargeMediumBlue.merge(new TextStyle(height: 1))
                             )
                         )
                     }
@@ -288,14 +292,13 @@ namespace ConnectApp.screens {
                                         controller: this._nameController,
                                         maxLength: _nameMaxLength,
                                         style: new TextStyle(
-                                            height: 1.68f,
+                                            height: 1.2f,
                                             fontSize: 18,
                                             fontFamily: "Roboto-Medium",
                                             color: CColors.TextBody2
                                         ),
                                         hintText: "收藏夹标题",
                                         hintStyle: new TextStyle(
-                                            height: 1.68f,
                                             fontSize: 18,
                                             fontFamily: "Roboto-Medium",
                                             color: CColors.TextBody4
@@ -310,7 +313,11 @@ namespace ConnectApp.screens {
                                 ),
                                 new Text(
                                     $"{_nameMaxLength - this._favoriteName.Length}",
-                                    style: CTextStyle.PSmallBody3
+                                    style: new TextStyle(
+                                        fontSize: 12,
+                                        fontFamily: "Roboto-Regular",
+                                        color: CColors.ShadyLady
+                                    )
                                 )
                             }
                         ),
@@ -340,7 +347,11 @@ namespace ConnectApp.screens {
                                         bottom: 0,
                                         child: new Text(
                                             $"{_descriptionMaxLength - this._favoriteDescription.Length}",
-                                            style: CTextStyle.PSmallBody3
+                                            style: new TextStyle(
+                                                fontSize: 12,
+                                                fontFamily: "Roboto-Regular",
+                                                color: CColors.ShadyLady
+                                            )
                                         )
                                     )
                                 }
@@ -351,15 +362,15 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildCoverImages(BuildContext context) {
+        Widget _buildCoverButtons(BuildContext context) {
             var width = MediaQuery.of(context: context).size.width;
-            var imageSize = (width - _coverImagePadding - _coverImageSpacing * 6) / 6.5f;
+            var imageSize = (float) Math.Ceiling((width - _coverImagePadding - _coverImageSpacing * 6) / 6.5f);
 
-            List<Widget> children = new List<Widget>();
-            for (int i = 0; i < CImageUtils.FavoriteCoverImages.Count; i++) {
-                Widget child = this._buildCoverImageItem(index: i, imageSize: imageSize);
-                children.Add(item: child);
+            var children = new List<Widget>();
+            for (var i = 0; i < CImageUtils.FavoriteCoverImages.Count; i++) {
+                children.Add(this._buildCoverButtonItem(index: i, buttonSize: imageSize));
             }
+
             return new Container(
                 color: CColors.White,
                 child: new Column(
@@ -418,10 +429,12 @@ namespace ConnectApp.screens {
                                 itemCount: CColorUtils.FavoriteCoverColors.Count,
                                 itemBuilder: (cxt, index) => {
                                     var color = CColorUtils.FavoriteCoverColors[index: index];
+                                    var isSelected = this._favoriteImageColor == color.value;
                                     return new GestureDetector(
                                         onTap: () => {
+                                            this.PackUpKeyboard();
                                             this._setEnableSubmit();
-                                            if (this._favoriteImageColor != color.value) {
+                                            if (!isSelected) {
                                                 this.setState(() => this._favoriteImageColor = color.value);
                                             }
                                         },
@@ -433,9 +446,10 @@ namespace ConnectApp.screens {
                                                 decoration: new BoxDecoration(
                                                     color: color,
                                                     borderRadius: BorderRadius.circular(12),
-                                                    border: this._favoriteImageColor == color.value
-                                                        ? Border.all(color: CColors.TextBody)
-                                                        : null
+                                                    border: Border.all(
+                                                        color: isSelected ? CColors.TextBody : CColors.Transparent,
+                                                        width: 1.5f
+                                                    )
                                                 )
                                             )
                                         )
@@ -448,27 +462,30 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildCoverImageItem(int index, float imageSize) {
+        Widget _buildCoverButtonItem(int index, float buttonSize) {
             var imageName = CImageUtils.FavoriteCoverImages[index: index];
-            return new GestureDetector(
-                onTap: () => {
+            var isSelected = this._favoriteImageName == imageName;
+            return new CustomButton(
+                width: buttonSize,
+                height: buttonSize,
+                decoration: new BoxDecoration(
+                    color: CColors.BlackHaze,
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(
+                        isSelected ? CColors.TextBody : CColors.BlackHaze,
+                        1.5f
+                    )
+                ),
+                child: Image.asset(
+                    $"{CImageUtils.FavoriteCoverImagePath}/{imageName}"
+                ),
+                onPressed: () => {
+                    this.PackUpKeyboard();
                     this._setEnableSubmit();
                     if (this._favoriteImageName != imageName) {
                         this.setState(() => this._favoriteImageName = imageName);
                     }
-                },
-                child: new Container(
-                    decoration: new BoxDecoration(
-                        color: CColors.Separator2,
-                        borderRadius: BorderRadius.circular(4),
-                        border: this._favoriteImageName == imageName ? Border.all(color: CColors.TextBody) : null
-                    ),
-                    width: imageSize,
-                    height: imageSize,
-                    child: Image.asset(
-                        $"{CImageUtils.FavoriteCoverImagePath}/{imageName}"
-                    )
-                )
+                }
             );
         }
     }
