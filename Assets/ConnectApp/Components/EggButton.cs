@@ -67,19 +67,18 @@ namespace ConnectApp.Components {
         }
 
         public override Widget build(BuildContext context) {
-            var egg = Image.asset(
-                "image/egg",
-                width: 21,
-                height: 21
-            );
-
-            if (this.widget.isNationalDay) {
-                egg = Image.asset(
+            
+            var egg = this.widget.isNationalDay
+                ? Image.asset(
                     "image/flag-egg",
                     width: 18,
                     height: 21
+                )
+                : Image.asset(
+                    "image/egg",
+                    width: 21,
+                    height: 21
                 );
-            }
 
             return new AnimatedBuilder(
                 animation: this._controller,
