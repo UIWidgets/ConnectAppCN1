@@ -2439,6 +2439,11 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case NationalDayEnabledAction action: {
+                    state.serviceConfigState.nationalDayEnabled = action.nationalDayEnabled;
+                    break;
+                }
+
                 case EnterRealityAction _: {
                     // Enter Reality
                     RealityManager.TriggerSwitch();
