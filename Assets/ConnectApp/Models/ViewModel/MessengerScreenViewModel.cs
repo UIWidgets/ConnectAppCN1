@@ -176,8 +176,8 @@ namespace ConnectApp.Models.ViewModel {
                 return new ChannelMessageView();
             }
 
-            ChannelMessageType type = message.content != null || message.attachments.Count == 0
-                ? message.embeds.Count == 0 ? ChannelMessageType.text : ChannelMessageType.embed
+            ChannelMessageType type = message.content != null || (message.attachments?.Count ?? 0) == 0
+                ? (message.embeds?.Count ?? 0) == 0 ? ChannelMessageType.text : ChannelMessageType.embed
                 : message.attachments[0].contentType.StartsWith("image")
                     ? ChannelMessageType.image
                     : ChannelMessageType.file;
@@ -224,7 +224,7 @@ namespace ConnectApp.Models.ViewModel {
                 return new ChannelMessageView();
             }
 
-            ChannelMessageType type = message.content != null || message.attachments.Count == 0
+            ChannelMessageType type = message.content != null || (message.attachments?.Count ?? 0) == 0
                 ? ChannelMessageType.text
                 : message.attachments[0].contentType.StartsWith("image")
                     ? ChannelMessageType.image
@@ -265,8 +265,8 @@ namespace ConnectApp.Models.ViewModel {
                 return new ChannelMessageView();
             }
 
-            ChannelMessageType type = message.content != null || message.attachments.Count == 0
-                ? message.embeds.Count == 0 ? ChannelMessageType.text : ChannelMessageType.embed
+            ChannelMessageType type = message.content != null || (message.attachments?.Count ?? 0) == 0
+                ? (message.embeds?.Count ?? 0) == 0 ? ChannelMessageType.text : ChannelMessageType.embed
                 : message.attachments[0].contentType.StartsWith("image")
                     ? ChannelMessageType.image
                     : ChannelMessageType.file;
