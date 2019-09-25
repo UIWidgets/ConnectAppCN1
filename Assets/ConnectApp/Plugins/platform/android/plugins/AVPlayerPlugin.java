@@ -46,6 +46,8 @@ public class AVPlayerPlugin {
             public void run() {
 
                 controller.showBack = isPop;
+                controller.setPlayState(VideoView.STATE_PAUSED);
+                controller.setPlayerState(VideoView.PLAYER_NORMAL);
                 RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT, (int)height);
                 if (isPop){
@@ -59,6 +61,7 @@ public class AVPlayerPlugin {
                     videoView.setUrl(url,header);
                 }
                 if(!isPop) videoView.start();
+
             }
         });
     }
@@ -70,8 +73,10 @@ public class AVPlayerPlugin {
         UnityPlayer.currentActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                controller.show();
                 videoView.setVisibility(View.VISIBLE);
                 videoView.setUrl(url,header);
+                videoView.pause();
             }
         });
     }
@@ -80,6 +85,7 @@ public class AVPlayerPlugin {
         UnityPlayer.currentActivity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                controller.hiddenUpdateView();
                 videoView.release();
                 videoView.setVisibility(View.GONE);
             }

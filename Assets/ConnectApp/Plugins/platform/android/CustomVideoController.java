@@ -4,7 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.hardware.SensorManager;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.view.OrientationEventListener;
 import android.view.View;
 import com.dueeeke.videocontroller.StandardVideoController;
 import com.dueeeke.videoplayer.player.VideoView;
@@ -24,12 +27,18 @@ public class CustomVideoController extends StandardVideoController {
     public boolean showBack;
 
     public void setShowBack(boolean showBack) {
+
         this.showBack = showBack;
+        mTopContainer.setVisibility(showBack?VISIBLE:GONE);
     }
 
     @Override
     protected void initView() {
         super.initView();
+
+
+
+
     }
 
 
@@ -113,23 +122,9 @@ public class CustomVideoController extends StandardVideoController {
         return super.setProgress();
     }
 
-    @Override
-    public void hide() {
-        super.hide();
-        mLockButton.setVisibility(GONE);
-        mBackButton.setVisibility(GONE);
-        mShareButton.setVisibility(GONE);
-    }
 
     public void hiddenUpdateView(){
         mUpdateContainer.setVisibility(GONE);
     }
 
-    @Override
-    public void show() {
-        super.show();
-        mLockButton.setVisibility(GONE);
-        mBackButton.setVisibility(showBack?VISIBLE:GONE);
-        mShareButton.setVisibility(showBack?VISIBLE:GONE);
-    }
 }
