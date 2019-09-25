@@ -400,7 +400,8 @@ namespace ConnectApp.screens {
                                                 children: new List<Widget> {
                                                     message.embeds[0].embedData.image == null
                                                         ? (Widget) new Container(width: 14, height: 14)
-                                                        : Image.network(message.embeds[0].embedData.image ?? "",
+                                                        : CachedNetworkImageProvider.cachedNetworkImage(
+                                                            message.embeds[0].embedData.image ?? "",
                                                             width: 14, height: 14, fit: BoxFit.cover),
                                                     new Container(width: 4),
                                                     new Expanded(
@@ -939,7 +940,7 @@ namespace ConnectApp.screens {
 
         public override void initState() {
             base.initState();
-            this.image = Image.network(this.widget.url, headers: this.widget.headers);
+            this.image = CachedNetworkImageProvider.cachedNetworkImage(this.widget.url, headers: this.widget.headers);
             this.stream = this.image.image
                 .resolve(new ImageConfiguration());
             this.stream.addListener(this._updateSize);
@@ -961,7 +962,7 @@ namespace ConnectApp.screens {
                     child: new Container(
                         width: this.size.width,
                         height: this.size.height,
-                        child: Image.network(this.widget.url,
+                        child: CachedNetworkImageProvider.cachedNetworkImage(this.widget.url,
                             fit: BoxFit.cover))
                 );
         }

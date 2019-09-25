@@ -2657,6 +2657,29 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case SaveMessagesToDBSuccessAction _: {
+                    break;
+                }
+
+                case LoadMessagesFromDBSuccessAction action: {
+                    for (int i = 0; i < action.messages.Count; i++) {
+                        var message = action.messages[i];
+                        if (!state.channelState.channelDict.TryGetValue(message.channelId, out var channel)) {
+                            continue;
+                        }
+
+                        if (!channel.messageIds.Contains(message.id)) {
+                            channel.messageIds.Add(message.id);
+                        }
+
+                        state.channelState.messageDict[message.id] = message;
+                    }
+
+                    state.channelState.messageLoading = false;
+
+                    break;
+                }
+
                 case MarkChannelMessageAsRead action: {
                     state.channelState.unreadDict[action.channelId] = action.nonce;
                     var channel = state.channelState.channelDict[action.channelId];
