@@ -85,7 +85,7 @@ namespace ConnectApp.Components {
                 animation: this._controller,
                 builder: (cxt, widget) => new SizedBox(
                     width: 28,
-                    height: 23,
+                    height: 24,
                     child: new Stack(
                         children: new List<Widget> {
                             new Align(
