@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
@@ -12,7 +11,6 @@ using ConnectApp.Plugins;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using RSG;
-using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.material;
@@ -28,7 +26,6 @@ using Avatar = ConnectApp.Components.Avatar;
 using Config = ConnectApp.Constants.Config;
 using Icons = ConnectApp.Constants.Icons;
 using Image = Unity.UIWidgets.widgets.Image;
-using Transform = Unity.UIWidgets.widgets.Transform;
 
 namespace ConnectApp.screens {
     public class ChannelScreenConnector : StatelessWidget {
@@ -44,21 +41,43 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ChannelScreenViewModel>(
                 converter: state => {
+                    ChannelMessageView getMessage(string messageId) {
+                        var message = state.channelState.messageDict[messageId];
+                        message.content = MessageUtils.AnalyzeMessage(
+                            message.content, message.mentions, message.mentionEveryone);
+                        return message;
+                    }
+                    var channel = state.channelState.channelDict[this.channelId];
+                    List<ChannelMessageView> messages;
+                    if (channel.newMessageIds.isNotEmpty()) {
+                        messages = channel.newMessageIds.Select(getMessage).ToList();
+                    }
+                    else if (channel.oldMessageIds.isNotEmpty()) {
+                        messages = channel.oldMessageIds.Select(getMessage).ToList();
+                    }
+                    else {
+                        messages = new List<ChannelMessageView>();
+                    }
+                    messages.AddRange(channel.messageIds.Select(getMessage));
                     return new ChannelScreenViewModel {
                         channelInfo = state.channelState.channelDict[this.channelId],
-                        messages = state.channelState.channelDict[this.channelId].messageIds.Select(
-                            messageId => {
-                                var message = state.channelState.messageDict[messageId];
-                                message.content = MessageUtils.AnalyzeMessage(
-                                        message.content, message.mentions, message.mentionEveryone);
-                                return message;
-                            }).ToList(),
+                        messages = messages,
                         me = state.loginState.loginInfo.userId,
                         messageLoading = state.channelState.messageLoading,
                         newMessageCount = state.channelState.channelDict[this.channelId].unread
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
+                        
+                    if (viewModel.channelInfo.newMessageIds.isNotEmpty()) {
+                        SchedulerBinding.instance.addPostFrameCallback(_ => {
+                            dispatcher.dispatch(new MergeNewChannelMessages {channelId = this.channelId});
+                        });
+                    } else if (viewModel.channelInfo.oldMessageIds.isNotEmpty()) {
+                        SchedulerBinding.instance.addPostFrameCallback(_ => {
+                            dispatcher.dispatch(new MergeOldChannelMessages {channelId = this.channelId});
+                        });
+                    }
                     var actionModel = new ChannelScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         fetchMessages = (before, after) => {

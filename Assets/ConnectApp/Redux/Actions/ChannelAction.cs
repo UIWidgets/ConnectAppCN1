@@ -322,4 +322,12 @@ namespace ConnectApp.redux.actions {
     public class LoadReadyStateFromDBSuccessAction : BaseAction {
         public SocketResponseSessionData data;
     }
+
+    public class MergeNewChannelMessages : BaseAction {
+        public string channelId;
+    }
+
+    public class MergeOldChannelMessages : BaseAction {
+        public string channelId;
+    }
 }

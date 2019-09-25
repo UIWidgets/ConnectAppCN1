@@ -2580,37 +2580,38 @@ namespace ConnectApp.redux.reducers {
                             var channelMessage =
                                 ChannelMessageView.fromChannelMessage(action.messages[i]);
                             state.channelState.messageDict[channelMessage.id] = channelMessage;
-                            channel.messageIds.Add(channelMessage.id);
-                            // if (channelMessage.nonce > unreadAfter) {
-                            //     channel.handleUnreadMessage(channelMessage, state.loginState.loginInfo.userId);
-                            // }
+                            channel.newMessageIds.Add(channelMessage.id);
                         }
                     }
                     else if (action.before != null) {
                         D.assert(channel.messageIds.first() == action.before);
-                        List<string> ret = new List<string>();
-                        for (var i = action.messages.Count - 1; i >= 0; i--) {
-                            var channelMessage =
-                                ChannelMessageView.fromChannelMessage(action.messages[i]);
+                        int to = action.messages[0].id == action.before ? 1 : 0;
+                        for (var i = action.messages.Count - 1; i >= to; i--) {
+                            var channelMessage = ChannelMessageView.fromChannelMessage(action.messages[i]);
                             state.channelState.messageDict[channelMessage.id] = channelMessage;
-                            ret.Add(channelMessage.id);
+                            channel.oldMessageIds.Add(channelMessage.id);
                         }
-
-                        if (channel.messageIds[0] != action.before) {
-                            ret.Add(channel.messageIds[0]);
-                        }
-
-                        for (var i = 1; i < channel.messageIds.Count; i++) {
-                            ret.Add(channel.messageIds[i]);
-                        }
-
-                        channel.messageIds = ret;
                     }
 
                     state.channelState.messageLoading = false;
                     state.channelState.updateTotalMention();
                     channel.upToDate = state.channelState.upToDate(channel.id);
 
+                    break;
+                }
+
+                case MergeNewChannelMessages action: {
+                    var channel = state.channelState.channelDict[action.channelId];
+                    channel.messageIds.AddRange(channel.newMessageIds);
+                    channel.newMessageIds = new List<string>();
+                    break;
+                }
+
+                case MergeOldChannelMessages action: {
+                    var channel = state.channelState.channelDict[action.channelId];
+                    channel.oldMessageIds.AddRange(channel.messageIds);
+                    channel.messageIds = channel.oldMessageIds;
+                    channel.oldMessageIds = new List<string>();
                     break;
                 }
 
@@ -2842,10 +2843,10 @@ namespace ConnectApp.redux.reducers {
 
                     var channel = state.channelState.channelDict[message.channelId];
                     //ignore duplicated message
-                    if (!channel.messageIds.Contains(message.id)) {
+                    if (!channel.messageIds.Contains(message.id) && !channel.newMessageIds.Contains(message.id)) {
                         var channelMessage = ChannelMessageView.fromPushMessage(message);
                         state.channelState.messageDict[channelMessage.id] = channelMessage;
-                        channel.messageIds.Add(channelMessage.id);
+                        channel.newMessageIds.Add(channelMessage.id);
                         channel.lastMessageId = channelMessage.id;
                         channel.lastMessage = channelMessage;
                         if ((!state.loginState.isLoggedIn ||
