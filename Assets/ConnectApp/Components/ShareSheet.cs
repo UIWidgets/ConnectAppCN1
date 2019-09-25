@@ -56,7 +56,10 @@ namespace ConnectApp.Components {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: new List<Widget> {
                     new Container(
-                        color: CColors.White,
+                        decoration: new BoxDecoration(
+                            color: CColors.White,
+                            borderRadius: BorderRadius.only(12, 12)
+                        ),
                         width: mediaQueryData.size.width,
                         height: this.projectType == ProjectType.article && this.showReportAndBlock
                             ? 319 + mediaQueryData.padding.bottom
