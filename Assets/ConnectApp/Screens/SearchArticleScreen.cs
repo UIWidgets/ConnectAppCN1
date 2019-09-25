@@ -39,9 +39,9 @@ namespace ConnectApp.screens {
                             keyword = keyword
                         }),
                         searchArticle = (keyword, pageNumber) => dispatcher.dispatch<IPromise>(
-                            Actions.searchArticles(keyword, pageNumber))
+                            Actions.searchArticles(keyword: keyword, pageNumber: pageNumber))
                     };
-                    return new SearchArticleScreen(viewModel, actionModel);
+                    return new SearchArticleScreen(viewModel: viewModel, actionModel: actionModel);
                 }
             );
         }
@@ -114,31 +114,24 @@ namespace ConnectApp.screens {
             var searchArticleIds = this.widget.viewModel.searchArticleIds;
             var currentPage = this.widget.viewModel.searchArticleCurrentPage;
             var pages = this.widget.viewModel.searchArticlePages;
-            var hasMore = currentPage != pages.Count - 1;
-            var itemCount = hasMore ? searchArticleIds.Count : searchArticleIds.Count + 1;
+            var enablePullUp = currentPage != pages.Count - 1;
             return new Container(
                 color: CColors.Background,
-                child: new CustomScrollbar(
-                    new SmartRefresher(
-                        controller: this._refreshController,
-                        enablePullDown: false,
-                        enablePullUp: hasMore,
-                        onRefresh: this._onRefresh,
-                        child: ListView.builder(
-                            physics: new AlwaysScrollableScrollPhysics(),
-                            itemCount: itemCount,
-                            itemBuilder: this._buildArticleCard
-                        )
-                    )
+                child: new CustomListView(
+                    controller: this._refreshController,
+                    enablePullDown: false,
+                    enablePullUp: enablePullUp,
+                    onRefresh: this._onRefresh,
+                    itemCount: searchArticleIds.Count,
+                    itemBuilder: this._buildArticleCard,
+                    headerWidget: CustomListViewConstant.defaultHeaderWidget,
+                    footerWidget: enablePullUp ? null : CustomListViewConstant.defaultFooterWidget
                 )
             );
         }
         
         Widget _buildArticleCard(BuildContext context, int index) {
             var searchArticleIds = this.widget.viewModel.searchArticleIds;
-            if (index == searchArticleIds.Count) {
-                return new EndView();
-            }
 
             var searchArticleId = searchArticleIds[index: index];
             if (!this.widget.viewModel.articleDict.ContainsKey(key: searchArticleId)) {
@@ -166,8 +159,7 @@ namespace ConnectApp.screens {
             return new RelatedArticleCard(
                 article: searchArticle,
                 fullName: fullName,
-                () => this.widget.actionModel.pushToArticleDetail(obj: searchArticle.id),
-                index == 0
+                () => this.widget.actionModel.pushToArticleDetail(obj: searchArticle.id)
             );
         }
     }

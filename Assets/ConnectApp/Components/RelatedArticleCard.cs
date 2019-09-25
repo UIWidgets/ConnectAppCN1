@@ -15,18 +15,15 @@ namespace ConnectApp.Components {
             Article article,
             string fullName,
             GestureTapCallback onTap = null,
-            bool topPadding = false,
             Key key = null
         ) : base(key: key) {
             this.article = article;
             this.fullName = fullName;
-            this.topPadding = topPadding;
             this.onTap = onTap;
         }
 
         readonly Article article;
         readonly string fullName;
-        readonly bool topPadding;
         readonly GestureTapCallback onTap;
 
         public override Widget build(BuildContext context) {
@@ -38,12 +35,15 @@ namespace ConnectApp.Components {
             const float imageHeight = 76;
             const float borderRadius = 4;
 
-            var gap = this.topPadding ? 16 : 0;
             var time = this.article.publishedTime;
+            var thumbnailUrl = this.article.thumbnail?.url ?? "";
+            var imageUrl = thumbnailUrl.EndsWith(".gif")
+                ? thumbnailUrl
+                : CImageUtils.SuitableSizeImageUrl(imageWidth: imageWidth, imageUrl: thumbnailUrl);
             var child = new Container(
                 color: CColors.White,
-                padding: EdgeInsets.only(16, 16 + gap, 16, 16),
-                height: 108 + gap,
+                padding: EdgeInsets.all(16),
+                height: 108,
                 child: new Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: new List<Widget> {
@@ -53,7 +53,8 @@ namespace ConnectApp.Components {
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: new List<Widget> {
-                                        new Text(this.article.title,
+                                        new Text(
+                                            data: this.article.title,
                                             style: CTextStyle.PLargeTitle,
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
@@ -70,13 +71,12 @@ namespace ConnectApp.Components {
                         ),
                         new Container(
                             margin: EdgeInsets.only(8),
-                            child: new PlaceholderImage(this.article.thumbnail.url.EndsWith(".gif")
-                                    ? this.article.thumbnail.url
-                                    : CImageUtils.SuitableSizeImageUrl(imageWidth, this.article.thumbnail.url),
-                                imageWidth,
-                                imageHeight,
-                                borderRadius,
-                                BoxFit.cover
+                            child: new PlaceholderImage(
+                                imageUrl: imageUrl,
+                                width: imageWidth,
+                                height: imageHeight,
+                                borderRadius: borderRadius,
+                                fit: BoxFit.cover
                             )
                         )
                     }

@@ -25,11 +25,11 @@ namespace ConnectApp.Models.ActionModel {
         public Func<string, string, string, string, string, string, IPromise> sendComment;
         public Func<string, IPromise> likeArticle;
         public Action startFetchArticles;
-        public Func<int, IPromise> fetchArticles;
+        public Func<string, int, IPromise> fetchArticles;
         public Action startFetchFollowing;
-        public Func<int, IPromise> fetchFollowing;
+        public Func<string, int, IPromise> fetchFollowing;
         public Action startFetchFollowArticles;
-        public Func<int, IPromise> fetchFollowArticles;
+        public Func<int, bool, bool, IPromise> fetchFollowArticles;
         public Func<IPromise> fetchReviewUrl;
     }
 }

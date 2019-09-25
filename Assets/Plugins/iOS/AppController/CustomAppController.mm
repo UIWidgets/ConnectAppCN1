@@ -16,10 +16,13 @@
 #import "JPushPlugin.h"
 #import <AVFoundation/AVFoundation.h>
 #import "UUIDUtils.h"
+#import "PickImageController.h"
 
 static NSString *gameObjectName = @"jpush";
 
 @interface CustomAppController : UnityAppController<WXApiDelegate>
+
+
 @end
 IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
 
@@ -28,7 +31,7 @@ IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions
 {
     [super application:application didFinishLaunchingWithOptions:launchOptions];
-
+    
     [application setApplicationIconBadgeNumber:0];
     [WXApi registerApp: @"wx0ab79f0c7db7ca52"];
     [[JPushEventCache sharedInstance] handFinishLaunchOption:launchOptions];
@@ -61,8 +64,7 @@ IMPL_APP_CONTROLLER_SUBCLASS (CustomAppController)
     return YES;
 }
 
-#pragma mark- JPUSHRegisterDelegate
-
+#pragma mark - JPUSHRegisterDelegate
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
     // Required.
     [JPUSHService registerDeviceToken:deviceToken];
@@ -114,9 +116,8 @@ NSData *APNativeJSONData(id obj) {
     }
     return data;
 }
-#pragma mark wechat
 
-
+#pragma mark - wechat
 - (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler{
     
     if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb]) {
@@ -157,26 +158,29 @@ NSData *APNativeJSONData(id obj) {
 }
 
 
-extern "C" {
+extern "C"  {
     
     void pauseAudioSession(){
         AVAudioSession *session = [AVAudioSession sharedInstance];
         [session setCategory:AVAudioSessionCategoryPlayback error:nil];
         [session setActive:YES error:nil];
     }
+    
     void setStatusBarStyle(bool isLight){
         AppController_SendNotificationWithArg(@"UpdateStatusBarStyle",
                                               @{@"key":@"style",@"value":@(isLight)});
     }
+    
     void hiddenStatusBar(bool hidden){
         AppController_SendNotificationWithArg(@"UpdateStatusBarStyle",
                                               @{@"key":@"hidden",@"value":@(hidden)});
     }
+    
     bool isOpenSensor() {
         return true;
     }
-    const char *getDeviceID()
-    {
+    
+    const char *getDeviceID(){
         NSString *result = [UUIDUtils getUUID];
         if (!result) {
             return NULL;
@@ -185,6 +189,24 @@ extern "C" {
         char *r = (char *)malloc(strlen(s) + 1);
         strcpy(r, s);
         return r;
+    }
+    
+    void pickImage(const char *source, bool cropped, int maxSize) {
+        NSString *sourceString = [NSString stringWithUTF8String:source];
+        [[PickImageController sharedInstance] pickImageWithSource:sourceString cropped:cropped maxSize:maxSize];
+    }
+
+    void pickVideo(const char *source) {
+        NSString *sourceString = [NSString stringWithUTF8String:source];
+        [[PickImageController sharedInstance] pickVideoWithSource:sourceString];
+    }
+
+    bool isPhotoLibraryAuthorization(){
+        return [[PickImageController sharedInstance] isPhotoLibraryAuthorization];
+    }
+    
+    bool isCameraAuthorization(){
+        return [[PickImageController sharedInstance] isCameraAuthorization];
     }
     
     bool isEnableNotification(){
@@ -198,7 +220,6 @@ extern "C" {
         }
         return isEnable;
     }
-    
 }
 
 @end

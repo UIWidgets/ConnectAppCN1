@@ -74,7 +74,7 @@ namespace ConnectApp.Components {
                     top: topPadding + 24,
                     left: 16,
                     child: new Icon(
-                        Icons.LogoWithUinty,
+                        Icons.LogoWithUnity,
                         size: 35,
                         color: new Color(value: this.hexColor)
                     )

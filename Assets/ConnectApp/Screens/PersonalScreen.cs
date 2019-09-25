@@ -1,8 +1,8 @@
-using System;
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Main;
+using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.Plugins;
@@ -12,7 +12,6 @@ using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.screens {
@@ -23,17 +22,21 @@ namespace ConnectApp.screens {
                     isLoggedIn = state.loginState.isLoggedIn,
                     user = state.loginState.loginInfo,
                     userDict = state.userState.userDict,
-                    scanEnabled = state.eggState.scanEnabled
+                    userLicenseDict = state.userState.userLicenseDict,
+                    scanEnabled = state.serviceConfigState.scanEnabled,
+                    currentTabBarIndex = state.tabBarState.currentTabIndex
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     return new PersonalScreen(
                         viewModel: viewModel,
-                        routeName => dispatcher.dispatch(new MainNavigatorPushToAction {
-                            routeName = routeName
-                        }),
-                        userId => dispatcher.dispatch(new MainNavigatorPushToUserDetailAction {
-                            userId = userId
-                        })
+                        new PersonalScreenActionModel {
+                            mainRouterPushTo = routeName => dispatcher.dispatch(new MainNavigatorPushToAction {
+                                routeName = routeName
+                            }),
+                            pushToUserDetail = userId => dispatcher.dispatch(new MainNavigatorPushToUserDetailAction {
+                                userId = userId
+                            })
+                        }
                     );
                 }
             );
@@ -43,41 +46,47 @@ namespace ConnectApp.screens {
     public class PersonalScreen : StatefulWidget {
         public PersonalScreen(
             PersonalScreenViewModel viewModel = null,
-            Action<string> mainRouterPushTo = null,
-            Action<string> pushToUserDetail = null,
+            PersonalScreenActionModel actionModel = null,
             Key key = null
         ) : base(key: key) {
             this.viewModel = viewModel;
-            this.mainRouterPushTo = mainRouterPushTo;
-            this.pushToUserDetail = pushToUserDetail;
+            this.actionModel = actionModel;
         }
 
         public readonly PersonalScreenViewModel viewModel;
-        public readonly Action<string> mainRouterPushTo;
-        public readonly Action<string> pushToUserDetail;
+        public readonly PersonalScreenActionModel actionModel;
 
         public override State createState() {
             return new _PersonalScreenState();
         }
     }
 
-    public class _PersonalScreenState : AutomaticKeepAliveClientMixin<PersonalScreen>, RouteAware {
-        protected override bool wantKeepAlive {
-            get { return true; }
+    public class _PersonalScreenState : State<PersonalScreen>, RouteAware {
+        string _loginSubId;
+        string _logoutSubId;
+
+        public override void initState() {
+            base.initState();
+            StatusBarManager.statusBarStyle(UserInfoManager.isLogin());
+            this._loginSubId = EventBus.subscribe(sName: EventBusConstant.login_success,
+                _ => { StatusBarManager.statusBarStyle(true); });
+            this._logoutSubId = EventBus.subscribe(sName: EventBusConstant.logout_success,
+                _ => { StatusBarManager.statusBarStyle(false); });
         }
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
         }
 
         public override void dispose() {
             Router.routeObserve.unsubscribe(this);
+            EventBus.unSubscribe(sName: EventBusConstant.login_success, id: this._loginSubId);
+            EventBus.unSubscribe(sName: EventBusConstant.logout_success, id: this._logoutSubId);
             base.dispose();
         }
 
         public override Widget build(BuildContext context) {
-            base.build(context: context);
             return new Container(
                 color: CColors.White,
                 child: new Column(
@@ -105,7 +114,7 @@ namespace ConnectApp.screens {
         Widget _buildNotLoginInNavigationBar() {
             return new Container(
                 color: CColors.White,
-                padding: EdgeInsets.only(16, bottom: 16),
+                padding: EdgeInsets.only(16, CCommonUtils.getSafeAreaTopPadding(context: this.context), bottom: 16),
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,7 +126,8 @@ namespace ConnectApp.screens {
                             margin: EdgeInsets.only(top: 16),
                             child: new CustomButton(
                                 padding: EdgeInsets.zero,
-                                onPressed: () => this.widget.mainRouterPushTo(obj: MainNavigatorRoutes.Login),
+                                onPressed: () =>
+                                    this.widget.actionModel.mainRouterPushTo(obj: MainNavigatorRoutes.Login),
                                 child: new Container(
                                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                                     decoration: new BoxDecoration(
@@ -142,7 +152,11 @@ namespace ConnectApp.screens {
             if (user.title != null && user.title.isNotEmpty()) {
                 titleWidget = new Text(
                     data: user.title,
-                    style: CTextStyle.PRegularBody4,
+                    style: new TextStyle(
+                        fontSize: 14,
+                        fontFamily: "Roboto-Regular",
+                        color: CColors.BgGrey
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis
                 );
@@ -152,12 +166,18 @@ namespace ConnectApp.screens {
             }
 
             return new GestureDetector(
-                onTap: () => this.widget.pushToUserDetail(obj: user.id),
+                onTap: () => this.widget.actionModel.pushToUserDetail(obj: user.id),
                 child: new Container(
-                    padding: EdgeInsets.only(16, bottom: 16),
-                    color: CColors.White,
+                    height: 184 + CCommonUtils.getSafeAreaTopPadding(context: this.context),
+                    padding: EdgeInsets.only(16, CCommonUtils.getSafeAreaTopPadding(context: this.context), bottom: 16),
+                    decoration: new BoxDecoration(
+                        image: new DecorationImage(
+                            new AssetImage("image/mine-cover"),
+                            fit: BoxFit.cover
+                        )
+                    ),
                     child: new Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: new List<Widget> {
                             this._buildQrScanWidget(),
                             new Row(
@@ -166,43 +186,45 @@ namespace ConnectApp.screens {
                                         margin: EdgeInsets.only(right: 12),
                                         child: Avatar.User(
                                             user: user,
-                                            64
+                                            64,
+                                            true
                                         )
                                     ),
                                     new Expanded(
                                         child: new Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: new List<Widget> {
-                                                new Text(
-                                                    user.fullName ?? user.name,
-                                                    style: CTextStyle.H4,
-                                                    maxLines: 1,
-                                                    overflow: TextOverflow.ellipsis
+                                                new Row(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: new List<Widget> {
+                                                        new Flexible(
+                                                            child: new Text(
+                                                                user.fullName ?? user.name,
+                                                                style: CTextStyle.H4White,
+                                                                maxLines: 1,
+                                                                overflow: TextOverflow.ellipsis
+                                                            )
+                                                        ),
+                                                        CImageUtils.GenBadgeImage(
+                                                            badges: user.badges,
+                                                            CCommonUtils.GetUserLicense(
+                                                                userId: user.id,
+                                                                userLicenseMap: this.widget.viewModel.userLicenseDict
+                                                            ),
+                                                            EdgeInsets.only(4, 6)
+                                                        )
+                                                    }
                                                 ),
                                                 titleWidget
                                             }
                                         )
                                     ),
                                     new Container(
-                                        padding: EdgeInsets.only(right: 16),
-                                        margin: EdgeInsets.only(12),
-                                        child: new Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: new List<Widget> {
-                                                new Text(
-                                                    "个人主页",
-                                                    style: new TextStyle(
-                                                        fontSize: 14,
-                                                        fontFamily: "Roboto-Regular",
-                                                        color: CColors.TextBody4
-                                                    )
-                                                ),
-                                                new Icon(
-                                                    icon: Icons.chevron_right,
-                                                    size: 24,
-                                                    color: Color.fromRGBO(199, 203, 207, 1)
-                                                )
-                                            }
+                                        padding: EdgeInsets.only(12, right: 16),
+                                        child: new Icon(
+                                            icon: Icons.chevron_right,
+                                            size: 24,
+                                            color: CColors.LightBlueGrey
                                         )
                                     )
                                 }
@@ -227,7 +249,7 @@ namespace ConnectApp.screens {
                         child: new Icon(
                             icon: Icons.qr_scan,
                             size: 28,
-                            color: CColors.Icon
+                            color: CColors.LightBlueGrey
                         )
                     )
                 }
@@ -237,24 +259,34 @@ namespace ConnectApp.screens {
         List<Widget> _buildItems() {
             var personalCardItems = new List<PersonalCardItem> {
                 new PersonalCardItem(
+                    icon: Icons.book,
+                    "我的收藏",
+                    () => {
+                        var routeName = this.widget.viewModel.isLoggedIn
+                            ? MainNavigatorRoutes.MyFavorite
+                            : MainNavigatorRoutes.Login;
+                        this.widget.actionModel.mainRouterPushTo(obj: routeName);
+                    }
+                ),
+                new PersonalCardItem(
                     icon: Icons.outline_event,
                     "我的活动",
                     () => {
                         var routeName = this.widget.viewModel.isLoggedIn
                             ? MainNavigatorRoutes.MyEvent
                             : MainNavigatorRoutes.Login;
-                        this.widget.mainRouterPushTo(obj: routeName);
+                        this.widget.actionModel.mainRouterPushTo(obj: routeName);
                     }
                 ),
                 new PersonalCardItem(
                     icon: Icons.eye,
                     "浏览历史",
-                    () => this.widget.mainRouterPushTo(obj: MainNavigatorRoutes.History)
+                    () => this.widget.actionModel.mainRouterPushTo(obj: MainNavigatorRoutes.History)
                 ),
                 new PersonalCardItem(
                     icon: Icons.settings,
                     "设置",
-                    () => this.widget.mainRouterPushTo(obj: MainNavigatorRoutes.Setting)
+                    () => this.widget.actionModel.mainRouterPushTo(obj: MainNavigatorRoutes.Setting)
                 )
             };
             var widgets = new List<Widget>();
@@ -263,7 +295,9 @@ namespace ConnectApp.screens {
         }
 
         public void didPopNext() {
-            StatusBarManager.statusBarStyle(false);
+            if (this.widget.viewModel.currentTabBarIndex == 3) {
+                StatusBarManager.statusBarStyle(isLight: UserInfoManager.isLogin());
+            }
         }
 
         public void didPush() {

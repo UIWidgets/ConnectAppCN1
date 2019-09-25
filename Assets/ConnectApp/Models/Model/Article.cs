@@ -23,6 +23,7 @@ namespace ConnectApp.Models.Model {
         public string type;
         public string body;
         public bool like;
+        public Favorite favorite;
         public List<string> projectIds;
         public string channelId;
         public Dictionary<string, ContentMap> contentMap;
@@ -50,6 +51,7 @@ namespace ConnectApp.Models.Model {
             string type = null,
             string body = null,
             bool? like = null,
+            Favorite favorite = null,
             List<string> projectIds = null,
             string channelId = null,
             Dictionary<string, ContentMap> contentMap = null,
@@ -77,6 +79,7 @@ namespace ConnectApp.Models.Model {
                 type = type ?? this.type,
                 body = body ?? this.body,
                 like = like ?? this.like,
+                favorite = favorite ?? this.favorite,
                 projectIds = projectIds ?? this.projectIds,
                 channelId = channelId ?? this.channelId,
                 contentMap = contentMap ?? this.contentMap,
@@ -111,6 +114,7 @@ namespace ConnectApp.Models.Model {
                 type: other.type,
                 body: other.body,
                 like: other.like,
+                favorite: other.favorite,
                 projectIds: other.projectIds,
                 channelId: other.channelId,
                 contentMap: other.contentMap,
@@ -119,5 +123,17 @@ namespace ConnectApp.Models.Model {
                 isNotFirst: other.isNotFirst
             );
         }
+    }
+
+    [Serializable]
+    public class Feed {
+        public List<string> itemIds;
+        public string actionTime;
+    }
+
+    [Serializable]
+    public class HottestItem {
+        public string id;
+        public string itemId;
     }
 }

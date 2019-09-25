@@ -187,8 +187,9 @@ namespace ConnectApp.Utils {
                     updateCookie(newCookie: vsCookie);
                 }
 
-                var firstEgg = false;
-                var scan = false;
+                var firstEgg = true;
+                var scan = true;
+
                 if (initDataResponse.config != null) {
                     if (initDataResponse.config.eggs != null && initDataResponse.config.eggs.ContainsKey("firstEgg")) {
                         firstEgg = initDataResponse.config.eggs["firstEgg"];
@@ -204,7 +205,35 @@ namespace ConnectApp.Utils {
                 StoreProvider.store.dispatcher.dispatch(new ScanEnabledAction {
                     scanEnabled = scan
                 });
-            }).Catch(exception => { });
+
+                DateTime endTime;
+                if (initDataResponse.nationalDay.endTime.isNotEmpty()) {
+                    DateTime.TryParse(s: initDataResponse.nationalDay.endTime, result: out endTime);
+                }
+                else {
+                    endTime = DateTime.Parse("2019-10-31T00:00:00Z");
+                }
+
+                if (DateTime.Compare(t1: endTime, t2: DateTime.Now) > 0) {
+                    StoreProvider.store.dispatcher.dispatch(new NationalDayEnabledAction {nationalDayEnabled = true});
+                    CImageUtils.isNationalDay = true;
+                }
+                else {
+                    StoreProvider.store.dispatcher.dispatch(new NationalDayEnabledAction {nationalDayEnabled = false});
+                    CImageUtils.isNationalDay = false;
+                }
+            }).Catch(exception => {
+                StoreProvider.store.dispatcher.dispatch(new InitEggsAction {firstEgg = true});
+                StoreProvider.store.dispatcher.dispatch(new ScanEnabledAction {scanEnabled = true});
+                if (DateTime.Compare(DateTime.Parse("2019-10-31T00:00:00Z"), t2: DateTime.Now) > 0) {
+                    StoreProvider.store.dispatcher.dispatch(new NationalDayEnabledAction {nationalDayEnabled = true});
+                    CImageUtils.isNationalDay = true;
+                }
+                else {
+                    StoreProvider.store.dispatcher.dispatch(new NationalDayEnabledAction {nationalDayEnabled = false});
+                    CImageUtils.isNationalDay = false;
+                }
+            });
         }
     }
 }

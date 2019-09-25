@@ -7,6 +7,7 @@ using ConnectApp.Models.State;
 using ConnectApp.Plugins;
 using ConnectApp.screens;
 using ConnectApp.Utils;
+using RSG;
 using Unity.UIWidgets.Redux;
 using UnityEngine;
 
@@ -47,7 +48,7 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 var email = getState().loginState.email;
                 var password = getState().loginState.password;
-                return LoginApi.LoginByEmail(email, password)
+                return LoginApi.LoginByEmail(email: email, password: password)
                     .Then(loginInfo => {
                         var user = new User {
                             id = loginInfo.userId,
@@ -63,13 +64,14 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new LoginByEmailSuccessAction {
                             loginInfo = loginInfo
                         });
+                        dispatcher.dispatch<IPromise>(fetchUserProfile(loginInfo.userId));
                         dispatcher.dispatch(new MainNavigatorPopAction());
                         dispatcher.dispatch(new CleanEmailAndPasswordAction());
                         UserInfoManager.saveUserInfo(loginInfo);
                         AnalyticsManager.LoginEvent("email");
                         AnalyticsManager.AnalyticsLogin("email", loginInfo.userId);
                         JPushPlugin.setJPushAlias(loginInfo.userId);
-                        EventBus.publish(sName: EventBusConstant.login_success, new List<object>());
+                        EventBus.publish(sName: EventBusConstant.login_success, new List<object> {loginInfo.userId});
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new LoginByEmailFailureAction());
@@ -110,7 +112,7 @@ namespace ConnectApp.redux.actions {
                         }
                         else {
                             dispatcher.dispatch(new MainNavigatorPopAction());
-                            EventBus.publish(sName: EventBusConstant.login_success, new List<object>());
+                            EventBus.publish(sName: EventBusConstant.login_success, new List<object> {loginInfo.userId});
                         }
                     })
                     .Catch(error => {

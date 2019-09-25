@@ -20,9 +20,10 @@ namespace ConnectApp.Models.Api {
     }
 
     [Serializable]
-    public class LikeArticleParameter {
+    public class HandleArticleParameter {
         public string type;
         public string itemId;
+        public string tagId;
     }
 
     [Serializable]
@@ -76,5 +77,10 @@ namespace ConnectApp.Models.Api {
         public string eventType;
         public DateTime appTime;
         public List<Dictionary<string, string>> extraData;
+    }
+
+    [Serializable]
+    public class UpdateAvatarParameter {
+        public string avatar;
     }
 }

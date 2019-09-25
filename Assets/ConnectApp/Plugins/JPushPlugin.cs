@@ -19,7 +19,6 @@ using EventType = ConnectApp.Models.State.EventType;
 
 namespace ConnectApp.Plugins {
     public static class JPushPlugin {
-        public static BuildContext context;
         public static bool isListen;
         static int callbackId = 0;
 
@@ -38,8 +37,8 @@ namespace ConnectApp.Plugins {
         }
 
         static void _handleMethodCall(string method, List<JSONNode> args) {
-            if (context != null) {
-                using (WindowProvider.of(context).getScope()) {
+            if (GlobalContext.context != null) {
+                using (WindowProvider.of(GlobalContext.context).getScope()) {
                     switch (method) {
                         case "OnOpenNotification": {
                             //点击应用通知栏
@@ -210,6 +209,10 @@ namespace ConnectApp.Plugins {
         }
 
         public static void setJPushAlias(string alias) {
+            if (Application.isEditor) {
+                return;
+            }
+
             if (alias.isEmpty()) {
                 return;
             }

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using ConnectApp.Components;
-using ConnectApp.Plugins;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using RSG;
@@ -21,6 +20,7 @@ namespace ConnectApp.Main {
         public const string ArticleDetail = "/article-detail";
         public const string Setting = "/setting";
         public const string MyEvent = "/my-event";
+        public const string MyFavorite = "/my-favorite";
         public const string History = "/history";
         public const string Login = "/login";
         public const string BindUnity = "/bind-unity";
@@ -49,7 +49,7 @@ namespace ConnectApp.Main {
         public static NavigatorState navigator {
             get { return globalKey.currentState as NavigatorState; }
         }
-        
+
         public static RouteObserve<PageRoute> routeObserve {
             get { return _routeObserve; }
         }
@@ -61,6 +61,7 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.ArticleDetail, context => new ArticleDetailScreenConnector("")},
                     {MainNavigatorRoutes.Setting, context => new SettingScreenConnector()},
                     {MainNavigatorRoutes.MyEvent, context => new MyEventsScreenConnector()},
+                    {MainNavigatorRoutes.MyFavorite, context => new MyFavoriteScreenConnector()},
                     {MainNavigatorRoutes.History, context => new HistoryScreenConnector()},
                     {MainNavigatorRoutes.Login, context => new LoginScreen()},
                     {MainNavigatorRoutes.BindUnity, context => new BindUnityScreenConnector(FromPage.setting)},
@@ -109,8 +110,7 @@ namespace ConnectApp.Main {
         }
 
         public override Widget build(BuildContext context) {
-            JPushPlugin.context = context;
-            QRScanPlugin.context = context;
+            GlobalContext.context = context;
             return new WillPopScope(
                 onWillPop: () => {
                     var promise = new Promise<bool>();

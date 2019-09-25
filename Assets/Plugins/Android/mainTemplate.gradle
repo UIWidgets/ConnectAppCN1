@@ -29,7 +29,7 @@ dependencies {
     implementation(name:'zxing-lib', ext:'aar')  
     implementation 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:+'
     implementation 'com.google.code.gson:gson:2.8.5'
-    implementation 'com.android.support:support-v4:28.0.0'
+    implementation 'com.jph.takephoto:takephoto_library:4.0.3'
 }
 
 android {
@@ -48,8 +48,8 @@ android {
         ndk {
             abiFilters 'armeabi-v7a', 'x86'
         }
-        versionCode 58
-        versionName '1.1.3'
+        versionCode 61
+        versionName '1.1.4'
     }
 
     lintOptions {

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14460.20"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ImageCropController">
+            <connections>
+                <outlet property="cancelButton" destination="bDp-vP-Uyh" id="Kld-Bd-4J8"/>
+                <outlet property="doneButton" destination="LDI-JA-pmt" id="bnf-kc-qe2"/>
+                <outlet property="imageView" destination="aMt-xc-drD" id="Ofk-JP-9FL"/>
+                <outlet property="recoveryButton" destination="I8Z-mD-SvE" id="d0C-FC-gzW"/>
+                <outlet property="rotateButton" destination="5Pr-z2-Ssb" id="K07-3J-Xd9"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="aMt-xc-drD">
+                    <rect key="frame" x="16" y="40" width="343" height="578"/>
+                </imageView>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="63M-Pc-5xP">
+                    <rect key="frame" x="16" y="618" width="343" height="49"/>
+                    <subviews>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bDp-vP-Uyh">
+                            <rect key="frame" x="0.0" y="0.0" width="60" height="49"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="60" id="rT1-Zo-3P1"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                            <state key="normal" title="取消"/>
+                            <connections>
+                                <action selector="cancel:" destination="-1" eventType="touchUpInside" id="8C8-oc-Jkq"/>
+                            </connections>
+                        </button>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="I8Z-mD-SvE">
+                            <rect key="frame" x="141.5" y="0.0" width="60" height="49"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="60" id="d4D-Wp-IpF"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                            <state key="normal" title="还原"/>
+                            <connections>
+                                <action selector="recovery:" destination="-1" eventType="touchUpInside" id="j2i-A2-ilp"/>
+                            </connections>
+                        </button>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="LDI-JA-pmt">
+                            <rect key="frame" x="283" y="0.0" width="60" height="49"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="60" id="wHi-XA-ayR"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                            <state key="normal" title="完成"/>
+                            <connections>
+                                <action selector="done:" destination="-1" eventType="touchUpInside" id="wUD-cj-cNd"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="49" id="3sc-o1-K7B"/>
+                        <constraint firstAttribute="bottom" secondItem="bDp-vP-Uyh" secondAttribute="bottom" id="6E0-9Z-voc"/>
+                        <constraint firstItem="LDI-JA-pmt" firstAttribute="top" secondItem="63M-Pc-5xP" secondAttribute="top" id="Dpf-o0-Hy9"/>
+                        <constraint firstAttribute="bottom" secondItem="LDI-JA-pmt" secondAttribute="bottom" id="EMq-De-2rR"/>
+                        <constraint firstItem="I8Z-mD-SvE" firstAttribute="centerX" secondItem="63M-Pc-5xP" secondAttribute="centerX" id="JXA-et-aMK"/>
+                        <constraint firstItem="bDp-vP-Uyh" firstAttribute="top" secondItem="63M-Pc-5xP" secondAttribute="top" id="QaO-7U-soW"/>
+                        <constraint firstItem="bDp-vP-Uyh" firstAttribute="leading" secondItem="63M-Pc-5xP" secondAttribute="leading" id="Vvp-1j-HPn"/>
+                        <constraint firstAttribute="bottom" secondItem="I8Z-mD-SvE" secondAttribute="bottom" id="aKC-Lf-7AV"/>
+                        <constraint firstItem="I8Z-mD-SvE" firstAttribute="top" secondItem="63M-Pc-5xP" secondAttribute="top" id="fSv-Vd-moV"/>
+                        <constraint firstAttribute="trailing" secondItem="LDI-JA-pmt" secondAttribute="trailing" id="hg5-ar-jcT"/>
+                    </constraints>
+                </view>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5Pr-z2-Ssb">
+                    <rect key="frame" x="24" y="570" width="40" height="40"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="40" id="FLK-ZG-c9V"/>
+                        <constraint firstAttribute="height" constant="40" id="ooQ-mx-8MJ"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                    <state key="normal" title="旋转"/>
+                    <connections>
+                        <action selector="rotate:" destination="-1" eventType="touchUpInside" id="WGn-kE-CoA"/>
+                    </connections>
+                </button>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstItem="63M-Pc-5xP" firstAttribute="leading" secondItem="Q5M-cg-NOt" secondAttribute="leading" constant="16" id="64F-yL-kZR"/>
+                <constraint firstItem="Q5M-cg-NOt" firstAttribute="trailing" secondItem="aMt-xc-drD" secondAttribute="trailing" constant="16" id="ChR-fD-aUx"/>
+                <constraint firstItem="63M-Pc-5xP" firstAttribute="top" secondItem="5Pr-z2-Ssb" secondAttribute="bottom" constant="8" id="GQ2-Wv-O3f"/>
+                <constraint firstItem="aMt-xc-drD" firstAttribute="leading" secondItem="Q5M-cg-NOt" secondAttribute="leading" constant="16" id="Hnc-hb-9p5"/>
+                <constraint firstItem="Q5M-cg-NOt" firstAttribute="trailing" secondItem="63M-Pc-5xP" secondAttribute="trailing" constant="16" id="Uhg-e2-mWG"/>
+                <constraint firstItem="63M-Pc-5xP" firstAttribute="bottom" secondItem="Q5M-cg-NOt" secondAttribute="bottom" id="aXM-65-pD2"/>
+                <constraint firstItem="5Pr-z2-Ssb" firstAttribute="leading" secondItem="63M-Pc-5xP" secondAttribute="leading" constant="8" id="pNC-vU-BvU"/>
+                <constraint firstItem="aMt-xc-drD" firstAttribute="top" secondItem="Q5M-cg-NOt" secondAttribute="top" constant="20" id="pie-9p-QGC"/>
+                <constraint firstItem="63M-Pc-5xP" firstAttribute="top" secondItem="aMt-xc-drD" secondAttribute="bottom" id="zCp-HA-LB3"/>
+            </constraints>
+            <viewLayoutGuide key="safeArea" id="Q5M-cg-NOt"/>
+            <point key="canvasLocation" x="104.8" y="33.733133433283363"/>
+        </view>
+    </objects>
+</document>

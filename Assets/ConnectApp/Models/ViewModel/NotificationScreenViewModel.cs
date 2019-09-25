@@ -6,8 +6,10 @@ namespace ConnectApp.Models.ViewModel {
         public bool notificationLoading;
         public int page;
         public int pageTotal;
+        public int currentTabBarIndex;
         public List<Notification> notifications;
         public List<User> mentions;
         public Dictionary<string, User> userDict;
+        public Dictionary<string, Team> teamDict;
     }
 }

@@ -9,7 +9,6 @@ using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.widgets;
@@ -40,11 +39,12 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = articleId});
                         },
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
-                            Actions.shareToWechat(type, title, description, linkUrl, imageUrl)),
+                            Actions.shareToWechat(type: type, title: title, description: description, linkUrl: linkUrl,
+                                imageUrl: imageUrl)),
                         deleteArticleHistory = id =>
                             dispatcher.dispatch(new DeleteArticleHistoryAction {articleId = id})
                     };
-                    return new HistoryArticleScreen(viewModel, actionModel);
+                    return new HistoryArticleScreen(viewModel: viewModel, actionModel: actionModel);
                 }
             );
         }
@@ -72,12 +72,11 @@ namespace ConnectApp.screens {
 
             return new Container(
                 color: CColors.Background,
-                child: new CustomScrollbar(
-                    ListView.builder(
-                        physics: new AlwaysScrollableScrollPhysics(),
-                        itemCount: this.viewModel.articleHistory.Count,
-                        itemBuilder: this._buildArticleCard
-                    )
+                child: new CustomListView(
+                    itemCount: this.viewModel.articleHistory.Count,
+                    itemBuilder: this._buildArticleCard,
+                    headerWidget: CustomListViewConstant.defaultHeaderWidget,
+                    hasRefresh: false
                 )
             );
         }
@@ -95,16 +94,16 @@ namespace ConnectApp.screens {
                         isLoggedIn: this.viewModel.isLoggedIn,
                         () => {
                             Clipboard.setData(new ClipboardData(text: linkUrl));
-                            CustomDialogUtils.showToast("复制链接成功", Icons.check_circle_outline);
+                            CustomDialogUtils.showToast("复制链接成功", iconData: Icons.check_circle_outline);
                         },
                         () => this.actionModel.pushToLogin(),
-                        () => this.actionModel.pushToBlock(article.id),
-                        () => this.actionModel.pushToReport(article.id, ReportType.article),
+                        () => this.actionModel.pushToBlock(obj: article.id),
+                        () => this.actionModel.pushToReport(arg1: article.id, arg2: ReportType.article),
                         type => {
                             CustomDialogUtils.showCustomDialog(
                                 child: new CustomLoadingDialog()
                             );
-                            string imageUrl = CImageUtils.SizeTo200ImageUrl(article.thumbnail.url);
+                            string imageUrl = CImageUtils.SizeTo200ImageUrl(imageUrl: article.thumbnail.url);
                             this.actionModel.shareToWechat(arg1: type, arg2: article.title,
                                     arg3: article.subTitle, arg4: linkUrl, arg5: imageUrl)
                                 .Then(onResolved: CustomDialogUtils.hiddenCustomDialog)
@@ -112,28 +111,13 @@ namespace ConnectApp.screens {
                         }
                     ),
                     fullName: article.fullName,
-                    index == 0,
                     new ObjectKey(value: article.id)
                 ),
                 new CustomDismissibleDrawerDelegate(),
                 secondaryActions: new List<Widget> {
-                    new GestureDetector(
-                        onTap: () => this.actionModel.deleteArticleHistory(obj: article.id),
-                        child: new Container(
-                            color: CColors.Separator2,
-                            width: 80,
-                            alignment: Alignment.center,
-                            child: new Container(
-                                width: 44,
-                                height: 44,
-                                alignment: Alignment.center,
-                                decoration: new BoxDecoration(
-                                    CColors.White,
-                                    borderRadius: BorderRadius.circular(22)
-                                ),
-                                child: new Icon(Icons.delete_outline, size: 28, color: CColors.Error)
-                            )
-                        )
+                    new DeleteActionButton(
+                        80,
+                        onTap: () => this.actionModel.deleteArticleHistory(obj: article.id)
                     )
                 },
                 controller: this._controller

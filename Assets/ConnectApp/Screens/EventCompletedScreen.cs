@@ -120,31 +120,24 @@ namespace ConnectApp.screens {
             }
 
             var enablePullUp = completedEvents.Count < this.widget.viewModel.completedEventTotal;
-            var itemCount = enablePullUp ? completedEvents.Count : completedEvents.Count + 1;
             return new Container(
                 color: CColors.Background,
-                child: new CustomScrollbar(
-                    new SmartRefresher(
-                        controller: this._completedRefreshController,
-                        enablePullDown: true,
-                        enablePullUp: enablePullUp,
-                        onRefresh: this._completedRefresh,
-                        hasBottomMargin: true,
-                        child: ListView.builder(
-                            physics: new AlwaysScrollableScrollPhysics(),
-                            itemCount: itemCount,
-                            itemBuilder: this._buildEventCard
-                        )
-                    )
+                child: new CustomListView(
+                    controller: this._completedRefreshController,
+                    enablePullDown: true,
+                    enablePullUp: enablePullUp,
+                    onRefresh: this._completedRefresh,
+                    hasBottomMargin: true,
+                    itemCount: completedEvents.Count,
+                    itemBuilder: this._buildEventCard,
+                    headerWidget: CustomListViewConstant.defaultHeaderWidget,
+                    footerWidget: enablePullUp ? null : new EndView(hasBottomMargin: true)
                 )
             );
         }
 
         Widget _buildEventCard(BuildContext context, int index) {
             var completedEvents = this.widget.viewModel.completedEvents;
-            if (index == completedEvents.Count) {
-                return new EndView(hasBottomMargin: true);
-            }
 
             var eventId = completedEvents[index: index];
             var model = this.widget.viewModel.eventsDict[key: eventId];
@@ -158,7 +151,6 @@ namespace ConnectApp.screens {
                     arg1: model.id,
                     model.mode == "online" ? EventType.online : EventType.offline
                 ),
-                index == 0,
                 new ObjectKey(value: model.id)
             );
         }

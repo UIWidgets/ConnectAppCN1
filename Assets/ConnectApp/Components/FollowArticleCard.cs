@@ -14,6 +14,7 @@ namespace ConnectApp.Components {
         FollowArticleCard(
             Article article,
             User user = null,
+            string license = null,
             Team team = null,
             bool isLike = false,
             UserType userType = UserType.me,
@@ -28,6 +29,7 @@ namespace ConnectApp.Components {
         ) : base(key: key) {
             this.article = article;
             this.user = user ?? new User();
+            this.license = license;
             this.team = team ?? new Team();
             this.isLike = isLike;
             this.userType = userType;
@@ -43,6 +45,7 @@ namespace ConnectApp.Components {
         public static FollowArticleCard User(
             Article article,
             User user = null,
+            string license = null,
             bool isLike = false,
             UserType userType = UserType.me,
             GestureTapCallback onTap = null,
@@ -56,6 +59,7 @@ namespace ConnectApp.Components {
             return new FollowArticleCard(
                 article: article,
                 user: user,
+                license: license,
                 isLike: isLike,
                 userType: userType,
                 type: OwnerType.user,
@@ -100,6 +104,7 @@ namespace ConnectApp.Components {
 
         readonly Article article;
         readonly User user;
+        readonly string license;
         readonly Team team;
         readonly bool isLike;
         readonly UserType userType;
@@ -165,6 +170,19 @@ namespace ConnectApp.Components {
                     team: this.team,
                     38
                 );
+
+            var badge = this.type == OwnerType.user
+                ? CImageUtils.GenBadgeImage(
+                    badges: this.user.badges,
+                    license: this.license,
+                    EdgeInsets.only(4)
+                )
+                : CImageUtils.GenBadgeImage(
+                    badges: this.team.badges,
+                    null,
+                    EdgeInsets.only(4)
+                );
+
             Widget titleWidget = new Container();
             if (this.user.title != null && this.user.title.isNotEmpty() && this.type == OwnerType.user) {
                 titleWidget = new Text(
@@ -189,17 +207,25 @@ namespace ConnectApp.Components {
                                 onTap: this.avatarCallBack,
                                 child: new Container(
                                     color: CColors.Transparent,
-                                    margin: EdgeInsets.only(8, right: 8),
+                                    margin: EdgeInsets.only(8, right: 16),
                                     child: new Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: new List<Widget> {
-                                            new Text(
-                                                this.type == OwnerType.user
-                                                    ? this.user.fullName ?? this.user.name ?? "佚名"
-                                                    : this.team.name,
-                                                style: CTextStyle.PLargeBody,
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis
+                                            new Row(
+                                                children: new List<Widget> {
+                                                    new Flexible(
+                                                        child: new Text(
+                                                            this.type == OwnerType.user
+                                                                ? this.user.fullName ?? this.user.name ?? "佚名"
+                                                                : this.team.name,
+                                                            style: CTextStyle.PLargeBody.merge(
+                                                                new TextStyle(height: 1)),
+                                                            maxLines: 1,
+                                                            overflow: TextOverflow.ellipsis
+                                                        )
+                                                    ),
+                                                    badge
+                                                }
                                             ),
                                             titleWidget
                                         }

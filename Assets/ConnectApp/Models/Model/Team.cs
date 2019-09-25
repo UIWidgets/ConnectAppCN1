@@ -16,6 +16,7 @@ namespace ConnectApp.Models.Model {
         public List<string> articleIds;
         public bool? articlesHasMore;
         public bool? followTeamLoading;
+        public List<string> badges;
         public bool? isDetail;
 
         public Team copyWith(
@@ -31,6 +32,7 @@ namespace ConnectApp.Models.Model {
             List<string> articleIds = null,
             bool? articlesHasMore = null,
             bool? followTeamLoading = null,
+            List<string> badges = null,
             bool? isDetail = null
         ) {
             return new Team {
@@ -46,6 +48,7 @@ namespace ConnectApp.Models.Model {
                 articleIds = articleIds ?? this.articleIds,
                 articlesHasMore = articlesHasMore ?? this.articlesHasMore,
                 followTeamLoading = followTeamLoading ?? this.followTeamLoading,
+                badges = badges ?? this.badges,
                 isDetail = isDetail ?? this.isDetail
             };
         }
@@ -68,6 +71,7 @@ namespace ConnectApp.Models.Model {
                 articleIds: other.articleIds,
                 articlesHasMore: other.articlesHasMore,
                 followTeamLoading: other.followTeamLoading,
+                badges: other.badges,
                 isDetail: other.isDetail
             );
         }

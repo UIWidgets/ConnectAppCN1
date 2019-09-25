@@ -8,6 +8,7 @@ using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
+using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
@@ -47,6 +48,7 @@ namespace ConnectApp.screens {
                         followingUsersHasMore = user.followingUsersHasMore ?? false,
                         followingUserOffset = followingUsers.Count,
                         userDict = state.userState.userDict,
+                        userLicenseDict = state.userState.userLicenseDict,
                         followMap = followMap,
                         currentUserId = currentUserId,
                         isLoggedIn = state.loginState.isLoggedIn
@@ -56,20 +58,20 @@ namespace ConnectApp.screens {
                     var actionModel = new UserFollowingScreenActionModel {
                         startFetchFollowingUser = () => dispatcher.dispatch(new StartFetchFollowingUserAction()),
                         fetchFollowingUser = offset =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchFollowingUser(this.userId, offset)),
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowingUser(userId: this.userId, offset: offset)),
                         startFollowUser = followUserId => dispatcher.dispatch(new StartFollowUserAction {
                             followUserId = followUserId
                         }),
                         followUser = followUserId =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(followUserId)),
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(followUserId: followUserId)),
                         startUnFollowUser = unFollowUserId => dispatcher.dispatch(new StartUnFollowUserAction {
                             unFollowUserId = unFollowUserId
                         }),
                         unFollowUser = unFollowUserId =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(unFollowUserId)),
+                            dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(unFollowUserId: unFollowUserId)),
                         startSearchFollowingUser = () => dispatcher.dispatch(new StartSearchFollowingAction()),
                         searchFollowingUser = (keyword, pageNumber) => dispatcher.dispatch<IPromise>(
-                            Actions.searchFollowings(keyword, pageNumber)),
+                            Actions.searchFollowings(keyword: keyword, pageNumber: pageNumber)),
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
@@ -79,7 +81,7 @@ namespace ConnectApp.screens {
                             }
                         )
                     };
-                    return new UserFollowingUserScreen(viewModel, actionModel);
+                    return new UserFollowingUserScreen(viewModel: viewModel, actionModel: actionModel);
                 }
             );
         }
@@ -175,27 +177,27 @@ namespace ConnectApp.screens {
             }
             else if (this.widget.viewModel.searchFollowingKeyword.Length > 0) {
                 if (this.widget.viewModel.searchFollowingUsers.Count > 0) {
+                    var enablePullUp = this.widget.viewModel.searchFollowingUserHasMore;
                     content = new Container(
                         color: CColors.Background,
-                        child: new CustomScrollbar(
-                            new SmartRefresher(
-                                controller: this._refreshController,
-                                enablePullDown: false,
-                                enablePullUp: this.widget.viewModel.searchFollowingUserHasMore,
-                                onRefresh: this._onRefreshSearchFollowing,
-                                child: ListView.builder(
-                                    physics: new AlwaysScrollableScrollPhysics(),
-                                    itemCount: this.widget.viewModel.searchFollowingUsers.Count,
-                                    itemBuilder: (cxt, index) => {
-                                        var searchUser = this.widget.viewModel.searchFollowingUsers[index: index];
-                                        return new UserCard(
-                                            user: searchUser,
-                                            () => this.widget.actionModel.pushToUserDetail(obj: searchUser.id),
-                                            key: new ObjectKey(value: searchUser.id)
-                                        );
-                                    }
-                                )
-                            )
+                        child: new CustomListView(
+                            controller: this._refreshController,
+                            enablePullDown: false,
+                            enablePullUp: enablePullUp,
+                            onRefresh: this._onRefreshSearchFollowing,
+                            itemCount: this.widget.viewModel.searchFollowingUsers.Count,
+                            itemBuilder: (cxt, index) => {
+                                var searchUser = this.widget.viewModel.searchFollowingUsers[index: index];
+                                return new UserCard(
+                                    user: searchUser,
+                                    CCommonUtils.GetUserLicense(userId: searchUser.id,
+                                        userLicenseMap: this.widget.viewModel.userLicenseDict),
+                                    () => this.widget.actionModel.pushToUserDetail(obj: searchUser.id),
+                                    key: new ObjectKey(value: searchUser.id)
+                                );
+                            },
+                            headerWidget: CustomListViewConstant.defaultHeaderWidget,
+                            footerWidget: enablePullUp ? null : CustomListViewConstant.defaultFooterWidget
                         )
                     );
                 }
@@ -218,64 +220,61 @@ namespace ConnectApp.screens {
             else {
                 var followingUsers = this.widget.viewModel.followingUsers;
                 var enablePullUp = this.widget.viewModel.followingUsersHasMore;
-                var itemCount = enablePullUp ? followingUsers.Count + 1 : followingUsers.Count + 2;
-                content = new CustomScrollbar(
-                    new SmartRefresher(
-                        controller: this._refreshController,
-                        enablePullDown: true,
-                        enablePullUp: enablePullUp,
-                        onRefresh: this._onRefreshFollowing,
-                        child: ListView.builder(
-                            physics: new AlwaysScrollableScrollPhysics(),
-                            itemCount: itemCount,
-                            itemBuilder: (cxt, index) => {
-                                if (index == 0) {
-                                    return new CustomDivider(color: CColors.White);
-                                }
-
-                                if (index == followingUsers.Count + 1) {
-                                    return new EndView();
-                                }
-
-                                var followingUser = followingUsers[index - 1];
-                                UserType userType = UserType.unFollow;
-                                if (!this.widget.viewModel.isLoggedIn) {
-                                    userType = UserType.unFollow;
-                                }
-                                else {
-                                    var followUserLoading = false;
-                                    if (this.widget.viewModel.userDict.ContainsKey(key: followingUser.id)) {
-                                        var user = this.widget.viewModel.userDict[key: followingUser.id];
-                                        followUserLoading = user.followUserLoading ?? false;
-                                    }
-
-                                    if (this.widget.viewModel.currentUserId == followingUser.id) {
-                                        userType = UserType.me;
-                                    }
-                                    else if (followUserLoading) {
-                                        userType = UserType.loading;
-                                    }
-                                    else if (this.widget.viewModel.followMap.ContainsKey(key: followingUser.id)) {
-                                        userType = UserType.follow;
-                                    }
-                                }
-
-                                return new UserCard(
-                                    user: followingUser,
-                                    () => this.widget.actionModel.pushToUserDetail(obj: followingUser.id),
-                                    userType: userType,
-                                    () => this._onFollow(userType: userType, userId: followingUser.id),
-                                    new ObjectKey(value: followingUser.id)
-                                );
-                            }
-                        )
-                    )
+                content = new CustomListView(
+                    controller: this._refreshController,
+                    enablePullDown: true,
+                    enablePullUp: enablePullUp,
+                    onRefresh: this._onRefreshFollowing,
+                    itemCount: followingUsers.Count,
+                    itemBuilder: this._buildUserCard,
+                    headerWidget: CustomListViewConstant.defaultHeaderWidget,
+                    footerWidget: enablePullUp ? null : CustomListViewConstant.defaultFooterWidget
                 );
             }
 
             return new Container(
                 color: CColors.Background,
                 child: content
+            );
+        }
+
+        Widget _buildUserCard(BuildContext context, int index) {
+            var followingUsers = this.widget.viewModel.followingUsers;
+
+            var followingUser = followingUsers[index: index];
+            UserType userType = UserType.unFollow;
+            if (!this.widget.viewModel.isLoggedIn) {
+                userType = UserType.unFollow;
+            }
+            else {
+                bool followUserLoading;
+                if (this.widget.viewModel.userDict.ContainsKey(key: followingUser.id)) {
+                    var user = this.widget.viewModel.userDict[key: followingUser.id];
+                    followUserLoading = user.followUserLoading ?? false;
+                }
+                else {
+                    followUserLoading = false;
+                }
+
+                if (this.widget.viewModel.currentUserId == followingUser.id) {
+                    userType = UserType.me;
+                }
+                else if (followUserLoading) {
+                    userType = UserType.loading;
+                }
+                else if (this.widget.viewModel.followMap.ContainsKey(key: followingUser.id)) {
+                    userType = UserType.follow;
+                }
+            }
+
+            return new UserCard(
+                user: followingUser,
+                CCommonUtils.GetUserLicense(userId: followingUser.id,
+                    userLicenseMap: this.widget.viewModel.userLicenseDict),
+                () => this.widget.actionModel.pushToUserDetail(obj: followingUser.id),
+                userType: userType,
+                () => this._onFollow(userType: userType, userId: followingUser.id),
+                key: new ObjectKey(value: followingUser.id)
             );
         }
     }

@@ -3,15 +3,12 @@ using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Models.Model;
 using ConnectApp.Utils;
-using UnityEngine;
 
 namespace ConnectApp.Models.State {
     [Serializable]
     public class AppState {
-        public int Count { get; set; }
         public LoginState loginState { get; set; }
-
-        public EggState eggState { get; set; }
+        public ServiceConfigState serviceConfigState { get; set; }
         public ArticleState articleState { get; set; }
         public EventState eventState { get; set; }
         public PopularSearchState popularSearchState { get; set; }
@@ -27,13 +24,14 @@ namespace ConnectApp.Models.State {
         public SettingState settingState { get; set; }
         public ReportState reportState { get; set; }
         public FeedbackState feedbackState { get; set; }
+        public TabBarState tabBarState { get; set; }
+        public FavoriteState favoriteState { get; set; }
 
         public static AppState initialState() {
             var loginInfo = UserInfoManager.initUserInfo();
             var isLogin = UserInfoManager.isLogin();
 
             return new AppState {
-                Count = PlayerPrefs.GetInt("count", 0),
                 loginState = new LoginState {
                     email = "",
                     password = "",
@@ -41,9 +39,10 @@ namespace ConnectApp.Models.State {
                     isLoggedIn = isLogin,
                     loading = false
                 },
-                eggState = new EggState {
-                    showFirst = false,
-                    scanEnabled = false
+                serviceConfigState = new ServiceConfigState {
+                    showFirstEgg = false,
+                    scanEnabled = false,
+                    nationalDayEnabled = false,
                 },
                 articleState = new ArticleState {
                     recommendArticleIds = new List<string>(),
@@ -54,8 +53,13 @@ namespace ConnectApp.Models.State {
                     followArticlesLoading = false,
                     articleDetailLoading = false,
                     hottestHasMore = true,
+                    feedHasNew = false,
+                    feedIsFirst = false,
                     followArticleHasMore = false,
                     hotArticleHasMore = false,
+                    hotArticlePage = 0,
+                    beforeTime = "",
+                    afterTime = "",
                     articleHistory = HistoryManager.articleHistoryList(isLogin ? loginInfo.userId : null),
                     blockArticleList = HistoryManager.blockArticleList(isLogin ? loginInfo.userId : null)
                 },
@@ -111,6 +115,7 @@ namespace ConnectApp.Models.State {
                     followerLoading = false,
                     userDict = UserInfoManager.initUserDict(),
                     slugDict = new Dictionary<string, string>(),
+                    userLicenseDict = new Dictionary<string, UserLicense>(),
                     fullName = "",
                     title = "",
                     jobRole = new JobRole(),
@@ -155,6 +160,18 @@ namespace ConnectApp.Models.State {
                 feedbackState = new FeedbackState {
                     feedbackType = FeedbackType.Advice,
                     loading = false
+                },
+                tabBarState = new TabBarState {
+                    currentTabIndex = 0
+                },
+                favoriteState = new FavoriteState {
+                    favoriteTagLoading = false,
+                    favoriteDetailLoading = false,
+                    favoriteTagIds = new List<string>(),
+                    favoriteDetailArticleIdDict = new Dictionary<string, List<string>>(),
+                    favoriteTagHasMore = false,
+                    favoriteDetailHasMore = false,
+                    favoriteTagDict = new Dictionary<string, FavoriteTag>()
                 }
             };
         }
