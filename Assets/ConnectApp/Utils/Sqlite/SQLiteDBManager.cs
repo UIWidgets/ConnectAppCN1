@@ -63,6 +63,8 @@ namespace ConnectApp.Utils {
             this.m_Connection.CreateTable<DBMessageLite>();
             this.m_Connection.DropTable<FileRecordLite>();
             this.m_Connection.CreateTable<FileRecordLite>();
+            this.m_Connection.DropTable<DBReadyStateLite>();
+            this.m_Connection.CreateTable<DBReadyStateLite>();
         }
 
 
@@ -100,6 +102,25 @@ namespace ConnectApp.Utils {
                                                                                  message.nonce < maxNonce)
                     .OrderByDescending(message => message.nonce).Take(maxCount);
             }
+        }
+
+        public void SaveReadyState(DBReadyStateLite data) {
+            this.m_Connection.Insert(data, extra: "OR REPLACE");
+        }
+
+        public DBReadyStateLite LoadReadyState() {
+            var ret = this.m_Connection.Table<DBReadyStateLite>().Where(record => record.key == DBReadyStateLite.DefaultReadyStateKey);
+            
+            if (!ret.Any()) {
+                return null;
+            }
+
+            if (ret.Count() == 1) {
+                return ret.First();
+            }
+
+            Debug.Assert(false, "fatal error: duplicated files are mapping to one url.");
+            return null;
         }
     }
 }

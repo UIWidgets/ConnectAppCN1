@@ -1,12 +1,45 @@
 using System.Collections.Generic;
 using System.Linq;
+using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.ViewModel;
 using Newtonsoft.Json;
 
 
 namespace ConnectApp.Utils {
-    public static class MessengerDBApi {   
+    public static class MessengerDBApi {
+
+        /*
+         *
+         * load ReadyState from DB.
+         * !!! Note that this will return a new SocketResponseSessionData if nothing is available in the DB
+         * 
+         */
+        public static SocketResponseSessionData SyncLoadReadyState() {
+            var readyState = SQLiteDBManager.instance.LoadReadyState();
+            if (readyState == null) {
+                return new SocketResponseSessionData();
+            }
+
+            var readyData = JsonConvert.DeserializeObject<SocketResponseSessionData>(readyState.readyJson);
+            return readyData;
+        }
+
+        /*
+         *
+         * save the given ReadyState into DB
+         * 
+         */
+        public static void SyncSaveReadyState(SocketResponseSessionData data) {
+            var readyJson = JsonConvert.SerializeObject(data);
+            
+            SQLiteDBManager.instance.SaveReadyState(
+                new DBReadyStateLite {
+                    key = DBReadyStateLite.DefaultReadyStateKey ,
+                    readyJson = readyJson
+                }
+            );
+        }
         
         /**
          *
