@@ -812,7 +812,9 @@ namespace ConnectApp.screens {
             if (this._lastScrollPosition != null && this._lastScrollPosition < this._refreshController.offset) {
                 this.setState(() => {
                     this._showEmojiBoard = false;
-#if UNITY_ANDROID || UNITY_IOS
+#if UNITY_EDITOR
+                    //Do nothing    
+#elif UNITY_ANDROID || UNITY_IOS
                     UIWidgetsTextInputHide();
 #endif
                 });
