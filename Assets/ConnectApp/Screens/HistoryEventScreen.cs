@@ -6,7 +6,6 @@ using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
 
@@ -66,32 +65,18 @@ namespace ConnectApp.screens {
             var model = this.viewModel.eventHistory[index: index];
             var eventType = model.mode == "online" ? EventType.online : EventType.offline;
             return CustomDismissible.builder(
-                Key.key(model.id),
+                Key.key(value: model.id),
                 new EventCard(
                     model: model,
                     place: model.place,
-                    () => this.actionModel.pushToEventDetail(model.id, eventType),
+                    () => this.actionModel.pushToEventDetail(arg1: model.id, arg2: eventType),
                     new ObjectKey(value: model.id)
                 ),
                 new CustomDismissibleDrawerDelegate(),
                 secondaryActions: new List<Widget> {
-                    new GestureDetector(
-                        onTap: () => this.actionModel.deleteEventHistory(model.id),
-                        child: new Container(
-                            color: CColors.Separator2,
-                            width: 80,
-                            alignment: Alignment.center,
-                            child: new Container(
-                                width: 44,
-                                height: 44,
-                                alignment: Alignment.center,
-                                decoration: new BoxDecoration(
-                                    CColors.White,
-                                    borderRadius: BorderRadius.circular(22)
-                                ),
-                                child: new Icon(Icons.delete_outline, size: 28, color: CColors.Error)
-                            )
-                        )
+                    new DeleteActionButton(
+                        80,
+                        onTap: () => this.actionModel.deleteEventHistory(obj: model.id)
                     )
                 },
                 controller: this._controller

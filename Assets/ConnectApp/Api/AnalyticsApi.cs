@@ -6,7 +6,7 @@ using ConnectApp.Utils;
 using RSG;
 
 namespace ConnectApp.Api {
-    public class AnalyticsApi {
+    public static class AnalyticsApi {
         public static Promise AnalyticsApp(string userId, string device, string eventType, DateTime appTime,
             List<Dictionary<string, string>> data) {
             var promise = new Promise();

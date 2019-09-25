@@ -106,4 +106,13 @@ namespace ConnectApp.redux.actions {
     public class MainNavigatorPushToQRScanLoginAction : BaseAction {
         public string token = "";
     }
+
+    public class MainNavigatorPushToFavoriteDetailAction : BaseAction {
+        public string tagId = "";
+        public string userId = "";
+    }
+
+    public class MainNavigatorPushToEditFavoriteAction : BaseAction {
+        public string tagId = "";
+    }
 }
