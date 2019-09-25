@@ -119,7 +119,7 @@ namespace ConnectApp.Utils {
                 return ret.First();
             }
 
-            Debug.Assert(false, "fatal error: duplicated files are mapping to one url.");
+            Debug.Assert(false, "fatal error: duplicated ready states are mapping to the default key.");
             return null;
         }
     }
