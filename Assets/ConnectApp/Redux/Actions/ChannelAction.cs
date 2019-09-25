@@ -31,6 +31,7 @@ namespace ConnectApp.redux.actions {
                     .Catch(error => {
                         dispatcher.dispatch(new FetchPublicChannelsFailureAction());
                         Debug.Log(error);
+                        dispatcher.dispatch(loadReadyStateFromDB());
                     });
             });
         }
@@ -147,6 +148,29 @@ namespace ConnectApp.redux.actions {
                 return Promise.Resolved();
             });
         }
+        
+
+        public static object saveReadyStateToDB(SocketResponseSessionData data) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                Debug.Log("Saving ready state to db.");
+                MessengerDBApi.SyncSaveReadyState(data);
+                dispatcher.dispatch(new SaveReadyStateToDBSuccessAction {});
+                
+                Debug.Log("Saved ready state to db.");
+                return Promise.Resolved();
+            });
+        }
+
+        public static object loadReadyStateFromDB() {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                var data = MessengerDBApi.SyncLoadReadyState();
+                dispatcher.dispatch(new LoadReadyStateFromDBSuccessAction {
+                    data = data
+                });
+                return Promise.Resolved();
+            });
+        }
+        
     }
 
     public class ChannelsAction {
@@ -289,5 +313,13 @@ namespace ConnectApp.redux.actions {
 
     public class LoadMessagesFromDBSuccessAction : BaseAction {
         public List<ChannelMessageView> messages;
+    }
+
+    public class SaveReadyStateToDBSuccessAction : BaseAction {
+        
+    }
+
+    public class LoadReadyStateFromDBSuccessAction : BaseAction {
+        public SocketResponseSessionData data;
     }
 }

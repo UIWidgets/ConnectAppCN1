@@ -275,7 +275,7 @@ namespace ConnectApp.screens {
     public static class MessengerBuildUtils {
         public static Widget buildPopularChannelItem(ChannelView channel) {
             Widget image = Positioned.fill(
-                child: Image.network(
+                child: CachedNetworkImageProvider.cachedNetworkImage(
                     channel?.thumbnail ?? "",
                     fit: BoxFit.cover
                 )
@@ -443,7 +443,7 @@ namespace ConnectApp.screens {
                 child: new Container(
                     width: 48,
                     height: 48,
-                    child: Image.network(channel?.thumbnail ?? "", fit: BoxFit.cover)
+                    child: CachedNetworkImageProvider.cachedNetworkImage(channel?.thumbnail ?? "", fit: BoxFit.cover)
                 )
             );
 
@@ -488,7 +488,7 @@ namespace ConnectApp.screens {
                 child: new Container(
                     width: 48,
                     height: 48,
-                    child: Image.network(channel?.thumbnail ?? "", fit: BoxFit.cover)
+                    child: CachedNetworkImageProvider.cachedNetworkImage(channel?.thumbnail ?? "", fit: BoxFit.cover)
                 )
             );
 
