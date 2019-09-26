@@ -241,7 +241,7 @@ namespace ConnectApp.Models.Model {
                 case ChannelMessageType.embed:
                     return content ?? "";
                 case ChannelMessageType.image:
-                    return CImageUtils.SizeTo200ImageUrl(attachments[0].url);
+                    return attachments[0].url;
                 case ChannelMessageType.file:
                     return attachments[0].filename;
             }
