@@ -102,6 +102,9 @@ namespace ConnectApp.Models.Model {
         public bool joined = false;
         public bool atMe = false;
         public bool atAll = false;
+        public bool sendingMessage = false;
+        public bool sentMessageFailed = false;
+        public bool sentMessageSuccess = false;
         public List<string> memberIds;
         public int memberOffset;
         public Dictionary<string, bool> memberFolloweeMap;
