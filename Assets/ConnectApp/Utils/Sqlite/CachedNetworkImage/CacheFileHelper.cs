@@ -11,7 +11,7 @@ namespace System {
 
         static string GetCacheFilePath(string url, string suffix) {
 #if UNITY_EDITOR
-            var cacheFolder = $"{Application.dataPath}/imgCache";
+            var cacheFolder = "Editor/imgCache";
 #else
             var cacheFolder = $"{Application.persistentDataPath}/imgCache";
 #endif
