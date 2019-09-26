@@ -220,6 +220,10 @@ namespace ConnectApp.Models.Model {
         public List<Reaction> reactions;
         public List<Embed> embeds;
 
+        public bool shouldSkip() {
+            return this.deleted || (this.type == ChannelMessageType.text && string.IsNullOrEmpty(this.content));
+        }
+
         static ChannelMessageType getType(
             string content,
             List<Attachment> attachments = null,

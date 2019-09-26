@@ -330,8 +330,8 @@ namespace ConnectApp.screens {
                     index = this.widget.viewModel.messages.Count - 1 - index;
                     var message = this.widget.viewModel.messages[index];
                     return this._buildMessage(message,
-                        showTime: index == 0 || (message.time -
-                                                 this.widget.viewModel.messages[index - 1].time) >
+                        showTime: index == 0 ||
+                                  (message.time - this.widget.viewModel.messages[index - 1].time) >
                                   TimeSpan.FromMinutes(5),
                         left: message.author.id != this.widget.viewModel.me
                     );
@@ -362,7 +362,7 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildMessage(ChannelMessageView message, bool showTime, bool left) {
-            if (message.deleted) {
+            if (message.shouldSkip()) {
                 return new Container();
             }
 
