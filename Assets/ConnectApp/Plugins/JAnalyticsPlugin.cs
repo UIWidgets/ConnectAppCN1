@@ -1,9 +1,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 #if UNITY_IOS
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using Newtonsoft.Json;
 #elif UNITY_ANDROID
 using UnityEngine;
 #endif
