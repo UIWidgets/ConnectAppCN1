@@ -220,150 +220,108 @@ namespace ConnectApp.Models.Model {
         public List<Reaction> reactions;
         public List<Embed> embeds;
 
-        static ChannelMessageType getType(SocketResponseMessageData message) {
-            return message.content != null || (message.attachments?.Count ?? 0) == 0
-                ? (message.embeds?.Count ?? 0) == 0 ? ChannelMessageType.text : ChannelMessageType.embed
-                : message.attachments[0].contentType.StartsWith("image")
+        static ChannelMessageType getType(
+            string content,
+            List<Attachment> attachments = null,
+            List<Embed> embeds = null) {
+            return content != null || (attachments?.Count ?? 0) == 0
+                ? (embeds?.Count ?? 0) == 0 ? ChannelMessageType.text : ChannelMessageType.embed
+                : attachments[0].contentType.StartsWith("image")
                     ? ChannelMessageType.image
                     : ChannelMessageType.file;
         }
 
-        static string getContent(SocketResponseMessageData message) {
-            switch (getType(message)) {
+        static long getNonce(string nonce) {
+            return string.IsNullOrEmpty(nonce) ? 0 : Convert.ToInt64(nonce, 16);
+        }
+
+        static string getContent(string content, List<Attachment> attachments = null, List<Embed> embeds = null) {
+            switch (getType(content, attachments, embeds)) {
                 case ChannelMessageType.text:
                 case ChannelMessageType.embed:
-                    return message.content ?? "";
+                    return content ?? "";
                 case ChannelMessageType.image:
-                    return CImageUtils.SizeTo200ImageUrl(message.attachments[0].url);
+                    return CImageUtils.SizeTo200ImageUrl(attachments[0].url);
                 case ChannelMessageType.file:
-                    return message.attachments[0].filename;
+                    return attachments[0].filename;
             }
             return "";
         }
 
-        public static ChannelMessageView fromPushMessage(SocketResponseMessageData message) {
-            if (message == null) {
-                return new ChannelMessageView();
-            }
+        static int getFileSize(string content, List<Attachment> attachments = null, List<Embed> embeds = null) {
+            return getType(content, attachments, embeds) == ChannelMessageType.file ? attachments[0].size : 0;
+        }
 
-            return new ChannelMessageView {
-                id = message.id,
-                nonce = string.IsNullOrEmpty(message.nonce)
-                    ? 0
-                    : Convert.ToInt64(message.nonce, 16),
-                channelId = message.channelId,
-                author = message.author,
-                content = getContent(message),
-                fileSize = getType(message) == ChannelMessageType.file
-                    ? message.attachments[0].size
-                    : 0,
-                time = DateConvert.DateTimeFromNonce(message.nonce),
-                attachments = message.attachments,
-                type = getType(message),
-                mentionEveryone = message.mentionEveryone,
-                mentions = message.mentions,
-                starred = message.starred,
-                replyMessageIds = message.replyMessageIds,
-                lowerMessageIds = message.lowerMessageIds,
-                replyUsers = message.replyUsers,
-                lowerUsers = message.lowerUsers,
-                pending = message.pending,
-                deleted = message.deletedTime != null,
-                embeds = message.embeds,
-                reactions = message.reactions
-            };
+        public static ChannelMessageView fromPushMessage(SocketResponseMessageData message) {
+            return message == null
+                ? new ChannelMessageView()
+                : new ChannelMessageView {
+                    id = message.id,
+                    nonce = getNonce(message.nonce),
+                    channelId = message.channelId,
+                    author = message.author,
+                    content = getContent(message.content, message.attachments, message.embeds),
+                    fileSize = getFileSize(message.content, message.attachments, message.embeds),
+                    time = DateConvert.DateTimeFromNonce(message.nonce),
+                    attachments = message.attachments,
+                    type = getType(message.content, message.attachments, message.embeds),
+                    mentionEveryone = message.mentionEveryone,
+                    mentions = message.mentions,
+                    starred = message.starred,
+                    replyMessageIds = message.replyMessageIds,
+                    lowerMessageIds = message.lowerMessageIds,
+                    replyUsers = message.replyUsers,
+                    lowerUsers = message.lowerUsers,
+                    pending = message.pending,
+                    deleted = message.deletedTime != null,
+                    embeds = message.embeds,
+                    reactions = message.reactions
+                };
         }
 
         public static ChannelMessageView fromChannelMessageLite(ChannelMessageLite message) {
-            if (message == null) {
-                return new ChannelMessageView();
-            }
-
-            ChannelMessageType type = message.content != null || (message.attachments?.Count ?? 0) == 0
-                ? ChannelMessageType.text
-                : message.attachments[0].contentType.StartsWith("image")
-                    ? ChannelMessageType.image
-                    : ChannelMessageType.file;
-            string content = message.content;
-            switch (type) {
-                case ChannelMessageType.text:
-                    break;
-                case ChannelMessageType.image:
-                    content = message.attachments[0].url;
-                    break;
-                case ChannelMessageType.file:
-                    content = message.attachments[0].filename;
-                    break;
-            }
-
-            long nonce = string.IsNullOrEmpty(message.nonce) ? 0 : Convert.ToInt64(message.nonce, 16);
-
-            return new ChannelMessageView {
-                id = message.id,
-                nonce = nonce,
-                channelId = message.channelId,
-                author = new User {
-                    id = message.author.id
-                },
-                content = content,
-                fileSize = type == ChannelMessageType.file ? message.attachments[0].size : 0,
-                time = DateConvert.DateTimeFromNonce(message.nonce),
-                attachments = message.attachments,
-                type = type,
-                mentionEveryone = message.mentionEveryone,
-                mentions = message.mentions?.Select(user => new User {id = user.id}).ToList()
-            };
+            return message == null
+                ? new ChannelMessageView()
+                : new ChannelMessageView {
+                    id = message.id,
+                    nonce = getNonce(message.nonce),
+                    channelId = message.channelId,
+                    author = new User {id = message.author.id},
+                    content = getContent(message.content, message.attachments),
+                    fileSize = getFileSize(message.content, message.attachments),
+                    time = DateConvert.DateTimeFromNonce(message.nonce),
+                    attachments = message.attachments,
+                    type = getType(message.content, message.attachments),
+                    mentionEveryone = message.mentionEveryone,
+                    mentions = message.mentions?.Select(user => new User {id = user.id}).ToList()
+                };
         }
 
         public static ChannelMessageView fromChannelMessage(ChannelMessage message) {
-            if (message == null) {
-                return new ChannelMessageView();
-            }
-
-            ChannelMessageType type = message.content != null || (message.attachments?.Count ?? 0) == 0
-                ? (message.embeds?.Count ?? 0) == 0 ? ChannelMessageType.text : ChannelMessageType.embed
-                : message.attachments[0].contentType.StartsWith("image")
-                    ? ChannelMessageType.image
-                    : ChannelMessageType.file;
-            string content = message.content;
-            switch (type) {
-                case ChannelMessageType.text:
-                    break;
-                case ChannelMessageType.embed:
-                    content = content ?? "";
-                    break;
-                case ChannelMessageType.image:
-                    content = message.attachments[0].url;
-                    break;
-                case ChannelMessageType.file:
-                    content = message.attachments[0].filename;
-                    break;
-            }
-
-            long nonce = string.IsNullOrEmpty(message.nonce) ? 0 : Convert.ToInt64(message.nonce, 16);
-
-            return new ChannelMessageView {
-                id = message.id,
-                nonce = nonce,
-                channelId = message.channelId,
-                author = message.author,
-                content = content,
-                fileSize = type == ChannelMessageType.file ? message.attachments[0].size : 0,
-                time = DateConvert.DateTimeFromNonce(message.nonce),
-                attachments = message.attachments,
-                type = type,
-                mentionEveryone = message.mentionEveryone,
-                mentions = message.mentions,
-                starred = message.starred,
-                replyMessageIds = message.replyMessageIds,
-                lowerMessageIds = message.lowerMessageIds,
-                replyUsers = message.replyUsers,
-                lowerUsers = message.lowerUsers,
-                pending = message.pending,
-                deleted = message.deletedTime != null,
-                embeds = message.embeds,
-                reactions = message.reactions
-            };
+            return message == null
+                ? new ChannelMessageView()
+                : new ChannelMessageView {
+                    id = message.id,
+                    nonce = getNonce(message.nonce),
+                    channelId = message.channelId,
+                    author = message.author,
+                    content = getContent(message.content, message.attachments, message.embeds),
+                    fileSize = getFileSize(message.content, message.attachments, message.embeds),
+                    time = DateConvert.DateTimeFromNonce(message.nonce),
+                    attachments = message.attachments,
+                    type = getType(message.content, message.attachments, message.embeds),
+                    mentionEveryone = message.mentionEveryone,
+                    mentions = message.mentions,
+                    starred = message.starred,
+                    replyMessageIds = message.replyMessageIds,
+                    lowerMessageIds = message.lowerMessageIds,
+                    replyUsers = message.replyUsers,
+                    lowerUsers = message.lowerUsers,
+                    pending = message.pending,
+                    deleted = message.deletedTime != null,
+                    embeds = message.embeds,
+                    reactions = message.reactions
+                };
         }
     }
 }
