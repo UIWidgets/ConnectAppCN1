@@ -135,7 +135,7 @@ namespace ConnectApp.Components {
                             width: avatarSize,
                             height: avatarSize,
                             color: CColors.AvatarLoading,
-                            child: Image.network(src: httpsUrl)
+                            child: CachedNetworkImageProvider.cachedNetworkImage(src: httpsUrl)
                         )
                 )
             );

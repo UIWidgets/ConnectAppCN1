@@ -1,9 +1,12 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.Api;
 using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
+using ConnectApp.Utils;
+using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
 using UnityEngine;
@@ -28,6 +31,7 @@ namespace ConnectApp.redux.actions {
                     .Catch(error => {
                         dispatcher.dispatch(new FetchPublicChannelsFailureAction());
                         Debug.Log(error);
+                        dispatcher.dispatch(loadReadyStateFromDB());
                     });
             });
         }
@@ -39,14 +43,23 @@ namespace ConnectApp.redux.actions {
                     .Then(channelMessagesResponse => {
                         dispatcher.dispatch(new ChannelMessagesAction {
                             channelId = channelId,
-                            messages = channelMessagesResponse.items,
+                            messages = channelMessagesResponse.items ?? new List<ChannelMessage>(),
                             before = before,
                             after = after
                         });
+                        if (channelMessagesResponse.items != null && channelMessagesResponse.items.isNotEmpty()) {
+                            dispatcher.dispatch(saveMessagesToDB(channelMessagesResponse.items));
+                        }
+                        else {
+                            dispatcher.dispatch(loadMessagesFromDB(channelId,
+                                before == null ? -1 : Convert.ToInt64(before)));
+                        }
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchChannelMessagesFailureAction());
                         Debug.Log(error);
+                        dispatcher.dispatch(loadMessagesFromDB(channelId,
+                            before == null ? -1 : Convert.ToInt64(before, fromBase: 16)));
                     });
             });
         }
@@ -117,6 +130,49 @@ namespace ConnectApp.redux.actions {
                     });
             });
         }
+
+        public static object saveMessagesToDB(List<ChannelMessage> messages) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                MessengerDBApi.SyncSaveMessages(messages);
+                dispatcher.dispatch(new SaveMessagesToDBSuccessAction {});
+                return Promise.Resolved();
+            });
+        }
+
+        public static object loadMessagesFromDB(string channelId, long before) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                var messages = MessengerDBApi.SyncLoadMessages(channelId, before, 10);
+                dispatcher.dispatch(new LoadMessagesFromDBSuccessAction {
+                    messages = messages,
+                    before = before,
+                    channelId = channelId
+                });
+                return Promise.Resolved();
+            });
+        }
+        
+
+        public static object saveReadyStateToDB(SocketResponseSessionData data) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                Debug.Log("Saving ready state to db.");
+                MessengerDBApi.SyncSaveReadyState(data);
+                dispatcher.dispatch(new SaveReadyStateToDBSuccessAction {});
+                
+                Debug.Log("Saved ready state to db.");
+                return Promise.Resolved();
+            });
+        }
+
+        public static object loadReadyStateFromDB() {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                var data = MessengerDBApi.SyncLoadReadyState();
+                dispatcher.dispatch(new LoadReadyStateFromDBSuccessAction {
+                    data = data
+                });
+                return Promise.Resolved();
+            });
+        }
+        
     }
 
     public class ChannelsAction {
@@ -251,5 +307,31 @@ namespace ConnectApp.redux.actions {
 
     public class PushChannelRemoveMemberAction : BaseAction {
         public SocketResponseChannelMemberChangeData memberData;
+    }
+
+    public class SaveMessagesToDBSuccessAction : BaseAction {
+        
+    }
+
+    public class LoadMessagesFromDBSuccessAction : BaseAction {
+        public List<ChannelMessageView> messages;
+        public long before;
+        public string channelId;
+    }
+
+    public class SaveReadyStateToDBSuccessAction : BaseAction {
+        
+    }
+
+    public class LoadReadyStateFromDBSuccessAction : BaseAction {
+        public SocketResponseSessionData data;
+    }
+
+    public class MergeNewChannelMessages : BaseAction {
+        public string channelId;
+    }
+
+    public class MergeOldChannelMessages : BaseAction {
+        public string channelId;
     }
 }

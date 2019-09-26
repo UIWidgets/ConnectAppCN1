@@ -20,6 +20,7 @@ namespace ConnectApp.Main {
         public const string ArticleDetail = "/article-detail";
         public const string Setting = "/setting";
         public const string MyEvent = "/my-event";
+        public const string MyFavorite = "/my-favorite";
         public const string History = "/history";
         public const string Login = "/login";
         public const string BindUnity = "/bind-unity";
@@ -60,6 +61,7 @@ namespace ConnectApp.Main {
                     {MainNavigatorRoutes.ArticleDetail, context => new ArticleDetailScreenConnector("")},
                     {MainNavigatorRoutes.Setting, context => new SettingScreenConnector()},
                     {MainNavigatorRoutes.MyEvent, context => new MyEventsScreenConnector()},
+                    {MainNavigatorRoutes.MyFavorite, context => new MyFavoriteScreenConnector()},
                     {MainNavigatorRoutes.History, context => new HistoryScreenConnector()},
                     {MainNavigatorRoutes.Login, context => new LoginScreen()},
                     {MainNavigatorRoutes.BindUnity, context => new BindUnityScreenConnector(FromPage.setting)},

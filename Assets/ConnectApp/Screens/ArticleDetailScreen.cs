@@ -60,7 +60,7 @@ namespace ConnectApp.screens {
                         pushToLogin = () => dispatcher.dispatch(new MainNavigatorPushToAction {
                             routeName = MainNavigatorRoutes.Login
                         }),
-                        openUrl = url => OpenUrlUtil.OpenUrl(url, dispatcher),
+                        openUrl = url => OpenUrlUtil.OpenUrl(url: url, dispatcher: dispatcher),
                         playVideo = url => dispatcher.dispatch(new MainNavigatorPushToVideoPlayerAction {
                             url = url
                         }),
@@ -91,48 +91,60 @@ namespace ConnectApp.screens {
                         },
                         startFetchArticleDetail = () => dispatcher.dispatch(new StartFetchArticleDetailAction()),
                         fetchArticleDetail = id =>
-                            dispatcher.dispatch<IPromise>(Actions.FetchArticleDetail(id, this.isPush)),
+                            dispatcher.dispatch<IPromise>(
+                                Actions.FetchArticleDetail(articleId: id, isPush: this.isPush)),
                         fetchArticleComments = (channelId, currOldestMessageId) =>
                             dispatcher.dispatch<IPromise>(
-                                Actions.fetchArticleComments(channelId, currOldestMessageId)
+                                Actions.fetchArticleComments(channelId: channelId,
+                                    currOldestMessageId: currOldestMessageId)
                             ),
                         likeArticle = id => {
-                            AnalyticsManager.ClickLike("Article", this.articleId);
-                            return dispatcher.dispatch<IPromise>(Actions.likeArticle(id));
+                            AnalyticsManager.ClickLike("Article", articleId: this.articleId);
+                            return dispatcher.dispatch<IPromise>(Actions.likeArticle(articleId: id));
                         },
+                        unFavoriteArticle = favoriteId =>
+                            dispatcher.dispatch<IPromise>(Actions.unFavoriteArticle(articleId: this.articleId,
+                                favoriteId: favoriteId)),
                         likeComment = message => {
-                            AnalyticsManager.ClickLike("Article_Comment", this.articleId, message.id);
-                            return dispatcher.dispatch<IPromise>(Actions.likeComment(message));
+                            AnalyticsManager.ClickLike("Article_Comment", articleId: this.articleId,
+                                commentId: message.id);
+                            return dispatcher.dispatch<IPromise>(Actions.likeComment(message: message));
                         },
-                        removeLikeComment =
-                            message => {
-                                AnalyticsManager.ClickLike("Article_Remove_Comment", this.articleId, message.id);
-                                return dispatcher.dispatch<IPromise>(Actions.removeLikeComment(message));
-                            },
+                        removeLikeComment = message => {
+                            AnalyticsManager.ClickLike("Article_Remove_Comment", articleId: this.articleId,
+                                commentId: message.id);
+                            return dispatcher.dispatch<IPromise>(Actions.removeLikeComment(message: message));
+                        },
                         sendComment = (channelId, content, nonce, parentMessageId, upperMessageId) => {
                             AnalyticsManager.ClickPublishComment(
-                                parentMessageId == null ? "Article" : "Article_Comment", channelId, parentMessageId);
+                                parentMessageId == null ? "Article" : "Article_Comment", channelId: channelId,
+                                commentId: parentMessageId);
                             CustomDialogUtils.showCustomDialog(child: new CustomLoadingDialog());
                             return dispatcher.dispatch<IPromise>(
-                                Actions.sendComment(this.articleId, channelId, content, nonce, parentMessageId,
-                                    upperMessageId));
+                                Actions.sendComment(articleId: this.articleId, channelId: channelId, content: content,
+                                    nonce: nonce, parentMessageId: parentMessageId, upperMessageId: upperMessageId));
                         },
                         startFollowUser = userId =>
                             dispatcher.dispatch(new StartFollowUserAction {followUserId = userId}),
-                        followUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(userId)),
+                        followUser = userId =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(followUserId: userId)),
                         startUnFollowUser = userId =>
                             dispatcher.dispatch(new StartUnFollowUserAction {unFollowUserId = userId}),
-                        unFollowUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(userId)),
+                        unFollowUser = userId =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(unFollowUserId: userId)),
                         startFollowTeam = teamId =>
                             dispatcher.dispatch(new StartFetchFollowTeamAction {followTeamId = teamId}),
-                        followTeam = teamId => dispatcher.dispatch<IPromise>(Actions.fetchFollowTeam(teamId)),
+                        followTeam = teamId =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchFollowTeam(followTeamId: teamId)),
                         startUnFollowTeam = teamId =>
                             dispatcher.dispatch(new StartFetchUnFollowTeamAction {unFollowTeamId = teamId}),
-                        unFollowTeam = teamId => dispatcher.dispatch<IPromise>(Actions.fetchUnFollowTeam(teamId)),
+                        unFollowTeam = teamId =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchUnFollowTeam(unFollowTeamId: teamId)),
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
-                            Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
+                            Actions.shareToWechat(type: type, title: title, description: description, linkUrl: linkUrl,
+                                imageUrl: imageUrl))
                     };
-                    return new ArticleDetailScreen(viewModel, actionModel);
+                    return new ArticleDetailScreen(viewModel: viewModel, actionModel: actionModel);
                 }
             );
         }
@@ -191,7 +203,7 @@ namespace ConnectApp.screens {
                 RelativeRect.fromLTRB(0, navBarHeight, 0, 0),
                 RelativeRect.fromLTRB(0, 13, 0, 0)
             );
-            this._animation = rectTween.animate(this._controller);
+            this._animation = rectTween.animate(parent: this._controller);
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchArticleDetail();
                 this.widget.actionModel.fetchArticleDetail(arg: this.widget.viewModel.articleId);
@@ -207,7 +219,7 @@ namespace ConnectApp.screens {
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
         }
 
         public override void dispose() {
@@ -366,18 +378,21 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildNavigationBar(bool isShowRightWidget = true) {
-            Widget titleWidget = new Container();
+            Widget titleWidget;
             if (this._isHaveTitle) {
                 titleWidget = new Text(
-                    this._article.title,
+                    data: this._article.title,
                     style: CTextStyle.PXLargeMedium,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.center
                 );
             }
+            else {
+                titleWidget = new Container();
+            }
 
-            Widget rightWidget = new Container();
+            Widget rightWidget;
             if (isShowRightWidget) {
                 string rightWidgetTitle = this._article.commentCount > 0
                     ? $"{this._article.commentCount} 评论"
@@ -429,6 +444,9 @@ namespace ConnectApp.screens {
                     )
                 );
             }
+            else {
+                rightWidget = new Container();
+            }
 
             return new CustomAppBar(
                 () => this.widget.actionModel.mainRouterPop(),
@@ -451,6 +469,7 @@ namespace ConnectApp.screens {
         Widget _buildArticleTabBar() {
             return new ArticleTabBar(
                 this._article.like && this.widget.viewModel.isLoggedIn,
+                this._article.favorite != null && this.widget.viewModel.isLoggedIn,
                 () => this._sendComment("Article"),
                 () => this._sendComment("Article"),
                 () => {
@@ -459,7 +478,34 @@ namespace ConnectApp.screens {
                     }
                     else {
                         if (!this._article.like) {
-                            this.widget.actionModel.likeArticle(this._article.id);
+                            this.widget.actionModel.likeArticle(arg: this._article.id);
+                        }
+                    }
+                },
+                () => {
+                    if (!this.widget.viewModel.isLoggedIn) {
+                        this.widget.actionModel.pushToLogin();
+                    }
+                    else {
+                        if (this._article.favorite == null) {
+                            ActionSheetUtils.showModalActionSheet(new FavoriteSheetConnector(articleId: this._article.id));
+                        }
+                        else {
+                            ActionSheetUtils.showModalActionSheet(
+                                new ActionSheet(
+                                    title: "确定不再收藏？",
+                                    items: new List<ActionSheetItem> {
+                                        new ActionSheetItem(
+                                            "确定",
+                                            type: ActionType.normal,
+                                            () => {
+                                                this.widget.actionModel.unFavoriteArticle(arg: this._article.favorite.id);
+                                            }
+                                        ),
+                                        new ActionSheetItem("取消", type: ActionType.cancel)
+                                    }
+                                )
+                            );
                         }
                     }
                 },
@@ -469,9 +515,9 @@ namespace ConnectApp.screens {
 
         void _onRefresh(bool up) {
             if (!up) {
-                this.widget.actionModel.fetchArticleComments(this._article.channelId, this._article.currOldestMessageId)
-                    .Then(() => { this._refreshController.sendBack(up, RefreshStatus.idle); })
-                    .Catch(err => { this._refreshController.sendBack(up, RefreshStatus.failed); });
+                this.widget.actionModel.fetchArticleComments(arg1: this._article.channelId, arg2: this._article.currOldestMessageId)
+                    .Then(() => { this._refreshController.sendBack(up, mode: RefreshStatus.idle); })
+                    .Catch(err => { this._refreshController.sendBack(up, mode: RefreshStatus.failed); });
             }
         }
 
@@ -706,12 +752,12 @@ namespace ConnectApp.screens {
                             }
                             else {
                                 if (!like) {
-                                    this.widget.actionModel.likeArticle(this._article.id);
+                                    this.widget.actionModel.likeArticle(arg: this._article.id);
                                 }
                             }
                         }),
                         new Container(width: 16),
-                        new ActionCard(Icons.share, "分享", false, this.share)
+                        new ActionCard(iconData: Icons.share, "分享", false, onTap: this.share)
                     }
                 )
             );

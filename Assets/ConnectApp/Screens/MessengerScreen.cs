@@ -275,7 +275,7 @@ namespace ConnectApp.screens {
     public static class MessengerBuildUtils {
         public static Widget buildPopularChannelItem(ChannelView channel) {
             Widget image = Positioned.fill(
-                child: Image.network(
+                child: CachedNetworkImageProvider.cachedNetworkImage(
                     channel?.thumbnail ?? "",
                     fit: BoxFit.cover
                 )
@@ -350,7 +350,9 @@ namespace ConnectApp.screens {
         }
 
         public static Widget buildChannelItem(ChannelView channel, Action onTap = null) {
-            Widget title = new Text(channel.name, style: CTextStyle.PLargeMedium, overflow: TextOverflow.ellipsis);
+            Widget title = new Text(channel.name,
+                style: CTextStyle.PLargeMedium,
+                overflow: TextOverflow.ellipsis);
 
             string text = "";
             if (channel.lastMessage != null) {
@@ -363,7 +365,8 @@ namespace ConnectApp.screens {
                 }
 
                 text = text ?? "";
-                if (!string.IsNullOrEmpty(channel.lastMessage.author?.fullName) && !string.IsNullOrEmpty(text)) {
+                if (!string.IsNullOrEmpty(channel.lastMessage.author?.fullName) &&
+                    !string.IsNullOrEmpty(text)) {
                     text = $"{channel.lastMessage.author?.fullName}: {text}";
                 }
             }
@@ -440,7 +443,7 @@ namespace ConnectApp.screens {
                 child: new Container(
                     width: 48,
                     height: 48,
-                    child: Image.network(channel?.thumbnail ?? "", fit: BoxFit.cover)
+                    child: CachedNetworkImageProvider.cachedNetworkImage(channel?.thumbnail ?? "", fit: BoxFit.cover)
                 )
             );
 
@@ -485,7 +488,7 @@ namespace ConnectApp.screens {
                 child: new Container(
                     width: 48,
                     height: 48,
-                    child: Image.network(channel?.thumbnail ?? "", fit: BoxFit.cover)
+                    child: CachedNetworkImageProvider.cachedNetworkImage(channel?.thumbnail ?? "", fit: BoxFit.cover)
                 )
             );
 

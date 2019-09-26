@@ -14,7 +14,7 @@ namespace ConnectApp.Components {
             float size = 12,
             EdgeInsets padding = null,
             Key key = null
-        ) : base(key) {
+        ) : base(key: key) {
             this.value = value;
             this.onChanged = onChanged;
             this.activeColor = activeColor ?? CColors.PrimaryBlue;
@@ -44,7 +44,7 @@ namespace ConnectApp.Components {
         }
 
         public override void didUpdateWidget(StatefulWidget oldWidget) {
-            base.didUpdateWidget(oldWidget);
+            base.didUpdateWidget(oldWidget: oldWidget);
             if (oldWidget is CustomCheckbox customCheckbox) {
                 if (this.widget.value != customCheckbox.value) {
                     this.setState(() => this._value = this.widget.value);
@@ -57,9 +57,7 @@ namespace ConnectApp.Components {
 
             return new CustomButton(
                 onPressed: () => {
-                    if (this.widget.onChanged != null) {
-                        this.widget.onChanged(!this._value);
-                    }
+                    this.widget.onChanged?.Invoke(value: !this._value);
                 },
                 padding: this.widget.padding,
                 child: child
@@ -70,10 +68,13 @@ namespace ConnectApp.Components {
             return new Container(
                 width: this.widget.size,
                 height: this.widget.size,
-                color: this.widget.activeColor,
+                decoration: new BoxDecoration(
+                    color: this.widget.activeColor,
+                    borderRadius: BorderRadius.circular(this.widget.size / 2)
+                ),
                 child: new Icon(
-                    Icons.check_box,
-                    size: this.widget.size,
+                    icon: Icons.check,
+                    size: this.widget.size - 4,
                     color: CColors.White
                 )
             );
@@ -83,7 +84,9 @@ namespace ConnectApp.Components {
             return new Container(
                 width: this.widget.size,
                 height: this.widget.size,
-                decoration: new BoxDecoration(this.widget.inactiveColor,
+                decoration: new BoxDecoration(
+                    color: this.widget.inactiveColor,
+                    borderRadius: BorderRadius.circular(this.widget.size / 2),
                     border: Border.all(
                         Color.fromRGBO(199, 203, 207, 1)
                     )
