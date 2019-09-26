@@ -1,52 +1,63 @@
+using System;
 using System.Collections.Generic;
 using ConnectApp.Api;
 using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
+using ConnectApp.Utils;
+using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.Redux;
 using UnityEngine;
 
 namespace ConnectApp.redux.actions {
     public static partial class Actions {
-        public static object fetchChannels(int page) {
+        public static object fetchChannels(int page, bool fetchMessagesAfterSuccess = false) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.FetchChannels(page).Then(channelResponse => {
-                        dispatcher.dispatch(new ChannelsAction {
+                        dispatcher.dispatch(new FetchChannelsSuccessAction {
                             discoverList = channelResponse.discoverList ?? new List<string>(),
                             joinedList = channelResponse.joinedList ?? new List<string>(),
                             discoverPage = channelResponse.discoverPage,
                             channelMap = channelResponse.channelMap ?? new Dictionary<string, Channel>(),
                             joinedChannelMap = channelResponse.joinedChannelMap ?? new Dictionary<string, bool>()
                         });
-                        // for (int i = 0; i < channelResponse.joinedList.Count; i++) {
-                        //     dispatcher.dispatch(fetchChannelMessages(channelResponse.joinedList[i]));
-                        //     dispatcher.dispatch(fetchChannelMembers(channelResponse.joinedList[i]));
-                        // }
+                        if (fetchMessagesAfterSuccess) {
+                            for (int i = 0; i < channelResponse.joinedList.Count; i++) {
+                                dispatcher.dispatch(fetchChannelMessages(channelResponse.joinedList[i]));
+                                dispatcher.dispatch(fetchChannelMembers(channelResponse.joinedList[i]));
+                            }
+                        }
                     })
                     .Catch(error => {
-                        dispatcher.dispatch(new FetchPublicChannelsFailureAction());
+                        dispatcher.dispatch(new FetchChannelsFailureAction());
                         Debug.Log(error);
+                        dispatcher.dispatch(loadReadyStateFromDB());
                     });
             });
         }
         
         public static object fetchChannelMessages(string channelId, string before = null, string after = null) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                dispatcher.dispatch(new StartFetchChannelMessageAction {channelId = channelId});
+                dispatcher.dispatch(new StartFetchChannelMessageAction());
                 return ChannelApi.FetchChannelMessages(channelId, before, after)
                     .Then(channelMessagesResponse => {
                         dispatcher.dispatch(new ChannelMessagesAction {
                             channelId = channelId,
-                            messages = channelMessagesResponse.items,
+                            messages = channelMessagesResponse.items ?? new List<ChannelMessage>(),
                             before = before,
                             after = after
                         });
+                        dispatcher.dispatch(channelMessagesResponse.items?.isNotEmpty() ?? false
+                            ? saveMessagesToDB(channelMessagesResponse.items)
+                            : loadMessagesFromDB(channelId, Convert.ToInt64(before ?? "-1", 16)));
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchChannelMessagesFailureAction());
                         Debug.Log(error);
+                        dispatcher.dispatch(
+                            loadMessagesFromDB(channelId, Convert.ToInt64(before ?? "-1", fromBase: 16)));
                     });
             });
         }
@@ -72,9 +83,7 @@ namespace ConnectApp.redux.actions {
         public static object joinChannel(string channelId, string groupId = null) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.JoinChannel(channelId, groupId).Then(joinChannelResponse => {
-                        dispatcher.dispatch(new JoinChannelSuccessAction {
-                            channelId = channelId
-                        });
+                        dispatcher.dispatch(new JoinChannelSuccessAction {channelId = channelId});
                         dispatcher.dispatch(fetchChannelMessages(channelId));
                         dispatcher.dispatch(fetchChannelMembers(channelId));
                     })
@@ -88,9 +97,7 @@ namespace ConnectApp.redux.actions {
         public static object leaveChannel(string channelId, string groupId = null) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.LeaveChannel(channelId, groupId).Then(leaveChannelResponse => {
-                        dispatcher.dispatch(new LeaveChannelSuccessAction {
-                            channelId = channelId
-                        });
+                        dispatcher.dispatch(new LeaveChannelSuccessAction {channelId = channelId});
                         dispatcher.dispatch(new MainNavigatorPopAction());
                         dispatcher.dispatch(new MainNavigatorPopAction());
                     })
@@ -117,22 +124,55 @@ namespace ConnectApp.redux.actions {
                     });
             });
         }
+
+        public static object saveMessagesToDB(List<ChannelMessage> messages) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                MessengerDBApi.SyncSaveMessages(messages);
+                dispatcher.dispatch(new SaveMessagesToDBSuccessAction());
+                return Promise.Resolved();
+            });
+        }
+
+        public static object loadMessagesFromDB(string channelId, long before) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                var messages = MessengerDBApi.SyncLoadMessages(channelId, before, 10);
+                dispatcher.dispatch(new LoadMessagesFromDBSuccessAction {
+                    messages = messages,
+                    before = before,
+                    channelId = channelId
+                });
+                return Promise.Resolved();
+            });
+        }
+        
+
+        public static object saveReadyStateToDB(SocketResponseSessionData data) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                MessengerDBApi.SyncSaveReadyState(data);
+                dispatcher.dispatch(new SaveReadyStateToDBSuccessAction());
+                return Promise.Resolved();
+            });
+        }
+
+        public static object loadReadyStateFromDB() {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                var data = MessengerDBApi.SyncLoadReadyState();
+                dispatcher.dispatch(new LoadReadyStateFromDBSuccessAction {data = data});
+                return Promise.Resolved();
+            });
+        }
+        
     }
 
-    public class ChannelsAction {
+    public class FetchChannelsSuccessAction {
         public List<string> discoverList;
         public List<string> joinedList;
         public int discoverPage;
         public Dictionary<string, Channel> channelMap;
         public Dictionary<string, bool> joinedChannelMap;
-
     }
-    
-    public class JoinedChannelsAction {
-        public List<Channel> channels;
-        public int currentPage;
-        public List<int> pages;
-        public int total;
+
+    public class FetchChannelsFailureAction : BaseAction {
     }
 
     public class ChannelMessagesAction {
@@ -140,8 +180,6 @@ namespace ConnectApp.redux.actions {
         public List<ChannelMessage> messages;
         public string before;
         public string after;
-        public bool hasMore;
-        public bool hasMoreNew;
     }
 
     public class ChannelMemberAction {
@@ -151,30 +189,11 @@ namespace ConnectApp.redux.actions {
         public int total;
         public Dictionary<string, bool> followeeMap;
     }
-    
-    public class FetchPublicChannelsSuccessAction : BaseAction {
-    }
-    
-    public class FetchPublicChannelsFailureAction : BaseAction {
-    }
-    
-    public class FetchJoinedChannelsSuccessAction : BaseAction {
-    }
-    
-    public class FetchJoinedChannelsFailureAction : BaseAction {
-    }
 
     public class StartFetchChannelMessageAction : BaseAction {
-        public string channelId;
-    }
-    
-    public class FetchChannelMessagesSuccessAction : BaseAction {
     }
     
     public class FetchChannelMessagesFailureAction : BaseAction {
-    }
-    
-    public class FetchChannelMemberSuccessAction : BaseAction {
     }
     
     public class FetchChannelMemberFailureAction : BaseAction {
@@ -209,17 +228,6 @@ namespace ConnectApp.redux.actions {
         public string channelId;
     }
 
-    public class UpdateChannelScrollOffsetAction : BaseAction {
-        public string channelId;
-        public float bottom;
-        public float top;
-    }
-
-    public class MarkChannelMessageAsRead : RequestAction {
-        public string channelId;
-        public long nonce;
-    }
-
     public class UpdateChannelTopAction : BaseAction {
         public string channelId;
         public bool value;
@@ -251,5 +259,31 @@ namespace ConnectApp.redux.actions {
 
     public class PushChannelRemoveMemberAction : BaseAction {
         public SocketResponseChannelMemberChangeData memberData;
+    }
+
+    public class SaveMessagesToDBSuccessAction : BaseAction {
+        
+    }
+
+    public class LoadMessagesFromDBSuccessAction : BaseAction {
+        public List<ChannelMessageView> messages;
+        public long before;
+        public string channelId;
+    }
+
+    public class SaveReadyStateToDBSuccessAction : BaseAction {
+        
+    }
+
+    public class LoadReadyStateFromDBSuccessAction : BaseAction {
+        public SocketResponseSessionData data;
+    }
+
+    public class MergeNewChannelMessages : BaseAction {
+        public string channelId;
+    }
+
+    public class MergeOldChannelMessages : BaseAction {
+        public string channelId;
     }
 }

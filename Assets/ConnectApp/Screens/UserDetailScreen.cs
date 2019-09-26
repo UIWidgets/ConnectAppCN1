@@ -51,10 +51,15 @@ namespace ConnectApp.screens {
                     return new UserDetailScreenViewModel {
                         userLoading = state.userState.userLoading,
                         userArticleLoading = state.userState.userArticleLoading,
+                        userFavoriteLoading = state.favoriteState.favoriteDetailLoading,
+                        favoriteArticleIdDict = state.favoriteState.favoriteDetailArticleIdDict,
+                        userFavoriteHasMore = state.favoriteState.favoriteDetailHasMore,
                         user = user,
                         userLicenseDict = state.userState.userLicenseDict,
                         articleDict = state.articleState.articleDict,
                         followMap = followMap,
+                        userDict = state.userState.userDict,
+                        teamDict = state.teamState.teamDict,
                         currentUserId = currentUserId,
                         isLoggedIn = state.loginState.isLoggedIn
                     };
@@ -66,6 +71,9 @@ namespace ConnectApp.screens {
                         startFetchUserArticle = () => dispatcher.dispatch(new StartFetchUserArticleAction()),
                         fetchUserArticle = (userId, pageNumber) =>
                             dispatcher.dispatch<IPromise>(Actions.fetchUserArticle(userId, pageNumber)),
+                        startFetchUserFavorite = () => dispatcher.dispatch(new StartFetchFavoriteDetailAction()),
+                        fetchUserFavorite = (userId, offset) =>
+                            dispatcher.dispatch<IPromise>(Actions.fetchFavoriteDetail(userId, "", offset)),
                         startFollowUser = userId =>
                             dispatcher.dispatch(new StartFollowUserAction {followUserId = userId}),
                         followUser = userId => dispatcher.dispatch<IPromise>(Actions.fetchFollowUser(userId)),
@@ -110,7 +118,7 @@ namespace ConnectApp.screens {
                         shareToWechat = (type, title, description, linkUrl, imageUrl) => dispatcher.dispatch<IPromise>(
                             Actions.shareToWechat(type, title, description, linkUrl, imageUrl))
                     };
-                    return new UserDetailScreen(viewModel, actionModel);
+                    return new UserDetailScreen(viewModel: viewModel, actionModel: actionModel);
                 }
             );
         }
@@ -150,11 +158,14 @@ namespace ConnectApp.screens {
         const float headerHeight = 256;
         const float _transformSpeed = 0.005f;
         int _articlePageNumber;
+        int _favoriteArticleOffset;
         RefreshController _refreshController;
         float _factor = 1;
         bool _isHaveTitle;
         bool _hideNavBar;
+        bool _isShowTop;
         float _topPadding;
+        int _selectedIndex;
         Animation<RelativeRect> _animation;
         AnimationController _controller;
 
@@ -162,9 +173,12 @@ namespace ConnectApp.screens {
             base.initState();
             StatusBarManager.statusBarStyle(true);
             this._articlePageNumber = 1;
+            this._favoriteArticleOffset = 0;
             this._refreshController = new RefreshController();
             this._isHaveTitle = false;
             this._hideNavBar = true;
+            this._isShowTop = false;
+            this._selectedIndex = 0;
             this._controller = new AnimationController(
                 duration: TimeSpan.FromMilliseconds(100),
                 vsync: this
@@ -173,17 +187,19 @@ namespace ConnectApp.screens {
                 RelativeRect.fromLTRB(0, 44, 0, 0),
                 RelativeRect.fromLTRB(0, 0, 0, 0)
             );
-            this._animation = rectTween.animate(this._controller);
+            this._animation = rectTween.animate(parent: this._controller);
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchUserProfile();
                 this.widget.actionModel.fetchUserProfile();
                 this.widget.actionModel.startFetchUserArticle();
+                this.widget.actionModel.startFetchUserFavorite();
+                this.widget.actionModel.fetchUserFavorite(arg1: this.widget.viewModel.user.id, 0);
             });
         }
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
-            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(this.context));
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
         }
 
         public override void dispose() {
@@ -192,7 +208,7 @@ namespace ConnectApp.screens {
         }
 
         public Ticker createTicker(TickerCallback onTick) {
-            return new Ticker(onTick, () => $"created by {this}");
+            return new Ticker(onTick: onTick, () => $"created by {this}");
         }
 
         void _scrollListener() {
@@ -237,10 +253,37 @@ namespace ConnectApp.screens {
                 }
             }
 
+            if (pixels > headerHeight - (44 + this._topPadding)) {
+                if (!this._isShowTop) {
+                    this.setState(() => this._isShowTop = true);
+                }
+            }
+            else {
+                if (this._isShowTop) {
+                    this.setState(() => this._isShowTop = false);
+                }
+            }
+
             return true;
         }
 
         void _onRefresh(bool up) {
+            if (this._selectedIndex == 1) {
+                if (up) {
+                    this._favoriteArticleOffset = 0;
+                }
+                else {
+                    var favoriteDetailArticleIds = this.widget.viewModel.favoriteArticleIdDict.ContainsKey($"{this.widget.viewModel.user.id}all")
+                        ? this.widget.viewModel.favoriteArticleIdDict[$"{this.widget.viewModel.user.id}all"]
+                        : new List<string>();
+                    this._favoriteArticleOffset = favoriteDetailArticleIds.Count;
+                }
+                this.widget.actionModel.fetchUserFavorite(arg1: this.widget.viewModel.user.id, arg2: this._favoriteArticleOffset)
+                    .Then(() => this._refreshController.sendBack(up: up, up ? RefreshStatus.completed : RefreshStatus.idle))
+                    .Catch(_ => this._refreshController.sendBack(up: up, mode: RefreshStatus.failed));
+                return;
+            }
+
             if (up) {
                 this._articlePageNumber = 1;
             }
@@ -281,7 +324,16 @@ namespace ConnectApp.screens {
                     child: new Stack(
                         children: new List<Widget> {
                             content,
-                            this._buildNavigationBar()
+                            this._buildNavigationBar(),
+                            new Positioned(
+                                left: 0,
+                                top: 44 + this._topPadding,
+                                right: 0,
+                                child: new Offstage(
+                                    offstage: !this._isShowTop,
+                                    child: this._buildUserArticleTitle()
+                                )
+                            )
                         }
                     )
                 )
@@ -289,7 +341,7 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildNavigationBar() {
-            Widget titleWidget = new Container();
+            Widget titleWidget;
             if (this._isHaveTitle) {
                 var user = this.widget.viewModel.user ?? new User();
                 titleWidget = new Row(
@@ -307,6 +359,9 @@ namespace ConnectApp.screens {
                         new SizedBox(width: 16)
                     }
                 );
+            }
+            else {
+                titleWidget = new Container();
             }
 
             var hasUser = !(this.widget.viewModel.user == null ||
@@ -360,19 +415,37 @@ namespace ConnectApp.screens {
 
         Widget _buildUserContent(BuildContext context) {
             var articleIds = this.widget.viewModel.user.articleIds;
+            var favoriteIds = this.widget.viewModel.favoriteArticleIdDict.ContainsKey($"{this.widget.viewModel.user.id}all")
+                ? this.widget.viewModel.favoriteArticleIdDict[$"{this.widget.viewModel.user.id}all"]
+                : null;
             var articlesHasMore = this.widget.viewModel.user.articlesHasMore ?? false;
+            var userFavoriteHasMore = this.widget.viewModel.userFavoriteHasMore;
             var userArticleLoading = this.widget.viewModel.userArticleLoading && articleIds == null;
+            var userFavoriteLoading = this.widget.viewModel.userFavoriteLoading && favoriteIds == null;
             int itemCount;
-            if (userArticleLoading) {
+            if (userArticleLoading && this._selectedIndex == 0) {
+                itemCount = 3;
+            }
+            else if (userFavoriteLoading && this._selectedIndex == 1) {
                 itemCount = 3;
             }
             else {
-                if (articleIds == null) {
+                if (articleIds == null && this._selectedIndex == 0) {
+                    itemCount = 3;
+                }
+                else if (favoriteIds == null && this._selectedIndex == 1) {
                     itemCount = 3;
                 }
                 else {
-                    var articleCount = articlesHasMore ? articleIds.Count : articleIds.Count + 1;
-                    itemCount = 2 + (articleIds.Count == 0 ? 1 : articleCount);
+                    if (this._selectedIndex == 0) {
+                        var articleCount = articlesHasMore ? articleIds.Count : articleIds.Count + 1;
+                        itemCount = 2 + (articleIds.Count == 0 ? 1 : articleCount);
+                    }
+                    else {
+                        var favoriteCount = userFavoriteHasMore ? favoriteIds.Count : favoriteIds.Count + 1;
+                        itemCount = 2 + (favoriteIds.Count == 0 ? 1 : favoriteCount);
+                    }
+                    
                 }
             }
 
@@ -382,7 +455,7 @@ namespace ConnectApp.screens {
                     new SmartRefresher(
                         controller: this._refreshController,
                         enablePullDown: false,
-                        enablePullUp: articlesHasMore,
+                        enablePullUp: this._selectedIndex == 0 ? articlesHasMore : userFavoriteHasMore,
                         onRefresh: this._onRefresh,
                         onNotification: this._onNotification,
                         child: ListView.builder(
@@ -397,10 +470,10 @@ namespace ConnectApp.screens {
                                 }
 
                                 if (index == 1) {
-                                    return _buildUserArticleTitle();
+                                    return this._buildUserArticleTitle();
                                 }
 
-                                if (userArticleLoading && index == 2) {
+                                if ((userArticleLoading || userFavoriteLoading) && index == 2) {
                                     var height = MediaQuery.of(context: context).size.height - headerHeight - 44;
                                     return new Container(
                                         height: height,
@@ -408,7 +481,7 @@ namespace ConnectApp.screens {
                                     );
                                 }
 
-                                if ((articleIds == null || articleIds.Count == 0) && index == 2) {
+                                if ((articleIds == null || articleIds.Count == 0) && index == 2 && this._selectedIndex == 0) {
                                     var height = MediaQuery.of(context: context).size.height - headerHeight - 44;
                                     return new Container(
                                         height: height,
@@ -419,17 +492,47 @@ namespace ConnectApp.screens {
                                     );
                                 }
 
-                                if (index == itemCount - 1 && !articlesHasMore) {
+                                if ((favoriteIds == null || favoriteIds.Count == 0) && index == 2 && this._selectedIndex == 1) {
+                                    var height = MediaQuery.of(context: context).size.height - headerHeight - 44;
+                                    return new Container(
+                                        height: height,
+                                        child: new BlankView(
+                                            "哎呀，暂无已收藏的文章",
+                                            "image/default-article"
+                                        )
+                                    );
+                                }
+
+                                if (index == itemCount - 1 && !articlesHasMore && this._selectedIndex == 0) {
                                     return new EndView();
                                 }
 
-                                var articleId = articleIds[index - 2];
+                                if (index == itemCount - 1 && !userFavoriteHasMore && this._selectedIndex == 1) {
+                                    return new EndView();
+                                }
+
+                                var articleId = this._selectedIndex == 0
+                                    ? articleIds[index - 2]
+                                    : favoriteIds[index - 2];
                                 if (!this.widget.viewModel.articleDict.ContainsKey(key: articleId)) {
                                     return new Container();
                                 }
 
                                 var article = this.widget.viewModel.articleDict[key: articleId];
                                 var linkUrl = CStringUtils.JointProjectShareLink(projectId: article.id);
+                                var fullName = "";
+                                if (article.ownerType == OwnerType.user.ToString()) {
+                                    if (this.widget.viewModel.userDict.ContainsKey(key: article.userId)) {
+                                        fullName = this.widget.viewModel.userDict[key: article.userId].fullName
+                                                   ?? this.widget.viewModel.userDict[key: article.userId].name;
+                                    }
+                                }
+
+                                if (article.ownerType == OwnerType.team.ToString()) {
+                                    if (this.widget.viewModel.teamDict.ContainsKey(key: article.teamId)) {
+                                        fullName = this.widget.viewModel.teamDict[key: article.teamId].name;
+                                    }
+                                }
                                 return new ArticleCard(
                                     article: article,
                                     () => this.widget.actionModel.pushToArticleDetail(obj: article.id),
@@ -455,7 +558,7 @@ namespace ConnectApp.screens {
                                         },
                                         () => this.widget.actionModel.mainRouterPop()
                                     ),
-                                    this.widget.viewModel.user.fullName ?? this.widget.viewModel.user.name,
+                                    fullName,
                                     key: new ObjectKey(value: article.id)
                                 );
                             }
@@ -467,7 +570,7 @@ namespace ConnectApp.screens {
 
         Widget _buildUserInfo() {
             var user = this.widget.viewModel.user ?? new User();
-            Widget titleWidget = new Container();
+            Widget titleWidget;
             if (user.title != null && user.title.isNotEmpty()) {
                 titleWidget = new Text(
                     data: user.title,
@@ -479,6 +582,9 @@ namespace ConnectApp.screens {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis
                 );
+            }
+            else {
+                titleWidget = new Container();
             }
 
             return new CoverImage(
@@ -564,9 +670,8 @@ namespace ConnectApp.screens {
             );
         }
 
-        static Widget _buildUserArticleTitle() {
+        Widget _buildUserArticleTitle() {
             return new Container(
-                padding: EdgeInsets.only(16),
                 height: 44,
                 decoration: new BoxDecoration(
                     color: CColors.White,
@@ -577,7 +682,13 @@ namespace ConnectApp.screens {
                     )
                 ),
                 alignment: Alignment.centerLeft,
-                child: new Text("文章", style: CTextStyle.PLargeTitle)
+                child: new Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: new List<Widget> {
+                        this._buildSelectItem("文章", 0),
+                        this._buildSelectItem("收藏", 1)
+                    }
+                )
             );
         }
 
@@ -644,13 +755,10 @@ namespace ConnectApp.screens {
                 );
             }
 
-            bool isFollow = false;
-            string followText = "关注";
-            Color followBgColor = CColors.PrimaryBlue;
-            GestureTapCallback onTap = () => {
-                this.widget.actionModel.startFollowUser(this.widget.viewModel.user.id);
-                this.widget.actionModel.followUser(this.widget.viewModel.user.id);
-            };
+            bool isFollow;
+            string followText;
+            Color followBgColor;
+            GestureTapCallback onTap;
             if (this.widget.viewModel.isLoggedIn
                 && this.widget.viewModel.followMap.ContainsKey(key: this.widget.viewModel.user.id)) {
                 isFollow = true;
@@ -663,13 +771,22 @@ namespace ConnectApp.screens {
                             items: new List<ActionSheetItem> {
                                 new ActionSheetItem("确定", type: ActionType.normal,
                                     () => {
-                                        this.widget.actionModel.startUnFollowUser(this.widget.viewModel.user.id);
-                                        this.widget.actionModel.unFollowUser(this.widget.viewModel.user.id);
+                                        this.widget.actionModel.startUnFollowUser(obj: this.widget.viewModel.user.id);
+                                        this.widget.actionModel.unFollowUser(arg: this.widget.viewModel.user.id);
                                     }),
                                 new ActionSheetItem("取消", type: ActionType.cancel)
                             }
                         )
                     );
+                };
+            }
+            else {
+                isFollow = false;
+                followText = "关注";
+                followBgColor = CColors.PrimaryBlue;
+                onTap = () => {
+                    this.widget.actionModel.startFollowUser(obj: this.widget.viewModel.user.id);
+                    this.widget.actionModel.followUser(arg: this.widget.viewModel.user.id);
                 };
             }
 
@@ -736,7 +853,7 @@ namespace ConnectApp.screens {
                     decoration: new BoxDecoration(
                         color: followBgColor,
                         borderRadius: BorderRadius.all(4),
-                        border: isFollow ? Border.all(CColors.White) : null
+                        border: isFollow ? Border.all(color: CColors.White) : null
                     ),
                     child: buttonChild
                 ),
@@ -752,6 +869,64 @@ namespace ConnectApp.screens {
                         this.widget.actionModel.pushToLogin();
                     }
                 }
+            );
+        }
+
+        Widget _buildSelectItem(string title, int index) {
+            Color textColor;
+            string fontFamily;
+            Widget lineView;
+            if (index == this._selectedIndex) {
+                textColor = CColors.PrimaryBlue;
+                fontFamily = "Roboto-Medium";
+                lineView = new Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: new Container(
+                        height: 2,
+                        color: CColors.PrimaryBlue
+                    )
+                );
+            }
+            else {
+                textColor = CColors.TextTitle;
+                fontFamily = "Roboto-Regular";
+                lineView = new Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: new Container(height: 2)
+                );
+            }
+
+            return new CustomButton(
+                onPressed: () => {
+                    if (this._selectedIndex != index) {
+                        this.setState(() => this._selectedIndex = index);
+                    }
+                },
+                padding: EdgeInsets.zero,
+                child: new Container(
+                    height: 44,
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: new Stack(
+                        children: new List<Widget> {
+                            new Container(
+                                padding: EdgeInsets.symmetric(10),
+                                child: new Text(
+                                    data: title,
+                                    style: new TextStyle(
+                                        fontSize: 16,
+                                        fontFamily: fontFamily,
+                                        color: textColor
+                                    )
+                                )
+                            ),
+                            lineView
+                        }
+                    )
+                )
             );
         }
 

@@ -27,6 +27,7 @@ namespace ConnectApp.Models.State {
         public FeedbackState feedbackState { get; set; }
         public ChannelState channelState { get; set; }
         public TabBarState tabBarState { get; set; }
+        public FavoriteState favoriteState { get; set; }
 
         public static AppState initialState() {
             var loginInfo = UserInfoManager.initUserInfo();
@@ -42,7 +43,8 @@ namespace ConnectApp.Models.State {
                 },
                 serviceConfigState = new ServiceConfigState {
                     showFirstEgg = false,
-                    scanEnabled = false
+                    scanEnabled = false,
+                    nationalDayEnabled = false,
                 },
                 articleState = new ArticleState {
                     recommendArticleIds = new List<string>(),
@@ -163,16 +165,27 @@ namespace ConnectApp.Models.State {
                 },
                 channelState = new ChannelState {
                     publicChannels = new List<string>(),
-                    discoverPage = 1,
                     joinedChannels = new List<string>(),
+                    discoverPage = 1,
+                    messageLoading = false,
+                    totalUnread = 0,
+                    totalMention = 0,
                     channelDict = new Dictionary<string, ChannelView>(),
                     messageDict = new Dictionary<string, ChannelMessageView>(),
                     membersDict = new Dictionary<string, ChannelMember>(),
-                    unreadDict = ChannelUnreadMessageManager.getUnread() ?? new Dictionary<string, long>(),
                     channelTop = new Dictionary<string, bool>()
                 },
                 tabBarState = new TabBarState {
                     currentTabIndex = 0
+                },
+                favoriteState = new FavoriteState {
+                    favoriteTagLoading = false,
+                    favoriteDetailLoading = false,
+                    favoriteTagIds = new List<string>(),
+                    favoriteDetailArticleIdDict = new Dictionary<string, List<string>>(),
+                    favoriteTagHasMore = false,
+                    favoriteDetailHasMore = false,
+                    favoriteTagDict = new Dictionary<string, FavoriteTag>()
                 }
             };
         }

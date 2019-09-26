@@ -105,6 +105,7 @@ namespace ConnectApp.Api {
                             StoreProvider.store.dispatcher.dispatch(new PushReadyAction {
                                 readyData = sessionData
                             });
+                            StoreProvider.store.dispatcher.dispatch(Actions.saveReadyStateToDB(sessionData));
                             break;
                         case DispatchMsgType.RESUMED:
                             break;

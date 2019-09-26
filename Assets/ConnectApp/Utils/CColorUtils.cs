@@ -42,5 +42,18 @@ namespace ConnectApp.Utils {
             // so simple truncate cast is ok if not perfect
             return (int) (hash % MUST_BE_LESS_THAN);
         }
+
+        public static readonly List<Color> FavoriteCoverColors = new List<Color> {
+            Color.fromRGBO(255, 134, 134, 0.6f),
+            Color.fromRGBO(255, 171, 109, 0.6f),
+            Color.fromRGBO(255, 219, 85, 0.6f),
+            Color.fromRGBO(173, 227, 118, 0.6f),
+            Color.fromRGBO(128, 229, 215, 0.6f),
+            Color.fromRGBO(134, 217, 237, 0.6f),
+            Color.fromRGBO(141, 168, 242, 0.6f),
+            Color.fromRGBO(158, 145, 248, 0.6f),
+            Color.fromRGBO(197, 134, 243, 0.6f),
+            Color.fromRGBO(99, 102, 114, 0.6f)
+        };
     }
 }

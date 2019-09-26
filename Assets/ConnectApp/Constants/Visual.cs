@@ -4,13 +4,13 @@ using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.Constants {
     public static class CConstant {
-        public static readonly float TabBarHeight = 49;
+        public const float TabBarHeight = 49;
     }
 
     public static class Icons {
         public static readonly IconData UnityLogo = new IconData(0xe61d, "iconfont");
         public static readonly IconData UnityTabIcon = new IconData(0xe623, "iconfont");
-        public static readonly IconData LogoWithUinty = new IconData(0xe622, "iconfont");
+        public static readonly IconData LogoWithUnity = new IconData(0xe622, "iconfont");
         public static readonly IconData WechatMoment = new IconData(0xe61e, "iconfont");
         public static readonly IconData WechatIcon = new IconData(0xe61f, "iconfont");
 
@@ -40,6 +40,7 @@ namespace ConnectApp.Constants {
         public static readonly IconData book = new IconData(0xe613, "iconfont");
         public static readonly IconData eye = new IconData(0xe61b, "iconfont");
         public static readonly IconData bookmark = new IconData(0xe603, "iconfont");
+        public static readonly IconData bookmark_border = new IconData(0xe867, "Material Icons");
         public static readonly IconData favorite = new IconData(0xe60a, "iconfont");
         public static readonly IconData favorite_border = new IconData(0xe610, "iconfont");
         public static readonly IconData comment = new IconData(0xe618, "iconfont");
@@ -54,6 +55,7 @@ namespace ConnectApp.Constants {
         public static readonly IconData check_box = new IconData(0xe604, "iconfont");
         public static readonly IconData check_circle_outline = new IconData(0xe606, "iconfont");
         public static readonly IconData insert_link = new IconData(0xe60d, "iconfont");
+        public static readonly IconData delete = new IconData(0xe872, "Material Icons");
         public static readonly IconData delete_outline = new IconData(0xe608, "iconfont");
         public static readonly IconData block = new IconData(0xe60e, "iconfont");
         public static readonly IconData report = new IconData(0xe616, "iconfont");
@@ -66,6 +68,8 @@ namespace ConnectApp.Constants {
         public static readonly IconData qr_scan = new IconData(0xe624, "iconfont");
         public static readonly IconData computer = new IconData(0xe625, "iconfont");
         public static readonly IconData camera_alt = new IconData(0xe3b0, "Material Icons");
+        public static readonly IconData add = new IconData(0xe145, "Material Icons");
+        public static readonly IconData edit = new IconData(0xe3c9, "Material Icons");
     }
 
     public static class CTextStyle {
@@ -458,6 +462,8 @@ namespace ConnectApp.Constants {
         public static readonly Color ButtonActive = new Color(0xFF227ABF);
         public static readonly Color AvatarLoading = new Color(0xFFD8D8D8);
         public static readonly Color LightBlueGrey = new Color(0xFFC7CBCF);
+        public static readonly Color ShadyLady = new Color(0xFF9D9D9D);
+        public static readonly Color BlackHaze = new Color(0xFFF5F7F8);
 
         public static readonly Color H5White = Color.fromRGBO(255, 255, 255, 0.8f);
         public static readonly Color TabBarBg = Color.fromRGBO(255, 255, 255, 0.8f);
@@ -470,7 +476,7 @@ namespace ConnectApp.Constants {
         public static readonly Color Blue = new Color(0xFF0000FF);
         public static readonly Color Grey = new Color(0xFF9E9E9E);
 
-        public static readonly Color Background = new Color(0xFFF5F5F5);
+        public static readonly Color Background = new Color(0xFFFAFAFA);
         public static readonly Color Icon = new Color(0xFF979A9E);
         public static readonly Color EmojiBottomBar = new Color(0xFFF4F4F4);
 
@@ -485,8 +491,8 @@ namespace ConnectApp.Constants {
         public static readonly Color BrightLavender = new Color(0xFFC586F3);
         public static readonly Color Comet = new Color(0xFF636672);
         public static readonly Color AquaMarine = new Color(0xFF1DE9B6);
-        public static readonly Color LighBlueGrey = new Color(0xFFC7CBCF);
-        public static readonly Color VeryLightPinkThree = new Color(0xFFF0F0F0);
-        public static readonly Color PaleSkyBlue = new Color(0xFFC5E8FF);
+        public static readonly Color MuteIcon = new Color(0xFFC7CBCF);
+        public static readonly Color GreyMessage = new Color(0xFFF0F0F0);
+        public static readonly Color BlueMessage = new Color(0xFFC5E8FF);
     }
 }

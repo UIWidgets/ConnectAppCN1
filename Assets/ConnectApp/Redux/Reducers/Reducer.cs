@@ -98,6 +98,9 @@ namespace ConnectApp.redux.reducers {
                     state.eventState.eventHistory = HistoryManager.eventHistoryList();
                     state.searchState.searchArticleHistoryList = HistoryManager.searchArticleHistoryList();
                     state.articleState.blockArticleList = HistoryManager.blockArticleList();
+                    state.favoriteState.favoriteTagIds = new List<string>();
+                    state.favoriteState.favoriteTagDict = new Dictionary<string, FavoriteTag>();
+                    state.favoriteState.favoriteDetailArticleIdDict = new Dictionary<string, List<string>>();
                     break;
                 }
 
@@ -244,6 +247,7 @@ namespace ConnectApp.redux.reducers {
                     article.channelId = action.articleDetail.channelId;
                     article.contentMap = action.articleDetail.contentMap;
                     article.hasMore = action.articleDetail.comments.hasMore;
+                    article.favorite = action.articleDetail.favorite;
                     article.isNotFirst = true;
                     article.currOldestMessageId = action.articleDetail.comments.currOldestMessageId;
                     var dict = state.articleState.articleDict;
@@ -330,6 +334,58 @@ namespace ConnectApp.redux.reducers {
                         }
 
                         state.likeState.likeDict[key: currentUserId] = likeMap;
+                    }
+
+                    break;
+                }
+
+                case FavoriteArticleSuccessAction action: {
+                    if (state.articleState.articleDict.ContainsKey(key: action.articleId)) {
+                        var article = state.articleState.articleDict[key: action.articleId];
+                        article.favorite = action.favorite;
+                        state.articleState.articleDict[key: action.articleId] = article;
+                    }
+
+                    if (state.favoriteState.favoriteTagDict.ContainsKey(key: action.favorite.tagId)) {
+                        var favoriteTag = state.favoriteState.favoriteTagDict[key: action.favorite.tagId];
+                        var statistics = favoriteTag.stasitics ?? new Statistics {count = 0};
+                        statistics.count += 1;
+                        favoriteTag.stasitics = statistics;
+                        state.favoriteState.favoriteTagDict[key: action.favorite.tagId] = favoriteTag;
+                    }
+
+                    if (state.favoriteState.favoriteDetailArticleIdDict.ContainsKey(key: action.favorite.tagId)) {
+                        var favoriteDetailArticleIds =
+                            state.favoriteState.favoriteDetailArticleIdDict[key: action.favorite.tagId];
+                        favoriteDetailArticleIds.Insert(0, item: action.articleId);
+                        state.favoriteState.favoriteDetailArticleIdDict[key: action.favorite.tagId] =
+                            favoriteDetailArticleIds;
+                    }
+
+                    break;
+                }
+
+                case UnFavoriteArticleSuccessAction action: {
+                    if (state.articleState.articleDict.ContainsKey(key: action.articleId)) {
+                        var article = state.articleState.articleDict[key: action.articleId];
+                        article.favorite = null;
+                        state.articleState.articleDict[key: action.articleId] = article;
+                    }
+
+                    if (state.favoriteState.favoriteTagDict.ContainsKey(key: action.favorite.tagId)) {
+                        var favoriteTag = state.favoriteState.favoriteTagDict[key: action.favorite.tagId];
+                        var statistics = favoriteTag.stasitics ?? new Statistics {count = 1};
+                        statistics.count -= 1;
+                        favoriteTag.stasitics = statistics;
+                        state.favoriteState.favoriteTagDict[key: action.favorite.tagId] = favoriteTag;
+                    }
+
+                    if (state.favoriteState.favoriteDetailArticleIdDict.ContainsKey(key: action.favorite.tagId)) {
+                        var favoriteDetailArticleIds =
+                            state.favoriteState.favoriteDetailArticleIdDict[key: action.favorite.tagId];
+                        favoriteDetailArticleIds.Remove(item: action.articleId);
+                        state.favoriteState.favoriteDetailArticleIdDict[key: action.favorite.tagId] =
+                            favoriteDetailArticleIds;
                     }
 
                     break;
@@ -1605,6 +1661,38 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case MainNavigatorPushToFavoriteDetailAction action: {
+                    if (action.tagId != null) {
+                        Router.navigator.push(new PageRouteBuilder(
+                                pageBuilder: (context, animation, secondaryAnimation) =>
+                                    new FavoriteDetailScreenConnector(tagId: action.tagId, userId: action.userId),
+                                transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
+                                    new PushPageTransition(
+                                        routeAnimation: animation,
+                                        child: child
+                                    )
+                            )
+                        );
+                    }
+
+                    break;
+                }
+
+                case MainNavigatorPushToEditFavoriteAction action: {
+                    Router.navigator.push(new PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) =>
+                                new EditFavoriteScreenConnector(tagId: action.tagId),
+                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
+                                new PushPageTransition(
+                                    routeAnimation: animation,
+                                    child: child
+                                )
+                        )
+                    );
+
+                    break;
+                }
+
                 case FetchReviewUrlSuccessAction action: {
                     state.settingState.reviewUrl = action.url;
                     state.settingState.hasReviewUrl = action.url.isNotEmpty();
@@ -2292,6 +2380,152 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case StartFetchFavoriteTagAction _: {
+                    state.favoriteState.favoriteTagLoading = true;
+                    break;
+                }
+
+                case FetchFavoriteTagSuccessAction action: {
+                    if (action.offset == 0) {
+                        state.favoriteState.favoriteTagIds = new List<string>();
+                    }
+
+                    action.favoriteTags.ForEach(favoriteTag => {
+                        state.favoriteState.favoriteTagIds.Add(item: favoriteTag.id);
+                        if (state.favoriteState.favoriteTagDict.ContainsKey(key: favoriteTag.id)) {
+                            state.favoriteState.favoriteTagDict[key: favoriteTag.id] = favoriteTag;
+                        }
+                        else {
+                            state.favoriteState.favoriteTagDict.Add(key: favoriteTag.id, value: favoriteTag);
+                        }
+                    });
+
+                    state.favoriteState.favoriteTagHasMore = action.hasMore;
+                    state.favoriteState.favoriteTagLoading = false;
+                    break;
+                }
+
+                case FetchFavoriteTagFailureAction _: {
+                    state.favoriteState.favoriteTagLoading = false;
+                    break;
+                }
+
+                case StartFetchFavoriteDetailAction _: {
+                    state.favoriteState.favoriteDetailLoading = true;
+                    break;
+                }
+
+                case FetchFavoriteDetailSuccessAction action: {
+                    if (action.tagMap != null && action.tagMap.isNotEmpty()) {
+                        var favoriteTagDict = state.favoriteState.favoriteTagDict;
+                        foreach (var keyValuePair in action.tagMap) {
+                            if (favoriteTagDict.ContainsKey(key: keyValuePair.Key)) {
+                                favoriteTagDict[key: keyValuePair.Key] = keyValuePair.Value;
+                            }
+                            else {
+                                favoriteTagDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
+                            }
+                        }
+
+                        state.favoriteState.favoriteTagDict = favoriteTagDict;
+                    }
+
+                    if (action.projectSimpleMap != null && action.projectSimpleMap.isNotEmpty()) {
+                        var articleDict = state.articleState.articleDict;
+                        foreach (var keyValuePair in action.projectSimpleMap) {
+                            if (articleDict.ContainsKey(key: keyValuePair.Key)) {
+                                var oldArticle = articleDict[key: keyValuePair.Key];
+                                articleDict[key: keyValuePair.Key] = oldArticle.Merge(other: keyValuePair.Value);
+                            }
+                            else {
+                                articleDict.Add(key: keyValuePair.Key, value: keyValuePair.Value);
+                            }
+                        }
+
+                        state.articleState.articleDict = articleDict;
+                    }
+
+                    var favoriteDetailArticleIdDict = state.favoriteState.favoriteDetailArticleIdDict;
+                    var tagId = action.tagId.isNotEmpty() ? action.tagId : $"{action.userId}all";
+                    var favoriteDetailArticleIds = favoriteDetailArticleIdDict.ContainsKey(key: tagId)
+                        ? favoriteDetailArticleIdDict[key: tagId]
+                        : new List<string>();
+                    if (action.offset == 0) {
+                        favoriteDetailArticleIds.Clear();
+                    }
+
+                    if (action.favorites != null && action.favorites.isNotEmpty()) {
+                        var articleDict = state.articleState.articleDict;
+                        action.favorites.ForEach(favorite => {
+                            favoriteDetailArticleIds.Add(item: favorite.itemId);
+                            if (articleDict.ContainsKey(key: favorite.itemId)) {
+                                var article = articleDict[key: favorite.itemId];
+                                article.favorite = favorite;
+                                articleDict[key: favorite.itemId] = article;
+                            }
+                        });
+
+                        state.articleState.articleDict = articleDict;
+                    }
+
+                    if (favoriteDetailArticleIdDict.ContainsKey(key: tagId)) {
+                        favoriteDetailArticleIdDict[key: tagId] = favoriteDetailArticleIds;
+                    }
+                    else {
+                        favoriteDetailArticleIdDict.Add(key: tagId, value: favoriteDetailArticleIds);
+                    }
+
+                    state.favoriteState.favoriteDetailArticleIdDict = favoriteDetailArticleIdDict;
+                    state.favoriteState.favoriteDetailHasMore = action.hasMore;
+                    state.favoriteState.favoriteDetailLoading = false;
+                    break;
+                }
+
+                case FetchFavoriteDetailFailureAction _: {
+                    state.favoriteState.favoriteDetailLoading = false;
+                    break;
+                }
+
+                case CreateFavoriteTagSuccessAction action: {
+                    if (!state.favoriteState.favoriteTagIds.Contains(item: action.favoriteTag.id)) {
+                        if (state.favoriteState.favoriteTagIds.Count <= 1) {
+                            state.favoriteState.favoriteTagIds.Add(item: action.favoriteTag.id);
+                        }
+                        else {
+                            state.favoriteState.favoriteTagIds.Insert(1, item: action.favoriteTag.id);
+                        }
+                    }
+
+                    if (!state.favoriteState.favoriteTagDict.ContainsKey(key: action.favoriteTag.id)) {
+                        state.favoriteState.favoriteTagDict.Add(key: action.favoriteTag.id, value: action.favoriteTag);
+                    }
+
+                    break;
+                }
+
+                case EditFavoriteTagSuccessAction action: {
+                    if (state.favoriteState.favoriteTagDict.ContainsKey(key: action.favoriteTag.id)) {
+                        state.favoriteState.favoriteTagDict[key: action.favoriteTag.id] = action.favoriteTag;
+                    }
+                    else {
+                        state.favoriteState.favoriteTagDict.Add(key: action.favoriteTag.id, value: action.favoriteTag);
+                    }
+
+                    break;
+                }
+
+                case DeleteFavoriteTagSuccessAction action: {
+                    if (state.favoriteState.favoriteTagIds.Contains(item: action.favoriteTag.id)) {
+                        state.favoriteState.favoriteTagIds.Remove(item: action.favoriteTag.id);
+                    }
+
+                    if (state.favoriteState.favoriteTagDict.ContainsKey(key: action.favoriteTag.id)) {
+                        state.favoriteState.favoriteTagDict.Remove(key: action.favoriteTag.id);
+                    }
+
+                    break;
+                }
+
                 case InitEggsAction action: {
                     state.serviceConfigState.showFirstEgg = action.firstEgg;
                     break;
@@ -2302,13 +2536,18 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case NationalDayEnabledAction action: {
+                    state.serviceConfigState.nationalDayEnabled = action.nationalDayEnabled;
+                    break;
+                }
+
                 case EnterRealityAction _: {
                     // Enter Reality
                     RealityManager.TriggerSwitch();
                     break;
                 }
 
-                case ChannelsAction action: {
+                case FetchChannelsSuccessAction action: {
                     for (int i = 0; i < action.discoverList.Count; i++) {
                         if (!state.channelState.publicChannels.Contains(action.discoverList[i])) {
                             state.channelState.publicChannels.Add(action.discoverList[i]);
@@ -2324,7 +2563,7 @@ namespace ConnectApp.redux.reducers {
                     foreach (var entry in action.channelMap) {
                         state.channelState.updateChannel(entry.Value);
                         state.channelState.channelDict[entry.Key].joined =
-                            action.joinedChannelMap.ContainsKey(entry.Key) && action.joinedChannelMap[entry.Key];
+                            action.joinedChannelMap.ContainsKey(entry.Key);
                     }
 
                     state.channelState.channelTop = ChannelTopManager.getChannelTop();
@@ -2342,48 +2581,45 @@ namespace ConnectApp.redux.reducers {
                         channel.messageIds = new List<string>();
                     }
 
-                    channel.hasMore = action.hasMore;
-                    channel.hasMoreNew = action.hasMoreNew;
-
-                    state.channelState.unreadDict.TryGetValue(action.channelId, out long unreadAfter);
-
                     if (action.after != null || channel.messageIds.isEmpty()) {
                         D.assert(channel.messageIds.isEmpty() || channel.messageIds.last() == action.after);
                         for (var i = action.messages.Count - 1; i >= 0; i--) {
-                            var channelMessage =
-                                ChannelMessageView.fromChannelMessage(action.messages[i]);
+                            var channelMessage = ChannelMessageView.fromChannelMessage(action.messages[i]);
                             state.channelState.messageDict[channelMessage.id] = channelMessage;
-                            channel.messageIds.Add(channelMessage.id);
-                            // if (channelMessage.nonce > unreadAfter) {
-                            //     channel.handleUnreadMessage(channelMessage, state.loginState.loginInfo.userId);
-                            // }
+                            channel.newMessageIds.Add(channelMessage.id);
                         }
                     }
                     else if (action.before != null) {
                         D.assert(channel.messageIds.first() == action.before);
-                        List<string> ret = new List<string>();
-                        for (var i = action.messages.Count - 1; i >= 0; i--) {
-                            var channelMessage =
-                                ChannelMessageView.fromChannelMessage(action.messages[i]);
+                        int to = action.messages[0].id == action.before ? 1 : 0;
+                        for (var i = action.messages.Count - 1; i >= to; i--) {
+                            var channelMessage = ChannelMessageView.fromChannelMessage(action.messages[i]);
                             state.channelState.messageDict[channelMessage.id] = channelMessage;
-                            ret.Add(channelMessage.id);
+                            channel.oldMessageIds.Add(channelMessage.id);
                         }
-
-                        if (channel.messageIds[0] != action.before) {
-                            ret.Add(channel.messageIds[0]);
-                        }
-
-                        for (var i = 1; i < channel.messageIds.Count; i++) {
-                            ret.Add(channel.messageIds[i]);
-                        }
-
-                        channel.messageIds = ret;
                     }
 
                     state.channelState.messageLoading = false;
                     state.channelState.updateTotalMention();
-                    channel.upToDate = state.channelState.upToDate(channel.id);
+                    if (channel.atBottom) {
+                        channel.clearUnread();
+                    }
 
+                    break;
+                }
+
+                case MergeNewChannelMessages action: {
+                    var channel = state.channelState.channelDict[action.channelId];
+                    channel.messageIds.AddRange(channel.newMessageIds);
+                    channel.newMessageIds = new List<string>();
+                    break;
+                }
+
+                case MergeOldChannelMessages action: {
+                    var channel = state.channelState.channelDict[action.channelId];
+                    channel.oldMessageIds.AddRange(channel.messageIds);
+                    channel.messageIds = channel.oldMessageIds;
+                    channel.oldMessageIds = new List<string>();
                     break;
                 }
 
@@ -2430,39 +2666,64 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case MarkChannelMessageAsRead action: {
-                    state.channelState.unreadDict[action.channelId] = action.nonce;
-                    var channel = state.channelState.channelDict[action.channelId];
-                    channel.atAll = false;
-                    channel.atMe = false;
-                    channel.unread = 0;
-                    ChannelUnreadMessageManager.saveUnread(state.channelState.unreadDict);
+                case SaveMessagesToDBSuccessAction _: {
+                    break;
+                }
+
+                case LoadMessagesFromDBSuccessAction action: {
+                    if (!state.channelState.channelDict.TryGetValue(action.channelId, out var channel)) {
+                        break;
+                    }
+                    if (action.before == -1) {
+                        for (int i = action.messages.Count - 1; i >= 0; i--) {
+                            var message = action.messages[i];
+                            if (!channel.messageIds.Contains(message.id)) {
+                                channel.messageIds.Add(message.id);
+                            }
+                            state.channelState.messageDict[message.id] = message;
+                        }
+                    }
+                    else {
+                        var messageIds = new List<string>();
+                        if (action.messages[0].id != channel.messageIds[0]) {
+                            break;
+                        }
+                        for (int i = action.messages.Count - 1; i >= 1; i--) {
+                            var message = action.messages[i];
+                            if (!channel.messageIds.Contains(message.id)) {
+                                messageIds.Add(message.id);
+                            }
+                            state.channelState.messageDict[message.id] = message;
+                        }
+                        messageIds.AddRange(channel.messageIds);
+                        channel.messageIds = messageIds;
+                    }
+
+                    state.channelState.channelTop = ChannelTopManager.getChannelTop();
+                    state.channelState.messageLoading = false;
+
+                    break;
+                }
+
+                case SaveReadyStateToDBSuccessAction _: {
+                    break;
+                }
+
+                case LoadReadyStateFromDBSuccessAction action: {
+                    state.channelState.updateSessionReadyData(action.data);
                     break;
                 }
 
                 case ClearChannelUnreadAction action: {
                     var channel = state.channelState.channelDict[action.channelId];
-                    channel.atAll = false;
-                    channel.atMe = false;
-                    channel.unread = 0;
-                    channel.mentioned = 0;
+                    channel.clearUnread();
                     state.channelState.updateTotalMention();
-                    break;
-                }
-
-                case UpdateChannelScrollOffsetAction action: {
-                    var channel = state.channelState.channelDict[action.channelId];
-                    channel.offsetToBottom = action.bottom;
-                    channel.offsetToTop = action.top;
                     break;
                 }
 
                 case ChannelScreenHitBottom action: {
                     var channel = state.channelState.channelDict[action.channelId];
-                    channel.unread = 0;
-                    channel.mentioned = 0;
-                    channel.atAll = false;
-                    channel.atMe = false;
+                    channel.clearUnread();
                     channel.atBottom = true;
                     state.channelState.updateTotalMention();
                     break;
@@ -2481,51 +2742,7 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case PushReadyAction action: {
-                    var sessionReadyData = action.readyData;
-                    for (int i = 0; i < sessionReadyData.lobbyChannels.Count; i++) {
-                        var channel = sessionReadyData.lobbyChannels[i];
-                        state.channelState.updateNormalChannelLite(channel);
-                        if (!state.channelState.joinedChannels.Contains(channel.id)) {
-                            state.channelState.joinedChannels.Add(channel.id);
-                        }
-                    }
-
-                    for (int i = 0; i < sessionReadyData.publicChannels.Count; i++) {
-                        var channel = sessionReadyData.publicChannels[i];
-                        state.channelState.updateNormalChannelLite(channel);
-                        if (!state.channelState.joinedChannels.Contains(channel.id)) {
-                            state.channelState.joinedChannels.Add(channel.id);
-                        }
-                    }
-
-                    for (int i = 0; i < sessionReadyData.users.Count; i++) {
-                        state.channelState.updateMessageUser(sessionReadyData.users[i]);
-                    }
-
-                    for (int i = 0; i < sessionReadyData.lastMessages.Count; i++) {
-                        var message = sessionReadyData.lastMessages[i];
-                        var channelId = message.channelId;
-                        if (state.channelState.channelDict.TryGetValue(channelId, out var channel)) {
-                            channel.lastMessageId = message.id;
-                            channel.lastMessage = ChannelMessageView.fromChannelMessageLite(message);
-                            channel.lastMessage.author =
-                                state.channelState.getMember(channel.lastMessage.author.id)?.user;
-                            channel.lastMessage.mentions = channel.lastMessage.mentions?.Select(
-                                user => state.channelState.getMember(user.id).user)?.ToList();
-                        }
-                    }
-
-                    for (int i = 0; i < sessionReadyData.readState.Count; i++) {
-                        var readState = sessionReadyData.readState[i];
-                        var channelId = readState.channelId;
-                        if (state.channelState.channelDict.TryGetValue(channelId, out var channel)) {
-                            channel.mentioned = readState.mentionCount;
-                            channel.unread = readState.lastMessageId != channel.lastMessageId ? 1 : 0;
-                            channel.atMe = channel.mentioned > 0 && channel.unread > 0;
-                        }
-                    }
-
-                    state.channelState.channelTop = ChannelTopManager.getChannelTop();
+                    state.channelState.updateSessionReadyData(action.readyData);
                     state.channelState.updateTotalMention();
 
                     Debug.Log("WebSocket Online!");
@@ -2540,10 +2757,16 @@ namespace ConnectApp.redux.reducers {
 
                     var channel = state.channelState.channelDict[message.channelId];
                     //ignore duplicated message
-                    if (!channel.messageIds.Contains(message.id)) {
+                    if (!channel.messageIds.Contains(message.id) && !channel.newMessageIds.Contains(message.id)) {
                         var channelMessage = ChannelMessageView.fromPushMessage(message);
                         state.channelState.messageDict[channelMessage.id] = channelMessage;
-                        channel.messageIds.Add(channelMessage.id);
+                        if (channel.atBottom) {
+                            channel.messageIds.Add(channelMessage.id);
+                        }
+                        else {
+                            channel.newMessageIds.Add(channelMessage.id);
+                        }
+
                         channel.lastMessageId = channelMessage.id;
                         channel.lastMessage = channelMessage;
                         if ((!state.loginState.isLoggedIn ||

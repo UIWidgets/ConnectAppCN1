@@ -46,7 +46,6 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new MainNavigatorPushToChannelIntroductionAction {
                                 channelId = this.channelId
                             }),
-                        fetchMembers = () => dispatcher.dispatch<IPromise>(Actions.fetchChannelMembers(this.channelId)),
                         leaveChannel = () => dispatcher.dispatch<IPromise>(
                             Actions.leaveChannel(this.channelId, viewModel.channel.groupId)),
                         updateTop = isTop => {
@@ -81,11 +80,6 @@ namespace ConnectApp.screens {
     }
     
     class _ChannelDetailScreenState : State<ChannelDetailScreen> {
-        public override void initState() {
-            base.initState();
-            // this.widget.actionModel.fetchMembers();
-        }
-
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
@@ -96,7 +90,7 @@ namespace ConnectApp.screens {
                             children: new List<Widget> {
                                 this._buildNavigationBar(),
                                 new Expanded(
-                                    child: this._buildContent(context)
+                                    child: this._buildContent()
                                 )
                             }
                         )
@@ -115,61 +109,103 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildContent(BuildContext context) {
+        Widget _buildChannelIntroduction() {
+            return new Container(
+                color: CColors.White,
+                padding: EdgeInsets.only(left: 16, right: 16, top: 16),
+                height: 64,
+                child: new Row(
+                    children: new List<Widget> {
+                        new ClipRRect(
+                            borderRadius: BorderRadius.all(4),
+                            child: new Container(
+                                width: 48,
+                                height: 48,
+                                child: Image.network(
+                                    this.widget.viewModel.channel?.thumbnail ?? "",
+                                    fit: BoxFit.cover)
+                            )
+                        ),
+                        new Expanded(
+                            child: this._buildChannelName()
+                        ),
+                    }
+                )
+            );
+        }
+
+        Widget _buildChannelName() {
+            return new Container(
+                padding: EdgeInsets.only(16),
+                child: new Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: new List<Widget> {
+                        new Text(this.widget.viewModel.channel?.name ?? "",
+                            style: CTextStyle.PLargeMedium,
+                            maxLines: 1, overflow: TextOverflow.ellipsis),
+                        new Expanded(
+                            child: new Text(
+                                $"{this.widget.viewModel.channel?.memberCount ?? 0}名群成员",
+                                style: CTextStyle.PRegularBody4,
+                                maxLines: 1)
+                        )
+                    }
+                )
+            );
+        }
+
+        Widget _buildOpenMembersScreenTapBar() {
+            return new GestureDetector(
+                onTap: () => { this.widget.actionModel.pushToChannelMembers(); },
+                child: new Container(
+                    color: CColors.Transparent,
+                    child: new Row(
+                        children: new List<Widget> {
+                            new Text(
+                                $"查看{this.widget.viewModel.channel?.memberCount ?? 0}名群成员",
+                                style: new TextStyle(
+                                    fontSize: 12,
+                                    fontFamily: "Roboto-Regular",
+                                    color: CColors.TextBody4
+                                )
+                            ),
+                            new Icon(
+                                icon: Icons.chevron_right,
+                                size: 20,
+                                color: Color.fromRGBO(199, 203, 207, 1)
+                            )
+                        }
+                    )
+                )
+            );
+        }
+
+        float _getAvatarSize() {
+            return (MediaQuery.of(this.context).size.width - 32 - 16 * 4) / 5;
+        }
+
+        List<Widget> _buildAvatars() {
             List<Widget> avatars = new List<Widget>();
-            float avatarSize = (MediaQuery.of(context).size.width - 32 - 16 * 4) / 5;
             for (int i = 0; i < 5; i++) {
                 avatars.Add(this.widget.viewModel.members.Count > i
-                    ? Avatar.User(this.widget.viewModel.members[i].user, avatarSize)
+                    ? Avatar.User(this.widget.viewModel.members[i].user, this._getAvatarSize())
                     : (Widget) new Container(width: 56, height: 56)
                 );
             }
 
+            return avatars;
+        }
+
+        Widget _buildContent() {
             return new Container(
                 color: CColors.Background,
                 child: new ListView(
                     children: new List<Widget> {
-                        new Container(
-                            color: CColors.White,
-                            padding: EdgeInsets.only(left: 16, right: 16, top: 16),
-                            height: 64,
-                            child: new Row(
-                                children: new List<Widget> {
-                                    new ClipRRect(
-                                        borderRadius: BorderRadius.all(4),
-                                        child: new Container(
-                                            width: 48,
-                                            height: 48,
-                                            child: Image.network(
-                                                this.widget.viewModel.channel?.thumbnail ?? "",
-                                                fit: BoxFit.cover)
-                                        )
-                                    ),
-                                    new Expanded(
-                                        child: new Container(
-                                            padding: EdgeInsets.only(16),
-                                            child: new Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: new List<Widget> {
-                                                    new Text(this.widget.viewModel.channel.name,
-                                                        style: CTextStyle.PLargeMedium,
-                                                        maxLines: 1, overflow: TextOverflow.ellipsis),
-                                                    new Expanded(
-                                                        child: new Text(
-                                                            $"{this.widget.viewModel.channel.memberCount}名群成员",
-                                                            style: CTextStyle.PRegularBody4,
-                                                            maxLines: 1)
-                                                    )
-                                                }
-                                            )
-                                        )
-                                    ),
-                                }
-                            )
-                        ),
+                        this._buildChannelIntroduction(),
                         new GestureDetector(
                             onTap: () => { this.widget.actionModel.pushToChannelIntroduction(); },
-                            child: this._tapRow(this.widget.viewModel.channel.topic, 2, 16, 16, true)
+                            child: this._tapRow(this.widget.viewModel.channel?.topic ?? "",
+                                maxLines: 2, paddingTop: 16, 16, true)
                         ),
                         new Container(height: 16),
                         new Container(
@@ -178,32 +214,8 @@ namespace ConnectApp.screens {
                             child: new Row(
                                 children: new List<Widget> {
                                     new Text("群聊成员", style: CTextStyle.PLargeBody),
-                                    new Expanded(
-                                        child: new Container()
-                                    ),
-                                    new GestureDetector(
-                                        onTap: () => { this.widget.actionModel.pushToChannelMembers(); },
-                                        child: new Container(
-                                            color: CColors.Transparent,
-                                            child: new Row(
-                                                children: new List<Widget> {
-                                                    new Text(
-                                                        $"查看{this.widget.viewModel.channel.memberCount}名群成员",
-                                                        style: new TextStyle(
-                                                            fontSize: 12,
-                                                            fontFamily: "Roboto-Regular",
-                                                            color: CColors.TextBody4
-                                                        )
-                                                    ),
-                                                    new Icon(
-                                                        icon: Icons.chevron_right,
-                                                        size: 20,
-                                                        color: Color.fromRGBO(199, 203, 207, 1)
-                                                    )
-                                                }
-                                            )
-                                        )
-                                    )
+                                    new Expanded(child: new Container()),
+                                    this._buildOpenMembersScreenTapBar()
                                 }
                             )
                         ),
@@ -212,17 +224,18 @@ namespace ConnectApp.screens {
                             padding: EdgeInsets.only(16, 0, 16, 16),
                             child: new Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: avatars
+                                children: this._buildAvatars()
                             )
                         ),
                         new Container(height: 16),
-//                        new GestureDetector(
-//                            child: this._tapRow("查找聊天内容", 1, 18, 18)
-//                        ),
-                        this._switchRow("设为置顶", this.widget.viewModel.channel.isTop, value => {
-                            this.widget.actionModel.updateTop(value);
-                        }),
-                        this._switchRow("消息免打扰", this.widget.viewModel.channel.isMute, value => { }),
+                        this._switchRow(
+                            content: "设为置顶",
+                            value: this.widget.viewModel.channel?.isTop ?? false,
+                            onChanged: value => this.widget.actionModel.updateTop(value)),
+                        this._switchRow(
+                            content: "消息免打扰",
+                            value: this.widget.viewModel.channel?.isMute ?? false,
+                            onChanged: value => { }),
                         new Container(height: 16),
                         new GestureDetector(
                             onTap: () => { this.widget.actionModel.leaveChannel(); },

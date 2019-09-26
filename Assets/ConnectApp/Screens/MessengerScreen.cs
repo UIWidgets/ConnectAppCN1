@@ -5,6 +5,7 @@ using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
+using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
@@ -52,7 +53,7 @@ namespace ConnectApp.screens {
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new MessengerScreenActionModel {
-                        pushToNotificatioins = () => {
+                        pushToNotifications = () => {
                             dispatcher.dispatch(new MainNavigatorPushToNotificationAction());
                         },
                         pushToDiscoverChannels = () => {
@@ -230,7 +231,7 @@ namespace ConnectApp.screens {
                 new Text("群聊", style: CTextStyle.H2),
                 new List<Widget> {
                     new CustomButton(
-                        onPressed: () => { this.widget.actionModel.pushToNotificatioins(); },
+                        onPressed: () => { this.widget.actionModel.pushToNotifications(); },
                         child: new Container(
                             width: 28,
                             height: 28,
@@ -275,7 +276,7 @@ namespace ConnectApp.screens {
     public static class MessengerBuildUtils {
         public static Widget buildPopularChannelItem(ChannelView channel) {
             Widget image = Positioned.fill(
-                child: Image.network(
+                child: CachedNetworkImageProvider.cachedNetworkImage(
                     channel?.thumbnail ?? "",
                     fit: BoxFit.cover
                 )
@@ -350,7 +351,9 @@ namespace ConnectApp.screens {
         }
 
         public static Widget buildChannelItem(ChannelView channel, Action onTap = null) {
-            Widget title = new Text(channel.name, style: CTextStyle.PLargeMedium, overflow: TextOverflow.ellipsis);
+            Widget title = new Text(channel.name,
+                style: CTextStyle.PLargeMedium,
+                overflow: TextOverflow.ellipsis);
 
             string text = "";
             if (channel.lastMessage != null) {
@@ -363,7 +366,8 @@ namespace ConnectApp.screens {
                 }
 
                 text = text ?? "";
-                if (!string.IsNullOrEmpty(channel.lastMessage.author?.fullName) && !string.IsNullOrEmpty(text)) {
+                if (!string.IsNullOrEmpty(channel.lastMessage.author?.fullName) &&
+                    !string.IsNullOrEmpty(text)) {
                     text = $"{channel.lastMessage.author?.fullName}: {text}";
                 }
             }
@@ -413,7 +417,7 @@ namespace ConnectApp.screens {
                 child: channel.isMute
                     ? (Widget) new Icon(
                         Icons.notifications_off,
-                        size: 16, color: CColors.LighBlueGrey)
+                        size: 16, color: CColors.MuteIcon)
                     : new NotificationDot(
                         channel.unread > 0
                             ? channel.mentioned > 0
@@ -440,7 +444,7 @@ namespace ConnectApp.screens {
                 child: new Container(
                     width: 48,
                     height: 48,
-                    child: Image.network(channel?.thumbnail ?? "", fit: BoxFit.cover)
+                    child: CachedNetworkImageProvider.cachedNetworkImage(channel?.thumbnail ?? "", fit: BoxFit.cover)
                 )
             );
 
@@ -485,7 +489,7 @@ namespace ConnectApp.screens {
                 child: new Container(
                     width: 48,
                     height: 48,
-                    child: Image.network(channel?.thumbnail ?? "", fit: BoxFit.cover)
+                    child: CachedNetworkImageProvider.cachedNetworkImage(channel?.thumbnail ?? "", fit: BoxFit.cover)
                 )
             );
 

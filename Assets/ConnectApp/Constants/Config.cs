@@ -1,6 +1,6 @@
 namespace ConnectApp.Constants {
     public static class Config {
-        public const string apiAddress = "https://connect-test.unity.com";
+        public const string apiAddress = "https://connect.unity.com";
 
         public const string domain = ".connect.unity.com";
 
@@ -16,9 +16,9 @@ namespace ConnectApp.Constants {
 
         public const string MINIID = "gh_f731aec0bdd0";
 
-        public const string versionNumber = "1.1.3";
+        public const string versionNumber = "1.1.4";
 
-        public const int versionCode = 58;
+        public const int versionCode = 61;
 
         public const string originCodeUrl = "https://github.com/UnityTech/ConnectAppCN";
 
