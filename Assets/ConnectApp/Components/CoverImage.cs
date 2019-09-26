@@ -66,6 +66,7 @@ namespace ConnectApp.Components {
             float size = 48,
             float borderRadius = 4,
             EdgeInsets margin = null,
+            EdgeInsets padding = null,
             Key key = null
         ) : base(key: key) {
             this.coverImage = coverImage;
@@ -73,6 +74,7 @@ namespace ConnectApp.Components {
             this.size = size;
             this.borderRadius = borderRadius;
             this.margin = margin;
+            this.padding = padding ?? EdgeInsets.all(8);
         }
 
         readonly string coverImage;
@@ -80,6 +82,7 @@ namespace ConnectApp.Components {
         readonly float size;
         readonly float borderRadius;
         readonly EdgeInsets margin;
+        readonly EdgeInsets padding;
 
         public override Widget build(BuildContext context) {
             return new ClipRRect(
@@ -88,14 +91,13 @@ namespace ConnectApp.Components {
                     width: this.size,
                     height: this.size,
                     margin: this.margin,
+                    padding: this.padding,
                     decoration: new BoxDecoration(
                         color: this.coverColor,
                         borderRadius: BorderRadius.all(radius: this.borderRadius)
                     ),
                     child: Image.asset(
-                        name: this.coverImage,
-                        width: this.size - 12,
-                        height: this.size - 12
+                        name: this.coverImage
                     )
                 )
             );

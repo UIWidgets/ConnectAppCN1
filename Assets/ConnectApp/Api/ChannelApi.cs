@@ -30,16 +30,14 @@ namespace ConnectApp.Api {
             string channelId, string before = null, string after = null) {
             D.assert(before == null || after == null);
             var promise = new Promise<FetchChannelMessagesResponse>();
-            var para = new Dictionary<string, object> { };
-            if (before != null) {
-                para["before"] = before;
-            } else if (after != null) {
-                para["after"] = after;
-            }
-            var request = HttpManager.GET($"{Config.apiAddress}/api/channels/{channelId}/messages", parameter: para);
+            var request = HttpManager.GET($"{Config.apiAddress}/api/channels/{channelId}/messages",
+                parameter: before != null
+                ? new Dictionary<string, object> {{"before", before}}
+                : after != null
+                    ? new Dictionary<string, object> {{"after", after}}
+                    : null);
             HttpManager.resume(request).Then(responseText => {
-                var channelMessagesResponse = JsonConvert.DeserializeObject<FetchChannelMessagesResponse>(responseText);
-                promise.Resolve(channelMessagesResponse);
+                promise.Resolve(JsonConvert.DeserializeObject<FetchChannelMessagesResponse>(responseText));
             }).Catch(exception => { promise.Reject(exception); });
             return promise;
         }
@@ -51,8 +49,7 @@ namespace ConnectApp.Api {
                     {"offset", offset}
                 });
             HttpManager.resume(request).Then(responseText => {
-                var channelMemberResponse = JsonConvert.DeserializeObject<FetchChannelMembersResponse>(responseText);
-                promise.Resolve(channelMemberResponse);
+                promise.Resolve(JsonConvert.DeserializeObject<FetchChannelMembersResponse>(responseText));
             }).Catch(exception => { promise.Reject(exception); });
             return promise;
         }
@@ -63,16 +60,8 @@ namespace ConnectApp.Api {
                 parameter: new Dictionary<string, string> {
                     {"channelId", channelId}
             });
-//            if (!string.IsNullOrEmpty(groupId)) {
-//                request = HttpManager.POST($"{Config.apiAddress}/api/group/{groupId}/requestJoin",
-//                parameter: new Dictionary<string, string> {
-//                    {"groupId", groupId}
-//                });
-//            }
-            Debug.Log(request.uri);
             HttpManager.resume(request).Then(responseText => {
-                var joinChannelResponse = JsonConvert.DeserializeObject<List<JoinChannelResponse>>(responseText);
-                promise.Resolve(joinChannelResponse);
+                promise.Resolve(JsonConvert.DeserializeObject<List<JoinChannelResponse>>(responseText));
             }).Catch(exception => { promise.Reject(exception); });
             return promise;
         }
@@ -83,16 +72,8 @@ namespace ConnectApp.Api {
                 parameter: new Dictionary<string, string> {
                     {"channelId", channelId}
             });
-//            if (!string.IsNullOrEmpty(groupId)) {
-//                request = HttpManager.POST($"{Config.apiAddress}/api/group/{groupId}/deleteMember",
-//                parameter: new Dictionary<string, string> {
-//                    {"groupId", groupId}
-//                });
-//            }
-            Debug.Log(request.uri);
             HttpManager.resume(request).Then(responseText => {
-                var leaveChannelResponse = JsonConvert.DeserializeObject<LeaveChannelResponse>(responseText);
-                promise.Resolve(leaveChannelResponse);
+                promise.Resolve(JsonConvert.DeserializeObject<LeaveChannelResponse>(responseText));
             }).Catch(exception => { promise.Reject(exception); });
             return promise;
         }
@@ -101,23 +82,25 @@ namespace ConnectApp.Api {
             string imageData, string parentMessageId = "") {
             var data = Convert.FromBase64String(imageData);
             var promise = new Promise<FetchSendMessageResponse>();
-            var para = new List<List<object>> {
-                new List<object>{"channel", channelId},
-                new List<object>{"content", content},
-                new List<object>{"parentMessageId", parentMessageId},
-                new List<object>{"nonce", nonce},
-                new List<object>{"size", $"{data.Length}"},
-                new List<object>{"file", data}
-            };
-            var request = HttpManager.POST($"{Config.apiAddress}/api/channels/{channelId}/messages/attachments",
-                para, true, "image.png", "image/png");
+            var request = HttpManager.POST(
+                $"{Config.apiAddress}/api/channels/{channelId}/messages/attachments",
+                parameter: new List<List<object>> {
+                    new List<object>{"channel", channelId},
+                    new List<object>{"content", content},
+                    new List<object>{"parentMessageId", parentMessageId},
+                    new List<object>{"nonce", nonce},
+                    new List<object>{"size", $"{data.Length}"},
+                    new List<object>{"file", data}
+                },
+                multipart: true, 
+                filename: "image.png", 
+                fileType: "image/png");
             HttpManager.resume(request).Then(responseText => {
-                var sendMessageResponse = new FetchSendMessageResponse {
+                promise.Resolve(new FetchSendMessageResponse {
                     channelId = channelId,
                     content = content,
                     nonce = nonce
-                };
-                promise.Resolve(sendMessageResponse);
+                });
             }).Catch(exception => { promise.Reject(exception); });
             return promise;
         }

@@ -8,8 +8,8 @@ using ConnectApp.redux.actions;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
@@ -103,10 +103,10 @@ namespace ConnectApp.Components {
                     new Container(
                         decoration: new BoxDecoration(
                             color: CColors.White,
-                            borderRadius: BorderRadius.only(12,12)
+                            borderRadius: BorderRadius.only(12, 12)
                         ),
                         width: mediaQueryData.size.width,
-                        height: mediaQueryData.size.height / 2.0f,
+                        height: 384 + mediaQueryData.padding.bottom,
                         child: new Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: new List<Widget> {
@@ -128,16 +128,17 @@ namespace ConnectApp.Components {
         Widget _buildFavoriteTitle() {
             return new Container(
                 height: 58,
-                padding: EdgeInsets.only(8, right: 8),
                 child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: new List<Widget> {
                         new CustomButton(
+                            padding: EdgeInsets.all(16),
                             onPressed: ActionSheetUtils.hiddenModalPopup,
                             child: new Text("取消", style: CTextStyle.PLargeBody5)
                         ),
                         new Text("收藏到", style: CTextStyle.PXLargeMedium),
                         new CustomButton(
+                            padding: EdgeInsets.all(16),
                             onPressed: () => {
                                 ActionSheetUtils.hiddenModalPopup();
                                 var myFavoriteIds = this.widget.viewModel.myFavoriteIds;
@@ -158,7 +159,7 @@ namespace ConnectApp.Components {
                 onTap: () => this.widget.actionModel.pushToCreateFavorite(""),
                 child: new Container(
                     height: 54,
-                    padding: EdgeInsets.only(16, 15),
+                    padding: EdgeInsets.only(16, 19, bottom: 10),
                     decoration: new BoxDecoration(
                         color: CColors.White,
                         border: new Border(
@@ -167,10 +168,15 @@ namespace ConnectApp.Components {
                     ),
                     child: new Row(
                         children: new List<Widget> {
-                            new Icon(icon: Icons.add, color: CColors.PrimaryBlue, size: 24),
+                            new Icon(
+                                icon: Icons.add,
+                                color: CColors.PrimaryBlue, 
+                                size: 24
+                            ),
                             new Container(
                                 margin: EdgeInsets.only(8),
-                                child: new Text("新建收藏夹", style: CTextStyle.PLargeMediumBlue)
+                                child: new Text("新建收藏夹",
+                                    style: CTextStyle.PLargeMediumBlue.merge(new TextStyle(height: 1)))
                             )
                         }
                     )
@@ -183,6 +189,7 @@ namespace ConnectApp.Components {
             if (this.widget.viewModel.myFavoriteLoading && myFavoriteIds.isEmpty()) {
                 return new GlobalLoading();
             }
+
             if (myFavoriteIds.Count <= 0) {
                 return new BlankView(
                     "暂无我的收藏列表",

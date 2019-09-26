@@ -26,7 +26,8 @@ namespace ConnectApp.screens {
                     isLoggedIn = state.loginState.isLoggedIn,
                     showFirstEgg = state.serviceConfigState.showFirstEgg,
                     feedHasNew = state.articleState.feedHasNew,
-                    currentTabBarIndex = state.tabBarState.currentTabIndex
+                    currentTabBarIndex = state.tabBarState.currentTabIndex,
+                    nationalDayEnabled = state.serviceConfigState.nationalDayEnabled
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ArticlesScreenActionModel {
@@ -216,7 +217,8 @@ namespace ConnectApp.screens {
                                         onPressed: () => this.widget.actionModel.pushToReality(),
                                         child: new Container(
                                             color: CColors.Transparent,
-                                            child: new EggButton()
+                                            child: new EggButton(
+                                                isNationalDay: this.widget.viewModel.nationalDayEnabled)
                                         )
                                     )
                                     : (Widget) new Container(

@@ -208,6 +208,7 @@ namespace ConnectApp.Models.Api {
         public List<bool> showEggs;
         public bool scanEnabled;
         public InitDataConfig config;
+        public TimeMap nationalDay;
     }
 
     [Serializable]

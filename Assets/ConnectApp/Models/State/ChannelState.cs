@@ -2,8 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
-using ConnectApp.Models.ViewModel;
-using Unity.UIWidgets.foundation;
 
 namespace ConnectApp.Models.State {
     public class ChannelState {
@@ -16,29 +14,24 @@ namespace ConnectApp.Models.State {
         public Dictionary<string, ChannelView> channelDict;
         public Dictionary<string, ChannelMessageView> messageDict;
         public Dictionary<string, ChannelMember> membersDict;
-        public Dictionary<string, long> unreadDict;
         public Dictionary<string, bool> channelTop;
 
         public void updateChannel(Channel channel) {
             if (!this.channelDict.TryGetValue(channel.id, out var channelView)) {
                 this.channelDict[channel.id] = ChannelView.fromChannel(channel);
-                this.channelDict[channel.id].upToDate = this.upToDate(channel.id);
                 return;
             }
 
             channelView.updateFromChannel(channel);
-            channelView.upToDate = this.upToDate(channel.id);
         }
 
         public void updateNormalChannelLite(NormalChannelLite channel) {
             if (!this.channelDict.TryGetValue(channel.id, out var channelView)) {
                 this.channelDict[channel.id] = ChannelView.fromNormalChannelLite(channel);
-                this.channelDict[channel.id].upToDate = this.upToDate(channel.id);
                 return;
             }
 
             channelView.updateFromNormalChannelLite(channel);
-            channelView.upToDate = this.upToDate(channel.id);
         }
 
         public void updateMessageUser(MessageUser user) {
@@ -51,6 +44,7 @@ namespace ConnectApp.Models.State {
                 member.user.coverImage = user.coverImage;
                 member.user.followCount = user.followCount;
                 member.presenceStatus = user.presenceStatus;
+                return;
             }
 
             this.membersDict[user.id] = new ChannelMember {
@@ -94,18 +88,6 @@ namespace ConnectApp.Models.State {
             }
 
             return null;
-        }
-
-        public bool upToDate(string channelId) {
-            if (!this.channelDict.TryGetValue(channelId, out var channelView)) {
-                return false;
-            }
-
-            if (channelView.messageIds.isEmpty()) {
-                return false;
-            }
-
-            return this.messageDict[channelView.messageIds.last()].nonce >= channelView.lastMessage.nonce;
         }
 
         public ChannelView getJoinedChannel(int i) {

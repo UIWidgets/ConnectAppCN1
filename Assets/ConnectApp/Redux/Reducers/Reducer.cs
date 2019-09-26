@@ -2536,13 +2536,18 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case NationalDayEnabledAction action: {
+                    state.serviceConfigState.nationalDayEnabled = action.nationalDayEnabled;
+                    break;
+                }
+
                 case EnterRealityAction _: {
                     // Enter Reality
                     RealityManager.TriggerSwitch();
                     break;
                 }
 
-                case ChannelsAction action: {
+                case FetchChannelsSuccessAction action: {
                     for (int i = 0; i < action.discoverList.Count; i++) {
                         if (!state.channelState.publicChannels.Contains(action.discoverList[i])) {
                             state.channelState.publicChannels.Add(action.discoverList[i]);
@@ -2558,7 +2563,7 @@ namespace ConnectApp.redux.reducers {
                     foreach (var entry in action.channelMap) {
                         state.channelState.updateChannel(entry.Value);
                         state.channelState.channelDict[entry.Key].joined =
-                            action.joinedChannelMap.ContainsKey(entry.Key) && action.joinedChannelMap[entry.Key];
+                            action.joinedChannelMap.ContainsKey(entry.Key);
                     }
 
                     state.channelState.channelTop = ChannelTopManager.getChannelTop();
@@ -2576,14 +2581,10 @@ namespace ConnectApp.redux.reducers {
                         channel.messageIds = new List<string>();
                     }
 
-                    channel.hasMore = action.hasMore;
-                    channel.hasMoreNew = action.hasMoreNew;
-
                     if (action.after != null || channel.messageIds.isEmpty()) {
                         D.assert(channel.messageIds.isEmpty() || channel.messageIds.last() == action.after);
                         for (var i = action.messages.Count - 1; i >= 0; i--) {
-                            var channelMessage =
-                                ChannelMessageView.fromChannelMessage(action.messages[i]);
+                            var channelMessage = ChannelMessageView.fromChannelMessage(action.messages[i]);
                             state.channelState.messageDict[channelMessage.id] = channelMessage;
                             channel.newMessageIds.Add(channelMessage.id);
                         }
@@ -2600,7 +2601,6 @@ namespace ConnectApp.redux.reducers {
 
                     state.channelState.messageLoading = false;
                     state.channelState.updateTotalMention();
-                    channel.upToDate = state.channelState.upToDate(channel.id);
                     if (channel.atBottom) {
                         channel.clearUnread();
                     }
@@ -2714,27 +2714,10 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case MarkChannelMessageAsRead action: {
-                    state.channelState.unreadDict[action.channelId] = action.nonce;
-                    var channel = state.channelState.channelDict[action.channelId];
-                    channel.atAll = false;
-                    channel.atMe = false;
-                    channel.unread = 0;
-                    ChannelUnreadMessageManager.saveUnread(state.channelState.unreadDict);
-                    break;
-                }
-
                 case ClearChannelUnreadAction action: {
                     var channel = state.channelState.channelDict[action.channelId];
                     channel.clearUnread();
                     state.channelState.updateTotalMention();
-                    break;
-                }
-
-                case UpdateChannelScrollOffsetAction action: {
-                    var channel = state.channelState.channelDict[action.channelId];
-                    channel.offsetToBottom = action.bottom;
-                    channel.offsetToTop = action.top;
                     break;
                 }
 
