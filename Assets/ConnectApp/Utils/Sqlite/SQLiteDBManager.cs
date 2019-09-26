@@ -35,7 +35,7 @@ namespace ConnectApp.Utils {
             this.m_Connection?.Close();
 
 #if UNITY_EDITOR
-            var dbPath = $"Assets/{DBName}.db";
+            var dbPath = $"Editor/{DBName}.db";
 #else
             var dbPath = $"{Application.persistentDataPath}/{DBName}.db";
 #endif

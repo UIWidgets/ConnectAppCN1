@@ -2827,8 +2827,21 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case PushDeleteMessageAction action: {
-                    //TODO
-                    Debug.Log($"delete message {action.messageData.id}");
+                    var message = action.messageData;
+                    if (!state.channelState.channelDict.ContainsKey(message.channelId)) {
+                        break;
+                    }
+                    
+                    var channel = state.channelState.channelDict[message.channelId];
+                    var messageId = message.id;
+                    if (state.channelState.messageDict.ContainsKey(messageId)) {
+                        state.channelState.messageDict.Remove(messageId);
+
+                        if (channel.messageIds.Contains(messageId)) {
+                            channel.messageIds.Remove(messageId);
+                        }
+                    }
+                    
                     break;
                 }
 
