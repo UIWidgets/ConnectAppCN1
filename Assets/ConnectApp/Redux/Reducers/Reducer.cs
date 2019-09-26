@@ -2547,7 +2547,7 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case ChannelsAction action: {
+                case FetchChannelsSuccessAction action: {
                     for (int i = 0; i < action.discoverList.Count; i++) {
                         if (!state.channelState.publicChannels.Contains(action.discoverList[i])) {
                             state.channelState.publicChannels.Add(action.discoverList[i]);
@@ -2563,7 +2563,7 @@ namespace ConnectApp.redux.reducers {
                     foreach (var entry in action.channelMap) {
                         state.channelState.updateChannel(entry.Value);
                         state.channelState.channelDict[entry.Key].joined =
-                            action.joinedChannelMap.ContainsKey(entry.Key) && action.joinedChannelMap[entry.Key];
+                            action.joinedChannelMap.ContainsKey(entry.Key);
                     }
 
                     state.channelState.channelTop = ChannelTopManager.getChannelTop();
@@ -2584,8 +2584,7 @@ namespace ConnectApp.redux.reducers {
                     if (action.after != null || channel.messageIds.isEmpty()) {
                         D.assert(channel.messageIds.isEmpty() || channel.messageIds.last() == action.after);
                         for (var i = action.messages.Count - 1; i >= 0; i--) {
-                            var channelMessage =
-                                ChannelMessageView.fromChannelMessage(action.messages[i]);
+                            var channelMessage = ChannelMessageView.fromChannelMessage(action.messages[i]);
                             state.channelState.messageDict[channelMessage.id] = channelMessage;
                             channel.newMessageIds.Add(channelMessage.id);
                         }
@@ -2719,11 +2718,6 @@ namespace ConnectApp.redux.reducers {
                     var channel = state.channelState.channelDict[action.channelId];
                     channel.clearUnread();
                     state.channelState.updateTotalMention();
-                    break;
-                }
-
-                case UpdateChannelScrollOffsetAction action: {
-                    var channel = state.channelState.channelDict[action.channelId];
                     break;
                 }
 
