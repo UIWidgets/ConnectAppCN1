@@ -55,8 +55,8 @@ namespace ConnectApp.screens {
                     var channel = state.channelState.channelDict[this.channelId];
                     List<ChannelMessageView> messages;
                     if (channel.newMessageIds.isNotEmpty()) {
-                        messages = channel.messageIds.Select(getMessage).ToList();
-                        messages.AddRange(channel.newMessageIds.Select(getMessage));
+                        messages = channel.newMessageIds.Select(getMessage).ToList();
+                        messages.AddRange(channel.messageIds.Select(getMessage));
                     }
                     else if (channel.oldMessageIds.isNotEmpty()) {
                         messages = channel.oldMessageIds.Select(getMessage).ToList();

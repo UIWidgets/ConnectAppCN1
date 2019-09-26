@@ -66,11 +66,7 @@ namespace ConnectApp.screens {
     }
 
     class _DiscoverChannelsScreenState : State<DiscoverChannelsScreen> {
-        TextEditingController _fullNameController;
-        TextEditingController _titleController;
         RefreshController _refreshController;
-
-        Dictionary<string, string> _jobRole;
 
         public override void initState() {
             base.initState();
@@ -129,13 +125,8 @@ namespace ConnectApp.screens {
         void _onRefresh(bool up) {
             if (!up) {
                 this.widget.actionModel.fetchChannels().Then(
-                    () => {
-                        this._refreshController.sendBack(false, RefreshStatus.idle);
-                        Debug.Log("Completed");
-                    }).Catch((e) => {
-                    this._refreshController.sendBack(false, RefreshStatus.idle);
-                    Debug.Log("Failed");
-                });
+                    () => this._refreshController.sendBack(false, RefreshStatus.idle)
+                ).Catch(e => this._refreshController.sendBack(false, RefreshStatus.idle));
             }
         }
     }
