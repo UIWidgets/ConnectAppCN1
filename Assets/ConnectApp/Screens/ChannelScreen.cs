@@ -208,6 +208,10 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
+            if (this.showKeyboard || this.showEmojiBoard) {
+                SchedulerBinding.instance.addPostFrameCallback(_ => this._refreshController.scrollTo(0));
+            }
+            
             this.messageBubbleWidth = MediaQuery.of(context).size.width * 0.7f;
 
             Widget ret = new Stack(
