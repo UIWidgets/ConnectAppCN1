@@ -154,11 +154,8 @@ namespace ConnectApp.redux.actions {
 
         public static object saveReadyStateToDB(SocketResponseSessionData data) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                Debug.Log("Saving ready state to db.");
                 MessengerDBApi.SyncSaveReadyState(data);
-                dispatcher.dispatch(new SaveReadyStateToDBSuccessAction {});
-                
-                Debug.Log("Saved ready state to db.");
+                dispatcher.dispatch(new SaveReadyStateToDBSuccessAction());
                 return Promise.Resolved();
             });
         }
