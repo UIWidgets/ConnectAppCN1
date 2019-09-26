@@ -28,8 +28,6 @@ namespace ConnectApp.screens {
                         publicChannels = state.channelState.publicChannels.Select(
                             channelId => state.channelState.channelDict[channelId]
                         ).ToList(),
-                        joinedChannels = state.channelState.joinedChannels.Select(
-                            channelId => state.channelState.channelDict[channelId]).ToList(),
                         page = state.channelState.discoverPage
                     };
                 },

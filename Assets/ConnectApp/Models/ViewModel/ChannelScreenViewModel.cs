@@ -8,6 +8,5 @@ namespace ConnectApp.Models.ViewModel {
         public int newMessageCount;
         public string me;
         public bool messageLoading;
-        public bool hasMore;
     }
 }

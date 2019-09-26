@@ -22,23 +22,19 @@ namespace ConnectApp.Models.State {
         public void updateChannel(Channel channel) {
             if (!this.channelDict.TryGetValue(channel.id, out var channelView)) {
                 this.channelDict[channel.id] = ChannelView.fromChannel(channel);
-                this.channelDict[channel.id].upToDate = this.upToDate(channel.id);
                 return;
             }
 
             channelView.updateFromChannel(channel);
-            channelView.upToDate = this.upToDate(channel.id);
         }
 
         public void updateNormalChannelLite(NormalChannelLite channel) {
             if (!this.channelDict.TryGetValue(channel.id, out var channelView)) {
                 this.channelDict[channel.id] = ChannelView.fromNormalChannelLite(channel);
-                this.channelDict[channel.id].upToDate = this.upToDate(channel.id);
                 return;
             }
 
             channelView.updateFromNormalChannelLite(channel);
-            channelView.upToDate = this.upToDate(channel.id);
         }
 
         public void updateMessageUser(MessageUser user) {

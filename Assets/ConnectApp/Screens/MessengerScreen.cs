@@ -5,6 +5,7 @@ using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
+using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
@@ -52,7 +53,7 @@ namespace ConnectApp.screens {
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new MessengerScreenActionModel {
-                        pushToNotificatioins = () => {
+                        pushToNotifications = () => {
                             dispatcher.dispatch(new MainNavigatorPushToNotificationAction());
                         },
                         pushToDiscoverChannels = () => {
@@ -230,7 +231,7 @@ namespace ConnectApp.screens {
                 new Text("群聊", style: CTextStyle.H2),
                 new List<Widget> {
                     new CustomButton(
-                        onPressed: () => { this.widget.actionModel.pushToNotificatioins(); },
+                        onPressed: () => { this.widget.actionModel.pushToNotifications(); },
                         child: new Container(
                             width: 28,
                             height: 28,
@@ -416,7 +417,7 @@ namespace ConnectApp.screens {
                 child: channel.isMute
                     ? (Widget) new Icon(
                         Icons.notifications_off,
-                        size: 16, color: CColors.LighBlueGrey)
+                        size: 16, color: CColors.MuteIcon)
                     : new NotificationDot(
                         channel.unread > 0
                             ? channel.mentioned > 0

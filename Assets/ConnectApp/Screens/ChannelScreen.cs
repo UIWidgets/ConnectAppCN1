@@ -8,6 +8,7 @@ using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
+using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.Plugins;
@@ -105,11 +106,6 @@ namespace ConnectApp.screens {
                             Actions.sendImage(channelId, nonce, data)),
                         clearUnread = () => dispatcher.dispatch(new ClearChannelUnreadAction {
                             channelId = this.channelId
-                        }),
-                        updateScrollOffset = (bottom, top) => dispatcher.dispatch(new UpdateChannelScrollOffsetAction {
-                            channelId = this.channelId,
-                            bottom = bottom,
-                            top = top
                         }),
                         reportHitBottom = () => dispatcher.dispatch(new ChannelScreenHitBottom {
                             channelId = this.channelId
@@ -478,8 +474,8 @@ namespace ConnectApp.screens {
                             ? null
                             : new BoxDecoration(
                                 color: left || message.type == ChannelMessageType.file
-                                    ? CColors.VeryLightPinkThree
-                                    : CColors.PaleSkyBlue,
+                                    ? CColors.GreyMessage
+                                    : CColors.BlueMessage,
                                 borderRadius: BorderRadius.all(10)
                             ),
                         child: messageContent

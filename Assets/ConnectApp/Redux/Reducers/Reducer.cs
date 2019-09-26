@@ -2581,9 +2581,6 @@ namespace ConnectApp.redux.reducers {
                         channel.messageIds = new List<string>();
                     }
 
-                    channel.hasMore = action.hasMore;
-                    channel.hasMoreNew = action.hasMoreNew;
-
                     if (action.after != null || channel.messageIds.isEmpty()) {
                         D.assert(channel.messageIds.isEmpty() || channel.messageIds.last() == action.after);
                         for (var i = action.messages.Count - 1; i >= 0; i--) {
@@ -2605,7 +2602,6 @@ namespace ConnectApp.redux.reducers {
 
                     state.channelState.messageLoading = false;
                     state.channelState.updateTotalMention();
-                    channel.upToDate = state.channelState.upToDate(channel.id);
                     if (channel.atBottom) {
                         channel.clearUnread();
                     }
@@ -2738,8 +2734,6 @@ namespace ConnectApp.redux.reducers {
 
                 case UpdateChannelScrollOffsetAction action: {
                     var channel = state.channelState.channelDict[action.channelId];
-                    channel.offsetToBottom = action.bottom;
-                    channel.offsetToTop = action.top;
                     break;
                 }
 

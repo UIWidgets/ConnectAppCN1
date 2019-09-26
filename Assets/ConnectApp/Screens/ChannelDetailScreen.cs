@@ -46,7 +46,6 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new MainNavigatorPushToChannelIntroductionAction {
                                 channelId = this.channelId
                             }),
-                        fetchMembers = () => dispatcher.dispatch<IPromise>(Actions.fetchChannelMembers(this.channelId)),
                         leaveChannel = () => dispatcher.dispatch<IPromise>(
                             Actions.leaveChannel(this.channelId, viewModel.channel.groupId)),
                         updateTop = isTop => {
