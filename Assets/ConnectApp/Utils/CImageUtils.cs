@@ -40,44 +40,65 @@ namespace ConnectApp.Utils {
             return $"{imageUrl}.{imageWidth}x0x1.jpg";
         }
 
-        public static Widget GenBadgeImage(List<string> badges, string license, EdgeInsets padding) {
-            if (badges != null && badges.isNotEmpty()) {
-                if (badges.Any(badge => badge.isNotEmpty() && badge.Equals("official"))) {
-                    return new Container(
-                        padding: padding,
-                        child: Image.asset(
-                            "image/official-badge",
-                            height: 18,
-                            width: 18
-                        )
-                    );
-                }
-            }
+        public static bool isNationalDay = false;
 
+        public static Widget GenBadgeImage(List<string> badges, string license, EdgeInsets padding) {
+            
+            var badgeList  = new List<Widget>();
+            Widget badgeWidget = null;
+            
             if (license.isNotEmpty()) {
                 if (license == "UnityPro") {
-                    return new Container(
-                        padding: padding,
-                        child: Image.asset(
-                            "image/pro-badge",
-                            height: 15,
-                            width: 26
-                        )
+                    badgeWidget = Image.asset(
+                        "image/pro-badge",
+                        height: 15,
+                        width: 26
                     );
                 }
 
                 if (license == "UnityPersonalPlus") {
-                    return new Container(
-                        padding: padding,
-                        child: Image.asset(
-                            "image/plus-badge",
-                            height: 15,
-                            width: 30
-                        )
+                    badgeWidget = Image.asset(
+                        "image/plus-badge",
+                        height: 15,
+                        width: 30
                     );
                 }
             }
 
+            if (badges != null && badges.isNotEmpty()) {
+                if (badges.Any(badge => badge.isNotEmpty() && badge.Equals("official"))) {
+                    badgeWidget = Image.asset(
+                        "image/official-badge",
+                        height: 18,
+                        width: 18
+                    );
+                }
+            }
+
+            if (badgeWidget != null) {
+                badgeList.Add(item: badgeWidget);
+            }
+
+            if (isNationalDay) {
+                if (badgeList.Count >= 1) {
+                    badgeList.Add(new SizedBox(width: 4));
+                }
+                badgeList.Add(Image.asset(
+                    "image/china-flag-badge",
+                    height: 14,
+                    width: 16
+                ));
+            }
+            
+            if (badgeList.Count > 0) {
+                return new Container(
+                    padding: padding,
+                    child: new Row(
+                        children: badgeList
+                    )
+                );
+            }
+            
             return new Container();
         }
 

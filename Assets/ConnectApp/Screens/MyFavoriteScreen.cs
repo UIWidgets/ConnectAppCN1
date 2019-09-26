@@ -11,8 +11,8 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.widgets;
 
@@ -21,7 +21,6 @@ namespace ConnectApp.screens {
         public MyFavoriteScreenConnector(
             Key key = null
         ) : base(key: key) {
-            
         }
 
         public override Widget build(BuildContext context) {
@@ -126,7 +125,6 @@ namespace ConnectApp.screens {
                         onRefresh: this._onRefresh,
                         itemCount: myFavorites.Count,
                         itemBuilder: this._buildFavoriteCard,
-                        headerWidget: CustomListViewConstant.defaultHeaderWidget,
                         footerWidget: enablePullUp ? null : CustomListViewConstant.defaultFooterWidget
                     )
                 );
@@ -217,7 +215,7 @@ namespace ConnectApp.screens {
                         this.widget.actionModel.pushToFavoriteDetail(arg1: this.widget.viewModel.currentUserId,
                             arg2: favoriteTag.id);
                     }
-                ), 
+                ),
                 new CustomDismissibleDrawerDelegate(),
                 secondaryActions: this._buildSecondaryActions(favoriteTag: favoriteTag),
                 controller: this._controller
@@ -241,9 +239,7 @@ namespace ConnectApp.screens {
                                     new ActionSheetItem(
                                         "确定",
                                         type: ActionType.normal,
-                                        () => {
-                                            this.widget.actionModel.deleteFavoriteTag(arg: favoriteTag.id);
-                                        }
+                                        () => { this.widget.actionModel.deleteFavoriteTag(arg: favoriteTag.id); }
                                     ),
                                     new ActionSheetItem("取消", type: ActionType.cancel)
                                 }

@@ -57,9 +57,9 @@ namespace ConnectApp.Utils {
             return avatarName;
         }
 
+        static readonly Regex LetterOrNumberRegex = new Regex(@"^[A-Za-z0-9]+$");
         public static bool IsLetterOrNumber(string str) {
-            Regex reg1 = new Regex(@"^[A-Za-z0-9]+$");
-            return reg1.IsMatch(str);
+            return LetterOrNumberRegex.IsMatch(input: str);
         }
 
         public static string CreateMiniPath(string id, string title) {
