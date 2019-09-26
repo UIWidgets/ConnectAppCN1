@@ -175,25 +175,11 @@ namespace ConnectApp.Models.Model {
         }
 
         public void handleUnreadMessage(ChannelMessageView message, string userId) {
-            bool atMe = false, atAll = false;
-            for (int k = 0; k < message.mentions.Count; k++) {
-                if (message.mentions[k].id == userId) {
-                    atMe = true;
-                }
-            }
-
-            if (message.mentionEveryone) {
-                atAll = true;
-                atMe = true;
-            }
-
-            if (atAll || atMe) {
+            if (message.mentionEveryone || message.mentions.Any(user => user.id == userId)) {
                 this.mentioned += 1;
+                this.atMe = true;
             }
-
-            this.atAll = this.atAll || atAll;
-            this.atMe = this.atMe || atMe;
-
+            this.atAll = this.atAll || message.mentionEveryone;
             this.unread += 1;
         }
 
@@ -234,40 +220,46 @@ namespace ConnectApp.Models.Model {
         public List<Reaction> reactions;
         public List<Embed> embeds;
 
+        static ChannelMessageType getType(SocketResponseMessageData message) {
+            return message.content != null || (message.attachments?.Count ?? 0) == 0
+                ? (message.embeds?.Count ?? 0) == 0 ? ChannelMessageType.text : ChannelMessageType.embed
+                : message.attachments[0].contentType.StartsWith("image")
+                    ? ChannelMessageType.image
+                    : ChannelMessageType.file;
+        }
+
+        static string getContent(SocketResponseMessageData message) {
+            switch (getType(message)) {
+                case ChannelMessageType.text:
+                case ChannelMessageType.embed:
+                    return message.content ?? "";
+                case ChannelMessageType.image:
+                    return CImageUtils.SizeTo200ImageUrl(message.attachments[0].url);
+                case ChannelMessageType.file:
+                    return message.attachments[0].filename;
+            }
+            return "";
+        }
+
         public static ChannelMessageView fromPushMessage(SocketResponseMessageData message) {
             if (message == null) {
                 return new ChannelMessageView();
             }
 
-            ChannelMessageType type = message.content != null || (message.attachments?.Count ?? 0) == 0
-                ? (message.embeds?.Count ?? 0) == 0 ? ChannelMessageType.text : ChannelMessageType.embed
-                : message.attachments[0].contentType.StartsWith("image")
-                    ? ChannelMessageType.image
-                    : ChannelMessageType.file;
-            string content = message.content;
-            switch (type) {
-                case ChannelMessageType.text:
-                case ChannelMessageType.embed:
-                    content = content ?? "";
-                    break;
-                case ChannelMessageType.image:
-                    content = CImageUtils.SizeTo200ImageUrl(message.attachments[0].url);
-                    break;
-                case ChannelMessageType.file:
-                    content = message.attachments[0].filename;
-                    break;
-            }
-
             return new ChannelMessageView {
                 id = message.id,
-                nonce = string.IsNullOrEmpty(message.nonce) ? 0 : Convert.ToInt64(message.nonce, 16),
+                nonce = string.IsNullOrEmpty(message.nonce)
+                    ? 0
+                    : Convert.ToInt64(message.nonce, 16),
                 channelId = message.channelId,
                 author = message.author,
-                content = content,
-                fileSize = type == ChannelMessageType.file ? message.attachments[0].size : 0,
+                content = getContent(message),
+                fileSize = getType(message) == ChannelMessageType.file
+                    ? message.attachments[0].size
+                    : 0,
                 time = DateConvert.DateTimeFromNonce(message.nonce),
                 attachments = message.attachments,
-                type = type,
+                type = getType(message),
                 mentionEveryone = message.mentionEveryone,
                 mentions = message.mentions,
                 starred = message.starred,
