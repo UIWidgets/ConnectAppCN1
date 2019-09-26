@@ -2,8 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
-using ConnectApp.Models.ViewModel;
-using Unity.UIWidgets.foundation;
 
 namespace ConnectApp.Models.State {
     public class ChannelState {
@@ -46,6 +44,7 @@ namespace ConnectApp.Models.State {
                 member.user.coverImage = user.coverImage;
                 member.user.followCount = user.followCount;
                 member.presenceStatus = user.presenceStatus;
+                return;
             }
 
             this.membersDict[user.id] = new ChannelMember {
@@ -89,18 +88,6 @@ namespace ConnectApp.Models.State {
             }
 
             return null;
-        }
-
-        public bool upToDate(string channelId) {
-            if (!this.channelDict.TryGetValue(channelId, out var channelView)) {
-                return false;
-            }
-
-            if (channelView.messageIds.isEmpty()) {
-                return false;
-            }
-
-            return this.messageDict[channelView.messageIds.last()].nonce >= channelView.lastMessage.nonce;
         }
 
         public ChannelView getJoinedChannel(int i) {
