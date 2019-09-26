@@ -128,6 +128,19 @@ namespace ConnectApp.redux.actions {
             });
         }
 
+        public static object ackChannelMessage(string messageId) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.AckChannelMessage(messageId)
+                    .Then(ackMessageResponse => {
+                        dispatcher.dispatch(new SendChannelMessageSuccessAction());
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new SendChannelMessageFailureAction());
+                        Debug.Log(error);
+                    });
+            });
+        }
+
         public static object sendImage(string channelId, string nonce, string imageData) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.SendImage(channelId, "", nonce, imageData)
@@ -245,6 +258,12 @@ namespace ConnectApp.redux.actions {
 
     public class SendChannelMessageFailureAction : BaseAction {
         public string channelId;
+    }
+    
+    public class AckChannelMessageSuccessAction : BaseAction {
+    }
+    
+    public class AckChannelMessageFailureAction : BaseAction {
     }
 
     public class ClearSentChannelMessage : BaseAction {

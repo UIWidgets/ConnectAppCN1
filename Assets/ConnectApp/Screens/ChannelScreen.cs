@@ -93,7 +93,10 @@ namespace ConnectApp.screens {
                     }
 
                     var actionModel = new ChannelScreenActionModel {
-                        mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
+                        mainRouterPop = () => {
+                            dispatcher.dispatch(new MainNavigatorPopAction());
+                            dispatcher.dispatch(Actions.ackChannelMessage(viewModel.channel.lastMessageId));
+                        },
                         fetchMessages = (before, after) => {
                             return dispatcher.dispatch<IPromise>(
                                 Actions.fetchChannelMessages(this.channelId, before, after));
@@ -115,9 +118,10 @@ namespace ConnectApp.screens {
                         clearUnread = () => dispatcher.dispatch(new ClearChannelUnreadAction {
                             channelId = this.channelId
                         }),
-                        reportHitBottom = () => dispatcher.dispatch(new ChannelScreenHitBottom {
-                            channelId = this.channelId
-                        }),
+                        reportHitBottom = () => {
+                            dispatcher.dispatch(new ChannelScreenHitBottom {channelId = this.channelId});
+                            dispatcher.dispatch(Actions.ackChannelMessage(viewModel.channel.lastMessageId));
+                        },
                         reportLeaveBottom = () => dispatcher.dispatch(new ChannelScreenLeaveBottom {
                             channelId = this.channelId
                         })
