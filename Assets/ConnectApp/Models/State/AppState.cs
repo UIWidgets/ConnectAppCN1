@@ -165,12 +165,14 @@ namespace ConnectApp.Models.State {
                 },
                 channelState = new ChannelState {
                     publicChannels = new List<string>(),
-                    discoverPage = 1,
                     joinedChannels = new List<string>(),
+                    discoverPage = 1,
+                    messageLoading = false,
+                    totalUnread = 0,
+                    totalMention = 0,
                     channelDict = new Dictionary<string, ChannelView>(),
                     messageDict = new Dictionary<string, ChannelMessageView>(),
                     membersDict = new Dictionary<string, ChannelMember>(),
-                    unreadDict = ChannelUnreadMessageManager.getUnread() ?? new Dictionary<string, long>(),
                     channelTop = new Dictionary<string, bool>()
                 },
                 tabBarState = new TabBarState {

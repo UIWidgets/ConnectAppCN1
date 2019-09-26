@@ -268,11 +268,6 @@ namespace ConnectApp.redux.actions {
         public float top;
     }
 
-    public class MarkChannelMessageAsRead : RequestAction {
-        public string channelId;
-        public long nonce;
-    }
-
     public class UpdateChannelTopAction : BaseAction {
         public string channelId;
         public bool value;

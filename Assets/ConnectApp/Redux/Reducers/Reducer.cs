@@ -2715,16 +2715,6 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case MarkChannelMessageAsRead action: {
-                    state.channelState.unreadDict[action.channelId] = action.nonce;
-                    var channel = state.channelState.channelDict[action.channelId];
-                    channel.atAll = false;
-                    channel.atMe = false;
-                    channel.unread = 0;
-                    ChannelUnreadMessageManager.saveUnread(state.channelState.unreadDict);
-                    break;
-                }
-
                 case ClearChannelUnreadAction action: {
                     var channel = state.channelState.channelDict[action.channelId];
                     channel.clearUnread();

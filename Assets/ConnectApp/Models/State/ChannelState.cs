@@ -16,7 +16,6 @@ namespace ConnectApp.Models.State {
         public Dictionary<string, ChannelView> channelDict;
         public Dictionary<string, ChannelMessageView> messageDict;
         public Dictionary<string, ChannelMember> membersDict;
-        public Dictionary<string, long> unreadDict;
         public Dictionary<string, bool> channelTop;
 
         public void updateChannel(Channel channel) {
