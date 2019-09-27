@@ -1280,15 +1280,10 @@ namespace ConnectApp.redux.reducers {
 
                 case MainNavigatorPushToArticleDetailAction action: {
                     if (action.articleId != null) {
-                        Router.navigator.push(new PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new ArticleDetailScreenConnector(articleId: action.articleId,
-                                        isPush: action.isPush),
-                                transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                    new PushPageTransition(
-                                        routeAnimation: animation,
-                                        child: child
-                                    )
+                        Router.navigator.push(
+                            new CustomPageRoute(
+                                builder: (context) => new ArticleDetailScreenConnector(articleId: action.articleId,
+                                    isPush: action.isPush)
                             )
                         );
                     }
@@ -1298,14 +1293,10 @@ namespace ConnectApp.redux.reducers {
 
                 case MainNavigatorPushToUserDetailAction action: {
                     if (action.userId != null) {
-                        Router.navigator.push(new PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new UserDetailScreenConnector(userId: action.userId, isSlug: action.isSlug),
-                                transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                    new PushPageTransition(
-                                        routeAnimation: animation,
-                                        child: child
-                                    )
+                        Router.navigator.push(
+                            new CustomPageRoute(
+                                builder: (context) =>
+                                    new UserDetailScreenConnector(userId: action.userId, isSlug: action.isSlug)
                             )
                         );
                     }
@@ -1315,15 +1306,10 @@ namespace ConnectApp.redux.reducers {
 
                 case MainNavigatorPushToUserFollowingAction action: {
                     if (action.userId != null) {
-                        Router.navigator.push(new PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new UserFollowingScreenConnector(userId: action.userId,
-                                        initialPage: action.initialPage),
-                                transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                    new PushPageTransition(
-                                        routeAnimation: animation,
-                                        child: child
-                                    )
+                        Router.navigator.push(
+                            new CustomPageRoute(
+                                builder: (context) => new UserFollowingScreenConnector(userId: action.userId,
+                                    initialPage: action.initialPage)
                             )
                         );
                     }
@@ -1333,14 +1319,9 @@ namespace ConnectApp.redux.reducers {
 
                 case MainNavigatorPushToUserFollowerAction action: {
                     if (action.userId != null) {
-                        Router.navigator.push(new PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new UserFollowerScreenConnector(userId: action.userId),
-                                transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                    new PushPageTransition(
-                                        routeAnimation: animation,
-                                        child: child
-                                    )
+                        Router.navigator.push(
+                            new CustomPageRoute(
+                                builder: (context) => new UserFollowerScreenConnector(userId: action.userId)
                             )
                         );
                     }
@@ -1350,14 +1331,9 @@ namespace ConnectApp.redux.reducers {
 
                 case MainNavigatorPushToEditPersonalInfoAction action: {
                     if (action.userId != null) {
-                        Router.navigator.push(new PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new EditPersonalInfoScreenConnector(personalId: action.userId),
-                                transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                    new PushPageTransition(
-                                        routeAnimation: animation,
-                                        child: child
-                                    )
+                        Router.navigator.push(
+                            new CustomPageRoute(
+                                builder: (context) => new EditPersonalInfoScreenConnector(personalId: action.userId)
                             )
                         );
                     }
@@ -1367,14 +1343,10 @@ namespace ConnectApp.redux.reducers {
 
                 case MainNavigatorPushToTeamDetailAction action: {
                     if (action.teamId != null) {
-                        Router.navigator.push(new PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new TeamDetailScreenConnector(teamId: action.teamId, isSlug: action.isSlug),
-                                transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                    new PushPageTransition(
-                                        routeAnimation: animation,
-                                        child: child
-                                    )
+                        Router.navigator.push(
+                            new CustomPageRoute(
+                                builder: (context) =>
+                                    new TeamDetailScreenConnector(teamId: action.teamId, isSlug: action.isSlug)
                             )
                         );
                     }
@@ -1384,14 +1356,9 @@ namespace ConnectApp.redux.reducers {
 
                 case MainNavigatorPushToTeamFollowerAction action: {
                     if (action.teamId != null) {
-                        Router.navigator.push(new PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new TeamFollowerScreenConnector(teamId: action.teamId),
-                                transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                    new PushPageTransition(
-                                        routeAnimation: animation,
-                                        child: child
-                                    )
+                        Router.navigator.push(
+                            new CustomPageRoute(
+                                builder: (context) => new TeamFollowerScreenConnector(teamId: action.teamId)
                             )
                         );
                     }
@@ -1401,14 +1368,9 @@ namespace ConnectApp.redux.reducers {
 
                 case MainNavigatorPushToTeamMemberAction action: {
                     if (action.teamId != null) {
-                        Router.navigator.push(new PageRouteBuilder(
-                                pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new TeamMemberScreenConnector(teamId: action.teamId),
-                                transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                    new PushPageTransition(
-                                        routeAnimation: animation,
-                                        child: child
-                                    )
+                        Router.navigator.push(
+                            new CustomPageRoute(
+                                builder: (context) => new TeamMemberScreenConnector(teamId: action.teamId)
                             )
                         );
                     }
@@ -1418,19 +1380,16 @@ namespace ConnectApp.redux.reducers {
 
                 case MainNavigatorPushToEventDetailAction action: {
                     if (action.eventId != null) {
-                        Router.navigator.push(new PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) => {
-                                if (action.eventType == EventType.offline) {
-                                    return new EventOfflineDetailScreenConnector(eventId: action.eventId);
-                                }
+                        Router.navigator.push(
+                            new CustomPageRoute(
+                                builder: (context) => {
+                                    if (action.eventType == EventType.offline) {
+                                        return new EventOfflineDetailScreenConnector(eventId: action.eventId);
+                                    }
 
-                                return new EventOnlineDetailScreenConnector(eventId: action.eventId);
-                            },
-                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                new PushPageTransition(
-                                    routeAnimation: animation,
-                                    child: child
-                                ))
+                                    return new EventOnlineDetailScreenConnector(eventId: action.eventId);
+                                }
+                            )
                         );
                     }
 
@@ -1438,14 +1397,9 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case MainNavigatorPushToReportAction action: {
-                    Router.navigator.push(new PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) =>
-                                new ReportScreenConnector(reportId: action.reportId, reportType: action.reportType),
-                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                new PushPageTransition(
-                                    routeAnimation: animation,
-                                    child: child
-                                )
+                    Router.navigator.push(
+                        new CustomPageRoute(
+                            builder: (context) => new ReportScreenConnector(reportId: action.reportId, reportType: action.reportType)
                         )
                     );
 
