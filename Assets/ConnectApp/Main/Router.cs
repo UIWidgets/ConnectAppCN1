@@ -162,23 +162,24 @@ namespace ConnectApp.Main {
                         _routeObserve
                     },
                     onGenerateRoute: settings => {
-                        return new PageRouteBuilder(
-                            settings: settings,
-                            (context1, animation, secondaryAnimation) => mainRoutes[settings.name](context1),
-                            (context1, animation, secondaryAnimation, child) => {
-                                if (fullScreenRoutes.ContainsKey(settings.name)) {
-                                    return new ModalPageTransition(
+                        if (fullScreenRoutes.ContainsKey(settings.name)) {
+                            return new PageRouteBuilder(
+                                settings: settings,
+                                (context1, animation, secondaryAnimation) => mainRoutes[settings.name](context1),
+                                (context1, animation, secondaryAnimation, child) => {
+                                    return new PushPageTransition(
                                         routeAnimation: animation,
                                         child: child
                                     );
                                 }
-
-                                return new PushPageTransition(
-                                    routeAnimation: animation,
-                                    child: child
-                                );
-                            }
-                        );
+                            );
+                        }
+                        else {
+                            return new CustomPageRoute(
+                                settings: settings,
+                                builder: (context1) => mainRoutes[settings.name](context1)
+                            );
+                        }
                     }
                 )
             );
