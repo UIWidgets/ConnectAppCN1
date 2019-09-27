@@ -102,6 +102,9 @@ namespace ConnectApp.Models.Model {
         public bool joined = false;
         public bool atMe = false;
         public bool atAll = false;
+        public bool sendingMessage = false;
+        public bool sentMessageFailed = false;
+        public bool sentMessageSuccess = false;
         public List<string> memberIds;
         public int memberOffset;
         public Dictionary<string, bool> memberFolloweeMap;
@@ -219,6 +222,10 @@ namespace ConnectApp.Models.Model {
         public bool deleted = false;
         public List<Reaction> reactions;
         public List<Embed> embeds;
+
+        public bool shouldSkip() {
+            return this.deleted || (this.type == ChannelMessageType.text && string.IsNullOrEmpty(this.content));
+        }
 
         static ChannelMessageType getType(
             string content,

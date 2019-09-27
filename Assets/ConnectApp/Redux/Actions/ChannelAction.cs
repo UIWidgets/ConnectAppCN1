@@ -37,7 +37,7 @@ namespace ConnectApp.redux.actions {
                     });
             });
         }
-        
+
         public static object fetchChannelMessages(string channelId, string before = null, string after = null) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 dispatcher.dispatch(new StartFetchChannelMessageAction());
@@ -61,7 +61,7 @@ namespace ConnectApp.redux.actions {
                     });
             });
         }
-        
+
         public static object fetchChannelMembers(string channelId, int offset = 0) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.FetchChannelMembers(channelId, offset).Then(channelMemberResponse => {
@@ -79,7 +79,7 @@ namespace ConnectApp.redux.actions {
                     });
             });
         }
-        
+
         public static object joinChannel(string channelId, string groupId = null) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.JoinChannel(channelId, groupId).Then(joinChannelResponse => {
@@ -93,7 +93,7 @@ namespace ConnectApp.redux.actions {
                     });
             });
         }
-        
+
         public static object leaveChannel(string channelId, string groupId = null) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.LeaveChannel(channelId, groupId).Then(leaveChannelResponse => {
@@ -107,7 +107,27 @@ namespace ConnectApp.redux.actions {
                     });
             });
         }
-        
+
+        public static object sendChannelMessage(string channelId, string content, string nonce,
+            string parentMessageId) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return MessageApi.SendMessage(channelId, content, nonce, parentMessageId)
+                    .Then(sendMessageResponse => {
+                        dispatcher.dispatch(new SendChannelMessageSuccessAction {
+                            channelId = channelId,
+                            content = content,
+                            nonce = nonce
+                        });
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new SendChannelMessageFailureAction {
+                            channelId = channelId
+                        });
+                        Debug.Log(error);
+                    });
+            });
+        }
+
         public static object sendImage(string channelId, string nonce, string imageData) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.SendImage(channelId, "", nonce, imageData)
@@ -144,7 +164,7 @@ namespace ConnectApp.redux.actions {
                 return Promise.Resolved();
             });
         }
-        
+
 
         public static object saveReadyStateToDB(SocketResponseSessionData data) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
@@ -161,7 +181,7 @@ namespace ConnectApp.redux.actions {
                 return Promise.Resolved();
             });
         }
-        
+
     }
 
     public class FetchChannelsSuccessAction {
@@ -192,28 +212,43 @@ namespace ConnectApp.redux.actions {
 
     public class StartFetchChannelMessageAction : BaseAction {
     }
-    
+
     public class FetchChannelMessagesFailureAction : BaseAction {
     }
-    
+
     public class FetchChannelMemberFailureAction : BaseAction {
     }
-    
+
     public class JoinChannelSuccessAction : BaseAction {
         public string channelId;
     }
-    
+
     public class JoinChannelFailureAction : BaseAction {
     }
 
     public class LeaveChannelSuccessAction : BaseAction {
         public string channelId;
     }
-    
+
     public class LeaveChannelFailureAction : BaseAction {
     }
 
     public class StartSendChannelMessageAction : RequestAction {
+        public string channelId;
+    }
+
+    public class SendChannelMessageSuccessAction : BaseAction {
+        public string channelId;
+        public string content;
+        public string nonce;
+    }
+
+    public class SendChannelMessageFailureAction : BaseAction {
+        public string channelId;
+    }
+
+    public class ClearSentChannelMessage : BaseAction {
+        public string channelId;
     }
 
     public class ClearChannelUnreadAction : BaseAction {

@@ -2628,6 +2628,33 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
+                case StartSendChannelMessageAction action: {
+                    var channel = state.channelState.channelDict[action.channelId];
+                    channel.sendingMessage = true;
+                    break;
+                }
+
+                case SendChannelMessageSuccessAction action: {
+                    var channel = state.channelState.channelDict[action.channelId];
+                    channel.sendingMessage = false;
+                    channel.sentMessageSuccess = true;
+                    break;
+                }
+
+                case SendChannelMessageFailureAction action: {
+                    var channel = state.channelState.channelDict[action.channelId];
+                    channel.sendingMessage = false;
+                    channel.sentMessageFailed = true;
+                    break;
+                }
+
+                case ClearSentChannelMessage action: {
+                    var channel = state.channelState.channelDict[action.channelId];
+                    channel.sentMessageSuccess = false;
+                    channel.sentMessageFailed = false;
+                    break;
+                }
+
                 case ChannelMemberAction action: {
                     var channel = state.channelState.channelDict[action.channelId];
                     if (channel.messageIds == null) {

@@ -67,7 +67,7 @@ namespace ConnectApp.screens {
                     }
 
                     return new ChannelScreenViewModel {
-                        channelInfo = state.channelState.channelDict[this.channelId],
+                        channel = state.channelState.channelDict[this.channelId],
                         messages = messages,
                         me = state.loginState.loginInfo.userId,
                         messageLoading = state.channelState.messageLoading,
@@ -75,14 +75,20 @@ namespace ConnectApp.screens {
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
-                    if (viewModel.channelInfo.newMessageIds.isNotEmpty()) {
+                    if (viewModel.channel.newMessageIds.isNotEmpty()) {
                         SchedulerBinding.instance.addPostFrameCallback(_ => {
                             dispatcher.dispatch(new MergeNewChannelMessages {channelId = this.channelId});
                         });
                     }
-                    else if (viewModel.channelInfo.oldMessageIds.isNotEmpty()) {
+                    else if (viewModel.channel.oldMessageIds.isNotEmpty()) {
                         SchedulerBinding.instance.addPostFrameCallback(_ => {
                             dispatcher.dispatch(new MergeOldChannelMessages {channelId = this.channelId});
+                        });
+                    }
+
+                    if (viewModel.channel.sentMessageFailed || viewModel.channel.sentMessageSuccess) {
+                        SchedulerBinding.instance.addPostFrameCallback(_ => {
+                            dispatcher.dispatch(new ClearSentChannelMessage {channelId = this.channelId});
                         });
                     }
 
@@ -100,8 +106,10 @@ namespace ConnectApp.screens {
                             });
                         },
                         sendMessage = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
-                            Actions.sendMessage(channelId, content, nonce, parentMessageId)),
-                        startSendMessage = () => dispatcher.dispatch(new StartSendChannelMessageAction()),
+                            Actions.sendChannelMessage(channelId, content, nonce, parentMessageId)),
+                        startSendMessage = () => dispatcher.dispatch(new StartSendChannelMessageAction {
+                            channelId = this.channelId
+                        }),
                         sendImage = (channelId, data, nonce) => dispatcher.dispatch<IPromise>(
                             Actions.sendImage(channelId, nonce, data)),
                         clearUnread = () => dispatcher.dispatch(new ClearChannelUnreadAction {
@@ -208,6 +216,20 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
+            if (this.showKeyboard || this.showEmojiBoard) {
+                SchedulerBinding.instance.addPostFrameCallback(_ => this._refreshController.scrollTo(0));
+            }
+
+            if (this.widget.viewModel.channel.sentMessageSuccess) {
+                SchedulerBinding.instance.addPostFrameCallback(_ => this._textController.clear());
+            }
+
+            if (this.widget.viewModel.channel.sentMessageFailed) {
+                SchedulerBinding.instance.addPostFrameCallback(_ => {
+                    CustomDialogUtils.showToast("消息发送失败", Icons.error_outline);
+                });
+            }
+            
             this.messageBubbleWidth = MediaQuery.of(context).size.width * 0.7f;
 
             Widget ret = new Stack(
@@ -287,7 +309,7 @@ namespace ConnectApp.screens {
             return new CustomAppBar(
                 onBack: () => this.widget.actionModel.mainRouterPop(),
                 new Text(
-                    this.widget.viewModel.channelInfo.name,
+                    this.widget.viewModel.channel.name,
                     style: CTextStyle.PXLargeMedium
                 ),
                 rightWidget: new CustomButton(
@@ -330,8 +352,8 @@ namespace ConnectApp.screens {
                     index = this.widget.viewModel.messages.Count - 1 - index;
                     var message = this.widget.viewModel.messages[index];
                     return this._buildMessage(message,
-                        showTime: index == 0 || (message.time -
-                                                 this.widget.viewModel.messages[index - 1].time) >
+                        showTime: index == 0 ||
+                                  (message.time - this.widget.viewModel.messages[index - 1].time) >
                                   TimeSpan.FromMinutes(5),
                         left: message.author.id != this.widget.viewModel.me
                     );
@@ -362,7 +384,7 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildMessage(ChannelMessageView message, bool showTime, bool left) {
-            if (message.deleted) {
+            if (message.shouldSkip()) {
                 return new Container();
             }
 
@@ -628,6 +650,20 @@ namespace ConnectApp.screens {
                 )
             );
 
+            if (this.widget.viewModel.channel.sendingMessage) {
+                ret = new Stack(
+                    children: new List<Widget> {
+                        ret,
+                        Positioned.fill(
+                            child: new Row(
+                                children: new List<Widget> {
+                                    new Expanded(child: new Container()),
+                                    new CustomActivityIndicator(),
+                                    new Container(width: 8)
+                                }))
+                    });
+            }
+
 
             ret = new Container(
                 padding: EdgeInsets.only(bottom: this.showKeyboard || this.showEmojiBoard ? 0 : 34),
@@ -868,10 +904,9 @@ namespace ConnectApp.screens {
 
             this.widget.actionModel.startSendMessage();
             this.widget.actionModel.sendMessage(
-                    this.widget.viewModel.channelInfo.id,
+                    this.widget.viewModel.channel.id,
                     text, Snowflake.CreateNonceLocal(), "")
-                .Catch(_ => CustomDialogUtils.showToast("消息发送失败", Icons.error_outline))
-                .Then(() => this.setState(() => this._textController.clear()));
+                .Catch(_ => CustomDialogUtils.showToast("消息发送失败", Icons.error_outline));
             this._refreshController.scrollTo(0);
         }
 
@@ -981,7 +1016,7 @@ namespace ConnectApp.screens {
         void _pickImageCallback(string pickImage) {
             this._pickedImage = pickImage;
             this.widget.actionModel.sendImage(
-                this.widget.viewModel.channelInfo.id,
+                this.widget.viewModel.channel.id,
                 this._pickedImage,
                 Snowflake.CreateNonceLocal());
             this.setState(() => { });
