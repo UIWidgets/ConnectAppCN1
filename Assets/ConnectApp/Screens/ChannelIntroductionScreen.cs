@@ -79,6 +79,39 @@ namespace ConnectApp.screens {
             );
         }
 
+        Widget _buildThumbnail() {
+            return new ClipRRect(
+                borderRadius: BorderRadius.all(4),
+                child: new Container(
+                    width: 48,
+                    height: 48,
+                    child: Image.network(
+                        this.viewModel.channel?.thumbnail ?? "",
+                        fit: BoxFit.cover)
+                )
+            );
+        }
+
+        Widget _buildTitle() {
+            return new Container(
+                padding: EdgeInsets.only(16),
+                child: new Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: new List<Widget> {
+                        new Text(this.viewModel.channel?.name ?? "",
+                            style: CTextStyle.PLargeMedium,
+                            maxLines: 1, overflow: TextOverflow.ellipsis),
+                        new Expanded(
+                            child: new Text(
+                                $"{this.viewModel.channel?.memberCount ?? 0}名群成员",
+                                style: CTextStyle.PRegularBody4,
+                                maxLines: 1)
+                        )
+                    }
+                )
+            );
+        }
+
         Widget _buildContent() {
             return new Container(
                 color: CColors.Background,
@@ -90,40 +123,15 @@ namespace ConnectApp.screens {
                             height: 80,
                             child: new Row(
                                 children: new List<Widget> {
-                                    new ClipRRect(
-                                        borderRadius: BorderRadius.all(4),
-                                        child: new Container(
-                                            width: 48,
-                                            height: 48,
-                                            child: Image.network(this.viewModel.channel?.thumbnail ?? "", fit: BoxFit.cover)
-                                        )
-                                    ),
-                                    new Expanded(
-                                        child: new Container(
-                                            padding: EdgeInsets.only(16),
-                                            child: new Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: new List<Widget> {
-                                                    new Text(this.viewModel.channel.name,
-                                                        style: CTextStyle.PLargeMedium,
-                                                        maxLines: 1, overflow: TextOverflow.ellipsis),
-                                                    new Expanded(
-                                                        child: new Text(
-                                                            $"{this.viewModel.channel.memberCount}名群成员",
-                                                            style: CTextStyle.PRegularBody4,
-                                                            maxLines: 1)
-                                                    )
-                                                }
-                                            )
-                                        )
-                                    ),
+                                    this._buildThumbnail(),
+                                    new Expanded(child: this._buildTitle())
                                 }
                             )
                         ),
                         new Container(
                             color: CColors.White,
                             padding: EdgeInsets.only(16, 0, 16, 16),
-                            child: new Text(this.viewModel.channel.topic)
+                            child: new Text(this.viewModel.channel?.topic ?? "")
                         ),
                     }
                 )

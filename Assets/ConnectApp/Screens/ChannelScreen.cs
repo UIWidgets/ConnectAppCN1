@@ -437,7 +437,7 @@ namespace ConnectApp.screens {
         Widget _buildAvatar(User user) {
             return new Container(
                 padding: EdgeInsets.symmetric(0, 10),
-                child: Avatar.User(user, size: 40)
+                child: Avatar.User(user, size: 40, useCachedNetworkImage: true)
             );
         }
 
@@ -1117,7 +1117,8 @@ namespace ConnectApp.screens {
                         width: this.size.width,
                         height: this.size.height,
                         child: CachedNetworkImageProvider.cachedNetworkImage(
-                            this.widget.url,
+                            CImageUtils.SizeTo200ImageUrl(this.widget.url),
+                            headers: this.widget.headers,
                             fit: BoxFit.cover))
                 );
         }

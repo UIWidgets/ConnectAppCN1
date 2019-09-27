@@ -21,13 +21,23 @@ using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.screens {
     public class ChannelMembersScreenConnector : StatelessWidget {
-        
-        public ChannelMembersScreenConnector(string channelId, Key key = null) : base(key : key) {
+        public ChannelMembersScreenConnector(string channelId, Key key = null) : base(key: key) {
             this.channelId = channelId;
         }
 
         public readonly string channelId;
+
+        int _compareMember(ChannelMember m1, ChannelMember m2) {
+            if (m1.role == m2.role) return 0;
+            if (m1.role == "admin") return 1;
+            if (m2.role == "admin") return -1;
+            if (m1.role == "moderator") return -1;
+            if (m2.role == "moderator") return 1;
+            return 0;
+        }
+
         public override Widget build(BuildContext context) {
+            Dictionary<string, bool> followDict = new Dictionary<string, bool>();
             return new StoreConnector<AppState, ChannelMembersScreenViewModel>(
                 converter: state => {
                     var members = state.channelState.channelDict[this.channelId].memberIds.Select(
@@ -35,21 +45,14 @@ namespace ConnectApp.screens {
                     ).ToList();
                     List<ChannelMember> specialMembers = members.Where(member => member.role != "member").ToList();
                     members = members.Where(member => member.role == "member").ToList();
-                    specialMembers.Sort((m1, m2) => {
-                        if (m1.role == m2.role) return 0;
-                        if (m1.role == "admin") return 1;
-                        if (m2.role == "admin") return -1;
-                        if (m1.role == "moderator") return -1;
-                        if (m2.role == "moderator") return 1;
-                        return 0;
-                    });
+                    specialMembers.Sort(this._compareMember);
+                    if (state.loginState.isLoggedIn) {
+                        state.followState.followDict.TryGetValue(state.loginState.loginInfo.userId, out followDict);
+                    }
+
                     return new ChannelMembersScreenViewModel {
                         channel = state.channelState.channelDict[this.channelId],
-                        followed = state.loginState.isLoggedIn
-                            ? state.followState.followDict.TryGetValue(state.loginState.loginInfo.userId, out var followDict)
-                                ? followDict
-                                : new Dictionary<string, bool>()
-                            : new Dictionary<string, bool>(),
+                        followed = followDict,
                         members = members,
                         specialMembers = specialMembers,
                         isLoggedIn = state.loginState.isLoggedIn
@@ -105,7 +108,6 @@ namespace ConnectApp.screens {
             base.initState();
             this._controller = new TextEditingController("");
             this._refreshController = new RefreshController();
-            // this.widget.actionModel.fetchMembers();
         }
 
         public override void dispose() {
@@ -142,6 +144,10 @@ namespace ConnectApp.screens {
             );
         }
 
+        bool _followed(ChannelMember member) {
+            return this.widget.viewModel.followed.TryGetValue(member.user.id, out bool followed) && followed;
+        }
+
         Widget _buildContent() {
             return new Container(
                 color: CColors.Background,
@@ -152,28 +158,22 @@ namespace ConnectApp.screens {
                     onRefresh: this._onRefresh,
                     child: ListView.builder(itemCount: this.widget.viewModel.specialMembers.Count +
                                                        this.widget.viewModel.members.Count + 1,
-                        itemBuilder: (context, index) => {
+                        itemBuilder: (_, index) => {
                             if (index == this.widget.viewModel.specialMembers.Count) {
                                 return new Container(height: 16);
                             }
-                            ChannelMember member = null;
-                            if (index < this.widget.viewModel.specialMembers.Count) {
-                                member = this.widget.viewModel.specialMembers[index];
-                            }
-                            else {
-                                member = this.widget.viewModel.members[index-this.widget.viewModel.specialMembers.Count-1];
-                            }
 
-                            return buildMemberItem(context, member,
-                                this.widget.viewModel.followed.TryGetValue(member.user.id, out bool followed) &&
-                                    followed,
-                                this._onFollow);
+                            return this._buildMemberItem(
+                                index < this.widget.viewModel.specialMembers.Count
+                                    ? this.widget.viewModel.specialMembers[index]
+                                    : this.widget.viewModel.members[
+                                        index - this.widget.viewModel.specialMembers.Count - 1]);
                         }
                     )
                 )
             );
         }
-        
+
         Widget _buildSearchBar() {
             return new Container(
                 color: CColors.White,
@@ -208,8 +208,7 @@ namespace ConnectApp.screens {
             );
         }
 
-        public static Widget buildMemberItem(BuildContext context, ChannelMember member, bool followed,
-            Action<bool, string> onFollow) {
+        Widget _buildMemberItem(ChannelMember member) {
             Widget fullName = new Text(member.user.fullName, style: CTextStyle.PMediumBody,
                 maxLines: 1, overflow: TextOverflow.ellipsis);
             if (member.role != "member") {
@@ -229,6 +228,7 @@ namespace ConnectApp.screens {
                     }
                 );
             }
+
             return new Container(
                 color: CColors.White,
                 height: 72,
@@ -244,27 +244,30 @@ namespace ConnectApp.screens {
                                     children: new List<Widget> {
                                         fullName,
                                         new Expanded(
-                                            child: new Text(member.user.title ?? "", style: CTextStyle.PRegularBody4,
-                                                maxLines: 1, overflow: TextOverflow.ellipsis)
+                                            child: new Text(
+                                                member.user.title ?? "",
+                                                style: CTextStyle.PRegularBody4,
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis)
                                         )
                                     }
                                 )
                             )
                         ),
                         new CustomButton(
-                            onPressed: () => { onFollow(followed, member.user.id); },
+                            onPressed: () => { this._onFollow(this._followed(member), member.user.id); },
                             padding: EdgeInsets.zero,
                             child: new Container(
                                 width: 60,
                                 height: 28,
                                 decoration: new BoxDecoration(
-                                    border: Border.all(color: followed
+                                    border: Border.all(color: this._followed(member)
                                         ? CColors.Disable2
                                         : CColors.PrimaryBlue),
                                     borderRadius: BorderRadius.all(14)
                                 ),
                                 child: new Center(
-                                    child: followed
+                                    child: this._followed(member)
                                         ? new Text(
                                             "已关注",
                                             style: CTextStyle.PRegularBody5.copyWith(height: 1)
@@ -280,7 +283,7 @@ namespace ConnectApp.screens {
                 )
             );
         }
-        
+
         void _onFollow(bool followed, string userId) {
             if (this.widget.viewModel.isLoggedIn) {
                 if (followed) {
