@@ -72,7 +72,7 @@ Assets/Plugins/Editor/JetBrains.meta
 
 
 # Editor cache files
-Editor/imgCache
+Editor/imgCache/
 Editor/imgCache.meta
 Editor/messenger.db
 Editor/messenger.db.meta
