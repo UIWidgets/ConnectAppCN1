@@ -105,6 +105,8 @@ namespace ConnectApp.Models.Model {
         public bool sendingMessage = false;
         public bool sentMessageFailed = false;
         public bool sentMessageSuccess = false;
+        public bool hasMore = true;
+        public bool hasMoreNew = true;
         public List<string> memberIds;
         public int memberOffset;
         public Dictionary<string, bool> memberFolloweeMap;

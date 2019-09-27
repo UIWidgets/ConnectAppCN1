@@ -332,7 +332,7 @@ namespace ConnectApp.screens {
                 child: new SmartRefresher(
                     controller: this._refreshController,
                     enablePullDown: false,
-                    enablePullUp: true,
+                    enablePullUp: this.widget.viewModel.channel.hasMore,
                     onRefresh: this._onRefresh,
                     reverse: true,
                     headerBuilder: (context, mode) => { return new SmartRefreshHeader(mode); },

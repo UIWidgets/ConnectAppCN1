@@ -47,7 +47,9 @@ namespace ConnectApp.redux.actions {
                             channelId = channelId,
                             messages = channelMessagesResponse.items ?? new List<ChannelMessage>(),
                             before = before,
-                            after = after
+                            after = after,
+                            hasMore = channelMessagesResponse.hasMore,
+                            hasMoreNew = channelMessagesResponse.hasMoreNew
                         });
                         dispatcher.dispatch(channelMessagesResponse.items?.isNotEmpty() ?? false
                             ? saveMessagesToDB(channelMessagesResponse.items)
@@ -213,6 +215,8 @@ namespace ConnectApp.redux.actions {
         public List<ChannelMessage> messages;
         public string before;
         public string after;
+        public bool hasMore;
+        public bool hasMoreNew;
     }
 
     public class ChannelMemberAction {
