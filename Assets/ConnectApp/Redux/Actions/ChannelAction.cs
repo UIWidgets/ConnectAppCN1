@@ -147,14 +147,14 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.SendImage(channelId, "", nonce, imageData)
                     .Then(responseText => {
-                        dispatcher.dispatch(new SendMessageSuccessAction {
+                        dispatcher.dispatch(new SendChannelMessageSuccessAction {
                             channelId = channelId,
                             content = "",
                             nonce = nonce
                         });
                     })
                     .Catch(error => {
-                        dispatcher.dispatch(new SendMessageFailureAction());
+                        dispatcher.dispatch(new SendChannelMessageFailureAction());
                         Debug.Log(error);
                     });
             });

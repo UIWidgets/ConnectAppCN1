@@ -1028,6 +1028,7 @@ namespace ConnectApp.screens {
                 this.widget.viewModel.channel.id,
                 this._pickedImage,
                 Snowflake.CreateNonceLocal());
+            this.widget.actionModel.startSendMessage();
             this.setState(() => { });
         }
     }
