@@ -19,11 +19,14 @@ using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.screens {
     public class ChannelDetailScreenConnector : StatelessWidget {
-        public ChannelDetailScreenConnector(string channelId, Key key = null) : base(key : key) {
+        public ChannelDetailScreenConnector(
+            string channelId,
+            Key key = null
+        ) : base(key : key) {
             this.channelId = channelId;
         }
 
-        public readonly string channelId;
+        readonly string channelId;
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ChannelDetailScreenViewModel>(
                 converter: state => {
@@ -116,38 +119,33 @@ namespace ConnectApp.screens {
                 height: 64,
                 child: new Row(
                     children: new List<Widget> {
-                        new ClipRRect(
-                            borderRadius: BorderRadius.all(4),
+                        new PlaceholderImage(
+                            this.widget.viewModel.channel?.thumbnail ?? "",
+                            48,
+                            48,
+                            4,
+                            fit: BoxFit.cover
+                        ),
+                        new Expanded(
                             child: new Container(
-                                width: 48,
-                                height: 48,
-                                child: Image.network(
-                                    this.widget.viewModel.channel?.thumbnail ?? "",
-                                    fit: BoxFit.cover)
+                                padding: EdgeInsets.only(16),
+                                child: new Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: new List<Widget> {
+                                        new Text(
+                                            this.widget.viewModel.channel?.name ?? "",
+                                            style: CTextStyle.PLargeMedium,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis
+                                        ),
+                                        new Text(
+                                            $"{this.widget.viewModel.channel?.memberCount ?? 0}名群成员",
+                                            style: CTextStyle.PSmallBody4,
+                                            maxLines: 1
+                                        )
+                                    }
+                                )
                             )
-                        ),
-                        new Expanded(
-                            child: this._buildChannelName()
-                        ),
-                    }
-                )
-            );
-        }
-
-        Widget _buildChannelName() {
-            return new Container(
-                padding: EdgeInsets.only(16),
-                child: new Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget> {
-                        new Text(this.widget.viewModel.channel?.name ?? "",
-                            style: CTextStyle.PLargeMedium,
-                            maxLines: 1, overflow: TextOverflow.ellipsis),
-                        new Expanded(
-                            child: new Text(
-                                $"{this.widget.viewModel.channel?.memberCount ?? 0}名群成员",
-                                style: CTextStyle.PRegularBody4,
-                                maxLines: 1)
                         )
                     }
                 )

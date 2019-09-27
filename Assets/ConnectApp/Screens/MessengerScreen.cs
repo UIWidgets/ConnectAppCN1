@@ -12,16 +12,19 @@ using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.gestures;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using Color = Unity.UIWidgets.ui.Color;
 
 namespace ConnectApp.screens {
     public class MessengerScreenConnector : StatelessWidget {
+        public MessengerScreenConnector(
+            Key key = null
+        ) : base(key: key) {
+            
+        }
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, MessengerScreenViewModel>(
                 converter: state => {
@@ -71,7 +74,7 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch<IPromise>(Actions.joinChannel(channelId, groupId));
                         }
                     };
-                    return new MessengerScreen(viewModel, actionModel);
+                    return new MessengerScreen(viewModel: viewModel, actionModel: actionModel);
                 }
             );
         }
@@ -117,93 +120,7 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             base.build(context: context);
-            Widget viewAll = new Row(
-                children: new List<Widget> {
-                    new Text(
-                        "查看全部",
-                        style: new TextStyle(
-                            fontSize: 12,
-                            fontFamily: "Roboto-Regular",
-                            color: CColors.TextBody4
-                        )
-                    ),
-                    new Icon(
-                        icon: Icons.chevron_right,
-                        size: 20,
-                        color: Color.fromRGBO(199, 203, 207, 1)
-                    )
-                }
-            );
-            ListView content = new ListView(
-                children: new List<Widget> {
-                    this.widget.viewModel.joinedChannels.isEmpty()
-                        ? new Container(
-                            padding: EdgeInsets.only(left: 16, right: 16, top: 20),
-                            color: CColors.White,
-                            child: new Text("热门群聊", style: CTextStyle.H5)
-                        )
-                        : new Container(),
-                    this.widget.viewModel.joinedChannels.isEmpty()
-                        ? new Container(
-                            padding: EdgeInsets.only(top: 16),
-                            color: CColors.White,
-                            child: new SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: new Container(
-                                    padding: EdgeInsets.only(left: 16),
-                                    child: new Row(
-                                        children: this.widget.viewModel.popularChannels.Select(
-                                            MessengerBuildUtils.buildPopularChannelItem
-                                        ).ToList()
-                                    )
-                                )
-                            )
-                        )
-                        : new Container(),
-                    this.widget.viewModel.joinedChannels.isEmpty()
-                        ? (Widget) new Container()
-                        : new Column(
-                            children: this.widget.viewModel.joinedChannels.Select((channelInfo) => {
-                                return MessengerBuildUtils.buildChannelItem(
-                                    channelInfo,
-                                    () => this.widget.actionModel.pushToChannel(channelInfo.id));
-                            }).ToList()
-                        ),
-                    this.widget.viewModel.joinedChannels.isEmpty()
-                        ? new Container(height: 24, color: CColors.White)
-                        : new Container(height: 16),
-                    new Container(
-                        color: CColors.White,
-                        padding: this.widget.viewModel.joinedChannels.isEmpty()
-                            ? EdgeInsets.all(16)
-                            : EdgeInsets.only(16, 16, 8, 16),
-                        child: new Row(
-                            children: new List<Widget> {
-                                new Text("发现群聊", style: CTextStyle.H5),
-                                new Expanded(
-                                    child: new Container()
-                                ),
-                                this.widget.viewModel.joinedChannels.isEmpty()
-                                    ? (Widget) new Container()
-                                    : new GestureDetector(
-                                        onTap: () => { this.widget.actionModel.pushToDiscoverChannels(); },
-                                        child: new Container(
-                                            color: CColors.Transparent,
-                                            child: viewAll
-                                        )
-                                    )
-                            }
-                        )
-                    ),
-                    new Column(
-                        children: this.widget.viewModel.publicChannels.Select(
-                            (channel) => MessengerBuildUtils.buildDiscoverChannelItem(channel,
-                                this.widget.actionModel.joinChannel)
-                        ).ToList()
-                    ),
-                    new Container(height: 40)
-                }
-            );
+            var enablePullUp = this.widget.viewModel.joinedChannels.isEmpty();
             return new Container(
                 color: CColors.Background,
                 child: new Column(
@@ -212,12 +129,24 @@ namespace ConnectApp.screens {
                         new Container(color: CColors.Separator2, height: 1),
                         new Flexible(
                             child: new NotificationListener<ScrollNotification>(
-                                child: new SmartRefresher(
+                                child: new SectionView(
                                     controller: this._refreshController,
-                                    enablePullUp: this.widget.viewModel.joinedChannels.isEmpty(),
                                     enablePullDown: false,
+                                    enablePullUp: enablePullUp,
                                     onRefresh: this._onRefresh,
-                                    child: content
+                                    sectionCount: 2,
+                                    numOfRowInSection: section => {
+                                        if (section == 0) {
+                                            return this.widget.viewModel.joinedChannels.isEmpty()
+                                                ? 1
+                                                : this.widget.viewModel.joinedChannels.Count;
+                                        }
+
+                                        return this.widget.viewModel.publicChannels.Count;
+                                    },
+                                    headerInSection: this._headerInSection,
+                                    cellAtIndexPath: this._buildMessageItem,
+                                    footerWidget: enablePullUp ? null : CustomListViewConstant.defaultFooterWidget
                                 )
                             )
                         )
@@ -231,16 +160,123 @@ namespace ConnectApp.screens {
                 new Text("群聊", style: CTextStyle.H2),
                 new List<Widget> {
                     new CustomButton(
-                        onPressed: () => { this.widget.actionModel.pushToNotifications(); },
+                        onPressed: () => this.widget.actionModel.pushToNotifications(),
                         child: new Container(
                             width: 28,
                             height: 28,
-                            child: new Icon(Icons.outline_notification, color: CColors.Icon, size: 28)
+                            child: new Icon(icon: Icons.outline_notification, color: CColors.Icon, size: 28)
                         )
                     )
                 },
                 backgroundColor: CColors.White,
                 0
+            );
+        }
+
+        Widget _headerInSection(int section) {
+            if (section == 0) {
+                return null;
+            }
+
+            Widget rightWidget;
+            if (this.widget.viewModel.joinedChannels.isEmpty()) {
+                rightWidget = new Container();
+            }
+            else {
+                rightWidget = new GestureDetector(
+                    onTap: () => this.widget.actionModel.pushToDiscoverChannels(),
+                    child: new Container(
+                        color: CColors.Transparent,
+                        child: new Row(
+                            children: new List<Widget> {
+                                new Text(
+                                    "查看全部",
+                                    style: new TextStyle(
+                                        fontSize: 12,
+                                        fontFamily: "Roboto-Regular",
+                                        color: CColors.TextBody4
+                                    )
+                                ),
+                                new Icon(
+                                    icon: Icons.chevron_right,
+                                    size: 20,
+                                    color: Color.fromRGBO(199, 203, 207, 1)
+                                )
+                            }
+                        )
+                    )
+                );
+            }
+
+            return new Container(
+                child: new Column(
+                    children: new List<Widget> {
+                        this.widget.viewModel.joinedChannels.isEmpty()
+                            ? new Container(height: 24, color: CColors.White)
+                            : new Container(height: 16),
+                        new Container(
+                            color: CColors.White,
+                            padding: this.widget.viewModel.joinedChannels.isEmpty()
+                                ? EdgeInsets.all(16)
+                                : EdgeInsets.only(16, 16, 8, 16),
+                            child: new Row(
+                                children: new List<Widget> {
+                                    new Text("发现群聊", style: CTextStyle.H5),
+                                    new Expanded(
+                                        child: new Container()
+                                    ),
+                                    rightWidget
+                                }
+                            )
+                        )
+                    }
+                )
+            );
+        }
+
+        Widget _buildMessageItem(BuildContext context, int section, int row) {
+            var joinedChannels = this.widget.viewModel.joinedChannels;
+            if (section == 0) {
+                if (joinedChannels.isEmpty()) {
+                    return new Container(
+                        color: CColors.White,
+                        child: new Column(
+                            children: new List<Widget> {
+                                new Container(
+                                    padding: EdgeInsets.only(16, right: 16, top: 20),
+                                    child: new Text("热门群聊", style: CTextStyle.H5)
+                                ),
+                                new Container(
+                                    padding: EdgeInsets.only(top: 16),
+                                    color: CColors.White,
+                                    child: new SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        child: new Container(
+                                            padding: EdgeInsets.only(16),
+                                            child: new Row(
+                                                children: this.widget.viewModel.popularChannels.Select(
+                                                    MessengerBuildUtils.buildPopularChannelItem
+                                                ).ToList()
+                                            )
+                                        )
+                                    )
+                                )
+                            }
+                        )
+                    );
+                }
+
+                var joinedChannel = joinedChannels[index: row];
+                return MessengerBuildUtils.buildChannelItem(
+                    channel: joinedChannel,
+                    () => this.widget.actionModel.pushToChannel(obj: joinedChannel.id)
+                );
+            }
+
+            var publicChannel = this.widget.viewModel.publicChannels[index: row];
+            return new ChannelCard(
+                channel: publicChannel,
+                () => this.widget.actionModel.joinChannel(arg1: publicChannel.id, arg2: publicChannel.groupId)
             );
         }
 
@@ -261,14 +297,9 @@ namespace ConnectApp.screens {
 
         void _onRefresh(bool up) {
             if (!up) {
-                this.widget.actionModel.fetchChannels().Then(
-                    () => {
-                        this._refreshController.sendBack(false, RefreshStatus.idle);
-                        Debug.Log("Completed");
-                    }).Catch((e) => {
-                    this._refreshController.sendBack(false, RefreshStatus.idle);
-                    Debug.Log("Failed");
-                });
+                this.widget.actionModel.fetchChannels()
+                    .Then(() => this._refreshController.sendBack(false, mode: RefreshStatus.idle))
+                    .Catch(e => this._refreshController.sendBack(false, mode: RefreshStatus.idle));
             }
         }
     }
@@ -477,85 +508,6 @@ namespace ConnectApp.screens {
             }
 
             return ret;
-        }
-
-        public static Widget buildDiscoverChannelItem(ChannelView channel, Action<string, string> joinChannel) {
-            Widget title = new Text(channel.name,
-                style: CTextStyle.PLargeMedium,
-                maxLines: 1, overflow: TextOverflow.ellipsis);
-
-            Widget avatar = new ClipRRect(
-                borderRadius: BorderRadius.all(4),
-                child: new Container(
-                    width: 48,
-                    height: 48,
-                    child: CachedNetworkImageProvider.cachedNetworkImage(channel?.thumbnail ?? "", fit: BoxFit.cover)
-                )
-            );
-
-            Widget body = new Container(
-                padding: EdgeInsets.symmetric(0, 16),
-                child: new Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget> {
-                        channel.live
-                            ? new Row(
-                                children: new List<Widget> {
-                                    new Icon(Icons.whatshot, color: CColors.Error, size: 18),
-                                    new Container(width: 7),
-                                    new Expanded(child: title)
-                                }
-                            )
-                            : title,
-                        new Expanded(
-                            child: new Text($"{channel.memberCount}成员",
-                                style: CTextStyle.PRegularBody4,
-                                maxLines: 1)
-                        )
-                    }
-                )
-            );
-
-            Widget joinButton = new CustomButton(
-                padding: EdgeInsets.zero,
-                onPressed: channel.joined
-                    ? null
-                    : (GestureTapCallback) (() => { joinChannel(channel.id, channel.groupId); }),
-                child: new Container(
-                    width: 60,
-                    height: 28,
-                    decoration: new BoxDecoration(
-                        border: Border.all(color: channel.joined
-                            ? CColors.Disable2
-                            : CColors.PrimaryBlue),
-                        borderRadius: BorderRadius.all(14)
-                    ),
-                    child: new Center(
-                        child: channel.joined
-                            ? new Text(
-                                "已加入",
-                                style: CTextStyle.PRegularBody5.copyWith(height: 1)
-                            )
-                            : new Text(
-                                "加入",
-                                style: CTextStyle.PRegularBlue.copyWith(height: 1)
-                            )
-                    )
-                )
-            );
-
-            return new Container(
-                color: CColors.White,
-                height: 72,
-                padding: EdgeInsets.symmetric(12, 16),
-                child: new Row(
-                    children: new List<Widget> {
-                        avatar,
-                        new Expanded(child: body),
-                        joinButton
-                    }
-                )
-            );
         }
     }
 }

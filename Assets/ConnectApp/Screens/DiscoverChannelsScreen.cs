@@ -9,10 +9,8 @@ using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
 using RSG;
 using Unity.UIWidgets.foundation;
-using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 
 namespace ConnectApp.screens {
     public class DiscoverChannelsScreenConnector : StatelessWidget {
@@ -26,7 +24,7 @@ namespace ConnectApp.screens {
                 converter: state => {
                     return new DiscoverChannelsScreenViewModel {
                         publicChannels = state.channelState.publicChannels.Select(
-                            channelId => state.channelState.channelDict[channelId]
+                            channelId => state.channelState.channelDict[key: channelId]
                         ).ToList(),
                         page = state.channelState.discoverPage
                     };
@@ -35,13 +33,11 @@ namespace ConnectApp.screens {
                     var actionModel = new DiscoverChannelsScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
                         joinChannel = (channelId, groupId) => {
-                            dispatcher.dispatch<IPromise>(Actions.joinChannel(channelId, groupId));
+                            dispatcher.dispatch<IPromise>(Actions.joinChannel(channelId: channelId, groupId: groupId));
                         },
-                        fetchChannels = () => {
-                            return dispatcher.dispatch<IPromise>(Actions.fetchChannels(viewModel.page + 1));
-                        }
+                        fetchChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchChannels(viewModel.page + 1))
                     };
-                    return new DiscoverChannelsScreen(viewModel, actionModel);
+                    return new DiscoverChannelsScreen(viewModel: viewModel, actionModel: actionModel);
                 }
             );
         }
@@ -74,6 +70,18 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
+            Widget content;
+            var publicChannels = this.widget.viewModel.publicChannels;
+
+            if (publicChannels.Count == 0) {
+                content = new BlankView(
+                    "哎呀，暂无发现群聊",
+                    "image/default-notification"
+                );
+            }
+            else {
+                content = this._buildContent();
+            }
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
@@ -84,7 +92,7 @@ namespace ConnectApp.screens {
                             children: new List<Widget> {
                                 this._buildNavigationBar(),
                                 new Flexible(
-                                    child: this._buildContent()
+                                    child: content
                                 )
                             }
                         )
@@ -95,7 +103,7 @@ namespace ConnectApp.screens {
 
         Widget _buildNavigationBar() {
             return new CustomAppBar(
-                onBack: () => this.widget.actionModel.mainRouterPop(),
+                () => this.widget.actionModel.mainRouterPop(),
                 new Text(
                     "发现群聊",
                     style: CTextStyle.PXLargeMedium
@@ -104,29 +112,33 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildContent() {
+            var enablePullUp = true;
             return new Container(
-                color: CColors.White,
-                child: new SmartRefresher(
+                color: CColors.Background,
+                child: new CustomListView(
                     controller: this._refreshController,
-                    enablePullUp: true,
-                    enablePullDown: false,
+                    enablePullDown: true,
+                    enablePullUp: enablePullUp,
                     onRefresh: this._onRefresh,
-                    child: new ListView(
-                        padding: EdgeInsets.symmetric(16, 0),
-                        children: this.widget.viewModel.publicChannels
-                            .Select((channel) => MessengerBuildUtils.buildDiscoverChannelItem(
-                                channel, this.widget.actionModel.joinChannel)
-                            ).ToList()
-                    )
+                    itemCount: this.widget.viewModel.publicChannels.Count,
+                    itemBuilder: (cxt, index) => {
+                        var channel = this.widget.viewModel.publicChannels[index: index];
+                        return new ChannelCard(
+                            channel: channel,
+                            () => this.widget.actionModel.joinChannel(arg1: channel.id, arg2: channel.groupId)
+                        );
+                    }, 
+                    headerWidget: CustomListViewConstant.defaultHeaderWidget,
+                    footerWidget: enablePullUp ? null : CustomListViewConstant.defaultFooterWidget
                 )
             );
         }
 
         void _onRefresh(bool up) {
             if (!up) {
-                this.widget.actionModel.fetchChannels().Then(
-                    () => this._refreshController.sendBack(false, RefreshStatus.idle)
-                ).Catch(e => this._refreshController.sendBack(false, RefreshStatus.idle));
+                this.widget.actionModel.fetchChannels()
+                    .Then(() => this._refreshController.sendBack(false, mode: RefreshStatus.idle))
+                    .Catch(e => this._refreshController.sendBack(false, mode: RefreshStatus.idle));
             }
         }
     }

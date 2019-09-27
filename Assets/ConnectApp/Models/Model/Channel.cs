@@ -107,7 +107,6 @@ namespace ConnectApp.Models.Model {
         public bool sentMessageSuccess = false;
         public List<string> memberIds;
         public int memberOffset;
-        public Dictionary<string, bool> memberFolloweeMap;
         public bool atBottom = true;
 
         public static ChannelView fromChannel(Channel channel) {

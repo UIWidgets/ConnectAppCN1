@@ -5,8 +5,10 @@ namespace ConnectApp.Models.ViewModel {
     public class ChannelMembersScreenViewModel {
         public ChannelView channel;
         public Dictionary<string, bool> followed;
-        public List<ChannelMember> members;
+        public Dictionary<string, User> userDict;
+        public List<ChannelMember> normalMembers;
         public List<ChannelMember> specialMembers;
         public bool isLoggedIn;
+        public string currentUserId;
     }
 }

@@ -15,7 +15,7 @@ namespace ConnectApp.redux.actions {
     public static partial class Actions {
         public static object fetchChannels(int page, bool fetchMessagesAfterSuccess = false) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ChannelApi.FetchChannels(page).Then(channelResponse => {
+                return ChannelApi.FetchChannels(page: page).Then(channelResponse => {
                         dispatcher.dispatch(new FetchChannelsSuccessAction {
                             discoverList = channelResponse.discoverList ?? new List<string>(),
                             joinedList = channelResponse.joinedList ?? new List<string>(),
@@ -64,13 +64,24 @@ namespace ConnectApp.redux.actions {
 
         public static object fetchChannelMembers(string channelId, int offset = 0) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ChannelApi.FetchChannelMembers(channelId, offset).Then(channelMemberResponse => {
+                return ChannelApi.FetchChannelMembers(channelId: channelId, offset: offset)
+                    .Then(channelMemberResponse => {
+                        dispatcher.dispatch(new FollowMapAction {followMap = channelMemberResponse.followeeMap});
+                        var userMap = new Dictionary<string, User>();
+                        (channelMemberResponse.list ?? new List<ChannelMember>()).ForEach(member => {
+                            if (userMap.ContainsKey(key: member.user.id)) {
+                                userMap[key: member.user.id] = member.user;
+                            }
+                            else {
+                                userMap.Add(key: member.user.id, value: member.user);
+                            }
+                        });
+                        dispatcher.dispatch(new UserMapAction {userMap = userMap});
                         dispatcher.dispatch(new ChannelMemberAction {
                             channelId = channelId,
                             offset = channelMemberResponse.offset,
                             total = channelMemberResponse.total,
-                            members = channelMemberResponse.list,
-                            followeeMap = channelMemberResponse.followeeMap
+                            members = channelMemberResponse.list
                         });
                     })
                     .Catch(error => {
@@ -207,7 +218,6 @@ namespace ConnectApp.redux.actions {
         public List<ChannelMember> members;
         public int offset;
         public int total;
-        public Dictionary<string, bool> followeeMap;
     }
 
     public class StartFetchChannelMessageAction : BaseAction {
