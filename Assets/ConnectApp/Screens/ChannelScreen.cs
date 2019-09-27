@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-#if UNITY_IOS
-using System.Runtime.InteropServices;
-#endif
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
@@ -30,6 +27,9 @@ using Avatar = ConnectApp.Components.Avatar;
 using Config = ConnectApp.Constants.Config;
 using Icons = ConnectApp.Constants.Icons;
 using Image = Unity.UIWidgets.widgets.Image;
+#if UNITY_IOS
+using System.Runtime.InteropServices;
+#endif
 
 namespace ConnectApp.screens {
     public class ChannelScreenConnector : StatelessWidget {
@@ -97,6 +97,7 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new MainNavigatorPopAction());
                             dispatcher.dispatch(Actions.ackChannelMessage(viewModel.channel.lastMessageId));
                         },
+                        openUrl = url => OpenUrlUtil.OpenUrl(url: url, dispatcher: dispatcher),
                         fetchMessages = (before, after) => {
                             return dispatcher.dispatch<IPromise>(
                                 Actions.fetchChannelMessages(this.channelId, before, after));
@@ -171,7 +172,7 @@ namespace ConnectApp.screens {
         }
 
         bool showKeyboard {
-            get { return MediaQuery.of(this.context).viewInsets.bottom > 10; }
+            get { return MediaQuery.of(this.context).viewInsets.bottom > 50; }
         }
 
         bool showEmojiBoard {
@@ -212,9 +213,7 @@ namespace ConnectApp.screens {
         public override void dispose() {
             this._textController.dispose();
             this._emojiTabController.dispose();
-            SchedulerBinding.instance.addPostFrameCallback(_ => {
-                this.widget.actionModel.clearUnread();
-            });
+            SchedulerBinding.instance.addPostFrameCallback(_ => { this.widget.actionModel.clearUnread(); });
             this._focusNode.dispose();
             base.dispose();
         }
@@ -233,7 +232,7 @@ namespace ConnectApp.screens {
                     CustomDialogUtils.showToast("消息发送失败", Icons.error_outline);
                 });
             }
-            
+
             this.messageBubbleWidth = MediaQuery.of(context).size.width * 0.7f;
 
             Widget ret = new Stack(
@@ -241,7 +240,7 @@ namespace ConnectApp.screens {
                     this._buildContent(),
                     this._buildInputBar(),
                     this.widget.viewModel.newMessageCount == 0 ||
-                        this.widget.viewModel.messageLoading
+                    this.widget.viewModel.messageLoading
                         ? new Container()
                         : this._buildNewMessageNotification()
                 }
@@ -336,9 +335,7 @@ namespace ConnectApp.screens {
                     enablePullUp: true,
                     onRefresh: this._onRefresh,
                     reverse: true,
-                    headerBuilder: (context, mode) => {
-                        return new SmartRefreshHeader(mode);
-                    },
+                    headerBuilder: (context, mode) => { return new SmartRefreshHeader(mode); },
                     child: this.widget.viewModel.messageLoading &&
                            this.widget.viewModel.messages.isEmpty()
                         ? this._buildLoadingPage()
@@ -481,6 +478,7 @@ namespace ConnectApp.screens {
                     }
                 ));
             }
+
             return new Text(message.content, style: CTextStyle.PLargeBody);
         }
 
@@ -542,7 +540,10 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         this._buildEmbedContent(message),
                         new Container(height: 12),
-                        this._buildEmbeddedRect(message.embeds[0].embedData)
+                        new GestureDetector(
+                            child: this._buildEmbeddedRect(message.embeds[0].embedData),
+                            onTap: () => this.widget.actionModel.openUrl(message.embeds[0].embedData.url)
+                        )
                     }
                 )
             );
@@ -559,6 +560,7 @@ namespace ConnectApp.screens {
                 case ChannelMessageType.embed:
                     return this._buildEmbedMessageContent(message);
             }
+
             return new Container();
         }
 
@@ -845,6 +847,7 @@ namespace ConnectApp.screens {
                     ? char.ConvertFromUtf32(emojiList[index])
                     : $"{(char) emojiList[index]}";
             }
+
             return "";
         }
 
@@ -929,14 +932,16 @@ namespace ConnectApp.screens {
 
         float? _lastScrollPosition = null;
 
+        const float bottomThreashold = 50;
+
         void _handleScrollListener() {
-            if (this._refreshController.offset <= 0) {
-                if (this._lastScrollPosition == null || this._lastScrollPosition > 0) {
+            if (this._refreshController.offset <= bottomThreashold) {
+                if (this._lastScrollPosition == null || this._lastScrollPosition > bottomThreashold) {
                     this.widget.actionModel.reportHitBottom();
                 }
             }
-            else if (this._refreshController.offset > 0) {
-                if (this._lastScrollPosition == null || this._lastScrollPosition <= 0) {
+            else if (this._refreshController.offset > bottomThreashold) {
+                if (this._lastScrollPosition == null || this._lastScrollPosition <= bottomThreashold) {
                     this.widget.actionModel.reportLeaveBottom();
                 }
             }
