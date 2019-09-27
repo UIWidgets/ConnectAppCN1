@@ -14,9 +14,7 @@ namespace ConnectApp.Reality {
 
         public Vector2 defaultScreenSize = new Vector2(750f, 1334f);
         public ConnectAppPanel appPanel;
-
-        bool m_IsOnTable = false;
-        bool m_IsInHand = true;
+        
         bool m_TowardOnTable = false;
 
         bool m_IsMoving = false;
@@ -113,8 +111,6 @@ namespace ConnectApp.Reality {
                     if (this.m_Timer >= this.m_LerpDuration) {
                         // On Table
                         this.m_IsMoving = false;
-                        this.m_IsOnTable = true;
-                        this.m_IsInHand = false;
 
                         this.transform.position = this.onTable.position;
                         this.transform.rotation = this.onTable.rotation;
@@ -133,8 +129,6 @@ namespace ConnectApp.Reality {
                     if (this.m_Timer <= 0) {
                         // In Hand
                         this.m_IsMoving = false;
-                        this.m_IsOnTable = false;
-                        this.m_IsInHand = true;
 
                         this.transform.position = this.inHand.position;
                         this.transform.rotation = this.inHand.rotation;
