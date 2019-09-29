@@ -71,12 +71,7 @@ namespace ConnectApp.redux.actions {
                         dispatcher.dispatch(new FollowMapAction {followMap = channelMemberResponse.followeeMap});
                         var userMap = new Dictionary<string, User>();
                         (channelMemberResponse.list ?? new List<ChannelMember>()).ForEach(member => {
-                            if (userMap.ContainsKey(key: member.user.id)) {
-                                userMap[key: member.user.id] = member.user;
-                            }
-                            else {
-                                userMap.Add(key: member.user.id, value: member.user);
-                            }
+                            userMap[key: member.user.id] = member.user;
                         });
                         dispatcher.dispatch(new UserMapAction {userMap = userMap});
                         dispatcher.dispatch(new ChannelMemberAction {

@@ -27,7 +27,7 @@ namespace ConnectApp.Utils {
     }
 
     public static class HttpManager {
-        const string COOKIE = "Cookie";
+        public const string COOKIE = "Cookie";
         static string vsCookie;
 
         static UnityWebRequest initRequest(
