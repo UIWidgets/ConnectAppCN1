@@ -1,6 +1,8 @@
+using System;
 using System.Text.RegularExpressions;
 using ConnectApp.Constants;
 using Unity.UIWidgets.foundation;
+using UnityEngine;
 
 namespace ConnectApp.Utils {
     public static class CStringUtils {
@@ -95,6 +97,20 @@ namespace ConnectApp.Utils {
             }
 
             return "";
+        }
+
+        public static long HexToLong(string number, long defaultValue = -1) {
+            if (string.IsNullOrEmpty(number)) {
+                return defaultValue;
+            }
+
+            try {
+                return Convert.ToInt64(number);
+            }
+            catch (Exception e) {
+                Debug.LogError(e);
+                return defaultValue;
+            }
         }
     }
 }
