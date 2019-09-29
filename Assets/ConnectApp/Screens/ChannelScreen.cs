@@ -165,7 +165,7 @@ namespace ConnectApp.screens {
 
 
         float inputBarHeight {
-            get { return this.showKeyboard || this.showEmojiBoard ? 48 : 48 + 34; }
+            get { return 48 + CCommonUtils.getSafeAreaBottomPadding(this.context); }
         }
 
         bool showKeyboard {
@@ -447,11 +447,13 @@ namespace ConnectApp.screens {
             return new Text(content, style: CTextStyle.PLargeBody);
         }
 
-        Widget _buildImageMessageContent(string content) {
+        Widget _buildImageMessageContent(ChannelMessageView message) {
             return new _ImageMessage(
-                url: content,
+                url: message.content,
                 size: 140,
                 ratio: 16.0f / 9.0f,
+                srcWidth: message.width,
+                srcHeight: message.height,
                 headers: this.headers
             );
         }
@@ -552,7 +554,7 @@ namespace ConnectApp.screens {
                 case ChannelMessageType.text:
                     return this._buildTextMessageContent(message.content);
                 case ChannelMessageType.image:
-                    return this._buildImageMessageContent(message.content);
+                    return this._buildImageMessageContent(message);
                 case ChannelMessageType.file:
                     return this._buildFileMessageContent();
                 case ChannelMessageType.embed:
@@ -664,7 +666,6 @@ namespace ConnectApp.screens {
 
 
             ret = new Container(
-                padding: EdgeInsets.only(bottom: this.showKeyboard || this.showEmojiBoard ? 0 : 34),
                 decoration: new BoxDecoration(
                     border: new Border(new BorderSide(CColors.Separator)),
                     color: this.showEmojiBoard ? CColors.White : CColors.TabBarBg
@@ -991,12 +992,16 @@ namespace ConnectApp.screens {
         public readonly float size;
         public readonly float ratio;
         public readonly float radius;
+        public readonly float srcWidth;
+        public readonly float srcHeight;
         public readonly Dictionary<string, string> headers;
 
         public _ImageMessage(
             string url,
             float size,
             float ratio,
+            float srcWidth = 0,
+            float srcHeight = 0,
             Dictionary<string, string> headers = null,
             float radius = 10) {
             this.url = url;
@@ -1004,6 +1009,18 @@ namespace ConnectApp.screens {
             this.ratio = ratio;
             this.radius = radius;
             this.headers = headers;
+            this.srcWidth = srcWidth;
+            this.srcHeight = srcHeight;
+        }
+
+        public Size srcSize {
+            get {
+                if (this.srcWidth != 0 && this.srcHeight != 0) {
+                    return new Size(this.srcWidth, this.srcHeight);
+                }
+
+                return null;
+            }
         }
 
         public override State createState() {
@@ -1016,43 +1033,50 @@ namespace ConnectApp.screens {
         Size size;
         ImageStream stream;
 
-        void _updateSize(ImageInfo info, bool _) {
-            if (info.image.width > info.image.height * this.widget.ratio) {
-                this.size = new Size(
+        Size _finalSize(Size size) {
+            if (size.width > size.height * this.widget.ratio) {
+                return new Size(
                     width: this.widget.size,
                     height: this.widget.size / this.widget.ratio);
             }
-            else if (info.image.width > info.image.height) {
-                this.size = new Size(
+            if (size.width > size.height) {
+                return new Size(
                     width: this.widget.size,
-                    height: this.widget.size / info.image.width * info.image.height);
+                    height: this.widget.size / size.width * size.height);
             }
-            else if (info.image.width > info.image.height / this.widget.ratio) {
-                this.size = new Size(
-                    width: this.widget.size / info.image.height * info.image.width,
+            if (size.width > size.height / this.widget.ratio) {
+                return new Size(
+                    width: this.widget.size / size.height * size.width,
                     height: this.widget.size);
             }
-            else {
-                this.size = new Size(
-                    width: this.widget.size / this.widget.ratio,
-                    height: this.widget.size);
-            }
+            return new Size(
+                width: this.widget.size / this.widget.ratio,
+                height: this.widget.size);
+        }
+
+        void _updateSize(ImageInfo info, bool _) {
+            this.size = this._finalSize(new Size(info.image.width, info.image.height));
 
             this.setState(() => { });
         }
 
         public override void initState() {
             base.initState();
-            this.image = CachedNetworkImageProvider.cachedNetworkImage(
-                src: CImageUtils.SizeTo200ImageUrl(this.widget.url),
-                headers: this.widget.headers);
-            this.stream = this.image.image
-                .resolve(new ImageConfiguration());
-            this.stream.addListener(this._updateSize);
+            if (this.widget.srcSize == null) {
+                this.image = CachedNetworkImageProvider.cachedNetworkImage(
+                    src: CImageUtils.SizeTo200ImageUrl(this.widget.url),
+                    headers: this.widget.headers);
+                this.stream = this.image.image
+                    .resolve(new ImageConfiguration());
+                this.stream.addListener(this._updateSize);
+            }
+            else {
+                this.size = this._finalSize(this.widget.srcSize);
+            }
         }
 
         public override void dispose() {
-            this.stream.removeListener(this._updateSize);
+            this.stream?.removeListener(this._updateSize);
             base.dispose();
         }
 
