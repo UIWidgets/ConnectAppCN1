@@ -1,7 +1,6 @@
 using UnityEngine;
 
 public class RealityViewer : MonoBehaviour {
-    bool m_cursorIsLocked = false;
     bool m_gyroEnabled = false;
     Gyroscope gyro;
 
@@ -22,8 +21,9 @@ public class RealityViewer : MonoBehaviour {
         if (b) {
             this.isActived = true;
             this.m_MainCamera.clearFlags = CameraClearFlags.Skybox;
-            if (!this.m_gyroEnabled)
+            if (!this.m_gyroEnabled) {
                 this.m_gyroEnabled = this.EnableGyro();
+            }
 
             this.rot = this.originRotation;
             // this.rot = this.originRotation * this.FlipLeftHandToRight(Quaternion.Inverse(this.gyro.attitude));
@@ -39,7 +39,7 @@ public class RealityViewer : MonoBehaviour {
             this.gyro = Input.gyro;
             this.gyro.enabled = true;
 
-            this.originRotation = Quaternion.Euler(90f, this.transform.eulerAngles.y, 0f); 
+            this.originRotation = Quaternion.Euler(90f, this.transform.eulerAngles.y, 0f);
 
             return true;
         }

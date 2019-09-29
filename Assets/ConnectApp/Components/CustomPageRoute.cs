@@ -14,7 +14,7 @@ using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace ConnectApp.Components {
     public class CustomPageRouteUtils {
-        public const float _kBackGestureWidth = 20.0f;
+        public const float _kBackGestureWidth = 80.0f;
         public const float _kMinFlingVelocity = 1.0f;
         public const int _kMaxDroppedSwipePageForwardAnimationTime = 800; // Milliseconds.
         public const int _kMaxPageBackAnimationTime = 300; // Milliseconds.
