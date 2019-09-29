@@ -22,14 +22,10 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
 using Avatar = ConnectApp.Components.Avatar;
 using Config = ConnectApp.Constants.Config;
 using Icons = ConnectApp.Constants.Icons;
 using Image = Unity.UIWidgets.widgets.Image;
-#if UNITY_IOS
-using System.Runtime.InteropServices;
-#endif
 
 namespace ConnectApp.screens {
     public class ChannelScreenConnector : StatelessWidget {
@@ -40,7 +36,7 @@ namespace ConnectApp.screens {
             this.channelId = channelId;
         }
 
-        public readonly string channelId;
+        readonly string channelId;
 
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ChannelScreenViewModel>(
@@ -98,17 +94,13 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(Actions.ackChannelMessage(viewModel.channel.lastMessageId));
                         },
                         openUrl = url => OpenUrlUtil.OpenUrl(url: url, dispatcher: dispatcher),
-                        fetchMessages = (before, after) => {
-                            return dispatcher.dispatch<IPromise>(
-                                Actions.fetchChannelMessages(this.channelId, before, after));
-                        },
+                        fetchMessages = (before, after) => dispatcher.dispatch<IPromise>(
+                            Actions.fetchChannelMessages(channelId: this.channelId, before: before, after: after)),
                         fetchMembers = () => dispatcher.dispatch<IPromise>(
                             Actions.fetchChannelMembers(this.channelId, 0)),
-                        pushToChannelDetail = () => {
-                            dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction {
-                                channelId = this.channelId
-                            });
-                        },
+                        pushToChannelDetail = () => dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction {
+                            channelId = this.channelId
+                        }),
                         sendMessage = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
                             Actions.sendChannelMessage(channelId, content, nonce, parentMessageId)),
                         startSendMessage = () => dispatcher.dispatch(new StartSendChannelMessageAction {
@@ -127,7 +119,7 @@ namespace ConnectApp.screens {
                             channelId = this.channelId
                         })
                     };
-                    return new ChannelScreen(viewModel, actionModel);
+                    return new ChannelScreen(viewModel: viewModel, actionModel: actionModel);
                 }
             );
         }
@@ -189,8 +181,6 @@ namespace ConnectApp.screens {
             }
         }
 
-        const string COOKIE = "Cookie";
-
         public override void initState() {
             base.initState();
             this._emojiTabController = new TabController(
@@ -204,7 +194,7 @@ namespace ConnectApp.screens {
             this._focusNode = new FocusNode();
             this._focusNodeKey = GlobalKey.key("_channelFocusNodeKey");
             this.headers = new Dictionary<string, string> {
-                {COOKIE, PlayerPrefs.GetString(COOKIE)},
+                {HttpManager.COOKIE, HttpManager.getCookie()},
                 {"AppVersion", Config.versionNumber},
                 {"X-Requested-With", "XmlHttpRequest"}
             };
@@ -600,20 +590,14 @@ namespace ConnectApp.screens {
                         this._refreshController.scrollController.jumpTo(0);
                         FocusScope.of(this.context).requestFocus(this._focusNode);
                         if (this.showEmojiBoard) {
-#if UNITY_ANDROID || UNITY_IOS
-                            UIWidgetsTextInputShow();
-#endif
+                            TextInputPlugin.TextInputShow();
                             Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
                                 () => { this.setState(() => { this._showEmojiBoard = false; }); });
                         }
                         else {
                             this.setState(() => { this._showEmojiBoard = true; });
                             Promise.Delayed(TimeSpan.FromMilliseconds(100)).Then(
-                                () => {
-#if UNITY_ANDROID || UNITY_IOS
-                                    UIWidgetsTextInputHide();
-#endif
-                                }
+                                TextInputPlugin.TextInputHide
                             );
                         }
                     });
@@ -949,51 +933,12 @@ namespace ConnectApp.screens {
             if (this._lastScrollPosition != null && this._lastScrollPosition < this._refreshController.offset) {
                 this.setState(() => {
                     this._showEmojiBoard = false;
-#if UNITY_EDITOR
-                    //Do nothing    
-#elif UNITY_ANDROID || UNITY_IOS
-                    UIWidgetsTextInputHide();
-#endif
+                    TextInputPlugin.TextInputHide();
                 });
             }
 
             this._lastScrollPosition = this._refreshController.offset;
         }
-
-#if UNITY_IOS
-        [DllImport ("__Internal")]
-        internal static extern void UIWidgetsTextInputShow();
-        
-        [DllImport ("__Internal")]
-        internal static extern void UIWidgetsTextInputHide();
-        
-        [DllImport ("__Internal")]
-        internal static extern void UIWidgetsTextInputSetClient(int client, string configuration);
-        
-        [DllImport ("__Internal")]
-        internal static extern void UIWidgetsTextInputSetTextInputEditingState(string jsonText);
-        
-        [DllImport ("__Internal")]
-        internal static extern void UIWidgetsTextInputClearTextInputClient();
-#elif UNITY_ANDROID
-        internal static void UIWidgetsTextInputShow() {
-            using (
-                AndroidJavaClass pluginClass =
-                    new AndroidJavaClass("com.unity.uiwidgets.plugin.editing.TextInputPlugin")
-            ) {
-                pluginClass.CallStatic("show");
-            }
-        }
-
-        internal static void UIWidgetsTextInputHide() {
-            using (
-                AndroidJavaClass pluginClass =
-                    new AndroidJavaClass("com.unity.uiwidgets.plugin.editing.TextInputPlugin")
-            ) {
-                pluginClass.CallStatic("hide");
-            }
-        }
-#endif
 
         void _pickImage() {
             var items = new List<ActionSheetItem> {

@@ -2,36 +2,35 @@ using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Constants;
 using ConnectApp.Models.ActionModel;
-using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
 using ConnectApp.redux.actions;
-using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
-using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.screens {
     public class ChannelIntroductionScreenConnector : StatelessWidget {
-        public ChannelIntroductionScreenConnector(string channelId, Key key = null) : base(key : key) {
+        public ChannelIntroductionScreenConnector(
+            string channelId,
+            Key key = null
+        ) : base(key : key) {
             this.channelId = channelId;
         }
 
-        public readonly string channelId;
+        readonly string channelId;
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ChannelIntroductionScreenViewModel>(
                 converter: state => new ChannelIntroductionScreenViewModel {
-                    channel = state.channelState.channelDict[this.channelId]
+                    channel = state.channelState.channelDict[key: this.channelId]
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ChannelIntroductionScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction())
                     };
-                    return new ChannelIntroductionScreen(actionModel, viewModel);
+                    return new ChannelIntroductionScreen(actionModel: actionModel, viewModel: viewModel);
                 }
             );
         }
@@ -55,7 +54,7 @@ namespace ConnectApp.screens {
                 color: CColors.White,
                 child: new CustomSafeArea(
                     child: new Container(
-                        color: new Color(0xFFFAFAFA),
+                        color: CColors.Background,
                         child: new Column(
                             children: new List<Widget> {
                                 this._buildNavigationBar(),
@@ -79,39 +78,6 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildThumbnail() {
-            return new ClipRRect(
-                borderRadius: BorderRadius.all(4),
-                child: new Container(
-                    width: 48,
-                    height: 48,
-                    child: Image.network(
-                        this.viewModel.channel?.thumbnail ?? "",
-                        fit: BoxFit.cover)
-                )
-            );
-        }
-
-        Widget _buildTitle() {
-            return new Container(
-                padding: EdgeInsets.only(16),
-                child: new Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: new List<Widget> {
-                        new Text(this.viewModel.channel?.name ?? "",
-                            style: CTextStyle.PLargeMedium,
-                            maxLines: 1, overflow: TextOverflow.ellipsis),
-                        new Expanded(
-                            child: new Text(
-                                $"{this.viewModel.channel?.memberCount ?? 0}名群成员",
-                                style: CTextStyle.PRegularBody4,
-                                maxLines: 1)
-                        )
-                    }
-                )
-            );
-        }
-
         Widget _buildContent() {
             return new Container(
                 color: CColors.Background,
@@ -123,16 +89,46 @@ namespace ConnectApp.screens {
                             height: 80,
                             child: new Row(
                                 children: new List<Widget> {
-                                    this._buildThumbnail(),
-                                    new Expanded(child: this._buildTitle())
+                                    new PlaceholderImage(
+                                        this.viewModel.channel?.thumbnail ?? "",
+                                        48,
+                                        48,
+                                        4,
+                                        fit: BoxFit.cover
+                                    ),
+                                    new Expanded(
+                                        child: new Container(
+                                            padding: EdgeInsets.only(16),
+                                            child: new Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: new List<Widget> {
+                                                    new Text(
+                                                        data: this.viewModel.channel.name,
+                                                        style: CTextStyle.PLargeMedium,
+                                                        maxLines: 1,
+                                                        overflow: TextOverflow.ellipsis
+                                                    ),
+                                                    new Text(
+                                                        $"{this.viewModel.channel.memberCount}名群成员",
+                                                        style: CTextStyle.PSmallBody4,
+                                                        maxLines: 1
+                                                    )
+                                                }
+                                            )
+                                        )
+                                    )
                                 }
                             )
                         ),
-                        new Container(
-                            color: CColors.White,
-                            padding: EdgeInsets.only(16, 0, 16, 16),
-                            child: new Text(this.viewModel.channel?.topic ?? "")
-                        ),
+                        this.viewModel.channel.topic.isNotEmpty()
+                            ? new Container(
+                                color: CColors.White,
+                                padding: EdgeInsets.only(16, 0, 16, 16),
+                                child: new Text(
+                                    data: this.viewModel.channel.topic,
+                                    style: CTextStyle.PLargeBody2
+                                )
+                            ) : new Container()
                     }
                 )
             );

@@ -1,0 +1,55 @@
+using System.Runtime.InteropServices;
+using UnityEngine;
+
+namespace ConnectApp.Plugins {
+    public static class TextInputPlugin {
+        public static void TextInputShow() {
+            if (Application.isEditor) {
+                return;
+            }
+            UIWidgetsTextInputShow();
+        }
+
+        public static void TextInputHide() {
+            if (Application.isEditor) {
+                return;
+            }
+            UIWidgetsTextInputHide();
+        }
+
+#if UNITY_IOS
+        [DllImport ("__Internal")]
+        static extern void UIWidgetsTextInputShow();
+        
+        [DllImport ("__Internal")]
+        static extern void UIWidgetsTextInputHide();
+        
+        [DllImport ("__Internal")]
+        static extern void UIWidgetsTextInputSetClient(int client, string configuration);
+        
+        [DllImport ("__Internal")]
+        static extern void UIWidgetsTextInputSetTextInputEditingState(string jsonText);
+        
+        [DllImport ("__Internal")]
+        static extern void UIWidgetsTextInputClearTextInputClient();
+#elif UNITY_ANDROID
+        internal static void UIWidgetsTextInputShow() {
+            using (
+                AndroidJavaClass pluginClass =
+                    new AndroidJavaClass("com.unity.uiwidgets.plugin.editing.TextInputPlugin")
+            ) {
+                pluginClass.CallStatic("show");
+            }
+        }
+
+        internal static void UIWidgetsTextInputHide() {
+            using (
+                AndroidJavaClass pluginClass =
+                    new AndroidJavaClass("com.unity.uiwidgets.plugin.editing.TextInputPlugin")
+            ) {
+                pluginClass.CallStatic("hide");
+            }
+        }
+#endif
+    }
+}
