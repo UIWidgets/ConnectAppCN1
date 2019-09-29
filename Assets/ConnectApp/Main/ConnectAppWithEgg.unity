@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.29685917, g: 0.6337722, b: 0.9937156, a: 1}
+  m_IndirectSpecularColor: {r: 0.29686502, g: 0.63370144, b: 0.99418455, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1069,6 +1069,7 @@ GameObject:
   - component: {fileID: 1016304345}
   - component: {fileID: 1016304347}
   - component: {fileID: 1016304346}
+  - component: {fileID: 1016304348}
   m_Layer: 5
   m_Name: Connect App Panel
   m_TagString: Untagged
@@ -1131,6 +1132,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1016304344}
   m_CullTransparentMesh: 0
+--- !u!114 &1016304348
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1016304344}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8152d6ef09fa493dbc592f0ff5c7e582, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1088722048
 PrefabInstance:
   m_ObjectHideFlags: 0
