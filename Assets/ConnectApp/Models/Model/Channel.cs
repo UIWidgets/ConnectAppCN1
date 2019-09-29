@@ -211,6 +211,8 @@ namespace ConnectApp.Models.Model {
         public ChannelMessageType type = ChannelMessageType.text;
         public string content;
         public long fileSize = 0;
+        public int width;
+        public int height;
         public List<Attachment> attachments;
         public bool mentionEveryone = false;
         public List<User> mentions;
@@ -260,6 +262,14 @@ namespace ConnectApp.Models.Model {
             return getType(content, attachments, embeds) == ChannelMessageType.file ? attachments[0].size : 0;
         }
 
+        static int getImageWidth(string content, List<Attachment> attachments = null, List<Embed> embeds = null) {
+            return getType(content, attachments, embeds) == ChannelMessageType.image ? attachments[0].width : 0;
+        }
+
+        static int getImageHeight(string content, List<Attachment> attachments = null, List<Embed> embeds = null) {
+            return getType(content, attachments, embeds) == ChannelMessageType.image ? attachments[0].height : 0;
+        }
+
         public static ChannelMessageView fromPushMessage(SocketResponseMessageData message) {
             return message == null
                 ? new ChannelMessageView()
@@ -270,6 +280,8 @@ namespace ConnectApp.Models.Model {
                     author = message.author,
                     content = getContent(message.content, message.attachments, message.embeds),
                     fileSize = getFileSize(message.content, message.attachments, message.embeds),
+                    width = getImageWidth(message.content, message.attachments, message.embeds),
+                    height = getImageHeight(message.content, message.attachments, message.embeds),
                     time = DateConvert.DateTimeFromNonce(message.nonce),
                     attachments = message.attachments,
                     type = getType(message.content, message.attachments, message.embeds),
@@ -297,6 +309,8 @@ namespace ConnectApp.Models.Model {
                     author = new User {id = message.author.id},
                     content = getContent(message.content, message.attachments),
                     fileSize = getFileSize(message.content, message.attachments),
+                    width = getImageWidth(message.content, message.attachments),
+                    height = getImageHeight(message.content, message.attachments),
                     time = DateConvert.DateTimeFromNonce(message.nonce),
                     attachments = message.attachments,
                     type = getType(message.content, message.attachments),
@@ -315,6 +329,8 @@ namespace ConnectApp.Models.Model {
                     author = message.author,
                     content = getContent(message.content, message.attachments, message.embeds),
                     fileSize = getFileSize(message.content, message.attachments, message.embeds),
+                    width = getImageWidth(message.content, message.attachments, message.embeds),
+                    height = getImageHeight(message.content, message.attachments, message.embeds),
                     time = DateConvert.DateTimeFromNonce(message.nonce),
                     attachments = message.attachments,
                     type = getType(message.content, message.attachments, message.embeds),
