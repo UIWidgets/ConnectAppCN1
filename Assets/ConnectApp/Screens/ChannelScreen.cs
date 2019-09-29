@@ -160,7 +160,7 @@ namespace ConnectApp.screens {
 
 
         float inputBarHeight {
-            get { return this.showKeyboard || this.showEmojiBoard ? 48 : 48 + 34; }
+            get { return 48 + CCommonUtils.getSafeAreaBottomPadding(this.context); }
         }
 
         bool showKeyboard {
@@ -656,7 +656,6 @@ namespace ConnectApp.screens {
 
 
             ret = new Container(
-                padding: EdgeInsets.only(bottom: this.showKeyboard || this.showEmojiBoard ? 0 : 34),
                 decoration: new BoxDecoration(
                     border: new Border(new BorderSide(CColors.Separator)),
                     color: this.showEmojiBoard ? CColors.White : CColors.TabBarBg
