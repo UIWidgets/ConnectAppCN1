@@ -108,7 +108,7 @@ namespace ConnectApp.Utils {
                 return Convert.ToInt64(number);
             }
             catch (Exception e) {
-                Debug.LogError(e);
+                Debug.LogError($"Error in converting {number}: {e}");
                 return defaultValue;
             }
         }

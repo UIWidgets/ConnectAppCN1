@@ -134,10 +134,10 @@ namespace ConnectApp.redux.actions {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.AckChannelMessage(messageId)
                     .Then(ackMessageResponse => {
-                        dispatcher.dispatch(new SendChannelMessageSuccessAction());
+                        dispatcher.dispatch(new AckChannelMessageSuccessAction());
                     })
                     .Catch(error => {
-                        dispatcher.dispatch(new SendChannelMessageFailureAction());
+                        dispatcher.dispatch(new AckChannelMessageFailureAction());
                         Debug.Log(error);
                     });
             });
