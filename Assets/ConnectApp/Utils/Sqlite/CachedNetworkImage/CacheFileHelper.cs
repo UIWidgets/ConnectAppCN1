@@ -9,16 +9,29 @@ namespace System {
 
         static readonly MD5 md5Hasher = MD5.Create();
 
-        static string GetCacheFilePath(string url, string suffix) {
+        static string _cacheFolderPath = null;
+
+        static string cacheFolderPath {
+            get {
+                if (_cacheFolderPath != null) {
+                    return _cacheFolderPath;
+                }
 #if UNITY_EDITOR
-            var cacheFolder = "Editor/imgCache";
+                var assetPath = Application.dataPath;
+                _cacheFolderPath = $"{assetPath.Substring(0, assetPath.LastIndexOf("/"))}/Editor/imgCache";
 #else
-            var cacheFolder = $"{Application.persistentDataPath}/imgCache";
+                _cacheFolderPath = $"{Application.persistentDataPath}/imgCache";
 #endif
-            Directory.CreateDirectory(cacheFolder);
+
+                return _cacheFolderPath;
+            }
+        }
+
+        static string GetCacheFilePath(string url, string suffix) {
+            Directory.CreateDirectory(cacheFolderPath);
             byte[] data = md5Hasher.ComputeHash(Encoding.Default.GetBytes(url));
             var fileName = new Guid(data).ToString();
-            return $"{cacheFolder}/{fileName}.{suffix}";
+            return $"{cacheFolderPath}/{fileName}.{suffix}";
         }
 
 
