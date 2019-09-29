@@ -53,13 +53,13 @@ namespace ConnectApp.redux.actions {
                         });
                         dispatcher.dispatch(channelMessagesResponse.items?.isNotEmpty() ?? false
                             ? saveMessagesToDB(channelMessagesResponse.items)
-                            : loadMessagesFromDB(channelId, Convert.ToInt64(before ?? "-1", 16)));
+                            : loadMessagesFromDB(channelId, CStringUtils.HexToLong(before)));
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new FetchChannelMessagesFailureAction());
                         Debug.Log(error);
                         dispatcher.dispatch(
-                            loadMessagesFromDB(channelId, Convert.ToInt64(before ?? "-1", fromBase: 16)));
+                            loadMessagesFromDB(channelId, CStringUtils.HexToLong(before)));
                     });
             });
         }
