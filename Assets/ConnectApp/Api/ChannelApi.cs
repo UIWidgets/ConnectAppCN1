@@ -42,6 +42,15 @@ namespace ConnectApp.Api {
             return promise;
         }
         
+        public static Promise<AckChannelMessagesResponse> AckChannelMessage(string messageId) {
+            var promise = new Promise<AckChannelMessagesResponse>();
+            var request = HttpManager.POST($"{Config.apiAddress}/api/messages/{messageId}/ack");
+            HttpManager.resume(request).Then(responseText => {
+                promise.Resolve(JsonConvert.DeserializeObject<AckChannelMessagesResponse>(responseText));
+            }).Catch(exception => { promise.Reject(exception); });
+            return promise;
+        }
+
         public static Promise<FetchChannelMembersResponse> FetchChannelMembers(string channelId, int offset = 0) {
             var promise = new Promise<FetchChannelMembersResponse>();
             var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/channels/{channelId}/members",

@@ -9,6 +9,7 @@ namespace ConnectApp.Models.ViewModel {
     public class MessengerScreenViewModel {
         public int discoverPage;
         public int currentTabBarIndex;
+        public Dictionary<string, string> lastMessageMap;
         public List<ChannelView> joinedChannels;
         public List<ChannelView> popularChannels;
         public List<ChannelView> publicChannels;

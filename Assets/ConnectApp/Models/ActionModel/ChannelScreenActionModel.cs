@@ -8,6 +8,7 @@ namespace ConnectApp.Models.ActionModel {
         public Action clearUnread;
         public Action reportLeaveBottom;
         public Action reportHitBottom;
+        public Action<string> openUrl;
         public Func<string, string, string, string, IPromise> sendMessage;
         public Func<string, string, string, IPromise> sendImage;
         public Func<string, string, IPromise> fetchMessages;

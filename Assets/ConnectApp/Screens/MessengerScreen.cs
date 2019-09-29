@@ -32,10 +32,19 @@ namespace ConnectApp.screens {
                                             isTop;
                             return channel;
                         }).ToList();
-                    joinedChannels.Sort((c1, c2) => { return c1.isTop == c2.isTop ? 0 : (c1.isTop ? -1 : 1); });
+                    joinedChannels.Sort((c1, c2) => {
+                        return c1.isTop == c2.isTop ? 0 : (c1.isTop ? -1 : 1);
+                    });
+                    var lastMessageMap = new Dictionary<string, string>();
+                    foreach (var channel in joinedChannels) {
+                        if (!string.IsNullOrEmpty(channel.lastMessageId)) {
+                            lastMessageMap[channel.id] = channel.lastMessageId;
+                        }
+                    }
                     return new MessengerScreenViewModel {
                         joinedChannels = joinedChannels,
                         discoverPage = state.channelState.discoverPage,
+                        lastMessageMap = lastMessageMap,
                         popularChannels = state.channelState.publicChannels
                             .Select(channelId => state.channelState.channelDict[channelId])
                             .Take(state.channelState.publicChannels.Count > 0
@@ -63,6 +72,9 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new MainNavigatorPushToChannelAction {
                                 channelId = channelId
                             });
+                            if (viewModel.lastMessageMap.TryGetValue(channelId, out var messageId)) {
+                                dispatcher.dispatch(Actions.ackChannelMessage(messageId));
+                            }
                         },
                         fetchChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchChannels(
                             viewModel.discoverPage + 1
