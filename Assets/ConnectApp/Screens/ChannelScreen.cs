@@ -427,7 +427,7 @@ namespace ConnectApp.screens {
         Widget _buildAvatar(User user) {
             return new Container(
                 padding: EdgeInsets.symmetric(0, 10),
-                child: Avatar.User(user, size: 40, useCachedNetworkImage: true)
+                child: Avatar.User(user.avatar.isNotEmpty() ? user.copyWith(avatar: CImageUtils.SizeTo200ImageUrl(user.avatar)) : user, size: 40, useCachedNetworkImage: true)
             );
         }
 
