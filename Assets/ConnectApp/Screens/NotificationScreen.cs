@@ -149,17 +149,20 @@ namespace ConnectApp.screens {
 
             return new Container(
                 color: CColors.White,
-                child: new Column(
-                    children: new List<Widget> {
-                        this._buildNavigationBar(),
-                        new CustomDivider(
-                            color: CColors.Separator2,
-                            height: 1
-                        ),
-                        new Flexible(
-                            child: new CustomScrollbar(child: content)
-                        )
-                    }
+                child: new CustomSafeArea(
+                    bottom: false,
+                    child: new Column(
+                        children: new List<Widget> {
+                            this._buildNavigationBar(),
+                            new CustomDivider(
+                                color: CColors.Separator2,
+                                height: 1
+                            ),
+                            new Flexible(
+                                child: new CustomScrollbar(child: content)
+                            )
+                        }
+                    )
                 )
             );
         }

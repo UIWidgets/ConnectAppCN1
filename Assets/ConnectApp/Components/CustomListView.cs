@@ -156,6 +156,7 @@ namespace ConnectApp.Components {
             bool enablePullDown = DefaultConstants.default_enablePullDown,
             bool enablePullUp = DefaultConstants.default_enablePullUp,
             OnRefresh onRefresh = null,
+            bool hasBottomMargin = false,
             Widget headerWidget = null,
             Widget footerWidget = null,
             bool hasScrollBar = true,
@@ -170,6 +171,7 @@ namespace ConnectApp.Components {
             this.enablePullDown = enablePullDown;
             this.enablePullUp = enablePullUp;
             this.onRefresh = onRefresh;
+            this.hasBottomMargin = hasBottomMargin;
             this.headerWidget = headerWidget;
             this.footerWidget = footerWidget;
             this.hasScrollBar = hasScrollBar;
@@ -184,6 +186,7 @@ namespace ConnectApp.Components {
         readonly bool enablePullUp;
         readonly bool enablePullDown;
         readonly OnRefresh onRefresh;
+        readonly bool hasBottomMargin;
         readonly Widget headerWidget;
         readonly Widget footerWidget;
         readonly bool hasScrollBar;
@@ -268,6 +271,7 @@ namespace ConnectApp.Components {
                     enablePullDown: this.enablePullDown,
                     enablePullUp: this.enablePullUp,
                     onRefresh: this.onRefresh,
+                    hasBottomMargin: this.hasBottomMargin,
                     child: listView
                 );
             }

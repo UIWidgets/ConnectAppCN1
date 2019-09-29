@@ -4,6 +4,7 @@ using System.Linq;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
+using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
@@ -148,21 +149,21 @@ namespace ConnectApp.screens {
         }
     }
 
-    class _ChannelScreenState : TickerProviderStateMixin<ChannelScreen> {
+    class _ChannelScreenState : TickerProviderStateMixin<ChannelScreen>, RouteAware {
         readonly TextEditingController _textController = new TextEditingController();
         readonly RefreshController _refreshController = new RefreshController();
         TabController _emojiTabController;
         FocusNode _focusNode;
         GlobalKey _focusNodeKey;
 
-        Dictionary<string, string> _jobRole;
         float messageBubbleWidth = 0;
-        long lastSavedNonce;
         bool _showEmojiBoard = false;
-        string _pickImageSubId;
-        string _pickedImage;
         Dictionary<string, string> headers;
 
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
+        }
 
         float inputBarHeight {
             get { return 48 + CCommonUtils.getSafeAreaBottomPadding(this.context); }
@@ -206,6 +207,7 @@ namespace ConnectApp.screens {
         }
 
         public override void dispose() {
+            Router.routeObserve.unsubscribe(this);
             this._textController.dispose();
             this._emojiTabController.dispose();
             SchedulerBinding.instance.addPostFrameCallback(_ => { this.widget.actionModel.clearUnread(); });
@@ -305,17 +307,18 @@ namespace ConnectApp.screens {
 
         Widget _buildNavigationBar() {
             return new CustomAppBar(
-                onBack: () => this.widget.actionModel.mainRouterPop(),
+                () => this.widget.actionModel.mainRouterPop(),
                 new Text(
-                    this.widget.viewModel.channel.name,
+                    data: this.widget.viewModel.channel.name,
                     style: CTextStyle.PXLargeMedium
                 ),
-                rightWidget: new CustomButton(
-                    onPressed: () => { this.widget.actionModel.pushToChannelDetail(); },
+                new CustomButton(
+                    onPressed: () => this.widget.actionModel.pushToChannelDetail(),
                     child: new Container(
                         width: 28,
                         height: 28,
-                        child: new Icon(Icons.ellipsis, color: CColors.Icon, size: 28)
+                        color: CColors.Transparent,
+                        child: new Icon(icon: Icons.ellipsis, color: CColors.Icon, size: 28)
                     )
                 )
             );
@@ -330,7 +333,7 @@ namespace ConnectApp.screens {
                     enablePullUp: this.widget.viewModel.channel.hasMore,
                     onRefresh: this._onRefresh,
                     reverse: true,
-                    headerBuilder: (context, mode) => { return new SmartRefreshHeader(mode); },
+                    headerBuilder: (context, mode) => new SmartRefreshHeader(mode: mode),
                     child: this.widget.viewModel.messageLoading &&
                            this.widget.viewModel.messages.isEmpty()
                         ? this._buildLoadingPage()
@@ -955,16 +958,16 @@ namespace ConnectApp.screens {
                     "拍照",
                     onTap: () => PickImagePlugin.PickImage(
                         source: ImageSource.camera,
-                        this._pickImageCallback,
-                        cropped: false
+                        imageCallBack: this._pickImageCallback,
+                        false
                     )
                 ),
                 new ActionSheetItem(
                     "从相册选择",
                     onTap: () => PickImagePlugin.PickImage(
                         source: ImageSource.gallery,
-                        this._pickImageCallback,
-                        cropped: false
+                        imageCallBack: this._pickImageCallback,
+                        false
                     )
                 ),
                 new ActionSheetItem("取消", type: ActionType.cancel)
@@ -977,13 +980,24 @@ namespace ConnectApp.screens {
         }
 
         void _pickImageCallback(string pickImage) {
-            this._pickedImage = pickImage;
-            this.widget.actionModel.sendImage(
-                this.widget.viewModel.channel.id,
-                this._pickedImage,
-                Snowflake.CreateNonceLocal());
             this.widget.actionModel.startSendMessage();
-            this.setState(() => { });
+            this.widget.actionModel.sendImage(
+                arg1: this.widget.viewModel.channel.id,
+                arg2: pickImage,
+                Snowflake.CreateNonceLocal());
+        }
+
+        public void didPop() {
+        }
+
+        public void didPopNext() {
+            StatusBarManager.statusBarStyle(false);
+        }
+
+        public void didPush() {
+        }
+
+        public void didPushNext() {
         }
     }
 
