@@ -240,7 +240,11 @@ namespace ConnectApp.Models.Api {
         public bool hasMore;
         public bool hasMoreNew;
     }
-    
+
+    [Serializable]
+    public class AckChannelMessagesResponse {
+    }
+
     [Serializable]
     public class FetchChannelMembersResponse {
         public List<ChannelMember> list;

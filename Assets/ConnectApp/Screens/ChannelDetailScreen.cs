@@ -6,6 +6,7 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
+using ConnectApp.Plugins;
 using ConnectApp.redux.actions;
 using ConnectApp.Utils;
 using RSG;
@@ -30,12 +31,12 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, ChannelDetailScreenViewModel>(
                 converter: state => {
-                    ChannelView channel = state.channelState.channelDict[this.channelId];
-                    channel.isTop = state.channelState.channelTop.TryGetValue(this.channelId, out var isTop) && isTop;
+                    ChannelView channel = state.channelState.channelDict[key: this.channelId];
+                    channel.isTop = state.channelState.channelTop.TryGetValue(key: this.channelId, out var isTop) && isTop;
                     return new ChannelDetailScreenViewModel {
                         channel = channel,
-                        members = state.channelState.channelDict[this.channelId].memberIds.Select(
-                            memberId => state.channelState.membersDict[memberId]
+                        members = state.channelState.channelDict[key: this.channelId].memberIds.Select(
+                            memberId => state.channelState.membersDict[key: memberId]
                         ).ToList()
                     };
                 },
@@ -50,7 +51,7 @@ namespace ConnectApp.screens {
                                 channelId = this.channelId
                             }),
                         leaveChannel = () => dispatcher.dispatch<IPromise>(
-                            Actions.leaveChannel(this.channelId, viewModel.channel.groupId)),
+                            Actions.leaveChannel(channelId: this.channelId, groupId: viewModel.channel.groupId)),
                         updateTop = isTop => {
                             dispatcher.dispatch(new UpdateChannelTopAction {
                                 channelId = this.channelId,
@@ -58,7 +59,7 @@ namespace ConnectApp.screens {
                             });
                         }
                     };
-                    return new ChannelDetailScreen(actionModel, viewModel);
+                    return new ChannelDetailScreen(actionModel: actionModel, viewModel: viewModel);
                 }
             );
         }
@@ -83,12 +84,26 @@ namespace ConnectApp.screens {
     }
     
     class _ChannelDetailScreenState : State<ChannelDetailScreen> {
+        void _leaveChannel() {
+            ActionSheetUtils.showModalActionSheet(new ActionSheet(
+                title: "确定退出当前群聊吗？",
+                items: new List<ActionSheetItem> {
+                    new ActionSheetItem(
+                        "退出",
+                        type: ActionType.destructive,
+                        () => this.widget.actionModel.leaveChannel()
+                    ),
+                    new ActionSheetItem("取消", type: ActionType.cancel)
+                }
+            ));
+        }
+
         public override Widget build(BuildContext context) {
             return new Container(
                 color: CColors.White,
                 child: new CustomSafeArea(
                     child: new Container(
-                        color: new Color(0xFFFAFAFA),
+                        color: CColors.Background,
                         child: new Column(
                             children: new List<Widget> {
                                 this._buildNavigationBar(),
@@ -115,7 +130,7 @@ namespace ConnectApp.screens {
         Widget _buildChannelIntroduction() {
             return new Container(
                 color: CColors.White,
-                padding: EdgeInsets.only(left: 16, right: 16, top: 16),
+                padding: EdgeInsets.only(16, right: 16, top: 16),
                 height: 64,
                 child: new Row(
                     children: new List<Widget> {
@@ -140,8 +155,7 @@ namespace ConnectApp.screens {
                                         ),
                                         new Text(
                                             $"{this.widget.viewModel.channel?.memberCount ?? 0}名群成员",
-                                            style: CTextStyle.PSmallBody4,
-                                            maxLines: 1
+                                            style: CTextStyle.PSmallBody4
                                         )
                                     }
                                 )
@@ -154,7 +168,7 @@ namespace ConnectApp.screens {
 
         Widget _buildOpenMembersScreenTapBar() {
             return new GestureDetector(
-                onTap: () => { this.widget.actionModel.pushToChannelMembers(); },
+                onTap: () => this.widget.actionModel.pushToChannelMembers(),
                 child: new Container(
                     color: CColors.Transparent,
                     child: new Row(
@@ -201,7 +215,7 @@ namespace ConnectApp.screens {
                     children: new List<Widget> {
                         this._buildChannelIntroduction(),
                         new GestureDetector(
-                            onTap: () => { this.widget.actionModel.pushToChannelIntroduction(); },
+                            onTap: () => this.widget.actionModel.pushToChannelIntroduction(),
                             child: this._tapRow(this.widget.viewModel.channel?.topic ?? "",
                                 maxLines: 2, paddingTop: 16, 16, true)
                         ),
@@ -236,7 +250,7 @@ namespace ConnectApp.screens {
                             onChanged: value => { }),
                         new Container(height: 16),
                         new GestureDetector(
-                            onTap: () => { this.widget.actionModel.leaveChannel(); },
+                            onTap: this._leaveChannel,
                             child: new Container(
                                 color: CColors.White,
                                 height: 60,

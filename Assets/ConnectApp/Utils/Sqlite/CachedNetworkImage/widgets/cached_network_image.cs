@@ -56,7 +56,11 @@ namespace ConnectApp.Utils {
         }
         
         IEnumerator _loadFromFile(string file) {
+#if UNITY_EDITOR_WIN
+            var uri = "file:///" + file;
+#else
             var uri = "file://" + file;
+#endif
 
             if (uri.EndsWith(".gif")) {
                 using (var www = UnityWebRequest.Get(uri)) {

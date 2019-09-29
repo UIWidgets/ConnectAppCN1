@@ -13,7 +13,6 @@ namespace ConnectApp.Components {
             bool closeOnTap = true,
             Key key = null
         ) : base(key: key) {
-            D.assert(this.closeOnTap != null);
             this.width = width;
             this.padding = padding;
             this.onTap = onTap;

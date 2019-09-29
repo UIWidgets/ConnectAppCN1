@@ -10,7 +10,6 @@ using Unity.UIWidgets.painting;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
-using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.screens {
     public class ChannelIntroductionScreenConnector : StatelessWidget {
@@ -104,7 +103,7 @@ namespace ConnectApp.screens {
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: new List<Widget> {
                                                     new Text(
-                                                        this.viewModel.channel.name,
+                                                        data: this.viewModel.channel.name,
                                                         style: CTextStyle.PLargeMedium,
                                                         maxLines: 1,
                                                         overflow: TextOverflow.ellipsis

@@ -24,7 +24,18 @@ namespace ConnectApp.screens {
         }
 
         readonly string channelId;
+
+        static int _compareMember(ChannelMember m1, ChannelMember m2) {
+            if (m1.role == m2.role) return 0;
+            if (m1.role == "admin") return 1;
+            if (m2.role == "admin") return -1;
+            if (m1.role == "moderator") return -1;
+            if (m2.role == "moderator") return 1;
+            return 0;
+        }
+
         public override Widget build(BuildContext context) {
+            Dictionary<string, bool> followDict = new Dictionary<string, bool>();
             return new StoreConnector<AppState, ChannelMembersScreenViewModel>(
                 converter: state => {
                     var members = state.channelState.channelDict[key: this.channelId].memberIds.Select(
@@ -32,21 +43,13 @@ namespace ConnectApp.screens {
                     ).ToList();
                     List<ChannelMember> specialMembers = members.Where(member => member.role != "member").ToList();
                     List<ChannelMember> normalMembers = members.Where(member => member.role == "member").ToList();
-                    specialMembers.Sort((m1, m2) => {
-                        if (m1.role == m2.role) return 0;
-                        if (m1.role == "admin") return 1;
-                        if (m2.role == "admin") return -1;
-                        if (m1.role == "moderator") return -1;
-                        if (m2.role == "moderator") return 1;
-                        return 0;
-                    });
+                    specialMembers.Sort(comparison: _compareMember);
+                    if (state.loginState.isLoggedIn) {
+                        state.followState.followDict.TryGetValue(key: state.loginState.loginInfo.userId, value: out followDict);
+                    }
                     return new ChannelMembersScreenViewModel {
                         channel = state.channelState.channelDict[key: this.channelId],
-                        followed = state.loginState.isLoggedIn
-                            ? state.followState.followDict.TryGetValue(key: state.loginState.loginInfo.userId, out var followDict)
-                                ? followDict
-                                : new Dictionary<string, bool>()
-                            : new Dictionary<string, bool>(),
+                        followed = followDict,
                         userDict = state.userState.userDict,
                         normalMembers = normalMembers,
                         specialMembers = specialMembers,
@@ -108,7 +111,6 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             this._refreshController = new RefreshController();
-            // this.widget.actionModel.fetchMembers();
         }
 
         public override Widget build(BuildContext context) {

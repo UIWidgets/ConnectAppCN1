@@ -8,8 +8,8 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.Components {
-    public class ChannelCard : StatelessWidget {
-        public ChannelCard(
+    public class DiscoverChannelCard : StatelessWidget {
+        public DiscoverChannelCard(
             ChannelView channel,
             GestureTapCallback joinChannel = null,
             Key key = null

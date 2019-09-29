@@ -112,24 +112,23 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildContent() {
-            var enablePullUp = true;
             return new Container(
                 color: CColors.Background,
                 child: new CustomListView(
                     controller: this._refreshController,
-                    enablePullDown: true,
-                    enablePullUp: enablePullUp,
+                    enablePullDown: false,
+                    enablePullUp: false,
                     onRefresh: this._onRefresh,
                     itemCount: this.widget.viewModel.publicChannels.Count,
                     itemBuilder: (cxt, index) => {
                         var channel = this.widget.viewModel.publicChannels[index: index];
-                        return new ChannelCard(
+                        return new DiscoverChannelCard(
                             channel: channel,
                             () => this.widget.actionModel.joinChannel(arg1: channel.id, arg2: channel.groupId)
                         );
                     }, 
                     headerWidget: CustomListViewConstant.defaultHeaderWidget,
-                    footerWidget: enablePullUp ? null : CustomListViewConstant.defaultFooterWidget
+                    footerWidget: CustomListViewConstant.defaultFooterWidget
                 )
             );
         }

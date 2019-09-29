@@ -47,7 +47,9 @@ namespace ConnectApp.redux.actions {
                             channelId = channelId,
                             messages = channelMessagesResponse.items ?? new List<ChannelMessage>(),
                             before = before,
-                            after = after
+                            after = after,
+                            hasMore = channelMessagesResponse.hasMore,
+                            hasMoreNew = channelMessagesResponse.hasMoreNew
                         });
                         dispatcher.dispatch(channelMessagesResponse.items?.isNotEmpty() ?? false
                             ? saveMessagesToDB(channelMessagesResponse.items)
@@ -139,18 +141,31 @@ namespace ConnectApp.redux.actions {
             });
         }
 
+        public static object ackChannelMessage(string messageId) {
+            return new ThunkAction<AppState>((dispatcher, getState) => {
+                return ChannelApi.AckChannelMessage(messageId)
+                    .Then(ackMessageResponse => {
+                        dispatcher.dispatch(new SendChannelMessageSuccessAction());
+                    })
+                    .Catch(error => {
+                        dispatcher.dispatch(new SendChannelMessageFailureAction());
+                        Debug.Log(error);
+                    });
+            });
+        }
+
         public static object sendImage(string channelId, string nonce, string imageData) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ChannelApi.SendImage(channelId, "", nonce, imageData)
                     .Then(responseText => {
-                        dispatcher.dispatch(new SendMessageSuccessAction {
+                        dispatcher.dispatch(new SendChannelMessageSuccessAction {
                             channelId = channelId,
                             content = "",
                             nonce = nonce
                         });
                     })
                     .Catch(error => {
-                        dispatcher.dispatch(new SendMessageFailureAction());
+                        dispatcher.dispatch(new SendChannelMessageFailureAction());
                         Debug.Log(error);
                     });
             });
@@ -211,6 +226,8 @@ namespace ConnectApp.redux.actions {
         public List<ChannelMessage> messages;
         public string before;
         public string after;
+        public bool hasMore;
+        public bool hasMoreNew;
     }
 
     public class ChannelMemberAction {
@@ -255,6 +272,12 @@ namespace ConnectApp.redux.actions {
 
     public class SendChannelMessageFailureAction : BaseAction {
         public string channelId;
+    }
+    
+    public class AckChannelMessageSuccessAction : BaseAction {
+    }
+    
+    public class AckChannelMessageFailureAction : BaseAction {
     }
 
     public class ClearSentChannelMessage : BaseAction {

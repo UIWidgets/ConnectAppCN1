@@ -61,7 +61,7 @@ namespace ConnectApp.Components {
             }
 
             return new ClipRRect(
-                borderRadius: BorderRadius.all(this.borderRadius == null ? 0 : (float) this.borderRadius),
+                borderRadius: BorderRadius.all(this.borderRadius ?? 0),
                 child: child
             );
         }
