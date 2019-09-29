@@ -3,6 +3,7 @@ using System.Linq;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
+using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
@@ -116,6 +117,16 @@ namespace ConnectApp.screens {
             this._refreshController = new RefreshController();
         }
 
+        public override void didChangeDependencies() {
+            base.didChangeDependencies();
+            Router.routeObserve.subscribe(this, (PageRoute) ModalRoute.of(context: this.context));
+        }
+
+        public override void dispose() {
+            Router.routeObserve.unsubscribe(this);
+            base.dispose();
+        }
+
         bool _hasJoinedChannel() {
             return this.widget.viewModel.joinedChannels.isNotEmpty();
         }
@@ -124,31 +135,36 @@ namespace ConnectApp.screens {
             base.build(context: context);
             var enablePullUp = !this._hasJoinedChannel();
             return new Container(
-                color: CColors.Background,
+                padding: EdgeInsets.only(top: CCommonUtils.getSafeAreaTopPadding(context: context)),
+                color: CColors.White,
                 child: new Column(
                     children: new List<Widget> {
                         this._buildNavigationBar(),
                         new Container(color: CColors.Separator2, height: 1),
                         new Flexible(
                             child: new NotificationListener<ScrollNotification>(
-                                child: new SectionView(
-                                    controller: this._refreshController,
-                                    enablePullDown: false,
-                                    enablePullUp: enablePullUp,
-                                    onRefresh: this._onRefresh,
-                                    sectionCount: 2,
-                                    numOfRowInSection: section => {
-                                        if (section == 0) {
-                                            return !this._hasJoinedChannel()
-                                                ? 1
-                                                : this.widget.viewModel.joinedChannels.Count;
-                                        }
+                                child: new Container(
+                                    color: CColors.Background,
+                                    child: new SectionView(
+                                        controller: this._refreshController,
+                                        enablePullDown: false,
+                                        enablePullUp: enablePullUp,
+                                        onRefresh: this._onRefresh,
+                                        hasBottomMargin: true,
+                                        sectionCount: 2,
+                                        numOfRowInSection: section => {
+                                            if (section == 0) {
+                                                return !this._hasJoinedChannel()
+                                                    ? 1
+                                                    : this.widget.viewModel.joinedChannels.Count;
+                                            }
 
-                                        return this.widget.viewModel.publicChannels.Count;
-                                    },
-                                    headerInSection: this._headerInSection,
-                                    cellAtIndexPath: this._buildMessageItem,
-                                    footerWidget: enablePullUp ? null : CustomListViewConstant.defaultFooterWidget
+                                            return this.widget.viewModel.publicChannels.Count;
+                                        },
+                                        headerInSection: this._headerInSection,
+                                        cellAtIndexPath: this._buildMessageItem,
+                                        footerWidget: enablePullUp ? null : new EndView(hasBottomMargin: true)
+                                    )
                                 )
                             )
                         )
@@ -284,7 +300,7 @@ namespace ConnectApp.screens {
         }
 
         public void didPopNext() {
-            if (this.widget.viewModel.currentTabBarIndex == 0) {
+            if (this.widget.viewModel.currentTabBarIndex == 2) {
                 StatusBarManager.statusBarStyle(false);
             }
         }

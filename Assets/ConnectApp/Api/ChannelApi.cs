@@ -2,12 +2,10 @@ using System;
 using System.Collections.Generic;
 using ConnectApp.Constants;
 using ConnectApp.Models.Api;
-using ConnectApp.Models.Model;
 using ConnectApp.Utils;
 using Newtonsoft.Json;
 using RSG;
 using Unity.UIWidgets.foundation;
-using UnityEngine;
 
 namespace ConnectApp.Api {
     public static class ChannelApi {
@@ -16,7 +14,7 @@ namespace ConnectApp.Api {
             var para = new Dictionary<string, object> {
                 {"discover", "true"},
                 {"discoverPage", page},
-                {"joined", "true"},
+                {"joined", "true"}
             };
             var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/channels", parameter: para);
             HttpManager.resume(request).Then(responseText => {
