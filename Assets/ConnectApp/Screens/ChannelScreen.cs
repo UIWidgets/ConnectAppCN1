@@ -1036,7 +1036,7 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             this.image = CachedNetworkImageProvider.cachedNetworkImage(
-                src: this.widget.url,
+                src: CImageUtils.SizeTo200ImageUrl(this.widget.url),
                 headers: this.widget.headers);
             this.stream = this.image.image
                 .resolve(new ImageConfiguration());
