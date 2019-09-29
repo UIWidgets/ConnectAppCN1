@@ -12,6 +12,7 @@ using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
+using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
@@ -115,9 +116,13 @@ namespace ConnectApp.screens {
             this._refreshController = new RefreshController();
         }
 
+        bool _hasJoinedChannel() {
+            return this.widget.viewModel.joinedChannels.isNotEmpty();
+        }
+
         public override Widget build(BuildContext context) {
             base.build(context: context);
-            var enablePullUp = this.widget.viewModel.joinedChannels.isEmpty();
+            var enablePullUp = !this._hasJoinedChannel();
             return new Container(
                 color: CColors.Background,
                 child: new Column(
@@ -134,7 +139,7 @@ namespace ConnectApp.screens {
                                     sectionCount: 2,
                                     numOfRowInSection: section => {
                                         if (section == 0) {
-                                            return this.widget.viewModel.joinedChannels.isEmpty()
+                                            return !this._hasJoinedChannel()
                                                 ? 1
                                                 : this.widget.viewModel.joinedChannels.Count;
                                         }
@@ -176,7 +181,7 @@ namespace ConnectApp.screens {
             }
 
             Widget rightWidget;
-            if (this.widget.viewModel.joinedChannels.isEmpty()) {
+            if (!this._hasJoinedChannel()) {
                 rightWidget = new Container();
             }
             else {
@@ -208,12 +213,12 @@ namespace ConnectApp.screens {
             return new Container(
                 child: new Column(
                     children: new List<Widget> {
-                        this.widget.viewModel.joinedChannels.isEmpty()
+                        !this._hasJoinedChannel()
                             ? new Container(height: 24, color: CColors.White)
                             : new Container(height: 16),
                         new Container(
                             color: CColors.White,
-                            padding: this.widget.viewModel.joinedChannels.isEmpty()
+                            padding: !this._hasJoinedChannel()
                                 ? EdgeInsets.all(16)
                                 : EdgeInsets.only(16, 16, 8, 16),
                             child: new Row(
@@ -234,10 +239,11 @@ namespace ConnectApp.screens {
         Widget _buildMessageItem(BuildContext context, int section, int row) {
             var joinedChannels = this.widget.viewModel.joinedChannels;
             if (section == 0) {
-                if (joinedChannels.isEmpty()) {
+                if (!this._hasJoinedChannel()) {
                     return new Container(
                         color: CColors.White,
                         child: new Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: new List<Widget> {
                                 new Container(
                                     padding: EdgeInsets.only(16, right: 16, top: 20),
