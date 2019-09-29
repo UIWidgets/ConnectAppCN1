@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
@@ -34,8 +33,7 @@ namespace ConnectApp.screens {
                     notifications = state.notificationState.notifications,
                     mentions = state.notificationState.mentions,
                     userDict = state.userState.userDict,
-                    teamDict = state.teamState.teamDict,
-                    currentTabBarIndex = state.tabBarState.currentTabIndex
+                    teamDict = state.teamState.teamDict
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new NotificationScreenActionModel {
@@ -84,65 +82,23 @@ namespace ConnectApp.screens {
         }
     }
 
-    public class _NotificationScreenState : AutomaticKeepAliveClientMixin<NotificationScreen>, RouteAware {
+    public class _NotificationScreenState : State<NotificationScreen>, RouteAware {
         const int firstPageNumber = 1;
         int _pageNumber = firstPageNumber;
         RefreshController _refreshController;
-        TextStyle titleStyle;
-        const float maxNavBarHeight = 96;
-        const float minNavBarHeight = 44;
-        float navBarHeight;
-        string _loginSubId;
         string _refreshSubId;
-        bool _hasBeenLoadedData;
-
-        protected override bool wantKeepAlive {
-            get { return true; }
-        }
 
         public override void initState() {
             base.initState();
             StatusBarManager.statusBarStyle(false);
             this._refreshController = new RefreshController();
-            this.navBarHeight = maxNavBarHeight;
-            this.titleStyle = CTextStyle.H2;
-            this._hasBeenLoadedData = false;
             SchedulerBinding.instance.addPostFrameCallback(_ => {
                 this.widget.actionModel.startFetchNotifications();
-                this.widget.actionModel.fetchNotifications(arg: firstPageNumber).Then(() => {
-                    if (this._hasBeenLoadedData) {
-                        return;
-                    }
-
-                    this._hasBeenLoadedData = true;
-                    this.setState(() => { });
-                });
-            });
-            this._loginSubId = EventBus.subscribe(sName: EventBusConstant.login_success, args => {
-                this.navBarHeight = maxNavBarHeight;
-                this.titleStyle = CTextStyle.H2;
-                this.widget.actionModel.startFetchNotifications();
-                this.widget.actionModel.fetchNotifications(arg: firstPageNumber).Then(() => {
-                    if (this._hasBeenLoadedData) {
-                        return;
-                    }
-
-                    this._hasBeenLoadedData = true;
-                    this.setState(() => { });
-                });
+                this.widget.actionModel.fetchNotifications(arg: firstPageNumber);
             });
             this._refreshSubId = EventBus.subscribe(sName: EventBusConstant.refreshNotifications, args => {
-                this.navBarHeight = maxNavBarHeight;
-                this.titleStyle = CTextStyle.H2;
                 this.widget.actionModel.startFetchNotifications();
-                this.widget.actionModel.fetchNotifications(arg: firstPageNumber).Then(() => {
-                    if (this._hasBeenLoadedData) {
-                        return;
-                    }
-
-                    this._hasBeenLoadedData = true;
-                    this.setState(() => { });
-                });
+                this.widget.actionModel.fetchNotifications(arg: firstPageNumber);
             });
         }
 
@@ -152,36 +108,26 @@ namespace ConnectApp.screens {
         }
 
         public override void dispose() {
-            EventBus.unSubscribe(sName: EventBusConstant.login_success, id: this._loginSubId);
             EventBus.unSubscribe(sName: EventBusConstant.refreshNotifications, id: this._refreshSubId);
             Router.routeObserve.unsubscribe(this);
             base.dispose();
         }
 
         public override Widget build(BuildContext context) {
-            base.build(context: context);
             Widget content;
             var notifications = this.widget.viewModel.notifications;
-            if (!this._hasBeenLoadedData || this.widget.viewModel.notificationLoading && 0 == notifications.Count) {
-                content = new Container(
-                    padding: EdgeInsets.only(bottom: CConstant.TabBarHeight +
-                                                     CCommonUtils.getSafeAreaBottomPadding(context: context)),
-                    child: new GlobalLoading()
-                );
+            if (this.widget.viewModel.notificationLoading && 0 == notifications.Count) {
+                content = new GlobalLoading();
             }
             else if (0 == notifications.Count) {
-                content = new Container(
-                    padding: EdgeInsets.only(bottom: CConstant.TabBarHeight +
-                                                     CCommonUtils.getSafeAreaBottomPadding(context: context)),
-                    child: new BlankView(
-                        "好冷清，多和小伙伴们互动呀",
-                        "image/default-notification",
-                        true,
-                        () => {
-                            this.widget.actionModel.startFetchNotifications();
-                            this.widget.actionModel.fetchNotifications(arg: firstPageNumber);
-                        }
-                    )
+                content = new BlankView(
+                    "好冷清，多和小伙伴们互动呀",
+                    "image/default-notification",
+                    true,
+                    () => {
+                        this.widget.actionModel.startFetchNotifications();
+                        this.widget.actionModel.fetchNotifications(arg: firstPageNumber);
+                    }
                 );
             }
             else {
@@ -193,17 +139,15 @@ namespace ConnectApp.screens {
                         enablePullDown: true,
                         enablePullUp: enablePullUp,
                         onRefresh: this._onRefresh,
-                        hasBottomMargin: true,
                         itemCount: notifications.Count,
                         itemBuilder: this._buildNotificationCard,
-                        footerWidget: enablePullUp ? null : new EndView(hasBottomMargin: true),
+                        footerWidget: enablePullUp ? null : CustomListViewConstant.defaultFooterWidget,
                         hasScrollBar: false
                     )
                 );
             }
 
             return new Container(
-                padding: EdgeInsets.only(top: CCommonUtils.getSafeAreaTopPadding(context: context)),
                 color: CColors.White,
                 child: new Column(
                     children: new List<Widget> {
@@ -213,10 +157,7 @@ namespace ConnectApp.screens {
                             height: 1
                         ),
                         new Flexible(
-                            child: new NotificationListener<ScrollNotification>(
-                                onNotification: this._onNotification,
-                                child: new CustomScrollbar(child: content)
-                            )
+                            child: new CustomScrollbar(child: content)
                         )
                     }
                 )
@@ -297,32 +238,6 @@ namespace ConnectApp.screens {
             );
         }
 
-        bool _onNotification(ScrollNotification notification) {
-            var pixels = notification.metrics.pixels;
-            SchedulerBinding.instance.addPostFrameCallback(_ => {
-                if (pixels > 0 && pixels <= 52) {
-                    this.titleStyle = CTextStyle.H5;
-                    this.navBarHeight = maxNavBarHeight - pixels;
-                    this.setState(() => { });
-                }
-                else if (pixels <= 0) {
-                    if (this.navBarHeight <= maxNavBarHeight) {
-                        this.titleStyle = CTextStyle.H2;
-                        this.navBarHeight = maxNavBarHeight;
-                        this.setState(() => { });
-                    }
-                }
-                else if (pixels > 52) {
-                    if (!(this.navBarHeight <= minNavBarHeight)) {
-                        this.titleStyle = CTextStyle.H5;
-                        this.navBarHeight = minNavBarHeight;
-                        this.setState(() => { });
-                    }
-                }
-            });
-            return true;
-        }
-
         void _onRefresh(bool up) {
             this._pageNumber = up ? firstPageNumber : this.widget.viewModel.page + 1;
 
@@ -332,9 +247,7 @@ namespace ConnectApp.screens {
         }
 
         public void didPopNext() {
-            if (this.widget.viewModel.currentTabBarIndex == 2) {
-                StatusBarManager.statusBarStyle(false);
-            }
+            StatusBarManager.statusBarStyle(false);
         }
 
         public void didPush() {

@@ -239,6 +239,7 @@ namespace ConnectApp.Models.Api {
         public List<ChannelMessage> items;
         public bool hasMore;
         public bool hasMoreNew;
+        public Dictionary<string, UserLicense> userLicenseMap; 
     }
 
     [Serializable]

@@ -101,6 +101,11 @@ namespace ConnectApp.screens {
                         pushToChannelDetail = () => dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction {
                             channelId = this.channelId
                         }),
+                        pushToUserDetail = userId => dispatcher.dispatch(
+                            new MainNavigatorPushToUserDetailAction {
+                                userId = userId
+                            }
+                        ),
                         sendMessage = (channelId, content, nonce, parentMessageId) => dispatcher.dispatch<IPromise>(
                             Actions.sendChannelMessage(channelId, content, nonce, parentMessageId)),
                         startSendMessage = () => dispatcher.dispatch(new StartSendChannelMessageAction {
@@ -427,7 +432,10 @@ namespace ConnectApp.screens {
         Widget _buildAvatar(User user) {
             return new Container(
                 padding: EdgeInsets.symmetric(0, 10),
-                child: Avatar.User(user, size: 40, useCachedNetworkImage: true)
+                child: new GestureDetector(
+                    onTap: () => this.widget.actionModel.pushToUserDetail(user.id),
+                    child: Avatar.User(user: user, 40, useCachedNetworkImage: true)
+                )
             );
         }
 
@@ -549,9 +557,9 @@ namespace ConnectApp.screens {
                     return this._buildFileMessageContent();
                 case ChannelMessageType.embed:
                     return this._buildEmbedMessageContent(message);
+                default:
+                    return new Container();
             }
-
-            return new Container();
         }
 
         Widget _buildTime(DateTime time) {

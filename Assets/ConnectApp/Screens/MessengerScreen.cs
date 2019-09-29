@@ -124,6 +124,7 @@ namespace ConnectApp.screens {
             base.build(context: context);
             var enablePullUp = !this._hasJoinedChannel();
             return new Container(
+                padding: EdgeInsets.only(top: CCommonUtils.getSafeAreaTopPadding(context: context)),
                 color: CColors.Background,
                 child: new Column(
                     children: new List<Widget> {
@@ -284,7 +285,7 @@ namespace ConnectApp.screens {
         }
 
         public void didPopNext() {
-            if (this.widget.viewModel.currentTabBarIndex == 0) {
+            if (this.widget.viewModel.currentTabBarIndex == 2) {
                 StatusBarManager.statusBarStyle(false);
             }
         }

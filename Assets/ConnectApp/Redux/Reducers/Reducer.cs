@@ -2548,11 +2548,11 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case FetchChannelsSuccessAction action: {
-                    for (int i = 0; i < action.discoverList.Count; i++) {
-                        if (!state.channelState.publicChannels.Contains(action.discoverList[i])) {
-                            state.channelState.publicChannels.Add(action.discoverList[i]);
+                    action.discoverList.ForEach(discover => {
+                        if (!state.channelState.publicChannels.Contains(item: discover)) {
+                            state.channelState.publicChannels.Add(item: discover);
                         }
-                    }
+                    });
 
                     state.channelState.discoverPage = action.discoverPage;
                     state.channelState.joinedChannels = action.joinedList;

@@ -5,7 +5,7 @@ using Unity.UIWidgets.foundation;
 using UnityEngine;
 
 namespace ConnectApp.Utils {
-    public class ChannelTopManager {
+    public static class ChannelTopManager {
         const string _channelTop = "ChannelTop";
 
         public static void saveChannelTop(Dictionary<string, bool> unread) {

@@ -8,13 +8,9 @@ using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using Canvas = Unity.UIWidgets.ui.Canvas;
-using Color = Unity.UIWidgets.ui.Color;
-using Rect = Unity.UIWidgets.ui.Rect;
 
 namespace ConnectApp.Components {
-    class CustomSwitchUtils {
+    static class CustomSwitchUtils {
         public const float _kTrackWidth = 50.0f;
         public const float _kTrackHeight = 28.0f;
         public const float _kTrackRadius = _kTrackHeight / 2.0f;
