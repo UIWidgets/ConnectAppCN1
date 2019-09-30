@@ -51,10 +51,11 @@ namespace ConnectApp.screens {
                     }
 
                     var channel = state.channelState.channelDict[this.channelId];
+                    List<ChannelMessageView> newMessages = null;
                     List<ChannelMessageView> messages;
                     if (channel.newMessageIds.isNotEmpty()) {
-                        messages = channel.newMessageIds.Select(getMessage).ToList();
-                        messages.AddRange(channel.messageIds.Select(getMessage));
+                        messages = channel.messageIds.Select(getMessage).ToList();
+                        newMessages = channel.newMessageIds.Select(getMessage).ToList();
                     }
                     else if (channel.oldMessageIds.isNotEmpty()) {
                         messages = channel.oldMessageIds.Select(getMessage).ToList();
@@ -67,18 +68,14 @@ namespace ConnectApp.screens {
                     return new ChannelScreenViewModel {
                         channel = state.channelState.channelDict[this.channelId],
                         messages = messages,
+                        newMessages = newMessages ?? new List<ChannelMessageView>(),
                         me = state.loginState.loginInfo.userId,
                         messageLoading = state.channelState.messageLoading,
                         newMessageCount = state.channelState.channelDict[this.channelId].unread
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
-                    if (viewModel.channel.newMessageIds.isNotEmpty()) {
-                        SchedulerBinding.instance.addPostFrameCallback(_ => {
-                            dispatcher.dispatch(new MergeNewChannelMessages {channelId = this.channelId});
-                        });
-                    }
-                    else if (viewModel.channel.oldMessageIds.isNotEmpty()) {
+                    if (viewModel.channel.oldMessageIds.isNotEmpty()) {
                         SchedulerBinding.instance.addPostFrameCallback(_ => {
                             dispatcher.dispatch(new MergeOldChannelMessages {channelId = this.channelId});
                         });
@@ -121,6 +118,7 @@ namespace ConnectApp.screens {
                         reportHitBottom = () => {
                             dispatcher.dispatch(new ChannelScreenHitBottom {channelId = this.channelId});
                             dispatcher.dispatch(Actions.ackChannelMessage(viewModel.channel.lastMessageId));
+                            dispatcher.dispatch(new MergeNewChannelMessages {channelId = this.channelId});
                         },
                         reportLeaveBottom = () => dispatcher.dispatch(new ChannelScreenLeaveBottom {
                             channelId = this.channelId
@@ -941,6 +939,21 @@ namespace ConnectApp.screens {
         void _handleScrollListener() {
             if (this._refreshController.offset <= bottomThreashold) {
                 if (this._lastScrollPosition == null || this._lastScrollPosition > bottomThreashold) {
+                    if (this.widget.viewModel.channel.newMessageIds.isNotEmpty()) {
+                        float offset = 0;
+                        for (int i = 0; i < this.widget.viewModel.newMessages.Count; i++) {
+                            var message = this.widget.viewModel.newMessages[i];
+                            offset += calculateMessageHeight(message,
+                                showTime: i == 0
+                                    ? message.time - this.widget.viewModel.messages.last().time >
+                                      TimeSpan.FromMinutes(5)
+                                    : message.time - this.widget.viewModel.newMessages[i - 1].time >
+                                      TimeSpan.FromMinutes(5),
+                                this.messageBubbleWidth);
+                        }
+                        this._refreshController.scrollController.jumpTo(
+                            this._refreshController.scrollController.offset + offset);
+                    }
                     this.widget.actionModel.reportHitBottom();
                 }
             }
@@ -1006,6 +1019,48 @@ namespace ConnectApp.screens {
         }
 
         public void didPushNext() {
+        }
+
+
+        public static float calculateMessageHeight(ChannelMessageView message, bool showTime, float width) {
+            float height = 20 + 6 + 16 + (showTime ? 36 : 0); // Name + Internal + Bottom padding + time
+            switch (message.type) {
+                case ChannelMessageType.text:
+                    height += 16 + CTextUtils.CalculateTextHeight(
+                                  message.content,
+                                  CTextStyle.PLargeBody,
+                                  width - 24, maxLines: null);
+                    break;
+                case ChannelMessageType.image:
+                    height += message.width > message.height * 16.0f / 9.0f
+                        ? 140.0f * 9.0f / 16.0f
+                        : message.width > message.height
+                            ? 140.0f * message.height / message.width
+                            : 140.0f;
+                    break;
+                case ChannelMessageType.file:
+                    height += 16 + CTextUtils.CalculateTextHeight(
+                                  "[你收到一个文件，请在浏览器上查看]",
+                                  CTextStyle.PLargeBody5,
+                                  width - 24, maxLines: null);
+                    break;
+                case ChannelMessageType.embed:
+                    height += 24 + CTextUtils.CalculateTextHeight(
+                                  message.content,
+                                  CTextStyle.PLargeBody,
+                                  width - 24, maxLines: null) + 24 +
+                              CTextUtils.CalculateTextHeight(
+                                  message.embeds[0].embedData.title,
+                                  CTextStyle.PLargeMediumBlue,
+                                  width - 48, maxLines: null) + 4 +
+                              CTextUtils.CalculateTextHeight(
+                                  message.embeds[0].embedData.description,
+                                  CTextStyle.PRegularBody3,
+                                  width - 48, maxLines: 4) + 4 + 22 + 12;
+                    break;
+            }
+
+            return height;
         }
     }
 
