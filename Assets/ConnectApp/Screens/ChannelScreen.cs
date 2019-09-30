@@ -437,7 +437,7 @@ namespace ConnectApp.screens {
                 padding: EdgeInsets.symmetric(0, 10),
                 child: new GestureDetector(
                     onTap: () => this.widget.actionModel.pushToUserDetail(user.id),
-                    child: Avatar.User(user: user, 40, useCachedNetworkImage: true)
+                    child: Avatar.User(user.avatar.isNotEmpty() ? user.copyWith(avatar: CImageUtils.SizeTo200ImageUrl(user.avatar)) : user, 40, useCachedNetworkImage: true)
                 )
             );
         }
