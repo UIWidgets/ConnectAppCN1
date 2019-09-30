@@ -441,7 +441,10 @@ namespace ConnectApp.screens {
                 padding: EdgeInsets.symmetric(0, 10),
                 child: new GestureDetector(
                     onTap: () => this.widget.actionModel.pushToUserDetail(user.id),
-                    child: Avatar.User(user: user, 40, useCachedNetworkImage: true)
+                    child: Avatar.User(
+                        user.avatar.isNotEmpty()
+                            ? user.copyWith(avatar: CImageUtils.SizeTo200ImageUrl(user.avatar))
+                            : user, 40, useCachedNetworkImage: true)
                 )
             );
         }
@@ -1058,16 +1061,19 @@ namespace ConnectApp.screens {
                     width: this.widget.size,
                     height: this.widget.size / this.widget.ratio);
             }
+
             if (size.width > size.height) {
                 return new Size(
                     width: this.widget.size,
                     height: this.widget.size / size.width * size.height);
             }
+
             if (size.width > size.height / this.widget.ratio) {
                 return new Size(
                     width: this.widget.size / size.height * size.width,
                     height: this.widget.size);
             }
+
             return new Size(
                 width: this.widget.size / this.widget.ratio,
                 height: this.widget.size);

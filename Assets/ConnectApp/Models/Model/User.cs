@@ -33,7 +33,7 @@ namespace ConnectApp.Models.Model {
         public List<string> badges;
         public string errorCode;
 
-        User copyWith(
+        public User copyWith(
             string id = null,
             string type = null,
             string username = null,
