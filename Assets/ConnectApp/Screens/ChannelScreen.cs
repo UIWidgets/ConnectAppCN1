@@ -23,6 +23,8 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
+using Avatar = ConnectApp.Components.Avatar;
 using Config = ConnectApp.Constants.Config;
 using Icons = ConnectApp.Constants.Icons;
 using Image = Unity.UIWidgets.widgets.Image;
@@ -913,7 +915,7 @@ namespace ConnectApp.screens {
             this.widget.actionModel.startSendMessage();
             this.widget.actionModel.sendMessage(
                     this.widget.viewModel.channel.id,
-                    text, Snowflake.CreateNonceLocal(), "")
+                    text, Snowflake.CreateNonce(), "")
                 .Catch(_ => CustomDialogUtils.showToast("消息发送失败", Icons.error_outline));
             this._refreshController.scrollTo(0);
             FocusScope.of(this.context).requestFocus(this._focusNode);
@@ -990,7 +992,7 @@ namespace ConnectApp.screens {
             this.widget.actionModel.sendImage(
                 arg1: this.widget.viewModel.channel.id,
                 arg2: pickImage,
-                Snowflake.CreateNonceLocal());
+                Snowflake.CreateNonce());
         }
 
         public void didPop() {
