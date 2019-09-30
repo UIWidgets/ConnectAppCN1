@@ -23,7 +23,6 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Avatar = ConnectApp.Components.Avatar;
 using Config = ConnectApp.Constants.Config;
 using Icons = ConnectApp.Constants.Icons;
 using Image = Unity.UIWidgets.widgets.Image;
@@ -221,7 +220,10 @@ namespace ConnectApp.screens {
             }
 
             if (this.widget.viewModel.channel.sentMessageSuccess) {
-                SchedulerBinding.instance.addPostFrameCallback(_ => this._textController.clear());
+                SchedulerBinding.instance.addPostFrameCallback(_ => {
+                    this._textController.clear();
+                    this._textController.selection = TextSelection.collapsed(0);
+                });
             }
 
             if (this.widget.viewModel.channel.sentMessageFailed) {
@@ -437,7 +439,10 @@ namespace ConnectApp.screens {
                 padding: EdgeInsets.symmetric(0, 10),
                 child: new GestureDetector(
                     onTap: () => this.widget.actionModel.pushToUserDetail(user.id),
-                    child: Avatar.User(user.avatar.isNotEmpty() ? user.copyWith(avatar: CImageUtils.SizeTo200ImageUrl(user.avatar)) : user, 40, useCachedNetworkImage: true)
+                    child: Avatar.User(
+                        user.avatar.isNotEmpty()
+                            ? user.copyWith(avatar: CImageUtils.SizeTo200ImageUrl(user.avatar))
+                            : user, 40, useCachedNetworkImage: true)
                 )
             );
         }
@@ -911,6 +916,7 @@ namespace ConnectApp.screens {
                     text, Snowflake.CreateNonceLocal(), "")
                 .Catch(_ => CustomDialogUtils.showToast("消息发送失败", Icons.error_outline));
             this._refreshController.scrollTo(0);
+            FocusScope.of(this.context).requestFocus(this._focusNode);
         }
 
         void _onRefresh(bool up) {
@@ -1053,16 +1059,19 @@ namespace ConnectApp.screens {
                     width: this.widget.size,
                     height: this.widget.size / this.widget.ratio);
             }
+
             if (size.width > size.height) {
                 return new Size(
                     width: this.widget.size,
                     height: this.widget.size / size.width * size.height);
             }
+
             if (size.width > size.height / this.widget.ratio) {
                 return new Size(
                     width: this.widget.size / size.height * size.width,
                     height: this.widget.size);
             }
+
             return new Size(
                 width: this.widget.size / this.widget.ratio,
                 height: this.widget.size);
