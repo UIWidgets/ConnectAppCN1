@@ -43,6 +43,11 @@ namespace ConnectApp.screens {
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new ChannelDetailScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
+                        pushToUserDetail = userId => dispatcher.dispatch(
+                            new MainNavigatorPushToUserDetailAction {
+                                userId = userId
+                            }
+                        ),
                         pushToChannelMembers = () => dispatcher.dispatch(new MainNavigatorPushToChannelMembersAction {
                             channelId = this.channelId
                         }),
@@ -176,7 +181,7 @@ namespace ConnectApp.screens {
                             new Text(
                                 $"查看{this.widget.viewModel.channel?.memberCount ?? 0}名群成员",
                                 style: new TextStyle(
-                                    fontSize: 12,
+                                    fontSize: 14,
                                     fontFamily: "Roboto-Regular",
                                     color: CColors.TextBody4
                                 )
@@ -216,8 +221,28 @@ namespace ConnectApp.screens {
                         this._buildChannelIntroduction(),
                         new GestureDetector(
                             onTap: () => this.widget.actionModel.pushToChannelIntroduction(),
-                            child: this._tapRow(this.widget.viewModel.channel?.topic ?? "",
-                                maxLines: 2, paddingTop: 16, 16, true)
+                            child: new Container(
+                                color: CColors.White,
+                                padding: EdgeInsets.only(16, 16, 16, 21),
+                                child: new Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: new List<Widget> {
+                                        new Expanded(
+                                            child: new Text(
+                                                this.widget.viewModel.channel?.topic ?? "",
+                                                style: CTextStyle.PRegularBody2,
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 2
+                                            )
+                                        ),
+                                        new Icon(
+                                            icon: Icons.arrow_forward,
+                                            size: 16,
+                                            color: CColors.Icon
+                                        )
+                                    }
+                                )
+                            )
                         ),
                         new Container(height: 16),
                         new Container(
@@ -262,27 +287,6 @@ namespace ConnectApp.screens {
                     }
                 )
             );
-        }
-
-        Widget _tapRow(string content, int maxLines, int paddingTop, int paddingBottom, bool smallFont = false) {
-            return new Container(
-                color: CColors.White,
-                padding: EdgeInsets.only(16, right: 16, top: paddingTop, bottom: paddingBottom),
-                child: new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: new List<Widget> {
-                        new Expanded(
-                            child: new Text(content,
-                                style: smallFont ? CTextStyle.PRegularBody : CTextStyle.PLargeBody,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: maxLines)
-                        ),
-                        new Icon(
-                            icon: Icons.arrow_forward,
-                            size: 16,
-                            color: CColors.Icon
-                        )
-                    }));
         }
 
         Widget _switchRow(string content, bool value, ValueChanged<bool> onChanged) {

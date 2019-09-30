@@ -97,9 +97,9 @@ namespace ConnectApp.screens {
             StatusBarManager.hideStatusBar(false);
             SplashManager.fetchSplash();
             AnalyticsManager.AnalyticsOpenApp();
-            SchedulerBinding.instance.addPostFrameCallback(_ => { this.widget.actionModel.fetchReviewUrl(); });
             SchedulerBinding.instance.addPostFrameCallback(_ => {
-                if (UserInfoManager.isLogin()) {
+                this.widget.actionModel.fetchReviewUrl();
+                if (this.widget.viewModel.isLoggedIn) {
                     this.widget.actionModel.fetchChannels();
                 }
             });

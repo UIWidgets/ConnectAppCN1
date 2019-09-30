@@ -44,12 +44,13 @@ namespace ConnectApp.Plugins {
                             if (image != null) {
                                 _imageCallBack?.Invoke(obj: image);
                             }
-
                             removeListener();
+                            StatusBarManager.hideStatusBar(false);
                             break;
                         }
                         case "cancel": {
                             removeListener();
+                            StatusBarManager.hideStatusBar(false);
                             break;
                         }
                     }

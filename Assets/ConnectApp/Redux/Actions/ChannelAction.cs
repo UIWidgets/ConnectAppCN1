@@ -1,10 +1,8 @@
-using System;
 using System.Collections.Generic;
 using ConnectApp.Api;
 using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
-using ConnectApp.Models.ViewModel;
 using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
@@ -24,10 +22,10 @@ namespace ConnectApp.redux.actions {
                             joinedChannelMap = channelResponse.joinedChannelMap ?? new Dictionary<string, bool>()
                         });
                         if (fetchMessagesAfterSuccess) {
-                            for (int i = 0; i < channelResponse.joinedList.Count; i++) {
-                                dispatcher.dispatch(fetchChannelMessages(channelResponse.joinedList[i]));
-                                dispatcher.dispatch(fetchChannelMembers(channelResponse.joinedList[i]));
-                            }
+                            channelResponse.joinedList.ForEach(joinedChannelId => {
+                                dispatcher.dispatch(fetchChannelMessages(channelId: joinedChannelId));
+                                dispatcher.dispatch(fetchChannelMembers(channelId: joinedChannelId));
+                            });
                         }
                     })
                     .Catch(error => {
@@ -41,8 +39,15 @@ namespace ConnectApp.redux.actions {
         public static object fetchChannelMessages(string channelId, string before = null, string after = null) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 dispatcher.dispatch(new StartFetchChannelMessageAction());
-                return ChannelApi.FetchChannelMessages(channelId, before, after)
+                return ChannelApi.FetchChannelMessages(channelId: channelId, before: before, after: after)
                     .Then(channelMessagesResponse => {
+                        dispatcher.dispatch(new UserLicenseMapAction
+                            {userLicenseMap = channelMessagesResponse.userLicenseMap});
+                        var userMap = new Dictionary<string, User>();
+                        (channelMessagesResponse.items ?? new List<ChannelMessage>()).ForEach(channelMessage => {
+                            userMap[key: channelMessage.author.id] = channelMessage.author;
+                        });
+                        dispatcher.dispatch(new UserMapAction {userMap = userMap});
                         dispatcher.dispatch(new ChannelMessagesAction {
                             channelId = channelId,
                             messages = channelMessagesResponse.items ?? new List<ChannelMessage>(),
@@ -58,8 +63,7 @@ namespace ConnectApp.redux.actions {
                     .Catch(error => {
                         dispatcher.dispatch(new FetchChannelMessagesFailureAction());
                         Debug.Log(error);
-                        dispatcher.dispatch(
-                            loadMessagesFromDB(channelId, CStringUtils.HexToLong(before)));
+                        dispatcher.dispatch(loadMessagesFromDB(channelId, CStringUtils.HexToLong(before)));
                     });
             });
         }
@@ -90,10 +94,11 @@ namespace ConnectApp.redux.actions {
 
         public static object joinChannel(string channelId, string groupId = null) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ChannelApi.JoinChannel(channelId, groupId).Then(joinChannelResponse => {
+                return ChannelApi.JoinChannel(channelId: channelId, groupId: groupId)
+                    .Then(joinChannelResponse => {
                         dispatcher.dispatch(new JoinChannelSuccessAction {channelId = channelId});
-                        dispatcher.dispatch(fetchChannelMessages(channelId));
-                        dispatcher.dispatch(fetchChannelMembers(channelId));
+                        dispatcher.dispatch(fetchChannelMessages(channelId: channelId));
+                        dispatcher.dispatch(fetchChannelMembers(channelId: channelId));
                     })
                     .Catch(error => {
                         dispatcher.dispatch(new JoinChannelFailureAction());
@@ -104,7 +109,8 @@ namespace ConnectApp.redux.actions {
 
         public static object leaveChannel(string channelId, string groupId = null) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ChannelApi.LeaveChannel(channelId, groupId).Then(leaveChannelResponse => {
+                return ChannelApi.LeaveChannel(channelId: channelId, groupId: groupId)
+                    .Then(leaveChannelResponse => {
                         dispatcher.dispatch(new LeaveChannelSuccessAction {channelId = channelId});
                         dispatcher.dispatch(new MainNavigatorPopAction());
                         dispatcher.dispatch(new MainNavigatorPopAction());
@@ -138,7 +144,7 @@ namespace ConnectApp.redux.actions {
 
         public static object ackChannelMessage(string messageId) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
-                return ChannelApi.AckChannelMessage(messageId)
+                return ChannelApi.AckChannelMessage(messageId: messageId)
                     .Then(ackMessageResponse => {
                         dispatcher.dispatch(new AckChannelMessageSuccessAction());
                     })

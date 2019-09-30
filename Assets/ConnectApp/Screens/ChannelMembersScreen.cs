@@ -184,7 +184,8 @@ namespace ConnectApp.screens {
                 else if (user.followUserLoading ?? false) {
                     userType = UserType.loading;
                 }
-                else if (this.widget.viewModel.followed.ContainsKey(key: user.id)) {
+                else if (this.widget.viewModel.followed != null
+                         &&this.widget.viewModel.followed.ContainsKey(key: user.id)) {
                     userType = UserType.follow;
                 }
             }
