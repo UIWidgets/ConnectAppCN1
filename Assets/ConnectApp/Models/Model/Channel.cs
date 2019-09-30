@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ConnectApp.Models.Api;
 using ConnectApp.Utils;
+using UnityEngine;
 
 namespace ConnectApp.Models.Model {
     [Serializable]
@@ -271,6 +272,7 @@ namespace ConnectApp.Models.Model {
         }
 
         public static ChannelMessageView fromPushMessage(SocketResponseMessageData message) {
+            Debug.Log($"DateTimeFromNonce({message.nonce}) = {DateConvert.DateTimeFromNonce(message.nonce).DateTimeString()}");
             return message == null
                 ? new ChannelMessageView()
                 : new ChannelMessageView {
@@ -282,7 +284,7 @@ namespace ConnectApp.Models.Model {
                     fileSize = getFileSize(message.content, message.attachments, message.embeds),
                     width = getImageWidth(message.content, message.attachments, message.embeds),
                     height = getImageHeight(message.content, message.attachments, message.embeds),
-                    time = DateConvert.DateTimeFromNonce(message.nonce),
+                    time = DateConvert.DateTimeFromNonce(message.id),
                     attachments = message.attachments,
                     type = getType(message.content, message.attachments, message.embeds),
                     mentionEveryone = message.mentionEveryone,
@@ -311,7 +313,7 @@ namespace ConnectApp.Models.Model {
                     fileSize = getFileSize(message.content, message.attachments),
                     width = getImageWidth(message.content, message.attachments),
                     height = getImageHeight(message.content, message.attachments),
-                    time = DateConvert.DateTimeFromNonce(message.nonce),
+                    time = DateConvert.DateTimeFromNonce(message.id),
                     attachments = message.attachments,
                     type = getType(message.content, message.attachments),
                     mentionEveryone = message.mentionEveryone,
@@ -331,7 +333,7 @@ namespace ConnectApp.Models.Model {
                     fileSize = getFileSize(message.content, message.attachments, message.embeds),
                     width = getImageWidth(message.content, message.attachments, message.embeds),
                     height = getImageHeight(message.content, message.attachments, message.embeds),
-                    time = DateConvert.DateTimeFromNonce(message.nonce),
+                    time = DateConvert.DateTimeFromNonce(message.id),
                     attachments = message.attachments,
                     type = getType(message.content, message.attachments, message.embeds),
                     mentionEveryone = message.mentionEveryone,

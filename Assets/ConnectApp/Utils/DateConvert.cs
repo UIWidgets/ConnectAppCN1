@@ -11,7 +11,7 @@ namespace ConnectApp.Utils {
 
     public static class DateConvert {
         static readonly DateTime startTime =
-            TimeZoneInfo.ConvertTime(new DateTime(2016, 1, 1), TimeZoneInfo.Local);
+            new DateTime(2016, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         
         public static string DateStringFromNow(DateTime dt, bool isLocal = false) {
             TimeSpan span = isLocal ? DateTime.Now - dt : DateTime.UtcNow - dt;
@@ -78,25 +78,24 @@ namespace ConnectApp.Utils {
         }
 
         public static string DateTimeString(this DateTime time, bool showTimeNotToday = true) {
-            time = TimeZoneInfo.ConvertTime(time, TimeZoneInfo.Utc, TimeZoneInfo.Local);
-
+            var localtime = time.ToLocalTime();
             if (showTimeNotToday) {
-                return time.Date == DateTime.Today
-                        ? time.ToString("HH:mm")
-                        : time.Date == DateTime.Today - TimeSpan.FromDays(1)
-                            ? $"昨天 {time:HH:mm}"
-                            : time.Year == DateTime.Today.Year
-                                ? time.ToString("M月d日 HH:mm")
-                                : time.ToString("yyyy年M月d日 HH:mm");
+                return localtime.Date == DateTime.Today
+                        ? localtime.ToString("HH:mm")
+                        : localtime.Date == DateTime.Today - TimeSpan.FromDays(1)
+                            ? $"昨天 {localtime:HH:mm}"
+                            : localtime.Year == DateTime.Today.Year
+                                ? localtime.ToString("M月d日 HH:mm")
+                                : localtime.ToString("yyyy年M月d日 HH:mm");
             }
             else {
-                return time.Date == DateTime.Today
-                        ? time.ToString("HH:mm")
-                        : time.Date == DateTime.Today - TimeSpan.FromDays(1)
+                return localtime.Date == DateTime.Today
+                        ? localtime.ToString("HH:mm")
+                        : localtime.Date == DateTime.Today - TimeSpan.FromDays(1)
                             ? "昨天"
-                            : time.Year == DateTime.Today.Year
-                                ? time.ToString("M月d日")
-                                : time.ToString("yyyy年M月d日");
+                            : localtime.Year == DateTime.Today.Year
+                                ? localtime.ToString("M月d日")
+                                : localtime.ToString("yyyy年M月d日");
             }
         }
 
