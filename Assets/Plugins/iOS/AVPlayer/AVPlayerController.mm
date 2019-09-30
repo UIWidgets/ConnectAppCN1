@@ -153,21 +153,17 @@ static AVPlayerController *avp = nil;
     UIInterfaceOrientation interfaceOrientation = (UIInterfaceOrientation)orientation;
     switch (interfaceOrientation) {
         case UIInterfaceOrientationPortraitUpsideDown:{
-            NSLog(@"第3个旋转方向---电池栏在下");
         }
             break;
         case UIInterfaceOrientationPortrait:{
-            NSLog(@"第0个旋转方向---电池栏在上");
             [self toOrientation:UIInterfaceOrientationPortrait];
         }
             break;
         case UIInterfaceOrientationLandscapeLeft:{
-            NSLog(@"第2个旋转方向---电池栏在左");
             [self toOrientation:UIInterfaceOrientationLandscapeLeft];
         }
             break;
         case UIInterfaceOrientationLandscapeRight:{
-            NSLog(@"第1个旋转方向---电池栏在右");
             [self toOrientation:UIInterfaceOrientationLandscapeRight];
         }
             break;
@@ -191,8 +187,5 @@ static AVPlayerController *avp = nil;
         }];
         self.wmPlayer.isFullscreen = YES;
     }
-//    if (@available(iOS 11.0, *)) {
-//        [UnityGetGLViewController() setNeedsUpdateOfHomeIndicatorAutoHidden];
-//    }
 }
 @end
