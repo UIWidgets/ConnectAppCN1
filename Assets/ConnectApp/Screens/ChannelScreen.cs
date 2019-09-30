@@ -23,6 +23,7 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 using Avatar = ConnectApp.Components.Avatar;
 using Config = ConnectApp.Constants.Config;
 using Icons = ConnectApp.Constants.Icons;
@@ -221,7 +222,10 @@ namespace ConnectApp.screens {
             }
 
             if (this.widget.viewModel.channel.sentMessageSuccess) {
-                SchedulerBinding.instance.addPostFrameCallback(_ => this._textController.clear());
+                SchedulerBinding.instance.addPostFrameCallback(_ => {
+                    this._textController.clear();
+                    this._textController.selection = TextSelection.collapsed(0);
+                });
             }
 
             if (this.widget.viewModel.channel.sentMessageFailed) {
@@ -911,6 +915,7 @@ namespace ConnectApp.screens {
                     text, Snowflake.CreateNonceLocal(), "")
                 .Catch(_ => CustomDialogUtils.showToast("消息发送失败", Icons.error_outline));
             this._refreshController.scrollTo(0);
+            FocusScope.of(this.context).requestFocus(this._focusNode);
         }
 
         void _onRefresh(bool up) {
