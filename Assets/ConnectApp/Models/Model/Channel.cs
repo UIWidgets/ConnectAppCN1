@@ -272,7 +272,6 @@ namespace ConnectApp.Models.Model {
         }
 
         public static ChannelMessageView fromPushMessage(SocketResponseMessageData message) {
-            Debug.Log($"DateTimeFromNonce({message.nonce}) = {DateConvert.DateTimeFromNonce(message.nonce).DateTimeString()}");
             return message == null
                 ? new ChannelMessageView()
                 : new ChannelMessageView {
