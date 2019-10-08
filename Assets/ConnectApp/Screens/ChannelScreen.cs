@@ -964,10 +964,12 @@ namespace ConnectApp.screens {
             }
 
             if (this._lastScrollPosition != null && this._lastScrollPosition < this._refreshController.offset) {
-                this.setState(() => {
-                    this._showEmojiBoard = false;
-                    TextInputPlugin.TextInputHide();
-                });
+                if (this._showEmojiBoard) {
+                    this.setState(() => {
+                        this._showEmojiBoard = false;
+                        TextInputPlugin.TextInputHide();
+                    });
+                }
             }
 
             this._lastScrollPosition = this._refreshController.offset;
