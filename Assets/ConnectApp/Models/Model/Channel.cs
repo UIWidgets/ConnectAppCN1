@@ -81,6 +81,35 @@ namespace ConnectApp.Models.Model {
         public bool left;
         public bool guideFinished;
         public bool showTerms;
+
+        public static ChannelMember fromSocketResponseChannelMemberChangeData(
+            SocketResponseChannelMemberChangeData data) {
+            return new ChannelMember {
+                id = data.id,
+                channelId = data.channelId,
+                user = data.user,
+                role = data.role,
+                presenceStatus = null,
+                isBanned = data.isBanned,
+                kicked = data.kicked,
+                left = data.left,
+                guideFinished = data.guideFinished,
+                showTerms = data.showTerms
+            };
+        }
+
+        public void updateFromSocketResponseChannelMemberChangeData(
+            SocketResponseChannelMemberChangeData data) {
+            this.id = data.id ?? this.id;
+            this.channelId = data.channelId ?? this.channelId;
+            this.user = data.user ?? this.user;
+            this.role = data.role ?? this.role;
+            this.isBanned = data.isBanned;
+            this.kicked = data.kicked;
+            this.left = data.left;
+            this.guideFinished = data.guideFinished;
+            this.showTerms = data.showTerms;
+        }
     }
 
     public class ChannelView {

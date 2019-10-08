@@ -133,7 +133,6 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             base.build(context: context);
-            var enablePullUp = !this._hasJoinedChannel();
             return new Container(
                 padding: EdgeInsets.only(top: CCommonUtils.getSafeAreaTopPadding(context: context)),
                 color: CColors.White,
@@ -148,7 +147,7 @@ namespace ConnectApp.screens {
                                     child: new SectionView(
                                         controller: this._refreshController,
                                         enablePullDown: false,
-                                        enablePullUp: enablePullUp,
+                                        enablePullUp: false,
                                         onRefresh: this._onRefresh,
                                         hasBottomMargin: true,
                                         sectionCount: 2,
@@ -163,7 +162,7 @@ namespace ConnectApp.screens {
                                         },
                                         headerInSection: this._headerInSection,
                                         cellAtIndexPath: this._buildMessageItem,
-                                        footerWidget: enablePullUp ? null : new EndView(hasBottomMargin: true)
+                                        footerWidget: new EndView(hasBottomMargin: true)
                                     )
                                 )
                             )

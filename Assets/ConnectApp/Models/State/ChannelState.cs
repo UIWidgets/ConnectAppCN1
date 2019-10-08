@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
+using UnityEngine;
 
 namespace ConnectApp.Models.State {
     public class ChannelState {
