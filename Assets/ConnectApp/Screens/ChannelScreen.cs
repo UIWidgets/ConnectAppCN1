@@ -858,12 +858,10 @@ namespace ConnectApp.screens {
                 onTap: this.getEmojiText(index) != ""
                     ? (GestureTapCallback) (() => {
                         var selection = this._textController.selection;
-                        this._textController.text =
+                        this._textController.value = new TextEditingValue(
                             this._textController.text.Substring(0, selection.start) +
-                            this.getEmojiText(index) +
-                            this._textController.text.Substring(selection.end);
-                        this._textController.selection =
-                            TextSelection.collapsed(selection.start + this.getEmojiText(index).Length);
+                            this.getEmojiText(index) + this._textController.text.Substring(selection.end),
+                            TextSelection.collapsed(selection.start + this.getEmojiText(index).Length));
                     })
                     : null,
                 child: new Container(
@@ -880,28 +878,26 @@ namespace ConnectApp.screens {
             );
         }
 
+        int codeUnitLengthAt(TextEditingValue value) {
+            return value.selection.start > 1 && char.IsSurrogate(value.text[value.selection.start - 1]) ? 2 : 1;
+        }
+
         void _handleDelete() {
             var selection = this._textController.selection;
             if (selection.isCollapsed) {
                 if (selection.start > 0) {
-                    int deleteLength = 1;
-                    if (selection.start > 1 &&
-                        char.IsSurrogate(this._textController.text[selection.start - 1])) {
-                        deleteLength = 2;
-                    }
-
-                    this._textController.text =
-                        this._textController.text.Substring(0, selection.start - deleteLength) +
-                        this._textController.text.Substring(selection.end);
-                    this._textController.selection = TextSelection.collapsed(selection.start - deleteLength);
+                    this._textController.value = new TextEditingValue(
+                        text: this._textController.text.Substring(startIndex: 0,
+                                  length: selection.start - this.codeUnitLengthAt(this._textController.value)) +
+                        this._textController.text.Substring(selection.end),
+                        TextSelection.collapsed(selection.start - this.codeUnitLengthAt(this._textController.value)));
                 }
             }
             else {
-                this._textController.text =
+                this._textController.value = new TextEditingValue(
                     this._textController.text.Substring(0, selection.start) +
-                    this._textController.text.Substring(selection.end);
-                this._textController.selection =
-                    TextSelection.collapsed(selection.start);
+                    this._textController.text.Substring(selection.end),
+                    TextSelection.collapsed(selection.start));
             }
         }
 
