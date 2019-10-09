@@ -5,8 +5,8 @@ using ConnectApp.Components;
 using ConnectApp.Main;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
-using ConnectApp.Reality;
 using ConnectApp.redux.actions;
+using ConnectApp.Reality;
 using ConnectApp.screens;
 using ConnectApp.Utils;
 using Unity.UIWidgets.foundation;
@@ -249,6 +249,8 @@ namespace ConnectApp.redux.reducers {
                     article.favorite = action.articleDetail.favorite;
                     article.isNotFirst = true;
                     article.currOldestMessageId = action.articleDetail.comments.currOldestMessageId;
+                    article.videoSliceMap = action.articleDetail.videoSliceMap;
+                    article.videoPosterMap = action.articleDetail.videoPosterMap;
                     var dict = state.articleState.articleDict;
                     if (dict.ContainsKey(key: article.id)) {
                         state.articleState.articleDict[key: article.id] = article;
@@ -1537,7 +1539,7 @@ namespace ConnectApp.redux.reducers {
                     if (action.url != null) {
                         Router.navigator.push(new PageRouteBuilder(
                                 pageBuilder: (context, animation, secondaryAnimation) =>
-                                    new VideoViewScreen(url: action.url),
+                                    new VideoViewScreen(action.url, action.needUpdate, action.limitSeconds),
                                 transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
                                     new PushPageTransition(
                                         routeAnimation: animation,

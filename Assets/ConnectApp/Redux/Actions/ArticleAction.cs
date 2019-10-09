@@ -241,7 +241,8 @@ namespace ConnectApp.redux.actions {
             });
         }
 
-        public static object FetchArticleDetail(string articleId, bool isPush = false) {
+        public static object
+            FetchArticleDetail(string articleId, bool isPush = false) {
             return new ThunkAction<AppState>((dispatcher, getState) => {
                 return ArticleApi.FetchArticleDetail(articleId: articleId, isPush: isPush)
                     .Then(articleDetailResponse => {
