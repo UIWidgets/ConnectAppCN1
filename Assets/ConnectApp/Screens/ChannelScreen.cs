@@ -23,8 +23,6 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using UnityEngine;
-using Avatar = ConnectApp.Components.Avatar;
 using Config = ConnectApp.Constants.Config;
 using Icons = ConnectApp.Constants.Icons;
 using Image = Unity.UIWidgets.widgets.Image;
@@ -151,6 +149,7 @@ namespace ConnectApp.screens {
     class _ChannelScreenState : TickerProviderStateMixin<ChannelScreen>, RouteAware {
         readonly TextEditingController _textController = new TextEditingController();
         readonly RefreshController _refreshController = new RefreshController();
+        GlobalKey _smartRefresherKey = GlobalKey<State<SmartRefresher>>.key("SmartRefresher");
         TabController _emojiTabController;
         FocusNode _focusNode;
         GlobalKey _focusNodeKey;
@@ -330,6 +329,7 @@ namespace ConnectApp.screens {
             Widget ret = new Container(
                 color: CColors.White,
                 child: new SmartRefresher(
+                    key: this._smartRefresherKey,
                     controller: this._refreshController,
                     enablePullDown: false,
                     enablePullUp: this.widget.viewModel.channel.hasMore,
@@ -342,6 +342,14 @@ namespace ConnectApp.screens {
                         : this._buildMessageListView()
                 )
             );
+
+            if (this.showKeyboard || this.showEmojiBoard) {
+                ret = new GestureDetector(
+                    onTap: () => this.setState(this._dismissKeyboard),
+                    child: ret
+                );
+            }
+
             return ret;
         }
 
@@ -889,7 +897,7 @@ namespace ConnectApp.screens {
                     this._textController.value = new TextEditingValue(
                         text: this._textController.text.Substring(startIndex: 0,
                                   length: selection.start - this.codeUnitLengthAt(this._textController.value)) +
-                        this._textController.text.Substring(selection.end),
+                              this._textController.text.Substring(selection.end),
                         TextSelection.collapsed(selection.start - this.codeUnitLengthAt(this._textController.value)));
                 }
             }
@@ -930,11 +938,16 @@ namespace ConnectApp.screens {
 
         float? _lastScrollPosition = null;
 
-        const float bottomThreashold = 50;
+        const float bottomThreshold = 50;
+
+        void _dismissKeyboard() {
+            this._showEmojiBoard = false;
+            TextInputPlugin.TextInputHide();
+        }
 
         void _handleScrollListener() {
-            if (this._refreshController.offset <= bottomThreashold) {
-                if (this._lastScrollPosition == null || this._lastScrollPosition > bottomThreashold) {
+            if (this._refreshController.offset <= bottomThreshold) {
+                if (this._lastScrollPosition == null || this._lastScrollPosition > bottomThreshold) {
                     if (this.widget.viewModel.channel.newMessageIds.isNotEmpty()) {
                         float offset = 0;
                         for (int i = 0; i < this.widget.viewModel.newMessages.Count; i++) {
@@ -947,24 +960,23 @@ namespace ConnectApp.screens {
                                       TimeSpan.FromMinutes(5),
                                 this.messageBubbleWidth);
                         }
+
                         this._refreshController.scrollController.jumpTo(
                             this._refreshController.scrollController.offset + offset);
                     }
+
                     this.widget.actionModel.reportHitBottom();
                 }
             }
-            else if (this._refreshController.offset > bottomThreashold) {
-                if (this._lastScrollPosition == null || this._lastScrollPosition <= bottomThreashold) {
+            else if (this._refreshController.offset > bottomThreshold) {
+                if (this._lastScrollPosition == null || this._lastScrollPosition <= bottomThreshold) {
                     this.widget.actionModel.reportLeaveBottom();
                 }
             }
 
             if (this._lastScrollPosition != null && this._lastScrollPosition < this._refreshController.offset) {
-                if (this._showEmojiBoard) {
-                    this.setState(() => {
-                        this._showEmojiBoard = false;
-                        TextInputPlugin.TextInputHide();
-                    });
+                if (this.showEmojiBoard || this.showKeyboard) {
+                    this.setState(this._dismissKeyboard);
                 }
             }
 
