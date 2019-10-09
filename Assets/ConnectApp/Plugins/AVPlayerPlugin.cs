@@ -169,9 +169,28 @@ namespace ConnectApp.Plugins {
             Plugin().Call("VideoShow");
         }
 #else
-        static void InitPlayer(string url,string cookie,float left,float top,float width,float height,bool isPop) {}
-        static void VideoRelease() {}
-        
+        static void InitPlayer(string url, string cookie, float left, float top, float width, float height,
+            bool isPop, bool needUpdate, int limitSeconds) {
+        }
+
+        static void ConfigPlayer(string url, string cookie) {
+        }
+
+        static void VideoRelease() {
+        }
+
+        static void VideoPause() {
+        }
+
+        static void VideoPlay() {
+        }
+
+        static void VideoHidden() {
+        }
+
+        static void VideoShow() {
+        }
+
 #endif
     }
 }
