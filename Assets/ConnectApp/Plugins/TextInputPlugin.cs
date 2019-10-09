@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Runtime.InteropServices;
 
 namespace ConnectApp.Plugins {
     public static class TextInputPlugin {
