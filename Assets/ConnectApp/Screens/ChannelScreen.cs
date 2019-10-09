@@ -195,6 +195,7 @@ namespace ConnectApp.screens {
                 this._refreshController.scrollController.addListener(this._handleScrollListener);
                 this.widget.actionModel.fetchMessages(null, null);
                 this.widget.actionModel.fetchMembers();
+                this.widget.actionModel.reportHitBottom();
             });
             this._focusNode = new FocusNode();
             this._focusNodeKey = GlobalKey.key("_channelFocusNodeKey");
@@ -203,7 +204,6 @@ namespace ConnectApp.screens {
                 {"AppVersion", Config.versionNumber},
                 {"X-Requested-With", "XmlHttpRequest"}
             };
-            this.widget.actionModel.reportHitBottom();
         }
 
         public override void dispose() {
@@ -462,24 +462,28 @@ namespace ConnectApp.screens {
                     child: new Container(
                         width: avatarSize,
                         height: avatarSize,
-                        forgroundDecoration: new BoxDecoration(
-                            image: new DecorationImage(
-                                new AssetImage("image/avatar-circle-1"), 
-                                fit: BoxFit.cover
-                            )
-                        ),
-                        child: user.avatar.isEmpty()
-                            ? new Container(
-                                child: new _Placeholder(
-                                    user.id ?? "",
-                                    user.fullName ?? "",
-                                    size: avatarSize
-                                )
-                            )
-                            : new Container(
-                                color: CColors.AvatarLoading,
-                                child: CachedNetworkImageProvider.cachedNetworkImage(src: httpsUrl)
-                            )
+                        child: new Stack(
+                            children: new List<Widget> {
+                                user.avatar.isEmpty()
+                                    ? new Container(
+                                        child: new _Placeholder(
+                                            user.id ?? "",
+                                            user.fullName ?? "",
+                                            size: avatarSize
+                                        )
+                                    )
+                                    : new Container(
+                                        color: CColors.AvatarLoading,
+                                        child: CachedNetworkImageProvider.cachedNetworkImage(src: httpsUrl)
+                                    ),
+                                Positioned.fill(
+                                    Image.asset(
+                                        "image/avatar-circle-1", 
+                                        fit: BoxFit.cover
+                                    )
+                                ),
+                            }
+                        )
                     )
                 )
             );
