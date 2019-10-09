@@ -89,6 +89,7 @@ namespace ConnectApp.screens {
                         mainRouterPop = () => {
                             dispatcher.dispatch(new MainNavigatorPopAction());
                             dispatcher.dispatch(Actions.ackChannelMessage(viewModel.channel.lastMessageId));
+                            dispatcher.dispatch(new ChannelScreenLeaveBottom {channelId = this.channelId});
                         },
                         openUrl = url => OpenUrlUtil.OpenUrl(url: url, dispatcher: dispatcher),
                         fetchMessages = (before, after) => dispatcher.dispatch<IPromise>(
@@ -202,6 +203,7 @@ namespace ConnectApp.screens {
                 {"AppVersion", Config.versionNumber},
                 {"X-Requested-With", "XmlHttpRequest"}
             };
+            this.widget.actionModel.reportHitBottom();
         }
 
         public override void dispose() {
