@@ -34,14 +34,14 @@ namespace Plugins.Editor {
             // Add Framework
             proj.AddFrameworkToProject(target, "libz.tbd", true);
             proj.AddFrameworkToProject(target, "libc++.tbd", true);
-            proj.AddFrameworkToProject( target, "libsqlite3.0.tbd", true);
+            proj.AddFrameworkToProject(target, "libsqlite3.0.tbd", true);
             proj.AddFrameworkToProject(target, "CoreFoundation.framework", false);
             proj.AddFrameworkToProject(target, "libresolv.tbd", false);
             proj.AddFrameworkToProject(target, "UserNotifications.framework", false);
-            proj.AddFrameworkToProject( target, "CoreTelephony.framework", true);
+            proj.AddFrameworkToProject(target, "CoreTelephony.framework", true);
+            proj.AddFrameworkToProject(target, "CoreServices.framework", true);
+            proj.AddFrameworkToProject(target, "MediaPlayer.framework", true);
             proj.AddFrameworkToProject(target, "Photos.framework", false);
-
-            proj.AddBuildProperty( target, "OTHER_LDFLAGS", "-ObjC");
             proj.AddBuildProperty(target, "OTHER_LDFLAGS", "-all_load");
 
             //associated-domains
