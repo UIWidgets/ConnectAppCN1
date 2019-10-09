@@ -23,6 +23,7 @@ using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
+using UnityEngine;
 using Avatar = ConnectApp.Components.Avatar;
 using Config = ConnectApp.Constants.Config;
 using Icons = ConnectApp.Constants.Icons;
@@ -50,10 +51,11 @@ namespace ConnectApp.screens {
                     }
 
                     var channel = state.channelState.channelDict[this.channelId];
+                    List<ChannelMessageView> newMessages = null;
                     List<ChannelMessageView> messages;
                     if (channel.newMessageIds.isNotEmpty()) {
-                        messages = channel.newMessageIds.Select(getMessage).ToList();
-                        messages.AddRange(channel.messageIds.Select(getMessage));
+                        messages = channel.messageIds.Select(getMessage).ToList();
+                        newMessages = channel.newMessageIds.Select(getMessage).ToList();
                     }
                     else if (channel.oldMessageIds.isNotEmpty()) {
                         messages = channel.oldMessageIds.Select(getMessage).ToList();
@@ -66,18 +68,14 @@ namespace ConnectApp.screens {
                     return new ChannelScreenViewModel {
                         channel = state.channelState.channelDict[this.channelId],
                         messages = messages,
+                        newMessages = newMessages ?? new List<ChannelMessageView>(),
                         me = state.loginState.loginInfo.userId,
                         messageLoading = state.channelState.messageLoading,
                         newMessageCount = state.channelState.channelDict[this.channelId].unread
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
-                    if (viewModel.channel.newMessageIds.isNotEmpty()) {
-                        SchedulerBinding.instance.addPostFrameCallback(_ => {
-                            dispatcher.dispatch(new MergeNewChannelMessages {channelId = this.channelId});
-                        });
-                    }
-                    else if (viewModel.channel.oldMessageIds.isNotEmpty()) {
+                    if (viewModel.channel.oldMessageIds.isNotEmpty()) {
                         SchedulerBinding.instance.addPostFrameCallback(_ => {
                             dispatcher.dispatch(new MergeOldChannelMessages {channelId = this.channelId});
                         });
@@ -120,6 +118,7 @@ namespace ConnectApp.screens {
                         reportHitBottom = () => {
                             dispatcher.dispatch(new ChannelScreenHitBottom {channelId = this.channelId});
                             dispatcher.dispatch(Actions.ackChannelMessage(viewModel.channel.lastMessageId));
+                            dispatcher.dispatch(new MergeNewChannelMessages {channelId = this.channelId});
                         },
                         reportLeaveBottom = () => dispatcher.dispatch(new ChannelScreenLeaveBottom {
                             channelId = this.channelId
@@ -221,7 +220,10 @@ namespace ConnectApp.screens {
             }
 
             if (this.widget.viewModel.channel.sentMessageSuccess) {
-                SchedulerBinding.instance.addPostFrameCallback(_ => this._textController.clear());
+                SchedulerBinding.instance.addPostFrameCallback(_ => {
+                    this._textController.clear();
+                    this._textController.selection = TextSelection.collapsed(0);
+                });
             }
 
             if (this.widget.viewModel.channel.sentMessageFailed) {
@@ -437,7 +439,10 @@ namespace ConnectApp.screens {
                 padding: EdgeInsets.symmetric(0, 10),
                 child: new GestureDetector(
                     onTap: () => this.widget.actionModel.pushToUserDetail(user.id),
-                    child: Avatar.User(user.avatar.isNotEmpty() ? user.copyWith(avatar: CImageUtils.SizeTo200ImageUrl(user.avatar)) : user, 40, useCachedNetworkImage: true)
+                    child: Avatar.User(
+                        user.avatar.isNotEmpty()
+                            ? user.copyWith(avatar: CImageUtils.SizeTo200ImageUrl(user.avatar))
+                            : user, 40, useCachedNetworkImage: true)
                 )
             );
         }
@@ -853,12 +858,10 @@ namespace ConnectApp.screens {
                 onTap: this.getEmojiText(index) != ""
                     ? (GestureTapCallback) (() => {
                         var selection = this._textController.selection;
-                        this._textController.text =
+                        this._textController.value = new TextEditingValue(
                             this._textController.text.Substring(0, selection.start) +
-                            this.getEmojiText(index) +
-                            this._textController.text.Substring(selection.end);
-                        this._textController.selection =
-                            TextSelection.collapsed(selection.start + this.getEmojiText(index).Length);
+                            this.getEmojiText(index) + this._textController.text.Substring(selection.end),
+                            TextSelection.collapsed(selection.start + this.getEmojiText(index).Length));
                     })
                     : null,
                 child: new Container(
@@ -875,28 +878,26 @@ namespace ConnectApp.screens {
             );
         }
 
+        int codeUnitLengthAt(TextEditingValue value) {
+            return value.selection.start > 1 && char.IsSurrogate(value.text[value.selection.start - 1]) ? 2 : 1;
+        }
+
         void _handleDelete() {
             var selection = this._textController.selection;
             if (selection.isCollapsed) {
                 if (selection.start > 0) {
-                    int deleteLength = 1;
-                    if (selection.start > 1 &&
-                        char.IsSurrogate(this._textController.text[selection.start - 1])) {
-                        deleteLength = 2;
-                    }
-
-                    this._textController.text =
-                        this._textController.text.Substring(0, selection.start - deleteLength) +
-                        this._textController.text.Substring(selection.end);
-                    this._textController.selection = TextSelection.collapsed(selection.start - deleteLength);
+                    this._textController.value = new TextEditingValue(
+                        text: this._textController.text.Substring(startIndex: 0,
+                                  length: selection.start - this.codeUnitLengthAt(this._textController.value)) +
+                        this._textController.text.Substring(selection.end),
+                        TextSelection.collapsed(selection.start - this.codeUnitLengthAt(this._textController.value)));
                 }
             }
             else {
-                this._textController.text =
+                this._textController.value = new TextEditingValue(
                     this._textController.text.Substring(0, selection.start) +
-                    this._textController.text.Substring(selection.end);
-                this._textController.selection =
-                    TextSelection.collapsed(selection.start);
+                    this._textController.text.Substring(selection.end),
+                    TextSelection.collapsed(selection.start));
             }
         }
 
@@ -908,9 +909,10 @@ namespace ConnectApp.screens {
             this.widget.actionModel.startSendMessage();
             this.widget.actionModel.sendMessage(
                     this.widget.viewModel.channel.id,
-                    text, Snowflake.CreateNonceLocal(), "")
+                    text, Snowflake.CreateNonce(), "")
                 .Catch(_ => CustomDialogUtils.showToast("消息发送失败", Icons.error_outline));
             this._refreshController.scrollTo(0);
+            FocusScope.of(this.context).requestFocus(this._focusNode);
         }
 
         void _onRefresh(bool up) {
@@ -933,6 +935,21 @@ namespace ConnectApp.screens {
         void _handleScrollListener() {
             if (this._refreshController.offset <= bottomThreashold) {
                 if (this._lastScrollPosition == null || this._lastScrollPosition > bottomThreashold) {
+                    if (this.widget.viewModel.channel.newMessageIds.isNotEmpty()) {
+                        float offset = 0;
+                        for (int i = 0; i < this.widget.viewModel.newMessages.Count; i++) {
+                            var message = this.widget.viewModel.newMessages[i];
+                            offset += calculateMessageHeight(message,
+                                showTime: i == 0
+                                    ? message.time - this.widget.viewModel.messages.last().time >
+                                      TimeSpan.FromMinutes(5)
+                                    : message.time - this.widget.viewModel.newMessages[i - 1].time >
+                                      TimeSpan.FromMinutes(5),
+                                this.messageBubbleWidth);
+                        }
+                        this._refreshController.scrollController.jumpTo(
+                            this._refreshController.scrollController.offset + offset);
+                    }
                     this.widget.actionModel.reportHitBottom();
                 }
             }
@@ -943,10 +960,12 @@ namespace ConnectApp.screens {
             }
 
             if (this._lastScrollPosition != null && this._lastScrollPosition < this._refreshController.offset) {
-                this.setState(() => {
-                    this._showEmojiBoard = false;
-                    TextInputPlugin.TextInputHide();
-                });
+                if (this._showEmojiBoard) {
+                    this.setState(() => {
+                        this._showEmojiBoard = false;
+                        TextInputPlugin.TextInputHide();
+                    });
+                }
             }
 
             this._lastScrollPosition = this._refreshController.offset;
@@ -984,7 +1003,7 @@ namespace ConnectApp.screens {
             this.widget.actionModel.sendImage(
                 arg1: this.widget.viewModel.channel.id,
                 arg2: pickImage,
-                Snowflake.CreateNonceLocal());
+                Snowflake.CreateNonce());
         }
 
         public void didPop() {
@@ -998,6 +1017,48 @@ namespace ConnectApp.screens {
         }
 
         public void didPushNext() {
+        }
+
+
+        public static float calculateMessageHeight(ChannelMessageView message, bool showTime, float width) {
+            float height = 20 + 6 + 16 + (showTime ? 36 : 0); // Name + Internal + Bottom padding + time
+            switch (message.type) {
+                case ChannelMessageType.text:
+                    height += 16 + CTextUtils.CalculateTextHeight(
+                                  message.content,
+                                  CTextStyle.PLargeBody,
+                                  width - 24, maxLines: null);
+                    break;
+                case ChannelMessageType.image:
+                    height += message.width > message.height * 16.0f / 9.0f
+                        ? 140.0f * 9.0f / 16.0f
+                        : message.width > message.height
+                            ? 140.0f * message.height / message.width
+                            : 140.0f;
+                    break;
+                case ChannelMessageType.file:
+                    height += 16 + CTextUtils.CalculateTextHeight(
+                                  "[你收到一个文件，请在浏览器上查看]",
+                                  CTextStyle.PLargeBody5,
+                                  width - 24, maxLines: null);
+                    break;
+                case ChannelMessageType.embed:
+                    height += 24 + CTextUtils.CalculateTextHeight(
+                                  message.content,
+                                  CTextStyle.PLargeBody,
+                                  width - 24, maxLines: null) + 24 +
+                              CTextUtils.CalculateTextHeight(
+                                  message.embeds[0].embedData.title,
+                                  CTextStyle.PLargeMediumBlue,
+                                  width - 48, maxLines: null) + 4 +
+                              CTextUtils.CalculateTextHeight(
+                                  message.embeds[0].embedData.description,
+                                  CTextStyle.PRegularBody3,
+                                  width - 48, maxLines: 4) + 4 + 22 + 12;
+                    break;
+            }
+
+            return height;
         }
     }
 
@@ -1053,16 +1114,19 @@ namespace ConnectApp.screens {
                     width: this.widget.size,
                     height: this.widget.size / this.widget.ratio);
             }
+
             if (size.width > size.height) {
                 return new Size(
                     width: this.widget.size,
                     height: this.widget.size / size.width * size.height);
             }
+
             if (size.width > size.height / this.widget.ratio) {
                 return new Size(
                     width: this.widget.size / size.height * size.width,
                     height: this.widget.size);
             }
+
             return new Size(
                 width: this.widget.size / this.widget.ratio,
                 height: this.widget.size);

@@ -2589,8 +2589,9 @@ namespace ConnectApp.redux.reducers {
                         for (var i = action.messages.Count - 1; i >= 0; i--) {
                             var channelMessage = ChannelMessageView.fromChannelMessage(action.messages[i]);
                             state.channelState.messageDict[channelMessage.id] = channelMessage;
-                            channel.newMessageIds.Add(channelMessage.id);
-                            if (channelMessage.nonce > channel.lastMessage.nonce) {
+                            channel.messageIds.Add(channelMessage.id);
+                            if (CStringUtils.HexToLong(channelMessage.id) >
+                                CStringUtils.HexToLong(channel.lastMessage.id)) {
                                 channel.lastMessage = channelMessage;
                                 channel.lastMessageId = channelMessage.id;
                             }
@@ -2789,7 +2790,8 @@ namespace ConnectApp.redux.reducers {
 
                     var channel = state.channelState.channelDict[message.channelId];
                     //ignore duplicated message
-                    if (!channel.messageIds.Contains(message.id) && !channel.newMessageIds.Contains(message.id)) {
+                    if (!channel.messageIds.Contains(message.id) && !channel.newMessageIds.Contains(message.id) &&
+                        !channel.oldMessageIds.Contains(message.id)) {
                         var channelMessage = ChannelMessageView.fromPushMessage(message);
                         state.channelState.messageDict[channelMessage.id] = channelMessage;
                         if (channel.atBottom) {
@@ -2824,7 +2826,7 @@ namespace ConnectApp.redux.reducers {
                     state.channelState.messageDict[channelMessage.id] = channelMessage;
 
                     //insert new if not exists yet
-                    if (!channel.messageIds.Contains(message.id)) {
+                    if (!channel.messageIds.Contains(message.id) && !channel.newMessageIds.Contains(message.id)) {
                         channel.messageIds.Add(channelMessage.id);
                     }
 
