@@ -330,18 +330,20 @@ namespace ConnectApp.screens {
         Widget _buildContent() {
             Widget ret = new Container(
                 color: CColors.White,
-                child: new SmartRefresher(
-                    key: this._smartRefresherKey,
-                    controller: this._refreshController,
-                    enablePullDown: false,
-                    enablePullUp: this.widget.viewModel.channel.hasMore,
-                    onRefresh: this._onRefresh,
-                    reverse: true,
-                    headerBuilder: (context, mode) => new SmartRefreshHeader(mode: mode),
-                    child: this.widget.viewModel.messageLoading &&
-                           this.widget.viewModel.messages.isEmpty()
-                        ? this._buildLoadingPage()
-                        : this._buildMessageListView()
+                child: new CustomScrollbar(
+                    child: new SmartRefresher(
+                        key: this._smartRefresherKey,
+                        controller: this._refreshController,
+                        enablePullDown: false,
+                        enablePullUp: this.widget.viewModel.channel.hasMore,
+                        onRefresh: this._onRefresh,
+                        reverse: true,
+                        headerBuilder: (context, mode) => new SmartRefreshHeader(mode: mode),
+                        child: this.widget.viewModel.messageLoading &&
+                               this.widget.viewModel.messages.isEmpty()
+                            ? this._buildLoadingPage()
+                            : this._buildMessageListView()
+                    )
                 )
             );
 
