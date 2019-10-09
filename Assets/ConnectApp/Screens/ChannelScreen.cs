@@ -445,14 +445,40 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildAvatar(User user) {
+            const float avatarSize = 40;
+
+            var httpsUrl = user.avatar ?? "";
+            // fix Android 9 http request error 
+            if (httpsUrl.Contains("http://")) {
+                httpsUrl = httpsUrl.Replace("http://", "https://");
+            }
+
             return new Container(
                 padding: EdgeInsets.symmetric(0, 10),
                 child: new GestureDetector(
                     onTap: () => this.widget.actionModel.pushToUserDetail(user.id),
-                    child: Avatar.User(
-                        user.avatar.isNotEmpty()
-                            ? user.copyWith(avatar: CImageUtils.SizeTo200ImageUrl(user.avatar))
-                            : user, 40, useCachedNetworkImage: true)
+                    child: new Container(
+                        width: avatarSize,
+                        height: avatarSize,
+                        forgroundDecoration: new BoxDecoration(
+                            image: new DecorationImage(
+                                new AssetImage("image/avatar-circle-1"), 
+                                fit: BoxFit.cover
+                            )
+                        ),
+                        child: user.avatar.isEmpty()
+                            ? new Container(
+                                child: new _Placeholder(
+                                    user.id ?? "",
+                                    user.fullName ?? "",
+                                    size: avatarSize
+                                )
+                            )
+                            : new Container(
+                                color: CColors.AvatarLoading,
+                                child: CachedNetworkImageProvider.cachedNetworkImage(src: httpsUrl)
+                            )
+                    )
                 )
             );
         }
