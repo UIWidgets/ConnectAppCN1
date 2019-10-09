@@ -1,20 +1,31 @@
 package com.unity3d.unityconnect;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewManager;
 import android.view.WindowManager;
 
+import com.dueeeke.videoplayer.listener.OnVideoViewStateChangeListener;
+import com.dueeeke.videoplayer.player.VideoView;
+import com.dueeeke.videoplayer.player.VideoViewManager;
 import com.unity.uiwidgets.plugin.UIWidgetsMessageManager;
+import com.unity3d.unityconnect.plugins.AVPlayerPlugin;
 import com.unity3d.unityconnect.plugins.JPushPlugin;
 
-import java.time.temporal.ValueRange;
 import java.util.Arrays;
 
 public class UnityPlayerActivityStatusBar extends UnityPlayerActivity
 {
+    VideoView videoView;
+
+    CustomVideoController controller;
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -23,17 +34,37 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity
             JPushPlugin.getInstance().schemeUrl = this.getIntent().getDataString();
         }
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        // Clear low profile flags to apply non-fullscreen mode before splash screen
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(Color.WHITE);
         }
-        showSystemUi();
-        addUiVisibilityChangeListener();
 
+
+        showSystemUi();
+
+        addUiVisibilityChangeListener();
 
         applePermission();
 
+        addDKPlayView();
+
     }
+
+    void addDKPlayView(){
+        View view = LayoutInflater.from(this).inflate(R.layout.video_view, null);
+        mUnityPlayer.addView(view);
+        videoView = (VideoView) view.findViewById(R.id.player);
+        controller = new CustomVideoController(this);
+        videoView.setVideoController(controller); //设置控制器，如需定制可继承BaseVideoController
+        videoView.setLock(false);
+        videoView.setVisibility(View.GONE);
+        videoView.setScreenScale(VideoView.SCREEN_SCALE_16_9);
+
+        AVPlayerPlugin.getInstance().videoView = videoView;
+        AVPlayerPlugin.getInstance().controller = controller;
+
+    }
+
 
     public void applePermission(){
 
@@ -48,6 +79,35 @@ public class UnityPlayerActivityStatusBar extends UnityPlayerActivity
                 // 没有写的权限，去申请写的权限，会弹出对话框
                 ActivityCompat.requestPermissions(UnityPlayerActivityStatusBar.this, PERMISSIONS_STORAGE,REQUEST_EXTERNAL_STORAGE);
             }
+        }
+    }
+
+    // Quit Unity
+    @Override
+    protected void onDestroy() {
+        videoView.release();
+        super.onDestroy();
+    }
+
+    // Pause Unity
+    @Override
+    protected void onPause() {
+        super.onPause();
+        videoView.pause();
+
+    }
+
+    // Resume Unity
+    @Override
+    protected void onResume() {
+        super.onResume();
+        videoView.resume();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!videoView.onBackPressed()) {
+            super.onBackPressed();
         }
     }
 

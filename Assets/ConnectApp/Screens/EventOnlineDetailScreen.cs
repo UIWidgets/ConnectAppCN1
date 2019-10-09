@@ -15,8 +15,8 @@ using RSG;
 using Unity.UIWidgets.animation;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
-using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
+using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.scheduler;
 using Unity.UIWidgets.service;
 using Unity.UIWidgets.ui;
@@ -71,17 +71,13 @@ namespace ConnectApp.screens {
                             routeName = MainNavigatorRoutes.Login
                         }),
                         pushToUserDetail = userId => {
-                            EventBus.publish(EventBusConstant.pauseVideoPlayer, new List<object>());
                             dispatcher.dispatch(
                                 new MainNavigatorPushToUserDetailAction {
                                     userId = userId
                                 }
                             );
                         },
-                        openUrl = url => {
-                            EventBus.publish(EventBusConstant.pauseVideoPlayer, new List<object>());
-                            OpenUrlUtil.OpenUrl(url, dispatcher);
-                        },
+                        openUrl = url => { OpenUrlUtil.OpenUrl(url, dispatcher); },
                         copyText = text => dispatcher.dispatch(new CopyTextAction {text = text}),
                         startFetchEventDetail = () => dispatcher.dispatch(new StartFetchEventDetailAction()),
                         fetchEventDetail = (id, eventType) =>
@@ -135,6 +131,7 @@ namespace ConnectApp.screens {
         float _titleHeight;
         bool _isHaveTitle;
         string _loginSubId;
+        string _shareActionSubId;
         bool _showNavBarShadow;
         bool _isFullScreen;
         float _bottomPadding;
@@ -143,6 +140,10 @@ namespace ConnectApp.screens {
         public override void initState() {
             base.initState();
             StatusBarManager.statusBarStyle(false);
+            AVPlayerPlugin.initVideoPlayer("", "",
+                0, (int) MediaQuery.of(this.context).padding.top, MediaQuery.of(this.context).size.width,
+                MediaQuery.of(this.context).size.width * 9 / 16, true);
+            AVPlayerPlugin.hiddenPlayer();
             this._showNavBarShadow = true;
             this._titleHeight = 0.0f;
             this._isHaveTitle = false;
@@ -168,6 +169,11 @@ namespace ConnectApp.screens {
                 this.widget.actionModel.startFetchEventDetail();
                 this.widget.actionModel.fetchEventDetail(this.widget.viewModel.eventId, EventType.online);
             });
+            this._shareActionSubId = EventBus.subscribe(EventBusConstant.shareAction, args => {
+                if (this.widget.viewModel.eventsDict.ContainsKey(this.widget.viewModel.eventId)) {
+                    this._showShareView(this.widget.viewModel.eventsDict[this.widget.viewModel.eventId]);
+                }
+            });
         }
 
         public override void didChangeDependencies() {
@@ -177,6 +183,7 @@ namespace ConnectApp.screens {
 
         public override void dispose() {
             EventBus.unSubscribe(EventBusConstant.login_success, this._loginSubId);
+            EventBus.unSubscribe(EventBusConstant.shareAction, this._shareActionSubId);
             Router.routeObserve.unsubscribe(this);
             this._textController.dispose();
             this._controller.dispose();
@@ -376,22 +383,16 @@ namespace ConnectApp.screens {
         Widget _buildEventHeader(BuildContext context, IEvent eventObj, EventType eventType, EventStatus eventStatus,
             bool isLoggedIn) {
             if (isLoggedIn && eventStatus == EventStatus.past && eventObj.record.isNotEmpty()) {
-                return new CustomVideoPlayer(
-                    eventObj.record,
-                    context,
-                    this._buildHeadTop(false, eventObj),
-                    isFullScreen => {
-                        using (WindowProvider.of(context).getScope()) {
-                            this.setState(() => { this._isFullScreen = isFullScreen; });
-                        }
-                    },
-                    eventObj.recordDuration
+                if (eventObj.record.isNotEmpty() && !AVPlayerPlugin.isConfigPlayer && AVPlayerPlugin.isExistPlayer) {
+                    AVPlayerPlugin.configVideoPlayer(eventObj.record, HttpManager.getCookie());
+                    AVPlayerPlugin.showPlayer();
+                }
+
+                return new Container(
+                    color: CColors.Black,
+                    height: MediaQuery.of(this.context).size.width * 9 / 16
                 );
             }
-
-//            if (eventStatus == EventStatus.past && eventObj.record.isEmpty()) {
-//                return new Container();
-//            }
 
             return new Stack(
                 children: new List<Widget> {
@@ -879,19 +880,21 @@ namespace ConnectApp.screens {
             );
         }
 
-        public void didPopNext() {
-            StatusBarManager.statusBarStyle(false);
-            VideoPlayerManager.instance.isRotation = true;
-        }
 
         public void didPush() {
         }
 
         public void didPop() {
+            AVPlayerPlugin.removePlayer();
         }
 
         public void didPushNext() {
-            VideoPlayerManager.instance.isRotation = false;
+            AVPlayerPlugin.hiddenPlayer();
+        }
+
+        public void didPopNext() {
+            StatusBarManager.statusBarStyle(false);
+            AVPlayerPlugin.showPlayer();
         }
     }
 }
