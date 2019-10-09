@@ -185,7 +185,6 @@ namespace ConnectApp.Models.Api {
     public class FetchTeamArticleResponse {
         public Dictionary<string, bool> likeMap;
         public List<Article> projects;
-        public Dictionary<string, UserLicense> userLicenseMap;
         public bool projectsHasMore;
     }
 
@@ -225,14 +224,6 @@ namespace ConnectApp.Models.Api {
         public Dictionary<string, Channel> channelMap;
         public Dictionary<string, bool> joinedChannelMap;
     }
-    
-    [Serializable]
-    public class FetchJoinedChannelsResponse {
-        public List<Channel> items;
-        public int currentPage;
-        public List<int> pages;
-        public int total;
-    }
 
     [Serializable]
     public class FetchChannelMessagesResponse {
@@ -267,8 +258,6 @@ namespace ConnectApp.Models.Api {
     [Serializable]
     public class UpdateAvatarResponse {
         public string avatar;
-        public int profilePercent;
-        public string nextStep;
     }
 
     [Serializable]

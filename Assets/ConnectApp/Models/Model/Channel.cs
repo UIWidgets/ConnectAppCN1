@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using ConnectApp.Models.Api;
 using ConnectApp.Utils;
-using UnityEngine;
 
 namespace ConnectApp.Models.Model {
     [Serializable]
