@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using UnityEngine;
 
 namespace ConnectApp.Plugins {
@@ -7,6 +6,7 @@ namespace ConnectApp.Plugins {
             if (Application.isEditor) {
                 return;
             }
+
             UIWidgetsTextInputShow();
         }
 
@@ -14,6 +14,7 @@ namespace ConnectApp.Plugins {
             if (Application.isEditor) {
                 return;
             }
+
             UIWidgetsTextInputHide();
         }
 
@@ -23,15 +24,6 @@ namespace ConnectApp.Plugins {
         
         [DllImport ("__Internal")]
         static extern void UIWidgetsTextInputHide();
-        
-        [DllImport ("__Internal")]
-        static extern void UIWidgetsTextInputSetClient(int client, string configuration);
-        
-        [DllImport ("__Internal")]
-        static extern void UIWidgetsTextInputSetTextInputEditingState(string jsonText);
-        
-        [DllImport ("__Internal")]
-        static extern void UIWidgetsTextInputClearTextInputClient();
 #elif UNITY_ANDROID
         internal static void UIWidgetsTextInputShow() {
             using (
@@ -49,6 +41,12 @@ namespace ConnectApp.Plugins {
             ) {
                 pluginClass.CallStatic("hide");
             }
+        }
+#else
+        static void UIWidgetsTextInputShow() {
+        }
+
+        static void UIWidgetsTextInputHide() {
         }
 #endif
     }
