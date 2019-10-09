@@ -8,6 +8,9 @@ using Unity.UIWidgets.external.simplejson;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
 using UnityEngine;
+#if UNITY_IOS
+using System.Runtime.InteropServices;
+#endif
 
 namespace ConnectApp.Plugins {
     public class AVPlayerPlugin {
