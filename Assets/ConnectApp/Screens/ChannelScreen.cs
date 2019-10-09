@@ -912,7 +912,8 @@ namespace ConnectApp.screens {
         }
 
         void _handleSubmit(string text) {
-            if (text == "") {
+            if (string.IsNullOrWhiteSpace(text)) {
+                CustomDialogUtils.showToast("不能发送空消息", Icons.error_outline);
                 return;
             }
 
