@@ -20,7 +20,7 @@ namespace System {
                 var assetPath = Application.dataPath;
                 _cacheFolderPath = $"{assetPath.Substring(0, assetPath.LastIndexOf("/"))}/Editor/imgCache";
 #else
-                _cacheFolderPath = $"{Application.persistentDataPath}/imgCache";
+                _cacheFolderPath = $"{Application.temporaryCachePath}/imgCache";
 #endif
 
                 return _cacheFolderPath;
@@ -39,7 +39,7 @@ namespace System {
 #if UNITY_EDITOR
             var cacheFolder = $"{Application.dataPath}/imgCache";
 #else
-            var cacheFolder = $"{Application.persistentDataPath}/imgCache";
+            var cacheFolder = $"{Application.temporaryCachePath}/imgCache";
 #endif
             var folder = new DirectoryInfo(cacheFolder);
 

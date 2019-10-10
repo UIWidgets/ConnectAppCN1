@@ -2726,10 +2726,8 @@ namespace ConnectApp.redux.reducers {
                     }
                     else {
                         var messageIds = new List<string>();
-                        if (action.messages[0].id != channel.messageIds[0]) {
-                            break;
-                        }
-                        for (int i = action.messages.Count - 1; i >= 1; i--) {
+                        
+                        for (int i = action.messages.Count - 1; i >= 0; i--) {
                             var message = action.messages[i];
                             if (!channel.messageIds.Contains(message.id)) {
                                 messageIds.Add(message.id);
@@ -2785,8 +2783,6 @@ namespace ConnectApp.redux.reducers {
                 case PushReadyAction action: {
                     state.channelState.updateSessionReadyData(action.readyData);
                     state.channelState.updateTotalMention();
-
-                    Debug.Log("WebSocket Online!");
                     break;
                 }
 
@@ -2869,7 +2865,6 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case PushChannelAddMemberAction action: {
-                    Debug.Log("Push Add Member");
                     if (state.channelState.membersDict.ContainsKey(action.memberData.id)) {
                         state.channelState.membersDict[action.memberData.id]
                             .updateFromSocketResponseChannelMemberChangeData(action.memberData);
@@ -2890,7 +2885,6 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case PushChannelRemoveMemberAction action: {
-                    Debug.Log("Push Remove Member");
                     if (state.channelState.channelDict.ContainsKey(action.memberData.channelId)) {
                         ChannelView channel = state.channelState.channelDict[action.memberData.channelId];
                         channel.memberIds.Remove(action.memberData.id);
