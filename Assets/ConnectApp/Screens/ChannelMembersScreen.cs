@@ -45,8 +45,10 @@ namespace ConnectApp.screens {
                     List<ChannelMember> normalMembers = members.Where(member => member.role == "member").ToList();
                     specialMembers.Sort(comparison: _compareMember);
                     if (state.loginState.isLoggedIn) {
-                        state.followState.followDict.TryGetValue(key: state.loginState.loginInfo.userId, value: out followDict);
+                        state.followState.followDict.TryGetValue(key: state.loginState.loginInfo.userId,
+                            value: out followDict);
                     }
+
                     return new ChannelMembersScreenViewModel {
                         channel = state.channelState.channelDict[key: this.channelId],
                         followed = followDict,
@@ -69,7 +71,8 @@ namespace ConnectApp.screens {
                             }
                         ),
                         fetchMembers = () => dispatcher.dispatch<IPromise>(
-                            Actions.fetchChannelMembers(channelId: this.channelId, offset: viewModel.normalMembers.Count)),
+                            Actions.fetchChannelMembers(channelId: this.channelId,
+                                viewModel.normalMembers.Count + viewModel.specialMembers.Count)),
                         startFollowUser = followUserId => dispatcher.dispatch(new StartFollowUserAction {
                             followUserId = followUserId
                         }),
@@ -79,7 +82,7 @@ namespace ConnectApp.screens {
                             unFollowUserId = unFollowUserId
                         }),
                         unFollowUser = unFollowUserId =>
-                            dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(unFollowUserId: unFollowUserId)),
+                            dispatcher.dispatch<IPromise>(Actions.fetchUnFollowUser(unFollowUserId: unFollowUserId))
                     };
                     return new ChannelMembersScreen(actionModel: actionModel, viewModel: viewModel);
                 }

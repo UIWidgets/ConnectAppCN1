@@ -1284,34 +1284,6 @@ namespace ConnectApp.redux.reducers {
                     break;
                 }
 
-                case MainNavigatorPushToNotificationAction _: {
-                    Router.navigator.push(new PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) =>
-                                new NotificationScreenConnector(),
-                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                new PushPageTransition(
-                                    routeAnimation: animation,
-                                    child: child
-                                )
-                        )
-                    );
-                    break;
-                }
-
-                case MainNavigatorPushToDiscoverChannelsAction _: {
-                    Router.navigator.push(new PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) =>
-                                new DiscoverChannelsScreenConnector(),
-                            transitionsBuilder: (context1, animation, secondaryAnimation, child) =>
-                                new PushPageTransition(
-                                    routeAnimation: animation,
-                                    child: child
-                                )
-                        )
-                    );
-                    break;
-                }
-
                 case MainNavigatorPushToChannelAction action: {
                     state.channelState.channelDict[action.channelId].unread = 0;
                     state.channelState.channelDict[action.channelId].mentioned = 0;
@@ -2684,26 +2656,25 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case JoinChannelSuccessAction action: {
-                    var channel = state.channelState.channelDict[action.channelId];
+                    var channel = state.channelState.channelDict[key: action.channelId];
                     channel.joined = true;
                     channel.memberCount++;
                     if (!channel.memberIds.Contains(state.loginState.loginInfo.userId)) {
                         channel.memberIds.Add(state.loginState.loginInfo.userId);
                     }
-
-                    if (!state.channelState.joinedChannels.Contains(action.channelId)) {
-                        state.channelState.joinedChannels.Add(action.channelId);
+                    if (!state.channelState.joinedChannels.Contains(item: action.channelId)) {
+                        state.channelState.joinedChannels.Add(item: action.channelId);
                     }
 
                     break;
                 }
 
                 case LeaveChannelSuccessAction action: {
-                    var channel = state.channelState.channelDict[action.channelId];
+                    var channel = state.channelState.channelDict[key: action.channelId];
                     channel.joined = false;
                     channel.memberIds.Remove(state.loginState.loginInfo.userId);
-                    channel.memberCount--;
-                    state.channelState.joinedChannels.Remove(action.channelId);
+                    channel.memberCount -= 1;
+                    state.channelState.joinedChannels.Remove(item: action.channelId);
                     break;
                 }
 
