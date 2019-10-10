@@ -324,7 +324,12 @@ namespace ConnectApp.screens {
                         mainAxisSize: MainAxisSize.min,
                         children: new List<Widget> {
                             new GestureDetector(
-                                onTap: () => this._refreshController.scrollTo(0),
+                                onTap: () => {
+                                    this.widget.actionModel.reportHitBottom();
+                                    Promise.Delayed(TimeSpan.FromMilliseconds(200)).Then(
+                                        () => this._refreshController.scrollTo(0)
+                                    );
+                                },
                                 child: ret
                             ),
                             new Container(height: this.inputBarHeight + 16)
