@@ -283,17 +283,12 @@ namespace ConnectApp.screens {
         Widget _buildViewImage() {
             return new GestureDetector(
                 onTap: () => { this.setState(() => { this.viewImages = null; }); },
-                child: new Container(
-                    color: Colors.black,
-                    child: new PageView(
-                        controller: this._viewImageController,
-                        children: this.viewImages.Select<string, Widget>(url => {
-                            return CachedNetworkImageProvider.cachedNetworkImage(
-                                url,
-                                fit: BoxFit.contain,
-                                headers: this.headers);
-                        }).ToList()) ));
-            
+                child: new PhotoView(
+                    urls: this.viewImages,
+                    controller: this._viewImageController,
+                    useCachedNetworkImage: true,
+                    headers: this.headers));
+
         }
 
         Widget _buildNewMessageNotification() {
