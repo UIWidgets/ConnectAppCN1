@@ -256,11 +256,13 @@ namespace ConnectApp.screens {
                         this.widget.viewModel.channel?.isTop ?? false,
                         value => this.widget.actionModel.updateTop(obj: value)
                     ),
+#if false
                     _switchRow(
                         "消息免打扰",
                         this.widget.viewModel.channel?.isMute ?? false,
                         value => { }
                     ),
+#endif
                     new Container(height: 16),
                     new GestureDetector(
                         onTap: this._leaveChannel,
