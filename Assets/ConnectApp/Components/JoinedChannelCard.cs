@@ -129,7 +129,8 @@ namespace ConnectApp.Components {
                                 48,
                                 48,
                                 4,
-                                fit: BoxFit.cover
+                                fit: BoxFit.cover,
+                                true
                             ),
                             new Expanded(
                                 child: new Column(

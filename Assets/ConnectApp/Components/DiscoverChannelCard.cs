@@ -11,14 +11,17 @@ namespace ConnectApp.Components {
     public class DiscoverChannelCard : StatelessWidget {
         public DiscoverChannelCard(
             ChannelView channel,
+            GestureTapCallback onTap = null,
             GestureTapCallback joinChannel = null,
             Key key = null
         ) : base(key: key) {
             this.channel = channel;
+            this.onTap = onTap;
             this.joinChannel = joinChannel;
         }
 
         readonly ChannelView channel;
+        readonly GestureTapCallback onTap;
         readonly GestureTapCallback joinChannel;
 
         public override Widget build(BuildContext context) {
@@ -77,23 +80,26 @@ namespace ConnectApp.Components {
                 )
             );
 
-            return new Container(
-                color: CColors.White,
-                height: 72,
-                padding: EdgeInsets.symmetric(12, 16),
-                child: new Row(
-                    children: new List<Widget> {
-                        new PlaceholderImage(
-                            this.channel?.thumbnail ?? "",
-                            48,
-                            48,
-                            4,
-                            fit: BoxFit.cover,
-                            true
-                        ),
-                        new Expanded(child: body),
-                        joinButton
-                    }
+            return new GestureDetector(
+                onTap: this.onTap,
+                child: new Container(
+                    color: CColors.White,
+                    height: 72,
+                    padding: EdgeInsets.symmetric(12, 16),
+                    child: new Row(
+                        children: new List<Widget> {
+                            new PlaceholderImage(
+                                this.channel?.thumbnail ?? "",
+                                48,
+                                48,
+                                4,
+                                fit: BoxFit.cover,
+                                true
+                            ),
+                            new Expanded(child: body),
+                            joinButton
+                        }
+                    )
                 )
             );
         }

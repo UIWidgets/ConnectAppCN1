@@ -1,13 +1,18 @@
 using ConnectApp.Constants;
+using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
 using Unity.UIWidgets.widgets;
 
 namespace ConnectApp.Components {
     public class NotificationDot : StatelessWidget {
-        public readonly string content;
-        public readonly BorderSide borderSide;
+        readonly string content;
+        readonly BorderSide borderSide;
 
-        public NotificationDot(string content, BorderSide borderSide = null) {
+        public NotificationDot(
+            string content,
+            BorderSide borderSide = null,
+            Key key = null
+        ) : base(key: key) {
             this.content = content;
             this.borderSide = borderSide;
         }
@@ -17,9 +22,9 @@ namespace ConnectApp.Components {
                 return new Container();
             }
 
-            Widget ret;
+            Widget content;
             if (this.content == "") {
-                ret = new Container(
+                content = new Container(
                     width: 10,
                     height: 10,
                     decoration: new BoxDecoration(
@@ -29,29 +34,31 @@ namespace ConnectApp.Components {
                 );
             }
             else {
-                ret = new Container(
+                content = new Container(
                     decoration: new BoxDecoration(
                         borderRadius: BorderRadius.all(8),
                         color: CColors.Error
                     ),
                     padding: EdgeInsets.symmetric(1, 4),
-                    child: new Text($"{this.content}",
-                        style: CTextStyle.PRedDot)
+                    child: new Text(
+                        $"{this.content}",
+                        style: CTextStyle.PRedDot
+                    )
                 );
             }
 
             if (this.borderSide != null) {
-                ret = new Container(
-                    padding: EdgeInsets.all(this.borderSide.width),
+                return new Container(
+                    padding: EdgeInsets.all(value: this.borderSide.width),
                     decoration: new BoxDecoration(
                         borderRadius: BorderRadius.all(8 + this.borderSide.width),
                         color: this.borderSide.color
                     ),
-                    child: ret
+                    child: content
                 );
             }
 
-            return ret;
+            return content;
         }
     }
 }
