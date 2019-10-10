@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ConnectApp.Api;
 using ConnectApp.Components;
 using ConnectApp.Components.pull_to_refresh;
 using ConnectApp.Constants;
 using ConnectApp.Main;
 using ConnectApp.Models.ActionModel;
+using ConnectApp.Models.Api;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
@@ -206,15 +208,112 @@ namespace ConnectApp.screens {
                 {"AppVersion", Config.versionNumber},
                 {"X-Requested-With", "XmlHttpRequest"}
             };
+            
+            this._textController.addListener(this._onTextChanged);
         }
 
         public override void dispose() {
             Router.routeObserve.unsubscribe(this);
+            this._textController.removeListener(this._onTextChanged);
             this._textController.dispose();
             this._emojiTabController.dispose();
             SchedulerBinding.instance.addPostFrameCallback(_ => { this.widget.actionModel.clearUnread(); });
             this._focusNode.dispose();
             base.dispose();
+        }
+
+        string _lastMessegeEditingContent = "";
+        string _lastMentionKey;
+        bool _suggestionBatching = false;
+        readonly List<string> _suggestMentions = new List<string>();
+        const int SuggestionMaxNum = 10;
+
+        void _updateSuggestMentions(FetchSuggestUserDetailResponse response, bool clearOnly = false) {
+            this._suggestMentions.Clear();
+            if (clearOnly) {
+                return;
+            }
+
+            if (response != null) {
+                foreach (var item in response.items) {
+                    if (this._suggestMentions.Count >= SuggestionMaxNum) {
+                        break;
+                    }
+                    this._suggestMentions.Add(item.id);
+                }
+            }
+
+            foreach (var id in this.widget.viewModel.channel.memberIds) {
+                if (this._suggestMentions.Count >= SuggestionMaxNum) {
+                    break;
+                }
+                this._suggestMentions.Add(id);
+            }
+        }
+
+        void queryMentionSuggestion() {
+            if (this._suggestionBatching) {
+                return;
+            }
+            
+            this._suggestionBatching = true;
+            ChannelApi.QueryUser(this._lastMentionKey).Then(
+                response => {
+                    if (!this.mounted) {
+                        return;
+                    }
+
+                    this.setState(() => {
+                        if (string.IsNullOrEmpty(this._lastMentionKey)) {
+                            this._suggestionBatching = false;
+                            return;
+                        }
+                        
+                        this._updateSuggestMentions(response);
+                        if (this._suggestionBatching) {
+                            this._suggestionBatching = false;
+                            this.queryMentionSuggestion();     
+                        }
+                    });
+                }
+            );
+        }
+
+        void _onUserSuggestKeyChange(string newKey) {
+            if (this._lastMentionKey == newKey) {
+                return;
+            }
+            
+            this._lastMentionKey = newKey;
+            switch (this._lastMentionKey)
+            {
+                case null:
+                    this.setState(() => { this._updateSuggestMentions(null, true); });
+                    break;
+                case "":
+                    this.setState(() => {
+                        this._updateSuggestMentions(null);
+                    });
+                    break;
+                default:
+                    this.queryMentionSuggestion();
+                    break;
+            }
+        }
+        
+        void _onTextChanged() {
+            var curTextContent = this._textController.text;
+            if (curTextContent != this._lastMessegeEditingContent) {
+                this._lastMessegeEditingContent = curTextContent;
+                var lastAtPosition = curTextContent.LastIndexOf("@");
+                if (lastAtPosition != -1 && lastAtPosition > curTextContent.LastIndexOf(" ")) {
+                    var queryKey = curTextContent.Substring(lastAtPosition + 1);
+                    this._onUserSuggestKeyChange(queryKey);
+                }
+                else {
+                    this._onUserSuggestKeyChange(null);
+                }
+            }
         }
 
         public override Widget build(BuildContext context) {
@@ -242,6 +341,7 @@ namespace ConnectApp.screens {
                 children: new List<Widget> {
                     this._buildContent(),
                     this._buildInputBar(),
+                    this._buildMentionSuggestion(),
                     this.widget.viewModel.newMessageCount == 0 ||
                     this.widget.viewModel.messageLoading
                         ? new Container()
@@ -721,6 +821,28 @@ namespace ConnectApp.screens {
                     )
                 )
             );
+        }
+
+        Widget _buildMentionSuggestion() {
+            var suggestions = new List<Widget>();
+            foreach (var mention in this._suggestMentions) {
+                suggestions.Add(new Text(mention));
+            }
+            
+            Widget ret = this._lastMentionKey == null ? (Widget) new Container() : new Positioned(
+                left: 0,
+                right: 0,
+                bottom: 64,
+                child: new Container(
+                    padding: EdgeInsets.symmetric(0, 16),
+                    color: CColors.Grey,
+                    child: new Column(
+                        children: suggestions
+                    )
+                )
+            );
+            
+            return ret;
         }
 
         Widget _buildInputBar() {
