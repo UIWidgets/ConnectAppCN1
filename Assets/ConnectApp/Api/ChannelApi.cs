@@ -16,7 +16,7 @@ namespace ConnectApp.Api {
                 {"discoverPage", page},
                 {"joined", "true"}
             };
-            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/channels", parameter: para);
+            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/v1/channels", parameter: para);
             HttpManager.resume(request).Then(responseText => {
                 var publicChannelsResponse = JsonConvert.DeserializeObject<FetchChannelsResponse>(responseText);
                 promise.Resolve(publicChannelsResponse);
@@ -28,7 +28,7 @@ namespace ConnectApp.Api {
             string channelId, string before = null, string after = null) {
             D.assert(before == null || after == null);
             var promise = new Promise<FetchChannelMessagesResponse>();
-            var request = HttpManager.GET($"{Config.apiAddress}/api/channels/{channelId}/messages",
+            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/v1/channels/{channelId}/messages",
                 parameter: before != null
                 ? new Dictionary<string, object> {{"before", before}}
                 : after != null
@@ -42,7 +42,7 @@ namespace ConnectApp.Api {
         
         public static Promise<AckChannelMessagesResponse> AckChannelMessage(string messageId) {
             var promise = new Promise<AckChannelMessagesResponse>();
-            var request = HttpManager.POST($"{Config.apiAddress}/api/messages/{messageId}/ack");
+            var request = HttpManager.POST($"{Config.apiAddress}/api/connectapp/v1/messages/{messageId}/ack");
             HttpManager.resume(request).Then(responseText => {
                 promise.Resolve(JsonConvert.DeserializeObject<AckChannelMessagesResponse>(responseText));
             }).Catch(exception => { promise.Reject(exception); });
@@ -51,7 +51,7 @@ namespace ConnectApp.Api {
 
         public static Promise<FetchChannelMembersResponse> FetchChannelMembers(string channelId, int offset = 0) {
             var promise = new Promise<FetchChannelMembersResponse>();
-            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/channels/{channelId}/members",
+            var request = HttpManager.GET($"{Config.apiAddress}/api/connectapp/v1/channels/{channelId}/members",
                 parameter: new Dictionary<string, object> {
                     {"offset", offset}
                 });
@@ -63,7 +63,7 @@ namespace ConnectApp.Api {
         
         public static Promise<List<JoinChannelResponse>> JoinChannel(string channelId, string groupId = null) {
             var promise = new Promise<List<JoinChannelResponse>>();
-            var request = HttpManager.POST($"{Config.apiAddress}/api/channels/{channelId}/join",
+            var request = HttpManager.POST($"{Config.apiAddress}/api/connectapp/v1/channels/{channelId}/join",
                 parameter: new Dictionary<string, string> {
                     {"channelId", channelId}
             });
@@ -75,7 +75,7 @@ namespace ConnectApp.Api {
         
         public static Promise<LeaveChannelResponse> LeaveChannel(string channelId, string groupId = null) {
             var promise = new Promise<LeaveChannelResponse>();
-            var request = HttpManager.POST($"{Config.apiAddress}/api/channels/{channelId}/leave",
+            var request = HttpManager.POST($"{Config.apiAddress}/api/connectapp/v1/channels/{channelId}/leave",
                 parameter: new Dictionary<string, string> {
                     {"channelId", channelId}
             });
@@ -90,7 +90,7 @@ namespace ConnectApp.Api {
             var data = Convert.FromBase64String(imageData);
             var promise = new Promise<FetchSendMessageResponse>();
             var request = HttpManager.POST(
-                $"{Config.apiAddress}/api/channels/{channelId}/messages/attachments",
+                $"{Config.apiAddress}/api/connectapp/v1/channels/{channelId}/messages/attachments",
                 parameter: new List<List<object>> {
                     new List<object>{"channel", channelId},
                     new List<object>{"content", content},
