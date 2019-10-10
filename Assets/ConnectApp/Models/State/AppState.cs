@@ -172,7 +172,6 @@ namespace ConnectApp.Models.State {
                     totalMention = 0,
                     channelDict = new Dictionary<string, ChannelView>(),
                     messageDict = new Dictionary<string, ChannelMessageView>(),
-                    membersDict = new Dictionary<string, ChannelMember>(),
                     channelTop = new Dictionary<string, bool>()
                 },
                 tabBarState = new TabBarState {

@@ -39,7 +39,7 @@ namespace ConnectApp.screens {
             return new StoreConnector<AppState, ChannelMembersScreenViewModel>(
                 converter: state => {
                     var members = state.channelState.channelDict[key: this.channelId].memberIds.Select(
-                        memberId => state.channelState.membersDict[key: memberId]
+                        memberId => state.channelState.channelDict[key: this.channelId].membersDict[key: memberId]
                     ).ToList();
                     List<ChannelMember> specialMembers = members.Where(member => member.role != "member").ToList();
                     List<ChannelMember> normalMembers = members.Where(member => member.role == "member").ToList();

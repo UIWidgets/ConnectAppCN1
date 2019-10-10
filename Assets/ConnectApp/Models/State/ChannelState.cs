@@ -13,7 +13,6 @@ namespace ConnectApp.Models.State {
         public int totalMention;
         public Dictionary<string, ChannelView> channelDict;
         public Dictionary<string, ChannelMessageView> messageDict;
-        public Dictionary<string, ChannelMember> membersDict;
         public Dictionary<string, bool> channelTop;
 
         public void updateChannel(Channel channel) {
@@ -32,34 +31,6 @@ namespace ConnectApp.Models.State {
             }
 
             channelView.updateFromNormalChannelLite(channel);
-        }
-
-        public void updateMessageUser(MessageUser user) {
-            if (this.membersDict.TryGetValue(user.id, out var member)) {
-                member.user.id = user.id;
-                member.user.username = user.username;
-                member.user.fullName = user.fullname;
-                member.user.avatar = user.avatar;
-                member.user.title = user.title;
-                member.user.coverImage = user.coverImage;
-                member.user.followCount = user.followCount;
-                member.presenceStatus = user.presenceStatus;
-                return;
-            }
-
-            this.membersDict[user.id] = new ChannelMember {
-                user = new User {
-                    id = user.id,
-                    username = user.username,
-                    fullName = user.fullname,
-                    avatar = user.avatar,
-                    title = user.title,
-                    coverImage = user.coverImage,
-                    followCount = user.followCount
-                },
-                id = user.id,
-                presenceStatus = user.presenceStatus
-            };
         }
 
         public void updateTotalMention() {
@@ -82,14 +53,6 @@ namespace ConnectApp.Models.State {
                 : null;
         }
 
-        public ChannelMember getMember(string userId) {
-            if (this.membersDict.TryGetValue(userId, out var member)) {
-                return member;
-            }
-
-            return null;
-        }
-
         public ChannelView getJoinedChannel(int i) {
             return this.channelDict[this.joinedChannels[i]];
         }
@@ -110,9 +73,11 @@ namespace ConnectApp.Models.State {
                     this.joinedChannels.Add(channel.id);
                 }
             }
-
+            
             for (int i = 0; i < sessionReadyData.users.Count; i++) {
-                this.updateMessageUser(sessionReadyData.users[i]);
+                for (int j = 0; j < this.joinedChannels.Count; j++) {
+                    this.channelDict[this.joinedChannels[j]].updateMessageUser(sessionReadyData.users[i]);
+                }
             }
 
             for (int i = 0; i < sessionReadyData.lastMessages.Count; i++) {
@@ -121,10 +86,9 @@ namespace ConnectApp.Models.State {
                 if (this.channelDict.TryGetValue(channelId, out var channel)) {
                     channel.lastMessageId = message.id;
                     channel.lastMessage = ChannelMessageView.fromChannelMessageLite(message);
-                    channel.lastMessage.author =
-                        this.getMember(channel.lastMessage.author.id)?.user;
+                    channel.lastMessage.author = channel.getMember(channel.lastMessage.author.id)?.user;
                     channel.lastMessage.mentions = channel.lastMessage.mentions?.Select(
-                        user => this.getMember(user.id).user)?.ToList();
+                        user => channel.getMember(user.id).user)?.ToList();
                 }
             }
 
