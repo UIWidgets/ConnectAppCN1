@@ -567,7 +567,10 @@ namespace ConnectApp.screens {
                     message.content.Substring(0, startIndex),
                     style: CTextStyle.PLargeBody,
                     children: new List<TextSpan> {
-                        new TextSpan(message.embeds[0].embedData.url, style: CTextStyle.PLargeBlue),
+                        new TextSpan(message.embeds[0].embedData.url, style: CTextStyle.PLargeBlue, recognizer: new TapGestureRecognizer
+                        {
+                            onTap = () => this.widget.actionModel.openUrl(message.embeds[0].embedData.url)
+                        }),
                         new TextSpan(message.content.Substring(startIndex + message.embeds[0].embedData.url.Length),
                             style: CTextStyle.PLargeBody),
                     }
