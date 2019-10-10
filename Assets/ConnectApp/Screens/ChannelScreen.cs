@@ -150,6 +150,7 @@ namespace ConnectApp.screens {
     class _ChannelScreenState : TickerProviderStateMixin<ChannelScreen>, RouteAware {
         readonly TextEditingController _textController = new TextEditingController();
         readonly RefreshController _refreshController = new RefreshController();
+        readonly PageController _viewImageController = new PageController();
         GlobalKey _smartRefresherKey = GlobalKey<State<SmartRefresher>>.key("SmartRefresher");
         TabController _emojiTabController;
         FocusNode _focusNode;
@@ -158,7 +159,7 @@ namespace ConnectApp.screens {
         float messageBubbleWidth = 0;
         bool _showEmojiBoard = false;
         Dictionary<string, string> headers;
-        string viewImage;
+        List<string> viewImages;
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
@@ -258,7 +259,7 @@ namespace ConnectApp.screens {
                 }
             );
             
-            if (this.viewImage != null) {
+            if (this.viewImages != null) {
                 ret = new Stack(
                     children: new List<Widget> {
                         ret,
@@ -281,13 +282,17 @@ namespace ConnectApp.screens {
 
         Widget _buildViewImage() {
             return new GestureDetector(
-                onTap: () => { this.setState(() => { this.viewImage = null; }); },
+                onTap: () => { this.setState(() => { this.viewImages = null; }); },
                 child: new Container(
                     color: Colors.black,
-                    child: CachedNetworkImageProvider.cachedNetworkImage(
-                        this.viewImage,
-                        fit: BoxFit.contain,
-                        headers: this.headers)));
+                    child: new PageView(
+                        controller: this._viewImageController,
+                        children: this.viewImages.Select<string, Widget>(url => {
+                            return CachedNetworkImageProvider.cachedNetworkImage(
+                                url,
+                                fit: BoxFit.contain,
+                                headers: this.headers);
+                        }).ToList()) ));
             
         }
 
@@ -523,7 +528,16 @@ namespace ConnectApp.screens {
         Widget _buildImageMessageContent(ChannelMessageView message) {
             return new GestureDetector(
                 onTap: () => {
-                    this.setState(() => { this.viewImage = message.content; });
+                    this.setState(() => {
+                        this.viewImages = this.widget.viewModel.messages
+                            .Where(msg => msg.type == ChannelMessageType.image)
+                            .Select(msg => CImageUtils.SizeToScreenImageUrl(msg.content))
+                            .ToList();
+                        SchedulerBinding.instance.addPostFrameCallback(_ => {
+                            this._viewImageController.jumpToPage(this.viewImages.IndexOf(
+                                CImageUtils.SizeToScreenImageUrl(message.content)));
+                        });
+                    });
                 },
                 child: new _ImageMessage(
                     url: message.content,
@@ -1217,7 +1231,7 @@ namespace ConnectApp.screens {
             base.initState();
             if (this.widget.srcSize == null) {
                 this.image = CachedNetworkImageProvider.cachedNetworkImage(
-                    src: CImageUtils.SizeTo200ImageUrl(this.widget.url),
+                    src: CImageUtils.SizeToScreenImageUrl(this.widget.url),
                     headers: this.widget.headers);
                 this.stream = this.image.image
                     .resolve(new ImageConfiguration());
@@ -1248,7 +1262,7 @@ namespace ConnectApp.screens {
                         width: this.size.width,
                         height: this.size.height,
                         child: CachedNetworkImageProvider.cachedNetworkImage(
-                            CImageUtils.SizeTo200ImageUrl(this.widget.url),
+                            CImageUtils.SizeToScreenImageUrl(this.widget.url),
                             headers: this.widget.headers,
                             fit: BoxFit.cover))
                 );

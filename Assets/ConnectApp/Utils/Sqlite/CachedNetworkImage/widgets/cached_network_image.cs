@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using RSG;
 using Unity.UIWidgets.async;
 using Unity.UIWidgets.painting;
@@ -41,6 +42,10 @@ namespace ConnectApp.Utils {
         
         IPromise<Codec> _loadAsync(CachedNetworkImage key) {
             var localPath = SQLiteDBManager.instance.GetCachedFilePath(key.url);
+            //the cached file might be deleted by the OS
+            if (!File.Exists(localPath)) {
+                localPath = null;
+            }
 
             var coroutine = localPath != null
                 ? Window.instance.startCoroutine(this._loadFromFile(localPath))

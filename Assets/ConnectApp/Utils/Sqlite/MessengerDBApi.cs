@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ConnectApp.Models.Api;
@@ -41,6 +42,10 @@ namespace ConnectApp.Utils {
             );
         }
         
+        static long MessageIdToKey(string messageId) {
+            return string.IsNullOrEmpty(messageId) ? 0 : Convert.ToInt64(messageId, 16);
+        }
+        
         /**
          *
          * load messages from DB and convert them into List<ChannelMessageView>. The results are ordered by nonce from new to old
@@ -66,7 +71,8 @@ namespace ConnectApp.Utils {
                     content = msgLite.content,
                     author = new User {
                         fullName = msgLite.authorName,
-                        avatar = msgLite.authorThumb
+                        avatar = msgLite.authorThumb,
+                        id = msgLite.authorId
                     },
                     channelId = msgLite.channelId,
                     nonce = msgLite.nonce,
@@ -116,10 +122,12 @@ namespace ConnectApp.Utils {
             var metionsJson = JsonConvert.SerializeObject(mentionsList);
             
             return new DBMessageLite {
+                messageKey = MessageIdToKey(message.id),
                 messageId = message.id,
                 content = message.content,
                 authorName = message.author.fullName,
                 authorThumb = message.author.avatar,
+                authorId = message.author.id,
                 channelId = message.channelId,
                 nonce = message.nonce,
                 type = (int) message.type,

@@ -35,6 +35,11 @@ namespace ConnectApp.Utils {
             return $"{imageUrl}.200x0x1.jpg";
         }
 
+        public static string SizeToScreenImageUrl(string imageUrl) {
+            var data = MediaQuery.of(GlobalContext.context);
+            return $"{imageUrl}.{(int)(data.size.width * data.devicePixelRatio)}x0x1.jpg";
+        }
+
         public static string SplashImageUrl(string imageUrl) {
             var imageWidth = Math.Ceiling(Window.instance.physicalSize.width);
             return $"{imageUrl}.{imageWidth}x0x1.jpg";
