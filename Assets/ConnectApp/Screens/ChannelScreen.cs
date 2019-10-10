@@ -494,6 +494,8 @@ namespace ConnectApp.screens {
                             children: new List<Widget> {
                                 user.avatar.isEmpty()
                                     ? new Container(
+                                        padding: EdgeInsets.all(1.0f / Window.instance.devicePixelRatio),
+                                        color: Colors.white,
                                         child: new _Placeholder(
                                             user.id ?? "",
                                             user.fullName ?? "",
@@ -501,7 +503,8 @@ namespace ConnectApp.screens {
                                         )
                                     )
                                     : new Container(
-                                        color: CColors.AvatarLoading,
+                                        padding: EdgeInsets.all(1.0f / Window.instance.devicePixelRatio),
+                                        color: Colors.white,
                                         child: CachedNetworkImageProvider.cachedNetworkImage(src: httpsUrl)
                                     ),
                                 Positioned.fill(
