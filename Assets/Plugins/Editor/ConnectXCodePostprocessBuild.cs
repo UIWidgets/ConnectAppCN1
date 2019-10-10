@@ -29,7 +29,6 @@ namespace Plugins.Editor {
                     line.Contains("GCC_ENABLE_CPP_EXCEPTIONS") ||
                     line.Contains("CLANG_ENABLE_MODULES")) {
                     var newLine = line.Replace("NO", "YES");
-                    Debug.Log(line);
                     sb.AppendLine(newLine);
                 }
                 else {
