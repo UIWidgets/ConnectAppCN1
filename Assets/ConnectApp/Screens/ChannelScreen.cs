@@ -1000,7 +1000,7 @@ namespace ConnectApp.screens {
             this.widget.actionModel.startSendMessage();
             this.widget.actionModel.sendMessage(
                     this.widget.viewModel.channel.id,
-                    text, Snowflake.CreateNonce(), "")
+                    text.Trim(), Snowflake.CreateNonce(), "")
                 .Catch(_ => CustomDialogUtils.showToast("消息发送失败", Icons.error_outline));
             this._refreshController.scrollTo(0);
             FocusScope.of(this.context).requestFocus(this._focusNode);
