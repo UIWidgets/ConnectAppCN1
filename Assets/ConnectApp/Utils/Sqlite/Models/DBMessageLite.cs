@@ -30,12 +30,16 @@ namespace ConnectApp.Utils {
         public List<DBUser> users;
     }
     
-    public class DBMessageLite {    
+    public class DBMessageLite {
         [Preserve][PrimaryKey][Indexed]
-        public long nonce { get; set; }
+        public long messageKey { get; set; }
         
         [Preserve]
         public string messageId { get; set; }
+        
+        [Preserve]
+        public long nonce { get; set; }
+
         [Preserve]
         public string channelId { get; set; }
         
@@ -54,6 +58,8 @@ namespace ConnectApp.Utils {
         public string authorName { get; set; }
         [Preserve]
         public string authorThumb { get; set; }
+        [Preserve]
+        public string authorId { get; set; }
         
         [Preserve]
         public string embedsJson { get; set; }
