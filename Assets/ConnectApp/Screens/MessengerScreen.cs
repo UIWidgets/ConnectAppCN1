@@ -64,9 +64,12 @@ namespace ConnectApp.screens {
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new MessengerScreenActionModel {
-                        pushToNotifications = () => dispatcher.dispatch(new MainNavigatorPushToNotificationAction()),
-                        pushToDiscoverChannels = () =>
-                            dispatcher.dispatch(new MainNavigatorPushToDiscoverChannelsAction()),
+                        pushToNotifications = () => dispatcher.dispatch(new MainNavigatorPushToAction {
+                            routeName = MainNavigatorRoutes.Notification
+                        }),
+                        pushToDiscoverChannels = () => dispatcher.dispatch(new MainNavigatorPushToAction {
+                            routeName = MainNavigatorRoutes.DiscoverChannel
+                        }),
                         pushToChannel = channelId => {
                             dispatcher.dispatch(new MainNavigatorPushToChannelAction {
                                 channelId = channelId
@@ -75,6 +78,9 @@ namespace ConnectApp.screens {
                                 dispatcher.dispatch(Actions.ackChannelMessage(messageId: messageId));
                             }
                         },
+                        pushToChannelDetail = channelId => dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction {
+                            channelId = channelId
+                        }),
                         fetchChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchChannels(
                             viewModel.discoverPage + 1
                         )),
@@ -273,7 +279,11 @@ namespace ConnectApp.screens {
                                             padding: EdgeInsets.only(16),
                                             child: new Row(
                                                 children: this.widget.viewModel.popularChannels.Select(
-                                                    selector: MessengerBuildUtils.buildPopularChannelItem
+                                                    popularChannel => (Widget) new PopularChannelCard(
+                                                        channel: popularChannel,
+                                                        () => this.widget.actionModel.pushToChannelDetail(
+                                                            obj: popularChannel.id)
+                                                    )
                                                 ).ToList()
                                             )
                                         )
@@ -294,6 +304,14 @@ namespace ConnectApp.screens {
             var publicChannel = this.widget.viewModel.publicChannels[index: row];
             return new DiscoverChannelCard(
                 channel: publicChannel,
+                () => {
+                    if (publicChannel.joined) {
+                        this.widget.actionModel.pushToChannel(obj: publicChannel.id);
+                    }
+                    else {
+                        this.widget.actionModel.pushToChannelDetail(obj: publicChannel.id);
+                    }
+                },
                 () => this.widget.actionModel.joinChannel(arg1: publicChannel.id, arg2: publicChannel.groupId)
             );
         }
@@ -319,84 +337,6 @@ namespace ConnectApp.screens {
                     .Then(() => this._refreshController.sendBack(false, mode: RefreshStatus.idle))
                     .Catch(e => this._refreshController.sendBack(false, mode: RefreshStatus.idle));
             }
-        }
-    }
-
-    public static class MessengerBuildUtils {
-        public static Widget buildPopularChannelItem(ChannelView channel) {
-            Widget image = Positioned.fill(
-                child: CachedNetworkImageProvider.cachedNetworkImage(
-                    channel?.thumbnail ?? "",
-                    fit: BoxFit.cover
-                )
-            );
-            Widget gradient = Positioned.fill(
-                child: new Container(
-                    decoration: new BoxDecoration(
-                        gradient: new LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: new List<Color> {
-                                Color.fromARGB(20, 0, 0, 0),
-                                Color.fromARGB(80, 0, 0, 0),
-                            }
-                        )
-                    )
-                )
-            );
-
-            Widget title = new Container(
-                height: 72,
-                padding: EdgeInsets.symmetric(0, 8),
-                child: new Align(
-                    alignment: Alignment.bottomLeft,
-                    child: new Text(channel.name,
-                        style: CTextStyle.PLargeMediumWhite)
-                )
-            );
-
-            Widget count = new Container(
-                padding: EdgeInsets.only(top: 4, left: 8),
-                child: new Row(
-                    children: new List<Widget> {
-                        new Container(
-                            width: 8,
-                            height: 8,
-                            decoration: new BoxDecoration(
-                                color: CColors.AquaMarine,
-                                borderRadius: BorderRadius.all(4)
-                            )
-                        ),
-                        new Container(width: 4),
-                        new Text($"{channel.memberCount}人",
-                            style: CTextStyle.PSmallWhite)
-                    }
-                )
-            );
-
-            Widget content = Positioned.fill(
-                child: new Column(
-                    children: new List<Widget> {
-                        title, count
-                    }
-                )
-            );
-
-            return new Container(
-                width: 120,
-                height: 120,
-                margin: EdgeInsets.only(right: 16),
-                child: new ClipRRect(
-                    borderRadius: BorderRadius.all(8),
-                    child: new Container(
-                        child: new Stack(
-                            children: new List<Widget> {
-                                image, gradient, content
-                            }
-                        )
-                    )
-                )
-            );
         }
     }
 }

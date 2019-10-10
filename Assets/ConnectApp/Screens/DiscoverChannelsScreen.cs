@@ -22,19 +22,45 @@ namespace ConnectApp.screens {
         public override Widget build(BuildContext context) {
             return new StoreConnector<AppState, DiscoverChannelsScreenViewModel>(
                 converter: state => {
+                    var joinedChannels = state.channelState.joinedChannels.Select(
+                        channelId => {
+                            var channel = state.channelState.channelDict[key: channelId];
+                            channel.isTop = state.channelState.channelTop.TryGetValue(channelId, out var isTop) &&
+                                            isTop;
+                            return channel;
+                        }).ToList();
+                    joinedChannels.Sort((c1, c2) => c1.isTop == c2.isTop ? 0 : (c1.isTop ? -1 : 1));
+
+                    var lastMessageMap = new Dictionary<string, string>();
+                    foreach (var channel in joinedChannels) {
+                        if (!string.IsNullOrEmpty(value: channel.lastMessageId)) {
+                            lastMessageMap[key: channel.id] = channel.lastMessageId;
+                        }
+                    }
                     return new DiscoverChannelsScreenViewModel {
                         publicChannels = state.channelState.publicChannels.Select(
                             channelId => state.channelState.channelDict[key: channelId]
                         ).ToList(),
+                        lastMessageMap = lastMessageMap,
                         page = state.channelState.discoverPage
                     };
                 },
                 builder: (context1, viewModel, dispatcher) => {
                     var actionModel = new DiscoverChannelsScreenActionModel {
                         mainRouterPop = () => dispatcher.dispatch(new MainNavigatorPopAction()),
-                        joinChannel = (channelId, groupId) => {
-                            dispatcher.dispatch<IPromise>(Actions.joinChannel(channelId: channelId, groupId: groupId));
+                        pushToChannel = channelId => {
+                            dispatcher.dispatch(new MainNavigatorPushToChannelAction {
+                                channelId = channelId
+                            });
+                            if (viewModel.lastMessageMap.TryGetValue(key: channelId, out var messageId)) {
+                                dispatcher.dispatch(Actions.ackChannelMessage(messageId: messageId));
+                            }
                         },
+                        pushToChannelDetail = channelId => dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction {
+                            channelId = channelId
+                        }),
+                        joinChannel = (channelId, groupId) => dispatcher.dispatch<IPromise>(
+                            Actions.joinChannel(channelId: channelId, groupId: groupId)),
                         fetchChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchChannels(viewModel.page + 1))
                     };
                     return new DiscoverChannelsScreen(viewModel: viewModel, actionModel: actionModel);
@@ -124,6 +150,14 @@ namespace ConnectApp.screens {
                         var channel = this.widget.viewModel.publicChannels[index: index];
                         return new DiscoverChannelCard(
                             channel: channel,
+                            () => {
+                                if (channel.joined) {
+                                    this.widget.actionModel.pushToChannel(obj: channel.id);
+                                }
+                                else {
+                                    this.widget.actionModel.pushToChannelDetail(obj: channel.id);
+                                }
+                            },
                             () => this.widget.actionModel.joinChannel(arg1: channel.id, arg2: channel.groupId)
                         );
                     }, 

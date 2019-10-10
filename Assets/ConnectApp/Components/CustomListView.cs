@@ -136,14 +136,6 @@ namespace ConnectApp.Components {
         public override string ToString() {
             return $"section_{this.section}_row_${this.row}";
         }
-
-        public static bool operator ==(IndexPath a, IndexPath b) {
-            return a.section == b.section && a.row == b.row;
-        }
-
-        public static bool operator !=(IndexPath a, IndexPath b) {
-            return a.section != b.section || a.row != b.row;
-        }
     }
 
     public class SectionView : StatelessWidget {

@@ -6,9 +6,7 @@ using ConnectApp.Models.ActionModel;
 using ConnectApp.Models.Model;
 using ConnectApp.Models.State;
 using ConnectApp.Models.ViewModel;
-using ConnectApp.Plugins;
 using ConnectApp.redux.actions;
-using ConnectApp.Utils;
 using RSG;
 using Unity.UIWidgets.foundation;
 using Unity.UIWidgets.painting;
@@ -16,7 +14,6 @@ using Unity.UIWidgets.Redux;
 using Unity.UIWidgets.rendering;
 using Unity.UIWidgets.ui;
 using Unity.UIWidgets.widgets;
-using Image = Unity.UIWidgets.widgets.Image;
 
 namespace ConnectApp.screens {
     public class ChannelDetailScreenConnector : StatelessWidget {
@@ -55,14 +52,14 @@ namespace ConnectApp.screens {
                             dispatcher.dispatch(new MainNavigatorPushToChannelIntroductionAction {
                                 channelId = this.channelId
                             }),
+                        joinChannel = () => dispatcher.dispatch<IPromise>(
+                            Actions.joinChannel(channelId: this.channelId, groupId: viewModel.channel.groupId)),
                         leaveChannel = () => dispatcher.dispatch<IPromise>(
                             Actions.leaveChannel(channelId: this.channelId, groupId: viewModel.channel.groupId)),
-                        updateTop = isTop => {
-                            dispatcher.dispatch(new UpdateChannelTopAction {
-                                channelId = this.channelId,
-                                value = isTop
-                            });
-                        }
+                        updateTop = isTop => dispatcher.dispatch(new UpdateChannelTopAction {
+                            channelId = this.channelId,
+                            value = isTop
+                        })
                     };
                     return new ChannelDetailScreen(actionModel: actionModel, viewModel: viewModel);
                 }
@@ -89,6 +86,12 @@ namespace ConnectApp.screens {
     }
     
     class _ChannelDetailScreenState : State<ChannelDetailScreen> {
+        const int _avatarNumber = 5;
+
+        float _getAvatarSize() {
+            return (MediaQuery.of(context: this.context).size.width - 16 * 2 - 16 * (_avatarNumber - 1)) / _avatarNumber;
+        }
+
         void _leaveChannel() {
             ActionSheetUtils.showModalActionSheet(new ActionSheet(
                 title: "确定退出当前群聊吗？",
@@ -171,46 +174,114 @@ namespace ConnectApp.screens {
             );
         }
 
-        Widget _buildOpenMembersScreenTapBar() {
-            return new GestureDetector(
-                onTap: () => this.widget.actionModel.pushToChannelMembers(),
-                child: new Container(
-                    color: CColors.Transparent,
-                    child: new Row(
-                        children: new List<Widget> {
-                            new Text(
-                                $"查看{this.widget.viewModel.channel?.memberCount ?? 0}名群成员",
-                                style: new TextStyle(
-                                    fontSize: 14,
-                                    fontFamily: "Roboto-Regular",
-                                    color: CColors.TextBody4
+        Widget _buildChannelMember() {
+            List<Widget> avatars = new List<Widget>();
+            for (int i = 0; i < _avatarNumber; i++) {
+                avatars.Add(this.widget.viewModel.members.Count > i
+                    ? this._buildAvatar(index: i)
+                    : new Container(width: 56, height: 56)
+                );
+            }
+            return new Column(
+                children: new List<Widget> {
+                    new Container(height: 16),
+                    new Container(
+                        color: CColors.White,
+                        padding: EdgeInsets.only(16, 16, 8),
+                        child: new Row(
+                            children: new List<Widget> {
+                                new Text("群聊成员", style: CTextStyle.PLargeBody),
+                                new Expanded(child: new Container()),
+                                new GestureDetector(
+                                    onTap: () => this.widget.actionModel.pushToChannelMembers(),
+                                    child: new Container(
+                                        color: CColors.Transparent,
+                                        child: new Row(
+                                            children: new List<Widget> {
+                                                new Text(
+                                                    $"查看{this.widget.viewModel.channel?.memberCount ?? 0}名群成员",
+                                                    style: new TextStyle(
+                                                        fontSize: 14,
+                                                        fontFamily: "Roboto-Regular",
+                                                        color: CColors.TextBody4
+                                                    )
+                                                ),
+                                                new Icon(
+                                                    icon: Icons.chevron_right,
+                                                    size: 20,
+                                                    color: Color.fromRGBO(199, 203, 207, 1)
+                                                )
+                                            }
+                                        )
+                                    )
                                 )
-                            ),
-                            new Icon(
-                                icon: Icons.chevron_right,
-                                size: 20,
-                                color: Color.fromRGBO(199, 203, 207, 1)
-                            )
-                        }
+                            }
+                        )
+                    ),
+                    new Container(
+                        color: CColors.White,
+                        padding: EdgeInsets.all(16),
+                        child: new Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: avatars
+                        )
                     )
-                )
+                }
             );
         }
 
-        float _getAvatarSize() {
-            return (MediaQuery.of(this.context).size.width - 32 - 16 * 4) / 5;
-        }
-
-        List<Widget> _buildAvatars() {
-            List<Widget> avatars = new List<Widget>();
-            for (int i = 0; i < 5; i++) {
-                avatars.Add(this.widget.viewModel.members.Count > i
-                    ? Avatar.User(this.widget.viewModel.members[i].user, this._getAvatarSize())
-                    : (Widget) new Container(width: 56, height: 56)
+        Widget _buildChannelSetting() {
+            if (!this.widget.viewModel.channel.joined) {
+                return new Column(
+                    children: new List<Widget> {
+                        new Container(height: 16),
+                        new GestureDetector(
+                            onTap: () => this.widget.actionModel.joinChannel(),
+                            child: new Container(
+                                color: CColors.White,
+                                height: 60,
+                                child: new Center(
+                                    child: new Text("加入群聊", style: CTextStyle.PLargeBlue)
+                                )
+                            )
+                        )
+                    }
                 );
             }
+            return new Column(
+                children: new List<Widget> {
+                    new Container(height: 16),
+                    _switchRow(
+                        "设为置顶",
+                        this.widget.viewModel.channel?.isTop ?? false,
+                        value => this.widget.actionModel.updateTop(obj: value)
+                    ),
+                    _switchRow(
+                        "消息免打扰",
+                        this.widget.viewModel.channel?.isMute ?? false,
+                        value => { }
+                    ),
+                    new Container(height: 16),
+                    new GestureDetector(
+                        onTap: this._leaveChannel,
+                        child: new Container(
+                            color: CColors.White,
+                            height: 60,
+                            child: new Center(
+                                child: new Text("退出群聊", style: CTextStyle.PLargeError)
+                            )
+                        )
+                    )
+                }
+            );
+        }
 
-            return avatars;
+        Widget _buildAvatar(int index) {
+            var user = this.widget.viewModel.members[index: index].user;
+            return new GestureDetector(
+                onTap: () => this.widget.actionModel.pushToUserDetail(obj: user.id),
+                child: Avatar.User(user: user, this._getAvatarSize())
+            );
         }
 
         Widget _buildContent() {
@@ -244,52 +315,14 @@ namespace ConnectApp.screens {
                                 )
                             )
                         ),
-                        new Container(height: 16),
-                        new Container(
-                            color: CColors.White,
-                            padding: EdgeInsets.only(16, 16, 8, 16),
-                            child: new Row(
-                                children: new List<Widget> {
-                                    new Text("群聊成员", style: CTextStyle.PLargeBody),
-                                    new Expanded(child: new Container()),
-                                    this._buildOpenMembersScreenTapBar()
-                                }
-                            )
-                        ),
-                        new Container(
-                            color: CColors.White,
-                            padding: EdgeInsets.only(16, 0, 16, 16),
-                            child: new Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: this._buildAvatars()
-                            )
-                        ),
-                        new Container(height: 16),
-                        this._switchRow(
-                            content: "设为置顶",
-                            value: this.widget.viewModel.channel?.isTop ?? false,
-                            onChanged: value => this.widget.actionModel.updateTop(value)),
-                        this._switchRow(
-                            content: "消息免打扰",
-                            value: this.widget.viewModel.channel?.isMute ?? false,
-                            onChanged: value => { }),
-                        new Container(height: 16),
-                        new GestureDetector(
-                            onTap: this._leaveChannel,
-                            child: new Container(
-                                color: CColors.White,
-                                height: 60,
-                                child: new Center(
-                                    child: new Text("退出群聊", style: CTextStyle.PLargeError)
-                                )
-                            )
-                        )
+                        this._buildChannelMember(),
+                        this._buildChannelSetting()
                     }
                 )
             );
         }
 
-        Widget _switchRow(string content, bool value, ValueChanged<bool> onChanged) {
+        static Widget _switchRow(string content, bool value, ValueChanged<bool> onChanged) {
             return new Container(
                 color: CColors.White,
                 padding: EdgeInsets.symmetric(16, 18),
@@ -297,12 +330,16 @@ namespace ConnectApp.screens {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: new List<Widget> {
                         new Expanded(
-                            child: new Text(content,
+                            child: new Text(
+                                data: content,
                                 style: CTextStyle.PLargeBody,
-                                overflow: TextOverflow.ellipsis)
+                                overflow: TextOverflow.ellipsis
+                            )
                         ),
-                        new CustomSwitch(value, onChanged, activeColor: CColors.PrimaryBlue),
-                    }));
+                        new CustomSwitch(value: value, onChanged: onChanged, activeColor: CColors.PrimaryBlue)
+                    }
+                )
+            );
         }
     }
 }
