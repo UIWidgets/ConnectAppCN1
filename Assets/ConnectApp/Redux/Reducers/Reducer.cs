@@ -2643,7 +2643,7 @@ namespace ConnectApp.redux.reducers {
                     }
 
                     action.members.ForEach(channelMember => {
-                        state.channelState.membersDict[channelMember.id] = channelMember;
+                        channel.membersDict[channelMember.id] = channelMember;
                         if (!channel.memberIds.Contains(channelMember.id)) {
                             channel.memberIds.Add(channelMember.id);
                         }
@@ -2661,6 +2661,16 @@ namespace ConnectApp.redux.reducers {
                     channel.memberCount++;
                     if (!channel.memberIds.Contains(state.loginState.loginInfo.userId)) {
                         channel.memberIds.Add(state.loginState.loginInfo.userId);
+                        channel.membersDict[state.loginState.loginInfo.userId] = new ChannelMember {
+                            channelId = action.channelId,
+                            id = state.loginState.loginInfo.userId,
+                            role = "member",
+                            user = new User {
+                                fullName = state.loginState.loginInfo.userFullName,
+                                avatar = state.loginState.loginInfo.userAvatar,
+                                id = state.loginState.loginInfo.userId
+                            }
+                        };
                     }
                     if (!state.channelState.joinedChannels.Contains(item: action.channelId)) {
                         state.channelState.joinedChannels.Add(item: action.channelId);
@@ -2827,24 +2837,26 @@ namespace ConnectApp.redux.reducers {
                 }
 
                 case PushPresentUpdateAction action: {
-                    if (state.channelState.membersDict.ContainsKey(action.presentUpdateData.userId)) {
-                        state.channelState.membersDict[action.presentUpdateData.userId].presenceStatus =
-                            action.presentUpdateData.status;
+                    foreach (var channel in state.channelState.channelDict.Values) {
+                        if (channel.membersDict.ContainsKey(action.presentUpdateData.userId)) {
+                            channel.membersDict[action.presentUpdateData.userId].presenceStatus =
+                                action.presentUpdateData.status;
+                        }
                     }
                     break;
                 }
 
                 case PushChannelAddMemberAction action: {
-                    if (state.channelState.membersDict.ContainsKey(action.memberData.id)) {
-                        state.channelState.membersDict[action.memberData.id]
-                            .updateFromSocketResponseChannelMemberChangeData(action.memberData);
-                    }
-                    else {
-                        state.channelState.membersDict[action.memberData.id] =
-                            ChannelMember.fromSocketResponseChannelMemberChangeData(action.memberData);
-                    }
                     if (state.channelState.channelDict.ContainsKey(action.memberData.channelId)) {
                         ChannelView channel = state.channelState.channelDict[action.memberData.channelId];
+                        if (channel.membersDict.ContainsKey(action.memberData.id)) {
+                            channel.membersDict[action.memberData.id]
+                                .updateFromSocketResponseChannelMemberChangeData(action.memberData);
+                        }
+                        else {
+                            channel.membersDict[action.memberData.id] =
+                                ChannelMember.fromSocketResponseChannelMemberChangeData(action.memberData);
+                        }
                         if (!channel.memberIds.Contains(action.memberData.id)) {
                             channel.memberIds.Add(action.memberData.id);
                             channel.memberCount++;
