@@ -2726,10 +2726,7 @@ namespace ConnectApp.redux.reducers {
                     }
                     else {
                         var messageIds = new List<string>();
-                        if (action.messages[0].id != channel.messageIds[0]) {
-                            break;
-                        }
-                        for (int i = action.messages.Count - 1; i >= 1; i--) {
+                        for (int i = action.messages.Count - 1; i >= 0; i--) {
                             var message = action.messages[i];
                             if (!channel.messageIds.Contains(message.id)) {
                                 messageIds.Add(message.id);

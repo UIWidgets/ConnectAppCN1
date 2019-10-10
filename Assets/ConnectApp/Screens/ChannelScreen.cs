@@ -158,6 +158,7 @@ namespace ConnectApp.screens {
         float messageBubbleWidth = 0;
         bool _showEmojiBoard = false;
         Dictionary<string, string> headers;
+        string viewImage;
 
         public override void didChangeDependencies() {
             base.didChangeDependencies();
@@ -216,6 +217,7 @@ namespace ConnectApp.screens {
         }
 
         public override Widget build(BuildContext context) {
+            
             if (this.showKeyboard || this.showEmojiBoard) {
                 SchedulerBinding.instance.addPostFrameCallback(_ => this._refreshController.scrollTo(0));
             }
@@ -255,6 +257,15 @@ namespace ConnectApp.screens {
                         : new Container(height: MediaQuery.of(this.context).viewInsets.bottom)
                 }
             );
+            
+            if (this.viewImage != null) {
+                ret = new Stack(
+                    children: new List<Widget> {
+                        ret,
+                        Positioned.fill(child: this._buildViewImage())
+                    }
+                );
+            }
 
             return new Container(
                 color: CColors.White,
@@ -266,6 +277,18 @@ namespace ConnectApp.screens {
                     )
                 )
             );
+        }
+
+        Widget _buildViewImage() {
+            return new GestureDetector(
+                onTap: () => { this.setState(() => { this.viewImage = null; }); },
+                child: new Container(
+                    color: Colors.black,
+                    child: CachedNetworkImageProvider.cachedNetworkImage(
+                        this.viewImage,
+                        fit: BoxFit.contain,
+                        headers: this.headers)));
+            
         }
 
         Widget _buildNewMessageNotification() {
@@ -498,13 +521,18 @@ namespace ConnectApp.screens {
         }
 
         Widget _buildImageMessageContent(ChannelMessageView message) {
-            return new _ImageMessage(
-                url: message.content,
-                size: 140,
-                ratio: 16.0f / 9.0f,
-                srcWidth: message.width,
-                srcHeight: message.height,
-                headers: this.headers
+            return new GestureDetector(
+                onTap: () => {
+                    this.setState(() => { this.viewImage = message.content; });
+                },
+                child: new _ImageMessage(
+                    url: message.content,
+                    size: 140,
+                    ratio: 16.0f / 9.0f,
+                    srcWidth: message.width,
+                    srcHeight: message.height,
+                    headers: this.headers
+                )
             );
         }
 
