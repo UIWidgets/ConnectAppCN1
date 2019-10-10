@@ -80,6 +80,35 @@ namespace ConnectApp.Models.Model {
         public bool left;
         public bool guideFinished;
         public bool showTerms;
+
+        public static ChannelMember fromSocketResponseChannelMemberChangeData(
+            SocketResponseChannelMemberChangeData data) {
+            return new ChannelMember {
+                id = data.id,
+                channelId = data.channelId,
+                user = data.user,
+                role = data.role,
+                presenceStatus = null,
+                isBanned = data.isBanned,
+                kicked = data.kicked,
+                left = data.left,
+                guideFinished = data.guideFinished,
+                showTerms = data.showTerms
+            };
+        }
+
+        public void updateFromSocketResponseChannelMemberChangeData(
+            SocketResponseChannelMemberChangeData data) {
+            this.id = data.id ?? this.id;
+            this.channelId = data.channelId ?? this.channelId;
+            this.user = data.user ?? this.user;
+            this.role = data.role ?? this.role;
+            this.isBanned = data.isBanned;
+            this.kicked = data.kicked;
+            this.left = data.left;
+            this.guideFinished = data.guideFinished;
+            this.showTerms = data.showTerms;
+        }
     }
 
     public class ChannelView {
@@ -108,6 +137,7 @@ namespace ConnectApp.Models.Model {
         public bool hasMore = true;
         public bool hasMoreNew = true;
         public List<string> memberIds;
+        public Dictionary<string, ChannelMember> membersDict;
         public int memberOffset;
         public bool atBottom = true;
 
@@ -115,6 +145,7 @@ namespace ConnectApp.Models.Model {
             return new ChannelView {
                 atAll = channel?.lastMessage?.mentionEveryone ?? false,
                 memberIds = new List<string>(),
+                membersDict = new Dictionary<string, ChannelMember>(),
                 id = channel?.id,
                 groupId = channel?.groupId,
                 thumbnail = channel?.thumbnail,
@@ -151,6 +182,7 @@ namespace ConnectApp.Models.Model {
             return new ChannelView {
                 atAll = false,
                 memberIds = new List<string>(),
+                membersDict = new Dictionary<string, ChannelMember>(),
                 id = channel?.id,
                 groupId = channel?.groupId,
                 thumbnail = channel?.thumbnail,
@@ -192,6 +224,44 @@ namespace ConnectApp.Models.Model {
             this.mentioned = 0;
             this.atAll = false;
             this.atMe = false;
+        }
+
+        public ChannelMember getMember(string userId) {
+            if (this.membersDict.TryGetValue(userId, out var member)) {
+                return member;
+            }
+
+            return null;
+        }
+
+        public void updateMessageUser(MessageUser user, bool addUserIfNotExist = true) {
+            if (this.membersDict.TryGetValue(user.id, out var member)) {
+                member.user.id = user.id;
+                member.user.username = user.username;
+                member.user.fullName = user.fullname;
+                member.user.avatar = user.avatar;
+                member.user.title = user.title;
+                member.user.coverImage = user.coverImage;
+                member.user.followCount = user.followCount;
+                member.presenceStatus = user.presenceStatus;
+                return;
+            }
+
+            if (addUserIfNotExist) {
+                this.membersDict[user.id] = new ChannelMember {
+                    user = new User {
+                        id = user.id,
+                        username = user.username,
+                        fullName = user.fullname,
+                        avatar = user.avatar,
+                        title = user.title,
+                        coverImage = user.coverImage,
+                        followCount = user.followCount
+                    },
+                    id = user.id,
+                    presenceStatus = user.presenceStatus
+                };
+            }
         }
     }
 

@@ -73,4 +73,5 @@
     [self setNeedsStatusBarAppearanceUpdate];
     
 }
+
 @end

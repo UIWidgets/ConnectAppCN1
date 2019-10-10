@@ -55,7 +55,7 @@ namespace ConnectApp.screens {
                             .ToList(),
                         publicChannels = state.channelState.publicChannels
                             .Select(channelId => state.channelState.channelDict[key: channelId])
-                            .Take(state.channelState.publicChannels.Count > 0
+                            .Take(state.channelState.joinedChannels.Count > 0
                                 ? 8
                                 : state.channelState.publicChannels.Count)
                             .ToList(),
@@ -81,9 +81,7 @@ namespace ConnectApp.screens {
                         pushToChannelDetail = channelId => dispatcher.dispatch(new MainNavigatorPushToChannelDetailAction {
                             channelId = channelId
                         }),
-                        fetchChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchChannels(
-                            viewModel.discoverPage + 1
-                        )),
+                        fetchChannels = () => dispatcher.dispatch<IPromise>(Actions.fetchChannels(1)),
                         joinChannel = (channelId, groupId) =>
                             dispatcher.dispatch<IPromise>(Actions.joinChannel(channelId: channelId, groupId: groupId))
                     };
@@ -139,7 +137,6 @@ namespace ConnectApp.screens {
 
         public override Widget build(BuildContext context) {
             base.build(context: context);
-            var enablePullUp = !this._hasJoinedChannel();
             return new Container(
                 padding: EdgeInsets.only(top: CCommonUtils.getSafeAreaTopPadding(context: context)),
                 color: CColors.White,
@@ -153,8 +150,8 @@ namespace ConnectApp.screens {
                                     color: CColors.Background,
                                     child: new SectionView(
                                         controller: this._refreshController,
-                                        enablePullDown: false,
-                                        enablePullUp: enablePullUp,
+                                        enablePullDown: true,
+                                        enablePullUp: false,
                                         onRefresh: this._onRefresh,
                                         hasBottomMargin: true,
                                         sectionCount: 2,
@@ -169,7 +166,7 @@ namespace ConnectApp.screens {
                                         },
                                         headerInSection: this._headerInSection,
                                         cellAtIndexPath: this._buildMessageItem,
-                                        footerWidget: enablePullUp ? null : new EndView(hasBottomMargin: true)
+                                        footerWidget: new EndView(hasBottomMargin: true)
                                     )
                                 )
                             )
@@ -333,11 +330,9 @@ namespace ConnectApp.screens {
         }
 
         void _onRefresh(bool up) {
-            if (!up) {
-                this.widget.actionModel.fetchChannels()
-                    .Then(() => this._refreshController.sendBack(false, mode: RefreshStatus.idle))
-                    .Catch(e => this._refreshController.sendBack(false, mode: RefreshStatus.idle));
-            }
+            this.widget.actionModel.fetchChannels()
+                .Then(() => this._refreshController.sendBack(up, mode: RefreshStatus.completed))
+                .Catch(e => this._refreshController.sendBack(up, mode: RefreshStatus.completed));
         }
     }
 }

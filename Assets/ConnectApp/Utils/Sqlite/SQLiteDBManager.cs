@@ -92,15 +92,15 @@ namespace ConnectApp.Utils {
             this.m_Connection.InsertAll(data, extra: "OR REPLACE");
         }
 
-        public IEnumerable<DBMessageLite> QueryMessages(string channelId, long maxNonce = -1, int maxCount = 5) {
-            if (maxNonce == -1) {
+        public IEnumerable<DBMessageLite> QueryMessages(string channelId, long maxKey = -1, int maxCount = 5) {
+            if (maxKey == -1) {
                 return this.m_Connection.Table<DBMessageLite>().Where(message => message.channelId == channelId)
-                    .OrderByDescending(message => message.nonce).Take(maxCount);
+                    .OrderByDescending(message => message.messageKey).Take(maxCount);
             }
             else {
                 return this.m_Connection.Table<DBMessageLite>().Where(message => message.channelId == channelId &&
-                                                                                 message.nonce < maxNonce)
-                    .OrderByDescending(message => message.nonce).Take(maxCount);
+                                                                                 message.messageKey < maxKey)
+                    .OrderByDescending(message => message.messageKey).Take(maxCount);
             }
         }
 

@@ -33,7 +33,7 @@ namespace ConnectApp.screens {
                     return new ChannelDetailScreenViewModel {
                         channel = channel,
                         members = state.channelState.channelDict[key: this.channelId].memberIds.Select(
-                            memberId => state.channelState.membersDict[key: memberId]
+                            memberId => channel.membersDict[key: memberId]
                         ).ToList()
                     };
                 },
